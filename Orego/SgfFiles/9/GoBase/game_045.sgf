@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Enda Hideki]
+BR[5p]
+PW[Takabayashi Masahiro]
+WR[5p]
+KM[5.5]
+DT[1988-08-20]
+PC[Japan]
+RE[B+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[gd];B[fc];W[eg];B[ff];W[fg];B[gf];W[dc];B[ec];W[de]
+;B[df];W[ef];B[dd];W[ce];B[cd];W[fe];B[ed];W[cf];B[gg];W[he]
+;B[ge];W[gc];B[hf];W[fb];B[eb];W[hd];B[hb];W[gb];B[fa];W[ha]
+;B[ic];W[fd];B[fh];W[eh];B[gh];W[hh];B[hi];W[bd];B[bc]
+)

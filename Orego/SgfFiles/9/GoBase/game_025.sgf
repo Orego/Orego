@@ -1,0 +1,20 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Hashiguchi Mika]
+BR[3p]
+PW[Ishida Atsushi]
+WR[4p]
+KM[5.5]
+DT[1988-04-02]
+PC[Japan]
+RE[W+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[gf];W[ce];B[ff];W[gc];B[dd];W[dg];B[fb];W[gb]
+;B[he];W[hd];B[fe];W[gd];B[cd];W[ec];B[dh];W[ch];B[eh];W[bd]
+;B[cf];W[bf];B[de];W[be];B[bh];W[ci];B[cg];W[bg];B[df];W[ah]
+;B[db];W[hf];B[hg];W[ie];B[eb];W[ig];B[ih];W[if];B[hh];W[bb]
+;B[ga];W[ha];B[fa];W[hb]
+)

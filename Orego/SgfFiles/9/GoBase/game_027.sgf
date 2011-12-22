@@ -1,0 +1,18 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Den Isei]
+BR[2p]
+PW[Aragaki Shum]
+WR[4p]
+KM[5.5]
+DT[1988-04-16]
+PC[Japan]
+RE[B+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[gf];B[gd];W[cd];B[fg];W[hd];B[hc];W[gg];B[cb];W[cg]
+;B[dg];W[df];B[ef];W[dh];B[eh];W[he];B[de];W[eg];B[gh];W[gc]
+;B[ce];W[be];B[bf];W[cf];B[bg];W[ff];B[dg];W[fc];B[ec]
+)

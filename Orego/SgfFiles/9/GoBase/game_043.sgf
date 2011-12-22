@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Takabayashi Masahiro]
+BR[5p]
+PW[Aragaki Shum]
+WR[4p]
+KM[5.5]
+DT[1988-08-06]
+PC[Japan]
+RE[B+R]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[ce];W[fg];B[gd];W[fd];B[fe];W[gc];B[hd];W[gf]
+;B[fc];W[ed];B[dd];W[ec];B[fb];W[eb];B[gb];W[cc];B[bc];W[bb]
+;B[bd];W[df];B[de];W[ab];B[ea];W[db];B[eg];W[eh];B[dh];W[fh]
+;B[dc];W[da];B[cb];W[ca];B[fa];W[cg];B[ch];W[ef];B[bg]
+)

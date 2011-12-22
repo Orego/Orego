@@ -1,0 +1,21 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Kurahashi Masayuki]
+BR[2p]
+PW[Den Isei]
+WR[2p]
+KM[5.5]
+DT[1988-02-20]
+PC[Japan]
+RE[B+3.5]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[ce];W[fc];B[gf];W[dd];B[fe];W[de];B[df];W[cf]
+;B[cd];W[cc];B[bf];W[cg];B[dg];W[bg];B[dc];W[ed];B[bc];W[cb]
+;B[be];W[dh];B[eh];W[ch];B[db];W[eg];B[ef];W[fg];B[gd];W[bb]
+;B[ab];W[eb];B[ba];W[ec];B[ca];W[he];B[gg];W[fh];B[hd];W[fd]
+;B[ff];W[hc];B[gh];W[ei];B[hf];W[gc];B[ie];W[ha];B[gi];W[ea]
+;B[fi];W[eh];B[ag];W[ah];B[af];W[ic]
+)

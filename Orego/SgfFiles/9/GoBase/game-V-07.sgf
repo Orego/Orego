@@ -1,0 +1,22 @@
+(
+;
+FF[4]
+SZ[9]
+EV[TV game]
+RO[7]
+PB[Sasaka Shiro]
+BR[5 dan]
+PW[Ma Xiaochun]
+WR[9 dan]
+KM[5.5]
+DT[1995-08-12]
+PC[Japan]
+RE[W+T]
+SO[http://gobase.org/9x9/book4/]
+
+;B[ee];W[ge];B[ce];W[cd];B[dd];W[fg];B[eg];W[cc];B[be];W[fb]
+;B[fh];W[ff];B[gh];W[ec];B[hf];W[he];B[fd];W[gd];B[gf];W[fe]
+;B[dc];W[ef];B[db];W[dg];B[eh];W[df];B[de];W[dh];B[gg];W[bg]
+;B[eb];W[fc];B[fa];W[ga];B[ea];W[if];B[ig];W[ie];B[hh];W[gb]
+;B[bf];W[af];B[ae];W[ag];B[di];W[ci];B[ei];W[cg];B[ed];W[cb]
+)

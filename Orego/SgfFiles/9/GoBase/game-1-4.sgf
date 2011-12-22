@@ -1,0 +1,28 @@
+(
+;
+FF[4]
+SZ[9]
+EV[Womens's 9x9]
+RO[1]
+PB[Inori Yoko]
+BR[1p]
+PW[Aoba Kaori]
+WR[3p]
+KM[6.5]
+DT[2002-01-02]
+PC[Japan]
+RE[W+7.5]
+AP[sgf2misc:3.0.8]
+ B[gd];W[cf];B[df];W[de];B[ee];W[dd];B[ed];W[hd];B[cg];W[bf]
+;B[dc];W[cc];B[cb];W[ge];B[cd];W[ce];B[bc];W[dg];B[ef];W[ch]
+;B[gc];W[gg];B[dh];W[eg];B[fg];W[eh];B[fh];W[di];B[gh];W[ff]
+;B[hf];W[ec];B[fd];W[bd];B[he];W[cc];B[db];W[bb];B[cd];W[hh]
+;B[hg];W[cc];B[fi];W[eb];B[cd];W[ba];B[fb];W[da];B[fc];W[ea]
+;B[fa];W[ca];B[gf];W[ei]
+;B[];W[]
+
+TW[aa][ab][cb][db][ac][bc][cc][dc][ad][cd][ae][be][af][ag]
+  [bg][cg][ah][bh][dh][ai][bi][ci]
+TB[ga][ha][ia][gb][hb][ib][hc][ic][hd][id][fe][ge][ie][ff]
+  [if][gg][ig][hh][ih][gi][hi][ii]
+)

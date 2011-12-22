@@ -1,0 +1,20 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Izumo Tetsuya]
+BR[3p]
+PW[Yamada Shiho]
+WR[1p]
+KM[5.5]
+DT[1988-01-09]
+PC[Japan]
+RE[W+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[ce];W[fc];B[gf];W[dd];B[de];W[hf];B[gg];W[fe]
+;B[ff];W[hg];B[dc];W[gh];B[fh];W[ef];B[fg];W[ed];B[cd];W[cc]
+;B[cb];W[bc];B[ec];W[fd];B[bb];W[df];B[dh];W[eb];B[db];W[cf]
+;B[bd];W[be];B[ac];W[ch];B[hh];W[ih];B[gi];W[dg];B[eh];W[bg]
+;B[ae];W[bf];B[fb];W[gb];B[ea];W[hc];B[ci];W[bi];B[di];W[ga]
+)

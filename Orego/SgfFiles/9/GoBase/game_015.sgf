@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Takiguchi Masaki]
+BR[5p]
+PW[Takabayashi Masahiro]
+WR[5p]
+KM[5.5]
+DT[1988-01-23]
+PC[Japan]
+RE[B+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[fg];W[ce];B[ec];W[cc];B[gc];W[gg];B[gh];W[hh]
+;B[hg];W[gf];B[hi];W[ef];B[eg];W[df];B[dg];W[cg];B[ch];W[ff]
+;B[bg];W[cf];B[eh];W[fb];B[eb];W[hc];B[hd];W[fc];B[gb];W[fd]
+;B[fa];W[hb];B[gd];W[fe];B[hf];W[he];B[ie];W[ih];B[if]
+)

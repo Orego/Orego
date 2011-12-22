@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Yamada Wakio]
+BR[4p]
+PW[Kurahashi Masayuki]
+WR[1p]
+KM[5.5]
+DT[1987-10-17]
+PC[Japan]
+RE[W+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[gc];B[ec];W[ge];B[gf];W[hf];B[ff];W[cf];B[hg];W[he]
+;B[cg];W[bg];B[bh];W[dg];B[ch];W[df];B[cd];W[cc];B[bd];W[fh]
+;B[dh];W[dd];B[de];W[dc];B[ce];W[ed];B[fe];W[hh];B[gh];W[ig]
+;B[gg];W[gi]
+)

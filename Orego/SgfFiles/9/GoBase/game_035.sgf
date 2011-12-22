@@ -1,0 +1,20 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Minematsu Masaki]
+BR[3p]
+PW[Sumi Shinsuke]
+WR[3p]
+KM[5.5]
+DT[1988-06-11]
+PC[Japan]
+RE[B+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[fg];W[dd];B[de];W[ce];B[cf];W[ed];B[cd];W[be];B[cc];W[bf]
+;B[eb];W[cg];B[df];W[dg];B[fe];W[fd];B[ge];W[fb];B[db];W[gd]
+;B[gb];W[he];B[hf];W[hd];B[gg];W[fa];B[bd];W[eg];B[ff];W[fh]
+;B[gh];W[eh];B[hb];W[fc];B[ib];W[ie];B[ic];W[ha];B[ae];W[bg]
+;B[fi];W[ei];B[gi]
+)

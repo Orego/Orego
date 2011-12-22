@@ -1,0 +1,20 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Enda Yoichi]
+BR[4p]
+PW[Takiguchi Masaki]
+WR[5p]
+KM[5.5]
+DT[1988-01-30]
+PC[Japan]
+RE[B+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[ce];W[fg];B[gd];W[hd];B[fd];W[hc];B[eg];W[eh]
+;B[dh];W[dg];B[ef];W[ch];B[fh];W[di];B[gg];W[gf];B[ff];W[bf]
+;B[gb];W[gc];B[fb];W[hg];B[hh];W[ie];B[ig];W[hf];B[hb];W[fc]
+;B[ec];W[ic];B[cf];W[be];B[bg];W[cd];B[cg];W[db];B[eb];W[dd]
+;B[ed];W[bb];B[dc];W[cc];B[da]
+)

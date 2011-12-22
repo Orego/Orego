@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Yamada Noriyoshi]
+BR[1p]
+PW[Enda Yoichi]
+WR[4p]
+KM[5.5]
+DT[1988-02-06]
+PC[Japan]
+RE[W+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ge];B[gf];W[cf];B[ff];W[fc];B[dc];W[cd];B[cc];W[fd]
+;B[bd];W[be];B[dd];W[eg];B[fh];W[ce];B[eh];W[dh];B[fb];W[gb]
+;B[eb];W[hc];B[bc];W[dg];B[he];W[hd];B[fe];W[gd];B[bg];W[bh]
+;B[hf];W[fg];B[gg];W[ei];B[gh];W[ad];B[ac];W[ae];B[fi];W[di]
+)

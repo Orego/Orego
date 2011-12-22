@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Saito Tadashi]
+BR[1p]
+PW[Enda Hideki]
+WR[5p]
+KM[5.5]
+DT[1988-08-27]
+PC[Japan]
+RE[B+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[gd];B[gf];W[ec];B[dc];W[db];B[eb];W[dd];B[ed];W[cc]
+;B[fc];W[dc];B[fb];W[fd];B[gc];W[eg];B[df];W[gg];B[hf];W[dg]
+;B[cf];W[cg];B[bf];W[bd];B[bg];W[hg];B[ff];W[hc];B[hb];W[hd]
+;B[ib];W[fg];B[ch];W[dh];B[bh]
+)

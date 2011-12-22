@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Tanaka Chieko]
+BR[3p]
+PW[Yanada Naomi]
+WR[1p]
+KM[5.5]
+DT[1988-05-21]
+PC[Japan]
+RE[W+T]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ec];B[eg];W[gd];B[dc];W[db];B[eb];W[fb];B[ed];W[ea]
+;B[fc];W[gc];B[eb];W[cc];B[ec];W[bb];B[he];W[ge];B[gf];W[ff]
+;B[gg];W[cf];B[gb];W[fa];B[fe];W[hd];B[ch];W[hf];B[hg];W[ie]
+;B[bd];W[cd]
+)

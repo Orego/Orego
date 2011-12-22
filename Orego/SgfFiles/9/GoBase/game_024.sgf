@@ -1,0 +1,19 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Yanagawa Hiromasa]
+BR[5p]
+PW[Ishida Atsushi]
+WR[4p]
+KM[5.5]
+DT[1988-03-26]
+PC[Japan]
+RE[W+R]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[gd];B[eg];W[cd];B[ec];W[cg];B[gf];W[fc];B[cc];W[bc]
+;B[fb];W[gb];B[db];W[he];B[hb];W[fa];B[ea];W[eb];B[ce];W[dd]
+;B[ed];W[da];B[be];W[bd];B[dc];W[de];B[bg];W[df];B[ef];W[bh]
+;B[bb];W[hf];B[ch];W[bf];B[ah];W[ag];B[bi];W[ai]
+)

@@ -1,0 +1,66 @@
+Computer Go Test Collection
+===========================
+
+The original Computer Go Test Collection Version 1.0 (CGTC 1.0), located at
+http://www.cs.ualberta.ca/~mmueller/cgo/cgtc.html
+was developed by Martin Mueller in 1995.
+The collection was described in an appendix of his PhD thesis.
+
+The current collection is based on the "specialized collections" subset of the
+CGTC 1.0, as described in
+http://www.cs.ualberta.ca/~mmueller/cgo/special.html
+It has been greatly improved in content and restructured to take advantage of
+current regression testing tools based on GTP, the Go Text Protocol
+http://www.lysator.liu.se/~gunnar/gtp/
+Test cases are now split into individual files. Testing uses a .tst script
+containing GTP commands.
+
+CGTC contains realistic full-board test problems taken from computer Go games.
+Some problems have been edited by hand to make them more clear.
+A problem typically consists of a test position in sgf format and one or more
+good answers specified in a .tst file using the GTP command reg_genmove.
+
+Example (from life_death.tst):
+
+  loadsgf ./sgf/life_death/life_death.3.sgf 1
+  60 reg_genmove white
+  #? [E18|K18]
+
+This sequence of GTP commands loads an sgf file life_death.3.sgf, goes to the
+position *before* move 1, and calls the command reg_genmove white to generate
+a move for white. The number 60 is used to identify the test within the .tst
+file in case of a failure. The result of reg_genmove returned by the engine is
+a move to play. This move is compared with the correct answer(s) in the line
+below. In this case there are two possible correct answers, E18 or K18. If the
+program returns one of these two moves, it passes the test. If the program
+returns any other move, it fails the test.
+
+Running the Test Collection
+===========================
+
+The test collection can easily be run using the regression test tool
+GtpRegress from GoGui. GtpRegress additionally uses the GTP extension command
+cputime if supported by the Go program.
+Here is how to run it (using 'gnugo --mode gtp' as an example for the Go
+program):
+1. Download the GoGui package from http://gogui.sourceforge.net and
+   unpack it. The regression test tool is in lib/gtpregress.jar
+2. Change into the directory of the test collection.
+3. Run: java -jar gtpregress.jar "gnugo --mode gtp" *.tst
+4. The results will be formatted as HTML files. Open index.html for
+   the summary.
+
+Go engines that do not support the loadsgf command can use the tool
+GtpAdapter from GoGui, which translates loadsgf commands into a sequence
+of play commands.
+
+Feedback
+========
+
+We welcome feedback on the test set: modifications and additions to the test
+cases, alternative good (or bad) moves, and comments about which types of
+tests are most useful.
+
+Martin Mueller (mmueller)
+Markus Enzenberger (emarkus)
+email domain: cs.ualberta.ca

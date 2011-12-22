@@ -1,0 +1,21 @@
+(
+;
+FF[4]
+SZ[9]
+PB[Yada Naomi]
+BR[1p]
+PW[Aragaki Shum]
+WR[4p]
+KM[5.5]
+DT[1988-04-30]
+PC[Japan]
+RE[B+R]
+SO[http://gobase.org/9x9/book/]
+AP[sgf2misc:3.1.9]
+;B[ee];W[ce];B[cd];W[gd];B[de];W[ff];B[eg];W[bd];B[be];W[fg]
+;B[eh];W[cc];B[dd];W[ae];B[bf];W[bb];B[db];W[cb];B[fb];W[ac]
+;B[gh];W[fh];B[fi];W[gg];B[hh];W[ef];B[df];W[hg];B[hc];W[dg]
+;B[dh];W[cg];B[ch];W[ei];B[di];W[ih];B[gi];W[gc];B[gb];W[hd]
+;B[hb];W[hi];B[ii];W[dc];B[ig];W[ec];B[hf];W[fe];B[cf];W[fc]
+;B[eb]
+)
