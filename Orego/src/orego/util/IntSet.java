@@ -92,7 +92,12 @@ public class IntSet {
 			// If we have different universes, we're not equal.
 			return false;
 		}
-		return this.isSubset(that) && that.isSubset(this);
+		for (int i = 0; i < size; i++) {
+			if (data[i] != that.data[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/** Returns the ith element of this list. */
