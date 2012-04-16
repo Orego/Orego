@@ -72,16 +72,6 @@ public class IntList {
 		return data[i];
 	}
 
-	/**
-	 * Removes the element at index i and returns the last element, which is
-	 * moved to replace the deleted element.
-	 */
-	public int removeAt(int i) {
-		size--;
-		data[i] = data[size];
-		return data[i];
-	}
-
 	/** Removes and returns the last element of this list. */
 	public int removeLast() {
 		size--;

@@ -68,17 +68,6 @@ public class IntListTest {
 	}
 
 	@Test
-	public void testRemoveAt() {
-		list.add(5);
-		list.add(8);
-		list.add(3);
-		assertEquals(3, list.removeAt(0));
-		assertEquals(2, list.size());
-		assertEquals(3, list.get(0));
-		assertEquals(8, list.get(1));
-	}
-
-	@Test
 	public void testRemoveLast() {
 		list.add(5);
 		list.add(8);
