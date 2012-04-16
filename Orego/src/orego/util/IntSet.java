@@ -81,9 +81,10 @@ public class IntSet {
 		if (this == obj) {
 			return true;
 		}
-		// We use instanceof because we could be .equals to a subclass of
-		// IntSet, and it implicitly does a check to make sure that is not null.
-		if (!(obj instanceof IntSet)) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		IntSet that = (IntSet) obj;

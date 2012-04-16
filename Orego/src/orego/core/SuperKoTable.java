@@ -32,6 +32,7 @@ public class SuperKoTable {
 		if (key == 0) {
 			containsZero = true;
 		} else {
+			// TODO Use improved version from Sedgewick, p. 461
 			int slot = abs((int) key) % data.length;
 			if (slot < 0) {
 				slot = data.length - 1;

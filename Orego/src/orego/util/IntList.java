@@ -5,7 +5,8 @@ import static orego.core.Coordinates.*;
 /**
  * Similar to java.util.ArrayList<Integer>, but avoids various overhead such as
  * wrappers. This class is much less safe than ArrayList; for example, you can
- * set a key beyond the size of the array. This is in the name of speed.
+ * set a key beyond the size of the array (although an assertion checks this).
+ * This is in the name of speed.
  * <p>
  * The addIfNotPresent() method allows an IntList to function as a set. If the
  * keys come from a small, finite set, IntSet or BitVector may be more
@@ -118,7 +119,7 @@ public class IntList {
 		if (size > 0) {
 			result += pointToString(data[0]);
 			for (int i = 1; i < size; i++) {
-				result += " " + pointToString(data[i]);
+				result += ", " + pointToString(data[i]);
 			}
 		}
 		return "(" + result + ")";

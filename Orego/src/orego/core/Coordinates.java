@@ -79,6 +79,7 @@ public final class Coordinates {
 	 */
 	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
 
+	// TODO We often use LAST_POINT_ON_BOARD + 1 as an array size. Would that be a better constant?
 	/** Highest index of any point on the board. */
 	public static final int LAST_POINT_ON_BOARD = BOARD_WIDTH * (SOUTH + EAST);
 
@@ -345,7 +346,6 @@ public final class Coordinates {
 		int rowd = Math.abs(row(p1) - row(p2));
 		int cold = Math.abs(column(p1) - column(p2));
 		return Math.sqrt(rowd*rowd+cold*cold);
-		
 	}
 	
 }

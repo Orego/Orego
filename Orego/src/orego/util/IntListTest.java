@@ -102,7 +102,7 @@ public class IntListTest {
 	public void testToStringAsPoints() {
 		list.add(at("e2"));
 		list.add(at("b1"));
-		assertEquals("(E2 B1)", list.toStringAsPoints());
+		assertEquals("(E2, B1)", list.toStringAsPoints());
 	}
 
 }

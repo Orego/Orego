@@ -1,7 +1,7 @@
 package orego.util;
 
 /**
- * A pool of objects of type T. Ths allows for manual memory management of, for
+ * A pool of objects of type T. This allows for manual memory management of, for
  * example, tree nodes.
  * 
  * To fill the pool with objects, create them and pass them to free().
