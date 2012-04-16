@@ -3,6 +3,7 @@ package orego.experiment;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Board.MAX_MOVES_PER_GAME;
 import orego.core.Board;
 import orego.policy.*;
 import orego.policy.Policy;
@@ -21,6 +22,9 @@ public class Benchmark {
 	/** Indicates that a playout ended normally. */
 	public static final int PLAYOUT_OK = 0;
 
+	/** Indicates that a playout ran too long and was aborted. */
+	public static final int PLAYOUT_TOO_LONG = 2;
+	
 	/** The policy whose speed is being tested. */
 	public static final Policy POLICY = new EscapePolicy(new PatternPolicy(
 			new CapturePolicy()));
@@ -67,6 +71,10 @@ public class Benchmark {
 	/** Runs one playout. */
 	public static int playout(Board board) {
 		do {
+			if (board.getTurn() >= MAX_MOVES_PER_GAME) {
+				// Playout ran out of moves, probably due to superko
+				return PLAYOUT_TOO_LONG;
+			}
 			POLICY.selectAndPlayOneMove(RANDOM, board);
 			if (board.getPasses() == 2) {
 				return PLAYOUT_OK;
