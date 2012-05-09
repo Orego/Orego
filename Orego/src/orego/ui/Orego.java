@@ -44,10 +44,11 @@ public class Orego {
 
 	/**
 	 * Packages to try finding players in. If no class is found in the first,
-	 * the second is tried, and so on.
+	 * the second is tried, and so on. The last, empty string in this array
+	 * allows the user to specify a specific, non-Orego package.
 	 */
 	private static final String[] PLAYER_PACKAGES = { "orego.mcts",
-			"orego.play" };
+			"orego.play", "" };
 
 	/**
 	 * @param args
@@ -407,7 +408,7 @@ public class Orego {
 			}
 			for (String pkg : PLAYER_PACKAGES) {
 				String qualifiedPlayerClass = playerClass;
-				if (!qualifiedPlayerClass.startsWith("orego.")) {
+				if (!qualifiedPlayerClass.startsWith("orego.") && pkg.length() > 0) {
 					qualifiedPlayerClass = pkg + "." + qualifiedPlayerClass;
 				}
 				Class<Playable> c;
