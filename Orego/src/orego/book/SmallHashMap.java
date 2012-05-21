@@ -2,6 +2,7 @@ package orego.book;
 
 import static java.lang.Math.*;
 import static orego.core.Coordinates.*;
+import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import java.io.*;
 
 /**
@@ -34,7 +35,7 @@ public class SmallHashMap implements Serializable {
 
 	/** Returns true if this map contains key. */
 	public boolean containsKey(long key) {
-		int slot = abs((int)key) % keys.length;
+		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			if ((keys[slot] == key) && (values[slot] != NO_POINT)) {
 				return true;
@@ -47,7 +48,7 @@ public class SmallHashMap implements Serializable {
 
 	/** Returns the value associated with key. */
 	public int get(long key) {
-		int slot = abs((int)key) % keys.length;
+		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			if ((keys[slot] == key) && (values[slot] != NO_POINT)) {
 				return values[slot];
@@ -78,7 +79,7 @@ public class SmallHashMap implements Serializable {
 	 * Associates key with value. Does not check that this map is large enough.
 	 */
 	protected void putAfterTableKnownLargeEnough(long key, int value) {
-		int slot = abs((int)key) % keys.length;
+		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			//If this map already has the value, it doesn't do anything.
 			if ((keys[slot] == key) && (values[slot] != NO_POINT)) {

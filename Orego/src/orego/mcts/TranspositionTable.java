@@ -2,6 +2,7 @@ package orego.mcts;
 
 import static java.lang.Math.abs;
 import static orego.core.Coordinates.BOARD_AREA;
+import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import static orego.experiment.Debug.debug;
 import orego.util.ListNode;
 import orego.util.Pool;
@@ -82,7 +83,7 @@ public class TranspositionTable {
 
 	/** Returns the node associated with hash, or null if there is no such node. */
 	public synchronized SearchNode findIfPresent(long hash) {
-		int slot = (int)(abs(hash % table.length));
+		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
 		// abs(Long.MIN_VALUE) returns a negative number! The next line deals with this.
 		if (slot < 0) {
 			slot = table.length - 1;
@@ -103,7 +104,7 @@ public class TranspositionTable {
 	 * in the pool, returns null.
 	 */
 	public synchronized SearchNode findOrAllocate(long hash) {
-		int slot = (int)(abs(hash % table.length));
+		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
 		// abs(Long.MIN_VALUE) returns a negative number! The next line deals with this.
 		if (slot < 0) {
 			slot = table.length - 1;

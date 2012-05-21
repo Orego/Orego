@@ -57,7 +57,7 @@ public class HashMapTest {
 	public void testSmallGetKeys() {
 		small.put(1L, 10);
 		small.put(-5L, 80);
-		assertArrayEquals(new long[] {0L, 1L, -5L, 0L}, small.getKeys());
+		assertArrayEquals(new long[] {0L, 1L, 0L, -5L}, small.getKeys());
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class HashMapTest {
 		big.put(1L, "foo");
 		assertArrayEquals(new long[] {0L, 1L}, big.getKeys());
 		big.put(-5L, "bar");
-		assertArrayEquals(new long[] {0L, 1L, -5L, 0L}, big.getKeys());
+		assertArrayEquals(new long[] {0L, 1L, 0L, -5L}, big.getKeys());
 	}
 	
 	@Test

@@ -172,6 +172,7 @@ public class OregoTest {
 		oregoOut.readLine(); // read out the extra return
 	}
 
+	// TODO This test occasionally fails
 	/** Tests the that genmove code resigns when appropriate. */
 	@Test
 	public void testResign() throws IOException {

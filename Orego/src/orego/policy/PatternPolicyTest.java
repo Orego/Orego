@@ -570,6 +570,7 @@ public class PatternPolicyTest {
 		}
 	}
 
+	// TODO This test occasionally fails
 	@Test
 	public void testLocalEdge5() {
 		if (BOARD_WIDTH == 19) {

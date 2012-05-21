@@ -1,6 +1,7 @@
 package orego.book;
 
 import static java.lang.Math.*;
+import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import java.io.*;
 
 /**
@@ -33,7 +34,7 @@ public class BigHashMap<V> implements Serializable {
 
 	/** True if this map contains key. */
 	public boolean containsKey(long key) {
-		int slot = abs((int) key) % keys.length;
+		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			if ((keys[slot] == key) && (values[slot] != null)) {
 				return true;
@@ -46,7 +47,7 @@ public class BigHashMap<V> implements Serializable {
 
 	/** Returns the value associated with key. */
 	public V get(long key) {
-		int slot = abs((int) key) % keys.length;
+		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			if ((keys[slot] == key) && (values[slot] != null)) {
 				return values[slot];
@@ -83,7 +84,7 @@ public class BigHashMap<V> implements Serializable {
 	 * Associates key with value. Does not check that this map is large enough.
 	 */
 	protected void putAfterTableKnownLargeEnough(long key, V value) {
-		int slot = abs((int) key) % keys.length;
+		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			if ((keys[slot] == key) || (values[slot] == null)) {
 				keys[slot] = key;

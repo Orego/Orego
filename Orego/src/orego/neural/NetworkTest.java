@@ -96,6 +96,7 @@ public class NetworkTest {
 		assertTrue(weightsSkip[BLACK][at("c1")][1][at("a1")] > 0);
 	}
 
+	// TODO This test occasionally fails
 	/**
 	 * Makes sure that the network with hidden units can learn correctly.
 	 */
