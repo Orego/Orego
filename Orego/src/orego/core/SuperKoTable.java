@@ -14,6 +14,12 @@ public class SuperKoTable {
 	public static final long EMPTY = 0;
 
 	/**
+	 * Bit mask to make hash codes positive. Math.abs() won't work because
+	 * abs(Integer.minValue()) < 0.
+	 */
+	public static final int IGNORE_SIGN_BIT = 0x7fffffff;
+
+	/**
 	 * True if the special value 0 has been stored. Because this value is used
 	 * to mark an empty slot, we can't look it up in the usual way. Instead, we
 	 * just check this field.
@@ -32,11 +38,7 @@ public class SuperKoTable {
 		if (key == 0) {
 			containsZero = true;
 		} else {
-			// TODO Use improved version from Sedgewick, p. 461
-			int slot = abs((int) key) % data.length;
-			if (slot < 0) {
-				slot = data.length - 1;
-			}
+			int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
 			while (data[slot] != EMPTY) {
 				if (data[slot] == key) {
 					return;
@@ -52,10 +54,7 @@ public class SuperKoTable {
 		if (key == 0) {
 			return containsZero;
 		} else {
-			int slot = abs((int) key) % data.length;
-			if (slot < 0) {
-				slot = data.length - 1;
-			}
+			int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
 			while (data[slot] != EMPTY) {
 				if (data[slot] == key) {
 					return true;
