@@ -2005,7 +2005,7 @@ public class BoardTest {
 		board.copyDataFrom(backup);
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (board.getColor(p) != VACANT) {
-				final IntSet liberties = board.getLiberties(p);
+				IntSet liberties = board.getLiberties(p);
 				if (liberties.size() > 0) {
 					liberties.removeKnownPresent(liberties.get(0));
 				}

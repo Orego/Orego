@@ -160,7 +160,20 @@ public class IntSetTest {
 		other3.add(5);
 		other3.add(4);
 		// Transitivity
-		assertTrue(set.equals(other) && other.equals(other3)
-				&& set.equals(other3));
+		assertEquals(set, other);
+		assertEquals(other, other3);
+		assertEquals(set, other3);
 	}
+	
+	@Test
+	public void testSubset() {
+		IntSet other = new IntSet(LAST_POINT_ON_BOARD + 1);
+		set.add(4);
+		set.add(5);
+		other.add(4);
+		other.add(5);
+		other.add(3);
+		assertFalse(set.equals(other));
+	}
+
 }

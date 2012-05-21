@@ -92,8 +92,11 @@ public class IntSet {
 			// If we have different universes, we're not equal.
 			return false;
 		}
+		if (that.size != size) {
+			return false;
+		}
 		for (int i = 0; i < size; i++) {
-			if (data[i] != that.data[i]) {
+			if (!that.contains(data[i])) {
 				return false;
 			}
 		}
