@@ -13,7 +13,7 @@ public class ExperimentConfiguration {
 //////	 "/usr/local/bin/gnugo --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
-	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin";
+	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/git/Orego/Orego/bin";
 
 	/**
 	 * The host from which commands are given must be listed first for
@@ -50,7 +50,17 @@ public class ExperimentConfiguration {
 	 */
 	 public static final String[] CONDITIONS = {
 		 "threads=1 msec=1000",
+		 "threads=1 msec=2000",
+		 "threads=1 msec=4000",
+		 "threads=1 msec=8000",
+		 "threads=1 msec=16000",
+		 "threads=1 msec=1000 book=FusekiBook",
+		 "threads=1 msec=2000 book=FusekiBook",
+		 "threads=1 msec=4000 book=FusekiBook",
+		 "threads=1 msec=8000 book=FusekiBook",
+		 "threads=1 msec=16000 book=FusekiBook",
 	 };
+
 //	public static String[] CONDITIONS;
 //
 //	static {
