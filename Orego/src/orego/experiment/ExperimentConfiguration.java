@@ -20,7 +20,8 @@ public class ExperimentConfiguration {
 	 * KillExperiment to work.
 	 */
 	public static final String[] HOSTS = { "fido.bw01.lclark.edu",
-			"n001.bw01.lclark.edu", "n002.bw01.lclark.edu",
+			"n001.bw01.lclark.edu",
+			"n002.bw01.lclark.edu",
 			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };
 
 	/**
@@ -49,16 +50,10 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=1000",
-		 "threads=1 msec=2000",
 		 "threads=1 msec=4000",
 		 "threads=1 msec=8000",
-		 "threads=1 msec=16000",
-		 "threads=1 msec=1000 book=FusekiBook",
-		 "threads=1 msec=2000 book=FusekiBook",
 		 "threads=1 msec=4000 book=FusekiBook",
 		 "threads=1 msec=8000 book=FusekiBook",
-		 "threads=1 msec=16000 book=FusekiBook",
 	 };
 
 //	public static String[] CONDITIONS;
