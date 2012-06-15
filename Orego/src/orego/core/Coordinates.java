@@ -256,7 +256,6 @@ public final class Coordinates {
 	 */
 	protected static int[] findLargeKnightNeighborhood(int p) {
 		int r = row(p), c = column(p);
-		// TODO Would it speed things up to list closer points first?
 		int validOffset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
 				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
 				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
