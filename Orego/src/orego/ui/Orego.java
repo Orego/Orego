@@ -34,9 +34,32 @@ import orego.play.UnknownPropertyException;
  */
 public class Orego {
 
-	// TODO Is there some way to automatically update this?
-	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "7.10";
+	public static final String[] DEFAULT_GTP_COMMANDS = { //
+			"boardsize", // comments keep the commands on
+			"clear_board", // separate lines in the event of a
+			"final_score", // source -> format
+			"genmove", //
+			"genmove_black", //
+			"genmove_white", //
+			"black", "white", //
+			"known_command", //
+			"komi", //
+			"list_commands", //
+			"loadsgf", //
+			"name", //
+			"play", //
+			"protocol_version", //
+			"reg_genmove", //
+			"showboard", //
+			"time_left", //
+			"time_settings", //
+			"quit", //
+			"undo", //
+			"version", //
+			"kgs-genmove_cleanup", //
+			"gogui-analyze_commands", //
+			"kgs-game_over", //
+	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
 	public static final int GTP_VERSION = 2;
@@ -46,8 +69,12 @@ public class Orego {
 	 * the second is tried, and so on. The last, empty string in this array
 	 * allows the user to specify a specific, non-Orego package.
 	 */
-	private static final String[] PLAYER_PACKAGES = { "orego.mcts",
+	public static final String[] PLAYER_PACKAGES = { "orego.mcts",
 			"orego.play", "" };
+
+	// TODO Is there some way to automatically update this?
+	/** String to return in response to version command. */
+	public static final String VERSION_STRING = "7.10";
 
 	/**
 	 * @param args
@@ -104,33 +131,7 @@ public class Orego {
 		handleCommandLineArguments(args);
 		player.reset();
 		commands = new ArrayList<String>();
-		// TODO This should be a constant
-		for (String s : new String[] { //
-		"boardsize", // comments keep the commands on
-				"clear_board", // separate lines in the event of a
-				"final_score", // source -> format
-				"genmove", //
-				"genmove_black", //
-				"genmove_white", //
-				"black", "white", //
-				"known_command", //
-				"komi", //
-				"list_commands", //
-				"loadsgf", //
-				"name", //
-				"play", //
-				"protocol_version", //
-				"reg_genmove", //
-				"showboard", //
-				"time_left", //
-				"time_settings", //
-				"quit", //
-				"undo", //
-				"version", //
-				"kgs-genmove_cleanup", //
-				"gogui-analyze_commands", //
-				"kgs-game_over", //
-		}) {
+		for (String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
 		}
 		commands.addAll(player.getCommands());
