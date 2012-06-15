@@ -94,7 +94,6 @@ public class NeuralPlayer extends McPlayer {
 		return bestPlayMove();
 	}
 
-	// TODO Rename in McPlayer so that it doesn't refer to "tree"?
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		Board board = runnable.getBoard();

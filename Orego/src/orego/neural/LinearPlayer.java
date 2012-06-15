@@ -22,7 +22,6 @@ public class LinearPlayer extends McPlayer {
 			p.setProperty("cutoff", "10");
 			p.setProperty("history", "2");
 			p.setProperty("threads", "1");
-			p.setProperty("playouts", "10000"); // TODO Get rid of this line
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);

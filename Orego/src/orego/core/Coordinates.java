@@ -66,6 +66,9 @@ public final class Coordinates {
 	 */
 	public static final int[] EYELIKE_THRESHOLD = new int[EXTENDED_BOARD_AREA];
 
+	/** Highest index of any point on the board. */
+	public static final int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH * (SOUTH + EAST) + 1;
+	
 	/** Useful in loops over board points. */
 	public static final int FIRST_POINT_ON_BOARD = SOUTH + EAST;
 
@@ -78,9 +81,6 @@ public final class Coordinates {
 	 * LARGE_KNIGHT_NEIGHBORHOOD[p] is an array of points within a large knight's move of p.
 	 */
 	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
-
-	/** Highest index of any point on the board. */
-	public static final int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH * (SOUTH + EAST) + 1;
 
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four

@@ -97,7 +97,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		return result;
 	}
 
-	/** Play any moves within the tree. */
+	/** Play any moves within the tree (or other structure). */
 	public abstract void generateMovesToFrontier(McRunnable runnable);
 
 	@Override

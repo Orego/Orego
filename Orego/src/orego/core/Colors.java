@@ -1,5 +1,9 @@
 package orego.core;
 
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.WHITE;
+
 /** Colors of points. */
 public class Colors {
 
@@ -54,6 +58,20 @@ public class Colors {
 	public static final int opposite(int color) {
 		assert isAPlayerColor(color);
 		return color ^ 1;
+	}
+	
+	/**
+	 * Takes an int and returns the corresponding color as a string.
+	 */
+	public static String spellOutColorName(int color) {
+		if (color == BLACK) {
+			return "black";
+		} else if (color == WHITE) {
+			return "white";
+		} else if (color == VACANT){
+			return "vacant";
+		}
+		return "unknown";
 	}
 
 }

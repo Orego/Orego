@@ -131,21 +131,6 @@ public class Game {
 			}
 		}
 	}
-	
-	// TODO Maybe move this to Colors?
-	/**
-	 * Takes an int and returns the corresponding color as a string.
-	 */
-	public String spellOutColorName(int color) {
-		if (color == BLACK) {
-			return "black";
-		} else if (color == WHITE) {
-			return "white";
-		} else if (color == VACANT){
-			return "vacant";
-		}
-		return "unknown";
-	}
 
 	/**
 	 * Plays the game.
