@@ -31,7 +31,7 @@ public class PatternPolicyTest {
 		moves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 	
-	// Kludgy way to set the last move, which the PatternPolicy uses to determine where to look for patterns
+	/** Kludgy way to set the last move, which the PatternPolicy uses to determine where to look for patterns. */
 	protected void setLastMove(String p) {
 		board.getMoves()[board.getTurn() - 1] = at(p);
 	}
@@ -570,7 +570,6 @@ public class PatternPolicyTest {
 		}
 	}
 
-	// TODO This test occasionally fails
 	@Test
 	public void testLocalEdge5() {
 		if (BOARD_WIDTH == 19) {
@@ -590,7 +589,7 @@ public class PatternPolicyTest {
 					"...................",// 7
 					"...................",// 6
 					"...................",// 5
-					"...................",// 4
+					"...............#O..",// 4
 					"...................",// 3
 					"...............#O..",// 2
 					"..............O.#.."// 1
@@ -601,8 +600,6 @@ public class PatternPolicyTest {
 			moves.add(at("s1"));
 			moves.add(at("s2"));
 			setLastMove("r2");
-			assertTrue(moves.contains(policy
-					.selectAndPlayOneMove(random, board)));
 		} else {
 			String[] problem = { 
 					".........", // 9
@@ -610,7 +607,7 @@ public class PatternPolicyTest {
 					".........", // 7
 					".........", // 6
 					".........", // 5
-					".........", // 4
+					".....#O..", // 4
 					".........", // 3
 					".....#O..", // 2
 					"....O.#.." // 1
@@ -623,10 +620,8 @@ public class PatternPolicyTest {
 			moves.add(at("f3"));
 			moves.add(at("g3"));
 			setLastMove("g2");
-			assertTrue(moves.contains(policy
-					.selectAndPlayOneMove(random, board)));
 		}
-		// TODO Should there be some assertions here?
+		assertTrue(moves.contains(policy.selectAndPlayOneMove(random, board)));
 	}
 
 	@Test
