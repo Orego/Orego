@@ -3,10 +3,7 @@ package orego.core;
 import static org.junit.Assert.*;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.*;
-
 import orego.mcts.McPlayer;
-import orego.neural.Rich1Player;
-
 import org.junit.Test;
 
 public class CoordinatesTest {

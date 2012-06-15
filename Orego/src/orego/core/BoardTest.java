@@ -8,7 +8,6 @@ import static orego.policy.PatternPolicy.isPossibleNeighborhood;
 import static orego.patterns.Pattern.*;
 import static org.junit.Assert.*;
 import orego.mcts.McPlayer;
-import orego.neural.Rich1Player;
 import orego.policy.CapturePolicy;
 import orego.policy.EscapePolicy;
 import orego.policy.PatternPolicy;

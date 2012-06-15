@@ -59,16 +59,3 @@ RavePlayer adds, in addition to the properties from MctsPlayer:
 
 bias=#
 	A parameter in the RAVE formula. Higher values pay less attention to RAVE. Defaults to 0.0009.
-
-NeuralPlayer adds, in addition to the properties from McPlayer:
-
-hidden=#
-	Sets the number of hidden units for the neural network.
-learn=#
-	Sets the learning rate for the neural network.
-cutoff=#
-	Sets the number of moves played by the network before deferring to the policy.
-history=#
-	Sets the number of previous moves taken into account by the network.
-
-LinearPlayer adds, in addition to the properties from McPlayer, learn, cutoff, and history (analogous to those in NeuralPlayer).
