@@ -20,7 +20,8 @@ package orego.core;
  * <pre>
  * for (int i = 0; i &lt; 4; i++) {
  * 	int n = NEIGHBORS[p][i];
- * 	// Do something with n, which might be an off-board point with the color OFF_BOARD_COLOR
+ * 	// Do something with n, which might be an off-board point with the color
+ * 	// OFF_BOARD_COLOR
  * }
  * </pre>
  * 
@@ -67,8 +68,9 @@ public final class Coordinates {
 	public static final int[] EYELIKE_THRESHOLD = new int[EXTENDED_BOARD_AREA];
 
 	/** Highest index of any point on the board. */
-	public static final int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH * (SOUTH + EAST) + 1;
-	
+	public static final int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH
+			* (SOUTH + EAST) + 1;
+
 	/** Useful in loops over board points. */
 	public static final int FIRST_POINT_ON_BOARD = SOUTH + EAST;
 
@@ -76,9 +78,10 @@ public final class Coordinates {
 	 * KNIGHT_NEIGHBORHOOD[p] is an array of points within a knight's move of p.
 	 */
 	public static final int[][] KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
-	
+
 	/**
-	 * LARGE_KNIGHT_NEIGHBORHOOD[p] is an array of points within a large knight's move of p.
+	 * LARGE_KNIGHT_NEIGHBORHOOD[p] is an array of points within a large
+	 * knight's move of p.
 	 */
 	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
 
@@ -89,6 +92,7 @@ public final class Coordinates {
 	 * an off-board point are not defined.
 	 * 
 	 * The neighbors are ordered like this:
+	 * 
 	 * <pre>
 	 * 405
 	 * 1 2
@@ -222,11 +226,11 @@ public final class Coordinates {
 	 */
 	protected static int[] findKnightNeighborhood(int p) {
 		int r = row(p), c = column(p);
-		// TODO Would it speed things up to list closer points first?
-		int validOffset[][] = { { -2, -1 }, { -2, 0 }, { -2, 1 }, { -1, -2 },
-				{ -1, -1 }, { -1, 0 }, { -1, 1 }, { -1, 2 }, { 0, -2 },
-				{ 0, -1 }, { 0, 1 }, { 0, 2 }, { 1, -2 }, { 1, -1 }, { 1, 0 },
-				{ 1, 1 }, { 1, 2 }, { 2, -1 }, { 2, 0 }, { 2, 1 } };
+		int validOffset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
+				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
+				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
+				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } };
+
 		int large[] = new int[validOffset.length];
 		int count = 0;
 		for (int i = 0; i < validOffset.length; i++) {
@@ -246,20 +250,21 @@ public final class Coordinates {
 			}
 		return valid;
 	}
-	
+
 	/**
 	 * Used in the static block that initializes LARGE_KNIGHT_NEIGHBORHOOD.
 	 */
 	protected static int[] findLargeKnightNeighborhood(int p) {
 		int r = row(p), c = column(p);
 		// TODO Would it speed things up to list closer points first?
-		int validOffset[][] = { { -2, -1 }, { -2, 0 }, { -2, 1 }, { -1, -2 },
-				{ -1, -1 }, { -1, 0 }, { -1, 1 }, { -1, 2 }, { 0, -2 },
-				{ 0, -1 }, { 0, 1 }, { 0, 2 }, { 1, -2 }, { 1, -1 }, { 1, 0 },
-				{ 1, 1 }, { 1, 2 }, { 2, -1 }, { 2, 0 }, { 2, 1 }, { -3, -1 },
-				{ -3, 0 }, { -3, 1 }, { -2, -2 }, { -2, 2 }, { -1, -3 },
-				{ -1, 3 }, { 0, -3 }, { 0, 3 }, { 1, -3 }, { 1, 3 }, { 2, -2 },
-				{ 2, 2 }, { 3, -1 }, { 3, 0 }, { 3, 1 } };
+		int validOffset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
+				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
+				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
+				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
+				{ 1, 2 }, { 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
+				{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
+				{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
+				{ 1, 3 } };
 		int large[] = new int[validOffset.length];
 		int count = 0;
 		for (int i = 0; i < validOffset.length; i++) {
@@ -344,7 +349,7 @@ public final class Coordinates {
 	public static double getDistance(int p1, int p2) {
 		int rowd = Math.abs(row(p1) - row(p2));
 		int cold = Math.abs(column(p1) - column(p2));
-		return Math.sqrt(rowd*rowd+cold*cold);
+		return Math.sqrt(rowd * rowd + cold * cold);
 	}
-	
+
 }
