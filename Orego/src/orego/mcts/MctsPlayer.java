@@ -39,7 +39,9 @@ public class MctsPlayer extends McPlayer {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println(p.benchmark());
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
 	}
 
 	/**
@@ -73,32 +75,47 @@ public class MctsPlayer extends McPlayer {
 	 * playouts per second (kpps). If verbose is true, prints additional
 	 * information.
 	 */
-	public double benchmark(boolean verbose) {
-		reset();
-		setMillisecondsPerMove(10000);
-		long before = System.currentTimeMillis();
-		bestMove();
-		long time = System.currentTimeMillis() - before;
-		int playouts = 0;
+//	public double benchmark(boolean verbose) {
+//		reset();
+//		setMillisecondsPerMove(10000);
+//		long before = System.currentTimeMillis();
+//		bestMove();
+//		long time = System.currentTimeMillis() - before;
+//		int playouts = 0;
+//		for (int i = 0; i < getNumberOfThreads(); i++) {
+//			playouts += ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+//		}
+//		double kpps = ((double) playouts) / time;
+//		if (verbose) {
+//			System.out.println(this);
+//			;
+//			for (int i = 0; i < getNumberOfThreads(); i++) {
+//				int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+//				System.out.println("Thread " + i + ": " + pp + " playouts");
+//				;
+//			}
+//			System.out.println("(" + getRoot().getTotalRuns()
+//					+ " playouts in tree)");
+//			System.out.println(playouts + " playouts in " + time + " msec");
+//			System.out.println(playouts / (double) time + " kpps");
+//			System.out.println(table.dagSize(getRoot()) + " nodes in dag");
+//		}
+//		return kpps;
+//	}
+	
+	public void printAdditionalBenchmarkInfo(double kpps, int playouts, long time){
+		System.out.println(this);
+		;
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			playouts += ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
-		}
-		double kpps = ((double) playouts) / time;
-		if (verbose) {
-			System.out.println(this);
+			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+			System.out.println("Thread " + i + ": " + pp + " playouts");
 			;
-			for (int i = 0; i < getNumberOfThreads(); i++) {
-				int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
-				System.out.println("Thread " + i + ": " + pp + " playouts");
-				;
-			}
-			System.out.println("(" + getRoot().getTotalRuns()
-					+ " playouts in tree)");
-			System.out.println(playouts + " playouts in " + time + " msec");
-			System.out.println(playouts / (double) time + " kpps");
-			System.out.println(table.dagSize(getRoot()) + " nodes in dag");
 		}
-		return kpps;
+		System.out.println("(" + getRoot().getTotalRuns()
+				+ " playouts in tree)");
+		System.out.println(playouts + " playouts in " + time + " msec");
+		System.out.println(kpps + " kpps");
+		System.out.println(table.dagSize(getRoot()) + " nodes in dag");
 	}
 
 	/**

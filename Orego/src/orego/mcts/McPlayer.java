@@ -19,7 +19,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 	private int playoutLimit;
 
 	/** Returns the result of benchmark(true). */
-	public double benchmark() {
+	public double[] benchmark() {
 		// TODO It would be nice to run this several times,
 		// displaying a mean and standard deviation
 		return benchmark(true);
@@ -30,18 +30,51 @@ public abstract class McPlayer extends ThreadedPlayer {
 	 * playouts per second (kpps). If verbose is true, prints additional
 	 * information.
 	 */
-	public double benchmark(boolean verbose) {
-		reset();
+	public double[] benchmark(boolean verbose) {
+		int runs = 15;
+		//We throw away the first 5 runs
+		assert(runs > 5);
+		int nruns = runs - 5;
+		double[] kppsArray = new double[nruns];
 		setMillisecondsPerMove(10000);
-		long before = System.currentTimeMillis();
-		bestMove();
-		long time = System.currentTimeMillis() - before;
-		int playouts = 0;
-		for (int i = 0; i < getNumberOfThreads(); i++) {
-			playouts += ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+
+		for (int j = 0; j < runs; j++) {
+			reset();
+			long before = System.currentTimeMillis();
+			bestMove();
+			long time = System.currentTimeMillis() - before;
+			int playouts = 0;
+			for (int i = 0; i < getNumberOfThreads(); i++) {
+				playouts += ((McRunnable) getRunnable(i))
+						.getPlayoutsCompleted();
+			}
+			double kpps = ((double) playouts) / time;
+			if (verbose && j > 4) {
+				printAdditionalBenchmarkInfo(kpps, playouts, time);
+				System.out.println();
+
+			}
+			if (j > 4) {
+				kppsArray[j - 5] = kpps;
+			}
 		}
-		double kpps = ((double) playouts) / time;
-		return kpps;
+		double sumOfDeviations = 0.0;
+		double sum = 0;
+		for (int i = 0; i < nruns; i++) {
+			sum += kppsArray[i];
+		}
+		double mean = sum / nruns;
+		for (int i = 0; i < nruns; i++) {
+			sumOfDeviations += (kppsArray[i] - mean) * (kppsArray[i] - mean);
+		}
+		double deviation = Math.sqrt(sumOfDeviations / (runs - 1));
+		double[] x = { mean, deviation };
+		return x;
+	}
+
+	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
+			long time) {
+		// does nothing
 	}
 
 	/**
