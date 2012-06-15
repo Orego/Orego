@@ -130,13 +130,12 @@ public class RatioPlayer extends McPlayer {
 		if (winner != VACANT) {
 			RatioClassifier classifier = ((RatioMcRunnable) runnable)
 					.getClassifier();
-			// TODO turn may be a bad name for this
-			int turn = runnable.getTurn();
+			int firstTurnAfterGameEnds = runnable.getTurn();
 			int[] moves = runnable.getMoves();
 			int win = 1 - Math.abs(winner - getBoard().getColorToPlay());
 			int color = getBoard().getColorToPlay();
 			playouts[moves[getTurn()]]++;
-			for (int t = getTurn(); t < turn; t++) {
+			for (int t = getTurn(); t < firstTurnAfterGameEnds; t++) {
 				classifier.learn(color, runnable.getBoard(), t, win);
 				win = 1 - win;
 				color = opposite(color);
