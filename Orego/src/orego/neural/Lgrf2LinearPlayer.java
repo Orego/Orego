@@ -60,8 +60,8 @@ public class Lgrf2LinearPlayer extends LinearPlayer {
 	@Override
 	public void reset() {
 		super.reset();
-		replies1 = new int[NUMBER_OF_PLAYER_COLORS][LAST_POINT_ON_BOARD + 1];
-		replies2 = new int[NUMBER_OF_PLAYER_COLORS][LAST_POINT_ON_BOARD + 1][LAST_POINT_ON_BOARD + 1];
+		replies1 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD];
+		replies2 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
 		for (int c = BLACK; c <= WHITE; c++) {
 			for (int p : ALL_POINTS_ON_BOARD) {
 				replies1[c][p] = NO_POINT;

@@ -6,7 +6,7 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.opposite;
 import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
-import static orego.core.Coordinates.LAST_POINT_ON_BOARD;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import orego.play.UnknownPropertyException;
@@ -58,8 +58,8 @@ public class Lgrf2Player extends RavePlayer {
 	@Override
 	public void reset() {
 		super.reset();
-		replies1 = new int[NUMBER_OF_PLAYER_COLORS][LAST_POINT_ON_BOARD + 1];
-		replies2 = new int[NUMBER_OF_PLAYER_COLORS][LAST_POINT_ON_BOARD + 1][LAST_POINT_ON_BOARD + 1];
+		replies1 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD];
+		replies2 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
 		for (int c = BLACK; c <= WHITE; c++) {
 			for (int p : ALL_POINTS_ON_BOARD) {
 				replies1[c][p] = NO_POINT;

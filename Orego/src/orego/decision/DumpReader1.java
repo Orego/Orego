@@ -38,12 +38,12 @@ public class DumpReader1 extends DumpReader {
 	}
 	
 	public DumpReader1() {
-		roots = new Node[LAST_POINT_ON_BOARD + 1];
+		roots = new Node[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	public int process(String[] problem, int[] testMoves, int startMove) throws IOException {
 			read();
-			for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+			for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 				roots[i] = new Node(new DataCollection(), 0);
 			}
 			for (int i = 0; i < getMoves().size(); i++) {

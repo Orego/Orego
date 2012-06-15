@@ -187,7 +187,7 @@ public class NeuralPlayer extends McPlayer {
 		for (int i = 0; i < getNumberOfThreads(); i++) {
 			setRunnable(i, new McRunnable(this, getPolicy().clone()));
 		}
-		playouts = new int[LAST_POINT_ON_BOARD + 1];
+		playouts = new int[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	/**

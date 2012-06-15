@@ -2,7 +2,7 @@ package orego.policy;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.*;
-import static orego.core.Coordinates.LAST_POINT_ON_BOARD;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NEIGHBORS;
 import static orego.core.Coordinates.ON_BOARD;
 import static orego.patterns.Pattern.*;
@@ -136,12 +136,12 @@ public class PatternPolicy extends Policy {
 
 	public PatternPolicy(Policy fallback) {
 		super(fallback);
-		goodMoves = new IntSet(LAST_POINT_ON_BOARD + 1);
+		goodMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	public Policy clone() {
 		PatternPolicy result = (PatternPolicy) super.clone();
-		result.goodMoves = new IntSet(LAST_POINT_ON_BOARD + 1);
+		result.goodMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		return result;
 	}
 

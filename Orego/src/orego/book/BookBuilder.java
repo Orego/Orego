@@ -126,7 +126,7 @@ public abstract class BookBuilder {
 		short winner = NO_POINT;
 		if (counts.length <= SHORT_ARRAY_LIMIT) {
 			sort(counts);
-			short[] frequency = new short[LAST_POINT_ON_BOARD + 1];
+			short[] frequency = new short[FIRST_POINT_BEYOND_BOARD];
 			short mostFrequent = 0;
 			for (int p = 0; p < counts.length; p++) {
 				frequency[counts[p]]++;
@@ -547,7 +547,7 @@ public abstract class BookBuilder {
 				bigMap.put(hash, temp);
 			} else if (array.length == SHORT_ARRAY_LIMIT) {
 				// Converting medium map to big map
-				short[] temp = new short[LAST_POINT_ON_BOARD + 1];
+				short[] temp = new short[FIRST_POINT_BEYOND_BOARD];
 				for (int i = 0; i < array.length; i++) {
 					temp[array[i]]++;
 				}

@@ -51,7 +51,7 @@ public class BoardTest {
 	}
 
 	protected void assertLiberties(Board board, String p, String... liberties) {
-		IntSet libs = new IntSet(LAST_POINT_ON_BOARD + 1);
+		IntSet libs = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		for (String s : liberties) {
 			libs.add(at(s));
 		}
@@ -2168,7 +2168,7 @@ public class BoardTest {
 	@Test
 	public void testLibertiesLots() {
 		final int GAMES = 500;
-		IntList liberties = new IntList(LAST_POINT_ON_BOARD + 1);
+		IntList liberties = new IntList(FIRST_POINT_BEYOND_BOARD);
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Policy policy = new EscapePolicy(new PatternPolicy(new CapturePolicy()));
 		for (int game = 0; game < GAMES; game++) {

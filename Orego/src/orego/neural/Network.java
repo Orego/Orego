@@ -2,7 +2,7 @@ package orego.neural;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.LAST_POINT_ON_BOARD;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import orego.core.Board;
 import ec.util.MersenneTwisterFast;
 
@@ -61,12 +61,12 @@ public class Network {
 		this.history = history;
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		hiddenActivation = new double[hidden];
-		weightsInputHidden = new double[2][LAST_POINT_ON_BOARD + 1][history][hidden];
-		weightsHiddenOutput = new double[2][hidden][LAST_POINT_ON_BOARD + 1];
-		weightsInputOutput = new double[2][LAST_POINT_ON_BOARD + 1][history][LAST_POINT_ON_BOARD + 1];
+		weightsInputHidden = new double[2][FIRST_POINT_BEYOND_BOARD][history][hidden];
+		weightsHiddenOutput = new double[2][hidden][FIRST_POINT_BEYOND_BOARD];
+		weightsInputOutput = new double[2][FIRST_POINT_BEYOND_BOARD][history][FIRST_POINT_BEYOND_BOARD];
 		// randomize input->hidden weights
 		for (int i = 0; i < history; i++) {
-			for (int j = 0; j <= LAST_POINT_ON_BOARD; j++) {
+			for (int j = 0; j < FIRST_POINT_BEYOND_BOARD; j++) {
 				for (int k = 0; k < hidden; k++) {
 					weightsInputHidden[BLACK][j][i][k] = random.nextDouble() - .5;
 					weightsInputHidden[WHITE][j][i][k] = random.nextDouble() - .5;
@@ -75,15 +75,15 @@ public class Network {
 		}
 		// randomize input->output weights
 		for (int i = 0; i < history; i++) {
-			for (int j = 0; j <= LAST_POINT_ON_BOARD; j++) {
-				for (int k = 0; k <= LAST_POINT_ON_BOARD; k++) {
+			for (int j = 0; j < FIRST_POINT_BEYOND_BOARD; j++) {
+				for (int k = 0; k < FIRST_POINT_BEYOND_BOARD; k++) {
 					weightsInputOutput[BLACK][j][i][k] = random.nextDouble() - .5;
 					weightsInputOutput[WHITE][j][i][k] = random.nextDouble() - .5;
 				}
 			}
 		}
 		// randomize hidden->output weights
-		for (int i = 0; i <= LAST_POINT_ON_BOARD; i++) {
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 			for (int k = 0; k < hidden; k++) {
 				weightsHiddenOutput[BLACK][k][i] = random.nextDouble() - .5;
 				weightsHiddenOutput[WHITE][k][i] = random.nextDouble() - .5;

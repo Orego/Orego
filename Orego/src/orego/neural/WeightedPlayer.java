@@ -5,7 +5,7 @@ import static orego.core.Colors.BLACK;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.opposite;
 import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
-import static orego.core.Coordinates.LAST_POINT_ON_BOARD;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
@@ -24,7 +24,7 @@ public class WeightedPlayer extends AveragePlayer {
 			setRunnable(i, new WeightedMcRunnable(this, getPolicy().clone(),
 					getLearn(), getHistory()));
 		}
-		setPlayouts(new int[LAST_POINT_ON_BOARD + 1]);
+		setPlayouts(new int[FIRST_POINT_BEYOND_BOARD]);
 	}
 
 	@Override

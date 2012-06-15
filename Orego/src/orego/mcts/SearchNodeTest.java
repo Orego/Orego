@@ -26,15 +26,15 @@ public class SearchNodeTest {
 	public void testIsFresh() {
 		assertTrue(node.isFresh());
 		node.recordPlayout(true, new int[] { PASS }, 0, 1, new IntSet(
-				LAST_POINT_ON_BOARD + 1));
+				FIRST_POINT_BEYOND_BOARD));
 	}
 
 	@Test
 	public void testToString() {
 		node.recordPlayout(true, new int[] { at("a1") }, 0, 1, new IntSet(
-				LAST_POINT_ON_BOARD + 1));
+				FIRST_POINT_BEYOND_BOARD));
 		node.recordPlayout(true, new int[] { PASS }, 0, 1, new IntSet(
-				LAST_POINT_ON_BOARD + 1));
+				FIRST_POINT_BEYOND_BOARD));
 		int base = (2 * BOARD_AREA) + 12;
 		assertEquals(
 				"Total runs: "
@@ -71,10 +71,10 @@ public class SearchNodeTest {
 	public void testGetWinningMove() {
 		assertEquals(NO_POINT, node.getWinningMove());
 		node.recordPlayout(true, new int[] { at("a1") }, 0, 1, new IntSet(
-				LAST_POINT_ON_BOARD + 1));
+				FIRST_POINT_BEYOND_BOARD));
 		assertEquals(at("a1"), node.getWinningMove());
 		node.recordPlayout(false, new int[] { at("a1") }, 0, 1, new IntSet(
-				LAST_POINT_ON_BOARD + 1));
+				FIRST_POINT_BEYOND_BOARD));
 		assertEquals(NO_POINT, node.getWinningMove());
 	}
 

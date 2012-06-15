@@ -49,7 +49,7 @@ public class LinearClassifier {
 		this.learn = learn;
 		this.history = history;
 //		// MersenneTwisterFast random = new MersenneTwisterFast();
-		weights = new double[2][LAST_POINT_ON_BOARD + 1][history][LAST_POINT_ON_BOARD + 1];
+		weights = new double[2][FIRST_POINT_BEYOND_BOARD][history][FIRST_POINT_BEYOND_BOARD];
 		for (int a = 0; a < weights.length; a++) {
 			for (int b = 0; b < weights[a].length; b++) {
 				for (int c = 0; c < weights[a][b].length; c++) {
@@ -59,7 +59,7 @@ public class LinearClassifier {
 				}
 			}
 		}
-//		for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+//		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 //			weights[BLACK][BIAS][0][i] = initialWeight(i, at("e5"));
 //			weights[WHITE][BIAS][0][i] = initialWeight(i, at("e5"));
 //		}

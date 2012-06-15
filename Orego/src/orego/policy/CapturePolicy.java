@@ -27,14 +27,14 @@ public class CapturePolicy extends Policy {
 
 	public CapturePolicy(Policy fallback) {
 		super(fallback);
-		captures = new int[LAST_POINT_ON_BOARD + 1];
-		liberties = new IntSet(LAST_POINT_ON_BOARD + 1);
+		captures = new int[FIRST_POINT_BEYOND_BOARD];
+		liberties = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	public Policy clone() {
 		CapturePolicy result = (CapturePolicy) super.clone();
-		result.captures = new int[LAST_POINT_ON_BOARD + 1];
-		result.liberties = new IntSet(LAST_POINT_ON_BOARD + 1);
+		result.captures = new int[FIRST_POINT_BEYOND_BOARD];
+		result.liberties = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		return result;
 	}
 

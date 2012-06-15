@@ -28,7 +28,7 @@ public class PatternPolicyTest {
 		board = new Board();
 		policy = new PatternPolicy();
 		random = new MersenneTwisterFast();
-		moves = new IntSet(LAST_POINT_ON_BOARD + 1);
+		moves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 	
 	// Kludgy way to set the last move, which the PatternPolicy uses to determine where to look for patterns

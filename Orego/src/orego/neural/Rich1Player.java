@@ -458,7 +458,7 @@ public class Rich1Player extends McPlayer {
 			setRunnable(i, new Rich1McRunnable(this, getPolicy().clone(),
 					getLearn(), getHistory()));
 		}
-		setPlayouts(new int[LAST_POINT_ON_BOARD + 1]);
+		setPlayouts(new int[FIRST_POINT_BEYOND_BOARD]);
 	}
 
 	/**

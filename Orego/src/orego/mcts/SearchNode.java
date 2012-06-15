@@ -48,9 +48,9 @@ public class SearchNode implements Poolable<SearchNode> {
 	private int[] wins;
 
 	public SearchNode() {
-		runs = new int[LAST_POINT_ON_BOARD + 1];
-		wins = new int[LAST_POINT_ON_BOARD + 1];
-		hasChild = new BitVector(LAST_POINT_ON_BOARD + 1);
+		runs = new int[FIRST_POINT_BEYOND_BOARD];
+		wins = new int[FIRST_POINT_BEYOND_BOARD];
+		hasChild = new BitVector(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	/** Adds n losses for p. */

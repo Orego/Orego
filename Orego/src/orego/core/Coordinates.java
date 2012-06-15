@@ -79,9 +79,8 @@ public final class Coordinates {
 	 */
 	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
 
-	// TODO We often use LAST_POINT_ON_BOARD + 1 as an array size. Would that be a better constant?
 	/** Highest index of any point on the board. */
-	public static final int LAST_POINT_ON_BOARD = BOARD_WIDTH * (SOUTH + EAST);
+	public static final int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH * (SOUTH + EAST) + 1;
 
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
@@ -123,7 +122,7 @@ public final class Coordinates {
 					& isValidOneDimensionalCoordinate(c);
 		}
 		int i = 0;
-		for (int p = FIRST_POINT_ON_BOARD; p <= LAST_POINT_ON_BOARD; p++) {
+		for (int p = FIRST_POINT_ON_BOARD; p < FIRST_POINT_BEYOND_BOARD; p++) {
 			if (ON_BOARD[p]) {
 				ALL_POINTS_ON_BOARD[i] = p;
 				i++;

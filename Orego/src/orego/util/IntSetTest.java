@@ -13,7 +13,7 @@ public class IntSetTest {
 
 	@Before
 	public void setUp() throws Exception {
-		set = new IntSet(LAST_POINT_ON_BOARD + 1);
+		set = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class IntSetTest {
 	@Test
 	public void testEquals() {
 		assertFalse(set.equals(null));
-		IntSet other = new IntSet(LAST_POINT_ON_BOARD + 1);
+		IntSet other = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		set.add(4);
 		assertTrue(set.equals(set));
 		set.add(5);
@@ -156,7 +156,7 @@ public class IntSetTest {
 		other2.add(4);
 		other2.add(5);
 		assertFalse(other2.equals(set) || other2.equals(other));
-		IntSet other3 = new IntSet(LAST_POINT_ON_BOARD + 1);
+		IntSet other3 = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		other3.add(5);
 		other3.add(4);
 		// Transitivity
@@ -167,7 +167,7 @@ public class IntSetTest {
 	
 	@Test
 	public void testSubset() {
-		IntSet other = new IntSet(LAST_POINT_ON_BOARD + 1);
+		IntSet other = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		set.add(4);
 		set.add(5);
 		other.add(4);

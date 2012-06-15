@@ -47,7 +47,7 @@ public class McRunnable implements Runnable {
 		random = new MersenneTwisterFast();
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
 		this.policy = policy;
-		playedPoints = new IntSet(LAST_POINT_ON_BOARD + 1);
+		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	/**

@@ -9,7 +9,7 @@ public class WeightedClassifier extends AverageClassifier{
 	public WeightedClassifier(double learn, int history) {
 		super(learn, history);
 		double[][][][] weights = getWeights();
-		for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 			weights[BLACK][BIAS][0][i] = initialWeight(i, at("e5"));
 			weights[WHITE][BIAS][0][i] = initialWeight(i, at("e5"));
 		}

@@ -51,8 +51,8 @@ public class Rich1Classifier {
 		this.learn = learn;
 		this.history = history;
 		// // MersenneTwisterFast random = new MersenneTwisterFast();
-		weights = new double[2][LAST_POINT_ON_BOARD + 1][history][LAST_POINT_ON_BOARD + 1];
-		neighbors = new double[2][LAST_POINT_ON_BOARD + 1][ALL_POINTS_ON_BOARD.length][4];
+		weights = new double[2][FIRST_POINT_BEYOND_BOARD][history][FIRST_POINT_BEYOND_BOARD];
+		neighbors = new double[2][FIRST_POINT_BEYOND_BOARD][ALL_POINTS_ON_BOARD.length][4];
 		for (int a = 0; a < weights.length; a++) {
 			for (int b = 0; b < weights[a].length; b++) {
 				for (int c = 0; c < weights[a][b].length; c++) {

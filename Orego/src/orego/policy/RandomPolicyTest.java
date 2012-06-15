@@ -41,7 +41,7 @@ public class RandomPolicyTest {
 //		// Verify that no point makes up too large a fraction of the moves played
 //		board = new Board();
 //		random = new MersenneTwisterFast();
-//		int[] counts = new int[LAST_POINT_ON_BOARD + 1];
+//		int[] counts = new int[FIRST_POINT_BEYOND_BOARD];
 //		for (int i = 0; i < 10000; i++) {
 //			board.clear();
 //			counts[policy.selectAndPlayOneMove(random, board)]++;

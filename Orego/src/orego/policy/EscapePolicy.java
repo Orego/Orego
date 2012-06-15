@@ -24,7 +24,7 @@ public class EscapePolicy extends Policy {
 
 	public EscapePolicy(Policy fallback) {
 		super(fallback);
-		testedChains = new IntSet(LAST_POINT_ON_BOARD + 1);
+		testedChains = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		capturePoints = new int[4];
 	}
 
@@ -54,7 +54,7 @@ public class EscapePolicy extends Policy {
 
 	public Policy clone() {
 		EscapePolicy result = (EscapePolicy) super.clone();
-		result.testedChains = new IntSet(LAST_POINT_ON_BOARD + 1);
+		result.testedChains = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		result.capturePoints = new int[4];
 		return result;
 	}

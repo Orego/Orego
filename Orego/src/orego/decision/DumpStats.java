@@ -40,8 +40,8 @@ public class DumpStats {
 //				at("h9"), at("a7"), at("a8") }) {
 //			force.add(p);
 //		}
-		int[] fwins = new int[LAST_POINT_ON_BOARD + 1];
-		int[] fruns = new int[LAST_POINT_ON_BOARD + 1];
+		int[] fwins = new int[FIRST_POINT_BEYOND_BOARD];
+		int[] fruns = new int[FIRST_POINT_BEYOND_BOARD];
 		for (int i = 0; i < turn.size(); i++) { // For each playout
 			int win = result.get(i);
 			for (int k = 108; k < turn.get(i); k++) { // For each move
@@ -54,8 +54,8 @@ public class DumpStats {
 				}
 			}
 		}
-		double winrate[] = new double[LAST_POINT_ON_BOARD + 1];
-		for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+		double winrate[] = new double[FIRST_POINT_BEYOND_BOARD];
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 			winrate[i] = (double) fwins[i] / fruns[i];
 			// System.out.println(winrate[i]);
 		}
@@ -65,8 +65,8 @@ public class DumpStats {
 	}
 
 	public double[] computeWinrates() {
-		int[] wins = new int[LAST_POINT_ON_BOARD + 1];
-		int[] runs = new int[LAST_POINT_ON_BOARD + 1];
+		int[] wins = new int[FIRST_POINT_BEYOND_BOARD];
+		int[] runs = new int[FIRST_POINT_BEYOND_BOARD];
 		for (int i = 0; i < turn.size(); i++) { // For each playout
 			int win = result.get(i);
 			// System.out.println("win: " + win);
@@ -79,8 +79,8 @@ public class DumpStats {
 				}
 			}
 		}
-		double winrate[] = new double[LAST_POINT_ON_BOARD + 1];
-		for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+		double winrate[] = new double[FIRST_POINT_BEYOND_BOARD];
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 			winrate[i] = (double) wins[i] / runs[i];
 			// System.out.println(winrate[i]);
 		}
@@ -92,7 +92,7 @@ public class DumpStats {
 			throws FileNotFoundException {
 		File file = new File("normal.txt");
 		PrintWriter out = new PrintWriter(file);
-		for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 			if ((!Double.isNaN(normal[i])) && normal[i] > 0.0) {
 				out.println(i + " " + normal[i]);
 			}
@@ -100,7 +100,7 @@ public class DumpStats {
 		out.close();
 		file = new File("force.txt");
 		out = new PrintWriter(file);
-		for (int i = 0; i < LAST_POINT_ON_BOARD + 1; i++) {
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
 			if ((!Double.isNaN(force[i])) && force[i] > 0.0) {
 				out.println(i + " " + force[i]);
 			}

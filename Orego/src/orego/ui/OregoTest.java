@@ -121,7 +121,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		// This convert the text output internal numerical format and verifies
 		// the move is valid.
-		assertTrue(at(output.substring(2)) < LAST_POINT_ON_BOARD);
+		assertTrue(at(output.substring(2)) < FIRST_POINT_BEYOND_BOARD);
 	}
 
 	@Test

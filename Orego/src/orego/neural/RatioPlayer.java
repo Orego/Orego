@@ -155,7 +155,7 @@ public class RatioPlayer extends McPlayer {
 			setRunnable(i, new RatioMcRunnable(this, getPolicy().clone(),
 					history));
 		}
-		playouts = new int[LAST_POINT_ON_BOARD + 1];
+		playouts = new int[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	/**

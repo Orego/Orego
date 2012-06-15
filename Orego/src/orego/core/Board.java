@@ -58,7 +58,7 @@ public class Board {
 	 * Random numbers for Zobrist hashes, indexed by color and point. The last
 	 * row is for the simple ko point.
 	 */
-	public static final long[][] ZOBRIST_HASHES = new long[3][LAST_POINT_ON_BOARD + 1];
+	public static final long[][] ZOBRIST_HASHES = new long[3][FIRST_POINT_BEYOND_BOARD];
 
 	static { // Initialize ZOBRIST_HASHES
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
@@ -294,22 +294,22 @@ public class Board {
 		hash = 0L;
 		friendlyNeighboringChainIds = new IntList(4);
 		enemyNeighboringChainIds = new IntList(4);
-		lastPlayLiberties = new IntSet(LAST_POINT_ON_BOARD + 1);
+		lastPlayLiberties = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		neighborsOfCapturedStone = new IntList(4);
-		selfAtariLiberties = new IntSet(LAST_POINT_ON_BOARD + 1);
+		selfAtariLiberties = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		moves = new int[MAX_MOVES_PER_GAME];
 		colors = new int[EXTENDED_BOARD_AREA];
 		neighborhoods = new char[EXTENDED_BOARD_AREA];
-		vacantPoints = new IntSet(LAST_POINT_ON_BOARD + 1);
+		vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		neighborCounts = new int[EXTENDED_BOARD_AREA];
 		koPoint = NO_POINT;
-		chainsInAtari = new IntSet[] { new IntSet(LAST_POINT_ON_BOARD + 1),
-				new IntSet(LAST_POINT_ON_BOARD + 1) };
+		chainsInAtari = new IntSet[] { new IntSet(FIRST_POINT_BEYOND_BOARD),
+				new IntSet(FIRST_POINT_BEYOND_BOARD) };
 		chainIds = new int[EXTENDED_BOARD_AREA];
 		stoneCounts = new int[NUMBER_OF_PLAYER_COLORS];
-		chainNextPoints = new int[LAST_POINT_ON_BOARD + 1];
-		liberties = new IntSet[LAST_POINT_ON_BOARD + 1];
-		adjacentChains = new BitVector(LAST_POINT_ON_BOARD + 1);
+		chainNextPoints = new int[FIRST_POINT_BEYOND_BOARD];
+		liberties = new IntSet[FIRST_POINT_BEYOND_BOARD];
+		adjacentChains = new BitVector(FIRST_POINT_BEYOND_BOARD);
 		superKoTable = new SuperKoTable();
 		diagonalColorCount = new int[NUMBER_OF_COLORS];
 		surroundingColors = new int[MAX_MOVES_PER_GAME][36];
@@ -318,7 +318,7 @@ public class Board {
 			chainIds[p] = p;
 			colors[p] = OFF_BOARD_COLOR;
 			if (ON_BOARD[p]) {
-				liberties[p] = new IntSet(LAST_POINT_ON_BOARD + 1);
+				liberties[p] = new IntSet(FIRST_POINT_BEYOND_BOARD);
 				colors[p] = VACANT;
 				vacantPoints.addKnownAbsent(p);
 				int edgeCount = 0;
@@ -362,7 +362,7 @@ public class Board {
 		System.arraycopy(that.neighborCounts, 0, neighborCounts, 0,
 				EXTENDED_BOARD_AREA);
 		System.arraycopy(that.chainNextPoints, 0, chainNextPoints, 0,
-				LAST_POINT_ON_BOARD + 1);
+				FIRST_POINT_BEYOND_BOARD);
 		for (int p : ALL_POINTS_ON_BOARD) {
 			liberties[p].copyDataFrom(that.liberties[p]);
 		}
