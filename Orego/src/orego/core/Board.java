@@ -170,6 +170,7 @@ public class Board {
 	 */
 	private SuperKoTable superKoTable;
 
+	// TODO What is this for? Is it used? Is it needed?
 	private int[][] surroundingColors;
 
 	/**

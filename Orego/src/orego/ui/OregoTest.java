@@ -23,8 +23,7 @@ public class OregoTest {
 		PipedOutputStream out = new PipedOutputStream();
 		oregoOut = new BufferedReader(new InputStreamReader(
 				new PipedInputStream(out)));
-		orego = new Orego(System.in, out, new String[0]);
-		((McPlayer) orego.getPlayer()).setMillisecondsPerMove(100);
+		orego = new Orego(System.in, out, new String[] {"playouts=100", "threads=1"});
 	}
 
 	@Test
@@ -177,26 +176,26 @@ public class OregoTest {
 	@Test
 	public void testResign() throws IOException {
 		if (BOARD_WIDTH == 19) {
-			String[] problem = { "OOOOOOOOOOOOOOOOOOO",// 19
-					"OOOOOOOOOOOOOOO.O.O",// 18
-					"OOOOOOOOOOOOOOOOOOO",// 17
-					"OOOOOOOOOOOOOOOOOOO",// 16
-					"OOOOOOOOOOOOOOOOOOO",// 15
-					"OOOOOOOOOOOOOOOOOOO",// 14
-					"OOOOOOOOOOOOOOOOOOO",// 13
-					"OOOOOOOOOOOOOOOOOOO",// 12
-					"OOOOOOOOOOOOOOOOOOO",// 11
-					"OOOOOOOOOOOOOOOOOOO",// 10
-					"OOOOOOOOOOOOOOOOOOO",// 9
-					"OOOOOOOOOOOOOOOOOOO",// 8
-					"OOOOOOOOOOOOOOOOOOO",// 7
-					"OOOOOOOOOOOOOOOOOOO",// 6
-					"OOOOOOOOOOOOOOOOOOO",// 5
-					"OOOOOOOOOOOOOOOOOOO",// 4
-					"###OOOOOOOOOOOOOOOO",// 3
-					"###..OOOOOOOOOOOOOO",// 2
-					".....OOOOOOOOOOOOOO" // 1
-			// ABCDEFGHJKLMNOPQRST
+			String[] problem = {"OOOOOOOOOOOOOOOOOOO",// 19
+								"OOOOOOOOOOOOOOO.O.O",// 18
+								"OOOOOOOOOOOOOOOOOOO",// 17
+								"OOOOOOOOOOOOOOOOOOO",// 16
+								"OOOOOOOOOOOOOOOOOOO",// 15
+								"OOOOOOOOOOOOOOOOOOO",// 14
+								"OOOOOOOOOOOOOOOOOOO",// 13
+								"OOOOOOOOOOOOOOOOOOO",// 12
+								"OOOOOOOOOOOOOOOOOOO",// 11
+								"OOOOOOOOOOOOOOOOOOO",// 10
+								"OOOOOOOOOOOOOOOOOOO",// 9
+								"OOOOOOOOOOOOOOOOOOO",// 8
+								"OOOOOOOOOOOOOOOOOOO",// 7
+								"OOOOOOOOOOOOOOOOOOO",// 6
+								"OOOOOOOOOOOOOOOOOOO",// 5
+								"OOOOOOOOOOOOOOOOOOO",// 4
+								"###OOOOOOOOOOOOOOOO",// 3
+								"###..OOOOOOOOOOOOOO",// 2
+								".....OOOOOOOOOOOOOO" // 1
+							  // ABCDEFGHJKLMNOPQRST
 			};
 			orego.getPlayer().getBoard().setUpProblem(BLACK, problem);
 			// Ask for a move by black

@@ -106,7 +106,7 @@ public class MctsPlayer extends McPlayer {
 	 * to during a playout). We choose the move with the most wins.
 	 */
 	protected int bestPlayMove(SearchNode node) {
-		int best;
+		int best = 1;
 		int result = PASS;
 		IntSet vacantPoints = getBoard().getVacantPoints();
 		do {
@@ -120,7 +120,7 @@ public class MctsPlayer extends McPlayer {
 			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int move = vacantPoints.get(i);
-				if (node.getWins(move) >= best) {
+				if (node.getWins(move) > best) {
 					best = node.getWins(move);
 					result = move;
 				}
@@ -520,9 +520,6 @@ public class MctsPlayer extends McPlayer {
 				long hash = hashes[t + 1];
 				node = table.findIfPresent(hash);
 				if (node == null) {
-					// System.out.println(getWinRate(at("f7"))
-					// + "\t" + getWinRate(at("g6"))
-					// + "\t" + getWinRate(at("a2")));
 					return;
 				}
 				win = !win;
