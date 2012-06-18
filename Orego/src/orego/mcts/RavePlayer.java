@@ -21,17 +21,13 @@ public class RavePlayer extends MctsPlayer {
 			int RUNS = 10;
 			RavePlayer p = new RavePlayer();
 //			for (int threads = 1; threads <= 12; threads++) {
-				int threads = 12;
+				int threads = 2;
 				p.setProperty("priors", "4");
 				p.setProperty("policy", "Escape:Pattern:Capture");
 				p.setProperty("threads", "" + threads);
 				double kpps = 0;
-				for (int run = 0; run < RUNS; run++) {
-					kpps += p.benchmark(false)[0];
-					System.out.println("Run " + run + " complete");
-				}
-				//TODO kpps is now an average of 10 runs, update printline
-				System.out.printf("%d threads: %1.3f kpps\n", threads, kpps / RUNS);
+				kpps = p.benchmark(false)[0];
+				System.out.printf("%d threads: %1.3f kpps\n", threads, kpps);
 //			}
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
