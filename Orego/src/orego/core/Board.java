@@ -170,9 +170,6 @@ public class Board {
 	 */
 	private SuperKoTable superKoTable;
 
-	// TODO What is this for? Is it used? Is it needed?
-	private int[][] surroundingColors;
-
 	/**
 	 * The number of moves played so far. At the beginning of the game, turn is
 	 * 0.
@@ -313,7 +310,6 @@ public class Board {
 		adjacentChains = new BitVector(FIRST_POINT_BEYOND_BOARD);
 		superKoTable = new SuperKoTable();
 		diagonalColorCount = new int[NUMBER_OF_COLORS];
-		surroundingColors = new int[MAX_MOVES_PER_GAME][36];
 		for (int p = 0; p < EXTENDED_BOARD_AREA; p++) {
 			neighborCounts[p] = initialNeighborCounts();
 			chainIds[p] = p;
@@ -592,10 +588,6 @@ public class Board {
 			return ~hash;
 		}
 		return hash;
-	}
-
-	public int[] getHistoricalColorsAround(int turn){
-		return surroundingColors[turn];
 	}
 
 	/** Returns the komi. */
