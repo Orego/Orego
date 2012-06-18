@@ -143,8 +143,6 @@ public class Board {
 	 */
 	private int[] neighborCounts;
 
-	// TODO If we're maintaining these anyway, could we use these to detect
-	// captures instead of using the neighbor counts?
 	/**
 	 * The 3x3 neighborhood of each point. Undefined for occupied points.
 	 * 
