@@ -40,7 +40,7 @@ public class PatternPolicy extends Policy {
 			new ColorSpecificPattern("O?+*?#**", BLACK), // Edge4
 			new ColorSpecificPattern("O#O*?#**", BLACK), // Edge5
 			// WHITE SPECIFIC PATTERNS
-			new ColorSpecificPattern("O...#O??", BLACK), // Hane4
+			new ColorSpecificPattern("O...#O??", WHITE), // Hane4
 			new ColorSpecificPattern("#??*?O**", WHITE), // Edge3
 			new ColorSpecificPattern("O?+*?#**", WHITE), // Edge4
 			new ColorSpecificPattern("O#O*?#**", WHITE), // Edge5

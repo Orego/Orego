@@ -400,9 +400,6 @@ public class Board {
 		if (!Arrays.equals(colors, that.colors)) {
 			return false;
 		}
-		if (!Arrays.equals(neighborCounts, that.neighborCounts)) {
-			return false;
-		}
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (colors[p] != VACANT) {
 				if (!liberties[chainIds[p]]

@@ -1999,9 +1999,6 @@ public class BoardTest {
 		playARandomMove(random);
 		assertFalse(board.equals(backup));
 		board.copyDataFrom(backup);
-		board.getNeighborCounts()[at("a1")] *= -1;
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (board.getColor(p) != VACANT) {
 				IntSet liberties = board.getLiberties(p);
