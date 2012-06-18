@@ -20,8 +20,6 @@ public abstract class McPlayer extends ThreadedPlayer {
 
 	/** Returns the result of benchmark(true). */
 	public double[] benchmark() {
-		// TODO It would be nice to run this several times,
-		// displaying a mean and standard deviation
 		return benchmark(true);
 	}
 
