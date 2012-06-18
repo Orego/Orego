@@ -578,19 +578,6 @@ public class Board {
 		return colors[p];
 	}
 
-	public int[] getColorsAround(int point) {
-//		int[] array = new int[LARGE_KNIGHT_NEIGHBORHOOD[point].length];
-//		int[] array = new int[8];
-//		int[] array = new int[ALL_POINTS_ON_BOARD.length];
-//		for(int i = 0; i<array.length; i++){
-//			array[i] = getColor(LARGE_KNIGHT_NEIGHBORHOOD[point][i]);
-//			array[i] = getColor(NEIGHBORS[point][i]);
-//			array[i] = getColor(ALL_POINTS_ON_BOARD[i]);
-//		}
-//		return array;
-		return null;
-	}
-
 	/** Returns the color (BLACK or WHITE) to play next. */
 	public int getColorToPlay() {
 		return colorToPlay;
