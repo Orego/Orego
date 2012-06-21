@@ -369,4 +369,10 @@ public class PlayerTest {
 		assertEquals(WHITE, player.getBoard().getColorToPlay());
 	}
 
+	@Test
+	public void testBestMoveDoesNotActuallyPlay() {
+		player.bestMove();
+		assertEquals(0, player.getTurn());
+	}
+
 }
