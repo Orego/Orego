@@ -91,26 +91,40 @@ public class ResponseList {
 	/**
 	 * Add a win and run to this move.
 	 */
-	public void addWin(int move){
-		wins[indices[move]]++;
-		runs[indices[move]]++;
+	public void addWin(int p){
+		wins[indices[p]]++;
+		runs[indices[p]]++;
 		totalRuns++;
+		/*Sort nodes to the left...
+		 * 
+		 */
+		
+		
 	}
 	
 	/**
 	 * Add a run to this move.
 	 */
-	public void addLoss(int move){
-		runs[indices[move]]++;
+	public void addLoss(int p){
+		runs[indices[p]]++;
 		totalRuns++;
+		/*Sort nodes to the right...
+		 * 
+		 */
+		
+		
 	}
 	
-	public int getWins(int move){
-		return wins[move];
+	public int getWins(int p){
+		return wins[p];
 	}
 	
-	public int getRuns(int move){
-		return runs[move];
+	public int getRuns(int p){
+		return runs[p];
+	}
+	
+	public double getWinRate(int p){
+		return wins[indices[p]] / (1.0 * runs[indices[p]]);
 	}
 
 }

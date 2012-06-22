@@ -31,6 +31,8 @@ public class ResponseListTest {
 		assertEquals(ResponseList.NORMAL_WINS_BIAS+1, responseList.getWins()[responseList.getIndices()[Coordinates.at(0,0)]]);
 		assertEquals(ResponseList.NORMAL_RUNS_BIAS+2, responseList.getRuns()[responseList.getIndices()[Coordinates.at(0,0)]]);
 		assertEquals(Coordinates.PASS, responseList.getMoves()[responseList.getIndices()[Coordinates.PASS]]);
+		assertEquals(0.5,responseList.getWinRate(responseList.getIndices()[Coordinates.at(0, 0)]),0.001);
 	}
 
 }
+

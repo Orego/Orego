@@ -18,8 +18,8 @@ public class ResponsePlayerTest {
 	}
 
 	@Test
-	public void testHistoryInfoSetup() {
-		assertEquals(0, player.getWins(0));
+	public void testResponseChoice() {
+		
 		//assertEquals(Coordinates.PASS, player.getHistoryInfo()[player.getHistoryInfo().length-2].getMove());
 		//assertEquals(ResponseList.PASS_RUNS_BIAS, player.getHistoryInfo()[player.getHistoryInfo().length-2].getRuns());
 		//assertEquals(null, player.getHistoryInfo()[Coordinates.NO_POINT].getHistoryInfo(Coordinates.NO_POINT).getHistoryInfo(Coordinates.NO_POINT).getHistoryInfo(Coordinates.NO_POINT));

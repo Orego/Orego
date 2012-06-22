@@ -1,16 +1,22 @@
 package orego.response;
 
+import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
+import orego.util.IntSet;
+import orego.core.Board;
 import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
+	
+	public static final int THRESHOLD = 100;
 	
 	ResponseList responseZero;
 	ResponseList[] responseOne;
 	ResponseList[][] responseTwo;
 	
 	public ResponsePlayer(){
+		super();
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
 		responseZero = new ResponseList();
 		responseOne = new ResponseList[arrayLength];
@@ -26,26 +32,59 @@ public class ResponsePlayer extends McPlayer {
 
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
-		// TODO Auto-generated method stub
-
+		MersenneTwisterFast random = runnable.getRandom();
+		runnable.getBoard().copyDataFrom(getBoard());
+		Board board = runnable.getBoard();
+		//play the first move in our list(s)
+		if (board.getTurn() >= 2 && responseTwo[(board.getTurn()-2)][board.getTurn()-1].getTotalRuns() >= THRESHOLD) {
+			int counter = 1;
+			int move = responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[0];
+			while (! board.isLegal(responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[move])) {
+				move = responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[counter];
+				counter++;
+			}
+			board.play(move);
+		}
+		else if (board.getTurn() >= 1 && responseOne[board.getTurn()-1].getTotalRuns() >= THRESHOLD) {
+			int counter = 1;
+			int move = responseOne[board.getTurn()-1].getMoves()[0];
+			while (! board.isLegal(responseOne[board.getTurn()-1].getMoves()[move])) {
+				move = responseOne[board.getTurn()-1].getMoves()[counter];
+				counter++;
+			}
+			board.play(move);
+		}
+		else {
+			int counter = 1;
+			int move = responseZero.getMoves()[0];
+			while (! board.isLegal(responseZero.getMoves()[move])) {
+				move = responseZero.getMoves()[counter];
+				counter++;
+			}
+			board.play(move);
+		}
+		while (board.getPasses() < 2) {
+			IntSet vacantPoints = runnable.getBoard().getVacantPoints();
+			int move = random.nextInt(vacantPoints.size());
+			if (board.isLegal(move) && board.isFeasible(move)){
+				board.play(move);
+			}
+		}
 	}
 	
 	@Override
 	public int getPlayouts(int p) {
-		// TODO Auto-generated method stub
-		return 0;
+		return responseZero.getTotalRuns();
 	}
 
 	@Override
 	public double getWinRate(int p) {
-		// TODO Auto-generated method stub
-		return 0;
+		return responseZero.getWinRate(p);
 	}
 
 	@Override
 	public int getWins(int p) {
-		// TODO Auto-generated method stub
-		return 0;
+		return responseZero.getWins(p);
 	}
 
 	@Override
