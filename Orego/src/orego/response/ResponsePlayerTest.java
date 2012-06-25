@@ -28,6 +28,7 @@ public class ResponsePlayerTest {
 
 	@Test
 	public void testIncorporateRun() {
+		player.setTesting(true);
 		McRunnable runnable = new McRunnable(player, null);
 		runnable.acceptMove(28);
 		runnable.acceptMove(25);

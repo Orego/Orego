@@ -9,11 +9,13 @@ import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
 	
-	public static final int THRESHOLD = 1;
+	public static final int THRESHOLD = 100;
+	public static final int TEST_THRESHOLD = 1;
 	
 	private ResponseList responseZero;
 	private ResponseList[] responseOne;
 	private ResponseList[][] responseTwo;
+	private boolean testing = false;
 	
 	public ResponsePlayer(){
 		super();
@@ -29,13 +31,21 @@ public class ResponsePlayer extends McPlayer {
 			}
 		}
 	}
+	
+	/**
+	 * toggle testing flag to change threshold value
+	 * @param setting new setting for testing flag
+	 */
+	public void setTesting(boolean setting) {
+		testing = setting;
+	}
 
 	public void generateMovesToFrontier(McRunnable runnable) {
 		MersenneTwisterFast random = runnable.getRandom();
 		runnable.getBoard().copyDataFrom(getBoard());
 		Board board = runnable.getBoard();
 		//play the first move in our list(s)
-		if (board.getTurn() >= 2 && responseTwo[(board.getTurn()-2)][board.getTurn()-1].getTotalRuns() >= THRESHOLD) {
+		if (board.getTurn() >= 2 && responseTwo[(board.getTurn()-2)][board.getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
 			int counter = 1;
 			int move = responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[0];
 			while (! board.isLegal(responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[move])) {
@@ -44,7 +54,7 @@ public class ResponsePlayer extends McPlayer {
 			}
 			board.play(move);
 		}
-		else if (board.getTurn() >= 1 && responseOne[board.getTurn()-1].getTotalRuns() >= THRESHOLD) {
+		else if (board.getTurn() >= 1 && responseOne[board.getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
 			int counter = 1;
 			int move = responseOne[board.getTurn()-1].getMoves()[0];
 			while (! board.isLegal(responseOne[board.getTurn()-1].getMoves()[move])) {

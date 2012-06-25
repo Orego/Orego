@@ -17,6 +17,7 @@ public class ResponseListTest {
 	
 	@Before
 	public void setUp() throws Exception {
+		
 	}
 
 	@Test
