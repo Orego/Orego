@@ -73,6 +73,7 @@ public class ResponsePlayer extends McPlayer {
 			}
 			board.play(move);
 		}
+		// random play
 		while (board.getPasses() < 2) {
 			IntSet vacantPoints = runnable.getBoard().getVacantPoints();
 			int move = random.nextInt(vacantPoints.size());
@@ -142,6 +143,7 @@ public class ResponsePlayer extends McPlayer {
 
 	@Override
 	public int bestStoredMove() {
+		// consult the deepest table we have confidence in for a move
 		if (getBoard().getTurn() >= 2 && responseTwo[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
 			return responseTwo[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getMoves()[0];
 		}
