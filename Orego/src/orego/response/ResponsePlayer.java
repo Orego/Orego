@@ -30,7 +30,6 @@ public class ResponsePlayer extends McPlayer {
 		}
 	}
 
-	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		MersenneTwisterFast random = runnable.getRandom();
 		runnable.getBoard().copyDataFrom(getBoard());
@@ -72,25 +71,20 @@ public class ResponsePlayer extends McPlayer {
 		}
 	}
 	
-	@Override
 	public int getPlayouts(int p) {
 		return responseZero.getTotalRuns();
 	}
 
-	@Override
 	public double getWinRate(int p) {
 		return responseZero.getWinRate(p);
 	}
 
-	@Override
 	public int getWins(int p) {
 		return responseZero.getWins(p);
 	}
 
-	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override

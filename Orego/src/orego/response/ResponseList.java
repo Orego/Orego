@@ -89,6 +89,89 @@ public class ResponseList {
 	}
 	
 	/**
+	 * @param move the move to be updated
+	 * @param result 1 if adding a win, -1 if adding a loss
+	 * 
+	 * calls either sortWin(move) or sortLoss(move)
+	 * to sort the arrays appropriately
+	 * 
+	 */
+	public void sort(int move, int result) {
+		int moveIndex = indices[move];
+		if(moveIndex <= 0 && result > 0) return;
+		if(moveIndex >= Coordinates.BOARD_AREA && result < 0) return;
+		
+		if(result > 0) sortWin(move);
+		else sortLoss(move);
+	}
+	
+	/**
+	 * @param move the move to be updated
+	 * 
+	 * sorts the arrays appropriately if a
+	 * win has been added to move
+	 */
+	public void sortWin(int move) {
+		int moveIndex = indices[move];
+		double toSort = getWinRate(move);
+		int compIndex = moveIndex-1;
+		double compare = getWinRate(moves[compIndex]);
+		
+		while(toSort >= compare && compIndex > 0) {
+			swap(moveIndex, compIndex);
+			compIndex--;
+			moveIndex--;
+			toSort = getWinRate(moves[moveIndex]);
+			compare = getWinRate(moves[compIndex]);
+		}
+		if(compIndex == 0 && toSort > compare) swap(moveIndex,compIndex);
+	}
+	
+	/**
+	 * @param move the move to be updated
+	 * 
+	 * sorts the arrays appropriately if a
+	 * loss has been added to move
+	 */
+	public void sortLoss(int move) {
+		int moveIndex = indices[move];
+		double toSort = getWinRate(move);
+		int compIndex = moveIndex+1;
+		double compare = getWinRate(moves[compIndex]);
+		
+		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA+1) {
+			swap(moveIndex, compIndex);
+			compIndex++;
+			moveIndex++;
+			toSort = getWinRate(moves[moveIndex]);
+			compare = getWinRate(moves[compIndex]);
+		}
+		if(compIndex == Coordinates.BOARD_AREA && toSort < compare) swap(moveIndex,compIndex);
+	}
+	
+	public void swap(int i1, int i2) {
+		// swap wins[]
+		int hold1 = wins[i1];
+		int hold2 = wins[i2];
+		wins[i1] = hold2;
+		wins[i2] = hold1;
+		// swap moves[]
+		hold1 = moves[i1];
+		hold2 = moves[i2];
+		moves[i1] = hold2;
+		moves[i2] = hold1;
+		// swap runs[]
+		hold1 = runs[i1];
+		hold2 = runs[i2];
+		runs[i1] = hold2;
+		runs[i2] = hold1;
+		// swap indices[]
+		hold1 = indices[moves[i1]];
+		hold2 = indices[moves[i2]];
+		indices[moves[i1]] = hold2;
+		indices[moves[i2]] = hold1;
+	}
+	/**
 	 * Add a win and run to this move.
 	 */
 	public void addWin(int p){
