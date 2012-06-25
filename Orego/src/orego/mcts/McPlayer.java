@@ -35,7 +35,6 @@ public abstract class McPlayer extends ThreadedPlayer {
 		int nruns = runs - 5;
 		double[] kppsArray = new double[nruns];
 		setMillisecondsPerMove(10000);
-
 		for (int j = 0; j < runs; j++) {
 			reset();
 			long before = System.currentTimeMillis();
@@ -50,7 +49,6 @@ public abstract class McPlayer extends ThreadedPlayer {
 			if (verbose && j > 4) {
 				printAdditionalBenchmarkInfo(kpps, playouts, time);
 				System.out.println();
-
 			}
 			if (j > 4) {
 				kppsArray[j - 5] = kpps;
@@ -182,11 +180,10 @@ public abstract class McPlayer extends ThreadedPlayer {
 			result += format(" %s %.3f", pointToString(p), getPlayouts(p)
 					/ (double) max);
 		}
-		// Label all moves with win rates
+		// Label all moves with number of playouts
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
-				double winRate = getWinRate(p);
-				if (winRate > 0) {
+				if (getWinRate(p) > 0) {
 					result += format("\nLABEL %s %d", pointToString(p),
 							getPlayouts(p));
 				}
