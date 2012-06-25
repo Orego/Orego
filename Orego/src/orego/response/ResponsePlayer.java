@@ -5,6 +5,7 @@ import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
 import orego.util.IntSet;
 import orego.core.Board;
+import orego.core.Colors;
 import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
@@ -95,22 +96,42 @@ public class ResponsePlayer extends McPlayer {
 
 	public void incorporateRun(int winner, McRunnable runnable) {
 		Board board = runnable.getBoard();
-		if(winner==board.getColorToPlay()) {
-			responseZero.addWin(board.getMove(board.getTurn()));
-			responseOne[board.getMove(board.getTurn()-1)].addWin(board.getMove(board.getTurn()));
-			responseTwo[board.getMove(board.getTurn()-2)][board.getMove(board.getTurn()-1)].addWin(board.getMove(board.getTurn()));
+		int toPlay = Colors.BLACK;
+		// update for first two moves separately, since we can't use all tables
+		if(winner==toPlay) {
+			responseZero.addWin(board.getMove(0));
 		}
 		else {
-			responseZero.addLoss(board.getMove(board.getTurn()));
-			responseOne[board.getMove(board.getTurn()-1)].addLoss(board.getMove(board.getTurn()));
-			responseTwo[board.getMove(board.getTurn()-2)][board.getMove(board.getTurn()-1)].addLoss(board.getMove(board.getTurn()));
+			responseZero.addLoss(board.getMove(0));
+		}
+		toPlay = 1-toPlay;
+		if(winner==toPlay) {
+			responseZero.addWin(board.getMove(1));
+			responseOne[board.getMove(0)].addWin(board.getMove(1));
+		}
+		else {
+			responseZero.addLoss(board.getMove(1));
+			responseOne[board.getMove(0)].addLoss(board.getMove(1));
+		}
+		toPlay = 1-toPlay;
+		// update the rest of the moves
+		for(int i = 2; i < board.getTurn(); i++) {
+			if(winner==toPlay) {
+				responseZero.addWin(board.getMove(i));
+				responseOne[board.getMove(i-1)].addWin(board.getMove(i));
+				responseTwo[board.getMove(i-2)][board.getMove(i-1)].addWin(board.getMove(i));
+			}
+			else {
+				responseZero.addLoss(board.getMove(i));
+				responseOne[board.getMove(i-1)].addLoss(board.getMove(i));
+				responseTwo[board.getMove(i-2)][board.getMove(i-1)].addLoss(board.getMove(i));
+			}
+			toPlay = 1-toPlay;
 		}
 	}
 
-	@Override
 	protected String winRateReport() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
@@ -121,8 +142,15 @@ public class ResponsePlayer extends McPlayer {
 
 	@Override
 	public int bestStoredMove() {
-		// TODO Auto-generated method stub
-		return 0;
+		if (getBoard().getTurn() >= 2 && responseTwo[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+			return responseTwo[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getMoves()[0];
+		}
+		else if (getBoard().getTurn() >= 1 && responseOne[getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+			return responseOne[getBoard().getTurn()-1].getMoves()[0];
+		}
+		else {
+			return responseZero.getMoves()[0];
+		}
 	}
 
 	@Override

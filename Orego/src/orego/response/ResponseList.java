@@ -124,7 +124,7 @@ public class ResponseList {
 			toSort = getWinRate(moves[moveIndex]);
 			compare = getWinRate(moves[compIndex]);
 		}
-		if(compIndex == 0 && toSort > compare) swap(moveIndex,compIndex);
+		if(compIndex == 0 && toSort >= compare) swap(moveIndex,compIndex);
 	}
 	
 	/**
@@ -146,7 +146,7 @@ public class ResponseList {
 			toSort = getWinRate(moves[moveIndex]);
 			compare = getWinRate(moves[compIndex]);
 		}
-		if(compIndex == Coordinates.BOARD_AREA && toSort < compare) swap(moveIndex,compIndex);
+		if(compIndex == Coordinates.BOARD_AREA && toSort <= compare) swap(moveIndex,compIndex);
 	}
 	
 	public void swap(int i1, int i2) {
