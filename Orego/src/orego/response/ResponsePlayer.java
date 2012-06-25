@@ -9,11 +9,11 @@ import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
 	
-	public static final int THRESHOLD = 100;
+	public static final int THRESHOLD = 1;
 	
-	ResponseList responseZero;
-	ResponseList[] responseOne;
-	ResponseList[][] responseTwo;
+	private ResponseList responseZero;
+	private ResponseList[] responseOne;
+	private ResponseList[][] responseTwo;
 	
 	public ResponsePlayer(){
 		super();
@@ -84,7 +84,17 @@ public class ResponsePlayer extends McPlayer {
 	}
 
 	public void incorporateRun(int winner, McRunnable runnable) {
-		
+		Board board = runnable.getBoard();
+		if(winner==board.getColorToPlay()) {
+			responseZero.addWin(board.getMove(board.getTurn()));
+			responseOne[board.getMove(board.getTurn()-1)].addWin(board.getMove(board.getTurn()));
+			responseTwo[board.getMove(board.getTurn()-2)][board.getMove(board.getTurn()-1)].addWin(board.getMove(board.getTurn()));
+		}
+		else {
+			responseZero.addLoss(board.getMove(board.getTurn()));
+			responseOne[board.getMove(board.getTurn()-1)].addLoss(board.getMove(board.getTurn()));
+			responseTwo[board.getMove(board.getTurn()-2)][board.getMove(board.getTurn()-1)].addLoss(board.getMove(board.getTurn()));
+		}
 	}
 
 	@Override
@@ -111,4 +121,15 @@ public class ResponsePlayer extends McPlayer {
 
 	}
 
+	public ResponseList getResponseZero() {
+		return responseZero;
+	}
+
+	public ResponseList[] getResponseOne() {
+		return responseOne;
+	}
+
+	public ResponseList[][] getResponseTwo() {
+		return responseTwo;
+	}
 }

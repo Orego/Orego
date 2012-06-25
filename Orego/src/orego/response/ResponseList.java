@@ -178,11 +178,7 @@ public class ResponseList {
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
-		/*Sort nodes to the left...
-		 * 
-		 */
-		
-		
+		sort(p, 1);
 	}
 	
 	/**
@@ -191,11 +187,7 @@ public class ResponseList {
 	public void addLoss(int p){
 		runs[indices[p]]++;
 		totalRuns++;
-		/*Sort nodes to the right...
-		 * 
-		 */
-		
-		
+		sort(p,-1);
 	}
 	
 	public int getWins(int p){
