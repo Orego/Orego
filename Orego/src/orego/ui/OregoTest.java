@@ -540,23 +540,4 @@ public class OregoTest {
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
 	}
-
-	@Test
-	public void testSetUpFixedHandicap() {
-		orego.setUpHandicap(2);
-		Board board = orego.getPlayer().getBoard();
-		assertEquals(BLACK, board.getColor(at("D4")));
-		assertEquals(BLACK, board.getColor(at("Q16")));
-		board.clear();
-		orego.setUpHandicap(7);
-		System.out.println(board.toString());
-		assertEquals(BLACK, board.getColor(at("D4")));
-		assertEquals(BLACK, board.getColor(at("Q16")));
-		assertEquals(BLACK, board.getColor(at("Q4")));
-		assertEquals(BLACK, board.getColor(at("D16")));
-		assertEquals(BLACK, board.getColor(at("D10")));
-		assertEquals(BLACK, board.getColor(at("Q10")));
-		assertEquals(BLACK, board.getColor(at("K10")));
-
-	}
 }

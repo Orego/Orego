@@ -2886,5 +2886,20 @@ public class BoardTest {
 //		}
 //	}
 	
+	@Test
+	public void testSetUpFixedHandicap() {
+		board.setUpHandicap(2);
+		assertEquals(BLACK, board.getColor(at("D4")));
+		assertEquals(BLACK, board.getColor(at("Q16")));
+		board.clear();
+		board.setUpHandicap(7);
+		assertEquals(BLACK, board.getColor(at("D4")));
+		assertEquals(BLACK, board.getColor(at("Q16")));
+		assertEquals(BLACK, board.getColor(at("Q4")));
+		assertEquals(BLACK, board.getColor(at("D16")));
+		assertEquals(BLACK, board.getColor(at("D10")));
+		assertEquals(BLACK, board.getColor(at("Q10")));
+		assertEquals(BLACK, board.getColor(at("K10")));
+	}
 	
 }

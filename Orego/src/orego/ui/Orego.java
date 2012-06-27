@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+import orego.core.Board;
 import orego.core.Coordinates;
 import orego.play.Playable;
 import orego.play.Player;
@@ -361,9 +362,13 @@ public class Orego {
 			}
 		} else if (command.equals("fixed_handicap")) {
 			int handicapSize = parseInt(arguments.nextToken());
-
+			if (handicapSize >= 2 && handicapSize <= 9) {
+				player.getBoard().setUpHandicap(handicapSize);
+				acknowledge();
+			} else {
+				error("Invalid handicap size");
+			}
 		} else { // If Orego doesn't know how to handle this specific command,
-
 			// maybe the player will
 			String result = player.handleCommand(command, arguments);
 			if (result == null) {
@@ -449,22 +454,5 @@ public class Orego {
 				System.exit(1);
 			}
 		}
-	}
-
-	/** Sets up the starting handicap for a board. */
-	public void setUpHandicap(int handicapSize) {
-		String[][] handicaps = { { "D4", "Q16" }, { "D4", "Q16", "D16" },
-				{ "D4", "Q16", "D16", "Q4" },
-				{ "D4", "Q16", "D16", "Q4", "K10" },
-				{ "D4", "Q16", "D16", "Q4", "D10", "Q10" },
-				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K10" },
-				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16" },
-				{ "D4", "Q16", "D16", "Q4", ",D10", "Q10", "K4", "K16", "K10" } };
-		for (int i = 0; i < handicapSize - 1; i++) {
-			player.getBoard().play(handicaps[handicapSize - 2][i]);
-			player.getBoard().play(Coordinates.PASS);
-		}
-		player.getBoard().play(handicaps[handicapSize - 2][handicapSize - 1]);
-		
 	}
 }
