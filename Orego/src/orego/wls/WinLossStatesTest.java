@@ -12,7 +12,7 @@ public class WinLossStatesTest {
 	@Before
 	public void setUp() throws Exception {
 		states = new WinLossStates();
-		states.BuildTables(21, 1, 1);
+		states.buildTables(21, 1, 1);
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class WinLossStatesTest {
 				, 223, 224, 229, 226, 225, 241, 227, 228, 230, 233
 				, 231, 232, 234, 237, 235, 236, 240, 238, 239, 240
 				, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250
-				, 251, 252, 252, 0, 0, 0}, states.WIN));
+				, 251, 252, 252}, states.WIN));
 		assertTrue(Arrays.equals(new int[] {122, 1, 1, 2, 3, 4, 5, 6, 7, 8
 				, 9, 10, 11, 12, 13, 14, 15, 13, 17, 18
 				, 16, 19, 21, 22, 20, 23, 25, 26, 12, 28
@@ -69,7 +69,7 @@ public class WinLossStatesTest {
 				, 204, 212, 165, 207, 215, 217, 211, 214, 216, 184
 				, 218, 219, 221, 195, 224, 225, 213, 202, 209, 213
 				, 217, 220, 223, 226, 227, 228, 230, 231, 232, 234
-				, 235, 236, 238, 0, 0, 0}, states.LOSS));
+				, 235, 236, 238}, states.LOSS));
 	}
 
 }

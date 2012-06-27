@@ -58,13 +58,13 @@ public class WLSout {
 		System.out.println ("  WLS tables: dummy program");
 		System.out.println ("");
 
-		wt.BuildTables(21, 1, 1);
+		wt.buildTables(21, 1, 1);
 
 		System.out.println ("wt.BuildTables(21, 1, 1);");
 		System.out.println ("");
 
 		System.out.print ("WIN[] = " + wt.WIN[0]);
-		for (i = 1; i <= wt.wls_State_Best; i++) 
+		for (i = 1; i <= wt.bestState; i++) 
 		{	
 			System.out.print (", " + wt.WIN[i]);
 			if ((i % 10) == 9) System.out.println ("");
@@ -73,7 +73,7 @@ public class WLSout {
 		System.out.println ("");
 
 		System.out.print ("LOSS[] = " + wt.LOSS[0]);
-		for (i = 1; i <= wt.wls_State_Best; i++) 
+		for (i = 1; i <= wt.bestState; i++) 
 		{	
 			System.out.print (", " + wt.LOSS[i]);
 			if ((i % 10) == 9) System.out.println ("");
