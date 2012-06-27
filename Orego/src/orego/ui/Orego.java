@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
+import orego.core.Coordinates;
 import orego.play.Playable;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
@@ -35,7 +37,7 @@ import orego.play.UnknownPropertyException;
 public class Orego {
 
 	public static final String[] DEFAULT_GTP_COMMANDS = { //
-			"boardsize", // comments keep the commands on
+	"boardsize", // comments keep the commands on
 			"clear_board", // separate lines in the event of a
 			"final_score", // source -> format
 			"genmove", //
@@ -290,8 +292,8 @@ public class Orego {
 			acknowledge(response);
 		} else if (command.equals("loadsgf")) {
 			if (arguments.countTokens() > 1) {
-				player.setUpSgf(arguments.nextToken(), Integer
-						.parseInt(arguments.nextToken()));
+				player.setUpSgf(arguments.nextToken(),
+						Integer.parseInt(arguments.nextToken()));
 			} else {
 				player.setUpSgf(arguments.nextToken(), 0);
 			}
@@ -319,15 +321,15 @@ public class Orego {
 			int secondsLeft = parseInt(arguments.nextToken());
 			player.setRemainingTime(secondsLeft);
 			acknowledge();
-		} else if(command.equals("kgs-game_over")) {
+		} else if (command.equals("kgs-game_over")) {
 			Scanner scanner;
 			try {
 				scanner = new Scanner(new File("QuitAfterGameOver.txt"));
 				if (scanner.nextLine().equals("true")) {
-					// TODO Should this be acknowledge-reset-false as in "quit" above?
+					// TODO Should this be acknowledge-reset-false as in "quit"
+					// above?
 					System.exit(0);
-				}
-				else {
+				} else {
 					scanner.close();
 					acknowledge();
 				}
@@ -357,7 +359,11 @@ public class Orego {
 			} else {
 				error("illegal move");
 			}
+		} else if (command.equals("fixed_handicap")) {
+			int handicapSize = parseInt(arguments.nextToken());
+
 		} else { // If Orego doesn't know how to handle this specific command,
+
 			// maybe the player will
 			String result = player.handleCommand(command, arguments);
 			if (result == null) {
@@ -408,7 +414,8 @@ public class Orego {
 			}
 			for (String pkg : PLAYER_PACKAGES) {
 				String qualifiedPlayerClass = playerClass;
-				if (!qualifiedPlayerClass.startsWith("orego.") && pkg.length() > 0) {
+				if (!qualifiedPlayerClass.startsWith("orego.")
+						&& pkg.length() > 0) {
 					qualifiedPlayerClass = pkg + "." + qualifiedPlayerClass;
 				}
 				Class<Playable> c;
@@ -444,4 +451,20 @@ public class Orego {
 		}
 	}
 
+	/** Sets up the starting handicap for a board. */
+	public void setUpHandicap(int handicapSize) {
+		String[][] handicaps = { { "D4", "Q16" }, { "D4", "Q16", "D16" },
+				{ "D4", "Q16", "D16", "Q4" },
+				{ "D4", "Q16", "D16", "Q4", "K10" },
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10" },
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K10" },
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16" },
+				{ "D4", "Q16", "D16", "Q4", ",D10", "Q10", "K4", "K16", "K10" } };
+		for (int i = 0; i < handicapSize - 1; i++) {
+			player.getBoard().play(handicaps[handicapSize - 2][i]);
+			player.getBoard().play(Coordinates.PASS);
+		}
+		player.getBoard().play(handicaps[handicapSize - 2][handicapSize - 1]);
+		
+	}
 }

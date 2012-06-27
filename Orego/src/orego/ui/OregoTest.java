@@ -1,12 +1,15 @@
 package orego.ui;
 
+import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import orego.core.Board;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import java.io.*;
 import java.util.ArrayList;
 
@@ -538,4 +541,22 @@ public class OregoTest {
 		assertEquals(500, player.getPlayoutLimit());
 	}
 
+	@Test
+	public void testSetUpFixedHandicap() {
+		orego.setUpHandicap(2);
+		Board board = orego.getPlayer().getBoard();
+		assertEquals(BLACK, board.getColor(at("D4")));
+		assertEquals(BLACK, board.getColor(at("Q16")));
+		board.clear();
+		orego.setUpHandicap(7);
+		System.out.println(board.toString());
+		assertEquals(BLACK, board.getColor(at("D4")));
+		assertEquals(BLACK, board.getColor(at("Q16")));
+		assertEquals(BLACK, board.getColor(at("Q4")));
+		assertEquals(BLACK, board.getColor(at("D16")));
+		assertEquals(BLACK, board.getColor(at("D10")));
+		assertEquals(BLACK, board.getColor(at("Q10")));
+		assertEquals(BLACK, board.getColor(at("K10")));
+
+	}
 }
