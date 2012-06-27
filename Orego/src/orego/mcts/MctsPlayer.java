@@ -288,7 +288,7 @@ public class MctsPlayer extends McPlayer {
 			synchronized (table) {
 				// a child will only be created on the second pass through the
 				// node
-				if (!node.hasChild(p) && (node.getRuns(p) > 2)) {
+				if (!node.hasChild(p) && (node.getWins(p) >=2)) {
 					child = table.findOrAllocate(runnable.getBoard().getHash());
 					if (child == null) {
 						return; // No nodes left in pool
