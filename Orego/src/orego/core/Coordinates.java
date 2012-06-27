@@ -1,5 +1,7 @@
 package orego.core;
 
+import static orego.core.Coordinates.pointToString;
+
 /**
  * This class manages coordinates on the board.
  * <p>

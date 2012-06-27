@@ -3,6 +3,8 @@ package orego.response;
 import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
+import orego.mcts.SearchNode;
+import orego.mcts.TranspositionTable;
 import orego.util.IntSet;
 import orego.core.Board;
 import orego.core.Colors;
@@ -13,22 +15,31 @@ public class ResponsePlayer extends McPlayer {
 	public static final int THRESHOLD = 100;
 	public static final int TEST_THRESHOLD = 1;
 	
-	private ResponseList responseZero;
-	private ResponseList[] responseOne;
-	private ResponseList[][] responseTwo;
+	private ResponseList responseZeroBlack;
+	private ResponseList[] responseOneBlack;
+	private ResponseList[][] responseTwoBlack;
+	private ResponseList responseZeroWhite;
+	private ResponseList[] responseOneWhite;
+	private ResponseList[][] responseTwoWhite;
 	private boolean testing = false;
 	
 	public ResponsePlayer(){
 		super();
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
-		responseZero = new ResponseList();
-		responseOne = new ResponseList[arrayLength];
-		responseTwo = new ResponseList[arrayLength][arrayLength];
+		responseZeroBlack = new ResponseList();
+		responseOneBlack = new ResponseList[arrayLength];
+		responseTwoBlack = new ResponseList[arrayLength][arrayLength];
+		responseZeroWhite = new ResponseList();
+		responseOneWhite = new ResponseList[arrayLength];
+		responseTwoWhite = new ResponseList[arrayLength][arrayLength];
 		for (int i = 0; i < arrayLength; i++) {
-			responseOne[i] = new ResponseList();
-			responseTwo[i] = new ResponseList[arrayLength];
+			responseOneBlack[i] = new ResponseList();
+			responseTwoBlack[i] = new ResponseList[arrayLength];
+			responseOneWhite[i] = new ResponseList();
+			responseTwoWhite[i] = new ResponseList[arrayLength];
 			for (int j = 0; j < arrayLength; j++) {
-				responseTwo[i][j] = new ResponseList();
+				responseTwoBlack[i][j] = new ResponseList();
+				responseTwoWhite[i][j] = new ResponseList();
 			}
 		}
 	}
@@ -40,94 +51,221 @@ public class ResponsePlayer extends McPlayer {
 	public void setTesting(boolean setting) {
 		testing = setting;
 	}
+	
+	public void fakeGenerateMovesToFrontierOfTree(McRunnable runnable, int... moves) {
+		MersenneTwisterFast random = runnable.getRandom();
+		Board board = runnable.getBoard();
+		board.copyDataFrom(getBoard());
+		for(int move: moves) {
+			runnable.acceptMove(move);
+		}
+		int move;
+		ResponseList tableZero;
+		ResponseList[] tableOne;
+		ResponseList[][] tableTwo;
+		// play out the game using tables
+		while (board.getPasses() < 2) {
+			int history1 = board.getMove(board.getTurn()-1);
+			int history2 = board.getMove(board.getTurn()-2);
+			tableZero = board.getColorToPlay() == Colors.BLACK ? responseZeroBlack : responseZeroWhite;
+			tableOne = (ResponseList[]) (board.getColorToPlay() == Colors.BLACK ? responseOneBlack : responseOneWhite);
+			tableTwo = (ResponseList[][]) (board.getColorToPlay() == Colors.BLACK ? responseTwoBlack : responseTwoWhite);
+			if (board.getTurn() >= 2 && tableTwo[history2][history1].getTotalRuns() 
+					>= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+				int counter = 1;
+				move = tableTwo[history2][history1].getMoves()[0];
+				while (move != Coordinates.PASS) {
+					if(board.isLegal(move) && board.isFeasible(move)) {
+						break;
+					}
+					move = tableTwo[history2][history1].getMoves()[counter];
+					counter++;
+				}
+				runnable.acceptMove(move);
+			}
+			else if (board.getTurn() >= 1 && tableOne[history1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+				int counter = 1;
+				move = tableOne[history1].getMoves()[0];
+				while (move != Coordinates.PASS) {
+					if(board.isLegal(move) && board.isFeasible(move)) {
+						break;
+					}
+					move = tableOne[history1].getMoves()[counter];
+					counter++;
+				}
+				runnable.acceptMove(move);
+			}
+			else {
+				int counter = 1;
+				move = tableZero.getMoves()[0];
+				while (move != Coordinates.PASS) {
+					if(board.isLegal(move) && board.isFeasible(move)) {
+						break;
+					}
+					move = tableZero.getMoves()[counter];
+					counter++;
+				}
+				runnable.acceptMove(move);
+			}
+		}
+	}
 
 	public void generateMovesToFrontier(McRunnable runnable) {
 		MersenneTwisterFast random = runnable.getRandom();
-		runnable.getBoard().copyDataFrom(getBoard());
 		Board board = runnable.getBoard();
-		//play the first move in our list(s)
-		if (board.getTurn() >= 2 && responseTwo[(board.getTurn()-2)][board.getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
-			int counter = 1;
-			int move = responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[0];
-			while (! board.isLegal(responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[move])) {
-				move = responseTwo[(board.getTurn()-2)][board.getTurn()-1].getMoves()[counter];
-				counter++;
-			}
-			board.play(move);
-		}
-		else if (board.getTurn() >= 1 && responseOne[board.getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
-			int counter = 1;
-			int move = responseOne[board.getTurn()-1].getMoves()[0];
-			while (! board.isLegal(responseOne[board.getTurn()-1].getMoves()[move])) {
-				move = responseOne[board.getTurn()-1].getMoves()[counter];
-				counter++;
-			}
-			board.play(move);
-		}
-		else {
-			int counter = 1;
-			int move = responseZero.getMoves()[0];
-			while (! board.isLegal(responseZero.getMoves()[move])) {
-				move = responseZero.getMoves()[counter];
-				counter++;
-			}
-			board.play(move);
-		}
-		// random play
+		board.copyDataFrom(getBoard());
+		int move;
+		int timesLooped = 0;
+		ResponseList tableZero;
+		ResponseList[] tableOne;
+		ResponseList[][] tableTwo;
+		// play the first move in our list(s)
 		while (board.getPasses() < 2) {
-			IntSet vacantPoints = runnable.getBoard().getVacantPoints();
-			int move = random.nextInt(vacantPoints.size());
-			if (board.isLegal(move) && board.isFeasible(move)){
-				board.play(move);
+			timesLooped++;
+			int history1 = board.getMove(board.getTurn()-1);
+			int history2 = board.getMove(board.getTurn()-2);
+			tableZero = board.getColorToPlay() == Colors.BLACK ? responseZeroBlack : responseZeroWhite;
+			tableOne = (ResponseList[]) (board.getColorToPlay() == Colors.BLACK ? responseOneBlack : responseOneWhite);
+			tableTwo = (ResponseList[][]) (board.getColorToPlay() == Colors.BLACK ? responseTwoBlack : responseTwoWhite);
+			if (board.getTurn() >= 2 && tableTwo[history2][history1].getTotalRuns() 
+					>= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+				int counter = 1;
+				move = tableTwo[history2][history1].getMoves()[0];
+				while (move != Coordinates.PASS) {
+					if(board.isLegal(move) && board.isFeasible(move)) {
+						break;
+					}
+					move = tableTwo[history2][history1].getMoves()[counter];
+					counter++;
+				}
+				runnable.acceptMove(move);
+			}
+			else if (board.getTurn() >= 1 && tableOne[history1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+				int counter = 1;
+				move = tableOne[history1].getMoves()[0];
+				while (move != Coordinates.PASS) {
+					if(board.isLegal(move) && board.isFeasible(move)) {
+						break;
+					}
+					move = tableOne[history1].getMoves()[counter];
+					counter++;
+				}
+				runnable.acceptMove(move);
+			}
+			else {
+				int counter = 1;
+				move = tableZero.getMoves()[0];
+				while (move != Coordinates.PASS) {
+					if(board.isLegal(move) && board.isFeasible(move)) {
+						break;
+					}
+					move = tableZero.getMoves()[counter];
+					counter++;
+				}
+				runnable.acceptMove(move);
 			}
 		}
+		System.out.println(timesLooped);
 	}
 	
+	/**
+	 * @param p the move
+	 * 
+	 * inherited from McPlayer -- nonsensical for response lists
+	 */
 	public int getPlayouts(int p) {
-		return responseZero.getTotalRuns();
+		return 0;
 	}
 
+	/**
+	 * @param p the move
+	 * 
+	 * inherited from McPlayer -- nonsensical for response lists
+	 */
 	public double getWinRate(int p) {
-		return responseZero.getWinRate(p);
+		return 0;
 	}
 
+	/**
+	 * @param p the move
+	 * 
+	 * inherited from McPlayer -- nonsensical for response lists
+	 */
 	public int getWins(int p) {
-		return responseZero.getWins(p);
+		return 0;
+	}
+	
+	protected void updateWins(int move, int winner, Board board) {
+		// black plays all even moves, white all odd moves
+		int toPlay = move % 2;
+		if(move == 0) {
+			// we assume black plays first (even in handicap games)
+			if(winner==toPlay) {
+				responseZeroBlack.addWin(board.getMove(0));
+			}
+			else {
+				responseZeroBlack.addLoss(board.getMove(0));
+			}
+		}
+		else if(move == 1) {
+			// similarly, assume white to play
+			if(winner==toPlay) {
+				responseZeroWhite.addWin(board.getMove(1));
+				responseOneWhite[board.getMove(0)].addWin(board.getMove(1));
+			}
+			else {
+				responseZeroWhite.addLoss(board.getMove(1));
+				responseOneWhite[board.getMove(0)].addLoss(board.getMove(1));
+			}
+		}
+		else {
+			if(Colors.BLACK == toPlay) { 
+				if(Colors.BLACK == winner) {
+					responseZeroBlack.addWin(board.getMove(move));
+					responseOneBlack[board.getMove(move-1)].addWin(board.getMove(move));
+					responseTwoBlack[board.getMove(move-2)][board.getMove(move-1)].addWin(board.getMove(move));
+				}
+				else {
+					responseZeroBlack.addLoss(board.getMove(move));
+					responseOneBlack[board.getMove(move-1)].addLoss(board.getMove(move));
+					responseTwoBlack[board.getMove(move-2)][board.getMove(move-1)].addLoss(board.getMove(move));
+				}
+			}
+			else { 
+				if(Colors.WHITE == winner) {
+					responseZeroWhite.addWin(board.getMove(move));
+					responseOneWhite[board.getMove(move-1)].addWin(board.getMove(move));
+					responseTwoWhite[board.getMove(move-2)][board.getMove(move-1)].addWin(board.getMove(move));
+				}
+				else {
+					responseZeroWhite.addLoss(board.getMove(move));
+					responseOneWhite[board.getMove(move-1)].addLoss(board.getMove(move));
+					responseTwoWhite[board.getMove(move-2)][board.getMove(move-1)].addLoss(board.getMove(move));
+				}
+			}
+		}
 	}
 
 	public void incorporateRun(int winner, McRunnable runnable) {
 		Board board = runnable.getBoard();
 		int toPlay = Colors.BLACK;
 		// update for first two moves separately, since we can't use all tables
-		if(winner==toPlay) {
-			responseZero.addWin(board.getMove(0));
-		}
-		else {
-			responseZero.addLoss(board.getMove(0));
-		}
+		updateWins(0, winner, board);
 		toPlay = 1-toPlay;
-		if(winner==toPlay) {
-			responseZero.addWin(board.getMove(1));
-			responseOne[board.getMove(0)].addWin(board.getMove(1));
-		}
-		else {
-			responseZero.addLoss(board.getMove(1));
-			responseOne[board.getMove(0)].addLoss(board.getMove(1));
-		}
+		updateWins(1, winner, board);
 		toPlay = 1-toPlay;
 		// update the rest of the moves
+		System.out.println(board.getTurn());
 		for(int i = 2; i < board.getTurn(); i++) {
-			if(winner==toPlay) {
-				responseZero.addWin(board.getMove(i));
-				responseOne[board.getMove(i-1)].addWin(board.getMove(i));
-				responseTwo[board.getMove(i-2)][board.getMove(i-1)].addWin(board.getMove(i));
-			}
-			else {
-				responseZero.addLoss(board.getMove(i));
-				responseOne[board.getMove(i-1)].addLoss(board.getMove(i));
-				responseTwo[board.getMove(i-2)][board.getMove(i-1)].addLoss(board.getMove(i));
-			}
+			updateWins(i, winner, board);
 			toPlay = 1-toPlay;
+		}
+	}
+	
+	public void reset() {
+		super.reset();
+		for (int i = 0; i < getNumberOfThreads(); i++) {
+			setRunnable(i, new McRunnable(this, getPolicy().clone()));
 		}
 	}
 
@@ -144,14 +282,14 @@ public class ResponsePlayer extends McPlayer {
 	@Override
 	public int bestStoredMove() {
 		// consult the deepest table we have confidence in for a move
-		if (getBoard().getTurn() >= 2 && responseTwo[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
-			return responseTwo[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getMoves()[0];
+		if (getBoard().getTurn() >= 2 && responseTwoBlack[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+			return responseTwoBlack[(getBoard().getTurn()-2)][getBoard().getTurn()-1].getMoves()[0];
 		}
-		else if (getBoard().getTurn() >= 1 && responseOne[getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
-			return responseOne[getBoard().getTurn()-1].getMoves()[0];
+		else if (getBoard().getTurn() >= 1 && responseOneBlack[getBoard().getTurn()-1].getTotalRuns() >= (testing ? TEST_THRESHOLD: THRESHOLD)) {
+			return responseOneBlack[getBoard().getTurn()-1].getMoves()[0];
 		}
 		else {
-			return responseZero.getMoves()[0];
+			return responseZeroBlack.getMoves()[0];
 		}
 	}
 
@@ -161,15 +299,27 @@ public class ResponsePlayer extends McPlayer {
 
 	}
 
-	public ResponseList getResponseZero() {
-		return responseZero;
+	public ResponseList getResponseZeroBlack() {
+		return responseZeroBlack;
 	}
 
-	public ResponseList[] getResponseOne() {
-		return responseOne;
+	public ResponseList[] getResponseOneBlack() {
+		return responseOneBlack;
 	}
 
-	public ResponseList[][] getResponseTwo() {
-		return responseTwo;
+	public ResponseList[][] getResponseTwoBlack() {
+		return responseTwoBlack;
+	}
+	
+	public ResponseList getResponseZeroWhite() {
+		return responseZeroWhite;
+	}
+
+	public ResponseList[] getResponseOneWhite() {
+		return responseOneWhite;
+	}
+
+	public ResponseList[][] getResponseTwoWhite() {
+		return responseTwoWhite;
 	}
 }

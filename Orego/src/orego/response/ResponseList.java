@@ -17,24 +17,24 @@ public class ResponseList {
 	final static int PASS_WINS_BIAS = 1;
 	final static int PASS_RUNS_BIAS = 10;
 	
-	int[] wins;
-	int[] runs;
-	int[] moves;
-	int[] indices;
-	int totalRuns;
+	short[] wins;
+	short[] runs;
+	short[] moves;
+	short[] indices;
+	short totalRuns;
 	
 	public ResponseList(){
-		wins = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		runs = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		moves = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		indices = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		wins = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		runs = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		moves = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		indices = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
 		//randomize the list
-		ArrayList<Integer> list = new ArrayList<Integer>();
+		ArrayList<Short> list = new ArrayList<Short>();
 		for (int p : Coordinates.ALL_POINTS_ON_BOARD) {
-			list.add(p);
+			list.add((short) p);
 		}
 		Random random = new Random();
-		int i = 0;
+		short i = 0;
 		while (list.size() > 0){
 			moves[i] = list.remove(random.nextInt(list.size()));
 			indices[moves[i]] = i;
@@ -45,46 +45,46 @@ public class ResponseList {
 		moves[moves.length - 1] = Coordinates.PASS;
 		wins[wins.length - 1] = PASS_WINS_BIAS;
 		runs[runs.length - 1] = PASS_RUNS_BIAS;
-		indices[Coordinates.PASS] = moves.length - 1;	
+		indices[Coordinates.PASS] = (short) (moves.length - 1);	
 	}
 	
-	public int[] getWins() {
+	public short[] getWins() {
 		return wins;
 	}
 
-	public void setWins(int[] wins) {
+	public void setWins(short[] wins) {
 		this.wins = wins;
 	}
 
-	public int[] getRuns() {
+	public short[] getRuns() {
 		return runs;
 	}
 
-	public void setRuns(int[] runs) {
+	public void setRuns(short[] runs) {
 		this.runs = runs;
 	}
 
-	public int[] getMoves() {
+	public short[] getMoves() {
 		return moves;
 	}
 
-	public void setMoves(int[] moves) {
+	public void setMoves(short[] moves) {
 		this.moves = moves;
 	}
 
-	public int[] getIndices() {
+	public short[] getIndices() {
 		return indices;
 	}
 
-	public void setIndices(int[] indices) {
+	public void setIndices(short[] indices) {
 		this.indices = indices;
 	}
 
-	public int getTotalRuns() {
+	public short getTotalRuns() {
 		return totalRuns;
 	}
 
-	public void setTotalRuns(int totalRuns) {
+	public void setTotalRuns(short totalRuns) {
 		this.totalRuns = totalRuns;
 	}
 	
@@ -151,8 +151,8 @@ public class ResponseList {
 	
 	public void swap(int i1, int i2) {
 		// swap wins[]
-		int hold1 = wins[i1];
-		int hold2 = wins[i2];
+		short hold1 = wins[i1];
+		short hold2 = wins[i2];
 		wins[i1] = hold2;
 		wins[i2] = hold1;
 		// swap moves[]
@@ -190,11 +190,11 @@ public class ResponseList {
 		sort(p,-1);
 	}
 	
-	public int getWins(int p){
+	public short getWins(int p){
 		return wins[p];
 	}
 	
-	public int getRuns(int p){
+	public short getRuns(int p){
 		return runs[p];
 	}
 	
