@@ -19,15 +19,15 @@ public class RavePlayer extends MctsPlayer {
 	public static void main(String[] args) {
 		try {
 			RavePlayer p = new RavePlayer();
-//			for (int threads = 1; threads <= 12; threads++) {
-				int threads = 2;
-				p.setProperty("priors", "4");
-				p.setProperty("policy", "Escape:Pattern:Capture");
-				p.setProperty("threads", "" + threads);
-				double kpps = 0;
-				kpps = p.benchmark(false)[0];
-				System.out.printf("%d threads: %1.3f kpps\n", threads, kpps);
-//			}
+			// for (int threads = 1; threads <= 12; threads++) {
+			int threads = 2;
+			p.setProperty("priors", "4");
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "" + threads);
+			double kpps = 0;
+			kpps = p.benchmark(false)[0];
+			System.out.printf("%d threads: %1.3f kpps\n", threads, kpps);
+			// }
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -230,7 +230,14 @@ public class RavePlayer extends MctsPlayer {
 	@Override
 	/**
 	 * Uses the formula from here:
-	 * http://computer-go.org/pipermail/computer-go/2009-January/017605.html
+	 * David Silver 
+	 * Reinforcement Learning and Simulation-Based Search in Computer Go 
+	 * A thesis submitted to the Faculty of Graduate Studies and Research 
+	 *	in partial fulÞllment of the requirements for the degree of 
+	 *	Doctor of Philosophy 
+	 *	Department of Computing Science 
+	 * http://papersdb.cs.ualberta.ca/~papersdb/uploaded_files/1029/paper_thesis.pdf
+	 * equation 8.40 page 107//Updated
 	 */
 	public double searchValue(SearchNode node, Board board, int move) {
 		if (node.getWins(move) == Integer.MIN_VALUE) {

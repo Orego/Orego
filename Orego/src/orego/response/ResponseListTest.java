@@ -17,6 +17,7 @@ public class ResponseListTest {
 	
 	@Before
 	public void setUp() throws Exception {
+		
 	}
 
 	@Test
@@ -31,7 +32,35 @@ public class ResponseListTest {
 		assertEquals(ResponseList.NORMAL_WINS_BIAS+1, responseList.getWins()[responseList.getIndices()[Coordinates.at(0,0)]]);
 		assertEquals(ResponseList.NORMAL_RUNS_BIAS+2, responseList.getRuns()[responseList.getIndices()[Coordinates.at(0,0)]]);
 		assertEquals(Coordinates.PASS, responseList.getMoves()[responseList.getIndices()[Coordinates.PASS]]);
-		assertEquals(0.5,responseList.getWinRate(responseList.getIndices()[Coordinates.at(0, 0)]),0.001);
+		assertEquals(0.5,responseList.getWinRate(Coordinates.at(0, 0)),0.001);
+	}
+	
+	@Test
+	public void testSort() {
+		responseList = new ResponseList();
+		int[] moves = {2,3,1,5,0,4};
+		responseList.setMoves(moves);
+		int[] indices = {4,2,0,1,5,3};
+		responseList.setIndices(indices);
+		// start with unsorted win list
+		int[] wins = {8,7,5,5,2,6};
+		responseList.setWins(wins);
+		int[] runs = {10,10,10,10,10,10};
+		responseList.setRuns(runs);
+		
+		responseList.sort(4,1);
+		// test sortWin
+		assertEquals(6, responseList.getWins()[2]);
+		assertEquals(4, responseList.getMoves()[2]);
+		assertEquals(2, responseList.getIndices()[4]);
+		
+		// test sortLoss
+		int[] newWins = {8,2,5,5,3,1};
+		responseList.setWins(newWins);
+		responseList.sort(3, -1);
+		assertEquals(2, responseList.getWins()[4]);
+		assertEquals(3, responseList.getMoves()[4]);
+		assertEquals(4, responseList.getIndices()[3]);
 	}
 
 }
