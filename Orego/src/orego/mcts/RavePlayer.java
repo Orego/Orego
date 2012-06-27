@@ -18,7 +18,6 @@ public class RavePlayer extends MctsPlayer {
 
 	public static void main(String[] args) {
 		try {
-			int RUNS = 10;
 			RavePlayer p = new RavePlayer();
 //			for (int threads = 1; threads <= 12; threads++) {
 				int threads = 2;
