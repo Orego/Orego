@@ -17,6 +17,7 @@ public class ResponseList {
 	final static int PASS_WINS_BIAS = 1;
 	final static int PASS_RUNS_BIAS = 10;
 	
+	// All of these arrays are shorts so they'll fit into memory
 	short[] wins;
 	short[] runs;
 	short[] moves;

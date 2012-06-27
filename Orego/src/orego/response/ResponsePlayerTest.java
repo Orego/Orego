@@ -38,19 +38,23 @@ public class ResponsePlayerTest {
 		runnable.acceptMove(47);
 		runnable.acceptMove(52);
 		player.incorporateRun(Colors.BLACK,runnable);
+		// Get all of the black response lists
 		ResponseList respZeroBlack = player.getResponseZeroBlack();
 		ResponseList[] respOneBlack = player.getResponseOneBlack();
 		ResponseList[][] respTwoBlack = player.getResponseTwoBlack();
+		// Get all of the white response lists
 		ResponseList respZeroWhite = player.getResponseZeroWhite();
 		ResponseList[] respOneWhite = player.getResponseOneWhite();
 		ResponseList[][] respTwoWhite = player.getResponseTwoWhite();
+		// Make sure all of the Black lists are right
 		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[47]]);
 		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[47]]);
+		assertEquals(2, respOneBlack[25].getWins()[respOneBlack[25].getIndices()[47]]);
+		assertEquals(2, respTwoBlack[28][25].getWins()[respTwoBlack[28][25].getIndices()[47]]);
+		// Make sure all of the White lists are right
 		assertEquals(1, respZeroWhite.getWins()[respZeroWhite.getIndices()[25]]);
 		assertEquals(3, respZeroWhite.getRuns()[respZeroWhite.getIndices()[25]]);
-		assertEquals(2, respOneBlack[25].getWins()[respOneBlack[25].getIndices()[47]]);
 		assertEquals(1, respOneWhite[28].getWins()[respOneWhite[28].getIndices()[25]]);
-		assertEquals(2, respTwoBlack[28][25].getWins()[respTwoBlack[28][25].getIndices()[47]]);
 		assertEquals(1, respTwoWhite[25][47].getWins()[respTwoWhite[25][47].getIndices()[52]]);
 	}
 	protected void fakeRun(int winner, String... labels) {
@@ -77,20 +81,4 @@ public class ResponsePlayerTest {
 		fakeRun(WHITE, "c5", "c4", "c6", "c7");
 		assertEquals(at("c4"), player.bestStoredMove());
 	}
-	
-	/*
-	@Test
-	public void testMcRunIncorporation() {
-		McRunnable runnable = (McRunnable) player.getRunnable(0);
-		int runs = 1;
-		for (int i = 0; i < runs; i++) {
-			runnable.performMcRun();
-		}
-		for(int run : player.getResponseZero().getRuns()) {
-			//System.out.println(run);
-		}
-		assertEquals(runs + (2 * BOARD_AREA + 10), player.getResponseZero()
-				.getTotalRuns());
-	}
-	*/
 }
