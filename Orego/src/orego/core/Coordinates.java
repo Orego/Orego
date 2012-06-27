@@ -199,9 +199,79 @@ public final class Coordinates {
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(c);
 	}
 
+	/** Returns the Euclidean distance from p1 to p2. */
+	public static double distance(int p1, int p2) {
+		int rowd = Math.abs(row(p1) - row(p2));
+		int cold = Math.abs(column(p1) - column(p2));
+		return Math.sqrt(rowd * rowd + cold * cold);
+	}
+
 	/** Returns the point east of p (which may be off the board). */
 	protected static int east(int p) {
 		return p + EAST;
+	}
+
+	/**
+	 * Used in the static block that initializes KNIGHT_NEIGHBORHOOD.
+	 */
+	protected static int[] findKnightNeighborhood(int p) {
+		int r = row(p), c = column(p);
+		int offset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
+				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
+				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
+				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } };
+
+		int large[] = new int[offset.length];
+		int count = 0;
+		for (int i = 0; i < offset.length; i++) {
+			if (isValidOneDimensionalCoordinate(r + offset[i][0])
+					&& (isValidOneDimensionalCoordinate(c + offset[i][1]))) {
+				large[i] = at(r + offset[i][0], c + offset[i][1]);
+				count++;
+			}
+		}
+		// Create a small array and copy the elements
+		int valid[] = new int[count];
+		int v = 0;
+		for (int i = 0; i < offset.length; i++)
+			if (large[i] > 0) {
+				valid[v] = large[i];
+				v++;
+			}
+		return valid;
+	}
+
+	/**
+	 * Used in the static block that initializes LARGE_KNIGHT_NEIGHBORHOOD.
+	 */
+	protected static int[] findLargeKnightNeighborhood(int p) {
+		int r = row(p), c = column(p);
+		int offset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
+				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
+				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
+				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
+				{ 1, 2 }, { 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
+				{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
+				{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
+				{ 1, 3 } };
+		int large[] = new int[offset.length];
+		int count = 0;
+		for (int i = 0; i < offset.length; i++) {
+			if (isValidOneDimensionalCoordinate(r + offset[i][0])
+					&& (isValidOneDimensionalCoordinate(c + offset[i][1]))) {
+				large[i] = at(r + offset[i][0], c + offset[i][1]);
+				count++;
+			}
+		}
+		// Create a small array and copy the elements
+		int valid[] = new int[count];
+		int v = 0;
+		for (int i = 0; i < offset.length; i++)
+			if (large[i] > 0) {
+				valid[v] = large[i];
+				v++;
+			}
+		return valid;
 	}
 
 	/**
@@ -219,69 +289,6 @@ public final class Coordinates {
 	/** Verifies that a row or column index is valid. */
 	protected static boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < BOARD_WIDTH);
-	}
-
-	/**
-	 * Used in the static block that initializes KNIGHT_NEIGHBORHOOD.
-	 */
-	protected static int[] findKnightNeighborhood(int p) {
-		int r = row(p), c = column(p);
-		int validOffset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
-				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } };
-
-		int large[] = new int[validOffset.length];
-		int count = 0;
-		for (int i = 0; i < validOffset.length; i++) {
-			if (isValidOneDimensionalCoordinate(r + validOffset[i][0])
-					&& (isValidOneDimensionalCoordinate(c + validOffset[i][1]))) {
-				large[i] = at(r + validOffset[i][0], c + validOffset[i][1]);
-				count++;
-			}
-		}
-		// Create a small array and copy the elements
-		int valid[] = new int[count];
-		int v = 0;
-		for (int i = 0; i < validOffset.length; i++)
-			if (large[i] > 0) {
-				valid[v] = large[i];
-				v++;
-			}
-		return valid;
-	}
-
-	/**
-	 * Used in the static block that initializes LARGE_KNIGHT_NEIGHBORHOOD.
-	 */
-	protected static int[] findLargeKnightNeighborhood(int p) {
-		int r = row(p), c = column(p);
-		int validOffset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
-				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
-				{ 1, 2 }, { 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
-				{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
-				{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
-				{ 1, 3 } };
-		int large[] = new int[validOffset.length];
-		int count = 0;
-		for (int i = 0; i < validOffset.length; i++) {
-			if (isValidOneDimensionalCoordinate(r + validOffset[i][0])
-					&& (isValidOneDimensionalCoordinate(c + validOffset[i][1]))) {
-				large[i] = at(r + validOffset[i][0], c + validOffset[i][1]);
-				count++;
-			}
-		}
-		// Create a small array and copy the elements
-		int valid[] = new int[count];
-		int v = 0;
-		for (int i = 0; i < validOffset.length; i++)
-			if (large[i] > 0) {
-				valid[v] = large[i];
-				v++;
-			}
-		return valid;
 	}
 
 	/** Returns the point north of p (which may be off the board). */
@@ -343,12 +350,6 @@ public final class Coordinates {
 	/** Returns the point west of p (which may be off the board). */
 	protected static int west(int p) {
 		return p - EAST;
-	}
-
-	public static double getDistance(int p1, int p2) {
-		int rowd = Math.abs(row(p1) - row(p2));
-		int cold = Math.abs(column(p1) - column(p2));
-		return Math.sqrt(rowd * rowd + cold * cold);
 	}
 
 }

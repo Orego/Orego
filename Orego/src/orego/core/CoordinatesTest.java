@@ -103,8 +103,8 @@ public class CoordinatesTest {
 
 	@Test
 	public void testGetDistance() {
-		assertEquals(3, getDistance(at("a1"),at("d1")) , .001);
-		assertEquals(Math.sqrt(13) , getDistance(at("a1"),at("c4")),.001);
+		assertEquals(3, distance(at("a1"),at("d1")) , .001);
+		assertEquals(Math.sqrt(13) , distance(at("a1"),at("c4")),.001);
 	}
 	
 	@Test

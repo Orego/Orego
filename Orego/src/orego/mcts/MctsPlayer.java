@@ -70,46 +70,12 @@ public class MctsPlayer extends McPlayer {
 		// Nothing special has to be done here
 	}
 
-	/**
-	 * Runs a 10 second test and returns the speed of the player in thousands of
-	 * playouts per second (kpps). If verbose is true, prints additional
-	 * information.
-	 */
-//	public double benchmark(boolean verbose) {
-//		reset();
-//		setMillisecondsPerMove(10000);
-//		long before = System.currentTimeMillis();
-//		bestMove();
-//		long time = System.currentTimeMillis() - before;
-//		int playouts = 0;
-//		for (int i = 0; i < getNumberOfThreads(); i++) {
-//			playouts += ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
-//		}
-//		double kpps = ((double) playouts) / time;
-//		if (verbose) {
-//			System.out.println(this);
-//			;
-//			for (int i = 0; i < getNumberOfThreads(); i++) {
-//				int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
-//				System.out.println("Thread " + i + ": " + pp + " playouts");
-//				;
-//			}
-//			System.out.println("(" + getRoot().getTotalRuns()
-//					+ " playouts in tree)");
-//			System.out.println(playouts + " playouts in " + time + " msec");
-//			System.out.println(playouts / (double) time + " kpps");
-//			System.out.println(table.dagSize(getRoot()) + " nodes in dag");
-//		}
-//		return kpps;
-//	}
-	
-	public void printAdditionalBenchmarkInfo(double kpps, int playouts, long time){
+	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
+			long time) {
 		System.out.println(this);
-		;
 		for (int i = 0; i < getNumberOfThreads(); i++) {
 			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
 			System.out.println("Thread " + i + ": " + pp + " playouts");
-			;
 		}
 		System.out.println("(" + getRoot().getTotalRuns()
 				+ " playouts in tree)");

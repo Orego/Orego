@@ -79,10 +79,8 @@ public class Player implements Playable {
 		// not a superko violation
 		undo();
 		if (board.isLegal(move)) {
-			board.play(move);
 			return move;
 		}
-		board.play(PASS);
 		return PASS;
 	}
 
@@ -201,8 +199,7 @@ public class Player implements Playable {
 		} else if (property.equals("policy")) {
 			String[] policyClasses = value.split(":");
 			Policy prototype = null;
-			int i = policyClasses.length - 1;
-			do {
+			for (int i = policyClasses.length - 1; i >= 0; i--) {
 				String genClass = policyClasses[i];
 				if (!genClass.startsWith("orego.")) {
 					// set default path to policies if it isn't given
@@ -226,8 +223,7 @@ public class Player implements Playable {
 					e.printStackTrace();
 					System.exit(1);
 				}
-				i--;
-			} while (i >= 0);
+			}
 			setPolicy(prototype);
 		} else {
 			throw new UnknownPropertyException(property

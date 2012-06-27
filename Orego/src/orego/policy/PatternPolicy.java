@@ -11,7 +11,6 @@ import orego.mcts.SearchNode;
 import orego.patterns.*;
 import orego.util.*;
 import ec.util.MersenneTwisterFast;
-
 /**
  * Generates response moves to the previous play if a there are any pattern
  * matches in the immediate area.
