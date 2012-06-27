@@ -38,14 +38,14 @@ public class ResponseListTest {
 	@Test
 	public void testSort() {
 		responseList = new ResponseList();
-		int[] moves = {2,3,1,5,0,4};
+		short[] moves = {2,3,1,5,0,4};
 		responseList.setMoves(moves);
-		int[] indices = {4,2,0,1,5,3};
+		short[] indices = {4,2,0,1,5,3};
 		responseList.setIndices(indices);
 		// start with unsorted win list
-		int[] wins = {8,7,5,5,2,6};
+		short[] wins = {8,7,5,5,2,6};
 		responseList.setWins(wins);
-		int[] runs = {10,10,10,10,10,10};
+		short[] runs = {10,10,10,10,10,10};
 		responseList.setRuns(runs);
 		
 		responseList.sort(4,1);
@@ -55,7 +55,7 @@ public class ResponseListTest {
 		assertEquals(2, responseList.getIndices()[4]);
 		
 		// test sortLoss
-		int[] newWins = {8,2,5,5,3,1};
+		short[] newWins = {8,2,5,5,3,1};
 		responseList.setWins(newWins);
 		responseList.sort(3, -1);
 		assertEquals(2, responseList.getWins()[4]);
