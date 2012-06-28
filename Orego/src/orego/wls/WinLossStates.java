@@ -73,8 +73,27 @@ public class WinLossStates {
 	public WinLossStates() {
 		this(.95, 21);
 	}
+	
 	private void computeNumberOfStates() {
 		NUM_STATES = (END_SCALE * (END_SCALE + 1)) / 2;
+	}
+	
+	/**
+	 * Gets the next state index (for a win) from a given state.
+	 * Effectively transitions *and* increments to the next state.
+	 * @param stateAction the current (state, action). Just an index.
+	 */
+	public int addWin(int stateAction) {
+		return WIN[stateAction];
+	}
+	
+	/**
+	 * Gets the next state index (for a loss) from a given state.
+	 * Effectively transitions *and* de-increments. 
+	 * @param stateAction the current (state,action). Just an index.
+	 */
+	public int addLoss(int stateAction) {
+		return LOSS[stateAction];
 	}
 	
 	private void buildTables() {

@@ -26,8 +26,8 @@ public class State implements Comparable<State> {
 		z_values.clear();
 		
 		// currently just create a table
-		z_values.put(.97500, 1.96); // 95% confidence level
-		z_values.put(.95000, 1.65); // 90% confidence level
+		z_values.put(.97500,  1.96); // 95% confidence level
+		z_values.put(.95000,  1.65); // 90% confidence level
 		z_values.put(.74857,  .674490);
 	}
 	

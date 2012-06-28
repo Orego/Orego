@@ -24,35 +24,29 @@ package orego.wls;
 */
 
 
-
-import java.util.*;
-
 public class WLSout {
 
     public static void main (String[] args) 
     {
 		WinLossStates wls = new WinLossStates();
 
-		System.out.println ("  WLS tables: dummy program\n");
+		System.out.println("  WLS tables: dummy program\n");
 
-		System.out.print ("Win Table: " + wt.WIN[0]);
-		for (i = 0; i < wls.NUM_STATES; i++) 
-		{	
-			System.out.print (", " + wt.[i]);
+		System.out.print("Win Table: \n");
+		for (int i = 0; i < WinLossStates.NUM_STATES; i++) {	
+			System.out.print (", " + wls.addWin(i)); // get the next transition state for a win
+			
+			if ((i % 10) == 0) System.out.println (""); // newline after 10 columns
+		};
+		System.out.println("===========\n\n============\n");
+
+		for (int i = 0; i < WinLossStates.NUM_STATES; i++) {	
+			System.out.print (", " + wls.addLoss(i)); // get the next transition state for a loss
 			if ((i % 10) == 9) System.out.println ("");
 		};
-		System.out.println ("");
-		System.out.println ("");
-
-		System.out.print ("LOSS[] = " + wt.LOSS[0]);
-		for (i = 1; i <= wt.bestState; i++) 
-		{	
-			System.out.print (", " + wt.LOSS[i]);
-			if ((i % 10) == 9) System.out.println ("");
-		};
-		System.out.println ("");
-		System.out.println ("");
-		System.out.println ("Done.");
+		
+		System.out.println("\n\n\n");
+		System.out.println("Done.");
     };
     
 }
