@@ -592,6 +592,10 @@ public class MctsPlayer extends McPlayer {
 			super.setProperty(property, value);
 		}
 	}
+	
+	protected void setTable(TranspositionTable table) {
+		this.table = table;
+	}
 
 	@Override
 	public void setUpProblem(int colorToPlay, String[] diagram) {
