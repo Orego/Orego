@@ -1,60 +1,6 @@
 package orego.wls;
 
-/*	DESCRIPTION:
- ============
-
- This file includes the implementation of an object to initialize the WIN[]
- LOSS[] arrays.
-
- WLS is described in:
- --------------------
-
- Win/Loss States: An efficient model of success rates for simulation-based
- functions	Jacques Basaldœa and J. Marcos Moreno Vega
-
- Since the arrays are small, static allocation is used. You can call the
- method BuildTables() to create the arrays any number of times.
-
-
- Method: BuildTables(EndScale, IniWins, IniVisits	: integer)
- -------------------
-
- EndScale 	: End Of Scale. Note that 21 is the maximum that fits in
- 8 bit. To use larger values, you will have to increase
- the array sizes above [256].
-
- IniWins,
- IniVisits	: Both together form a virtual a priori information that
- applies to the state 0 (= never seen).
- E.g., IniWins = IniVisits = 1 means: When an event has
- never been observed, if the first time seen the event
- is a success (win), it will go to the state (2/2). If the
- first time is a failure (loss) it will go to (1/2).
-
- Usual value	: BuildTables(21, 0, 0) or BuildTables(21, 1, 1)
-
-
- Public variables:
- -----------------
-
- wls_State_Best		: The highest state as binary (E.g., 14/14)
- wls_EndScale		: The value of EndScale passed to the previous
- BuildTables() call.
- wls_binThresh_1div2	: Binary value of 1/2. This plus or minus some
- offset is the value used in a simulation as a
- threshold.
- WIN					: LUT table to update the WLS after a win
- aWls = wt.WIN[aWls];
- LOSS				: LUT table to update the WLS after a loss
- aWls = wt.LOSS[aWls];
- (where aWls is an integer storing the state and
- wt is an instance of the class WLStables)
-
-
- Multilingual: This file exists in Pascal (Delphi), C++ and Java.
- -------------
-
-
+/**
  LICENSE:
  ========
 
@@ -76,238 +22,197 @@ package orego.wls;
 
  */
 
-import static java.util.Arrays.*;
+import java.util.Arrays;
 
 public class WinLossStates {
 
-	/** An array of these is used in creating the WIN and LOSS tables. */
-	private class State implements Comparable<State> {
 
-		private int wins;
-
-		private int runs;
-
-		private double value;
-
-		@Override
-		public int compareTo(State that) {
-			if (value < that.value) {
-				return -1;
-			}
-			if (value > that.value) {
-				return 1;
-			}
-			return 0;
-		}
-
-	}
-
-	public int bestState; // The best state (Eg. 14/14)
-
-	public int endScale; // The current end of scale (1 .. 21) set by
-							// BuildTables()
+	public static double CONFIDENCE_LEVEL = .95; // confidence level for interval estimation
+	
+	public static int END_SCALE = 21;
+	
+	// compute the total number of states which is sum(1...[e+1]).
+	// we write it in closed form
+	public static int NUM_STATES = Integer.MIN_VALUE;
+	
+	public static double WIN_THRESHOLD = 0.5000;
+	
+	// constant used when jumping. Tuned empirically for END_SCALE = 21
+	// Can we do this automatically in the future?
+	public static double JUMP_CONSTANT_K = 1.3; 
+	
 	public int oneOfTwo; // Binary value of 1/2 (0/1 if endscale < 2)
-
+	
 	public int[] WIN;
 
-	public int[] LOSS; // The tables. It is also safe to use an 8 bit unsigned
+	public int[] LOSS;
 
 	private State[] states;
-
-	public WinLossStates() {
-		bestState = 0;
-		endScale = 0;
+	
+	// TODO: configuration of properties such as END_SCALE, WIN_THRESHOLD, etc
+	public WinLossStates(double confidence, int end_scale) {
+		CONFIDENCE_LEVEL = confidence;
+		END_SCALE = end_scale;
+		
+		computeNumberOfStates();
+		
 		oneOfTwo = 0;
-		// TODO How is the number of states determined as a function of
-		// endScale?
-		WIN = new int[253];
-		LOSS = new int[253];
-		states = new State[253];
-		for (int i = 0; i < states.length; i++) {
-			states[i] = new State();
+
+
+		WIN  = new int[NUM_STATES];
+		LOSS = new int[NUM_STATES];
+		states = new State[NUM_STATES];
+		
+		for (int i = 0; i < NUM_STATES; i++) {
+			states[i] = new State(0, 0);
 		}
+		
+		buildTables();
+	}
+	
+	public WinLossStates() {
+		this(.95, 21);
+	}
+	private void computeNumberOfStates() {
+		NUM_STATES = (END_SCALE * (END_SCALE + 1)) / 2;
+	}
+	
+	private void buildTables() {
+		
+		int curState = 0;
+		// Initializing states
+		// loop through all the different number of "denominators" or 
+		// number of runs.
+		for (int i = 0; i <= END_SCALE; i++) {
+			
+			// For each "level" in the tree (see figure 5 in the paper)
+			// create a series of fractions with the number of wins increasing
+			for (int j = 0; j <= i; j++) {
+				State state = states[curState];
+				
+				state.setWins(j);
+				state.setRuns(i);
+				
+				if (i == 0) {
+					// undefined for first state (lowest)
+					state.setConfidence(Double.MIN_VALUE);
+					continue;
+				}
+				
+				// compute the statistically "strength" of this proportion
+				state.computeConfidence(WIN_THRESHOLD);
+				
+				curState++;
+			}
+		}
+		
+		Arrays.sort(states); // sort according to confidence
+		
+		
+		// build the "directed graph" of win/loss state transitions
+		// we start at 0 and chain together the appropriate states
+		for (int stateActionIndex = 0; stateActionIndex < NUM_STATES; stateActionIndex++) {
+			
+			// where do we go after a win?
+			WIN[stateActionIndex] = findStateIndex(states[stateActionIndex].getWins() + 1, 
+								   				   states[stateActionIndex].getRuns() + 1,
+								   				   true);
+			
+			// where do we go after a loss?
+			LOSS[stateActionIndex] = findStateIndex(states[stateActionIndex].getWins(),
+													states[stateActionIndex].getRuns() + 1,
+													false);
+					
+		}
+		
 	}
 
-	public void buildTables(int endScale, int initialWins, int initialRuns) {
-		int n = 0;
-		for (int i = 0; i <= endScale; i++) {
-			for (int j = 0; j <= i; j++) {
-				states[n].wins = j;
-				states[n].runs = i;
-				if (i == 0) {
-					states[n].value = -9.9999;
-				} else {
-					if ((1.0 * states[n].wins) / states[n].runs > 0.4999) {
-						states[n].value = AgrestiCoullLB(states[n].wins,
-								states[n].runs);
-					} else {
-						states[n].value = -1
-								+ AgrestiCoullUB(states[n].wins, states[n].runs);
+	private int findStateIndex(int wins, int runs, boolean didWin) {
+		for (int i = NUM_STATES - 1; i >= 0; i--) {
+			if (states[i].getWins() == wins && 
+				states[i].getRuns() == runs   )
+				return i;
+		}
+		
+		// doesn't exist in the table? the value is saturated, we're going to need to jump
+		// WIN[i] = SaturatedIdx(states[i].wins, states[i].runs, 1);
+		return saturatedJumpIndex(wins, didWin);
+	}
+
+	/**
+	 * Returns the index to jump to when we have a "saturated" proportion: n/m where m = e (end of scale).
+	 * This function should not be called *unless* m = e (the proportion is saturated).
+	 * When a proportion is saturated the number of runs have surpassed the END_SCALE and hence have grown
+	 * beyond our encoding. We also begin to lose useful information because we are literally "off the charts".
+	 * Hence, we perform a small re-adjustment which allows the proportion to jump back and "churn" back up to the current state.
+	 * This guarantees that any truly saturated states are extremely "rich" with information and hence become stationary.
+	 * We continue to jump backwards in history until the win or loss hits the ceiling or floor. Once this happens,
+	 * we have as much information as we'll ever use as both the number of runs *and* the number of wins/losses have maxed out the scale.
+	 * @param wins The number of wins
+	 * @param runs The number of runs 
+	 * @param didWin Did we win in the last run?
+	 * @return int The index to which we will jump to force a sort of "confirmation"
+	 */
+	private int saturatedJumpIndex(int wins, boolean didWin) {
+
+		// number of runs we are going to jump to.
+		// In effect we are changing the denominator in proportion to deviation from 1/2.
+		// This performs a "jump" to an earlier state and has the side of increasingly our side effects.
+		// See the original paper for the jump formula
+		
+		// TODO: we might have to change 1/2 for binary values
+		int jumpRuns = (int)(END_SCALE - Math.round(JUMP_CONSTANT_K * END_SCALE * Math.abs(wins / END_SCALE - 1/2)));
+
+		// need to build a temporary state for our current state
+		State curState = states[findStateIndex(wins, END_SCALE, didWin)];
+		
+		if (didWin) {
+			
+			// pick the smallest proportion (with appropriate run count "jumpRuns").
+			// The proportion's confidence should be better than our current proportion.
+			// We effectively punish by reducing the number of wins and runs but we increase our confidence.
+			
+			int smallestProportionStateIndex = 0; // we are guaranteed to find a better state
+			for (int i = 0; i < NUM_STATES - 1; i++) {
+				
+				if (curState.getRuns() == jumpRuns) { // break early if no match!
+					
+					if (curState.getWinRunsProportion() > states[smallestProportionStateIndex].getWinRunsProportion() &&
+						states[i].getConfidence() > curState.getConfidence()) {
+						
+						smallestProportionStateIndex = i;
 					}
 				}
-				n++;
-			}
-		}
-		sort(states);
-		bestState = n - 1;
-		this.endScale = endScale;
-		int i = findIndex(initialWins + 1, initialRuns + 1);
-		// TODO Why would i be negative?
-		if (i < 0) {
-			i = findIndex(1, 1);
-		}
-		WIN[0] = i;
-		i = findIndex(initialWins, initialRuns + 1);
-		if (i < 0) {
-			i = findIndex(0, 1);
-		}
-		LOSS[0] = i;
-		// Build WIN[] and LOSS[] tables
-		for (i = 1; i <= bestState; i++) {
-			int j = findIndex(states[i].wins + 1, states[i].runs + 1);
-			if (j > 0) {
-				WIN[i] = j;
-			} else {
-				WIN[i] = SaturatedIdx(states[i].wins, states[i].runs, 1);
-			}
-			j = findIndex(states[i].wins, states[i].runs + 1);
-			if (j > 0) {
-				LOSS[i] = j;
-			} else {
-				LOSS[i] = SaturatedIdx(states[i].wins, states[i].runs, 0);
-			}
-		}
-		if (endScale > 1) {
-			oneOfTwo = findIndex(1, 2);
-		} else {
-			oneOfTwo = findIndex(0, 1);
-		}
-	}
-
-	private int findIndex(int wins, int runs) {
-		for (int i = bestState; i >= 0; i--) {
-			if ((states[i].wins == wins) && (states[i].runs == runs)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private int SaturatedIdx(int owins, int ovisits, int win) {
-		int i, j, nv;
-
-		if ((owins == 0) && (win == 0))
-			return 1;
-
-		if ((owins == ovisits) && (win != 0))
-			return bestState;
-
-		if (endScale < 4) {
-
-			// Counter heuristic
-
-			if (win != 0)
-				return findIndex(owins + 1, ovisits);
-			else
-				return findIndex(owins - 1, ovisits);
-		}
-		;
-
-		// Confirmation heuristic
-
-		j = findIndex(owins, ovisits);
-
-		// C++ : nv = ovisits - int(0.5 +
-		// (ConfiH_K*ovisits*abs(double(owins)/ovisits - 0.5)));
-
-		double d = owins;
-		d = d / ovisits - 0.5;
-		d = Math.abs(d);
-		d = ConfiH_K * ovisits * d;
-
-		nv = ovisits - (int) Math.round(d);
-
-		if (win != 0) {
-			for (i = j + 1; i <= bestState; i++) {
-				if (states[i].runs == nv)
-					return i;
+				
+				return smallestProportionStateIndex;
 			}
 		} else {
-			for (i = j - 1; i >= 1; i--) {
-				if (states[i].runs == nv)
-					return i;
+			if (wins == 0) return findStateIndex(0, END_SCALE, didWin); // fully saturated (lost as many times as possible)
+			else {
+				// pick the largest proportion (with appropriate run count)
+				// with a "confidence" smaller than our current proportion.
+				// We are effectively punishing by reducing the lose count and
+				// reducing our confidence level
+				
+				int biggestProportionStateIndex = 0; // we are guaranteed to find a better state
+				for (int i = 0; i < NUM_STATES - 1; i++) {
+					
+					if (curState.getRuns() == jumpRuns) { // break early if no match!
+						
+						if (curState.getWinRunsProportion() > states[biggestProportionStateIndex].getWinRunsProportion() &&
+							states[i].getConfidence() < curState.getConfidence()											) {
+							
+							biggestProportionStateIndex = i;
+						}						
+					}
+				}
+				
+				return biggestProportionStateIndex;
 			}
+			
 		}
-		;
+		
 
-		return -1; // This won't happen. Assertions have been removed from the
-					// multi-language version
+		return Integer.MIN_VALUE; 
 	};
-
-	private double AgrestiCoullLB(int wins, int visits) {
-		double ZetaUpperQ = 0.674490; // Upper quartile x of the N(0,1)
-		double k2 = ZetaUpperQ * ZetaUpperQ;
-		double xe, ne, p, pq;
-
-		xe = wins + 0.5 * k2;
-		ne = visits + k2;
-
-		p = xe / ne;
-		pq = (1 - p) * p;
-
-		return p - ZetaUpperQ
-				* Math.exp(0.5 * (Math.log(pq) - Math.log(visits)));
-	};
-
-	private double AgrestiCoullUB(int wins, int visits) {
-		double ZetaUpperQ = 0.674490; // Upper quartile x of the N(0,1)
-		double k2 = ZetaUpperQ * ZetaUpperQ;
-		double xe, ne, p, pq;
-
-		xe = wins + 0.5 * k2;
-		ne = visits + k2;
-
-		p = xe / ne;
-		pq = (1 - p) * p;
-
-		return p + ZetaUpperQ
-				* Math.exp(0.5 * (Math.log(pq) - Math.log(visits)));
-	};
-
-	private double ConfiH_K = 1.3; // Optimal value for End of Scale = 21
-
-	/*
-	 * These results are obtained for different values of ConfiH_K
-	 * 
-	 * JPS heuristic K : 0.90 SD (residuals) based on 20 draws : 0.0900±0.0155
-	 * (N = 25000) SD (residuals) based on ~200 draws : 0.1084±0.0147 (N =
-	 * 25000) Spearman rank correlation on 20 draws : 0.9625±0.0156 (N = 25000)
-	 * Spearman rank correlation on ~200 draws : 0.9742±0.0105 (N = 25000)
-	 * 
-	 * JPS heuristic K : 1.00 SD (residuals) based on 20 draws : 0.0900±0.0155
-	 * (N = 25000) SD (residuals) based on ~200 draws : 0.0964±0.0141 (N =
-	 * 25000) Spearman rank correlation on 20 draws : 0.9625±0.0156 (N = 25000)
-	 * Spearman rank correlation on ~200 draws : 0.9761±0.0098 (N = 25000)
-	 * 
-	 * JPS heuristic K : 1.10 SD (residuals) based on 20 draws : 0.0900±0.0155
-	 * (N = 25000) SD (residuals) based on ~200 draws : 0.0970±0.0140 (N =
-	 * 25000) Spearman rank correlation on 20 draws : 0.9625±0.0156 (N = 25000)
-	 * Spearman rank correlation on ~200 draws : 0.9753±0.0095 (N = 25000)
-	 * 
-	 * JPS heuristic K : 1.20 SD (residuals) based on 20 draws : 0.0900±0.0155
-	 * (N = 25000) SD (residuals) based on ~200 draws : 0.0881±0.0132 (N =
-	 * 25000) Spearman rank correlation on 20 draws : 0.9625±0.0156 (N = 25000)
-	 * Spearman rank correlation on ~200 draws : 0.9759±0.0095 (N = 25000)
-	 * 
-	 * JPS heuristic K : 1.30 SD (residuals) based on 20 draws : 0.0900±0.0155
-	 * (N = 25000) SD (residuals) based on ~200 draws : 0.0817±0.0125 (N =
-	 * 25000) Spearman rank correlation on 20 draws : 0.9625±0.0156 (N = 25000)
-	 * Spearman rank correlation on ~200 draws : 0.9759±0.0097 (N = 25000)
-	 * 
-	 * JPS heuristic K : 1.40 SD (residuals) based on 20 draws : 0.0900±0.0155
-	 * (N = 25000) SD (residuals) based on ~200 draws : 0.0838±0.0129 (N =
-	 * 25000) Spearman rank correlation on 20 draws : 0.9625±0.0156 (N = 25000)
-	 * Spearman rank correlation on ~200 draws : 0.9746±0.0102 (N = 25000)
-	 */
-
 };

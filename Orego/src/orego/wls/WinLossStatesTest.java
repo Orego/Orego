@@ -12,7 +12,6 @@ public class WinLossStatesTest {
 	@Before
 	public void setUp() throws Exception {
 		states = new WinLossStates();
-		states.buildTables(21, 1, 1);
 	}
 
 	@Test

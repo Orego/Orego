@@ -1,28 +1,7 @@
 package orego.wls;
-/*
-	DESCRIPTION:
-	============
-
-	This is a dummy program that only builds WLS tables and writes them to the
-	console for verification.
-
-	It uses the implementation in the source file WLStables.cpp
-
-
-	WLS is described in:
-	--------------------
-
-	Win/Loss States: An efficient model of success rates for simulation-based
-	functions	Jacques Basaldúa and J. Marcos Moreno Vega
-
-	Since the arrays are small, static allocation is used. You can call the
-	method BuildTables() to create the arrays any number of times.
-
-
-	Multilingual: This file exists in Pascal (Delphi), C++ and Java.
-	-------------
-
-
+/**
+	@author Jacques Basald'a
+	 
 	LICENSE:
 	========
 
@@ -52,21 +31,14 @@ public class WLSout {
 
     public static void main (String[] args) 
     {
-		WinLossStates wt = new WinLossStates();
-		int i;
+		WinLossStates wls = new WinLossStates();
 
-		System.out.println ("  WLS tables: dummy program");
-		System.out.println ("");
+		System.out.println ("  WLS tables: dummy program\n");
 
-		wt.buildTables(21, 1, 1);
-
-		System.out.println ("wt.BuildTables(21, 1, 1);");
-		System.out.println ("");
-
-		System.out.print ("WIN[] = " + wt.WIN[0]);
-		for (i = 1; i <= wt.bestState; i++) 
+		System.out.print ("Win Table: " + wt.WIN[0]);
+		for (i = 0; i < wls.NUM_STATES; i++) 
 		{	
-			System.out.print (", " + wt.WIN[i]);
+			System.out.print (", " + wt.[i]);
 			if ((i % 10) == 9) System.out.println ("");
 		};
 		System.out.println ("");
