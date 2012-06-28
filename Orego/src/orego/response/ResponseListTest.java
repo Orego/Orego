@@ -1,7 +1,7 @@
 package orego.response;
 
 /**
- * Tests for the History Info object.
+ * Tests for the ResponseList object.
  */
 
 import static org.junit.Assert.*;

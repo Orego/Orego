@@ -17,16 +17,17 @@ public class ResponseList {
 	final static int PASS_WINS_BIAS = 1;
 	final static int PASS_RUNS_BIAS = 10;
 	
+	// All of these arrays are shorts so they'll fit into memory
 	short[] wins;
 	short[] runs;
 	short[] moves;
 	short[] indices;
-	short totalRuns;
+	int totalRuns;
 	
 	public ResponseList(){
-		wins = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		runs = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		moves = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		wins = new short[Coordinates.BOARD_AREA+1];
+		runs = new short[Coordinates.BOARD_AREA+1];
+		moves = new short[Coordinates.BOARD_AREA+1];
 		indices = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
 		//randomize the list
 		ArrayList<Short> list = new ArrayList<Short>();
@@ -42,10 +43,10 @@ public class ResponseList {
 			runs[i] = NORMAL_RUNS_BIAS;
 			i++;
 		}
-		moves[moves.length - 1] = Coordinates.PASS;
-		wins[wins.length - 1] = PASS_WINS_BIAS;
-		runs[runs.length - 1] = PASS_RUNS_BIAS;
-		indices[Coordinates.PASS] = (short) (moves.length - 1);	
+		moves[Coordinates.BOARD_AREA] = Coordinates.PASS;
+		wins[Coordinates.BOARD_AREA] = PASS_WINS_BIAS;
+		runs[Coordinates.BOARD_AREA] = PASS_RUNS_BIAS;
+		indices[Coordinates.PASS] = (short) (Coordinates.BOARD_AREA);	
 	}
 	
 	public short[] getWins() {
@@ -80,39 +81,49 @@ public class ResponseList {
 		this.indices = indices;
 	}
 
-	public short getTotalRuns() {
+	public int getTotalRuns() {
 		return totalRuns;
 	}
 
-	public void setTotalRuns(short totalRuns) {
+	public void setTotalRuns(int totalRuns) {
 		this.totalRuns = totalRuns;
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * @param result 1 if adding a win, -1 if adding a loss
-	 * 
 	 * calls either sortWin(move) or sortLoss(move)
 	 * to sort the arrays appropriately
 	 * 
+	 * @param move the move to be updated
+	 * @param result 1 if adding a win, -1 if adding a loss
 	 */
 	public void sort(int move, int result) {
 		int moveIndex = indices[move];
-		if(moveIndex <= 0 && result > 0) return;
-		if(moveIndex >= Coordinates.BOARD_AREA && result < 0) return;
+		if(moveIndex <= 0 && result > 0) {
+			return;
+		}
+		if(moveIndex >= moves.length-1 && result < 0) {
+			return;
+		}
 		
-		if(result > 0) sortWin(move);
-		else sortLoss(move);
+		if(result > 0) {
+			assert moveIndex > 0 : "ResponseList.sort -- should not happen";
+			sortWin(move);
+		}
+		else {
+			assert moveIndex < moves.length-1 : "ResponseList.sort -- should not happen";
+			sortLoss(move);
+		}
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * 
 	 * sorts the arrays appropriately if a
 	 * win has been added to move
+	 * 
+	 * @param move the move to be updated
 	 */
 	public void sortWin(int move) {
 		int moveIndex = indices[move];
+		assert moveIndex > 0;
 		double toSort = getWinRate(move);
 		int compIndex = moveIndex-1;
 		double compare = getWinRate(moves[compIndex]);
@@ -128,18 +139,19 @@ public class ResponseList {
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * 
 	 * sorts the arrays appropriately if a
 	 * loss has been added to move
+	 * 
+	 * @param move the move to be updated
 	 */
 	public void sortLoss(int move) {
 		int moveIndex = indices[move];
+		assert moveIndex < moves.length-1;
 		double toSort = getWinRate(move);
 		int compIndex = moveIndex+1;
 		double compare = getWinRate(moves[compIndex]);
 		
-		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA+1) {
+		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA) {
 			swap(moveIndex, compIndex);
 			compIndex++;
 			moveIndex++;
@@ -178,6 +190,7 @@ public class ResponseList {
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
+		assert totalRuns > 0: "totalRuns two's complement";
 		sort(p, 1);
 	}
 	
@@ -187,6 +200,7 @@ public class ResponseList {
 	public void addLoss(int p){
 		runs[indices[p]]++;
 		totalRuns++;
+		assert totalRuns > 0: "totalRuns two's complement";
 		sort(p,-1);
 	}
 	
