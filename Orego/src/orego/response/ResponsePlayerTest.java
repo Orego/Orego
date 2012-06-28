@@ -83,7 +83,7 @@ public class ResponsePlayerTest {
 		assertEquals(at("c4"), player.bestStoredMove());
 	}
 	
-	/*@Test
+	@Test
 	public void testPassInSeki() {
 		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
@@ -132,5 +132,5 @@ public class ResponsePlayerTest {
 			int move = player.bestMove();
 			assertEquals(PASS, move);
 		}
-	}*/
+	}
 }

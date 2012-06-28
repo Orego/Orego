@@ -25,9 +25,9 @@ public class ResponseList {
 	int totalRuns;
 	
 	public ResponseList(){
-		wins = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		runs = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		moves = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		wins = new short[Coordinates.BOARD_AREA+1];
+		runs = new short[Coordinates.BOARD_AREA+1];
+		moves = new short[Coordinates.BOARD_AREA+1];
 		indices = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
 		//randomize the list
 		ArrayList<Short> list = new ArrayList<Short>();
@@ -43,10 +43,10 @@ public class ResponseList {
 			runs[i] = NORMAL_RUNS_BIAS;
 			i++;
 		}
-		moves[Coordinates.ALL_POINTS_ON_BOARD.length] = Coordinates.PASS;
-		wins[Coordinates.ALL_POINTS_ON_BOARD.length] = PASS_WINS_BIAS;
-		runs[Coordinates.ALL_POINTS_ON_BOARD.length] = PASS_RUNS_BIAS;
-		indices[Coordinates.PASS] = (short) (Coordinates.ALL_POINTS_ON_BOARD.length);	
+		moves[Coordinates.BOARD_AREA] = Coordinates.PASS;
+		wins[Coordinates.BOARD_AREA] = PASS_WINS_BIAS;
+		runs[Coordinates.BOARD_AREA] = PASS_RUNS_BIAS;
+		indices[Coordinates.PASS] = (short) (Coordinates.BOARD_AREA);	
 	}
 	
 	public short[] getWins() {
@@ -151,7 +151,7 @@ public class ResponseList {
 		int compIndex = moveIndex+1;
 		double compare = getWinRate(moves[compIndex]);
 		
-		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA+1) {
+		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA) {
 			swap(moveIndex, compIndex);
 			compIndex++;
 			moveIndex++;
