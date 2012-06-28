@@ -22,7 +22,7 @@ public class ResponseList {
 	short[] runs;
 	short[] moves;
 	short[] indices;
-	short totalRuns;
+	int totalRuns;
 	
 	public ResponseList(){
 		wins = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
@@ -81,11 +81,11 @@ public class ResponseList {
 		this.indices = indices;
 	}
 
-	public short getTotalRuns() {
+	public int getTotalRuns() {
 		return totalRuns;
 	}
 
-	public void setTotalRuns(short totalRuns) {
+	public void setTotalRuns(int totalRuns) {
 		this.totalRuns = totalRuns;
 	}
 	
@@ -179,6 +179,7 @@ public class ResponseList {
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
+		assert totalRuns > 0: "totalRuns two's complement";
 		sort(p, 1);
 	}
 	
@@ -188,6 +189,7 @@ public class ResponseList {
 	public void addLoss(int p){
 		runs[indices[p]]++;
 		totalRuns++;
+		assert totalRuns > 0: "totalRuns two's complement";
 		sort(p,-1);
 	}
 	
