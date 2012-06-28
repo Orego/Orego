@@ -43,16 +43,16 @@ public class WinLossStates {
 	
 	public int oneOfTwo; // Binary value of 1/2 (0/1 if endscale < 2)
 	
-	public int[] WIN;
+	private int[] WIN;
 
-	public int[] LOSS;
+	private int[] LOSS;
 
 	private State[] states;
 	
 	// TODO: configuration of properties such as END_SCALE, WIN_THRESHOLD, etc
 	public WinLossStates(double confidence, int end_scale) {
 		CONFIDENCE_LEVEL = confidence;
-		END_SCALE = end_scale;
+		END_SCALE 		 = end_scale;
 		
 		computeNumberOfStates();
 		
@@ -71,11 +71,12 @@ public class WinLossStates {
 	}
 	
 	public WinLossStates() {
-		this(.95, 21);
+ 		this(.95, 21);
 	}
 	
 	private void computeNumberOfStates() {
-		NUM_STATES = (END_SCALE * (END_SCALE + 1)) / 2;
+		// using closed for +1 on END_SCALE for initial state 0
+		NUM_STATES = ((END_SCALE + 1) * (END_SCALE + 2)) / 2;
 	}
 	
 	/**
@@ -96,6 +97,19 @@ public class WinLossStates {
 		return LOSS[stateAction];
 	}
 	
+	/**
+	 * Gets a state for a given index
+	 * @param stateAction The state action pair (really just an index)
+	 * @return State the state for the given index
+	 */
+	public State getState(int stateAction) {
+		return states[stateAction];
+	}
+	
+	public int getTotalStates() {
+		return NUM_STATES;
+	}
+	
 	private void buildTables() {
 		
 		int curState = 0;
@@ -105,7 +119,7 @@ public class WinLossStates {
 		for (int i = 0; i <= END_SCALE; i++) {
 			
 			// For each "level" in the tree (see figure 5 in the paper)
-			// create a series of fractions with the number of wins increasing
+			// create a series of fractions with the number of wins increasing as numerator
 			for (int j = 0; j <= i; j++) {
 				State state = states[curState];
 				
@@ -154,7 +168,6 @@ public class WinLossStates {
 		}
 		
 		// doesn't exist in the table? the value is saturated, we're going to need to jump
-		// WIN[i] = SaturatedIdx(states[i].wins, states[i].runs, 1);
 		return saturatedJumpIndex(wins, didWin);
 	}
 

@@ -32,15 +32,31 @@ public class WLSout {
 
 		System.out.println("  WLS tables: dummy program\n");
 
+		System.out.print("State Table: \n");
+		
+		// print all the different states (proportions)
+		for (int i = 0; i < wls.getTotalStates(); i++) {
+			State state = wls.getState(i);
+			System.out.print (String.format(", %d/%d", state.getWins(), 
+													   state.getRuns())); // print the win/run ratio
+			
+			if ((i % 10) == 0) System.out.println(""); // newline after 10 columns
+		}
+		
+		System.out.println("===========\n\n============\n");
+		
 		System.out.print("Win Table: \n");
+		// loop through all states and check their transitions to win states
 		for (int i = 0; i < WinLossStates.NUM_STATES; i++) {	
 			System.out.print (", " + wls.addWin(i)); // get the next transition state for a win
 			
 			if ((i % 10) == 0) System.out.println (""); // newline after 10 columns
 		};
 		System.out.println("===========\n\n============\n");
-
-		for (int i = 0; i < WinLossStates.NUM_STATES; i++) {	
+		
+		System.out.print("Lose Table: \n");
+		// loop through all states and check their transitions to lose states
+		for (int i = 0; i < wls.getTotalStates(); i++) {	
 			System.out.print (", " + wls.addLoss(i)); // get the next transition state for a loss
 			if ((i % 10) == 9) System.out.println ("");
 		};
@@ -49,4 +65,5 @@ public class WLSout {
 		System.out.println("Done.");
     };
     
+
 }
