@@ -12,6 +12,7 @@ import orego.core.Board;
 import orego.core.Colors;
 import orego.core.Coordinates;
 import orego.mcts.McRunnable;
+import orego.play.UnknownPropertyException;
 import orego.policy.RandomPolicy;
 import orego.response.ResponseList;
 
@@ -151,4 +152,154 @@ public class ResponsePlayerTest {
 			assertEquals(PASS, move);
 		}
 	}
+	
+	@Test
+	public void testKillDeadStonesToOvercomeLargeTerritory() {
+		if (BOARD_WIDTH == 19) {
+			String[] problem = { "#..................",// 19
+					"O..................",// 18
+					"O..................",// 17
+					"O..................",// 16
+					"O..................",// 15
+					"O..................",// 14
+					"OOOOOOOOOOOOOOOOOOO",// 13
+					"OOOOOOOOOOOOOOOOOOO",// 12
+					"OOOOOOOOOOOOOOOOOOO",// 11
+					"OOOOOOOOOOOOOOOOOOO",// 10
+					"###################",// 9
+					"#..................",// 8
+					"#..................",// 7
+					"#..................",// 6
+					"#..................",// 5
+					"#..................",// 4
+					"#..................",// 3
+					"####...............",// 2
+					".#.#..............." // 1
+			// ABCDEFGHJKLMNOPQRST
+			};
+			player.getBoard().setUpProblem(BLACK, problem);
+			McRunnable runnable = new McRunnable(player, new RandomPolicy());
+			player.acceptMove(PASS);
+			for (int i = 0; i < 1000; i++) {
+				runnable.performMcRun();
+			}
+			int move = player.bestMove();
+			// White must capture the dead black stone to win
+			assertFalse(PASS == move);
+		} else {
+			String[] problem = { "#........", "O........", "OOOOOOOOO",
+					"OOOOOOOOO", "OOOOOOOOO", "#########", "#........",
+					"####.....", ".#.#.....", };
+			player.getBoard().setUpProblem(BLACK, problem);
+			player.acceptMove(PASS);
+			int move = player.bestMove();
+			// White must capture the dead black stone to win
+			assertFalse(PASS == move);
+		}
+	}
+	
+	@Test
+	public void testKillDeadStonesToOvercomeLargeTerritory2() {
+		if (BOARD_WIDTH == 19) {
+			// Orego must realize that its own stone is dead.
+			String[] problem = { "##.O.OOOOOOOOOOOOO.",// 19
+					"OOOOOOOOOOOOOOOOOOO",// 18
+					"OOOOOOOOOOOOOOOOOOO",// 17
+					"OOOOOOOOOOOOOOOOOOO",// 16
+					"OOOOOOOOOOOOOOOOOOO",// 15
+					"OOOOOOOOOOOOOOOOOOO",// 14
+					"OOOOOOOOOOOOOOOOOOO",// 13
+					"OOOOOOOOOOOOOOOOOOO",// 12
+					"OOOOOOOOOOOOOOOOOOO",// 11
+					"OOOOOO#############",// 10
+					"###################",// 9
+					"###################",// 8
+					"###################",// 7
+					"###################",// 6
+					"###################",// 5
+					"###################",// 4
+					"####.O#############",// 3
+					"#######.###########",// 2
+					".#.##..############" // 1
+			// ABCDEFGHJKLMNOPQRST
+			};
+			player.getBoard().setUpProblem(BLACK, problem);
+			McRunnable runnable = new McRunnable(player, new RandomPolicy());
+			player.acceptMove(PASS);
+			for (int i = 0; i < 1000; i++) {
+				runnable.performMcRun();
+			}
+			int move = player.bestMove();
+			// White must capture the dead black stones to win
+			// assertEquals(at("c19"), move);
+			assertFalse(PASS == move);
+			player.getBoard().play(move);
+		} else {
+			// Orego must realize that its own stone is dead
+			String[] problem = { "##.O.OOO.", "OOOOOOOOO", "OOOOOOOOO",
+					"OOOOOOOOO", "########O", "#########", "##O.#####",
+					"####.##.#", ".#.######", };
+			player.getBoard().setUpProblem(BLACK, problem);
+			player.acceptMove(PASS);
+			int move = player.bestMove();
+			// White must capture the dead black stone to win
+			assertEquals(at("c9"), move);
+			assertFalse(PASS == move);
+		}
+	}
+	
+	/*@Test
+	public void testConnect() throws UnknownPropertyException {
+		if (BOARD_WIDTH == 19) {
+			String[] problem = { 
+					"##########OOOOOOOOO",// 19
+					"##.#######OOOOOO.OO",// 18
+					"#...######OOOOO...O",// 17
+					"##.#######OOOOOO.OO",// 16
+					"##########OOOOOOOOO",// 15
+					"##########OOOOOOOOO",// 14
+					"##########OOOOOOOOO",// 13
+					"##########OOOOOOOOO",// 12
+					"##########OOOOOOOOO",// 11
+					"OOOOOOOOO.OOOOOOOOO",// 10
+					"OOOOOOOOO##########",// 9
+					"OOOOOOOOO##########",// 8
+					"OOOOOOOOO##########",// 7
+					"OOOOOOOOO##########",// 6
+					"OOOO.OOOO##########",// 5
+					"OOO...OOO######.###",// 4
+					"OOOO.OOOO#####...##",// 3
+					"OOOOOOOOO######.###",// 2
+					"OOOOOOOOO##########" // 1
+			// ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(BLACK, problem);
+			McRunnable runnable = new McRunnable(player, new RandomPolicy());
+			for (int i = 0; i < 10000; i++) {
+				runnable.performMcRun();
+			}
+			ResponseList table = player.getResponseZeroBlack();
+			System.out.println(table.getWins(table.getIndices()[305]));
+			System.out.println(table.getRuns(table.getIndices()[305]));
+			System.out.println(table.getWinRate(305));
+			System.out.println(table.getWins(table.getIndices()[326]));
+			System.out.println(table.getRuns(table.getIndices()[326]));
+			System.out.println(table.getWinRate(326));
+			System.out.println(table.getWins(table.getIndices()[210]));
+			System.out.println(table.getRuns(table.getIndices()[210]));
+			System.out.println(table.getWinRate(210));
+			//System.out.println("\n");
+			int move = player.bestMove();
+			assertEquals(at("k10"), move);
+		} else {
+			// Broken for 9x9 -- no playouts
+			//String[] problem = { "....#....", "....#....", "....#....",
+			//		"....#....", "OOOO.OOOO", "....#....", "....#....",
+			//		"....#....", "....#....", };
+			//player.setUpProblem(BLACK, problem);
+			//player.setProperty("playouts", "10000");
+			//int move = player.bestMove();
+			//assertEquals(at("e5"), move);
+		}
+	}*/
 }
