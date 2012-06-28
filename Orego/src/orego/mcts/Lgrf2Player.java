@@ -17,7 +17,7 @@ import orego.policy.*;
  */
 public class Lgrf2Player extends RavePlayer {
 	
-	// Indices: color to play, previous move
+	/** Indices are color to play, previous move. */
 	private int[][] replies1;
 
 	/** Returns the llevel 1 reply table. */
@@ -34,22 +34,17 @@ public class Lgrf2Player extends RavePlayer {
 	}
 
 	public static void main(String[] args) {
+		Lgrf2Player p = new Lgrf2Player();
 		try {
-			int RUNS = 10;
-			Lgrf2Player p = new Lgrf2Player();
-//			for (int threads = 1; threads <= 12; threads++) {
-				int threads = 2;
-				p.setProperty("priors", "20");
-				p.setProperty("policy", "Escape:Pattern:Capture");
-				p.setProperty("threads", "" + threads);
-				double kpps = 0;
-				kpps = p.benchmark(false)[0];
-				System.out.printf("%d threads: %1.3f kpps\n", threads, kpps);
-//			}
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "2");
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
 	}
 
 	@Override
