@@ -71,7 +71,7 @@ public class WinLossStates {
 	}
 	
 	private void computeNumberOfStates() {
-		// using closed for +1 on END_SCALE for initial state 0
+		// using closed form and +1 on END_SCALE for initial state 0
 		NUM_STATES = ((END_SCALE + 1) * (END_SCALE + 2)) / 2;
 	}
 	

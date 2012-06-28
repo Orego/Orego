@@ -124,11 +124,17 @@ public class State implements Comparable<State> {
 		
 		// now add or subtract based on whether we are computing lower or upper bound
 		if (getWinRunsProportion() >= WinLossStates.WIN_THRESHOLD)
-			bound -= CI;
-		else
-			bound += CI;
-		
-		// TODO: shift by a constant amount to avoid overlap
+			bound -= CI; // provide the lower bound of the entire *interval* which is itself above .5
+		else {
+			bound += CI; // provide the upper bound of the entire *interval* which is itself below .5
+			// we shift by a constant amount to avoid overlap.
+			// Remember, each confidence interval (upper and lower bound) usually lie above or below .5
+			// However, there are cases where the lowerbound of an interval above .5 could overlap with the upperbound
+			// of an interval below .5. To remedy this we shift the upperbounds of the intervals below .5 down by 1 to ensure this doesn't occur.
+			// Similarly you could bump the lower bounds of intervals above .5 by 1 to ensure no overlap
+			bound -= 1;
+		}
+
 		this.confidence = bound;
 	}
 }
