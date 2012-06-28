@@ -1174,7 +1174,7 @@ public class Board {
 		colorToPlay = color;
 	}
 
-	/** Sets up the starting handicap for a board. */
+	/** Sets up the starting handicap for a board. Must be between 2 and 9 stones. */
 	public void setUpHandicap(int handicapSize) {
 		handicap = handicapSize;
 		String[][] handicaps = { { "D4", "Q16" }, { "D4", "Q16", "D16" },
