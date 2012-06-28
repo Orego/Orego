@@ -13,6 +13,8 @@ public class State implements Comparable<State> {
 
 	private int runs;
 
+	private int stateIndex;
+	
 	private double confidence;
 	
 	// precomputed z-values
@@ -58,6 +60,14 @@ public class State implements Comparable<State> {
 		this.confidence = confidence;
 	}
 	
+	public int getStateIndex() {
+		return stateIndex;
+	}
+	
+	public void setStateIndex(int stateIndex) {
+		this.stateIndex = stateIndex;
+	}
+	
 	public double getConfidence() {
 		return this.confidence;
 	}
@@ -79,6 +89,8 @@ public class State implements Comparable<State> {
 	}
 	
 	public double getWinRunsProportion() {
+		if (runs == 0) return Double.MIN_VALUE; // occurs if state is 0/0.
+		
 		return ((double) wins / (double) runs);
 	}
 	
@@ -97,7 +109,7 @@ public class State implements Comparable<State> {
 	 * @param win_threshold
 	 * @return
 	 */
-	public double computeConfidence(double win_threshold) {
+	public void computeConfidence(double win_threshold) {
 		double z_value = z_values.get(WinLossStates.CONFIDENCE_LEVEL);
 		double z_value_squared = z_value * z_value;
 
@@ -116,6 +128,7 @@ public class State implements Comparable<State> {
 		else
 			bound += CI;
 		
-		return bound;
+		// TODO: shift by a constant amount to avoid overlap
+		this.confidence = bound;
 	}
 }

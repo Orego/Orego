@@ -29,19 +29,18 @@ public class WinLossStates {
 
 	public static double CONFIDENCE_LEVEL = .95; // confidence level for interval estimation
 	
+	// our sliding "window" for the "resolution" of our encoding
 	public static int END_SCALE = 21;
 	
 	// compute the total number of states which is sum(1...[e+1]).
-	// we write it in closed form
-	public static int NUM_STATES = Integer.MIN_VALUE;
+	// we write it in closed form. Includes an extra +1 for 0/0 entry
+	public static int NUM_STATES = Integer.MAX_VALUE;
 	
 	public static double WIN_THRESHOLD = 0.5000;
 	
 	// constant used when jumping. Tuned empirically for END_SCALE = 21
 	// Can we do this automatically in the future?
 	public static double JUMP_CONSTANT_K = 1.3; 
-	
-	public int oneOfTwo; // Binary value of 1/2 (0/1 if endscale < 2)
 	
 	private int[] WIN;
 
@@ -56,9 +55,6 @@ public class WinLossStates {
 		
 		computeNumberOfStates();
 		
-		oneOfTwo = 0;
-
-
 		WIN  = new int[NUM_STATES];
 		LOSS = new int[NUM_STATES];
 		states = new State[NUM_STATES];
@@ -115,8 +111,8 @@ public class WinLossStates {
 		int curState = 0;
 		// Initializing states
 		// loop through all the different number of "denominators" or 
-		// number of runs.
-		for (int i = 0; i <= END_SCALE; i++) {
+		// number of runs. (we +1 because we want to include the first one)
+		for (int i = 0; i < END_SCALE + 1; i++) {
 			
 			// For each "level" in the tree (see figure 5 in the paper)
 			// create a series of fractions with the number of wins increasing as numerator
@@ -125,6 +121,7 @@ public class WinLossStates {
 				
 				state.setWins(j);
 				state.setRuns(i);
+				state.setStateIndex(curState);
 				
 				if (i == 0) {
 					// undefined for first state (lowest)
@@ -143,7 +140,7 @@ public class WinLossStates {
 		
 		
 		// build the "directed graph" of win/loss state transitions
-		// we start at 0 and chain together the appropriate states
+		// we start at 0 and chain together the appropriate states.
 		for (int stateActionIndex = 0; stateActionIndex < NUM_STATES; stateActionIndex++) {
 			
 			// where do we go after a win?
@@ -189,62 +186,62 @@ public class WinLossStates {
 
 		// number of runs we are going to jump to.
 		// In effect we are changing the denominator in proportion to deviation from 1/2.
-		// This performs a "jump" to an earlier state and has the side of increasingly our side effects.
+		// This performs a "jump" to an earlier state by simply looking for a new proportion with our new, target runs
 		// See the original paper for the jump formula
 		
 		// TODO: we might have to change 1/2 for binary values
-		int jumpRuns = (int)(END_SCALE - Math.round(JUMP_CONSTANT_K * END_SCALE * Math.abs(wins / END_SCALE - 1/2)));
+		int jumpRuns = (int)(END_SCALE - Math.round(JUMP_CONSTANT_K * (double) END_SCALE * Math.abs((double) wins / (double)END_SCALE - 1.0/2.0)));
 
-		// need to build a temporary state for our current state
+		// need to build a temporary state for our current state (over saturated state)
 		State curState = states[findStateIndex(wins, END_SCALE, didWin)];
 		
 		if (didWin) {
 			
-			// pick the smallest proportion (with appropriate run count "jumpRuns").
-			// The proportion's confidence should be better than our current proportion.
-			// We effectively punish by reducing the number of wins and runs but we increase our confidence.
 			
-			int smallestProportionStateIndex = 0; // we are guaranteed to find a better state
-			for (int i = 0; i < NUM_STATES - 1; i++) {
+			if (wins == END_SCALE) return findStateIndex(END_SCALE, END_SCALE, didWin); // fully saturated
+			
+			// The proportion's confidence should be better than our current proportion (with appropriate run count "jumpRuns").
+			// We effectively punish by reducing the number of wins and runs but we increase our confidence.
+			// TODO: but do higher confidences imply smaller proportions?
+			
+			// we can use the fact that the states are sorted by confidence. 
+			// We start at the current index and find the next highest confidence proportion
+			// we skip state 0/0 since irrelevant
+			for (int i = curState.getStateIndex(); i < NUM_STATES; i++) {
 				
-				if (curState.getRuns() == jumpRuns) { // break early if no match!
-					
-					if (curState.getWinRunsProportion() > states[smallestProportionStateIndex].getWinRunsProportion() &&
-						states[i].getConfidence() > curState.getConfidence()) {
-						
-						smallestProportionStateIndex = i;
-					}
-				}
+				if (states[i].getRuns() != jumpRuns) continue; // break early if we don't have the appropriate number of runs
+				State state = states[i];
 				
-				return smallestProportionStateIndex;
+				if (states[i].getConfidence() > curState.getConfidence())
+					return i;
 			}
+			
 		} else {
 			if (wins == 0) return findStateIndex(0, END_SCALE, didWin); // fully saturated (lost as many times as possible)
-			else {
-				// pick the largest proportion (with appropriate run count)
-				// with a "confidence" smaller than our current proportion.
-				// We are effectively punishing by reducing the lose count and
-				// reducing our confidence level
+
+			
+			// We pick the "confidence" smaller than our current proportion.
+			// We are effectively punishing by reducing the lose count and
+			// reducing our confidence level.
+			
+			// TODO: but what about the rule: "must be a bigger proportion". Is that implied by a smaller confidence?
+			
+			// since the states are sorted by confidence, we can work our way down (from the current index) 
+			// the list and we are guaranteed to find the *biggest* confidence less
+			// than the current confidence
+			
+			// we skip state 0/0 since irrelevant
+			for (int i = curState.getStateIndex() - 1; i >= 1; i++) {
 				
-				int biggestProportionStateIndex = 0; // we are guaranteed to find a better state
-				for (int i = 0; i < NUM_STATES - 1; i++) {
+				if (states[i].getRuns() != jumpRuns) continue; // break early if doesn't have appropriate number of runs
 					
-					if (curState.getRuns() == jumpRuns) { // break early if no match!
-						
-						if (curState.getWinRunsProportion() > states[biggestProportionStateIndex].getWinRunsProportion() &&
-							states[i].getConfidence() < curState.getConfidence()											) {
-							
-							biggestProportionStateIndex = i;
-						}						
-					}
-				}
-				
-				return biggestProportionStateIndex;
+				if (states[i].getConfidence() < curState.getConfidence())
+					return i;
+
 			}
 			
-		}
-		
-
-		return Integer.MIN_VALUE; 
+			
+		} 
+		return Integer.MAX_VALUE;
 	};
 };
