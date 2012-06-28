@@ -116,9 +116,11 @@ public class ResponsePlayerTest {
 				//System.out.println(player.getResponseZeroBlack().getTotalRuns());
 			}
 			ResponseList table = player.getResponseZeroBlack();
-			//System.out.println(table.getWinRate(365));
-			//System.out.println(table.getWinRate(385));
-			//System.out.println(table.getWinRate(Coordinates.PASS));
+			System.out.println(table.getWinRate(365));
+			System.out.println(table.getWinRate(385));
+			System.out.println(table.getWins(table.getIndices()[Coordinates.PASS]));
+			System.out.println(table.getRuns(table.getIndices()[Coordinates.PASS]));
+			System.out.println(table.getWinRate(Coordinates.PASS));
 			//System.out.println("Turn "+runnable.getBoard().getTurn());
 			int move = player.bestMove();
 			assertEquals(PASS, move);

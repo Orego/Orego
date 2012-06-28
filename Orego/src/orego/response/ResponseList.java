@@ -43,10 +43,10 @@ public class ResponseList {
 			runs[i] = NORMAL_RUNS_BIAS;
 			i++;
 		}
-		moves[moves.length - 1] = Coordinates.PASS;
-		wins[wins.length - 1] = PASS_WINS_BIAS;
-		runs[runs.length - 1] = PASS_RUNS_BIAS;
-		indices[Coordinates.PASS] = (short) (moves.length - 1);	
+		moves[Coordinates.ALL_POINTS_ON_BOARD.length] = Coordinates.PASS;
+		wins[Coordinates.ALL_POINTS_ON_BOARD.length] = PASS_WINS_BIAS;
+		runs[Coordinates.ALL_POINTS_ON_BOARD.length] = PASS_RUNS_BIAS;
+		indices[Coordinates.PASS] = (short) (Coordinates.ALL_POINTS_ON_BOARD.length);	
 	}
 	
 	public short[] getWins() {
@@ -90,12 +90,11 @@ public class ResponseList {
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * @param result 1 if adding a win, -1 if adding a loss
-	 * 
 	 * calls either sortWin(move) or sortLoss(move)
 	 * to sort the arrays appropriately
 	 * 
+	 * @param move the move to be updated
+	 * @param result 1 if adding a win, -1 if adding a loss
 	 */
 	public void sort(int move, int result) {
 		int moveIndex = indices[move];
@@ -117,10 +116,10 @@ public class ResponseList {
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * 
 	 * sorts the arrays appropriately if a
 	 * win has been added to move
+	 * 
+	 * @param move the move to be updated
 	 */
 	public void sortWin(int move) {
 		int moveIndex = indices[move];
@@ -140,10 +139,10 @@ public class ResponseList {
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * 
 	 * sorts the arrays appropriately if a
 	 * loss has been added to move
+	 * 
+	 * @param move the move to be updated
 	 */
 	public void sortLoss(int move) {
 		int moveIndex = indices[move];

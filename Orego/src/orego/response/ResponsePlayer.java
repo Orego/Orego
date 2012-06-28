@@ -60,6 +60,7 @@ public class ResponsePlayer extends McPlayer {
 	
 	/**
 	 * toggle testing flag to change threshold value
+	 * 
 	 * @param setting new setting for testing flag
 	 */
 	public void setTesting(boolean setting) {
@@ -67,6 +68,7 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
+	 * force the given moves, then proceed as in generateMovesToFrontier
 	 * 
 	 * @param runnable
 	 * @param moves the moves to force the game to play
@@ -202,18 +204,18 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
-	 * @param p the move
-	 * 
 	 * inherited from McPlayer -- nonsensical for response lists
+	 * 
+	 * @param p the move
 	 */
 	public int getPlayouts(int p) {
 		return 0;
 	}
 
 	/**
-	 * @param p the move
-	 * 
 	 * inherited from McPlayer -- nonsensical for response lists
+	 * 
+	 * @param p the move
 	 */
 	public double getWinRate(int p) {
 		return 0;
@@ -298,7 +300,7 @@ public class ResponsePlayer extends McPlayer {
 		updateWins(1, winner, board, toPlay);
 		toPlay = 1-toPlay;
 		// update the rest of the moves
-		for(int i = 2; i < board.getTurn(); i++) {
+		for(int i = 2; i <= board.getTurn(); i++) {
 			updateWins(i, winner, board, toPlay);
 			toPlay = 1-toPlay;
 		}
