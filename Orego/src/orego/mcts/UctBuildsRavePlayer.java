@@ -47,7 +47,8 @@ public class UctBuildsRavePlayer extends RavePlayer {
 		double factor1 = logParentRunCount / node.getRuns(move);
 		double factor2 = min(0.25, v);
 		double uncertainty = 0.4 * sqrt(factor1 * factor2);
-		return uncertainty + barX;
+		return barX;
+		//return uncertainty + barX;
 	}
 
 	@Override
@@ -134,7 +135,8 @@ public class UctBuildsRavePlayer extends RavePlayer {
 		double rc = raveNode.getRaveRuns(move);
 		double rw = raveNode.getRaveWins(move);
 		double coef = raveCoefficient(c, rc);
-		return (w / c) * (1 - coef) + (rw / rc) * coef;
+		return rw/rc;
+		//return (w / c) * (1 - coef) + (rw / rc) * coef;
 	}
 
 }
