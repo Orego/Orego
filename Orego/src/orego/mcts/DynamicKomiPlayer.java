@@ -50,7 +50,6 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				//if we are winning a lot then increase the komi
 			} else if (value > green && getBoard().getKomi() < ratchet) {
 				if (Math.abs(getBoard().getKomi() + 1) < 30) {
-					System.out.println(getBoard().getKomi()+ "hi \n");
 					getBoard().setKomi(getBoard().getKomi() + 1);
 				}
 			}
