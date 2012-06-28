@@ -110,18 +110,36 @@ public class ResponsePlayerTest {
 			};
 			player.setUpProblem(BLACK, problem);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
-			player.setTesting(true);
-			for (int i = 0; i < 100; i++) {
-				runnable.performMcRun();
-				//System.out.println(player.getResponseZeroBlack().getTotalRuns());
-			}
+			//player.setTesting(true);
+			/*
 			ResponseList table = player.getResponseZeroBlack();
+			System.out.println(table.getWins(table.getIndices()[365]));
+			System.out.println(table.getRuns(table.getIndices()[365]));
 			System.out.println(table.getWinRate(365));
+			System.out.println(table.getWins(table.getIndices()[385]));
+			System.out.println(table.getRuns(table.getIndices()[385]));
 			System.out.println(table.getWinRate(385));
 			System.out.println(table.getWins(table.getIndices()[Coordinates.PASS]));
 			System.out.println(table.getRuns(table.getIndices()[Coordinates.PASS]));
 			System.out.println(table.getWinRate(Coordinates.PASS));
-			//System.out.println("Turn "+runnable.getBoard().getTurn());
+			System.out.println("\n");
+			*/
+			for (int i = 0; i < 1000; i++) {
+				runnable.performMcRun();
+				//System.out.println(player.getResponseZeroBlack().getTotalRuns());
+			}
+			/*
+			System.out.println(table.getWins(table.getIndices()[365]));
+			System.out.println(table.getRuns(table.getIndices()[365]));
+			System.out.println(table.getWinRate(365));
+			System.out.println(table.getWins(table.getIndices()[385]));
+			System.out.println(table.getRuns(table.getIndices()[385]));
+			System.out.println(table.getWinRate(385));
+			System.out.println(table.getWins(table.getIndices()[Coordinates.PASS]));
+			System.out.println(table.getRuns(table.getIndices()[Coordinates.PASS]));
+			System.out.println(table.getWinRate(Coordinates.PASS));
+			System.out.println("Turn "+runnable.getBoard().getTurn());
+			*/
 			int move = player.bestMove();
 			assertEquals(PASS, move);
 		} else {
