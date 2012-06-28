@@ -99,11 +99,21 @@ public class ResponseList {
 	 */
 	public void sort(int move, int result) {
 		int moveIndex = indices[move];
-		if(moveIndex <= 0 && result > 0) return;
-		if(moveIndex >= Coordinates.BOARD_AREA && result < 0) return;
+		if(moveIndex <= 0 && result > 0) {
+			return;
+		}
+		if(moveIndex >= moves.length-1 && result < 0) {
+			return;
+		}
 		
-		if(result > 0) sortWin(move);
-		else sortLoss(move);
+		if(result > 0) {
+			assert moveIndex > 0 : "ResponseList.sort -- should not happen";
+			sortWin(move);
+		}
+		else {
+			assert moveIndex < moves.length-1 : "ResponseList.sort -- should not happen";
+			sortLoss(move);
+		}
 	}
 	
 	/**
@@ -114,6 +124,7 @@ public class ResponseList {
 	 */
 	public void sortWin(int move) {
 		int moveIndex = indices[move];
+		assert moveIndex > 0;
 		double toSort = getWinRate(move);
 		int compIndex = moveIndex-1;
 		double compare = getWinRate(moves[compIndex]);
@@ -136,6 +147,7 @@ public class ResponseList {
 	 */
 	public void sortLoss(int move) {
 		int moveIndex = indices[move];
+		assert moveIndex < moves.length-1;
 		double toSort = getWinRate(move);
 		int compIndex = moveIndex+1;
 		double compare = getWinRate(moves[compIndex]);

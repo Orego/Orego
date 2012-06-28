@@ -1,5 +1,6 @@
 package orego.response;
 
+import static orego.core.Coordinates.PASS;
 import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
@@ -234,7 +235,10 @@ public class ResponsePlayer extends McPlayer {
 	 * @param winner whoever won the playout
 	 * @param board the board
 	 */
-	protected void updateWins(int move, int winner, Board board, int toPlay) {
+	protected synchronized void updateWins(int move, int winner, Board board, int toPlay) {
+		if(board.getMove(move) == Coordinates.PASS) {
+			return;
+		}
 		// black plays all even moves, white all odd moves
 		if(move == 0) {
 			// we assume black plays first (even in handicap games)
@@ -319,6 +323,11 @@ public class ResponsePlayer extends McPlayer {
 	@Override
 	public int bestStoredMove() {
 		Board board = getBoard();
+		if (board.getPasses() == 1) {
+			if (secondPassWouldWinGame()) {
+				return PASS;
+			}
+		}
 		ResponseList tableZero = board.getColorToPlay() == Colors.BLACK ? responseZeroBlack : responseZeroWhite;
 		ResponseList[] tableOne = (ResponseList[]) (board.getColorToPlay() == Colors.BLACK ? responseOneBlack : responseOneWhite);
 		ResponseList[][] tableTwo = (ResponseList[][]) (board.getColorToPlay() == Colors.BLACK ? responseTwoBlack : responseTwoWhite);
