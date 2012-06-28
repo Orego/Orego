@@ -17,24 +17,25 @@ public class ResponseList {
 	final static int PASS_WINS_BIAS = 1;
 	final static int PASS_RUNS_BIAS = 10;
 	
-	int[] wins;
-	int[] runs;
-	int[] moves;
-	int[] indices;
+	// All of these arrays are shorts so they'll fit into memory
+	short[] wins;
+	short[] runs;
+	short[] moves;
+	short[] indices;
 	int totalRuns;
 	
 	public ResponseList(){
-		wins = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		runs = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		moves = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		indices = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
+		wins = new short[Coordinates.BOARD_AREA+1];
+		runs = new short[Coordinates.BOARD_AREA+1];
+		moves = new short[Coordinates.BOARD_AREA+1];
+		indices = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
 		//randomize the list
-		ArrayList<Integer> list = new ArrayList<Integer>();
+		ArrayList<Short> list = new ArrayList<Short>();
 		for (int p : Coordinates.ALL_POINTS_ON_BOARD) {
-			list.add(p);
+			list.add((short) p);
 		}
 		Random random = new Random();
-		int i = 0;
+		short i = 0;
 		while (list.size() > 0){
 			moves[i] = list.remove(random.nextInt(list.size()));
 			indices[moves[i]] = i;
@@ -42,41 +43,41 @@ public class ResponseList {
 			runs[i] = NORMAL_RUNS_BIAS;
 			i++;
 		}
-		moves[moves.length - 1] = Coordinates.PASS;
-		wins[wins.length - 1] = PASS_WINS_BIAS;
-		runs[runs.length - 1] = PASS_RUNS_BIAS;
-		indices[Coordinates.PASS] = moves.length - 1;	
+		moves[Coordinates.BOARD_AREA] = Coordinates.PASS;
+		wins[Coordinates.BOARD_AREA] = PASS_WINS_BIAS;
+		runs[Coordinates.BOARD_AREA] = PASS_RUNS_BIAS;
+		indices[Coordinates.PASS] = (short) (Coordinates.BOARD_AREA);	
 	}
 	
-	public int[] getWins() {
+	public short[] getWins() {
 		return wins;
 	}
 
-	public void setWins(int[] wins) {
+	public void setWins(short[] wins) {
 		this.wins = wins;
 	}
 
-	public int[] getRuns() {
+	public short[] getRuns() {
 		return runs;
 	}
 
-	public void setRuns(int[] runs) {
+	public void setRuns(short[] runs) {
 		this.runs = runs;
 	}
 
-	public int[] getMoves() {
+	public short[] getMoves() {
 		return moves;
 	}
 
-	public void setMoves(int[] moves) {
+	public void setMoves(short[] moves) {
 		this.moves = moves;
 	}
 
-	public int[] getIndices() {
+	public short[] getIndices() {
 		return indices;
 	}
 
-	public void setIndices(int[] indices) {
+	public void setIndices(short[] indices) {
 		this.indices = indices;
 	}
 
@@ -89,30 +90,40 @@ public class ResponseList {
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * @param result 1 if adding a win, -1 if adding a loss
-	 * 
 	 * calls either sortWin(move) or sortLoss(move)
 	 * to sort the arrays appropriately
 	 * 
+	 * @param move the move to be updated
+	 * @param result 1 if adding a win, -1 if adding a loss
 	 */
 	public void sort(int move, int result) {
 		int moveIndex = indices[move];
-		if(moveIndex <= 0 && result > 0) return;
-		if(moveIndex >= Coordinates.BOARD_AREA && result < 0) return;
+		if(moveIndex <= 0 && result > 0) {
+			return;
+		}
+		if(moveIndex >= moves.length-1 && result < 0) {
+			return;
+		}
 		
-		if(result > 0) sortWin(move);
-		else sortLoss(move);
+		if(result > 0) {
+			assert moveIndex > 0 : "ResponseList.sort -- should not happen";
+			sortWin(move);
+		}
+		else {
+			assert moveIndex < moves.length-1 : "ResponseList.sort -- should not happen";
+			sortLoss(move);
+		}
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * 
 	 * sorts the arrays appropriately if a
 	 * win has been added to move
+	 * 
+	 * @param move the move to be updated
 	 */
 	public void sortWin(int move) {
 		int moveIndex = indices[move];
+		assert moveIndex > 0;
 		double toSort = getWinRate(move);
 		int compIndex = moveIndex-1;
 		double compare = getWinRate(moves[compIndex]);
@@ -128,18 +139,19 @@ public class ResponseList {
 	}
 	
 	/**
-	 * @param move the move to be updated
-	 * 
 	 * sorts the arrays appropriately if a
 	 * loss has been added to move
+	 * 
+	 * @param move the move to be updated
 	 */
 	public void sortLoss(int move) {
 		int moveIndex = indices[move];
+		assert moveIndex < moves.length-1;
 		double toSort = getWinRate(move);
 		int compIndex = moveIndex+1;
 		double compare = getWinRate(moves[compIndex]);
 		
-		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA+1) {
+		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA) {
 			swap(moveIndex, compIndex);
 			compIndex++;
 			moveIndex++;
@@ -151,8 +163,8 @@ public class ResponseList {
 	
 	public void swap(int i1, int i2) {
 		// swap wins[]
-		int hold1 = wins[i1];
-		int hold2 = wins[i2];
+		short hold1 = wins[i1];
+		short hold2 = wins[i2];
 		wins[i1] = hold2;
 		wins[i2] = hold1;
 		// swap moves[]
@@ -178,6 +190,7 @@ public class ResponseList {
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
+		assert totalRuns > 0: "totalRuns two's complement";
 		sort(p, 1);
 	}
 	
@@ -187,14 +200,15 @@ public class ResponseList {
 	public void addLoss(int p){
 		runs[indices[p]]++;
 		totalRuns++;
+		assert totalRuns > 0: "totalRuns two's complement";
 		sort(p,-1);
 	}
 	
-	public int getWins(int p){
+	public short getWins(int p){
 		return wins[p];
 	}
 	
-	public int getRuns(int p){
+	public short getRuns(int p){
 		return runs[p];
 	}
 	
