@@ -1,28 +1,7 @@
 package orego.wls;
-/*
-	DESCRIPTION:
-	============
-
-	This is a dummy program that only builds WLS tables and writes them to the
-	console for verification.
-
-	It uses the implementation in the source file WLStables.cpp
-
-
-	WLS is described in:
-	--------------------
-
-	Win/Loss States: An efficient model of success rates for simulation-based
-	functions	Jacques Basaldúa and J. Marcos Moreno Vega
-
-	Since the arrays are small, static allocation is used. You can call the
-	method BuildTables() to create the arrays any number of times.
-
-
-	Multilingual: This file exists in Pascal (Delphi), C++ and Java.
-	-------------
-
-
+/**
+	@author Jacques Basald'a
+	 
 	LICENSE:
 	========
 
@@ -45,42 +24,46 @@ package orego.wls;
 */
 
 
-
-import java.util.*;
-
 public class WLSout {
 
     public static void main (String[] args) 
     {
-		WinLossStates wt = new WinLossStates();
-		int i;
+		WinLossStates wls = new WinLossStates();
 
-		System.out.println ("  WLS tables: dummy program");
-		System.out.println ("");
+		System.out.println("  WLS tables: dummy program\n");
 
-		wt.buildTables(21, 1, 1);
-
-		System.out.println ("wt.BuildTables(21, 1, 1);");
-		System.out.println ("");
-
-		System.out.print ("WIN[] = " + wt.WIN[0]);
-		for (i = 1; i <= wt.bestState; i++) 
-		{	
-			System.out.print (", " + wt.WIN[i]);
+		System.out.print("State Table: \n");
+		
+		// print all the different states (proportions)
+		for (int i = 0; i < wls.getTotalStates(); i++) {
+			State state = wls.getState(i);
+			System.out.print (String.format(", %d/%d", state.getWins(), 
+													   state.getRuns())); // print the win/run ratio
+			
+			if ((i % 10) == 0) System.out.println(""); // newline after 10 columns
+		}
+		
+		System.out.println("===========\n\n============\n");
+		
+		System.out.print("Win Table: \n");
+		// loop through all states and check their transitions to win states
+		for (int i = 0; i < WinLossStates.NUM_STATES; i++) {	
+			System.out.print (", " + wls.addWin(i)); // get the next transition state for a win
+			
+			if ((i % 10) == 0) System.out.println (""); // newline after 10 columns
+		};
+		System.out.println("===========\n\n============\n");
+		
+		System.out.print("Lose Table: \n");
+		// loop through all states and check their transitions to lose states
+		for (int i = 0; i < wls.getTotalStates(); i++) {	
+			System.out.print (", " + wls.addLoss(i)); // get the next transition state for a loss
 			if ((i % 10) == 9) System.out.println ("");
 		};
-		System.out.println ("");
-		System.out.println ("");
-
-		System.out.print ("LOSS[] = " + wt.LOSS[0]);
-		for (i = 1; i <= wt.bestState; i++) 
-		{	
-			System.out.print (", " + wt.LOSS[i]);
-			if ((i % 10) == 9) System.out.println ("");
-		};
-		System.out.println ("");
-		System.out.println ("");
-		System.out.println ("Done.");
+		
+		System.out.println("\n\n\n");
+		System.out.println("Done.");
     };
     
+
 }
