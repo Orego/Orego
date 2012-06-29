@@ -1,5 +1,7 @@
 package orego.mcts;
 
+import orego.play.UnknownPropertyException;
+
 /** This player uses dynamic komi to affect win rates of playouts. */
 public class DynamicKomiPlayer extends Lgrf2Player {
 
@@ -15,8 +17,23 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	// cut off between use of linear handicap and value situational handicap
 	private int cutOff;
 
+	public static void main(String[] args) {
+		DynamicKomiPlayer p = new DynamicKomiPlayer();
+		try {
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "2");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
+	}
+
 	public DynamicKomiPlayer() {
 		super();
+//		orego.experiment.Debug.setDebugFile("debug.txt");
 		ratchet = Double.MAX_VALUE;
 		cutOff = 19 + 2 * handicap;
 		if(handicap > 0){
@@ -54,6 +71,7 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				}
 			}
 		}
+//		orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
 	}
 
 	private void linearHandicap() {
