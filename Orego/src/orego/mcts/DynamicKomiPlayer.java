@@ -5,10 +5,18 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 
 	/** slowly reduces the amount of positive komi given */
 	private double ratchet;
+	public static final int HANDICAP_STONE_VALUE = 7;
+	// losing threshold
+	public static final double RED = .45;
+	// winning threshold
+	public static final double GREEN = .5;
+	//number of handicap stones
+	private int handicap;
 
 	public DynamicKomiPlayer() {
 		super();
 		ratchet = Double.MAX_VALUE;
+		handicap = getBoard().getHandicap();
 	}
 
 	/**
@@ -16,12 +24,7 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	 * board state.
 	 */
 	public void valueSituationalCompensation() {
-		// losing threshold
-		double red = .45;
-		// winning threshold
-		double green = .5;
 		double value = getRoot().overallWinRate();
-		int handicap = getBoard().getHandicap();
 		// cut off between use of linear handicap and value situational handicap
 		int m = 19 + 2 * handicap;
 		if (handicap != 0 && getBoard().getTurn() < m) {
@@ -31,11 +34,11 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				getBoard().setKomi(30);
 			} else {
 				ratchet = Double.MAX_VALUE;
-				getBoard().setKomi(7 * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / m)));
+				getBoard().setKomi(HANDICAP_STONE_VALUE * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / m)));
 			}
 		} else {
 			// if we are losing a lot then reduce the komi by 1
-			if (value < red) {
+			if (value < RED) {
 				// record the lowest positive komi given in this situation by
 				// the ratchet variable
 				if (getBoard().getKomi() > 0) {
@@ -48,7 +51,7 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 					}
 				}
 				//if we are winning a lot then increase the komi
-			} else if (value > green && getBoard().getKomi() < ratchet) {
+			} else if (value > GREEN && getBoard().getKomi() < ratchet) {
 				if (Math.abs(getBoard().getKomi() + 1) < 30) {
 					getBoard().setKomi(getBoard().getKomi() + 1);
 				}
