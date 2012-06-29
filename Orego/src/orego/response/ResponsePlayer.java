@@ -155,12 +155,16 @@ public class ResponsePlayer extends McPlayer {
 		int turn = board.getTurn();
 		int toPlay = board.getColorToPlay();
 		// pick table based on threshold values
+//		System.out.println("Two Threshold:"+twoTables[toPlay][history2][history1].getTotalRuns()+", One Threshold:"+oneTables[toPlay][history1].getTotalRuns());
 		if(turn >= 2 && twoTables[toPlay][history2][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : THRESHOLD)) {
 			table = twoTables[toPlay][history2][history1];
+//			System.out.print("TwoDeep:");
 		} else if(turn >= 1 && oneTables[toPlay][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : THRESHOLD)) {
 			table = oneTables[toPlay][history1];
+//			System.out.print("OneDeep:");
 		} else {
 			table = zeroTables[toPlay];
+//			System.out.print("ZeroDeep:");
 		}
 		// find the move
 		int counter = 1;
@@ -172,6 +176,7 @@ public class ResponsePlayer extends McPlayer {
 			move = table.getMoves()[counter];
 			counter++;
 		}
+//		System.out.println(Coordinates.pointToString(move)+", WinRate:"+table.getWinRate(move)+","+table.getWinsForMove(move)+"/"+table.getRunsForMove(move));
 		return move;
 	}
 	
