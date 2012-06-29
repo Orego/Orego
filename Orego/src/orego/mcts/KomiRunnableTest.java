@@ -23,7 +23,10 @@ public class KomiRunnableTest {
 		assertEquals(7.5, player.getBoard().getKomi(), .001);
 		komiRunnable.run();
 		assertEquals(7.5, player.getBoard().getKomi(), .001);
-		for (int i = 21; i < 42; i++) {
+		for (int i = 21; i < 39; i++) {
+			player.getBoard().play(i);
+		}
+		for (int i = 41; i < 42; i++) {
 			player.getBoard().play(i);
 		}
 		player.setPlayoutLimit(1000);
