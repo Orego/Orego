@@ -71,8 +71,8 @@ public class WinLossStates {
 	}
 	
 	private void computeNumberOfStates() {
-		// using closed form and +1 on END_SCALE for initial state 0
-		NUM_STATES = ((END_SCALE + 1) * (END_SCALE + 2)) / 2;
+		// using closed form and add +1 to END_SCALE for initial state 0
+		NUM_STATES = ((END_SCALE + 1) * (END_SCALE + 1 + 1) / 2);
 	}
 	
 	/**
@@ -111,7 +111,7 @@ public class WinLossStates {
 		int curState = 0;
 		// Initializing states
 		// loop through all the different number of "denominators" or 
-		// number of runs. (we +1 because we want to include the first one)
+		// number of runs. (we +1 because we want to include the first one at 0 up to END_SCALE)
 		for (int i = 0; i < END_SCALE + 1; i++) {
 			
 			// For each "level" in the tree (see figure 5 in the paper)
@@ -122,6 +122,7 @@ public class WinLossStates {
 				state.setWins(j);
 				state.setRuns(i);
 				state.setStateIndex(curState);
+				curState++;
 				
 				if (i == 0) {
 					// undefined for first state (lowest)
@@ -132,7 +133,7 @@ public class WinLossStates {
 				// compute the statistically "strength" of this proportion
 				state.computeConfidence(WIN_THRESHOLD);
 				
-				curState++;
+				
 			}
 		}
 		
@@ -158,7 +159,7 @@ public class WinLossStates {
 	}
 
 	private int findStateIndex(int wins, int runs, boolean didWin) {
-		for (int i = NUM_STATES - 1; i >= 0; i--) {
+		for (int i = 0; i < NUM_STATES; i++) {
 			if (states[i].getWins() == wins && 
 				states[i].getRuns() == runs   )
 				return i;
@@ -231,7 +232,7 @@ public class WinLossStates {
 			// than the current confidence
 			
 			// we skip state 0/0 since irrelevant
-			for (int i = curState.getStateIndex() - 1; i >= 1; i++) {
+			for (int i = curState.getStateIndex() - 1; i >= 1; i--) {
 				
 				if (states[i].getRuns() != jumpRuns) continue; // break early if doesn't have appropriate number of runs
 					
