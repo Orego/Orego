@@ -19,6 +19,9 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 		super();
 		ratchet = Double.MAX_VALUE;
 		cutOff = 19 + 2 * handicap;
+		if(handicap > 0){
+			linearHandicap();
+		}
 	}
 
 	/**
@@ -28,15 +31,8 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	public void valueSituationalCompensation() {
 		double value = getRoot().overallWinRate();
 		handicap = getBoard().getHandicap();
-		if (handicap != 0 && getBoard().getTurn() < cutOff) {
-			// sets initial komi to 7 times the handicap stones to a max of 30,
-			// which slowly reduces during the first 20 moves
-			if (handicap > 3) {
-				getBoard().setKomi(30);
-			} else {
-				ratchet = Double.MAX_VALUE;
-				getBoard().setKomi(HANDICAP_STONE_VALUE * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / cutOff)));
-			}
+		if (handicap > 0 && getBoard().getTurn() < cutOff) {
+			linearHandicap();
 		} else {
 			// if we are losing a lot then reduce the komi by 1
 			if (value < RED) {
@@ -58,6 +54,15 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				}
 			}
 		}
+	}
+
+	private void linearHandicap() {
+		// sets initial komi to 7 times the handicap stones to a max of 30,
+		// which slowly reduces during the first 20 moves
+			getBoard().setKomi(HANDICAP_STONE_VALUE * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / cutOff)));
+			if(getBoard().getKomi() > 30){
+				getBoard().setKomi(30);
+			}
 	}
 	
 	@Override
