@@ -1,13 +1,30 @@
 package orego.mcts;
 
+import orego.play.UnknownPropertyException;
+
 /** This player uses dynamic komi to affect win rates of playouts. */
 public class DynamicKomiPlayer extends Lgrf2Player {
 
 	/** slowly reduces the amount of positive komi given */
 	private double ratchet;
 
+	public static void main(String[] args) {
+		DynamicKomiPlayer p = new DynamicKomiPlayer();
+		try {
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "2");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
+	}
+
 	public DynamicKomiPlayer() {
 		super();
+//		orego.experiment.Debug.setDebugFile("debug.txt");
 		ratchet = Double.MAX_VALUE;
 	}
 
@@ -54,6 +71,7 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				}
 			}
 		}
+//		orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
 	}
 	
 	@Override
