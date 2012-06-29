@@ -34,6 +34,10 @@ public class ResponsePlayer extends McPlayer {
 	private ResponseList responseZeroWhite;
 	private ResponseList[] responseOneWhite;
 	private ResponseList[][] responseTwoWhite;
+	// Response list holders -- zeroTables = {responseZeroBlack,responseZeroWhite} etc..
+	private ResponseList[] zeroTables;
+	private ResponseList[][] oneTables;
+	private ResponseList[][][] twoTables;
 	// testing flag
 	private boolean testing = false;
 	
@@ -56,6 +60,17 @@ public class ResponsePlayer extends McPlayer {
 				responseTwoWhite[i][j] = new ResponseList();
 			}
 		}
+		zeroTables = new ResponseList[2];
+		zeroTables[Colors.BLACK] = responseZeroBlack;
+		zeroTables[Colors.WHITE] = responseZeroWhite;
+
+		oneTables = new ResponseList[2][arrayLength];
+		oneTables[Colors.BLACK] = responseOneBlack;
+		oneTables[Colors.WHITE] = responseOneWhite;
+
+		twoTables = new ResponseList[2][arrayLength][arrayLength];
+		twoTables[Colors.BLACK] = responseTwoBlack;
+		twoTables[Colors.WHITE] = responseTwoWhite;
 	}
 	
 	/**
