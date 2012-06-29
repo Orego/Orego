@@ -16,9 +16,15 @@ public class RaveCovPlayer extends RavePlayer {
 	protected SearchNode getPrototypeNode() {
 		return new RaveNode();
 	}
-
+	
+	/** Assuming UCT is unbiased and RAVE is biased,
+     *  so the difference between the two estimates RAVE bias.
+     *  This method returns the coefficient (weight beta) for the RAVE player,
+     *  and it is the coefficient that minimizes the mean square error of the
+     *  convex sum of RAVE and UCT.
+     */
 	public double raveCoefficient(double w, double rw, double c, double rc) {
-		double raveBias = (rw / rc) - (w / c);
+		double raveBias = (rw / rc) - (w / c);  
 		return (rc - c)
 				* (w / c)
 				* (1 - w / c)
