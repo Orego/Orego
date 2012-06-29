@@ -20,10 +20,13 @@ public class DynamicKomiPlayerTest {
 		komiPlayer.getBoard().setUpHandicap(5);
 		komiPlayer.valueSituationalCompensation();
 		assertEquals(30.5, komiPlayer.getBoard().getKomi(), .001);
-		for (int i = 21; i < 43; i++) {
+		for (int i = 21; i < 39; i++) {
 			komiPlayer.getBoard().play(i);
 		}
-		for (int i = 21; i < 180; i++) {
+		for (int i = 41; i < 43; i++) {
+			komiPlayer.getBoard().play(i);
+		}
+		for (int i = 40; i < 180; i++) {
 			komiPlayer.getRoot().addLosses(i, 1000);
 			komiPlayer.getRoot().addWins(i, 12);
 		}
@@ -34,7 +37,10 @@ public class DynamicKomiPlayerTest {
 		komiPlayer.getBoard().setUpHandicap(2);
 		komiPlayer.valueSituationalCompensation();
 		assertEquals(14.5, komiPlayer.getBoard().getKomi(), .001);
-		for (int i = 21; i < 43; i++) {
+		for (int i = 21; i < 39; i++) {
+			komiPlayer.getBoard().play(i);
+		}
+		for (int i = 41; i < 43; i++) {
 			komiPlayer.getBoard().play(i);
 		}
 		for (int i = 21; i < 100; i++) {
