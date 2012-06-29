@@ -137,4 +137,9 @@ public class State implements Comparable<State> {
 
 		this.confidence = bound;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("\nState: %d\nWins: %d\nRuns: %d\nLosses: %d\n Confidence: %.3f\n", stateIndex, wins, runs, runs - wins, confidence);
+	}
 }
