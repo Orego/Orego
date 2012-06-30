@@ -1,5 +1,7 @@
 package orego.mcts;
 
+import orego.play.UnknownPropertyException;
+
 /** This player uses dynamic komi to affect win rates of playouts. */
 public class DynamicKomiPlayer extends Lgrf2Player {
 
@@ -15,10 +17,28 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	// cut off between use of linear handicap and value situational handicap
 	private int cutOff;
 
+	public static void main(String[] args) {
+		DynamicKomiPlayer p = new DynamicKomiPlayer();
+		try {
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "2");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
+	}
+
 	public DynamicKomiPlayer() {
 		super();
+//		orego.experiment.Debug.setDebugFile("debug.txt");
 		ratchet = Double.MAX_VALUE;
 		cutOff = 19 + 2 * handicap;
+		if(handicap > 0){
+			linearHandicap();
+		}
 	}
 
 	/**
@@ -28,15 +48,8 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	public void valueSituationalCompensation() {
 		double value = getRoot().overallWinRate();
 		handicap = getBoard().getHandicap();
-		if (handicap != 0 && getBoard().getTurn() < cutOff) {
-			// sets initial komi to 7 times the handicap stones to a max of 30,
-			// which slowly reduces during the first 20 moves
-			if (handicap > 3) {
-				getBoard().setKomi(30);
-			} else {
-				ratchet = Double.MAX_VALUE;
-				getBoard().setKomi(HANDICAP_STONE_VALUE * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / cutOff)));
-			}
+		if (handicap > 0 && getBoard().getTurn() < cutOff) {
+			linearHandicap();
 		} else {
 			// if we are losing a lot then reduce the komi by 1
 			if (value < RED) {
@@ -58,6 +71,16 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				}
 			}
 		}
+//		orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
+	}
+
+	private void linearHandicap() {
+		// sets initial komi to 7 times the handicap stones to a max of 30,
+		// which slowly reduces during the first 20 moves
+			getBoard().setKomi(HANDICAP_STONE_VALUE * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / cutOff)));
+			if(getBoard().getKomi() > 30){
+				getBoard().setKomi(30);
+			}
 	}
 	
 	@Override

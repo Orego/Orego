@@ -1189,6 +1189,9 @@ public class Board {
 			play(Coordinates.PASS);
 		}
 		play(handicaps[handicapSize - 2][handicapSize - 1]);	
+		if(handicapSize > 0){
+			komi = 0;
+		}
 	}
 	
 	/** For testing only. */
