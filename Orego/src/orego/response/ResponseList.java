@@ -205,11 +205,11 @@ public class ResponseList {
 	}
 	
 	public short getWins(int p){
-		return wins[p];
+		return wins[indices[p]];
 	}
 	
 	public short getRuns(int p){
-		return runs[p];
+		return runs[indices[p]];
 	}
 	
 	public double getWinRate(int p){

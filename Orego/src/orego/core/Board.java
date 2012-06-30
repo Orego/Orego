@@ -1236,10 +1236,7 @@ public class Board {
 			}
 		}
 		if (this.colorToPlay != colorToPlay) {
-			// TODO Would passing be cleaner? As written,
-			// the parity of future moves may be wrong.
-//			play(PASS);
-			this.colorToPlay = colorToPlay;
+			play(PASS);
 		}
 	}
 

@@ -172,7 +172,7 @@ public class MctsPlayer extends McPlayer {
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
 		// Can we win outright by passing?
-		if (getBoard().getPasses() == 1) {
+		if (getBoard().getPasses() >= 1) {
 			if (secondPassWouldWinGame()) {
 				return PASS;
 			}
