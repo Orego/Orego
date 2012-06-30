@@ -24,7 +24,7 @@ public class State implements Comparable<State> {
 		storeZValues();
 	}
 	
-	private static void storeZValues() {
+	protected static void storeZValues() {
 		z_values.clear();
 		
 		// currently just create a table
@@ -33,12 +33,16 @@ public class State implements Comparable<State> {
 		z_values.put(.74857,  .674490);
 	}
 	
+	protected double getZValue(double confidence_level) {
+		return (z_values.contains(confidence_level) ? z_values.get(confidence_level) : Double.MIN_VALUE);
+	}
+	
 	public State(int wins, int runs) {
 		this.wins = wins;
 		this.runs = runs;
 		
 		// you can recompute later if you wish
-		this.computeConfidence(WinLossStates.WIN_THRESHOLD);
+		this.computeConfidence(WinLossStates.WIN_THRESHOLD); // TODO: probably better to do dependency injection instead of static field
 		
 	}
 	
@@ -110,7 +114,7 @@ public class State implements Comparable<State> {
 	 * @return
 	 */
 	public void computeConfidence(double win_threshold) {
-		double z_value = z_values.get(WinLossStates.CONFIDENCE_LEVEL);
+		double z_value = getZValue(WinLossStates.CONFIDENCE_LEVEL);
 		double z_value_squared = z_value * z_value;
 
 		// variables are named according to paper

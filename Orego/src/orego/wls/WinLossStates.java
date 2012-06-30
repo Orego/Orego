@@ -36,9 +36,11 @@ public class WinLossStates {
 	// we write it in closed form. Includes an extra +1 for 0/0 entry
 	public static int NUM_STATES = Integer.MAX_VALUE;
 	
-	public static double WIN_THRESHOLD = 0.5000;
+	public static double WIN_THRESHOLD = 0.5000; // TODO: probably shouldn't be static and changable...
 	
 	private static final int NO_STATE_EXISTS = Integer.MAX_VALUE;
+	
+	public Visualizer visualizer = new Visualizer();
 	
 	// constant used when jumping. Tuned empirically for END_SCALE = 21
 	// Can we do this automatically in the future?
@@ -74,22 +76,19 @@ public class WinLossStates {
 	
 	/** A class for doing data visualizations of the WLS algorithm */
 	public class Visualizer {
-		/** Prints out the states as x and y pairs.
-		 * The x values are the confidence levels and the y values are strings
-		 * representing the 
+		/** Creates an R csv file for plotting the various proportions with labels
 		 * @return
 		 */
 		public String visualizeStates() {
 			StringBuilder builder = new StringBuilder(200);
+			builder.append("confidences, wrproportions, labels\n");
 			for (int i = 0; i < NUM_STATES; i++) {
-				builder.append("{" + states[i].getConfidence() + ", \"" + states[i].getWins() + "/" + states[i].getRuns() + "\"}\n"); 
+				builder.append(states[i].getConfidence() + ", " + states[i].getWinRunsProportion() + ",  \"WR: " + states[i].getWins() + "/" + states[i].getRuns() + "\"\n"); 
 			}
 	
 			return builder.toString();
 		}
 	}
-	
-	public Visualizer visualizer = new Visualizer();
 	
 	/** Gets the singleton instance of our WinLossState class*/
 	public static WinLossStates getWLS() {
@@ -133,7 +132,7 @@ public class WinLossStates {
 		return NUM_STATES;
 	}
 	
-	private void buildTables() {
+	protected void buildTables() {
 		
 		int curState = 0;
 		// Initializing states
@@ -184,7 +183,7 @@ public class WinLossStates {
 	 * @return int the new state action index
 	 */
 	
-	private int findJumpIndexForWin(int wins, int runs) {
+	protected int findJumpIndexForWin(int wins, int runs) {
 		int existingStateIndex = findStateIndex(wins + 1, runs + 1);
 		
 		if (existingStateIndex == NO_STATE_EXISTS) {
@@ -199,7 +198,7 @@ public class WinLossStates {
 	 * Finds the appropriate jump index for the given win/run ratio for a loss
 	 * @return int the new state action index
 	 */
-	private int findJumpIndexForLoss(int wins, int runs) {
+	protected int findJumpIndexForLoss(int wins, int runs) {
 		// don't record a win while incrementing the runs indicating a loss
 		int existingStateIndex = findStateIndex(wins, runs + 1); 
 		
@@ -220,7 +219,7 @@ public class WinLossStates {
 	 * @param didWin Did we win before arriving at wins/runs?
 	 * @return
 	 */
-	private int findStateIndex(int wins, int runs) {
+	protected int findStateIndex(int wins, int runs) {
 		for (int i = 0; i < NUM_STATES; i++) {
 			if (states[i].getWins() == wins && 
 				states[i].getRuns() == runs   )
@@ -246,7 +245,7 @@ public class WinLossStates {
 	 * @param didWin Did we win in the last run?
 	 * @return int The index to which we will jump to force a sort of "confirmation"
 	 */
-	private int findSaturatedJumpIndex(int wins, int runs, boolean didWin) {
+	protected int findSaturatedJumpIndex(int wins, int runs, boolean didWin) {
 		// number of runs we are going to 'jump' to.
 		// In effect we are changing the denominator in proportion to deviation from 1/2.
 		// This performs a "jump" to an earlier state by simply looking for a new proportion with our new, target runs
