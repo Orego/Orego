@@ -1,6 +1,8 @@
 package orego.mcts;
 
 import static org.junit.Assert.*;
+import static orego.core.Coordinates.*;
+import static orego.core.Colors.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,11 +52,45 @@ public class DynamicKomiPlayerTest {
 		komiPlayer.valueSituationalCompensation();
 		assertEquals(15.5, komiPlayer.getBoard().getKomi(), .001);
 	}
-	
+
 	@Test
 	public void testChangesToReset() {
 		komiPlayer.reset();
 		assertEquals(KomiRunnable.class, komiPlayer.getRunnable(0).getClass());
-		
+	}
+
+	@Test
+	public void testGameNearComplete() {
+		String[] diagram = { "...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"###########........",// 15
+				"###################",// 14
+				"###################",// 13
+				"###################",// 12
+				"###################",// 11
+				".##################",// 10
+				"OOOOOOOOOOOOOOOOOOO",// 9
+				"OOOOOOOOOOOOOOOOOOO",// 8
+				"OOOOOOOOOOOOOOOOOOO",// 7
+				"OOOOOOOOOOOOOOOOOOO",// 6
+				"OOOOOOOOOOOOOOOOOOO",// 5
+				"OOOOOOOOOOOOOOOOOOO",// 4
+				"OOOOOOOOOOOOOOOOOOO",// 3
+				"OOOOOOOOOOOOOOOOOOO",// 2
+				".OOOOOOOOOOOOOOOOO." // 1
+		// ABCDEFGHJKLMNOPQRST
+		};
+		komiPlayer.setUpProblem(BLACK, diagram);
+		komiPlayer.getRoot().addLosses(25, 1000);
+		komiPlayer.getBoard().setKomi(-20);
+		komiPlayer.valueSituationalCompensation();
+		assertEquals(-20.5, komiPlayer.getBoard().getKomi(), .001);
+		komiPlayer.getBoard().play(27);
+		komiPlayer.getBoard().play(28);
+		komiPlayer.valueSituationalCompensation();
+		assertTrue(komiPlayer.getBoard().getKomi() > 0);
+
 	}
 }

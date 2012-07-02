@@ -1189,6 +1189,9 @@ public class Board {
 			play(Coordinates.PASS);
 		}
 		play(handicaps[handicapSize - 2][handicapSize - 1]);	
+		if(handicapSize > 0){
+			komi = 0;
+		}
 	}
 	
 	/** For testing only. */
@@ -1236,10 +1239,7 @@ public class Board {
 			}
 		}
 		if (this.colorToPlay != colorToPlay) {
-			// TODO Would passing be cleaner? As written,
-			// the parity of future moves may be wrong.
-//			play(PASS);
-			this.colorToPlay = colorToPlay;
+			play(PASS);
 		}
 	}
 

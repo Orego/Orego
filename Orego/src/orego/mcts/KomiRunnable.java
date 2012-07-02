@@ -1,11 +1,13 @@
 package orego.mcts;
 
 import orego.policy.Policy;
+import static orego.core.Colors.*;
 
 public class KomiRunnable extends McRunnable {
 	
 	public KomiRunnable(DynamicKomiPlayer player, Policy policy) {
 		super(player, policy);
+//		orego.experiment.Debug.setDebugFile("DynamicKomi");
 	}
 	
 	/**
@@ -21,7 +23,7 @@ public class KomiRunnable extends McRunnable {
 				|| (!limitPlayouts & getPlayer().shouldKeepRunning())) {
 			performMcRun();
 			playouts++;
-			if (playouts % 1000 == 0 ) {
+			if (playouts % 1000 == 0 && getPlayer().getBoard().getColorToPlay() == BLACK) {
 				DynamicKomiPlayer player = (DynamicKomiPlayer) getPlayer();
 				player.valueSituationalCompensation();
 			}

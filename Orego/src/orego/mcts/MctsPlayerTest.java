@@ -457,7 +457,8 @@ public class MctsPlayerTest {
 	@Test
 	public void testKillDeadStonesToOvercomeLargeTerritory() {
 		if (BOARD_WIDTH == 19) {
-			String[] problem = { "#..................",// 19
+			String[] problem = { 
+					"#..................",// 19
 					"O..................",// 18
 					"O..................",// 17
 					"O..................",// 16
@@ -479,7 +480,7 @@ public class MctsPlayerTest {
 			// ABCDEFGHJKLMNOPQRST
 			};
 			player.getBoard().setUpProblem(BLACK, problem);
-			player.acceptMove(PASS);
+			player.getBoard().play(PASS);
 			int move = player.bestMove();
 			// White must capture the dead black stone to win
 			assertFalse(PASS == move);

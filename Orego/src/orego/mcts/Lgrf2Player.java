@@ -20,7 +20,7 @@ public class Lgrf2Player extends RavePlayer {
 	/** Indices are color to play, previous move. */
 	private int[][] replies1;
 
-	/** Returns the llevel 1 reply table. */
+	/** Returns the level 1 reply table. */
 	protected int[][] getReplies1() {
 		return replies1;
 	}
