@@ -52,7 +52,7 @@ public class DynamicKomiPlayerTest {
 	}
 	
 	@Test
-	public void testChangesToRest() {
+	public void testChangesToReset() {
 		komiPlayer.reset();
 		assertEquals(KomiRunnable.class, komiPlayer.getRunnable(0).getClass());
 		
