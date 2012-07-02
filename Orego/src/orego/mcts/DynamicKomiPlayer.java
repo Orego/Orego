@@ -46,10 +46,13 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	 * board state.
 	 */
 	public void valueSituationalCompensation() {
+		orego.experiment.Debug.debug("IN");
 		double value = getRoot().overallWinRate();
 		handicap = getBoard().getHandicap();
-		if (handicap > 0 && getBoard().getTurn() < cutOff) {
-			linearHandicap();
+		if (getBoard().getTurn() < cutOff) {
+			if (handicap > 0) {
+				linearHandicap();
+			}
 		} else {
 			// If game reaches 95% completion we stop using negative komi.
 			if (getBoard().getVacantPoints().size() <= 86
@@ -73,12 +76,17 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				}
 				// if we are winning a lot then increase the komi
 			} else if (value > GREEN && getBoard().getKomi() < ratchet) {
+				orego.experiment.Debug.debug("GOT IN TO THE GREEN, RATCHET IS "
+						+ ratchet);
 				if (getBoard().getKomi() + 1 < 30) {
 					getBoard().setKomi(getBoard().getKomi() + 1);
 				}
 			}
 
 		}
+		orego.experiment.Debug.debug("Overall Winrate: "
+				+ getRoot().overallWinRate() + "\nKomi: "
+				+ getBoard().getKomi());
 		// orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
 	}
 
