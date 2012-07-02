@@ -230,7 +230,7 @@ public class ResponsePlayerTest {
 			player.getBoard().setUpProblem(BLACK, problem);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
 			player.acceptMove(PASS);
-			for (int i = 0; i < 1000; i++) {
+			for (int i = 0; i < 10000; i++) {
 				runnable.performMcRun();
 			}
 			int move = player.bestMove();

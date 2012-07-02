@@ -4,14 +4,16 @@ import static orego.core.Coordinates.PASS;
 import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
+import orego.play.UnknownPropertyException;
 import orego.core.Board;
 import orego.core.Colors;
 import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
 	
-	public static final int THRESHOLD = 100;
-	public static final int TEST_THRESHOLD = 1;
+	public static int ONE_THRESHOLD = 100;
+	public static int TWO_THRESHOLD = 100;
+	public static int TEST_THRESHOLD = 1;
 	
 	// Response lists for black
 	private ResponseList responseZeroBlack;
@@ -155,16 +157,12 @@ public class ResponsePlayer extends McPlayer {
 		int turn = board.getTurn();
 		int toPlay = board.getColorToPlay();
 		// pick table based on threshold values
-//		System.out.println("Two Threshold:"+twoTables[toPlay][history2][history1].getTotalRuns()+", One Threshold:"+oneTables[toPlay][history1].getTotalRuns());
-		if(turn >= 2 && twoTables[toPlay][history2][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : THRESHOLD)) {
+		if(turn >= 2 && twoTables[toPlay][history2][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : TWO_THRESHOLD)) {
 			table = twoTables[toPlay][history2][history1];
-//			System.out.print("TwoDeep:");
-		} else if(turn >= 1 && oneTables[toPlay][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : THRESHOLD)) {
+		} else if(turn >= 1 && oneTables[toPlay][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : ONE_THRESHOLD)) {
 			table = oneTables[toPlay][history1];
-//			System.out.print("OneDeep:");
 		} else {
 			table = zeroTables[toPlay];
-//			System.out.print("ZeroDeep:");
 		}
 		// find the move
 		int counter = 1;
@@ -176,7 +174,6 @@ public class ResponsePlayer extends McPlayer {
 			move = table.getMoves()[counter];
 			counter++;
 		}
-//		System.out.println(Coordinates.pointToString(move)+", WinRate:"+table.getWinRate(move)+","+table.getWinsForMove(move)+"/"+table.getRunsForMove(move));
 		return move;
 	}
 	
@@ -226,6 +223,19 @@ public class ResponsePlayer extends McPlayer {
 		super.reset();
 		for (int i = 0; i < getNumberOfThreads(); i++) {
 			setRunnable(i, new McRunnable(this, getPolicy().clone()));
+		}
+	}
+
+	@Override
+	public void setProperty(String property, String value)
+			throws UnknownPropertyException {
+		if (property.equals("one_threshold")) {
+			ONE_THRESHOLD = Integer.parseInt(value);
+		}
+		if (property.equals("two_threshold")) {
+			TWO_THRESHOLD = Integer.parseInt(value);
+		} else {
+			super.setProperty(property, value);
 		}
 	}
 	
