@@ -12,7 +12,7 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	public static final double RED = .45;
 	// winning threshold
 	public static final double GREEN = .5;
-	//number of handicap stones
+	// number of handicap stones
 	private int handicap;
 	// cut off between use of linear handicap and value situational handicap
 	private int cutOff;
@@ -33,10 +33,10 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 
 	public DynamicKomiPlayer() {
 		super();
-//		orego.experiment.Debug.setDebugFile("debug.txt");
+		// orego.experiment.Debug.setDebugFile("debug.txt");
 		ratchet = Double.MAX_VALUE;
 		cutOff = 19 + 2 * handicap;
-		if(handicap > 0){
+		if (handicap > 0) {
 			linearHandicap();
 		}
 	}
@@ -51,6 +51,11 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 		if (handicap > 0 && getBoard().getTurn() < cutOff) {
 			linearHandicap();
 		} else {
+			// If game reaches 95% completion we stop using negative komi.
+			if (getBoard().getVacantPoints().size() <= 86
+					&& getBoard().getKomi() < 0) {
+				getBoard().setKomi(0);
+			}
 			// if we are losing a lot then reduce the komi by 1
 			if (value < RED) {
 				// record the lowest positive komi given in this situation by
@@ -58,31 +63,38 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 				if (getBoard().getKomi() > 0) {
 					ratchet = getBoard().getKomi();
 				}
-				//when the game is about 95% complete stop adjusting komi
-				if (getBoard().getVacantPoints().size() > 18) {
-					if (Math.abs(getBoard().getKomi() - 1) < 30) {
-						getBoard().setKomi(getBoard().getKomi() - 1);
-					}
+				// when the game is about 95% complete stop adjusting komi
+				// 86 comes from 20% of board is empty at the end of a game and
+				// we stop using negative komi at 95% of game completed. This
+				// comes from http://pasky.or.cz/go/dynkomi.pdf and an email on
+				// the computer go mailing list.
+				if (getBoard().getVacantPoints().size() > 86) {
+					getBoard().setKomi(getBoard().getKomi() - 1);
 				}
-				//if we are winning a lot then increase the komi
+				// if we are winning a lot then increase the komi
 			} else if (value > GREEN && getBoard().getKomi() < ratchet) {
-				if (Math.abs(getBoard().getKomi() + 1) < 30) {
+				if (getBoard().getKomi() + 1 < 30) {
 					getBoard().setKomi(getBoard().getKomi() + 1);
 				}
 			}
+
 		}
-//		orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
+		// orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
 	}
 
 	private void linearHandicap() {
 		// sets initial komi to 7 times the handicap stones to a max of 30,
 		// which slowly reduces during the first 20 moves
-			getBoard().setKomi(HANDICAP_STONE_VALUE * handicap * (1 - ((getBoard().getTurn() - 2 * handicap - 1) / cutOff)));
-			if(getBoard().getKomi() > 30){
-				getBoard().setKomi(30);
-			}
+		getBoard()
+				.setKomi(
+						HANDICAP_STONE_VALUE
+								* handicap
+								* (1 - ((getBoard().getTurn() - 2 * handicap - 1) / cutOff)));
+		if (getBoard().getKomi() > 30) {
+			getBoard().setKomi(30);
+		}
 	}
-	
+
 	@Override
 	public void reset() {
 		super.reset();
