@@ -92,6 +92,9 @@ public class State implements Comparable<State> {
 		return this.runs;
 	}
 	
+	public int getLosses() {
+		return getRuns() - getWins();
+	}
 	public double getWinRunsProportion() {
 		if (runs == 0) return Double.MIN_VALUE; // occurs if state is 0/0.
 		
@@ -144,6 +147,6 @@ public class State implements Comparable<State> {
 	
 	@Override
 	public String toString() {
-		return String.format("\nState: %d\nWins: %d\nRuns: %d\nLosses: %d\n Confidence: %.3f\n", stateIndex, wins, runs, runs - wins, confidence);
+		return String.format("\nState: %d\nWins: %d\nRuns: %d\nLosses: %d\n Confidence: %.3f\n", stateIndex, wins, runs, getLosses(), confidence);
 	}
 }

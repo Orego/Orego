@@ -38,7 +38,7 @@ public class WinLossStates {
 	
 	public static double WIN_THRESHOLD = 0.5000; // TODO: probably shouldn't be static and changable...
 	
-	private static final int NO_STATE_EXISTS = Integer.MAX_VALUE;
+	public static final int NO_STATE_EXISTS = Integer.MAX_VALUE;
 	
 	public Visualizer visualizer = new Visualizer();
 	
@@ -230,6 +230,16 @@ public class WinLossStates {
 		return NO_STATE_EXISTS;
 	}
 
+	/**
+	 * Finds a state for the given win/loss
+	 * @return A {@link State} object if the state exists, otherwise null
+	 */
+	public State findState(int wins, int runs) {
+		int index = findStateIndex(wins, runs);
+		
+		return (index != NO_STATE_EXISTS ? states[index] : null);
+	}
+	
 	/**
 	 * Returns the index to jump to when we have a "saturated" proportion: n/m where m = e (end of scale).
 	 * This function should not be called *unless* m = e (the proportion is saturated).
