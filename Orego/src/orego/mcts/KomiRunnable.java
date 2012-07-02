@@ -7,6 +7,7 @@ public class KomiRunnable extends McRunnable {
 	
 	public KomiRunnable(DynamicKomiPlayer player, Policy policy) {
 		super(player, policy);
+//		orego.experiment.Debug.setDebugFile("DynamicKomi");
 	}
 	
 	/**
