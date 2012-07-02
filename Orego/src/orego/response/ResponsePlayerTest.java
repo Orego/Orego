@@ -19,6 +19,8 @@ import orego.response.ResponseList;
 import org.junit.Before;
 import org.junit.Test;
 
+import sun.security.action.GetBooleanAction;
+
 public class ResponsePlayerTest {
 	
 	ResponsePlayer player;
@@ -48,6 +50,8 @@ public class ResponsePlayerTest {
 		ResponseList[] respOneWhite = player.getResponseOneWhite();
 		ResponseList[][] respTwoWhite = player.getResponseTwoWhite();
 		// Make sure all of the Black lists are right
+		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
+		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
 		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[47]]);
 		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[47]]);
 		assertEquals(2, respOneBlack[25].getWins()[respOneBlack[25].getIndices()[47]]);
@@ -248,15 +252,15 @@ public class ResponsePlayerTest {
 		}
 	}
 	
-	/*@Test
+	@Test
 	public void testConnect() throws UnknownPropertyException {
 		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"##########OOOOOOOOO",// 19
-					"##.#######OOOOOO.OO",// 18
-					"#...######OOOOO...O",// 17
-					"##.#######OOOOOO.OO",// 16
-					"##########OOOOOOOOO",// 15
+					"###.######OOOOOOOOO",// 18
+					"##...#####OOOO.OOOO",// 17
+					"###.######OOO...OOO",// 16
+					"##########OOOO.OOOO",// 15
 					"##########OOOOOOOOO",// 14
 					"##########OOOOOOOOO",// 13
 					"##########OOOOOOOOO",// 12
@@ -267,28 +271,23 @@ public class ResponsePlayerTest {
 					"OOOOOOOOO##########",// 7
 					"OOOOOOOOO##########",// 6
 					"OOOO.OOOO##########",// 5
-					"OOO...OOO######.###",// 4
-					"OOOO.OOOO#####...##",// 3
-					"OOOOOOOOO######.###",// 2
+					"OOO...OOO#####.####",// 4
+					"OOOO.OOOO####...###",// 3
+					"OOOOOOOOO#####.####",// 2
 					"OOOOOOOOO##########" // 1
 			// ABCDEFGHJKLMNOPQRST
 			};
 			player.setUpProblem(BLACK, problem);
+			player.setTesting(true);
+			//TODO: check level zero and one tables -- chooses move PASS
+			//when not consulting level two table
+			
+			//player.getBoard().play(190);
+			//player.getBoard().play(191);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
-			for (int i = 0; i < 10000; i++) {
+			for (int i = 0; i < 1000; i++) {
 				runnable.performMcRun();
 			}
-			ResponseList table = player.getResponseZeroBlack();
-			System.out.println(table.getWins(table.getIndices()[305]));
-			System.out.println(table.getRuns(table.getIndices()[305]));
-			System.out.println(table.getWinRate(305));
-			System.out.println(table.getWins(table.getIndices()[326]));
-			System.out.println(table.getRuns(table.getIndices()[326]));
-			System.out.println(table.getWinRate(326));
-			System.out.println(table.getWins(table.getIndices()[210]));
-			System.out.println(table.getRuns(table.getIndices()[210]));
-			System.out.println(table.getWinRate(210));
-			//System.out.println("\n");
 			int move = player.bestMove();
 			assertEquals(at("k10"), move);
 		} else {
@@ -301,5 +300,5 @@ public class ResponsePlayerTest {
 			//int move = player.bestMove();
 			//assertEquals(at("e5"), move);
 		}
-	}*/
+	}
 }

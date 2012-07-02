@@ -33,7 +33,6 @@ public abstract class Policy implements Cloneable {
 			System.exit(1);
 		}
 		return null;
-
 	}
 
 	/**
