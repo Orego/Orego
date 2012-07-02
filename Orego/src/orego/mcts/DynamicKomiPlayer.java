@@ -84,9 +84,9 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 			}
 
 		}
-		orego.experiment.Debug.debug("Overall Winrate: "
-				+ getRoot().overallWinRate() + "\nKomi: "
-				+ getBoard().getKomi());
+//		orego.experiment.Debug.debug("Overall Winrate: "
+//				+ getRoot().overallWinRate() + "\nKomi: "
+//				+ getBoard().getKomi());
 		// orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
 	}
 

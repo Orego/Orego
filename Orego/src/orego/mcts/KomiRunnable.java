@@ -7,8 +7,7 @@ public class KomiRunnable extends McRunnable {
 
 	public KomiRunnable(DynamicKomiPlayer player, Policy policy) {
 		super(player, policy);
-		orego.experiment.Debug.setDebugFile("/Network/servers/maccsserver.lclark.edu/Users/nsylvester/Desktop/Dynamic_Komi.txt");
-		orego.experiment.Debug.debug("DEBUGGING");
+//		orego.experiment.Debug.setDebugFile("/Network/servers/maccsserver.lclark.edu/Users/nsylvester/Desktop/Dynamic_Komi.txt");
 	}
 
 	/**
@@ -17,7 +16,6 @@ public class KomiRunnable extends McRunnable {
 	 */
 	@Override
 	public void run() {
-		orego.experiment.Debug.debug("RUN METHOD");
 		boolean limitPlayouts = getPlayer().getMillisecondsPerMove() <= 0;
 		int playouts = 0;
 		int limit = getPlayer().getPlayoutLimit();
