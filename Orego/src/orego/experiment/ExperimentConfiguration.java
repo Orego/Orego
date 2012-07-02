@@ -5,12 +5,11 @@ import static orego.core.Coordinates.BOARD_WIDTH;
 /** Defines some system-dependent constants for experiments. */
 public class ExperimentConfiguration {
 
+	/** Directory where game files are stored. */
 	public static final String RESULTS_DIRECTORY = "/home/drake/results/";
 
+	/** Path to run GNUGO on your machine. */
 	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
-//	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize 9 --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
-//////	 public static final String GNUGO =
-//////	 "/usr/local/bin/gnugo --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
 	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/git/Orego/Orego/bin";
@@ -55,26 +54,5 @@ public class ExperimentConfiguration {
 		 "threads=1 msec=4000 book=FusekiBook",
 		 "threads=1 msec=8000 book=FusekiBook",
 	 };
-
-//	public static String[] CONDITIONS;
-//
-//	static {
-//		CONDITIONS = new String[0];
-//		java.util.ArrayList<String> temp = new java.util.ArrayList<String>();
-//		for (int playouts : new int[] { 10000, 20000, 40000, 80000 }) {
-//			for (int cutoff : new int[] { 4, 6, 8, 10 }) {
-//				for (double learn : new double[] { 0.05, 0.03, 0.01, 0.001, 0.1 }) {
-//					temp.add("threads=1 playouts=" + playouts
-//							+ " player=orego.neural.Rich1 history=2 learn="
-//							+ learn + " cutoff=" + cutoff);
-//				}
-//				temp.add("threads=1 playouts=" + playouts
-//						+ " player=orego.neural.Average history=2 learn=0.05"
-//						+ " cutoff=" + cutoff
-//				);
-//			}
-//		}
-//		CONDITIONS = temp.toArray(CONDITIONS);
-//	}
 
 }
