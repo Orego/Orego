@@ -116,8 +116,8 @@ public class ResponsePlayerTest {
 			player.setUpProblem(BLACK, problem);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
 			//player.setTesting(true);
-			/*
 			ResponseList table = player.getResponseZeroBlack();
+			/*
 			System.out.println(table.getWins(table.getIndices()[365]));
 			System.out.println(table.getRuns(table.getIndices()[365]));
 			System.out.println(table.getWinRate(365));
@@ -134,16 +134,15 @@ public class ResponsePlayerTest {
 				//System.out.println(player.getResponseZeroBlack().getTotalRuns());
 			}
 			/*
-			System.out.println(table.getWins(table.getIndices()[365]));
-			System.out.println(table.getRuns(table.getIndices()[365]));
+			System.out.println(table.getWins(365));
+			System.out.println(table.getRuns(365));
 			System.out.println(table.getWinRate(365));
-			System.out.println(table.getWins(table.getIndices()[385]));
-			System.out.println(table.getRuns(table.getIndices()[385]));
+			System.out.println(table.getWins(385));
+			System.out.println(table.getRuns(385));
 			System.out.println(table.getWinRate(385));
-			System.out.println(table.getWins(table.getIndices()[Coordinates.PASS]));
-			System.out.println(table.getRuns(table.getIndices()[Coordinates.PASS]));
+			System.out.println(table.getWins(Coordinates.PASS));
+			System.out.println(table.getRuns(Coordinates.PASS));
 			System.out.println(table.getWinRate(Coordinates.PASS));
-			System.out.println("Turn "+runnable.getBoard().getTurn());
 			*/
 			int move = player.bestMove();
 			assertEquals(PASS, move);
@@ -252,6 +251,7 @@ public class ResponsePlayerTest {
 		}
 	}
 	
+	/*
 	@Test
 	public void testConnect() throws UnknownPropertyException {
 		if (BOARD_WIDTH == 19) {
@@ -278,14 +278,14 @@ public class ResponsePlayerTest {
 			// ABCDEFGHJKLMNOPQRST
 			};
 			player.setUpProblem(BLACK, problem);
-			player.setTesting(true);
+			//player.setTesting(true);
 			//TODO: check level zero and one tables -- chooses move PASS
 			//when not consulting level two table
 			
 			//player.getBoard().play(190);
 			//player.getBoard().play(191);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
-			for (int i = 0; i < 1000; i++) {
+			for (int i = 0; i < 10000; i++) {
 				runnable.performMcRun();
 			}
 			int move = player.bestMove();
@@ -301,4 +301,5 @@ public class ResponsePlayerTest {
 			//assertEquals(at("e5"), move);
 		}
 	}
+	*/
 }
