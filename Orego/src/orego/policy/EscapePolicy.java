@@ -6,6 +6,7 @@ import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Board.*;
 import orego.mcts.SearchNode;
+import orego.response.ResponsePlayer;
 import orego.util.*;
 
 /** Tries to escape when in atari. */
@@ -139,4 +140,7 @@ public class EscapePolicy extends Policy {
 		getFallback().updatePriors(node, board, weight);
 	}
 
+	public void updateResponses(ResponsePlayer player, Board board, int weight) {
+		getFallback().updateResponses(player, board, weight);
+	}
 }

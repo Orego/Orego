@@ -14,7 +14,15 @@ import orego.mcts.SearchNode;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
+/**
+ * The Empty Corner Policy, updating the priors on the 4 4 points if there are
+ * no nearby enemy stones in the joseki corner. Not including the center
+ * boundary lines.
+ */
 public class EmptyCornerPolicy extends Policy {
+
+	public static int CORNERS[] = { at("e5"), at("e15"), at("p5"), at("p15") };
+	public static int MATCHES[] = { at("d4"), at("d16"), at("q4"), at("q16") };
 
 	public EmptyCornerPolicy() {
 		this(new RandomPolicy());
@@ -37,22 +45,25 @@ public class EmptyCornerPolicy extends Policy {
 
 	@Override
 	public void updatePriors(SearchNode node, Board board, int weight) {
-		int enemy = opposite(board.getColorToPlay());
-		int corners[] = { at("e5"), at("e15"), at("p5"), at("p15") };
-		int matches[] = { at("d4"), at("d16"), at("q4"), at("q16") };
-		for (int i = 0; i<corners.length; i++) {
-			if (hasNoNearbyEnemies(corners[i], enemy, board)) {
-				node.addWins(matches[i], 10*weight);
+		if (board.getTurn() < 50) {
+			int enemy = opposite(board.getColorToPlay());
+
+			for (int i = 0; i < CORNERS.length; i++) {
+				if (hasNoNearbyEnemies(CORNERS[i], enemy, board)) {
+					node.addWins(MATCHES[i], 10 * weight);
+				}
 			}
 		}
+		getFallback().updatePriors(node, board, weight);
 	}
 
+	/** Returns true if corner has no nearby enemy stones */
 	private boolean hasNoNearbyEnemies(int corner, int enemyColor, Board board) {
-		for(int i = -4; i<=4; i++){
-			for (int j = -4; j <=4 ; j++) {
+		for (int i = -4; i <= 4; i++) {
+			for (int j = -4; j <= 4; j++) {
 				int r = row(corner);
 				int c = column(corner);
-				if(board.getColor((at(r + i, c + j)))==enemyColor){
+				if (board.getColor((at(r + i, c + j))) == enemyColor) {
 					return false;
 				}
 			}
