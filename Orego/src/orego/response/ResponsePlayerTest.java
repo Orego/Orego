@@ -42,13 +42,13 @@ public class ResponsePlayerTest {
 		runnable.acceptMove(52);
 		player.incorporateRun(Colors.BLACK,runnable);
 		// Get all of the black response lists
-		ResponseList respZeroBlack = player.getResponseZeroBlack();
-		ResponseList[] respOneBlack = player.getResponseOneBlack();
-		ResponseList[][] respTwoBlack = player.getResponseTwoBlack();
+		ResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
+		ResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
+		ResponseList[][] respTwoBlack = player.getTwoTables()[Colors.BLACK];
 		// Get all of the white response lists
-		ResponseList respZeroWhite = player.getResponseZeroWhite();
-		ResponseList[] respOneWhite = player.getResponseOneWhite();
-		ResponseList[][] respTwoWhite = player.getResponseTwoWhite();
+		ResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
+		ResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
+		ResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
 		// Make sure all of the Black lists are right
 		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
 		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
@@ -116,8 +116,8 @@ public class ResponsePlayerTest {
 			player.setUpProblem(BLACK, problem);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
 			//player.setTesting(true);
-			ResponseList table = player.getResponseZeroBlack();
 			/*
+			ResponseList table = player.getZeroTables()[Colors.BLACK];
 			System.out.println(table.getWins(table.getIndices()[365]));
 			System.out.println(table.getRuns(table.getIndices()[365]));
 			System.out.println(table.getWinRate(365));
@@ -251,15 +251,14 @@ public class ResponsePlayerTest {
 		}
 	}
 	
-	/*
 	@Test
 	public void testConnect() throws UnknownPropertyException {
 		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"##########OOOOOOOOO",// 19
-					"###.######OOOOOOOOO",// 18
-					"##...#####OOOO.OOOO",// 17
-					"###.######OOO...OOO",// 16
+					"##########OOOOOOOOO",// 18
+					"##..######OOOOOOOOO",// 17
+					"###.######OOOO..OOO",// 16
 					"##########OOOO.OOOO",// 15
 					"##########OOOOOOOOO",// 14
 					"##########OOOOOOOOO",// 13
@@ -271,9 +270,9 @@ public class ResponsePlayerTest {
 					"OOOOOOOOO##########",// 7
 					"OOOOOOOOO##########",// 6
 					"OOOO.OOOO##########",// 5
-					"OOO...OOO#####.####",// 4
-					"OOOO.OOOO####...###",// 3
-					"OOOOOOOOO#####.####",// 2
+					"OOOO..OOO#####.####",// 4
+					"OOOOOOOOO####..####",// 3
+					"OOOOOOOOO##########",// 2
 					"OOOOOOOOO##########" // 1
 			// ABCDEFGHJKLMNOPQRST
 			};
@@ -301,5 +300,4 @@ public class ResponsePlayerTest {
 			//assertEquals(at("e5"), move);
 		}
 	}
-	*/
 }

@@ -16,27 +16,41 @@ public class Collate {
 		for (String name : dir.list()) {
 			if (name.endsWith(".game")) {
 				int[] stats = null;
-				int oregoColor = -1;
+				char oregoColor = ' ';
+				String input = "";
+				String condition = null;
 				Scanner s = new Scanner(new File(RESULTS_DIRECTORY + name));
 				while (s.hasNextLine()) {
-					String line = s.nextLine();
-					if (line.contains("orego.ui.Orego")) {
-						// This line specifies Orego's color in this game
-						String condition = line.substring(line
-								.indexOf("orego.ui.Orego") + 15);
-						if (line.startsWith("black:")) {
-							oregoColor = BLACK;
-						} else {
-							oregoColor = WHITE;
+					input += s.nextLine();
+				}
+				StringTokenizer stoken = new StringTokenizer(input, "()[];");
+				while (stoken.hasMoreTokens()) {
+					String token = stoken.nextToken();
+					if (token.equals("PB")) { //If the player is black
+						token = stoken.nextToken();
+						if (token.contains("orego.ui.Orego")) {
+							oregoColor = 'B';
+							condition = token.substring(token.indexOf("orego.ui.Orego") + 15);
 						}
+					}
+					if (token.equals("PW")) { //If the player is white
+						token = stoken.nextToken();
+						if (token.contains("orego.ui.Orego")) {
+							oregoColor = 'W';
+							condition = token.substring(token.indexOf("orego.ui.Orego") + 15);
+						}
+					}
+					if (condition != null) { //Set the appropriate stat array
 						if (results.containsKey(condition)) {
 							stats = results.get(condition);
 						} else {
 							stats = new int[NUMBER_OF_PLAYER_COLORS];
 							results.put(condition, stats);
 						}
-					} else if (line.startsWith("Winner")) {
-						if (line.charAt(line.indexOf(' ') + 1) == (oregoColor + '0')) {
+					}
+					if (token.equals("RE")) { //Find the winner
+						token = stoken.nextToken();
+						if (token.charAt(0) == oregoColor) {
 							stats[0]++;
 						}
 						stats[1]++;
