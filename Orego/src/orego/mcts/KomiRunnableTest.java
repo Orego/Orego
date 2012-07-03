@@ -46,10 +46,11 @@ public class KomiRunnableTest {
 			player.getBoard().play(i);
 		}
 		player.getBoard().play(41);
-		player.getRoot().addWins(67, 1000);
+		player.getRoot().addWins(68, 1000);
 		komiRunnable.run();
 		assertEquals(7.5, player.getBoard().getKomi(), .001);
 		player.getBoard().play(42);
+		player.getRoot().addWins(68, 1000);
 		komiRunnable.run();
 		assertEquals(1, Math.abs(7.5 - player.getBoard().getKomi()), .001);
 
