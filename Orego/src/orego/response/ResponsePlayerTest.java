@@ -251,15 +251,14 @@ public class ResponsePlayerTest {
 		}
 	}
 	
-	
 	@Test
 	public void testConnect() throws UnknownPropertyException {
 		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"##########OOOOOOOOO",// 19
-					"###.######OOOOOOOOO",// 18
-					"##...#####OOOO.OOOO",// 17
-					"###.######OOO...OOO",// 16
+					"##########OOOOOOOOO",// 18
+					"##..######OOOOOOOOO",// 17
+					"###.######OOOO..OOO",// 16
 					"##########OOOO.OOOO",// 15
 					"##########OOOOOOOOO",// 14
 					"##########OOOOOOOOO",// 13
@@ -271,9 +270,9 @@ public class ResponsePlayerTest {
 					"OOOOOOOOO##########",// 7
 					"OOOOOOOOO##########",// 6
 					"OOOO.OOOO##########",// 5
-					"OOO...OOO#####.####",// 4
-					"OOOO.OOOO####...###",// 3
-					"OOOOOOOOO#####.####",// 2
+					"OOOO..OOO#####.####",// 4
+					"OOOOOOOOO####..####",// 3
+					"OOOOOOOOO##########",// 2
 					"OOOOOOOOO##########" // 1
 			// ABCDEFGHJKLMNOPQRST
 			};
