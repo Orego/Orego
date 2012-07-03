@@ -120,10 +120,8 @@ public class EscapePolicy extends Policy {
 						do {
 							for (int j = 0; j < 4; j++) {
 								int m = NEIGHBORS[next][j];
-								if (board.getColor(m) == opposite(board
-										.getColorToPlay())
-										&& !testedChains.contains(board
-												.getChainId(m))) {
+								if (board.getColor(m) == opposite(board.getColorToPlay())
+										&& !testedChains.contains(board.getChainId(m))) {
 									testedChains.add(board.getChainId(m));
 									int capturePoint = board.getCapturePoint(m);
 									if (capturePoint != NO_POINT) {
@@ -141,6 +139,37 @@ public class EscapePolicy extends Policy {
 	}
 
 	public void updateResponses(ResponsePlayer player, Board board, int weight) {
+		int lastPlay = board.getMove(board.getTurn() - 1);
+		testedChains.clear();
+		for (int i = 0; i < 4; i++) {
+			int n = NEIGHBORS[lastPlay][i];
+			if (board.getColor(n) == board.getColorToPlay()) {
+				if (!testedChains.contains(board.getChainId(n))) {
+					testedChains.add(board.getChainId(n));
+					int liberty = board.getCapturePoint(n);
+					if (liberty != NO_POINT) {
+						// This friendly group is in atari. Try to run...
+						player.addWins(liberty, board, weight);
+						// ... or capture one of its neighbors
+						int next = n;
+						do {
+							for (int j = 0; j < 4; j++) {
+								int m = NEIGHBORS[next][j];
+								if (board.getColor(m) == opposite(board.getColorToPlay())
+										&& !testedChains.contains(board.getChainId(m))) {
+									testedChains.add(board.getChainId(m));
+									int capturePoint = board.getCapturePoint(m);
+									if (capturePoint != NO_POINT) {
+										player.addWins(capturePoint, board, weight);
+									}
+								}
+							}
+							next = board.getChainNextPoints()[next];
+						} while (next != n);
+					}
+				}
+			}
+		}
 		getFallback().updateResponses(player, board, weight);
 	}
 }
