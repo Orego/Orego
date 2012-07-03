@@ -33,7 +33,8 @@ public class EmptyCornerPolicyTest {
 	public void testUpdatePriors1() {
 		SearchNode node = new SearchNode();
 		String[] problem;
-		problem = new String[] { "...................",// 19
+		problem = new String[] { 
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"..O................",// 16
@@ -52,7 +53,7 @@ public class EmptyCornerPolicyTest {
 				"........O..........",// 3
 				"........O..........",// 2
 				"........O.........O"// 1
-		// ABCDEFGHJKLMNOPQRST
+				//ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
 		node.reset(board.getHash());
