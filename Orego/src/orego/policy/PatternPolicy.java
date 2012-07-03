@@ -167,29 +167,17 @@ public class PatternPolicy extends Policy {
 				return getFallback().selectAndPlayOneMove(random, board);
 			}
 			int start = random.nextInt(goodMoves.size());
-			for (int i = start; i < goodMoves.size(); i++) {
+			int i = start;
+			do {
 				int p = goodMoves.get(i);
 				if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
 					return p;
 				}
-			}
-			for (int i = 0; i < start; i++) {
-				int p = goodMoves.get(i);
-				if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
-					return p;
-				}
-			}
-			// The two for loops above could be replaced with this. See the same
-			// method in
-			// RandomPolicy for an explanation.
-			// int i = start;
-			// do {
-			// int p = goodMoves.get(i);
-			// if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
-			// return p;
-			// }
-			// i = (i + 457) % goodMoves.size();
-			// } while (i != start);
+				// The magic number 457 is prime and larger than goodMoves.size().
+				// Advancing by 457 therefore skips "randomly" through the array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % goodMoves.size();
+			} while (i != start);
 		} // end if
 		return getFallback().selectAndPlayOneMove(random, board);
 	}

@@ -1,5 +1,7 @@
 package orego.core;
 
+import static orego.core.Coordinates.pointToString;
+
 /**
  * This class manages coordinates on the board.
  * <p>
@@ -198,6 +200,11 @@ public final class Coordinates {
 		// Note that, as per convention, I is missing
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(c);
 	}
+	
+	/** Returns the column c as a lower case letter. This is used for the sgf format.*/
+	public static char columnToChar(int c) {
+		return (char)(c + 'a'); 
+	}
 
 	/** Returns the Euclidean distance from p1 to p2. */
 	public static double distance(int p1, int p2) {
@@ -330,6 +337,11 @@ public final class Coordinates {
 	/** Returns a String representation of row r. */
 	public static String rowToString(int r) {
 		return "" + (BOARD_WIDTH - r);
+	}
+	
+	/** Returns the row r as a lower case letter. This is used for the sgf format.*/
+	public static char rowToChar(int r) {
+		return (char)((BOARD_WIDTH - r) + 'a' - 1); 
 	}
 
 	/** Returns the point south of p (which may be off the board). */

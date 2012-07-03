@@ -3,6 +3,7 @@ package orego.policy;
 import orego.core.Board;
 import ec.util.MersenneTwisterFast;
 import orego.mcts.SearchNode;
+import orego.response.ResponsePlayer;
 
 /**
  * Generates moves for playouts (beyond the search tree). Many subclasses will
@@ -33,7 +34,6 @@ public abstract class Policy implements Cloneable {
 			System.exit(1);
 		}
 		return null;
-
 	}
 
 	/**
@@ -59,5 +59,11 @@ public abstract class Policy implements Cloneable {
 	public void updatePriors(SearchNode node, Board board, int weight) {
 		getFallback().updatePriors(node, board, weight);
 	}
-
+	
+	/**
+	 * updatePriors for ResponsePlayer
+	 */
+	public void updateResponses(ResponsePlayer player, Board board, int weight) {
+		getFallback().updateResponses(player, board, weight);
+	}
 }

@@ -112,6 +112,9 @@ public class Board {
 
 	/** Ids of friendly chains adjacent to the move just played. */
 	private IntList friendlyNeighboringChainIds;
+	
+	/** Keeps track of the number of handicap stones at the start of the game */
+	private int handicap;
 
 	/**
 	 * Zobrist hash of the current board position, including the simple ko
@@ -287,6 +290,7 @@ public class Board {
 		turn = 0;
 		passes = 0;
 		colorToPlay = BLACK;
+		handicap = 0;
 		hash = 0L;
 		friendlyNeighboringChainIds = new IntList(4);
 		enemyNeighboringChainIds = new IntList(4);
@@ -370,6 +374,7 @@ public class Board {
 		stoneCounts[WHITE] = that.stoneCounts[WHITE];
 		komi = that.komi;
 		koPoint = that.koPoint;
+		handicap = that.handicap;
 		hash = that.hash;
 		passes = that.passes;
 		colorToPlay = that.colorToPlay;
@@ -574,6 +579,11 @@ public class Board {
 		return colorToPlay;
 	}
 
+	/** Returns the number of handicap stones used at the beginning of the game. */
+	public int getHandicap() {
+		return handicap;
+	}
+	
 	/**
 	 * Returns the zobrist hash of the current board position, including the
 	 * simple ko point and color to play.
@@ -1164,6 +1174,26 @@ public class Board {
 		colorToPlay = color;
 	}
 
+	/** Sets up the starting handicap for a board. Must be between 2 and 9 stones. */
+	public void setUpHandicap(int handicapSize) {
+		handicap = handicapSize;
+		String[][] handicaps = { { "D4", "Q16" }, { "D4", "Q16", "D16" },
+				{ "D4", "Q16", "D16", "Q4" },
+				{ "D4", "Q16", "D16", "Q4", "K10" },
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10" },
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K10" },
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16" },
+				{ "D4", "Q16", "D16", "Q4", ",D10", "Q10", "K4", "K16", "K10" } };
+		for (int i = 0; i < handicapSize - 1; i++) {
+			play(handicaps[handicapSize - 2][i]);
+			play(Coordinates.PASS);
+		}
+		play(handicaps[handicapSize - 2][handicapSize - 1]);	
+		if(handicapSize > 0){
+			komi = 0;
+		}
+	}
+	
 	/** For testing only. */
 	protected void setHash(long hash) {
 		this.hash = hash;
@@ -1209,10 +1239,7 @@ public class Board {
 			}
 		}
 		if (this.colorToPlay != colorToPlay) {
-			// TODO Would passing be cleaner? As written,
-			// the parity of future moves may be wrong.
-//			play(PASS);
-			this.colorToPlay = colorToPlay;
+			play(PASS);
 		}
 	}
 

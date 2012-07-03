@@ -33,18 +33,17 @@ public class BoardTest {
 	protected int playARandomMove(MersenneTwisterFast random) {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
-		for (int i = start; i < vacantPoints.size(); i++) {
+		int i = start;
+		do {
 			int p = vacantPoints.get(i);
-			if (board.isFeasible(p) && board.play(p) == PLAY_OK) {
+			if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
 				return p;
 			}
-		}
-		for (int i = 0; i < start; i++) {
-			int p = vacantPoints.get(i);
-			if (board.isFeasible(p) && board.play(p) == PLAY_OK) {
-				return p;
-			}
-		}
+			// The magic number 457 is prime and larger than vacantPoints.size().
+			// Advancing by 457 therefore skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
 		board.play(PASS);
 		return PASS;
 	}
@@ -2886,5 +2885,20 @@ public class BoardTest {
 //		}
 //	}
 	
+	@Test
+	public void testSetUpFixedHandicap() {
+		board.setUpHandicap(2);
+		assertEquals(BLACK, board.getColor(at("D4")));
+		assertEquals(BLACK, board.getColor(at("Q16")));
+		board.clear();
+		board.setUpHandicap(7);
+		assertEquals(BLACK, board.getColor(at("D4")));
+		assertEquals(BLACK, board.getColor(at("Q16")));
+		assertEquals(BLACK, board.getColor(at("Q4")));
+		assertEquals(BLACK, board.getColor(at("D16")));
+		assertEquals(BLACK, board.getColor(at("D10")));
+		assertEquals(BLACK, board.getColor(at("Q10")));
+		assertEquals(BLACK, board.getColor(at("K10")));
+	}
 	
 }

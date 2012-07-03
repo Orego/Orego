@@ -1,12 +1,15 @@
 package orego.ui;
 
+import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import orego.core.Board;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import java.io.*;
 import java.util.ArrayList;
 
@@ -537,5 +540,4 @@ public class OregoTest {
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
 	}
-
 }
