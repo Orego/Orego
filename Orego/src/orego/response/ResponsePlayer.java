@@ -31,13 +31,17 @@ public class ResponsePlayer extends McPlayer {
 	private ResponseList[] responseOneWhite;
 	/**Second level for white*/
 	private ResponseList[][] responseTwoWhite;
-	// Response list holders -- zeroTables = {responseZeroBlack,responseZeroWhite} etc..
+	/** Zero table holder, [0] = responseZeroBlack, [1] = responseZeroWhite */
 	private ResponseList[] zeroTables;
+	/** One table holder, [0] = responseOneBlack, [1] = responseOneWhite */
 	private ResponseList[][] oneTables;
+	/** Two table holder, [0] = responseTwoBlack, [1] = responseTwoWhite */
 	private ResponseList[][][] twoTables;
-	// testing flag
+	/** Testing flag */
 	private boolean testing = false;
+	/** Weight for updateResponses */
 	private int priorsWeight;
+	/** Default weight for updateResponses */
 	private static final int DEFAULT_WEIGHT = 1;
 	
 	public static void main(String[] args) {
