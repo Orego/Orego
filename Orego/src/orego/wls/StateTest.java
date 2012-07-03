@@ -49,7 +49,7 @@ public class StateTest {
 		assertEquals(1.0/6.0, state.getWinRunsProportion(), .0001);
 		
 		// we pre-calculate the confidence (with 75% confidence) and then add the extra -1 to shift down
-		assertEquals(0.2943406 - 1, state.getConfidence(), 0001);
+		assertEquals(0.2943406 - 1, state.getConfidence(), .0001);
 		
 		// test lower bound on proportion greater than WIN_THRESHOLD (1/2)
 		state = new State(12, 16);

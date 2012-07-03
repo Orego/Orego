@@ -126,16 +126,53 @@ public class WinLossStatesTest {
 	}
 
 	@Test
-	public void testSaturatedStates() {
-		// TODO: test the 0/21 and 21/21 states to make sure they stay put
+	public void testSaturatedStates() throws Exception {
+		//  test the 0/21 state to make sure it stays put
+		State saturatedLoss = states.findState(0, 21);
+		int saturatedLossIndex = states.findStateIndex(saturatedLoss);
+		
+		assertNotNull(saturatedLoss);
+		
+		// try to add a few losses
+		for (int i = 0; i < 100; i++) {
+			saturatedLossIndex = states.addLoss(saturatedLossIndex);
+		}
+		
+		saturatedLoss = states.getState(saturatedLossIndex);
+		
+		assertNotNull(saturatedLoss);
+		
+		// should be at the same state
+		assertEquals(21, saturatedLoss.getRuns());
+		assertEquals(0, saturatedLoss.getWins());
+		
+		// test the 21/21 state to make sure it stays put
+		State saturatedWin = states.findState(21, 21);
+		int saturatedWinIndex = states.findStateIndex(saturatedLoss);
+		
+		assertNotNull(saturatedWin);
+		
+		// try to add a few wins
+		for (int i = 0; i < 100; i++) {
+			saturatedWinIndex = states.addWin(saturatedWinIndex);
+		}
+		
+		saturatedWin = states.getState(saturatedWinIndex);
+		
+		assertNotNull(saturatedWin);
+		
+		// should be at the same state (21/21)
+		assertEquals(21, saturatedWin.getRuns());
+		assertEquals(21, saturatedWin.getWins());
 	}
+	
 	@Test
 	public void testJump() {
 		// second to last state (20/21)
 		State lastState = states.findState(20, 21);
-		int lastStateIndex = states.findStateIndex(lastState);
+		assertNotNull(lastState);
 		
-		assertNotNull(lastState);		
+		int lastStateIndex = states.findStateIndex(lastState);
 		
 		assertEquals(20, lastState.getWins());
 		assertEquals(21, lastState.getRuns());

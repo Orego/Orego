@@ -141,9 +141,11 @@ public class WinLossStates {
 	/**
 	 * Gets a state for a given index
 	 * @param stateAction The state action pair (really just an index)
-	 * @return State the state for the given index
+	 * @return State the state for the given index or null if out of bounds
 	 */
 	public State getState(int stateAction) {
+		if (stateAction >= states.length) return null;
+		
 		return states[stateAction];
 	}
 	
