@@ -1,5 +1,6 @@
 package orego.mcts;
 
+import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
@@ -141,7 +142,8 @@ public class MctsPlayer extends McPlayer {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start;
 		start = random.nextInt(vacantPoints.size());
-		for (int i = start; i < vacantPoints.size(); i++) {
+		int i = start;
+		do {
 			int move = vacantPoints.get(i);
 			double searchValue = searchValue(node, board, move);
 			if (searchValue > best) {
@@ -152,19 +154,11 @@ public class MctsPlayer extends McPlayer {
 					node.exclude(move);
 				}
 			}
-		}
-		for (int i = 0; i < start; i++) {
-			int move = vacantPoints.get(i);
-			double searchValue = searchValue(node, board, move);
-			if (searchValue > best) {
-				if (board.isFeasible(move) && board.isLegal(move)) {
-					best = searchValue;
-					result = move;
-				} else {
-					node.exclude(move);
-				}
-			}
-		}
+			// The magic number 457 is prime and larger than vacantPoints.size().
+			// Advancing by 457 therefore skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
 		return result;
 	}
 

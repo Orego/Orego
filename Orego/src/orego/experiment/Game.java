@@ -1,6 +1,8 @@
 package orego.experiment;
 
 import java.io.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Scanner;
 
 import static orego.core.Colors.*;
@@ -48,6 +50,11 @@ public class Game {
 	private boolean crashed;
 	
 	/**
+	 * String that is built to produce an SGF file.
+	 */
+	private String sgfoutput = "";
+	
+	/**
 	 * @param black
 	 *            shell command to start black player
 	 * @param white
@@ -56,6 +63,7 @@ public class Game {
 	public Game(String filename, String black, String white) {
 		this.filename = filename;
 		contestants = new String[] { black, white };
+		sgfoutput += "(;FF[4]CA[UTF-8]AP[OREGOvs.GNUGO]KM[7.5]";
 	}
 
 	/**
@@ -64,6 +72,7 @@ public class Game {
 	 */
 	protected void endPrograms() {
 		out.println("Game over!");
+		out.println(sgfoutput+")");
 		out.println(board);
 		out.println(board.getTurn() + " moves played");
 		mode = QUITTING;
@@ -88,6 +97,18 @@ public class Game {
 			if (mode == REQUESTING_MOVE) {
 				String coordinates = line.substring(line.indexOf(' ') + 1);
 				out.println(colorToString(getColorToPlay()) + " " + coordinates);
+				//sgf output
+				sgfoutput += (getColorToPlay() == BLACK ? ";B" : ";W");
+				if (coordinates.equals("PASS")) {
+					sgfoutput += "[]";
+				}
+				else if (coordinates.toLowerCase().equals("resign")) {
+					//do nothing.
+				}
+				else {
+					sgfoutput += "[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]";
+				}
+				//end sgf output
 				out.flush();
 				if (coordinates.toLowerCase().equals("resign")) {
 					winner = opposite(getColorToPlay());

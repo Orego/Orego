@@ -58,20 +58,18 @@ public class CapturePolicy extends Policy {
 			int result = NO_POINT;
 			int biggestCapture = 0;
 			int start = random.nextInt(liberties.size());
-			for (int i = start; i < liberties.size(); i++) {
+			int i = start;
+			do {
 				int p = liberties.get(i);
 				if (captures[p] > biggestCapture) {
 					result = p;
 					biggestCapture = captures[p];
 				}
-			}
-			for (int i = 0; i < start; i++) {
-				int p = liberties.get(i);
-				if (captures[p] > biggestCapture) {
-					result = p;
-					biggestCapture = captures[p];
-				}
-			}
+				// The magic number 457 is prime and larger than liberties().
+				// Advancing by 457 therefore skips "randomly" through the array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % liberties.size();
+			} while (i != start);
 			// No need to check feasibility; a capture can't be an eye and must
 			// be near another stone
 			if (board.playFast(result) == PLAY_OK) {
