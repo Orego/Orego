@@ -8,6 +8,7 @@ import java.util.Scanner;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import orego.core.*;
+import orego.ui.Orego;
 
 // TODO It would be nicer if these games were saved as SGF files.
 /** Allows two independent GTP programs to play a game. */
@@ -54,6 +55,11 @@ public class Game {
 	 */
 	private String sgfoutput = "";
 	
+	/** 
+	 * String that contains the series of moves.
+	 */
+	private String sgfmoves = "";
+	
 	/**
 	 * @param black
 	 *            shell command to start black player
@@ -63,7 +69,9 @@ public class Game {
 	public Game(String filename, String black, String white) {
 		this.filename = filename;
 		contestants = new String[] { black, white };
-		sgfoutput += "(;FF[4]CA[UTF-8]AP[OREGOvs.GNUGO]KM[7.5]";
+		sgfoutput += "(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+Coordinates.BOARD_WIDTH+"]";
+		sgfoutput += "PB["+black+"]";
+		sgfoutput += "PW["+white+"]";
 	}
 
 	/**
@@ -71,10 +79,10 @@ public class Game {
 	 * end.
 	 */
 	protected void endPrograms() {
-		out.println("Game over!");
-		out.println(sgfoutput+")");
-		out.println(board);
-		out.println(board.getTurn() + " moves played");
+		//out.println("Game over!");
+		out.println(sgfoutput+sgfmoves+")");
+		//out.println(board);
+		//out.println(board.getTurn() + " moves played");
 		mode = QUITTING;
 		for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 			toPrograms[color].println("quit");
@@ -96,22 +104,22 @@ public class Game {
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				String coordinates = line.substring(line.indexOf(' ') + 1);
-				out.println(colorToString(getColorToPlay()) + " " + coordinates);
+				//out.println(colorToString(getColorToPlay()) + " " + coordinates);
 				//sgf output
-				sgfoutput += (getColorToPlay() == BLACK ? ";B" : ";W");
 				if (coordinates.equals("PASS")) {
-					sgfoutput += "[]";
+					sgfmoves += (getColorToPlay() == BLACK ? ";B" : ";W")+"[]";
 				}
 				else if (coordinates.toLowerCase().equals("resign")) {
 					//do nothing.
 				}
 				else {
-					sgfoutput += "[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]";
+					sgfmoves += (getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]";
 				}
 				//end sgf output
-				out.flush();
+				//out.flush();
 				if (coordinates.toLowerCase().equals("resign")) {
 					winner = opposite(getColorToPlay());
+					sgfoutput += "RE["+ (winner == BLACK ? "B" : "W") + "+R]";
 					endPrograms();
 					return;
 				}
@@ -125,6 +133,7 @@ public class Game {
 				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
 				if (board.getPasses() == 2) {
+					sgfoutput += "RE[" + (board.finalWinner() == BLACK ? "B" : "W") +"+"+Math.abs(board.finalScore())+"]";
 					endPrograms();
 					return;
 				} else {
@@ -162,9 +171,9 @@ public class Game {
 	public int play() {
 		try {
 			out = new PrintWriter(filename);
-			out.println("black: " + contestants[BLACK]);
-			out.println("white: " + contestants[WHITE]);
-			out.flush();
+			//out.println("black: " + contestants[BLACK]);
+			//out.println("white: " + contestants[WHITE]);
+			//out.flush();
 			winner = -1;
 			Process[] programs = new Process[NUMBER_OF_PLAYER_COLORS];
 			toPrograms = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
@@ -173,30 +182,30 @@ public class Game {
 						"-c", contestants[color], "&");
 				builder.redirectErrorStream(true);
 				programs[color] = builder.start();
-				out.println("Built process");
+				//out.println("Built process");
 				toPrograms[color] = new PrintWriter(
 						programs[color].getOutputStream());
 				new Thread(new PlayerListener(color,
 						programs[color].getInputStream(), this)).start();
-				out.println("Started process");
+				//out.println("Started process");
 			}
-			out.flush();
+			//out.flush();
 			board = new Board();
 			mode = REQUESTING_MOVE;
 			toPrograms[BLACK].println("genmove black");
 			toPrograms[BLACK].flush();
 			// Wait for programs to finish
-			out.println("Waiting for programs to finish");
-			out.flush();
+			//out.println("Waiting for programs to finish");
+			//out.flush();
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				programs[color].waitFor();
 			}
 			if (!crashed) {
-				out.println("Programs have finished");
+				//out.println("Programs have finished");
 				if (winner == -1) { // Game not already resolved by resignation
 					winner = board.finalWinner();
 				}
-				out.println("Winner: " + winner);
+				//out.println("Winner: " + winner);
 			}
 			for (int c = BLACK; c < NUMBER_OF_PLAYER_COLORS; c++) {
 				toPrograms[c].close();
