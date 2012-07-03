@@ -281,10 +281,12 @@ public class ResponsePlayer extends McPlayer {
 			throws UnknownPropertyException {
 		if (property.equals("one_threshold")) {
 			ONE_THRESHOLD = Integer.parseInt(value);
-		}
-		if (property.equals("two_threshold")) {
+		} else if (property.equals("two_threshold")) {
 			TWO_THRESHOLD = Integer.parseInt(value);
-		} else {
+		} else if (property.equals("priors")) {
+			priorsWeight = Integer.parseInt(value);
+		}
+		else {
 			super.setProperty(property, value);
 		}
 	}

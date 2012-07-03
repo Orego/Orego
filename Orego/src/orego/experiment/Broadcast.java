@@ -18,9 +18,17 @@ public class Broadcast {
 			final Process p = processes[i];
 			Runnable listener = new Runnable() {
 				public void run() {
-					Scanner fromProgram = new Scanner(p.getInputStream());
-					while (fromProgram.hasNextLine()) {
-						System.out.println(fromProgram.nextLine());
+					Scanner stdOut = new Scanner(p.getInputStream());
+					Scanner errorOut = new Scanner(p.getErrorStream());
+					
+					while (stdOut.hasNextLine() || errorOut.hasNextLine()) {
+						if (stdOut.hasNextLine()) {
+							System.out.println(stdOut.nextLine());
+						}
+						
+						if (errorOut.hasNextLine()) {
+							System.out.println("[!]" + errorOut.nextLine());
+						}
 					}
 				}
 			};

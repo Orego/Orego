@@ -1,9 +1,14 @@
 package orego.wls;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Random;
+
 import org.junit.Before;
 import org.junit.Test;
-import java.util.Arrays;
 
 public class WinLossStatesTest {
 
@@ -11,64 +16,293 @@ public class WinLossStatesTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		states = new WinLossStates();
+		states = new WinLossStates(.74857, 21);
 	}
 
 	@Test
 	public void testTables() {
-		// TODO The last 3 zeroes are irrelevant
-//		assertTrue(Arrays.equals(new int[]{208, 15, 17, 18, 19, 21, 22, 23, 25, 26
-//				, 27, 30, 33, 36, 40, 44, 51, 40, 28, 29
-//				, 58, 32, 34, 35, 69, 37, 39, 42, 36, 38
-//				, 46, 88, 41, 49, 43, 47, 54, 48, 54, 52
-//				, 60, 50, 55, 53, 66, 112, 59, 56, 57, 63
-//				, 63, 73, 62, 61, 68, 65, 64, 67, 85, 70
-//				, 74, 77, 71, 77, 72, 76, 83, 75, 80, 98
-//				, 79, 78, 86, 92, 89, 82, 84, 86, 87, 90
-//				, 93, 122, 95, 96, 91, 103, 95, 94, 118, 100
-//				, 97, 99, 106, 101, 97, 102, 107, 104, 121, 105
-//				, 108, 109, 110, 120, 111, 114, 119, 117, 116, 115
-//				, 114, 113, 123, 131, 131, 130, 129, 128, 124, 127
-//				, 126, 125, 141, 135, 132, 133, 134, 136, 137, 138
-//				, 139, 140, 150, 147, 146, 155, 145, 144, 143, 142
-//				, 142, 165, 148, 149, 151, 152, 153, 157, 149, 154
-//				, 161, 156, 158, 160, 159, 168, 162, 164, 163, 169
-//				, 167, 170, 166, 169, 173, 184, 171, 174, 180, 175
-//				, 179, 174, 208, 176, 177, 178, 183, 182, 181, 185
-//				, 187, 183, 186, 188, 195, 190, 189, 193, 191, 192
-//				, 194, 196, 194, 199, 198, 202, 197, 200, 201, 204
-//				, 203, 205, 209, 207, 207, 206, 210, 211, 222, 213
-//				, 212, 214, 215, 217, 216, 220, 218, 220, 219, 221
-//				, 223, 224, 229, 226, 225, 241, 227, 228, 230, 233
-//				, 231, 232, 234, 237, 235, 236, 240, 238, 239, 240
-//				, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250
-//				, 251, 252, 252}, states.WIN));
-//		assertTrue(Arrays.equals(new int[] {122, 1, 1, 2, 3, 4, 5, 6, 7, 8
-//				, 9, 10, 11, 12, 13, 14, 15, 13, 17, 18
-//				, 16, 19, 21, 22, 20, 23, 25, 26, 12, 28
-//				, 27, 24, 29, 30, 32, 34, 33, 35, 33, 37
-//				, 36, 38, 39, 41, 40, 31, 42, 43, 47, 46
-//				, 46, 44, 48, 50, 49, 52, 53, 56, 51, 55
-//				, 54, 59, 57, 59, 61, 62, 60, 64, 63, 58
-//				, 65, 67, 70, 66, 68, 72, 71, 70, 75, 76
-//				, 77, 45, 79, 74, 78, 73, 79, 82, 69, 80
-//				, 84, 87, 83, 86, 84, 90, 89, 91, 85, 94
-//				, 93, 95, 97, 92, 99, 104, 96, 100, 101, 102
-//				, 104, 105, 88, 111, 111, 110, 109, 108, 98, 107
-//				, 106, 103, 112, 118, 121, 120, 119, 117, 116, 115
-//				, 114, 113, 125, 126, 127, 124, 128, 129, 130, 131
-//				, 131, 123, 140, 139, 138, 137, 136, 134, 139, 142
-//				, 133, 143, 144, 145, 148, 132, 149, 146, 151, 156
-//				, 152, 147, 154, 156, 153, 135, 159, 158, 150, 162
-//				, 157, 158, 122, 160, 163, 166, 167, 169, 171, 164
-//				, 161, 167, 175, 174, 155, 173, 178, 170, 177, 181
-//				, 176, 182, 176, 179, 183, 168, 186, 189, 188, 185
-//				, 192, 191, 180, 190, 190, 196, 197, 194, 141, 187
-//				, 200, 198, 203, 193, 201, 199, 205, 199, 206, 210
-//				, 204, 212, 165, 207, 215, 217, 211, 214, 216, 184
-//				, 218, 219, 221, 195, 224, 225, 213, 202, 209, 213
-//				, 217, 220, 223, 226, 227, 228, 230, 231, 232, 234
-//				, 235, 236, 238}, states.LOSS));
+		// pick a few random values to test the table
+		State state = states.getState(0); // at 0/0
+		assertNotNull(state);
+		
+		assertEquals(0, state.getWins());
+		assertEquals(0, state.getRuns());
+		
+		// pick the last state (21/21)
+		state = states.getState(WinLossStates.NUM_STATES - 1);
+		assertNotNull(state);
+		
+		assertEquals(21, state.getWins());
+		assertEquals(21, state.getRuns());
+	}
+	
+	@Test
+	public void testSortStates() {
+		// make sure that the confidences sort ascending
+		Random rand = new Random();
+		
+		// select random number from first half
+		int firstRandIndex = rand.nextInt(WinLossStates.NUM_STATES / 2);
+		
+		State stateSmaller = states.getState(firstRandIndex);
+		
+		// now randomly select a higher index
+		int secondRandState = rand.nextInt(WinLossStates.NUM_STATES / 2);
+		
+		// shift up into second region
+		secondRandState += WinLossStates.NUM_STATES / 2;
+		
+		State stateLarger = states.getState(secondRandState);
+		
+		assertNotNull(stateSmaller);
+		assertNotNull(stateLarger);
+		
+		// smaller state is, well, smaller
+		assertEquals(-1, stateSmaller.compareTo(stateLarger));
+		
+	}
+	
+	@Test
+	public void testMinimumConfidence() {
+		// check to make sure the first element has the minimum amount of confidence possible
+		State initialState = states.getState(0);
+		
+		assertNotNull(initialState);
+		
+		assertEquals(WinLossStates.MINIMAL_CONFIDENCE, initialState.getConfidence(), .0001);
+	}
+	
+	@Test
+	public void testSettlingTime() {
+		// hovers at a particular proportion and sharply
+		// changes the underlying proportion. Measures how long
+		// the WLS estimation takes to "settle" to the new proportion
+		
+		// start proportion 1 / 4
+		// one win + 3 losses
+		State initialState = states.getInitialState();
+		// index of initial state
+		int initialStateIndex = states.findStateIndex(initialState); 
+		
+		initialStateIndex = states.addWin(initialStateIndex);
+		
+		initialStateIndex = states.addLoss(initialStateIndex);
+		initialStateIndex = states.addLoss(initialStateIndex);
+		initialStateIndex = states.addLoss(initialStateIndex);
+		
+		
+		
+		// update to new state
+		initialState = states.getState(initialStateIndex);
+		
+		assertNotNull(initialState);
+		
+		// should now be 1 / 4
+		assertEquals(1, initialState.getWins());
+		assertEquals(4, initialState.getRuns());
+		
+		// now randomly sample with a 1 / 4 probability of selecting a win
+		// so that we effectively keep the proportion roughly the same but randomize our start point
+		// this "burns in" our 1 / 4 proportion which we will then quickly change to 3 / 4 
+		// and measuring the "settling" time
+		
+		Random rand = new Random();
+		final int num_iterations = 1000;
+		double sample_prob = 1.0 / 4.0;
+		int wins = 0;
+		
+		for (int i = 0; i < num_iterations; i++) {
+			if (rand.nextDouble() < sample_prob) {
+				wins++;
+				initialStateIndex = states.addWin(initialStateIndex);
+			} else 
+				initialStateIndex = states.addLoss(initialStateIndex);
+		}
+		
+		assertEquals(sample_prob, (double) wins / (double) num_iterations, .1); // added verification to make sure random draws are working
+		
+		initialState = states.getState(initialStateIndex);
+		assertNotNull(initialState);
+		
+		// our proportion should now approximate 1/4
+		assertEquals(sample_prob, initialState.getWinRunsProportion(), .1); 
+		
+		// now change the underlying proportion and see how long it takes to settle
+		// we start winning 3 out of 4 times..how long does WLS take to approximate 
+		// within +/ 2.5%
+		sample_prob = 3.0 / 4.0;
+		wins = 0;
+		final int max_iterations = 200;
+		int settlingTime = 0;
+		State curState = states.getState(initialStateIndex);
+		final double error_bound = .025;
+		double error = Double.MAX_VALUE;
+		
+		while (settlingTime < max_iterations && error > error_bound) {
+		
+		
+			if (rand.nextDouble() < sample_prob) {
+				wins++;
+				initialStateIndex = states.addWin(initialStateIndex);
+			} else 
+				initialStateIndex = states.addLoss(initialStateIndex);
+			
+			curState = states.getState(initialStateIndex);
+			error = Math.abs(curState.getWinRunsProportion() - sample_prob);
+			settlingTime++;
+		}
+		
+		assertTrue(error < error_bound);
+		assertEquals(sample_prob, (double) wins / (double) settlingTime, .1); // added verification to make sure random draws are working
+		
+		initialState = states.getState(initialStateIndex);
+		assertNotNull(initialState);
+		
+		// our proportion should now approximate 3/4
+		assertEquals(sample_prob, initialState.getWinRunsProportion(), .1);
+	}
+	
+	@Test
+	public void testConvergence() {
+		// take a large number of samples of a random variable X.
+		// Pick a desired expected value for X and then run a series
+		// of random samples which result in a proportion approximately
+		// equal to the expected value.
+		// A nice guide here for random number generation:
+		// http://eli.thegreenplace.net/2010/01/22/weighted-random-generation-in-python/
+		
+		final int num_iterations = 1500; // too high? Too low?
+		Random rand = new Random();
+		final double expected_value = 0.60;
+		int stateIndex = 0;
+		
+		
+		int sampled = 0;
+		
+		for (int i = 0; i < num_iterations; i++) {
+			// 60% of the time add a new win
+			// TODO: should it be less than?
+			if (rand.nextDouble() < expected_value) {
+				stateIndex = states.addWin(stateIndex); // transition to new state based on win
+				sampled++;
+			}
+			else
+				stateIndex = states.addLoss(stateIndex); // transition to new state based on loss
+		}
+		
+		// final state
+		State finalState = states.getState(stateIndex);
+		
+		// sample proportion should be about 60% (we use for extra verification)
+		assertEquals(expected_value, (double) sampled / (double) num_iterations, .05);
+		
+		// proportion should be about 60%
+		assertEquals(expected_value, finalState.getWinRunsProportion(), .09); // is our +/- .09 interval too small?
+	}
+	
+	@Test
+	public void testStepResponse() {
+		// We want to test how fast the WLS approximation responds when changing
+		// the proportion from say 1/4 to 3/4. By how fast, we mean the number of iterations.
+		
+	}
+	
+	@Test
+	public void testConstants() {
+		assertEquals(21, WinLossStates.END_SCALE);
+		assertEquals(.74857, WinLossStates.CONFIDENCE_LEVEL, .0001);
+		assertEquals(.500, WinLossStates.WIN_THRESHOLD, .0001);
+		assertEquals(1.3, WinLossStates.JUMP_CONSTANT_K, .00001);
 	}
 
+	@Test
+	public void testSaturatedStates() throws Exception {
+		//  test the 0/21 state to make sure it stays put
+		State saturatedLoss = states.findState(0, 21);
+		int saturatedLossIndex = states.findStateIndex(saturatedLoss);
+		
+		assertNotNull(saturatedLoss);
+		
+		// try to add a few losses
+		for (int i = 0; i < 100; i++) {
+			saturatedLossIndex = states.addLoss(saturatedLossIndex);
+		}
+		
+		saturatedLoss = states.getState(saturatedLossIndex);
+		
+		assertNotNull(saturatedLoss);
+		
+		// should be at the same state
+		assertEquals(21, saturatedLoss.getRuns());
+		assertEquals(0, saturatedLoss.getWins());
+		
+		// test the 21/21 state to make sure it stays put
+		State saturatedWin = states.findState(21, 21);
+		int saturatedWinIndex = states.findStateIndex(saturatedLoss);
+		
+		assertNotNull(saturatedWin);
+		
+		// try to add a few wins
+		for (int i = 0; i < 100; i++) {
+			saturatedWinIndex = states.addWin(saturatedWinIndex);
+		}
+		
+		saturatedWin = states.getState(saturatedWinIndex);
+		
+		assertNotNull(saturatedWin);
+		
+		// should be at the same state (21/21)
+		assertEquals(21, saturatedWin.getRuns());
+		assertEquals(21, saturatedWin.getWins());
+	}
+	
+	@Test
+	public void testJump() {
+		// second to last state (20/21)
+		State lastState = states.findState(20, 21);
+		assertNotNull(lastState);
+		
+		int lastStateIndex = states.findStateIndex(lastState);
+		
+		assertEquals(20, lastState.getWins());
+		assertEquals(21, lastState.getRuns());
+		
+		// we should jump somewhere new when we add a win
+		int jumpedIndex = states.addWin(lastStateIndex);
+		
+		State jumpedState = states.getState(jumpedIndex);
+		
+		assertNotNull(jumpedState);
+		
+		// TODO: does the win rate change?
+		assertTrue(jumpedState.getRuns() < 20);
+		assertTrue(jumpedState.getRuns() > 0); // our new jump location
+	}
+	
+	
+	@Test
+	public void testUpdateState() {
+		int nextStateIndex = states.addWin(0); // start at 0/0
+		assertFalse(nextStateIndex == WinLossStates.NO_STATE_EXISTS);
+		
+		State nextState = states.getState(nextStateIndex);
+		
+		assertNotNull(nextState);
+		assertEquals(1, nextState.getWins());
+		assertEquals(1, nextState.getRuns());
+		// TODO: test confidence?
+		
+		
+		nextStateIndex = states.addLoss(0);
+		assertFalse(nextStateIndex == WinLossStates.NO_STATE_EXISTS);
+		
+		nextState = states.getState(nextStateIndex);
+		
+		assertNotNull(nextState);
+		assertEquals(0, nextState.getWins());
+		assertEquals(1, nextState.getRuns());
+		// TODO: test confidence?
+		
+		// TODO: test a few other values
+	}
 }
