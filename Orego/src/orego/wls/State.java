@@ -109,11 +109,22 @@ public class State implements Comparable<State> {
 	 * Depending on whether or not our proportion is above or below the win_threshold we calculate
 	 * the lower or upper bound, respectively. 
 	 * 
-	 * See paper for calculation of confidence interval
+	 * See paper for calculation of confidence interval.
+	 * 
+	 * Note: this confidence calculation resembles a "rating". We are calculating a value between [-1, 1] indicating
+	 * our confidence that a value is above or below 1/2. If the value is below 1/2, then we have a confidence range of
+	 * 0 to -1. If the proportion is above 1/2 then we have a confidence range of 0 to 1.
+	 * 
+	 * When the proportion is below 1/2, then "confidence" gets progressively worse as the number of runs increases.
+	 * For example 2/8 is "worse" than 1/4. By worse we mean a more "negative" result indicating our *increased* confidence
+	 * that the proportion is *below* 1/2. 
+	 * 
+	 * On the other hand, if the proportion is above 1/2 then the confidence becomes increasingly positive as the number
+	 * of runs (samples) increases. Hence, 12/16 is much better than 3/4. In other words, we are "more confident" that 12/16 is 
+	 * above 1/2 than 3/4 is above one half.
 	 * 
 	 * TODO: perhaps convert to logs for better performance?
-	 * @param win_threshold
-	 * @return
+	 * @param win_threshold Usually 1/2. The threshold we are computing our confidence interval around.
 	 */
 	public void computeConfidence(double win_threshold) {
 		double z_value = getZValue(WinLossStates.CONFIDENCE_LEVEL);
