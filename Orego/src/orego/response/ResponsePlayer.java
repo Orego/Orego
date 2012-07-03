@@ -4,6 +4,7 @@ import static orego.core.Coordinates.PASS;
 import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
+import orego.mcts.MctsPlayer;
 import orego.play.UnknownPropertyException;
 import orego.core.Board;
 import orego.core.Colors;
@@ -11,17 +12,24 @@ import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
 	
+	/**Threshold for the first level*/
 	public static int ONE_THRESHOLD = 100;
+	/**Threshold for the second level*/
 	public static int TWO_THRESHOLD = 100;
+	/**Threshold for testing*/
 	public static int TEST_THRESHOLD = 1;
 	
-	// Response lists for black
+	/**Zero level for black*/
 	private ResponseList responseZeroBlack;
+	/**First level for black*/
 	private ResponseList[] responseOneBlack;
+	/**Second level for black*/
 	private ResponseList[][] responseTwoBlack;
-	// Response lists for white
+	/**Zero level for white*/
 	private ResponseList responseZeroWhite;
+	/**First level for white*/
 	private ResponseList[] responseOneWhite;
+	/**Second level for white*/
 	private ResponseList[][] responseTwoWhite;
 	// Response list holders -- zeroTables = {responseZeroBlack,responseZeroWhite} etc..
 	private ResponseList[] zeroTables;
@@ -29,9 +37,26 @@ public class ResponsePlayer extends McPlayer {
 	private ResponseList[][][] twoTables;
 	// testing flag
 	private boolean testing = false;
+	private int priorsWeight;
+	private static final int DEFAULT_WEIGHT = 1;
+	
+	public static void main(String[] args) {
+		ResponsePlayer p = new ResponsePlayer();
+		try {
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "2");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
+	}
 	
 	public ResponsePlayer(){
 		super();
+		priorsWeight = DEFAULT_WEIGHT;
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
 		// create black tables
 		responseZeroBlack = new ResponseList();
@@ -74,6 +99,14 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
+	 * Sets the weight for updateResponses (like updatePriors)
+	 * @param weight the new weight
+	 */
+	public void setWeight(int weight) {
+		priorsWeight = weight;
+	}
+	
+	/**
 	 * Force the given moves, then proceed as in generateMovesToFrontier
 	 * Used for testing
 	 * 
@@ -98,6 +131,7 @@ public class ResponsePlayer extends McPlayer {
 			history2 = board.getMove(board.getTurn() - 2);
 			move = findAppropriateLevelMove(board,history1,history2);
 			runnable.acceptMove(move);
+			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
 	}
 
@@ -116,6 +150,7 @@ public class ResponsePlayer extends McPlayer {
 			history2 = board.getMove(board.getTurn() - 2);
 			move = findAppropriateLevelMove(board, history1, history2);
 			runnable.acceptMove(move);
+			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
 	}
 	

@@ -251,7 +251,7 @@ public class ResponsePlayerTest {
 		}
 	}
 	
-	/*
+	
 	@Test
 	public void testConnect() throws UnknownPropertyException {
 		if (BOARD_WIDTH == 19) {
@@ -301,5 +301,4 @@ public class ResponsePlayerTest {
 			//assertEquals(at("e5"), move);
 		}
 	}
-	*/
 }
