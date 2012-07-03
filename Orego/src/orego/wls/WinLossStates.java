@@ -149,6 +149,14 @@ public class WinLossStates {
 		return states[stateAction];
 	}
 	
+	/**
+	 * Gets the initial 0/0 state
+	 * @return the initial state
+	 */
+	public State getInitialState() {
+		return getState(0);
+	}
+	
 	public int getTotalStates() {
 		return NUM_STATES;
 	}

@@ -73,6 +73,96 @@ public class WinLossStatesTest {
 	}
 	
 	@Test
+	public void testSettlingTime() {
+		// hovers at a particular proportion and sharply
+		// changes the underlying proportion. Measures how long
+		// the WLS estimation takes to "settle" to the new proportion
+		
+		// start proportion 1 / 4
+		// one win + 3 losses
+		State initialState = states.getInitialState();
+		// index of initial state
+		int initialStateIndex = states.findStateIndex(initialState); 
+		
+		initialStateIndex = states.addWin(initialStateIndex);
+		
+		initialStateIndex = states.addLoss(initialStateIndex);
+		initialStateIndex = states.addLoss(initialStateIndex);
+		initialStateIndex = states.addLoss(initialStateIndex);
+		
+		
+		
+		// update to new state
+		initialState = states.getState(initialStateIndex);
+		
+		assertNotNull(initialState);
+		
+		// should now be 1 / 4
+		assertEquals(1, initialState.getWins());
+		assertEquals(4, initialState.getRuns());
+		
+		// now randomly sample with a 1 / 4 probability of selecting a win
+		// so that we effectively keep the proportion roughly the same but randomize our start point
+		// this "burns in" our 1 / 4 proportion which we will then quickly change to 3 / 4 
+		// and measuring the "settling" time
+		
+		Random rand = new Random();
+		final int num_iterations = 1000;
+		double sample_prob = 1.0 / 4.0;
+		int wins = 0;
+		
+		for (int i = 0; i < num_iterations; i++) {
+			if (rand.nextDouble() < sample_prob) {
+				wins++;
+				initialStateIndex = states.addWin(initialStateIndex);
+			} else 
+				initialStateIndex = states.addLoss(initialStateIndex);
+		}
+		
+		assertEquals(sample_prob, (double) wins / (double) num_iterations, .1); // added verification to make sure random draws are working
+		
+		initialState = states.getState(initialStateIndex);
+		assertNotNull(initialState);
+		
+		// our proportion should now approximate 1/4
+		assertEquals(sample_prob, initialState.getWinRunsProportion(), .1); 
+		
+		// now change the underlying proportion and see how long it takes to settle
+		// we start winning 3 out of 4 times..how long does WLS take to approximate 
+		// within +/ 2.5%
+		sample_prob = 3.0 / 4.0;
+		wins = 0;
+		final int max_iterations = 200;
+		int settlingTime = 0;
+		State curState = states.getState(initialStateIndex);
+		final double error_bound = .025;
+		double error = Double.MAX_VALUE;
+		
+		while (settlingTime < max_iterations && error > error_bound) {
+		
+		
+			if (rand.nextDouble() < sample_prob) {
+				wins++;
+				initialStateIndex = states.addWin(initialStateIndex);
+			} else 
+				initialStateIndex = states.addLoss(initialStateIndex);
+			
+			curState = states.getState(initialStateIndex);
+			error = Math.abs(curState.getWinRunsProportion() - sample_prob);
+			settlingTime++;
+		}
+		
+		assertTrue(error < error_bound);
+		assertEquals(sample_prob, (double) wins / (double) settlingTime, .1); // added verification to make sure random draws are working
+		
+		initialState = states.getState(initialStateIndex);
+		assertNotNull(initialState);
+		
+		// our proportion should now approximate 3/4
+		assertEquals(sample_prob, initialState.getWinRunsProportion(), .1);
+	}
+	
+	@Test
 	public void testConvergence() {
 		// take a large number of samples of a random variable X.
 		// Pick a desired expected value for X and then run a series
@@ -81,7 +171,7 @@ public class WinLossStatesTest {
 		// A nice guide here for random number generation:
 		// http://eli.thegreenplace.net/2010/01/22/weighted-random-generation-in-python/
 		
-		final int num_iterations = 2000; // too high? Too low?
+		final int num_iterations = 1500; // too high? Too low?
 		Random rand = new Random();
 		final double expected_value = 0.60;
 		int stateIndex = 0;

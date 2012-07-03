@@ -6,7 +6,9 @@ import java.util.Hashtable;
 
 
 /** A given state or "value" of a WLS indicator. There are a finite
- * number of states which are linked together into a tree (directed of course)
+ * number of states which are linked together into a tree (directed of course).
+ * TODO: should states be able to transition themselves (for example, call addWin or addLoss
+ * on WinLossStates and then adjust accordingly)
  */
 public class State implements Comparable<State> {
 	private int wins;
