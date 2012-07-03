@@ -38,6 +38,25 @@ public class CoordinatesTest {
 			assertEquals("C", columnToString(column(p)));
 		}
 	}
+	
+	@Test 
+	public void testRowAndColumnToChar() {
+		if (BOARD_WIDTH == 19) {
+			int p = at("p14");
+			assertEquals('n', rowToChar(row(p)));
+			assertEquals('o', columnToChar(column(p)));
+			p = at("a1");
+			assertEquals('a', rowToChar(row(p)));
+			assertEquals('a', columnToChar(column(p)));
+			p = at("t19");
+			assertEquals('s', rowToChar(row(p)));
+			assertEquals('s', columnToChar(column(p)));
+		} else {
+			int p = at("c6");
+			assertEquals('f', rowToChar(row(p)));
+			assertEquals('c', columnToChar(column(p)));
+		}
+	}
 
 	@Test
 	public void testIs3or4() {
