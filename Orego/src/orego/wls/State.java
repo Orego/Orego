@@ -12,8 +12,6 @@ public class State implements Comparable<State> {
 	private int wins;
 
 	private int runs;
-
-	private int stateIndex;
 	
 	private double confidence;
 	
@@ -28,13 +26,17 @@ public class State implements Comparable<State> {
 		z_values.clear();
 		
 		// currently just create a table
-		z_values.put(.97500,  1.96); // 95% confidence level
-		z_values.put(.95000,  1.65); // 90% confidence level
-		z_values.put(.74857,  .674490);
+		z_values.put(.9500,  1.96); // 95% confidence level
+		z_values.put(.9000,  1.65); // 90% confidence level
+		z_values.put(.74857,  .674490); // 75% confidence level
+		z_values.put(.75,     .674490);
 	}
 	
 	protected double getZValue(double confidence_level) {
-		return (z_values.contains(confidence_level) ? z_values.get(confidence_level) : Double.MIN_VALUE);
+		if (z_values.containsKey(confidence_level))
+			return z_values.get(confidence_level);
+	
+		throw new UnsupportedOperationException("Entry for confidence level: " + confidence_level + " doesn't exist!");
 	}
 	
 	public State(int wins, int runs) {
@@ -50,26 +52,18 @@ public class State implements Comparable<State> {
 	
 	@Override
 	public int compareTo(State that) {
-		if (this.confidence < that.confidence) {
+		if (this.getConfidence() < that.getConfidence()) 
 			return -1;
-		}
-		if (this.confidence > that.confidence) {
+		
+		if (this.getConfidence() > that.getConfidence())
 			return 1;
-		}
 		
 		return 0;
 	}
 	
+	
 	public void setConfidence(double confidence) {
 		this.confidence = confidence;
-	}
-	
-	public int getStateIndex() {
-		return stateIndex;
-	}
-	
-	public void setStateIndex(int stateIndex) {
-		this.stateIndex = stateIndex;
 	}
 	
 	public double getConfidence() {
@@ -95,8 +89,13 @@ public class State implements Comparable<State> {
 	public int getLosses() {
 		return getRuns() - getWins();
 	}
+	
+	/**
+	 * Calculates the wins / runs proportion
+	 * @return A real valued positive number or -1 if we are 0 / 0 
+	 */
 	public double getWinRunsProportion() {
-		if (runs == 0) return Double.MIN_VALUE; // occurs if state is 0/0.
+		if (runs == 0) return -1; // occurs if state is 0/0.
 		
 		return ((double) wins / (double) runs);
 	}
@@ -147,6 +146,6 @@ public class State implements Comparable<State> {
 	
 	@Override
 	public String toString() {
-		return String.format("\nState: %d\nWins: %d\nRuns: %d\nLosses: %d\n Confidence: %.3f\n", stateIndex, wins, runs, getLosses(), confidence);
+		return String.format("\nWins: %d\nRuns: %d\nLosses: %d\n Confidence: %.3f\n", wins, runs, getLosses(), confidence);
 	}
 }
