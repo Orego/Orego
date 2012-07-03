@@ -171,6 +171,8 @@ public class Game {
 	public int play() {
 		try {
 			out = new PrintWriter(filename);
+			out.println("Playing");
+			out.flush();
 			//out.println("black: " + contestants[BLACK]);
 			//out.println("white: " + contestants[WHITE]);
 			//out.flush();
