@@ -38,6 +38,25 @@ public class CoordinatesTest {
 			assertEquals("C", columnToString(column(p)));
 		}
 	}
+	
+	@Test 
+	public void testRowAndColumnToChar() {
+		if (BOARD_WIDTH == 19) {
+			int p = at("p14");
+			assertEquals('n', rowToChar(row(p)));
+			assertEquals('o', columnToChar(column(p)));
+			p = at("a1");
+			assertEquals('a', rowToChar(row(p)));
+			assertEquals('a', columnToChar(column(p)));
+			p = at("t19");
+			assertEquals('s', rowToChar(row(p)));
+			assertEquals('s', columnToChar(column(p)));
+		} else {
+			int p = at("c6");
+			assertEquals('f', rowToChar(row(p)));
+			assertEquals('c', columnToChar(column(p)));
+		}
+	}
 
 	@Test
 	public void testIs3or4() {
@@ -103,14 +122,30 @@ public class CoordinatesTest {
 
 	@Test
 	public void testGetDistance() {
-		assertEquals(3, distance(at("a1"),at("d1")) , .001);
-		assertEquals(Math.sqrt(13) , distance(at("a1"),at("c4")),.001);
+		assertEquals(3, distance(at("a1"), at("d1")), .001);
+		assertEquals(Math.sqrt(13), distance(at("a1"), at("c4")), .001);
 	}
-	
+
 	@Test
 	public void testLargeKnightsMoveNeighbors() {
 		assertEquals(36, LARGE_KNIGHT_NEIGHBORHOOD[at("e5")].length);
 		assertEquals(12, LARGE_KNIGHT_NEIGHBORHOOD[at("a1")].length);
+	}
+
+	@Test
+	public void testThirdFourthLineArray() {
+		// Confirm the size of the array
+		int count = 0;
+		for (int i = 0; i < EXTENDED_BOARD_AREA; i++) {
+			if (THIRD_OR_FOURTH_LINE[i]) {
+				count++;
+			}
+		}
+		assertEquals(count, THIRD_AND_FOURTH_LINE_POINTS.length);
+		// Confirm the contents of the array
+		for (int i = 0; i < THIRD_AND_FOURTH_LINE_POINTS.length; i++) {
+			assertTrue(THIRD_OR_FOURTH_LINE[THIRD_AND_FOURTH_LINE_POINTS[i]]);
+		}
 	}
 
 }

@@ -101,6 +101,7 @@ public class ResponsePlayer extends McPlayer {
 		}
 	}
 
+	// synchronize updateResponses to board?
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		MersenneTwisterFast random = runnable.getRandom();
@@ -122,7 +123,7 @@ public class ResponsePlayer extends McPlayer {
 	public void incorporateRun(int winner, McRunnable runnable) {
 		Board board = runnable.getBoard();
 		int toPlay = Colors.BLACK;
-		for(int i = 0; i <= board.getTurn(); i++) {
+		for(int i = 0; i < board.getTurn(); i++) {
 			updateWins(i, winner, board, toPlay);
 			toPlay = 1-toPlay;
 		}
@@ -157,9 +158,9 @@ public class ResponsePlayer extends McPlayer {
 		int turn = board.getTurn();
 		int toPlay = board.getColorToPlay();
 		// pick table based on threshold values
-		if(turn >= 2 && twoTables[toPlay][history2][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : TWO_THRESHOLD)) {
+		if(turn >= 3 && twoTables[toPlay][history2][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : TWO_THRESHOLD)) {
 			table = twoTables[toPlay][history2][history1];
-		} else if(turn >= 1 && oneTables[toPlay][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : ONE_THRESHOLD)) {
+		} else if(turn >= 2 && oneTables[toPlay][history1].getTotalRuns() >= (testing ? TEST_THRESHOLD : ONE_THRESHOLD)) {
 			table = oneTables[toPlay][history1];
 		} else {
 			table = zeroTables[toPlay];
@@ -239,6 +240,23 @@ public class ResponsePlayer extends McPlayer {
 		}
 	}
 	
+	/**
+	 * add the specified number of wins to each table 
+	 * @return
+	 */
+	public void addWins(int move, Board board, int wins) {
+		int history1 = board.getMove(board.getTurn()-1);
+		int history2 = board.getMove(board.getTurn()-2);
+		ResponseList tableZero = zeroTables[board.getColorToPlay()];
+		ResponseList[] tableOne = oneTables[board.getColorToPlay()];
+		ResponseList[][] tableTwo = twoTables[board.getColorToPlay()];
+		for(int i = 0; i < wins; i++) {
+			tableZero.addWin(move);
+			tableOne[history1].addWin(move);
+			tableTwo[history2][history1].addWin(move);
+		}
+	}
+	
 	// All of the getters
 	public ResponseList getResponseZeroBlack() { return responseZeroBlack; }
 	public ResponseList[] getResponseOneBlack() { return responseOneBlack; }
@@ -246,6 +264,9 @@ public class ResponsePlayer extends McPlayer {
 	public ResponseList getResponseZeroWhite() { return responseZeroWhite; }
 	public ResponseList[] getResponseOneWhite() { return responseOneWhite; }
 	public ResponseList[][] getResponseTwoWhite() { return responseTwoWhite; }
+	public ResponseList[] getZeroTables() {	return zeroTables; }
+	public ResponseList[][] getOneTables() { return oneTables; }
+	public ResponseList[][][] getTwoTables() { return twoTables; }
 	
 	// All of the inherited methods that we don't use
 	/** Inherited, don't need it for ResponsePlayer */
