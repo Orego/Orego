@@ -9,6 +9,7 @@ import static orego.patterns.Pattern.*;
 import orego.core.Board;
 import orego.mcts.SearchNode;
 import orego.patterns.*;
+import orego.response.ResponsePlayer;
 import orego.util.*;
 import ec.util.MersenneTwisterFast;
 /**
@@ -167,29 +168,17 @@ public class PatternPolicy extends Policy {
 				return getFallback().selectAndPlayOneMove(random, board);
 			}
 			int start = random.nextInt(goodMoves.size());
-			for (int i = start; i < goodMoves.size(); i++) {
+			int i = start;
+			do {
 				int p = goodMoves.get(i);
 				if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
 					return p;
 				}
-			}
-			for (int i = 0; i < start; i++) {
-				int p = goodMoves.get(i);
-				if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
-					return p;
-				}
-			}
-			// The two for loops above could be replaced with this. See the same
-			// method in
-			// RandomPolicy for an explanation.
-			// int i = start;
-			// do {
-			// int p = goodMoves.get(i);
-			// if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
-			// return p;
-			// }
-			// i = (i + 457) % goodMoves.size();
-			// } while (i != start);
+				// The magic number 457 is prime and larger than goodMoves.size().
+				// Advancing by 457 therefore skips "randomly" through the array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % goodMoves.size();
+			} while (i != start);
 		} // end if
 		return getFallback().selectAndPlayOneMove(random, board);
 	}
@@ -207,6 +196,21 @@ public class PatternPolicy extends Policy {
 			}
 		}
 		getFallback().updatePriors(node, board, weight);
+	}
+	
+	public void updateResponses(ResponsePlayer player, Board board, int weight) {
+		// Update priors for the eight neighbors of the previous play
+		int lastPlay = board.getMove(board.getTurn() - 1);
+		int[] n = NEIGHBORS[lastPlay];
+		for (int i = 0; i < n.length; i++) {
+			if (ON_BOARD[n[i]]
+					&& board.getColor(n[i]) == VACANT
+					&& isGoodMove(board.getColorToPlay(),
+							board.getNeighborhood(n[i]))) {
+				player.addWins(n[i], board, weight);
+			}
+		}
+		getFallback().updateResponses(player, board, weight);
 	}
 
 }

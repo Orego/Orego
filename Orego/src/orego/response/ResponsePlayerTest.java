@@ -42,13 +42,13 @@ public class ResponsePlayerTest {
 		runnable.acceptMove(52);
 		player.incorporateRun(Colors.BLACK,runnable);
 		// Get all of the black response lists
-		ResponseList respZeroBlack = player.getResponseZeroBlack();
-		ResponseList[] respOneBlack = player.getResponseOneBlack();
-		ResponseList[][] respTwoBlack = player.getResponseTwoBlack();
+		ResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
+		ResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
+		ResponseList[][] respTwoBlack = player.getTwoTables()[Colors.BLACK];
 		// Get all of the white response lists
-		ResponseList respZeroWhite = player.getResponseZeroWhite();
-		ResponseList[] respOneWhite = player.getResponseOneWhite();
-		ResponseList[][] respTwoWhite = player.getResponseTwoWhite();
+		ResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
+		ResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
+		ResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
 		// Make sure all of the Black lists are right
 		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
 		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
@@ -117,7 +117,7 @@ public class ResponsePlayerTest {
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
 			//player.setTesting(true);
 			/*
-			ResponseList table = player.getResponseZeroBlack();
+			ResponseList table = player.getZeroTables()[Colors.BLACK];
 			System.out.println(table.getWins(table.getIndices()[365]));
 			System.out.println(table.getRuns(table.getIndices()[365]));
 			System.out.println(table.getWinRate(365));
@@ -134,16 +134,15 @@ public class ResponsePlayerTest {
 				//System.out.println(player.getResponseZeroBlack().getTotalRuns());
 			}
 			/*
-			System.out.println(table.getWins(table.getIndices()[365]));
-			System.out.println(table.getRuns(table.getIndices()[365]));
+			System.out.println(table.getWins(365));
+			System.out.println(table.getRuns(365));
 			System.out.println(table.getWinRate(365));
-			System.out.println(table.getWins(table.getIndices()[385]));
-			System.out.println(table.getRuns(table.getIndices()[385]));
+			System.out.println(table.getWins(385));
+			System.out.println(table.getRuns(385));
 			System.out.println(table.getWinRate(385));
-			System.out.println(table.getWins(table.getIndices()[Coordinates.PASS]));
-			System.out.println(table.getRuns(table.getIndices()[Coordinates.PASS]));
+			System.out.println(table.getWins(Coordinates.PASS));
+			System.out.println(table.getRuns(Coordinates.PASS));
 			System.out.println(table.getWinRate(Coordinates.PASS));
-			System.out.println("Turn "+runnable.getBoard().getTurn());
 			*/
 			int move = player.bestMove();
 			assertEquals(PASS, move);
@@ -257,9 +256,9 @@ public class ResponsePlayerTest {
 		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"##########OOOOOOOOO",// 19
-					"###.######OOOOOOOOO",// 18
-					"##...#####OOOO.OOOO",// 17
-					"###.######OOO...OOO",// 16
+					"##########OOOOOOOOO",// 18
+					"##..######OOOOOOOOO",// 17
+					"###.######OOOO..OOO",// 16
 					"##########OOOO.OOOO",// 15
 					"##########OOOOOOOOO",// 14
 					"##########OOOOOOOOO",// 13
@@ -271,21 +270,21 @@ public class ResponsePlayerTest {
 					"OOOOOOOOO##########",// 7
 					"OOOOOOOOO##########",// 6
 					"OOOO.OOOO##########",// 5
-					"OOO...OOO#####.####",// 4
-					"OOOO.OOOO####...###",// 3
-					"OOOOOOOOO#####.####",// 2
+					"OOOO..OOO#####.####",// 4
+					"OOOOOOOOO####..####",// 3
+					"OOOOOOOOO##########",// 2
 					"OOOOOOOOO##########" // 1
 			// ABCDEFGHJKLMNOPQRST
 			};
 			player.setUpProblem(BLACK, problem);
-			player.setTesting(true);
+			//player.setTesting(true);
 			//TODO: check level zero and one tables -- chooses move PASS
 			//when not consulting level two table
 			
 			//player.getBoard().play(190);
 			//player.getBoard().play(191);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
-			for (int i = 0; i < 1000; i++) {
+			for (int i = 0; i < 10000; i++) {
 				runnable.performMcRun();
 			}
 			int move = player.bestMove();

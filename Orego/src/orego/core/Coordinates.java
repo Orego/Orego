@@ -46,6 +46,9 @@ public final class Coordinates {
 
 	/** An array of all the points on the board, for iterating through. */
 	public static final int[] ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
+	
+	/**An array of all the points on the third or fourth line, for iterating through. */
+	public static final int[] THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
 
 	/** Add this amount to move east one column, or subtract to move west. */
 	public static final int EAST = 1;
@@ -134,6 +137,7 @@ public final class Coordinates {
 				i++;
 			}
 		}
+		int thirdFourthLineCount = 0;
 		for (int p : ALL_POINTS_ON_BOARD) {
 			EYELIKE_THRESHOLD[p] = 2;
 			NEIGHBORS[p][0] = north(p);
@@ -153,6 +157,8 @@ public final class Coordinates {
 			}
 			if (isOn3rdOr4thLine(p)) {
 				THIRD_OR_FOURTH_LINE[p] = true;
+				THIRD_AND_FOURTH_LINE_POINTS[thirdFourthLineCount] = p;
+				thirdFourthLineCount++;
 			}
 			KNIGHT_NEIGHBORHOOD[p] = findKnightNeighborhood(p);
 			LARGE_KNIGHT_NEIGHBORHOOD[p] = findLargeKnightNeighborhood(p);
@@ -199,6 +205,11 @@ public final class Coordinates {
 	public static String columnToString(int c) {
 		// Note that, as per convention, I is missing
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(c);
+	}
+	
+	/** Returns the column c as a lower case letter. This is used for the sgf format.*/
+	public static char columnToChar(int c) {
+		return (char)(c + 'a'); 
 	}
 
 	/** Returns the Euclidean distance from p1 to p2. */
@@ -332,6 +343,11 @@ public final class Coordinates {
 	/** Returns a String representation of row r. */
 	public static String rowToString(int r) {
 		return "" + (BOARD_WIDTH - r);
+	}
+	
+	/** Returns the row r as a lower case letter. This is used for the sgf format.*/
+	public static char rowToChar(int r) {
+		return (char)((BOARD_WIDTH - r) + 'a' - 1); 
 	}
 
 	/** Returns the point south of p (which may be off the board). */

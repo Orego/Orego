@@ -5,6 +5,8 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.mcts.SearchNode;
+import orego.response.ResponseList;
+import orego.response.ResponsePlayer;
 import orego.util.*;
 import orego.core.Board;
 import ec.util.MersenneTwisterFast;
@@ -56,20 +58,18 @@ public class CapturePolicy extends Policy {
 			int result = NO_POINT;
 			int biggestCapture = 0;
 			int start = random.nextInt(liberties.size());
-			for (int i = start; i < liberties.size(); i++) {
+			int i = start;
+			do {
 				int p = liberties.get(i);
 				if (captures[p] > biggestCapture) {
 					result = p;
 					biggestCapture = captures[p];
 				}
-			}
-			for (int i = 0; i < start; i++) {
-				int p = liberties.get(i);
-				if (captures[p] > biggestCapture) {
-					result = p;
-					biggestCapture = captures[p];
-				}
-			}
+				// The magic number 457 is prime and larger than liberties().
+				// Advancing by 457 therefore skips "randomly" through the array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % liberties.size();
+			} while (i != start);
 			// No need to check feasibility; a capture can't be an eye and must
 			// be near another stone
 			if (board.playFast(result) == PLAY_OK) {
@@ -96,4 +96,18 @@ public class CapturePolicy extends Policy {
 		getFallback().updatePriors(node, board, weight);
 	}
 
+	public void updateResponses(ResponsePlayer player, Board board, int weight) {
+		if(board.getTurn() >= 2) {
+			int enemy = opposite(board.getColorToPlay());
+			for (int p : ALL_POINTS_ON_BOARD) {
+				if ((board.getColor(p) == enemy) & (board.getChainId(p) == p)) {
+					int liberty = board.getCapturePoint(p);
+					if (liberty != NO_POINT) {
+						player.addWins(liberty, board, board.getChainSize(p) * weight);
+					}
+				}
+			}
+		}
+		getFallback().updateResponses(player, board, weight);
+	}
 }
