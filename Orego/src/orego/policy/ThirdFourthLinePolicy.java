@@ -63,7 +63,7 @@ public class ThirdFourthLinePolicy extends Policy {
 				int p = THIRD_AND_FOURTH_LINE_POINTS[i];
 				if ((board.getColor(p) == VACANT)
 						&& (board.getNeighborhood(p) == VACANT_NEIGHBORHOOD)) {
-					node.addWins(p, weight);
+					node.addWins(p, 10 * weight);
 				}
 			}
 		}

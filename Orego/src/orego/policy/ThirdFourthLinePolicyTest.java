@@ -57,12 +57,12 @@ public class ThirdFourthLinePolicyTest {
 		board.setUpProblem(BLACK, problem);
 		node.reset(board.getHash());
 		policy.updatePriors(node, board, 1);
-		assertEquals(2, node.getWins(at("r3")));
-		assertEquals(3, node.getRuns(at("r3")));
-		assertEquals(2, node.getWins(at("p16")));
-		assertEquals(3, node.getRuns(at("p16")));
-		assertEquals(2, node.getWins(at("c8")));
-		assertEquals(3, node.getRuns(at("c8")));
+		assertEquals(11, node.getWins(at("r3")));
+		assertEquals(12, node.getRuns(at("r3")));
+		assertEquals(11, node.getWins(at("p16")));
+		assertEquals(12, node.getRuns(at("p16")));
+		assertEquals(11, node.getWins(at("c8")));
+		assertEquals(12, node.getRuns(at("c8")));
 		assertEquals(2, node.getRuns(at("h4")));
 		assertEquals(2, node.getRuns(at("c17")));
 		assertEquals(2, node.getRuns(at("d3")));
