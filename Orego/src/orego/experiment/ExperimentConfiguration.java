@@ -49,10 +49,11 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000",
-		 "threads=1 msec=8000",
-		 "threads=1 msec=4000 book=FusekiBook",
-		 "threads=1 msec=8000 book=FusekiBook",
+		 "threads=1 playouts=10000 player=Mcts policy=Random book=FusekiBook",
+		 "threads=1 msec=4000 book=FusekiBook policy=Escape:Pattern:Capture:ThirdFourthLine",
+		 "threads=1 playouts=10000 player=orego.response.Response policy=Random book=FusekiBook",
+		 "threads=1 playouts=20000 player=Mcts policy=Random book=FusekiBook",
+		 "threads=1 playouts=20000 player=orego.response.Response policy=Random book=FusekiBook",
 	 };
 
 }

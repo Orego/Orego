@@ -12,7 +12,7 @@ public class Broadcast {
 			String host = HOSTS[i];
 			ProcessBuilder builder = new ProcessBuilder("nohup", "ssh", host,
 					JAVA_WITH_OREGO_CLASSPATH + " orego.experiment.GameBatch "
-							+ host, "&");
+							+ host + "&>" + RESULTS_DIRECTORY + host + ".batch", "&");
 			builder.redirectErrorStream(true);
 			processes[i] = builder.start();
 			final Process p = processes[i];
