@@ -42,13 +42,13 @@ public class ResponsePlayerTest {
 		runnable.acceptMove(52);
 		player.incorporateRun(Colors.BLACK,runnable);
 		// Get all of the black response lists
-		ResponseList respZeroBlack = player.getResponseZeroBlack();
-		ResponseList[] respOneBlack = player.getResponseOneBlack();
-		ResponseList[][] respTwoBlack = player.getResponseTwoBlack();
+		ResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
+		ResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
+		ResponseList[][] respTwoBlack = player.getTwoTables()[Colors.BLACK];
 		// Get all of the white response lists
-		ResponseList respZeroWhite = player.getResponseZeroWhite();
-		ResponseList[] respOneWhite = player.getResponseOneWhite();
-		ResponseList[][] respTwoWhite = player.getResponseTwoWhite();
+		ResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
+		ResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
+		ResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
 		// Make sure all of the Black lists are right
 		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
 		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
@@ -116,8 +116,8 @@ public class ResponsePlayerTest {
 			player.setUpProblem(BLACK, problem);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
 			//player.setTesting(true);
-			ResponseList table = player.getResponseZeroBlack();
 			/*
+			ResponseList table = player.getZeroTables()[Colors.BLACK];
 			System.out.println(table.getWins(table.getIndices()[365]));
 			System.out.println(table.getRuns(table.getIndices()[365]));
 			System.out.println(table.getWinRate(365));

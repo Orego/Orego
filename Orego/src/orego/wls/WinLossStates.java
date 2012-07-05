@@ -24,22 +24,44 @@ package orego.wls;
 
 import java.util.Arrays;
 
+/**
+ * Implementation of W/L states
+ * 
+ * Note: you should *never* maintain references to State but instead hold a byte index.
+ * If you hold a reference to State you are effectively removing the benefit of having this alternative data structure.
+ * 
+ * Note: We don't advise changing the {@link WinLossStates#CONFIDENCE_LEVEL} as the {@link WinLossStaates#JUMP_CONSTANT_K} is tuned based on a given confidence level (currently 75%).
+ * Tips for author:
+ * Make note of JUMP_CONSTANT_K
+ * 
+ * @author sstewart
+ *
+ */
 public class WinLossStates {
 
-
-	public static double CONFIDENCE_LEVEL = .95; // confidence level for interval estimation
+	// confidence level for interval estimation
+	// we use ~75% level because JUMP_CONSTANT_K was tuned with this level 
+	public static double CONFIDENCE_LEVEL = .74857;
 	
 	// our sliding "window" for the "resolution" of our encoding
 	public static int END_SCALE = 21;
+	
+	public static final int MINIMAL_CONFIDENCE = -10;
 	
 	// compute the total number of states which is sum(1...[e+1]).
 	// we write it in closed form. Includes an extra +1 for 0/0 entry
 	public static int NUM_STATES = Integer.MAX_VALUE;
 	
-	public static double WIN_THRESHOLD = 0.5000;
+	public static double WIN_THRESHOLD = 0.5000; // TODO: probably shouldn't be static and changable...
+	
+	public static final int NO_STATE_EXISTS = Integer.MAX_VALUE;
+	
+	public Visualizer visualizer = new Visualizer();
 	
 	// constant used when jumping. Tuned empirically for END_SCALE = 21
-	// Can we do this automatically in the future?
+	// TODO: Can we do this automatically in the future?
+	// WARNING: this constant is dependent upon our CONFIDENCE_LEVEL 
+	// since it is empirically tuned with a given confidence level.
 	public static double JUMP_CONSTANT_K = 1.3; 
 	
 	private int[] WIN;
@@ -60,14 +82,37 @@ public class WinLossStates {
 		states = new State[NUM_STATES];
 		
 		for (int i = 0; i < NUM_STATES; i++) {
-			states[i] = new State(0, 0);
+			states[i] = new State(-1, -1);
 		}
 		
 		buildTables();
 	}
-	
+
 	public WinLossStates() {
- 		this(.95, 21);
+ 		this(.74857, 21);
+	}
+	
+	/** A class for doing data visualizations of the WLS algorithm */
+	public class Visualizer {
+		/** Creates an R csv file for plotting the various proportions with labels
+		 * @return
+		 */
+		public String visualizeStates() {
+			StringBuilder builder = new StringBuilder(200);
+			builder.append("confidences, wrproportions, labels\n");
+			for (int i = 0; i < NUM_STATES; i++) {
+				builder.append(states[i].getConfidence() + ", " + states[i].getWinRunsProportion() + ",  \"WR: " + states[i].getWins() + "/" + states[i].getRuns() + "\"\n"); 
+			}
+	
+			return builder.toString();
+		}
+		
+	}
+	
+	/** Gets the singleton instance of our WinLossState class*/
+	public static WinLossStates getWLS() {
+		// TODO: make constructor private and make a new instance if it doesn't exist
+		return null;
 	}
 	
 	private void computeNumberOfStates() {
@@ -96,17 +141,27 @@ public class WinLossStates {
 	/**
 	 * Gets a state for a given index
 	 * @param stateAction The state action pair (really just an index)
-	 * @return State the state for the given index
+	 * @return State the state for the given index or null if out of bounds
 	 */
 	public State getState(int stateAction) {
+		if (stateAction >= states.length) return null;
+		
 		return states[stateAction];
+	}
+	
+	/**
+	 * Gets the initial 0/0 state
+	 * @return the initial state
+	 */
+	public State getInitialState() {
+		return getState(0);
 	}
 	
 	public int getTotalStates() {
 		return NUM_STATES;
 	}
 	
-	private void buildTables() {
+	protected void buildTables() {
 		
 		int curState = 0;
 		// Initializing states
@@ -121,85 +176,142 @@ public class WinLossStates {
 				
 				state.setWins(j);
 				state.setRuns(i);
-				state.setStateIndex(curState);
 				curState++;
 				
 				if (i == 0) {
 					// undefined for first state (lowest)
-					state.setConfidence(Double.MIN_VALUE);
+					state.setConfidence(MINIMAL_CONFIDENCE);
 					continue;
 				}
 				
-				// compute the statistically "strength" of this proportion
+				// compute the statistical "strength" of this proportion
 				state.computeConfidence(WIN_THRESHOLD);
-				
-				
 			}
 		}
 		
 		Arrays.sort(states); // sort according to confidence
 		
-		
 		// build the "directed graph" of win/loss state transitions
+		// We also find the various jump moves at the terminal "saturated states"
 		// we start at 0 and chain together the appropriate states.
 		for (int stateActionIndex = 0; stateActionIndex < NUM_STATES; stateActionIndex++) {
+			State state = states[stateActionIndex];
 			
 			// where do we go after a win?
-			WIN[stateActionIndex] = findStateIndex(states[stateActionIndex].getWins() + 1, 
-								   				   states[stateActionIndex].getRuns() + 1,
-								   				   true);
+			WIN[stateActionIndex]  = findJumpIndexForWin(state.getWins(),   state.getRuns());
 			
 			// where do we go after a loss?
-			LOSS[stateActionIndex] = findStateIndex(states[stateActionIndex].getWins(),
-													states[stateActionIndex].getRuns() + 1,
-													false);
+			LOSS[stateActionIndex] = findJumpIndexForLoss(state.getWins(),  state.getRuns());
 					
 		}
 		
+		
 	}
 
-	private int findStateIndex(int wins, int runs, boolean didWin) {
+	/**
+	 * Finds the appropriate jump index for the given win/run ratio for a win
+	 * @return the new state action index
+	 */
+	
+	protected int findJumpIndexForWin(int wins, int runs) {
+		int existingStateIndex = findStateIndex(wins + 1, runs + 1);
+		
+		if (existingStateIndex == NO_STATE_EXISTS) {
+			// since it doesn't exist, we've hit a "saturated" state
+			// find the jump state for our wins/runs ratio
+			existingStateIndex = findSaturatedJumpIndex(wins, runs, true);
+		}
+		
+		return existingStateIndex;
+	}
+	/**
+	 * Finds the appropriate jump index for the given win/run ratio for a loss
+	 * @return the new state action index
+	 */
+	protected int findJumpIndexForLoss(int wins, int runs) {
+		// don't record a win while incrementing the runs indicating a loss
+		int existingStateIndex = findStateIndex(wins, runs + 1); 
+		
+		if (existingStateIndex == NO_STATE_EXISTS) {
+			// since it doesn't exist, we've hit a "saturated" state
+			// find the jump state for our wins/runs ratio
+			existingStateIndex = findSaturatedJumpIndex(wins, runs, false);
+		}
+		
+		
+		return existingStateIndex;
+	}
+	
+	/**
+	 * Finds the index of a given state based on the specified number of wins/losses
+	 * @param wins number of wins
+	 * @param runs number of runs
+	 * @param didWin Did we win before arriving at wins/runs?
+	 * @return The index of the state or NO_STATE_EXISTS 
+	 */
+	protected int findStateIndex(int wins, int runs) {
 		for (int i = 0; i < NUM_STATES; i++) {
 			if (states[i].getWins() == wins && 
 				states[i].getRuns() == runs   )
 				return i;
 		}
 		
-		// doesn't exist in the table? the value is saturated, we're going to need to jump
-		return saturatedJumpIndex(wins, didWin);
+		
+		return NO_STATE_EXISTS;
 	}
 
 	/**
+	 * Finds the index of the state in the states array
+	 * @param state The state 
+	 * @return the index of the state or NO_STATE_EXISTS
+	 */
+	public int findStateIndex(State state) {
+		return findStateIndex(state.getWins(), state.getRuns());
+	}
+	
+	/**
+	 * Finds a state for the given win/loss
+	 * @return A {@link State} object if the state exists, otherwise null
+	 */
+	public State findState(int wins, int runs) {
+		int index = findStateIndex(wins, runs);
+		
+		return (index != NO_STATE_EXISTS ? states[index] : null);
+	}
+	
+	/**
 	 * Returns the index to jump to when we have a "saturated" proportion: n/m where m = e (end of scale).
 	 * This function should not be called *unless* m = e (the proportion is saturated).
-	 * When a proportion is saturated the number of runs have surpassed the END_SCALE and hence have grown
-	 * beyond our encoding. We also begin to lose useful information because we are literally "off the charts".
+	 * We begin to lose useful information because we are literally "off the charts".
+	 * 
 	 * Hence, we perform a small re-adjustment which allows the proportion to jump back and "churn" back up to the current state.
+	 * You should never call this function with
 	 * This guarantees that any truly saturated states are extremely "rich" with information and hence become stationary.
-	 * We continue to jump backwards in history until the win or loss hits the ceiling or floor. Once this happens,
-	 * we have as much information as we'll ever use as both the number of runs *and* the number of wins/losses have maxed out the scale.
-	 * @param wins The number of wins
-	 * @param runs The number of runs 
+	 * Once the number or wins *and* runs are equal to end of scale we have as much information as possible and hence
+	 * we stay put.
+	 * @param wins The number of wins (should be less than or equal to END_SCALE)
+	 * @param runs The number of runs (should be less than or equal to END_SCALE)
 	 * @param didWin Did we win in the last run?
 	 * @return int The index to which we will jump to force a sort of "confirmation"
 	 */
-	private int saturatedJumpIndex(int wins, boolean didWin) {
-
-		// number of runs we are going to jump to.
+	protected int findSaturatedJumpIndex(int wins, int runs, boolean didWin) {
+		// number of runs we are going to 'jump' to.
 		// In effect we are changing the denominator in proportion to deviation from 1/2.
 		// This performs a "jump" to an earlier state by simply looking for a new proportion with our new, target runs
 		// See the original paper for the jump formula
-		
 		// TODO: we might have to change 1/2 for binary values
-		int jumpRuns = (int)(END_SCALE - Math.round(JUMP_CONSTANT_K * (double) END_SCALE * Math.abs((double) wins / (double)END_SCALE - 1.0/2.0)));
-
-		// need to build a temporary state for our current state (over saturated state)
-		State curState = states[findStateIndex(wins, END_SCALE, didWin)];
+		// Jump in proportion to deviance from 1/2. The farther away from 1/2 the farther we jump to avoid 
+		// getting "stuck" at END_SCALE/END_SCALE or 0/END_SCALE states.
+		
+		// Note: JUMP_CONSTANT_K is dependent upon the CONFIDENCE_LEVEL as it is emperically tuned
+		int jumpRuns = (int)(runs - Math.round(JUMP_CONSTANT_K * (double) runs * Math.abs((double) wins / (double)runs - 1.0/2.0)));
+		
+		// find our current state's confidence (should exist since wins <= END_SCALE and runs <= END_SCALE)
+		State saturatedState 	= states[findStateIndex(wins, runs)];
+		int saturatedStateIndex = findStateIndex(saturatedState);
 		
 		if (didWin) {
-			
-			
-			if (wins == END_SCALE) return findStateIndex(END_SCALE, END_SCALE, didWin); // fully saturated
+			if (wins == END_SCALE) return findStateIndex(END_SCALE, END_SCALE); // fully saturated
 			
 			// The proportion's confidence should be better than our current proportion (with appropriate run count "jumpRuns").
 			// We effectively punish by reducing the number of wins and runs but we increase our confidence.
@@ -208,17 +320,16 @@ public class WinLossStates {
 			// we can use the fact that the states are sorted by confidence. 
 			// We start at the current index and find the next highest confidence proportion
 			// we skip state 0/0 since irrelevant
-			for (int i = curState.getStateIndex(); i < NUM_STATES; i++) {
+			for (int i = saturatedStateIndex + 1; i < NUM_STATES; i++) {
 				
 				if (states[i].getRuns() != jumpRuns) continue; // break early if we don't have the appropriate number of runs
-				State state = states[i];
 				
-				if (states[i].getConfidence() > curState.getConfidence())
+				if (states[i].getConfidence() > saturatedState.getConfidence())
 					return i;
 			}
 			
 		} else {
-			if (wins == 0) return findStateIndex(0, END_SCALE, didWin); // fully saturated (lost as many times as possible)
+			if (wins == 0) return findStateIndex(0, END_SCALE); // fully saturated (lost as many times as possible)
 
 			
 			// We pick the "confidence" smaller than our current proportion.
@@ -232,17 +343,16 @@ public class WinLossStates {
 			// than the current confidence
 			
 			// we skip state 0/0 since irrelevant
-			for (int i = curState.getStateIndex() - 1; i >= 1; i--) {
+			for (int i = saturatedStateIndex - 1; i >= 1; i--) {
 				
 				if (states[i].getRuns() != jumpRuns) continue; // break early if doesn't have appropriate number of runs
 					
-				if (states[i].getConfidence() < curState.getConfidence())
+				if (states[i].getConfidence() < saturatedState.getConfidence())
 					return i;
 
 			}
-			
-			
 		} 
-		return Integer.MAX_VALUE;
+		
+		throw new UnsupportedOperationException("Could not find jump index (target: " + jumpRuns + ") for wins: " + wins + " and runs: " + runs + " with win status: " + didWin);
 	};
 };

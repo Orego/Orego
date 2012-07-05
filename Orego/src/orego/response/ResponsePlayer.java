@@ -4,6 +4,7 @@ import static orego.core.Coordinates.PASS;
 import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
+import orego.mcts.MctsPlayer;
 import orego.play.UnknownPropertyException;
 import orego.core.Board;
 import orego.core.Colors;
@@ -11,27 +12,55 @@ import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
 	
+	/**Threshold for the first level*/
 	public static int ONE_THRESHOLD = 100;
+	/**Threshold for the second level*/
 	public static int TWO_THRESHOLD = 100;
+	/**Threshold for testing*/
 	public static int TEST_THRESHOLD = 1;
 	
-	// Response lists for black
+	/**Zero level for black*/
 	private ResponseList responseZeroBlack;
+	/**First level for black*/
 	private ResponseList[] responseOneBlack;
+	/**Second level for black*/
 	private ResponseList[][] responseTwoBlack;
-	// Response lists for white
+	/**Zero level for white*/
 	private ResponseList responseZeroWhite;
+	/**First level for white*/
 	private ResponseList[] responseOneWhite;
+	/**Second level for white*/
 	private ResponseList[][] responseTwoWhite;
-	// Response list holders -- zeroTables = {responseZeroBlack,responseZeroWhite} etc..
+	/** Zero table holder, [0] = responseZeroBlack, [1] = responseZeroWhite */
 	private ResponseList[] zeroTables;
+	/** One table holder, [0] = responseOneBlack, [1] = responseOneWhite */
 	private ResponseList[][] oneTables;
+	/** Two table holder, [0] = responseTwoBlack, [1] = responseTwoWhite */
 	private ResponseList[][][] twoTables;
-	// testing flag
+	/** Testing flag */
 	private boolean testing = false;
+	/** Weight for updateResponses */
+	private int priorsWeight;
+	/** Default weight for updateResponses */
+	private static final int DEFAULT_WEIGHT = 1;
+	
+	public static void main(String[] args) {
+		ResponsePlayer p = new ResponsePlayer();
+		try {
+			p.setProperty("policy", "Escape:Pattern:Capture");
+			p.setProperty("threads", "2");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
+	}
 	
 	public ResponsePlayer(){
 		super();
+		priorsWeight = DEFAULT_WEIGHT;
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
 		// create black tables
 		responseZeroBlack = new ResponseList();
@@ -74,6 +103,14 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
+	 * Sets the weight for updateResponses (like updatePriors)
+	 * @param weight the new weight
+	 */
+	public void setWeight(int weight) {
+		priorsWeight = weight;
+	}
+	
+	/**
 	 * Force the given moves, then proceed as in generateMovesToFrontier
 	 * Used for testing
 	 * 
@@ -98,6 +135,7 @@ public class ResponsePlayer extends McPlayer {
 			history2 = board.getMove(board.getTurn() - 2);
 			move = findAppropriateLevelMove(board,history1,history2);
 			runnable.acceptMove(move);
+			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
 	}
 
@@ -116,6 +154,7 @@ public class ResponsePlayer extends McPlayer {
 			history2 = board.getMove(board.getTurn() - 2);
 			move = findAppropriateLevelMove(board, history1, history2);
 			runnable.acceptMove(move);
+			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
 	}
 	
@@ -138,6 +177,9 @@ public class ResponsePlayer extends McPlayer {
 		int history1 = board.getMove(board.getTurn() - 1);
 		int history2 = board.getMove(board.getTurn() - 2);
 		int move = findAppropriateLevelMove(board,history1,history2);
+		if(twoTables[board.getColorToPlay()][history2][history1].getWinRate(move) < 0.1) {
+			return Coordinates.RESIGN;
+		}
 		return move;
 	}
 	
@@ -188,7 +230,14 @@ public class ResponsePlayer extends McPlayer {
 	 */
 	protected synchronized void updateWins(int turn, int winner, Board board, int toPlay) {
 		if(board.getMove(turn) == Coordinates.PASS) {
-			// Always want Pass win rate to be 0.10
+			// Keep pass statistics only in the level two table
+			if(winner == toPlay) {
+				// add wins
+				twoTables[toPlay][board.getMove(turn - 2)][board.getMove(turn - 1)].addWin(Coordinates.PASS);
+			} else {
+				// add losses
+				twoTables[toPlay][board.getMove(turn - 2)][board.getMove(turn - 1)].addLoss(Coordinates.PASS);
+			}
 			return;
 		}
 		if (turn == 0) {
@@ -232,10 +281,12 @@ public class ResponsePlayer extends McPlayer {
 			throws UnknownPropertyException {
 		if (property.equals("one_threshold")) {
 			ONE_THRESHOLD = Integer.parseInt(value);
-		}
-		if (property.equals("two_threshold")) {
+		} else if (property.equals("two_threshold")) {
 			TWO_THRESHOLD = Integer.parseInt(value);
-		} else {
+		} else if (property.equals("priors")) {
+			priorsWeight = Integer.parseInt(value);
+		}
+		else {
 			super.setProperty(property, value);
 		}
 	}
@@ -258,12 +309,6 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	// All of the getters
-	public ResponseList getResponseZeroBlack() { return responseZeroBlack; }
-	public ResponseList[] getResponseOneBlack() { return responseOneBlack; }
-	public ResponseList[][] getResponseTwoBlack() { return responseTwoBlack; }
-	public ResponseList getResponseZeroWhite() { return responseZeroWhite; }
-	public ResponseList[] getResponseOneWhite() { return responseOneWhite; }
-	public ResponseList[][] getResponseTwoWhite() { return responseTwoWhite; }
 	public ResponseList[] getZeroTables() {	return zeroTables; }
 	public ResponseList[][] getOneTables() { return oneTables; }
 	public ResponseList[][][] getTwoTables() { return twoTables; }
