@@ -22,7 +22,7 @@ public class ResponseList {
 	short[] runs;
 	short[] moves;
 	short[] indices;
-	int totalRuns;
+	long totalRuns;
 	
 	public ResponseList(){
 		wins = new short[Coordinates.BOARD_AREA+1];
@@ -81,7 +81,7 @@ public class ResponseList {
 		this.indices = indices;
 	}
 
-	public int getTotalRuns() {
+	public long getTotalRuns() {
 		return totalRuns;
 	}
 
@@ -187,10 +187,14 @@ public class ResponseList {
 	 * Add a win and run to this move.
 	 */
 	public void addWin(int p){
+		if (runs[indices[p]] == Short.MAX_VALUE) {
+			wins[indices[p]] /= 2;
+			runs[indices[p]] /= 2;
+		}
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
-		assert totalRuns > 0: "totalRuns two's complement";
+		assert totalRuns > 0: "totalRuns overflowed";
 		sort(p, 1);
 	}
 	
@@ -198,9 +202,13 @@ public class ResponseList {
 	 * Add a run to this move.
 	 */
 	public void addLoss(int p){
+		if (runs[indices[p]] == Short.MAX_VALUE) {
+			wins[indices[p]] /= 2;
+			runs[indices[p]] /= 2;
+		}
 		runs[indices[p]]++;
 		totalRuns++;
-		assert totalRuns > 0: "totalRuns two's complement";
+		assert totalRuns > 0: "totalRuns overflowed";
 		sort(p,-1);
 	}
 	
