@@ -1,6 +1,13 @@
 package orego.response;
 
 import static orego.core.Coordinates.PASS;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+
 import ec.util.MersenneTwisterFast;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
@@ -306,6 +313,58 @@ public class ResponsePlayer extends McPlayer {
 			tableOne[history1].addWin(move);
 			tableTwo[history2][history1].addWin(move);
 		}
+	}
+	
+	@Override
+	public Set<String> getCommands() {
+		Set<String> result = super.getCommands();
+		result.add("gogui-total-runs");
+		return result;
+	}
+
+	@Override
+	public Set<String> getGoguiCommands() {
+		Set<String> result = super.getGoguiCommands();
+		result.add("string/Total runs/gogui-total-runs");
+		return result;
+	}
+	
+	protected String goguiTotalRuns() {
+		String result = "Total Run Counts:";
+		TreeMap<Long,Long> data = new TreeMap<Long,Long>();
+		for (ResponseList[] tables: responseTwoBlack) {
+			for (ResponseList table: tables) {
+				long runs = table.getTotalRuns();
+				if (!data.containsKey(runs)) {
+					data.put(runs, 1l);
+					continue;
+				}
+				long entry = data.get(runs);
+				entry++;
+				data.put(runs, entry);
+			}
+		}
+		for (long l: data.keySet()) {
+			long count = data.get(l);
+			result += "\n" + l + " runs: " + count;
+		}
+		return result;
+	}
+	
+	@Override
+	public String handleCommand(String command, StringTokenizer arguments) {
+		boolean threadsWereRunning = threadsRunning();
+		stopThreads();
+		String result = null;
+		if (command.equals("gogui-total-runs")) {
+			result = goguiTotalRuns();
+		} else {
+			result = super.handleCommand(command, arguments);
+		}
+		if (threadsWereRunning) {
+			startThreads();
+		}
+		return result;
 	}
 	
 	// All of the getters
