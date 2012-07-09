@@ -49,8 +49,11 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 playouts=1000 player=orego.response.Response policy=Random book=FusekiBook",
-		 "threads=1 playouts=50000 player=Mcts policy=Random book=FusekiBook",
+		 "threads=2 playouts=50000 book=FusekiBook player=Mcts policy=Random",
+//		 "threads=1 playouts=50000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
+//		 "threads=1 playouts=100000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
+//		 "threads=1 playouts=200000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
+//		 "threads=1 playouts=400000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
 		 "threads=1 msec=4000 book=FusekiBook policy=Escape:Pattern:Capture:ThirdFourthLine",
 	 };
 
