@@ -27,7 +27,11 @@ public class ResponsePlayerTest {
 	
 	@Test
 	public void testIncorporateRun() {
-		// set testing thresholds
+		// test 
+		// set testing thresholds (after one run, we want to incorporate)
+		int originalOneThreshold = ResponsePlayer.ONE_THRESHOLD;
+		int originalTwoThreshold = ResponsePlayer.TWO_THRESHOLD;
+		
 		ResponsePlayer.ONE_THRESHOLD = 1;
 		ResponsePlayer.TWO_THRESHOLD = 1;
 		
@@ -38,6 +42,7 @@ public class ResponsePlayerTest {
 		runnable.acceptMove(47);
 		runnable.acceptMove(52);
 		player.incorporateRun(Colors.BLACK,runnable);
+		
 		// Get all of the black response lists
 		ResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
 		ResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
@@ -46,6 +51,7 @@ public class ResponsePlayerTest {
 		ResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
 		ResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
 		ResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
+		
 		// Make sure all of the Black lists are right
 		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
 		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
@@ -58,6 +64,10 @@ public class ResponsePlayerTest {
 		assertEquals(3, respZeroWhite.getRuns()[respZeroWhite.getIndices()[25]]);
 		assertEquals(1, respOneWhite[28].getWins()[respOneWhite[28].getIndices()[25]]);
 		assertEquals(1, respTwoWhite[25][47].getWins()[respTwoWhite[25][47].getIndices()[52]]);
+		
+		// reset to original threshold
+		ResponsePlayer.ONE_THRESHOLD = originalOneThreshold;
+		ResponsePlayer.TWO_THRESHOLD = originalTwoThreshold;
 	}
 	
 	protected void fakeRun(int winner, String... labels) {

@@ -33,7 +33,6 @@ public class ResponsePlayer extends McPlayer {
 	/**Threshold for the second level*/
 	public static int TWO_THRESHOLD = 100;
 	
-	
 	/** 
 	 * Hashtable which stores best response lists.
 	 * Each list is indexed by a bit masked 32 bit int with the following format:
@@ -73,6 +72,7 @@ public class ResponsePlayer extends McPlayer {
 		responses = new HashMap<Integer, ResponseList>();
 		
 		priorsWeight = DEFAULT_WEIGHT;
+		
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
 		
 		// black level zero table
