@@ -14,7 +14,8 @@ public abstract class AbstractResponseList {
 	 * Add a run to this move.
 	 */
 	public abstract void addLoss(int p);
-	
+
+	// TODO This should move to ResponsePlayer
 	/**
 	 * Get the best response from the list
 	 */
@@ -31,4 +32,5 @@ public abstract class AbstractResponseList {
 	 * TODO: perhaps change to something more generic?
 	 */
 	public abstract double getWinRate(int p);
+
 }
