@@ -8,35 +8,36 @@ package orego.response;
 import java.util.ArrayList;
 import java.util.Random;
 
+import orego.core.Board;
 import orego.core.Coordinates;
 
-public class ResponseList {
-	
+public class OldResponseList extends AbstractResponseList {
+
 	final static int NORMAL_WINS_BIAS = 1;
 	final static int NORMAL_RUNS_BIAS = 2;
 	final static int PASS_WINS_BIAS = 1;
 	final static int PASS_RUNS_BIAS = 10;
-	
+
 	// All of these arrays are shorts so they'll fit into memory
 	short[] wins;
 	short[] runs;
 	short[] moves;
 	short[] indices;
 	long totalRuns;
-	
-	public ResponseList(){
-		wins = new short[Coordinates.BOARD_AREA+1];
-		runs = new short[Coordinates.BOARD_AREA+1];
-		moves = new short[Coordinates.BOARD_AREA+1];
+
+	public OldResponseList() {
+		wins = new short[Coordinates.BOARD_AREA + 1];
+		runs = new short[Coordinates.BOARD_AREA + 1];
+		moves = new short[Coordinates.BOARD_AREA + 1];
 		indices = new short[Coordinates.FIRST_POINT_BEYOND_BOARD];
-		//randomize the list
+		// randomize the list
 		ArrayList<Short> list = new ArrayList<Short>();
 		for (int p : Coordinates.ALL_POINTS_ON_BOARD) {
 			list.add((short) p);
 		}
 		Random random = new Random();
 		short i = 0;
-		while (list.size() > 0){
+		while (list.size() > 0) {
 			moves[i] = list.remove(random.nextInt(list.size()));
 			indices[moves[i]] = i;
 			wins[i] = NORMAL_WINS_BIAS;
@@ -46,9 +47,9 @@ public class ResponseList {
 		moves[Coordinates.BOARD_AREA] = Coordinates.PASS;
 		wins[Coordinates.BOARD_AREA] = PASS_WINS_BIAS;
 		runs[Coordinates.BOARD_AREA] = PASS_RUNS_BIAS;
-		indices[Coordinates.PASS] = (short) (Coordinates.BOARD_AREA);	
+		indices[Coordinates.PASS] = (short) (Coordinates.BOARD_AREA);
 	}
-	
+
 	public short[] getWins() {
 		return wins;
 	}
@@ -88,79 +89,82 @@ public class ResponseList {
 	public void setTotalRuns(int totalRuns) {
 		this.totalRuns = totalRuns;
 	}
-	
+
 	/**
-	 * calls either sortWin(move) or sortLoss(move)
-	 * to sort the arrays appropriately
+	 * calls either sortWin(move) or sortLoss(move) to sort the arrays
+	 * appropriately
 	 * 
-	 * @param move the move to be updated
-	 * @param result 1 if adding a win, -1 if adding a loss
+	 * @param move
+	 *            the move to be updated
+	 * @param result
+	 *            1 if adding a win, -1 if adding a loss
 	 */
 	public void sort(int move, int result) {
 		int moveIndex = indices[move];
-		if(moveIndex <= 0 && result > 0) {
+		if (moveIndex <= 0 && result > 0) {
 			return;
 		}
-		if(moveIndex >= moves.length-1 && result < 0) {
+		if (moveIndex >= moves.length - 1 && result < 0) {
 			return;
 		}
-		
-		if(result > 0) {
+
+		if (result > 0) {
 			assert moveIndex > 0 : "ResponseList.sort -- should not happen";
 			sortWin(move);
-		}
-		else {
-			assert moveIndex < moves.length-1 : "ResponseList.sort -- should not happen";
+		} else {
+			assert moveIndex < moves.length - 1 : "ResponseList.sort -- should not happen";
 			sortLoss(move);
 		}
 	}
-	
+
 	/**
-	 * sorts the arrays appropriately if a
-	 * win has been added to move
+	 * sorts the arrays appropriately if a win has been added to move
 	 * 
-	 * @param move the move to be updated
+	 * @param move
+	 *            the move to be updated
 	 */
 	public void sortWin(int move) {
 		int moveIndex = indices[move];
 		assert moveIndex > 0;
 		double toSort = getWinRate(move);
-		int compIndex = moveIndex-1;
+		int compIndex = moveIndex - 1;
 		double compare = getWinRate(moves[compIndex]);
-		
-		while(toSort >= compare && compIndex > 0) {
+
+		while (toSort >= compare && compIndex > 0) {
 			swap(moveIndex, compIndex);
 			compIndex--;
 			moveIndex--;
 			toSort = getWinRate(moves[moveIndex]);
 			compare = getWinRate(moves[compIndex]);
 		}
-		if(compIndex == 0 && toSort >= compare) swap(moveIndex,compIndex);
+		if (compIndex == 0 && toSort >= compare)
+			swap(moveIndex, compIndex);
 	}
-	
+
 	/**
-	 * sorts the arrays appropriately if a
-	 * loss has been added to move
+	 * sorts the arrays appropriately if a loss has been added to move
 	 * 
-	 * @param move the move to be updated
+	 * @param move
+	 *            the move to be updated
 	 */
 	public void sortLoss(int move) {
 		int moveIndex = indices[move];
-		assert moveIndex < moves.length-1;
+		assert moveIndex < moves.length - 1;
 		double toSort = getWinRate(move);
-		int compIndex = moveIndex+1;
+		int compIndex = moveIndex + 1;
 		double compare = getWinRate(moves[compIndex]);
-		
-		while(toSort <= compare && compIndex < Coordinates.BOARD_AREA) {
+
+		while (toSort <= compare && compIndex < Coordinates.BOARD_AREA) {
 			swap(moveIndex, compIndex);
 			compIndex++;
 			moveIndex++;
 			toSort = getWinRate(moves[moveIndex]);
 			compare = getWinRate(moves[compIndex]);
 		}
-		if(compIndex == Coordinates.BOARD_AREA && toSort <= compare) swap(moveIndex,compIndex);
+		if (compIndex == Coordinates.BOARD_AREA && toSort <= compare)
+			swap(moveIndex, compIndex);
 	}
-	
+
 	public void swap(int i1, int i2) {
 		// swap wins[]
 		short hold1 = wins[i1];
@@ -183,10 +187,11 @@ public class ResponseList {
 		indices[moves[i1]] = hold2;
 		indices[moves[i2]] = hold1;
 	}
+
 	/**
 	 * Add a win and run to this move.
 	 */
-	public void addWin(int p){
+	public void addWin(int p) {
 		if (runs[indices[p]] == Short.MAX_VALUE) {
 			wins[indices[p]] /= 2;
 			runs[indices[p]] /= 2;
@@ -194,34 +199,42 @@ public class ResponseList {
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
-		assert totalRuns > 0: "totalRuns overflowed";
+		assert totalRuns > 0 : "totalRuns overflowed";
 		sort(p, 1);
 	}
-	
+
 	/**
 	 * Add a run to this move.
 	 */
-	public void addLoss(int p){
+	public void addLoss(int p) {
 		if (runs[indices[p]] == Short.MAX_VALUE) {
 			wins[indices[p]] /= 2;
 			runs[indices[p]] /= 2;
 		}
 		runs[indices[p]]++;
 		totalRuns++;
-		assert totalRuns > 0: "totalRuns overflowed";
-		sort(p,-1);
+		assert totalRuns > 0 : "totalRuns overflowed";
+		sort(p, -1);
 	}
-	
-	public short getWins(int p){
+
+	public short getWins(int p) {
 		return wins[indices[p]];
 	}
-	
-	public short getRuns(int p){
+
+	public short getRuns(int p) {
 		return runs[indices[p]];
 	}
-	
-	public double getWinRate(int p){
+
+	public double getWinRate(int p) {
 		return wins[indices[p]] / (1.0 * runs[indices[p]]);
 	}
 
+	public int bestMove(Board board) {
+		int move = moves[0];
+		int counter = 1;
+		while (!(board.isLegal(move) && board.isFeasible(move))) {
+			move = moves[counter];
+		}
+		return move;
+	}
 }

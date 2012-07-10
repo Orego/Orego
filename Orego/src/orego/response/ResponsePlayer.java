@@ -27,23 +27,23 @@ public class ResponsePlayer extends McPlayer {
 	public static int TEST_THRESHOLD = 1;
 	
 	/**Zero level for black*/
-	private ResponseList responseZeroBlack;
+	private RawResponseList responseZeroBlack;
 	/**First level for black*/
-	private ResponseList[] responseOneBlack;
+	private RawResponseList[] responseOneBlack;
 	/**Second level for black*/
-	private ResponseList[][] responseTwoBlack;
+	private RawResponseList[][] responseTwoBlack;
 	/**Zero level for white*/
-	private ResponseList responseZeroWhite;
+	private RawResponseList responseZeroWhite;
 	/**First level for white*/
-	private ResponseList[] responseOneWhite;
+	private RawResponseList[] responseOneWhite;
 	/**Second level for white*/
-	private ResponseList[][] responseTwoWhite;
+	private RawResponseList[][] responseTwoWhite;
 	/** Zero table holder, [0] = responseZeroBlack, [1] = responseZeroWhite */
-	private ResponseList[] zeroTables;
+	private RawResponseList[] zeroTables;
 	/** One table holder, [0] = responseOneBlack, [1] = responseOneWhite */
-	private ResponseList[][] oneTables;
+	private RawResponseList[][] oneTables;
 	/** Two table holder, [0] = responseTwoBlack, [1] = responseTwoWhite */
-	private ResponseList[][][] twoTables;
+	private RawResponseList[][][] twoTables;
 	/** Testing flag */
 	private boolean testing = false;
 	/** Weight for updateResponses */
@@ -70,32 +70,32 @@ public class ResponsePlayer extends McPlayer {
 		priorsWeight = DEFAULT_WEIGHT;
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
 		// create black tables
-		responseZeroBlack = new ResponseList();
-		responseOneBlack = new ResponseList[arrayLength];
-		responseTwoBlack = new ResponseList[arrayLength][arrayLength];
+		responseZeroBlack = new RawResponseList();
+		responseOneBlack = new RawResponseList[arrayLength];
+		responseTwoBlack = new RawResponseList[arrayLength][arrayLength];
 		// create white tables
-		responseZeroWhite = new ResponseList();
-		responseOneWhite = new ResponseList[arrayLength];
-		responseTwoWhite = new ResponseList[arrayLength][arrayLength];
+		responseZeroWhite = new RawResponseList();
+		responseOneWhite = new RawResponseList[arrayLength];
+		responseTwoWhite = new RawResponseList[arrayLength][arrayLength];
 		// initialize first and second levels
 		for (int i = 0; i < arrayLength; i++) {
-			responseOneBlack[i] = new ResponseList();
-			responseTwoBlack[i] = new ResponseList[arrayLength];
-			responseOneWhite[i] = new ResponseList();
-			responseTwoWhite[i] = new ResponseList[arrayLength];
+			responseOneBlack[i] = new RawResponseList();
+			responseTwoBlack[i] = new RawResponseList[arrayLength];
+			responseOneWhite[i] = new RawResponseList();
+			responseTwoWhite[i] = new RawResponseList[arrayLength];
 			for (int j = 0; j < arrayLength; j++) {
-				responseTwoBlack[i][j] = new ResponseList();
-				responseTwoWhite[i][j] = new ResponseList();
+				responseTwoBlack[i][j] = new RawResponseList();
+				responseTwoWhite[i][j] = new RawResponseList();
 			}
 		}
 		// create holder tables
-		zeroTables = new ResponseList[2];
+		zeroTables = new RawResponseList[2];
 		zeroTables[Colors.BLACK] = responseZeroBlack;
 		zeroTables[Colors.WHITE] = responseZeroWhite;
-		oneTables = new ResponseList[2][arrayLength];
+		oneTables = new RawResponseList[2][arrayLength];
 		oneTables[Colors.BLACK] = responseOneBlack;
 		oneTables[Colors.WHITE] = responseOneWhite;
-		twoTables = new ResponseList[2][arrayLength][arrayLength];
+		twoTables = new RawResponseList[2][arrayLength][arrayLength];
 		twoTables[Colors.BLACK] = responseTwoBlack;
 		twoTables[Colors.WHITE] = responseTwoWhite;
 	}
@@ -155,13 +155,13 @@ public class ResponsePlayer extends McPlayer {
 		int history1;
 		int history2;
 		board.copyDataFrom(getBoard());
+		runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		while (board.getPasses() < 2) {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
 			move = findAppropriateLevelMove(board, history1, history2);
 			runnable.acceptMove(move);
-			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
 	}
 	
@@ -203,7 +203,7 @@ public class ResponsePlayer extends McPlayer {
 	protected int findAppropriateLevelMove(Board board,int history1,int history2) {
 		// should maybe put some asserts in here to make sure the indices aren't out of bounds
 		// could make this a little fancier
-		ResponseList table;
+		RawResponseList table;
 		int turn = board.getTurn();
 		int toPlay = board.getColorToPlay();
 		// pick table based on threshold values
@@ -216,14 +216,7 @@ public class ResponsePlayer extends McPlayer {
 		}
 		// find the move
 		int counter = 1;
-		int move = table.getMoves()[0];
-		while (move != Coordinates.PASS) {
-			if (board.isLegal(move) && board.isFeasible(move)) {
-				break;
-			}
-			move = table.getMoves()[counter];
-			counter++;
-		}
+		int move = table.bestMove(board);
 		return move;
 	}
 	
@@ -305,9 +298,9 @@ public class ResponsePlayer extends McPlayer {
 	public void addWins(int move, Board board, int wins) {
 		int history1 = board.getMove(board.getTurn()-1);
 		int history2 = board.getMove(board.getTurn()-2);
-		ResponseList tableZero = zeroTables[board.getColorToPlay()];
-		ResponseList[] tableOne = oneTables[board.getColorToPlay()];
-		ResponseList[][] tableTwo = twoTables[board.getColorToPlay()];
+		RawResponseList tableZero = zeroTables[board.getColorToPlay()];
+		RawResponseList[] tableOne = oneTables[board.getColorToPlay()];
+		RawResponseList[][] tableTwo = twoTables[board.getColorToPlay()];
 		for(int i = 0; i < wins; i++) {
 			tableZero.addWin(move);
 			tableOne[history1].addWin(move);
@@ -332,8 +325,8 @@ public class ResponsePlayer extends McPlayer {
 	protected String goguiTotalRuns() {
 		String result = "Total Run Counts:";
 		TreeMap<Long,Long> data = new TreeMap<Long,Long>();
-		for (ResponseList[] tables: responseTwoBlack) {
-			for (ResponseList table: tables) {
+		for (RawResponseList[] tables: responseTwoBlack) {
+			for (RawResponseList table: tables) {
 				long runs = table.getTotalRuns();
 				if (!data.containsKey(runs)) {
 					data.put(runs, 1l);
@@ -346,8 +339,10 @@ public class ResponsePlayer extends McPlayer {
 		}
 		for (long l: data.keySet()) {
 			long count = data.get(l);
-			result += "\n" + l + " runs: " + count;
+			result += "\n" + l + "\t" + count;
 		}
+		//orego.experiment.Debug.setDebugFile("/Network/Servers/maccsserver.lclark.edu/Users/rtakahashi/Documents/rundata.rtf");
+		orego.experiment.Debug.debug(result);
 		return result;
 	}
 	
@@ -368,9 +363,9 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	// All of the getters
-	public ResponseList[] getZeroTables() {	return zeroTables; }
-	public ResponseList[][] getOneTables() { return oneTables; }
-	public ResponseList[][][] getTwoTables() { return twoTables; }
+	public RawResponseList[] getZeroTables() {	return zeroTables; }
+	public RawResponseList[][] getOneTables() { return oneTables; }
+	public RawResponseList[][][] getTwoTables() { return twoTables; }
 	
 	// All of the inherited methods that we don't use
 	/** Inherited, don't need it for ResponsePlayer */

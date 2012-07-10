@@ -14,7 +14,7 @@ import orego.core.Coordinates;
 import orego.mcts.McRunnable;
 import orego.play.UnknownPropertyException;
 import orego.policy.RandomPolicy;
-import orego.response.ResponseList;
+import orego.response.RawResponseList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,25 +42,25 @@ public class ResponsePlayerTest {
 		runnable.acceptMove(52);
 		player.incorporateRun(Colors.BLACK,runnable);
 		// Get all of the black response lists
-		ResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
-		ResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
-		ResponseList[][] respTwoBlack = player.getTwoTables()[Colors.BLACK];
+		RawResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
+		RawResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
+		RawResponseList[][] respTwoBlack = player.getTwoTables()[Colors.BLACK];
 		// Get all of the white response lists
-		ResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
-		ResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
-		ResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
+		RawResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
+		RawResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
+		RawResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
 		// Make sure all of the Black lists are right
-		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
-		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
-		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[47]]);
-		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[47]]);
-		assertEquals(2, respOneBlack[25].getWins()[respOneBlack[25].getIndices()[47]]);
-		assertEquals(2, respTwoBlack[28][25].getWins()[respTwoBlack[28][25].getIndices()[47]]);
+		assertEquals(2, respZeroBlack.getWins()[28]);
+		assertEquals(3, respZeroBlack.getRuns()[28]);
+		assertEquals(2, respZeroBlack.getWins()[47]);
+		assertEquals(3, respZeroBlack.getRuns()[47]);
+		assertEquals(2, respOneBlack[25].getWins()[47]);
+		assertEquals(2, respTwoBlack[28][25].getWins()[47]);
 		// Make sure all of the White lists are right
-		assertEquals(1, respZeroWhite.getWins()[respZeroWhite.getIndices()[25]]);
-		assertEquals(3, respZeroWhite.getRuns()[respZeroWhite.getIndices()[25]]);
-		assertEquals(1, respOneWhite[28].getWins()[respOneWhite[28].getIndices()[25]]);
-		assertEquals(1, respTwoWhite[25][47].getWins()[respTwoWhite[25][47].getIndices()[52]]);
+		assertEquals(1, respZeroWhite.getWins()[25]);
+		assertEquals(3, respZeroWhite.getRuns()[25]);
+		assertEquals(1, respOneWhite[28].getWins()[25]);
+		assertEquals(1, respTwoWhite[25][47].getWins()[52]);
 	}
 	
 	protected void fakeRun(int winner, String... labels) {
