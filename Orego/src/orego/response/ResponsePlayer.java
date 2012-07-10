@@ -2,22 +2,17 @@ package orego.response;
 
 import static orego.core.Coordinates.PASS;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
-import ec.util.MersenneTwisterFast;
-import orego.mcts.McPlayer;
-import orego.mcts.McRunnable;
-import orego.mcts.MctsPlayer;
-import orego.play.UnknownPropertyException;
 import orego.core.Board;
 import orego.core.Colors;
 import orego.core.Coordinates;
+import orego.mcts.McPlayer;
+import orego.mcts.McRunnable;
+import orego.play.UnknownPropertyException;
+import ec.util.MersenneTwisterFast;
 
 /**
  * This player uses a form of last good reply.
@@ -27,11 +22,11 @@ import orego.core.Coordinates;
 
 public class ResponsePlayer extends McPlayer {
 	
-	/**Threshold for the first level*/
-	public static int ONE_THRESHOLD = 100;
+	/** Threshold for the first level table*/
+	private int one_threshold = 100;
 	
-	/**Threshold for the second level*/
-	public static int TWO_THRESHOLD = 100;
+	/** Threshold for the second level table*/
+	private int two_threshold = 100;
 	
 	/** 
 	 * Hashtable which stores best response lists.
@@ -46,7 +41,7 @@ public class ResponsePlayer extends McPlayer {
 	 * The upper level bits are reserved for selecting between white and black and other meta data.
 	 * The 28th bit selects between black and white.
 	 */
-	private HashMap<Integer, ResponseList> responses;
+	private HashMap<Integer, AbstractResponseList> responses;
 	
 	/** Weight for updateResponses */
 	private int priorsWeight;
@@ -69,17 +64,18 @@ public class ResponsePlayer extends McPlayer {
 	
 	public ResponsePlayer(){
 		super();
-		responses = new HashMap<Integer, ResponseList>();
+		responses = new HashMap<Integer, AbstractResponseList>();
 		
 		priorsWeight = DEFAULT_WEIGHT;
 		
 		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
 		
 		// black level zero table
-		responses.put(levelZeroEncodedIndex(Colors.BLACK), new ResponseList());
+		responses.put(levelZeroEncodedIndex(Colors.BLACK), new RawResponseList());
 		
 		// white level zero table
-		responses.put(levelZeroEncodedIndex(Colors.WHITE), new ResponseList());
+		responses.put(levelZeroEncodedIndex(Colors.WHITE), new RawResponseList());
+
 	}
 	
 	/** Converts a sequence of two moves into a hash key for our
@@ -102,6 +98,7 @@ public class ResponsePlayer extends McPlayer {
 	public static int levelZeroEncodedIndex(int color) {
 		// set the 29th bit to 1 to indicate zero table
 		// set the 28th bit to indicate the color
+		// TODO: we should use a signal bit (~3 in all three sections to indicate that we have a zero encoded index)
 		return (1 << 28) | (color << 27);
 	}
 	
@@ -111,6 +108,14 @@ public class ResponsePlayer extends McPlayer {
 	 */
 	public void setWeight(int weight) {
 		priorsWeight = weight;
+	}
+	
+	public void setOneThreshold(int threshold) {
+		this.one_threshold = threshold;
+	}
+	
+	public void setTwoThreshold(int threshold) {
+		this.two_threshold = threshold;
 	}
 	
 	/**
@@ -136,7 +141,7 @@ public class ResponsePlayer extends McPlayer {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateLevelMove(board,history1,history2);
+			move = findAppropriateLevelMove(board, history1, history2, random);
 			runnable.acceptMove(move);
 			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
@@ -151,13 +156,13 @@ public class ResponsePlayer extends McPlayer {
 		int history1;
 		int history2;
 		board.copyDataFrom(getBoard());
+		runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		while (board.getPasses() < 2) {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateLevelMove(board, history1, history2);
+			move = findAppropriateLevelMove(board, history1, history2, random);
 			runnable.acceptMove(move);
-			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
 	}
 	
@@ -180,63 +185,53 @@ public class ResponsePlayer extends McPlayer {
 		}
 		int history1 = board.getMove(board.getTurn() - 1);
 		int history2 = board.getMove(board.getTurn() - 2);
-		int move = findAppropriateLevelMove(board, history1, history2);
 		
-		ResponseList res = responses.get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
+		// we need a random generator
+		// threads are stopped at this point so we are blithely unaware of synchronization concerns
+		MersenneTwisterFast random = ((McRunnable)getRunnable(0)).getRandom();
+		int move = findAppropriateLevelMove(board, history1, history2, random);
+		
+		AbstractResponseList res = responses.get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
 		if(res != null && res.getWinRate(move) < 0.1) {
 			return Coordinates.RESIGN;
 		}
 		return move;
 	}
-	
-	private int pickLegalMove(ResponseList list, Board board) {
-		// find the move
-		int counter = 1;
-		int move = list.getMoves()[0];
-		while (move != Coordinates.PASS) {
-			if (board.isLegal(move) && board.isFeasible(move)) {
-				break;
-			}
-			move = list.getMoves()[counter];
-			counter++;
-		}
-		
-		return move;
-	}
+
 	/**
 	 * Finds the right move to accept, given that the tables
 	 * hold correct and updated information
 	 * 
 	 * @param level the level of table to explore
 	 * @param board
-	 * @param history1
-	 * @param history2
+	 * @param history1 
+	 * @param history2 
+	 * @param random 
 	 * @return
 	 */
-	protected int findAppropriateLevelMove(Board board, int history1, int history2) {
-		// should maybe put some asserts in here to make sure the indices aren't out of bounds
-		// could make this a little fancier
+	protected int findAppropriateLevelMove(Board board, int history1, int history2, MersenneTwisterFast random) {
 		int turn = board.getTurn();
 		int colorToPlay = board.getColorToPlay();
 		
 		// pick table based on threshold values
-		ResponseList list = responses.get(levelTwoEncodedIndex(history2, history1, colorToPlay));
+		AbstractResponseList list = responses.get(levelTwoEncodedIndex(history2, history1, colorToPlay));
 		
 		// can we use the level two table?
-		if(turn >= 3 && list != null && list.getTotalRuns() >= TWO_THRESHOLD) {
-			return pickLegalMove(list, board);
+		if(turn >= 2 && list != null && list.getTotalRuns() >= two_threshold) {
+			return list.bestMove(board, random);
 		}
 		
 		list = responses.get(levelOneEncodedIndex(history1, colorToPlay));
 		
-		if(turn >= 2 && list != null && list.getTotalRuns() >= ONE_THRESHOLD) {
+		// can we use the level one table?
+		if(turn >= 1 && list != null && list.getTotalRuns() >= one_threshold) {
 			// can we use the level 1 table?
-			return pickLegalMove(list, board);
+			return list.bestMove(board, random);
 		} 
 		
 		list = responses.get(levelZeroEncodedIndex(colorToPlay));
 		
-		return pickLegalMove(list, board);
+		return list.bestMove(board, random);
 	}
 	
 	
@@ -254,7 +249,7 @@ public class ResponsePlayer extends McPlayer {
 	 */
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
 		
-		ResponseList twoList = null;
+		AbstractResponseList twoList = null;
 		
 		if (board.getMove(turn) == Coordinates.PASS ||
 			turn >= 2) {
@@ -267,13 +262,13 @@ public class ResponsePlayer extends McPlayer {
 			twoList = responses.get(key);
 			
 			if (twoList == null) { // if response list doesn't exist, create it
-				twoList = new ResponseList();
+				twoList = new RawResponseList();
 				responses.put(key, twoList);
 			}
 			
 		}
 		
-		ResponseList zeroList = null;
+		AbstractResponseList zeroList = null;
 		
 		// use level zero table if we are making any move but a pass
 		if (board.getMove(turn) != Coordinates.PASS) {
@@ -284,12 +279,12 @@ public class ResponsePlayer extends McPlayer {
 			zeroList = responses.get(key);
 			
 			if (zeroList == null) { // if the list doesn't exist, create it
-				zeroList = new ResponseList();
+				zeroList = new RawResponseList();
 				responses.put(key, zeroList);
 			}
 		}
 		
-		ResponseList oneList = null;
+		AbstractResponseList oneList = null;
 		// use the level 1 table if we have made more than 1 move
 		// and are not passing
 		if (board.getMove(turn) != Coordinates.PASS &&
@@ -301,7 +296,7 @@ public class ResponsePlayer extends McPlayer {
 			oneList = responses.get(key);
 			
 			if (oneList == null) { // if list doesn't exist create it
-				oneList = new ResponseList();
+				oneList = new RawResponseList();
 				responses.put(key, oneList); 
 			}
 			
@@ -342,9 +337,9 @@ public class ResponsePlayer extends McPlayer {
 	public void setProperty(String property, String value)
 			throws UnknownPropertyException {
 		if (property.equals("one_threshold")) {
-			ONE_THRESHOLD = Integer.parseInt(value);
+			one_threshold = Integer.parseInt(value);
 		} else if (property.equals("two_threshold")) {
-			TWO_THRESHOLD = Integer.parseInt(value);
+			two_threshold = Integer.parseInt(value);
 		} else if (property.equals("priors")) {
 			priorsWeight = Integer.parseInt(value);
 		}
@@ -371,20 +366,20 @@ public class ResponsePlayer extends McPlayer {
 		// get the zero level table (create if it doesn't exist)
 		int key = levelZeroEncodedIndex(colorToPlay);
 		
-		ResponseList zeroList = responses.get(key);
+		AbstractResponseList zeroList = responses.get(key);
 		
 		if (zeroList == null) {
-			zeroList = new ResponseList();
+			zeroList = new RawResponseList();
 			responses.put(key, zeroList);
 		}
 		
 		// get the one level table (create if it doesn't exist)
 		key = levelOneEncodedIndex(prevMove, colorToPlay);
 		
-		ResponseList oneList = responses.get(key);
+		AbstractResponseList oneList = responses.get(key);
 		
 		if (oneList == null) {
-			oneList = new ResponseList();
+			oneList = new RawResponseList();
 			responses.put(key, oneList);
 		}
 		
@@ -392,13 +387,13 @@ public class ResponsePlayer extends McPlayer {
 		// get the second level table (create if it doesn't exist)
 		key = levelTwoEncodedIndex(prevPrevMove, prevPrevMove, colorToPlay);
 		
-		ResponseList twoList = responses.get(key);
+		AbstractResponseList twoList = responses.get(key);
 		
 		if (twoList == null) {
-			twoList = new ResponseList();
+			twoList = new RawResponseList();
 			responses.put(key, twoList);
 		}
-		
+
 		for(int i = 0; i < wins; i++) {
 			zeroList.addWin(move);
 			oneList.addWin(move);
@@ -445,9 +440,10 @@ public class ResponsePlayer extends McPlayer {
 		return result;
 	}
 	
-	public HashMap<Integer, ResponseList> getAllResponseTables() {
+	public HashMap<Integer, AbstractResponseList> getAllResponseTables() {
 		return responses;
 	}
+
 	
 	// All of the inherited methods that we don't use
 	/** Inherited, don't need it for ResponsePlayer */

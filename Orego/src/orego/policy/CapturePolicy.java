@@ -5,7 +5,7 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.mcts.SearchNode;
-import orego.response.ResponseList;
+import orego.response.RawResponseList;
 import orego.response.ResponsePlayer;
 import orego.util.*;
 import orego.core.Board;
