@@ -23,10 +23,10 @@ import ec.util.MersenneTwisterFast;
 public class ResponsePlayer extends McPlayer {
 	
 	/** Threshold for the first level table*/
-	private int one_threshold = 100;
+	private int one_threshold;
 	
 	/** Threshold for the second level table*/
-	private int two_threshold = 100;
+	private int two_threshold;
 	
 	/** 
 	 * Hashtable which stores best response lists.
@@ -67,9 +67,7 @@ public class ResponsePlayer extends McPlayer {
 		responses = new HashMap<Integer, AbstractResponseList>();
 		
 		priorsWeight = DEFAULT_WEIGHT;
-		
-		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
-		
+				
 		// black level zero table
 		responses.put(levelZeroEncodedIndex(Colors.BLACK), new RawResponseList());
 		
@@ -114,8 +112,16 @@ public class ResponsePlayer extends McPlayer {
 		this.one_threshold = threshold;
 	}
 	
+	public int getOneThreshold() {
+		return one_threshold;
+	}
+	
 	public void setTwoThreshold(int threshold) {
 		this.two_threshold = threshold;
+	}
+	
+	public int getTwoThreshold() {
+		return two_threshold;
 	}
 	
 	/**
@@ -440,7 +446,7 @@ public class ResponsePlayer extends McPlayer {
 		return result;
 	}
 	
-	public HashMap<Integer, AbstractResponseList> getAllResponseTables() {
+	public HashMap<Integer, AbstractResponseList> getResponses() {
 		return responses;
 	}
 
