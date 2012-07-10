@@ -28,7 +28,7 @@ public class ExperimentConfiguration {
 	 * more than the number of processor cores on each host. If Orego is being
 	 * run with multiple threads, it might be even smaller.
 	 */
-	public static final int GAMES_PER_HOST = 4;
+	public static final int GAMES_PER_HOST = 12;
 
 	/** Total number of games desired per condition. */
 	public static final int GAMES_PER_CONDITION = 600;
@@ -49,12 +49,9 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=2 playouts=50000 book=FusekiBook player=Mcts policy=Random",
-//		 "threads=1 playouts=50000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
-//		 "threads=1 playouts=100000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
-//		 "threads=1 playouts=200000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
-//		 "threads=1 playouts=400000 player=orego.response.Response one_threshold=3610 two_threshold=3610 book=FusekiBook",
-		 "threads=1 msec=4000 book=FusekiBook policy=Escape:Pattern:Capture:ThirdFourthLine",
+		 "threads=1 playouts=50000 book=FusekiBook policy=Escape:Pattern:Capture:Territory",
+		 "threads=1 playouts=50000 book=FusekiBook",
+//		 "threads=1 msec=4000 book=FusekiBook policy=Escape:Pattern:Capture:ThirdFourthLine",
 	 };
 
 }

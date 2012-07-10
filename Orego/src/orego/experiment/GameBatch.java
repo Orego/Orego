@@ -8,7 +8,7 @@ public class GameBatch implements Runnable {
 
 	/** Command to run Orego, but without command line arguments. */
 	public static final String OREGO_BASE = JAVA_WITH_OREGO_CLASSPATH
-			+ " -ea -server -Xmx2048M orego.ui.Orego";
+			+ " -ea -server -Xmx1024M orego.ui.Orego";
 
 	/**
 	 * @param args
