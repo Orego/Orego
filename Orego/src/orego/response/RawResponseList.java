@@ -13,14 +13,15 @@ import orego.util.IntSet;
 
 public class RawResponseList extends AbstractResponseList {
 
-	final static int NORMAL_WINS_BIAS = 1;
-	final static int NORMAL_RUNS_BIAS = 2;
-	final static int PASS_WINS_BIAS = 1;
-	final static int PASS_RUNS_BIAS = 10;
+	// TODO PRIOR is a better word than BIAS
+	public final static int NORMAL_WINS_BIAS = 1;
+	public final static int NORMAL_RUNS_BIAS = 2;
+	public final static int PASS_WINS_BIAS = 1;
+	public final static int PASS_RUNS_BIAS = 10;
 
-	int[] wins;
-	int[] runs;
-	long totalRuns;
+	private int[] wins;
+	private int[] runs;
+	private long totalRuns;
 
 	public RawResponseList() {
 		wins = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
@@ -35,19 +36,19 @@ public class RawResponseList extends AbstractResponseList {
 
 	// TODO: these array getters are only used in tests
 	// could probably remove and just use move-specific getters
-	public int[] getWins() {
+	protected int[] getWins() {
 		return wins;
 	}
 
-	public void setWins(int[] wins) {
+	protected void setWins(int[] wins) {
 		this.wins = wins;
 	}
 
-	public int[] getRuns() {
+	protected int[] getRuns() {
 		return runs;
 	}
 
-	public void setRuns(int[] runs) {
+	protected void setRuns(int[] runs) {
 		this.runs = runs;
 	}
 
@@ -55,7 +56,7 @@ public class RawResponseList extends AbstractResponseList {
 		return totalRuns;
 	}
 
-	public void setTotalRuns(int totalRuns) {
+	protected void setTotalRuns(int totalRuns) {
 		this.totalRuns = totalRuns;
 	}
 
@@ -89,36 +90,27 @@ public class RawResponseList extends AbstractResponseList {
 	}
 
 	public double getWinRate(int p) {
-		return wins[p] / (1.0 * runs[p]);
+		return wins[p] / (double)runs[p];
 	}
 
 	public int bestMove(Board board, MersenneTwisterFast random) {
-		// Pick a *legal* move with the *highest* win rate
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
-		
 		int i = start;
-		double compare = 0.1;
-		
+		double bestValue = 0.1;
 		int bestMove = Coordinates.PASS;
-		
-		double searchValue;
-		int move;
-		
-		// find legal + highest win rate
 		do {
-			move = vacantPoints.get(i);
-			searchValue = getWinRate(move);
-			if (searchValue > compare) {
+			int move = vacantPoints.get(i);
+			double searchValue = getWinRate(move);
+			if (searchValue > bestValue) {
 				if (board.isFeasible(move) && board.isLegal(move)) {
-					compare = searchValue;
+					bestValue = searchValue;
 					bestMove = move;
 				}
 			}
-			
-			
 			i = (i + 457) % vacantPoints.size();
 		} while (i != start);
 		return bestMove;
 	}
+
 }

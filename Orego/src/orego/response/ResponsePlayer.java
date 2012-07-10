@@ -23,11 +23,12 @@ import ec.util.MersenneTwisterFast;
 public class ResponsePlayer extends McPlayer {
 	
 	/** Threshold for the first level table*/
-	private int one_threshold = 100;
+	private int one_threshold;
 	
 	/** Threshold for the second level table*/
-	private int two_threshold = 100;
+	private int two_threshold;
 	
+	// TODO Move this comment to the method that creates this history int, put an @see here
 	/** 
 	 * Hashtable which stores best response lists.
 	 * Each list is indexed by a bit masked 32 bit int with the following format:
@@ -63,20 +64,19 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	public ResponsePlayer(){
-		super();
+		one_threshold = 100;
+		two_threshold = 100;
 		responses = new HashMap<Integer, AbstractResponseList>();
-		
 		priorsWeight = DEFAULT_WEIGHT;
-		
-		int arrayLength = Coordinates.FIRST_POINT_BEYOND_BOARD;
-		
 		// black level zero table
 		responses.put(levelZeroEncodedIndex(Colors.BLACK), new RawResponseList());
-		
 		// white level zero table
 		responses.put(levelZeroEncodedIndex(Colors.WHITE), new RawResponseList());
-
 	}
+	
+	// TODO Maybe collapse these into a single method?
+	
+	// TODO Include special "unspecified" values when below maximum depth
 	
 	/** Converts a sequence of two moves into a hash key for our
 	 * responses hashmap.
@@ -85,6 +85,7 @@ public class ResponsePlayer extends McPlayer {
 	 * @return An integer key for our {@link responses} hashmap.
 	 */
 	public static int levelTwoEncodedIndex(int prevPrevMove, int prevMove, int color) {
+		// TODO Why isn't color used?
 		// place the color in the upper 28th bit
 		return (1 << 27) | (prevPrevMove << 9) | prevMove;
 	}
@@ -125,6 +126,7 @@ public class ResponsePlayer extends McPlayer {
 	 * @param runnable
 	 * @param moves the moves to force the game to play
 	 */
+	// TODO Change this to remove reference to "tree" (here and in other classes)
 	public void fakeGenerateMovesToFrontierOfTree(McRunnable runnable, int... moves) {
 		MersenneTwisterFast random = runnable.getRandom();
 		Board board = runnable.getBoard();
@@ -137,6 +139,7 @@ public class ResponsePlayer extends McPlayer {
 		for (int i : moves) {
 			runnable.acceptMove(i);
 		}
+		// TODO Don't finish the playout
 		while (board.getPasses() < 2) {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
@@ -156,9 +159,9 @@ public class ResponsePlayer extends McPlayer {
 		int history1;
 		int history2;
 		board.copyDataFrom(getBoard());
+		// TODO We'll be doing this differently in the future
 		runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		while (board.getPasses() < 2) {
-			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
 			move = findAppropriateLevelMove(board, history1, history2, random);
@@ -170,6 +173,7 @@ public class ResponsePlayer extends McPlayer {
 	public void incorporateRun(int winner, McRunnable runnable) {
 		Board board = runnable.getBoard();
 		int toPlay = Colors.BLACK;
+		// TODO Should be more like the version in MctsPlayer
 		for(int i = 0; i < board.getTurn(); i++) {
 			updateWins(i, winner, board, toPlay);
 			// flip to other player
@@ -192,6 +196,7 @@ public class ResponsePlayer extends McPlayer {
 		int move = findAppropriateLevelMove(board, history1, history2, random);
 		
 		AbstractResponseList res = responses.get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
+		// TODO What if res.getWinRate(PASS) < 0.1? (1/10 might not be equal to 0.1)
 		if(res != null && res.getWinRate(move) < 0.1) {
 			return Coordinates.RESIGN;
 		}
@@ -217,6 +222,7 @@ public class ResponsePlayer extends McPlayer {
 		AbstractResponseList list = responses.get(levelTwoEncodedIndex(history2, history1, colorToPlay));
 		
 		// can we use the level two table?
+		// TODO There's no reason to check the turn -- every move has history
 		if(turn >= 2 && list != null && list.getTotalRuns() >= two_threshold) {
 			return list.bestMove(board, random);
 		}
@@ -248,9 +254,10 @@ public class ResponsePlayer extends McPlayer {
 	 * @param toPlay the color that played on this turn
 	 */
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
+		// TODO A level 2 table should only be created if a level 1 table exists
 		
 		AbstractResponseList twoList = null;
-		
+		// TODO We don't need to look at the turn
 		if (board.getMove(turn) == Coordinates.PASS ||
 			turn >= 2) {
 			// if we pass or we have made more than two moves, we can use the
@@ -287,6 +294,7 @@ public class ResponsePlayer extends McPlayer {
 		AbstractResponseList oneList = null;
 		// use the level 1 table if we have made more than 1 move
 		// and are not passing
+		// TODO There's no need to check the turn here
 		if (board.getMove(turn) != Coordinates.PASS &&
 			turn >= 1) {
 			
@@ -303,7 +311,7 @@ public class ResponsePlayer extends McPlayer {
 		}
 		
 		// ------- // actually update tables // -------- //
-		
+		// TODO Move these above
 		// update the zero level list (if we should)
 		if (zeroList != null)
 			if (winner == colorToPlay) // we've won through this node
@@ -356,9 +364,7 @@ public class ResponsePlayer extends McPlayer {
 	 * @param wins The number of wins we'd like to bias
 	 * @return
 	 */
-	public void addWins(int move, Board board, int wins) {
-		// TODO: warning! - will these ever be called before we make at least two moves?
-		
+	public void addWins(int move, Board board, int wins) {		
 		int prevMove     = board.getMove(board.getTurn() - 1);
 		int prevPrevMove = board.getMove(board.getTurn() - 2);
 		int colorToPlay  = board.getColorToPlay();
@@ -385,6 +391,7 @@ public class ResponsePlayer extends McPlayer {
 		
 		
 		// get the second level table (create if it doesn't exist)
+		// TODO: should only create level 2 table if level 1 table exists
 		key = levelTwoEncodedIndex(prevPrevMove, prevPrevMove, colorToPlay);
 		
 		AbstractResponseList twoList = responses.get(key);
