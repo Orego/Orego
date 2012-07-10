@@ -214,10 +214,10 @@ public class ResponsePlayer extends McPlayer {
 	 * hold correct and updated information
 	 * 
 	 * @param level the level of table to explore
-	 * @param board
-	 * @param history1 
-	 * @param history2 
-	 * @param random 
+	 * @param board The current game board
+	 * @param history1 the previous move
+	 * @param history2 Two moves ago
+	 * @param random A random number generator
 	 * @return
 	 */
 	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random) {
@@ -260,26 +260,28 @@ public class ResponsePlayer extends McPlayer {
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
 		
 		AbstractResponseList twoList = null;
-		if (board.getMove(turn) == Coordinates.PASS) {
-			// if we pass or we have made more than two moves, we can use the
-			// level two list
-			int prevPrevMove = board.getMove(turn - 2);
-			int prevMove 	 = board.getMove(turn - 1);
-			
-			int key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
-			twoList = responses.get(key);
-			
-			if (twoList == null) { // if response list doesn't exist, create it
-				twoList = new RawResponseList();
-				responses.put(key, twoList);
-			}
-			
-			if (winner == colorToPlay) // we've won through this node
-				twoList.addWin(board.getMove(turn));
-			else
-				twoList.addLoss(board.getMove(turn)); // we've lost through this node
-			
+		
+		// if we pass or we have made more than two moves, we can use the
+		// level two list
+		int prevPrevMove = board.getMove(turn - 2);
+		int prevMove 	 = board.getMove(turn - 1);
+		
+		int key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
+		twoList = responses.get(key);
+		
+		if (twoList == null) { // if response list doesn't exist, create it
+			twoList = new RawResponseList();
+			responses.put(key, twoList);
 		}
+		
+		if (winner == colorToPlay) // we've won through this node
+			twoList.addWin(board.getMove(turn));
+		else
+			twoList.addLoss(board.getMove(turn)); // we've lost through this node
+			
+		
+		/** other tables shouldn't track passes (see {@link bestStoredMove}) */
+		if (board.getMove(turn) == Coordinates.PASS);
 		
 		AbstractResponseList zeroList = null;
 		
@@ -287,7 +289,7 @@ public class ResponsePlayer extends McPlayer {
 		if (board.getMove(turn) != Coordinates.PASS) {
 			// if first turn of game (0) or any other move,
 			// we need to update the zero list
-			int key = levelZeroEncodedIndex(colorToPlay);
+			key = levelZeroEncodedIndex(colorToPlay);
 			
 			zeroList = responses.get(key);
 			
@@ -308,8 +310,8 @@ public class ResponsePlayer extends McPlayer {
 		// update the level one table if we aren't passing
 		if (board.getMove(turn) != Coordinates.PASS) {
 			
-			int prevMove = board.getMove(turn - 1);
-			int key = levelOneEncodedIndex(prevMove, colorToPlay);
+			prevMove = board.getMove(turn - 1);
+			key = levelOneEncodedIndex(prevMove, colorToPlay);
 			
 			oneList = responses.get(key);
 			
