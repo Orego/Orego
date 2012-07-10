@@ -22,7 +22,10 @@ package orego.wls;
 
  */
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Implementation of W/L states
@@ -95,7 +98,7 @@ public class WinLossStates {
 	/** A class for doing data visualizations of the WLS algorithm */
 	public class Visualizer {
 		/** Creates an R csv file for plotting the various proportions with labels
-		 * @return
+		 * @return The R csv contents
 		 */
 		public String visualizeStates() {
 			StringBuilder builder = new StringBuilder(200);
@@ -104,6 +107,38 @@ public class WinLossStates {
 				builder.append(states[i].getConfidence() + ", " + states[i].getWinRunsProportion() + ",  \"WR: " + states[i].getWins() + "/" + states[i].getRuns() + "\"\n"); 
 			}
 	
+			return builder.toString();
+		}
+		
+		/**
+		 * Creates an R csv for visualizing the progression as we add wins/losses.
+		 * Produces a graph of states against time. The states have labels and are
+		 * scored by their proportion.
+		 * @return The R csv contents
+		 */
+		public String visualizeStatePath( int num_iterations) {
+			StringBuilder builder = new StringBuilder(200);
+			// add some random wins with probability of about 3 / 5
+		
+			Random rand = new Random();
+			final double expected_value = 0.60;
+			int stateIndex = 0;
+			
+			builder.append("WL, Time, Label\n");
+			for (int i = 0; i < num_iterations; i++) {
+				// plot the current state
+				State state = getState(stateIndex);
+				
+				// Ex: .75, 1203, 3/4
+				builder.append(state.getWinRunsProportion() + ", " + i + ", \"WR: " + state.getWins() + "/" + state.getRuns() + "\"\n");
+				
+				// 60% of the time add a new win
+				if (rand.nextDouble() < expected_value)
+					stateIndex = addWin(stateIndex); // transition to new state based on win
+				else
+					stateIndex = addLoss(stateIndex); // transition to new state based on loss
+			}
+		
 			return builder.toString();
 		}
 		

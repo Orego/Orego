@@ -2,24 +2,18 @@ package orego.response;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_AREA;
 import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
-import static org.junit.Assert.*;
-
-import orego.core.Board;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import orego.core.Colors;
-import orego.core.Coordinates;
 import orego.mcts.McRunnable;
 import orego.play.UnknownPropertyException;
 import orego.policy.RandomPolicy;
-import orego.response.ResponseList;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import sun.security.action.GetBooleanAction;
 
 public class ResponsePlayerTest {
 	
@@ -33,7 +27,10 @@ public class ResponsePlayerTest {
 	
 	@Test
 	public void testIncorporateRun() {
-		player.setTesting(true);
+		// set testing thresholds
+		ResponsePlayer.ONE_THRESHOLD = 1;
+		ResponsePlayer.TWO_THRESHOLD = 1;
+		
 		// play a fake game
 		McRunnable runnable = new McRunnable(player, null);
 		runnable.acceptMove(28);

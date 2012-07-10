@@ -122,20 +122,21 @@ public class ResponseList {
 	 * @param move the move to be updated
 	 */
 	public void sortWin(int move) {
-		int moveIndex = indices[move];
+		int moveIndex 	= indices[move];
 		assert moveIndex > 0;
-		double toSort = getWinRate(move);
-		int compIndex = moveIndex-1;
-		double compare = getWinRate(moves[compIndex]);
+		double toSort 	= getWinRate(move);
+		int compIndex 	= moveIndex-1;
+		double compare  = getWinRate(moves[compIndex]);
 		
 		while(toSort >= compare && compIndex > 0) {
 			swap(moveIndex, compIndex);
 			compIndex--;
 			moveIndex--;
-			toSort = getWinRate(moves[moveIndex]);
+			toSort  = getWinRate(moves[moveIndex]);
 			compare = getWinRate(moves[compIndex]);
 		}
-		if(compIndex == 0 && toSort >= compare) swap(moveIndex,compIndex);
+		
+		if(compIndex == 0 && toSort >= compare) swap(moveIndex, compIndex);
 	}
 	
 	/**
@@ -155,10 +156,11 @@ public class ResponseList {
 			swap(moveIndex, compIndex);
 			compIndex++;
 			moveIndex++;
-			toSort = getWinRate(moves[moveIndex]);
+			toSort  = getWinRate(moves[moveIndex]);
 			compare = getWinRate(moves[compIndex]);
 		}
-		if(compIndex == Coordinates.BOARD_AREA && toSort <= compare) swap(moveIndex,compIndex);
+		
+		if(compIndex == Coordinates.BOARD_AREA && toSort <= compare) swap(moveIndex, compIndex);
 	}
 	
 	public void swap(int i1, int i2) {
@@ -183,17 +185,22 @@ public class ResponseList {
 		indices[moves[i1]] = hold2;
 		indices[moves[i2]] = hold1;
 	}
+	
 	/**
 	 * Add a win and run to this move.
 	 */
-	public void addWin(int p){
+	public void addWin(int p) {
+		
+		// TODO: kludgy fix to wrap back around once we've hit the max
 		if (runs[indices[p]] == Short.MAX_VALUE) {
 			wins[indices[p]] /= 2;
 			runs[indices[p]] /= 2;
 		}
+		
 		wins[indices[p]]++;
 		runs[indices[p]]++;
 		totalRuns++;
+		
 		assert totalRuns > 0: "totalRuns overflowed";
 		sort(p, 1);
 	}
@@ -201,11 +208,13 @@ public class ResponseList {
 	/**
 	 * Add a run to this move.
 	 */
-	public void addLoss(int p){
+	public void addLoss(int p) {
+		// TODO: kludgy fix to wrap back around once we've hit the max 
 		if (runs[indices[p]] == Short.MAX_VALUE) {
 			wins[indices[p]] /= 2;
 			runs[indices[p]] /= 2;
 		}
+		
 		runs[indices[p]]++;
 		totalRuns++;
 		assert totalRuns > 0: "totalRuns overflowed";
