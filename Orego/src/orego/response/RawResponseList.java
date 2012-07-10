@@ -13,10 +13,15 @@ import orego.util.IntSet;
 
 public class RawResponseList extends AbstractResponseList {
 
-	final static int NORMAL_WINS_BIAS = 1;
-	final static int NORMAL_RUNS_BIAS = 2;
-	final static int PASS_WINS_BIAS = 1;
-	final static int PASS_RUNS_BIAS = 10;
+	// initial win rate for each move .50
+	public final static int NORMAL_WINS_BIAS = 1;
+	public final static int NORMAL_RUNS_BIAS = 2;
+	
+	// we want a constant .10 win rate for pass
+	// pass win rate should be less than the initial win
+	// rate since we don't want to pass immediately
+	public final static int PASS_WINS_BIAS = 1;
+	public final static int PASS_RUNS_BIAS = 10;
 
 	int[] wins;
 	int[] runs;

@@ -147,7 +147,7 @@ public class ResponsePlayer extends McPlayer {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateLevelMove(board, history1, history2, random);
+			move = findAppropriateMove(board, history1, history2, random);
 			runnable.acceptMove(move);
 			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
@@ -167,7 +167,7 @@ public class ResponsePlayer extends McPlayer {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateLevelMove(board, history1, history2, random);
+			move = findAppropriateMove(board, history1, history2, random);
 			runnable.acceptMove(move);
 		}
 	}
@@ -195,8 +195,13 @@ public class ResponsePlayer extends McPlayer {
 		// we need a random generator
 		// threads are stopped at this point so we are blithely unaware of synchronization concerns
 		MersenneTwisterFast random = ((McRunnable)getRunnable(0)).getRandom();
-		int move = findAppropriateLevelMove(board, history1, history2, random);
+		int move = findAppropriateMove(board, history1, history2, random);
 		
+		
+		// TODO: we have an issue here with passing. We have to track stats on the pass move
+		// to ensure it eventually looks "bad". However, since pass occurs during the end of every game,
+		// it can also look "the best" for some move sequences. Currently this appears to be relatively 
+		// insignificant as there are few moves which share a common two move prefix.
 		AbstractResponseList res = responses.get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
 		if(res != null && res.getWinRate(move) < 0.1) {
 			return Coordinates.RESIGN;
@@ -215,22 +220,21 @@ public class ResponsePlayer extends McPlayer {
 	 * @param random 
 	 * @return
 	 */
-	protected int findAppropriateLevelMove(Board board, int history1, int history2, MersenneTwisterFast random) {
-		int turn = board.getTurn();
+	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random) {
 		int colorToPlay = board.getColorToPlay();
 		
 		// pick table based on threshold values
 		AbstractResponseList list = responses.get(levelTwoEncodedIndex(history2, history1, colorToPlay));
 		
 		// can we use the level two table?
-		if(turn >= 2 && list != null && list.getTotalRuns() >= two_threshold) {
+		if(list != null && list.getTotalRuns() >= two_threshold) {
 			return list.bestMove(board, random);
 		}
 		
 		list = responses.get(levelOneEncodedIndex(history1, colorToPlay));
 		
 		// can we use the level one table?
-		if(turn >= 1 && list != null && list.getTotalRuns() >= one_threshold) {
+		if(list != null && list.getTotalRuns() >= one_threshold) {
 			// can we use the level 1 table?
 			return list.bestMove(board, random);
 		} 
@@ -256,9 +260,7 @@ public class ResponsePlayer extends McPlayer {
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
 		
 		AbstractResponseList twoList = null;
-		
-		if (board.getMove(turn) == Coordinates.PASS ||
-			turn >= 2) {
+		if (board.getMove(turn) == Coordinates.PASS) {
 			// if we pass or we have made more than two moves, we can use the
 			// level two list
 			int prevPrevMove = board.getMove(turn - 2);
@@ -272,11 +274,16 @@ public class ResponsePlayer extends McPlayer {
 				responses.put(key, twoList);
 			}
 			
+			if (winner == colorToPlay) // we've won through this node
+				twoList.addWin(board.getMove(turn));
+			else
+				twoList.addLoss(board.getMove(turn)); // we've lost through this node
+			
 		}
 		
 		AbstractResponseList zeroList = null;
 		
-		// use level zero table if we are making any move but a pass
+		// use level zero table if we are making any move *but* a pass
 		if (board.getMove(turn) != Coordinates.PASS) {
 			// if first turn of game (0) or any other move,
 			// we need to update the zero list
@@ -288,13 +295,18 @@ public class ResponsePlayer extends McPlayer {
 				zeroList = new RawResponseList();
 				responses.put(key, zeroList);
 			}
+			
+
+			if (winner == colorToPlay) // we've won through this node
+				zeroList.addWin(board.getMove(turn));
+			else
+				zeroList.addLoss(board.getMove(turn)); // we've lost through this node	
 		}
 		
 		AbstractResponseList oneList = null;
-		// use the level 1 table if we have made more than 1 move
-		// and are not passing
-		if (board.getMove(turn) != Coordinates.PASS &&
-			turn >= 1) {
+	
+		// update the level one table if we aren't passing
+		if (board.getMove(turn) != Coordinates.PASS) {
 			
 			int prevMove = board.getMove(turn - 1);
 			int key = levelOneEncodedIndex(prevMove, colorToPlay);
@@ -306,30 +318,13 @@ public class ResponsePlayer extends McPlayer {
 				responses.put(key, oneList); 
 			}
 			
-		}
-		
-		// ------- // actually update tables // -------- //
-		
-		// update the zero level list (if we should)
-		if (zeroList != null)
-			if (winner == colorToPlay) // we've won through this node
-				zeroList.addWin(board.getMove(turn));
-			else
-				zeroList.addLoss(board.getMove(turn)); // we've lost through this node
-		
-		// update the first level list (if we should)
-		if (oneList != null)
 			if (winner == colorToPlay) // we've won through this node
 				oneList.addWin(board.getMove(turn));
 			else
-				oneList.addLoss(board.getMove(turn)); // we've lost through this node		
+				oneList.addLoss(board.getMove(turn)); // we've lost through this node
+		}
 		
-		// update the second level table
-		if (twoList != null)
-			if (winner == colorToPlay) // we've won through this node
-				twoList.addWin(board.getMove(turn));
-			else
-				twoList.addLoss(board.getMove(turn)); // we've lost through this node
+			
 	}
 	
 	public void reset() {
@@ -355,7 +350,7 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
-	 * Add the specified number of wins to *all* tables for a given mvoe
+	 * Add the specified number of wins to *all* tables for a given move
 	 * 
 	 * @param move The move we are biasing
 	 * @param board The current state of the board
