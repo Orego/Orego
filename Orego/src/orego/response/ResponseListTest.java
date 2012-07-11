@@ -23,6 +23,7 @@ public class ResponseListTest {
 	@Test
 	public void testWinsAndLosses() {
 		responseList = new RawResponseList();
+		
 		assertEquals(RawResponseList.NORMAL_WINS_PRIOR, responseList.getWins()[Coordinates.at(0,0)]);
 		assertEquals(RawResponseList.NORMAL_RUNS_PRIOR, responseList.getRuns()[Coordinates.at(0,0)]);
 		assertEquals(RawResponseList.PASS_WINS_PRIOR, responseList.getWins(Coordinates.PASS));
@@ -31,7 +32,7 @@ public class ResponseListTest {
 		responseList.addWin(Coordinates.at(0,0));
 		assertEquals(RawResponseList.NORMAL_WINS_PRIOR + 1, responseList.getWins()[Coordinates.at(0,0)]);
 		assertEquals(RawResponseList.NORMAL_RUNS_PRIOR + 2, responseList.getRuns()[Coordinates.at(0,0)]);
-		assertEquals(0.5,responseList.getWinRate(Coordinates.at(0, 0)),0.001);
+		assertEquals(0.5,responseList.getWinRate(Coordinates.at(0, 0)), 0.001);
 	}
 
 }

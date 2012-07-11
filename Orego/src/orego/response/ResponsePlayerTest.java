@@ -101,10 +101,9 @@ public class ResponsePlayerTest {
 		for (i = 0; i < labels.length; i++) {
 			moves[i] = at(labels[i]);
 		}
-		moves[i] = PASS;
-		moves[i + 1] = PASS;
+		
 		McRunnable runnable = new McRunnable(player, new RandomPolicy());
-		player.fakeGenerateMovesToFrontierOfTree(runnable, moves);
+		player.fakePlayMoves(runnable, moves);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
 			runnable.acceptMove(p);

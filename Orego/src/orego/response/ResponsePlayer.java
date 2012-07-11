@@ -28,19 +28,11 @@ public class ResponsePlayer extends McPlayer {
 	/** Threshold for the second level table*/
 	private int two_threshold;
 	
-	// TODO Move this comment to the method that creates this history int, put an @see here
 	/** 
-	 * Hashtable which stores best response lists.
-	 * Each list is indexed by a bit masked 32 bit int with the following format:
-	 * -----------------------
-	 * | s |  ............ 0 | (all zeros) = zero response list
-	 * -----------------------
-	 * 
-	 * -----------------------
-	 * | s | ......... 1020101
-	 * 
-	 * The upper level bits are reserved for selecting between white and black and other meta data.
-	 * The 28th bit selects between black and white.
+	 * The large hash table of best response lists. 
+	 * @see levelTwoEncodedIndex 
+	 * @see levelOneEncodedIndex 
+	 * @see levelZeroEncodedIndex
 	 */
 	private HashMap<Integer, AbstractResponseList> responses;
 	
@@ -75,20 +67,17 @@ public class ResponsePlayer extends McPlayer {
 		responses.put(levelZeroEncodedIndex(Colors.WHITE), new RawResponseList());
 	}
 	
-	// TODO Maybe collapse these into a single method?
-	
-	// TODO Include special "unspecified" values when below maximum depth
 	
 	/** Converts a sequence of two moves into a hash key for our
 	 * responses hashmap.
+	 * TODO: write better description
 	 * @param prevPrevMove Two moves ago
 	 * @param prevMove Previous move
 	 * @return An integer key for our {@link responses} hashmap.
 	 */
 	public static int levelTwoEncodedIndex(int prevPrevMove, int prevMove, int color) {
-		// TODO Why isn't color used?
 		// place the color in the upper 28th bit
-		return (1 << 27) | (prevPrevMove << 9) | prevMove;
+		return (color << 27) | (prevPrevMove << 9) | prevMove;
 	}
 	
 	public static int levelOneEncodedIndex(int prevMove, int color) {
@@ -129,34 +118,23 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
-	 * Force the given moves, then proceed as in generateMovesToFrontier
-	 * Used for testing
+	 * Play the given moves. Don't play to the end, that is handled by fakeRun
 	 * 
 	 * @param runnable
 	 * @param moves the moves to force the game to play
 	 */
 	// TODO Change this to remove reference to "tree" (here and in other classes)
-	public void fakeGenerateMovesToFrontierOfTree(McRunnable runnable, int... moves) {
+	
+	public void fakePlayMoves(McRunnable runnable, int... moves) {
 		MersenneTwisterFast random = runnable.getRandom();
 		Board board = runnable.getBoard();
-		int move;
-		int history1;
-		int history2;
 		// copy the board
 		board.copyDataFrom(getBoard());
 		// force play moves
 		for (int i : moves) {
 			runnable.acceptMove(i);
 		}
-		// TODO Don't finish the playout
-		while (board.getPasses() < 2) {
-			// play out like generateMovesToFrontier()
-			history1 = board.getMove(board.getTurn() - 1);
-			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateMove(board, history1, history2, random);
-			runnable.acceptMove(move);
-			runnable.getPolicy().updateResponses(this, board, priorsWeight);
-		}
+		
 	}
 
 	// TODO: synchronize updateResponses to board?
