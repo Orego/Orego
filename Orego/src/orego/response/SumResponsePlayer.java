@@ -26,9 +26,10 @@ public class SumResponsePlayer extends ResponsePlayer {
 	protected int findAppropriateMove(Board board, int history1, int history2,
 			MersenneTwisterFast random) {
 		int colorToPlay = board.getColorToPlay();
-		int currMove;
 		int bestMove = Coordinates.PASS;
 		double bestSum = 0;
+		boolean skipOne = false;
+		boolean skipTwo = false;
 
 		// pick table based on threshold values
 		// TODO: these *might* be null, might want to check.
@@ -42,16 +43,18 @@ public class SumResponsePlayer extends ResponsePlayer {
 		RawResponseList zeroList = (RawResponseList) getResponses().get(
 				levelZeroEncodedIndex(colorToPlay));
 
+		skipOne = (oneList==null);
+		skipTwo = (twoList==null);
 
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
-			currMove = vacantPoints.get(i);
+			int currMove = vacantPoints.get(i);
 			int wins = zeroList.getWins(currMove);
-			wins += oneList.getWins(currMove);
-			wins += twoList.getWins(currMove);
+			wins = skipOne ? wins : wins+oneList.getWins(currMove);
+			wins = skipTwo ? wins : wins+twoList.getWins(currMove);
 			int runs = zeroList.getRuns(currMove);
-			runs += oneList.getRuns(currMove);
-			runs += twoList.getRuns(currMove);
+			runs = skipOne ? runs : runs+oneList.getRuns(currMove);
+			runs = skipTwo ? runs : twoList.getRuns(currMove);
 			double sum = (double) wins / runs;
 			if (sum > bestSum) {
 				if (board.isFeasible(currMove) && board.isLegal(currMove)) {

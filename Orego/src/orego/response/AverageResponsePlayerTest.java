@@ -74,5 +74,57 @@ public class AverageResponsePlayerTest {
 		assertEquals(move1, player.bestStoredMove());
 
 	}
+	
+	@Test
+	public void testFindAppropriateMove2() {
+		// play a fake game
+		McRunnable runnable = new McRunnable(player, null);
+		int move1 = Coordinates.at("a3");
+		int move2 = Coordinates.at("j4");
+		int history1 = Coordinates.at("g1");
+		int history2 = Coordinates.at("j2");
+		int history3 = Coordinates.at("h3");
+
+		// first playout
+		runnable.acceptMove(history1);
+		runnable.acceptMove(history2);
+		runnable.acceptMove(history3);
+		runnable.acceptMove(move1);
+		runnable.acceptMove(move2);
+		player.incorporateRun(Colors.WHITE, runnable);
+
+		runnable.getBoard().clear();
+
+		// second playout
+		runnable.acceptMove(history2);
+		runnable.acceptMove(history3);
+		runnable.acceptMove(history1);
+		runnable.acceptMove(move1);
+		runnable.acceptMove(move2);
+		player.incorporateRun(Colors.WHITE, runnable);
+		
+		runnable.getBoard().clear();
+
+		// test 1	
+		player.getBoard().play(history1);
+		player.getBoard().play(history2);
+		player.getBoard().play(history3);		
+		//assert(player.getBoard().isFeasible(move1));
+		assertFalse(move1==player.bestStoredMove());
+		player.getBoard().play(move1);
+		assertFalse(move2==player.bestStoredMove());
+		
+		player.getBoard().clear();
+		
+		// test 2	
+		player.getBoard().play(history2);
+		player.getBoard().play(history3);
+		player.getBoard().play(history1);		
+		//assert(player.getBoard().isFeasible(move1));
+		assertFalse(move1==player.bestStoredMove());
+		player.getBoard().play(move1);
+		assertFalse(move2==player.bestStoredMove());
+	}
+
 
 }

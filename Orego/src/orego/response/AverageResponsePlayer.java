@@ -26,10 +26,10 @@ public class AverageResponsePlayer extends ResponsePlayer {
 	protected int findAppropriateMove(Board board, int history1, int history2,
 			MersenneTwisterFast random) {
 		int colorToPlay = board.getColorToPlay();
-		double sum = 0;
-		int currMove;
 		int bestMove = Coordinates.PASS;
 		double bestSum = 0;
+		boolean skipOne = false;
+		boolean skipTwo = false;
 
 		// pick table based on threshold values
 		RawResponseList twoList = (RawResponseList) getResponses().get(
@@ -38,14 +38,19 @@ public class AverageResponsePlayer extends ResponsePlayer {
 				levelOneEncodedIndex(history1, colorToPlay));
 		RawResponseList zeroList = (RawResponseList) getResponses().get(
 				levelZeroEncodedIndex(colorToPlay));
-
+		skipOne = (oneList==null);
+		skipTwo = (twoList==null);
+		
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
-			currMove = vacantPoints.get(i);
-			sum = zeroList.getWinRate(currMove);
-			sum += oneList.getWinRate(currMove);
-			sum += twoList.getWinRate(currMove);
-			double average = sum / 3;
+			int divisor = 1;
+			int currMove = vacantPoints.get(i);
+			double currWinRate = zeroList.getWinRate(currMove);
+			currWinRate = skipOne ? currWinRate : (currWinRate+oneList.getWinRate(currMove));
+			divisor = skipOne ? divisor : divisor+1;
+			currWinRate = skipTwo ? currWinRate : (currWinRate+twoList.getWinRate(currMove));
+			divisor = skipTwo ? divisor : divisor+1;
+			double average = currWinRate / divisor;
 			if (average > bestSum) {
 				if (board.isLegal(currMove) && board.isFeasible(currMove)) {
 					bestSum = average;
