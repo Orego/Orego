@@ -173,7 +173,7 @@ public class WinLossStatesTest {
 		
 		final int num_iterations = 1500; // too high? Too low?
 		Random rand = new Random();
-		final double expected_value = 0.60;
+		final double expected_value = 0.60; // about 3/5
 		int stateIndex = 0;
 		
 		

@@ -2,24 +2,21 @@ package orego.response;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_AREA;
 import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
-import orego.core.Board;
+import java.util.HashMap;
+
 import orego.core.Colors;
-import orego.core.Coordinates;
 import orego.mcts.McRunnable;
 import orego.play.UnknownPropertyException;
 import orego.policy.RandomPolicy;
-import orego.response.ResponseList;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import sun.security.action.GetBooleanAction;
 
 public class ResponsePlayerTest {
 	
@@ -33,34 +30,69 @@ public class ResponsePlayerTest {
 	
 	@Test
 	public void testIncorporateRun() {
-		player.setTesting(true);
+		// save original thresholds to reset later
+		int originalOneThreshold = player.getOneThreshold();
+		int originalTwoThreshold = player.getTwoThreshold();
+		
+		// set testing thresholds (after one run, we want to incorporate)
+		player.setOneThreshold(1);
+		player.setTwoThreshold(1);
+		
 		// play a fake game
 		McRunnable runnable = new McRunnable(player, null);
 		runnable.acceptMove(28);
 		runnable.acceptMove(25);
 		runnable.acceptMove(47);
 		runnable.acceptMove(52);
-		player.incorporateRun(Colors.BLACK,runnable);
-		// Get all of the black response lists
-		ResponseList respZeroBlack = player.getZeroTables()[Colors.BLACK];
-		ResponseList[] respOneBlack = player.getOneTables()[Colors.BLACK];
-		ResponseList[][] respTwoBlack = player.getTwoTables()[Colors.BLACK];
-		// Get all of the white response lists
-		ResponseList respZeroWhite = player.getZeroTables()[Colors.WHITE];
-		ResponseList[] respOneWhite = player.getOneTables()[Colors.WHITE];
-		ResponseList[][] respTwoWhite = player.getTwoTables()[Colors.WHITE];
+		
+		// incorporate these moves (black wins for these moves)
+		player.incorporateRun(Colors.BLACK, runnable);
+		
+		HashMap<Integer, AbstractResponseList> responses = player.getResponses();
+		
+		// TODO: test is specific to RawResponseList. Nothing we can do about this?
+		
+		RawResponseList blackZeroList = (RawResponseList) responses.get(ResponsePlayer.levelZeroEncodedIndex(Colors.BLACK));
+		
+		
+		RawResponseList whiteZeroList = (RawResponseList) responses.get(ResponsePlayer.levelZeroEncodedIndex(Colors.WHITE));
+		
+		assertThat(blackZeroList, notNullValue());
 		// Make sure all of the Black lists are right
-		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[28]]);
-		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[28]]);
-		assertEquals(2, respZeroBlack.getWins()[respZeroBlack.getIndices()[47]]);
-		assertEquals(3, respZeroBlack.getRuns()[respZeroBlack.getIndices()[47]]);
-		assertEquals(2, respOneBlack[25].getWins()[respOneBlack[25].getIndices()[47]]);
-		assertEquals(2, respTwoBlack[28][25].getWins()[respTwoBlack[28][25].getIndices()[47]]);
-		// Make sure all of the White lists are right
-		assertEquals(1, respZeroWhite.getWins()[respZeroWhite.getIndices()[25]]);
-		assertEquals(3, respZeroWhite.getRuns()[respZeroWhite.getIndices()[25]]);
-		assertEquals(1, respOneWhite[28].getWins()[respOneWhite[28].getIndices()[25]]);
-		assertEquals(1, respTwoWhite[25][47].getWins()[respTwoWhite[25][47].getIndices()[52]]);
+		assertThat(blackZeroList.getWins()[28], equalTo(2));
+		assertThat(blackZeroList.getRuns()[28], equalTo(3));
+		assertThat(blackZeroList.getWins()[47], equalTo(2));
+		assertThat(blackZeroList.getRuns()[47], equalTo(3));
+		
+		RawResponseList blackOneList = (RawResponseList) responses.get(ResponsePlayer.levelOneEncodedIndex(25, Colors.BLACK));
+		
+		assertThat(blackOneList.getWins(47), equalTo(2));
+		
+		RawResponseList blackTwoList = (RawResponseList) responses.get(ResponsePlayer.levelTwoEncodedIndex(28, 25, Colors.BLACK));
+		
+		assertThat(blackTwoList, notNullValue());
+		
+		assertThat(blackTwoList.getWins()[47], equalTo(2));
+		
+		// Make sure all of the white lists are right
+		assertThat(whiteZeroList, notNullValue());
+		
+		assertThat(whiteZeroList.getWins()[25], equalTo(1));
+		assertThat(whiteZeroList.getRuns()[25], equalTo(3));
+		
+		RawResponseList whiteOneList = (RawResponseList) responses.get(ResponsePlayer.levelOneEncodedIndex(28, Colors.WHITE));
+		
+		assertThat(whiteOneList, notNullValue());
+		assertThat(whiteOneList.getWins()[25], equalTo(1));
+		
+		RawResponseList whiteTwoList = (RawResponseList) responses.get(ResponsePlayer.levelTwoEncodedIndex(25, 47, Colors.WHITE));
+		assertThat(whiteTwoList, notNullValue());
+		
+		assertThat(whiteTwoList.getWins()[52], equalTo(1));
+		
+		// reset to original threshold
+		player.setOneThreshold(originalOneThreshold);
+		player.setTwoThreshold(originalTwoThreshold);
 	}
 	
 	protected void fakeRun(int winner, String... labels) {
@@ -69,10 +101,9 @@ public class ResponsePlayerTest {
 		for (i = 0; i < labels.length; i++) {
 			moves[i] = at(labels[i]);
 		}
-		moves[i] = PASS;
-		moves[i + 1] = PASS;
+		
 		McRunnable runnable = new McRunnable(player, new RandomPolicy());
-		player.fakeGenerateMovesToFrontierOfTree(runnable, moves);
+		player.fakePlayMoves(runnable, moves);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
 			runnable.acceptMove(p);
@@ -115,35 +146,11 @@ public class ResponsePlayerTest {
 			};
 			player.setUpProblem(BLACK, problem);
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
-			//player.setTesting(true);
-			/*
-			ResponseList table = player.getZeroTables()[Colors.BLACK];
-			System.out.println(table.getWins(table.getIndices()[365]));
-			System.out.println(table.getRuns(table.getIndices()[365]));
-			System.out.println(table.getWinRate(365));
-			System.out.println(table.getWins(table.getIndices()[385]));
-			System.out.println(table.getRuns(table.getIndices()[385]));
-			System.out.println(table.getWinRate(385));
-			System.out.println(table.getWins(table.getIndices()[Coordinates.PASS]));
-			System.out.println(table.getRuns(table.getIndices()[Coordinates.PASS]));
-			System.out.println(table.getWinRate(Coordinates.PASS));
-			System.out.println("\n");
-			*/
+			
 			for (int i = 0; i < 1000; i++) {
 				runnable.performMcRun();
 				//System.out.println(player.getResponseZeroBlack().getTotalRuns());
 			}
-			/*
-			System.out.println(table.getWins(365));
-			System.out.println(table.getRuns(365));
-			System.out.println(table.getWinRate(365));
-			System.out.println(table.getWins(385));
-			System.out.println(table.getRuns(385));
-			System.out.println(table.getWinRate(385));
-			System.out.println(table.getWins(Coordinates.PASS));
-			System.out.println(table.getRuns(Coordinates.PASS));
-			System.out.println(table.getWinRate(Coordinates.PASS));
-			*/
 			int move = player.bestMove();
 			assertEquals(PASS, move);
 		} else {
@@ -277,27 +284,16 @@ public class ResponsePlayerTest {
 			// ABCDEFGHJKLMNOPQRST
 			};
 			player.setUpProblem(BLACK, problem);
-			//player.setTesting(true);
 			//TODO: check level zero and one tables -- chooses move PASS
 			//when not consulting level two table
 			
-			//player.getBoard().play(190);
-			//player.getBoard().play(191);
+
 			McRunnable runnable = new McRunnable(player, new RandomPolicy());
 			for (int i = 0; i < 10000; i++) {
 				runnable.performMcRun();
 			}
 			int move = player.bestMove();
 			assertEquals(at("k10"), move);
-		} else {
-			// Broken for 9x9 -- no playouts
-			//String[] problem = { "....#....", "....#....", "....#....",
-			//		"....#....", "OOOO.OOOO", "....#....", "....#....",
-			//		"....#....", "....#....", };
-			//player.setUpProblem(BLACK, problem);
-			//player.setProperty("playouts", "10000");
-			//int move = player.bestMove();
-			//assertEquals(at("e5"), move);
-		}
+		} 
 	}
 }

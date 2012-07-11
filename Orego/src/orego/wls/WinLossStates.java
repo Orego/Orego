@@ -22,7 +22,10 @@ package orego.wls;
 
  */
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Implementation of W/L states
@@ -33,6 +36,8 @@ import java.util.Arrays;
  * Note: We don't advise changing the {@link WinLossStates#CONFIDENCE_LEVEL} as the {@link WinLossStaates#JUMP_CONSTANT_K} is tuned based on a given confidence level (currently 75%).
  * Tips for author:
  * Make note of JUMP_CONSTANT_K
+ * 
+ * TODO: should we synchronize this class?
  * 
  * @author sstewart
  *
@@ -57,6 +62,8 @@ public class WinLossStates {
 	public static final int NO_STATE_EXISTS = Integer.MAX_VALUE;
 	
 	public Visualizer visualizer = new Visualizer();
+	
+	private static WinLossStates wls;
 	
 	// constant used when jumping. Tuned empirically for END_SCALE = 21
 	// TODO: Can we do this automatically in the future?
@@ -95,7 +102,7 @@ public class WinLossStates {
 	/** A class for doing data visualizations of the WLS algorithm */
 	public class Visualizer {
 		/** Creates an R csv file for plotting the various proportions with labels
-		 * @return
+		 * @return The R csv contents
 		 */
 		public String visualizeStates() {
 			StringBuilder builder = new StringBuilder(200);
@@ -107,12 +114,47 @@ public class WinLossStates {
 			return builder.toString();
 		}
 		
+		/**
+		 * Creates an R csv for visualizing the progression as we add wins/losses.
+		 * Produces a graph of states against time. The states have labels and are
+		 * scored by their proportion.
+		 * @return The R csv contents
+		 */
+		public String visualizeStatePath( int num_iterations) {
+			StringBuilder builder = new StringBuilder(200);
+			// add some random wins with probability of about 3 / 5
+		
+			Random rand = new Random();
+			final double expected_value = 0.60;
+			int stateIndex = 0;
+			
+			builder.append("WL, Time, Label\n");
+			for (int i = 0; i < num_iterations; i++) {
+				// plot the current state
+				State state = getState(stateIndex);
+				
+				// Ex: .75, 1203, 3/4
+				builder.append(state.getWinRunsProportion() + ", " + i + ", \"WR: " + state.getWins() + "/" + state.getRuns() + "\"\n");
+				
+				// 60% of the time add a new win
+				if (rand.nextDouble() < expected_value)
+					stateIndex = addWin(stateIndex); // transition to new state based on win
+				else
+					stateIndex = addLoss(stateIndex); // transition to new state based on loss
+			}
+		
+			return builder.toString();
+		}
+		
 	}
 	
 	/** Gets the singleton instance of our WinLossState class*/
 	public static WinLossStates getWLS() {
-		// TODO: make constructor private and make a new instance if it doesn't exist
-		return null;
+		if (wls == null) {
+			wls = new WinLossStates();
+		}
+		
+		return wls;
 	}
 	
 	private void computeNumberOfStates() {
@@ -249,7 +291,7 @@ public class WinLossStates {
 	 * @param didWin Did we win before arriving at wins/runs?
 	 * @return The index of the state or NO_STATE_EXISTS 
 	 */
-	protected int findStateIndex(int wins, int runs) {
+	public int findStateIndex(int wins, int runs) {
 		for (int i = 0; i < NUM_STATES; i++) {
 			if (states[i].getWins() == wins && 
 				states[i].getRuns() == runs   )

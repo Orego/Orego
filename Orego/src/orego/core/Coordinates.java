@@ -109,6 +109,9 @@ public final class Coordinates {
 	/** Special coordinate for no point. */
 	public static final int NO_POINT = 1;
 
+	/** Special sentinel value for encoding responses in @see orego.response.ResponsePlayer*/
+	public static final int ZERO_LEVEL_SENTINEL = 3;
+	
 	/** True for points on the board. */
 	public static final boolean[] ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
 
