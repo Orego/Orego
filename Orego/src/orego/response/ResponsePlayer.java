@@ -234,6 +234,7 @@ public class ResponsePlayer extends McPlayer {
 	 * @return
 	 */
 	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random) {
+
 		int colorToPlay = board.getColorToPlay();
 		
 		// pick table based on threshold values
