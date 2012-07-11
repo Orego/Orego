@@ -291,7 +291,7 @@ public class WinLossStates {
 	 * @param didWin Did we win before arriving at wins/runs?
 	 * @return The index of the state or NO_STATE_EXISTS 
 	 */
-	protected int findStateIndex(int wins, int runs) {
+	public int findStateIndex(int wins, int runs) {
 		for (int i = 0; i < NUM_STATES; i++) {
 			if (states[i].getWins() == wins && 
 				states[i].getRuns() == runs   )
