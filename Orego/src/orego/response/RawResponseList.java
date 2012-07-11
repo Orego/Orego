@@ -91,7 +91,7 @@ public class RawResponseList extends AbstractResponseList {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
-		double bestValue = PASS_WINS_PRIOR / PASS_RUNS_PRIOR;
+		double bestValue = PASS_WINS_PRIOR / (double) PASS_RUNS_PRIOR;
 		int bestMove = Coordinates.PASS;
 		do {
 			int move = vacantPoints.get(i);
