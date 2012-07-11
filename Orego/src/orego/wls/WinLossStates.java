@@ -37,6 +37,8 @@ import java.util.Random;
  * Tips for author:
  * Make note of JUMP_CONSTANT_K
  * 
+ * TODO: should we synchronize this class?
+ * 
  * @author sstewart
  *
  */
@@ -60,6 +62,8 @@ public class WinLossStates {
 	public static final int NO_STATE_EXISTS = Integer.MAX_VALUE;
 	
 	public Visualizer visualizer = new Visualizer();
+	
+	private static WinLossStates wls;
 	
 	// constant used when jumping. Tuned empirically for END_SCALE = 21
 	// TODO: Can we do this automatically in the future?
@@ -146,8 +150,11 @@ public class WinLossStates {
 	
 	/** Gets the singleton instance of our WinLossState class*/
 	public static WinLossStates getWLS() {
-		// TODO: make constructor private and make a new instance if it doesn't exist
-		return null;
+		if (wls == null) {
+			wls = new WinLossStates();
+		}
+		
+		return wls;
 	}
 	
 	private void computeNumberOfStates() {

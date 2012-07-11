@@ -6,7 +6,7 @@ import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
-public class SumResponsePlayer extends ResponsePlayer {
+public class AverageResponsePlayer extends ResponsePlayer {
 
 	public static void main(String[] args) {
 		ResponsePlayer p = new ResponsePlayer();
@@ -26,15 +26,12 @@ public class SumResponsePlayer extends ResponsePlayer {
 	protected int findAppropriateMove(Board board, int history1, int history2,
 			MersenneTwisterFast random) {
 		int colorToPlay = board.getColorToPlay();
+		double sum = 0;
 		int currMove;
 		int bestMove = Coordinates.PASS;
 		double bestSum = 0;
 
 		// pick table based on threshold values
-		// TODO: these *might* be null, might want to check.
-		// All tables have all moves *unless* there is a pass in which case only
-		// the second level table has an entry. Luckily, only the vacantPoints array
-		// should not have pass?
 		RawResponseList twoList = (RawResponseList) getResponses().get(
 				levelTwoEncodedIndex(history2, history1, colorToPlay));
 		RawResponseList oneList = (RawResponseList) getResponses().get(
@@ -42,20 +39,16 @@ public class SumResponsePlayer extends ResponsePlayer {
 		RawResponseList zeroList = (RawResponseList) getResponses().get(
 				levelZeroEncodedIndex(colorToPlay));
 
-
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			currMove = vacantPoints.get(i);
-			int wins = zeroList.getWins(currMove);
-			wins += oneList.getWins(currMove);
-			wins += twoList.getWins(currMove);
-			int runs = zeroList.getRuns(currMove);
-			runs += oneList.getRuns(currMove);
-			runs += twoList.getRuns(currMove);
-			double sum = (double) wins / runs;
-			if (sum > bestSum) {
-				if (board.isFeasible(currMove) && board.isLegal(currMove)) {
-					bestSum = sum;
+			sum = zeroList.getWinRate(currMove);
+			sum += oneList.getWinRate(currMove);
+			sum += twoList.getWinRate(currMove);
+			double average = sum / 3;
+			if (average > bestSum) {
+				if (board.isLegal(currMove) && board.isFeasible(currMove)) {
+					bestSum = average;
 					bestMove = currMove;
 				}
 			}
