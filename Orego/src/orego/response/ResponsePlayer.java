@@ -69,8 +69,36 @@ public class ResponsePlayer extends McPlayer {
 	
 	
 	/** Converts a sequence of two moves into a hash key for our
-	 * responses hashmap.
-	 * TODO: write better description
+	 * responses hashmap. The {@see responses} maintains a mapping
+	 * between a "history" of a given number of moves and a "response list"
+	 * of possible candidate responses. The response list includes all possible moves
+	 * along with information pertaining to the "choiceness" of the move.
+	 * 
+	 * We maintain three different /conceptual/ tables:
+	 * Level Zero
+	 * Level One
+	 * Level Two
+	 * 
+	 * The level zero has a single response list which maintains stats for every possible moves.
+	 * Entries from this table are used mostly at the start of the game.
+	 * 
+	 * The level one table has a response list for every single. In other words, for any given previous move,
+	 * the table returns a list of possible new moves with given stats (response list).
+	 * 
+	 * The level two table has a response list for every combination of previous *two* moves. Hence, for moves
+	 * A and move B the level two table contains a response list of possible candidates for level C.
+	 * 
+	 * We encode each of these types of tables as integers for keys in our responses hashmap. Level zero keys are encoded
+	 * as integers with each group of nine bits set to a special sentinel value. 
+	 * 
+	 * Level one keys encode the previous move in the first nine lower order index.
+	 * 
+	 * Level two keys encode the previous two moves in the first nine lower order bits and then the second
+	 * nine bits. Conceivably we can store up to three different "levels" of moves which would consume 24 bits.
+	 * We need nine bits for each move since we have a maximum move index of 361.
+	 * 
+	 * We reserve the 28th bit to indicate the color of the player.
+	 * 
 	 * @param prevPrevMove Two moves ago
 	 * @param prevMove Previous move
 	 * @return An integer key for our {@link responses} hashmap.
@@ -87,10 +115,11 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	public static int levelZeroEncodedIndex(int color) {
-		// set the 29th bit to 1 to indicate zero table
 		// set the 28th bit to indicate the color
-		// TODO: we should use a signal bit (~3 in all three sections to indicate that we have a zero encoded index)
-		return (1 << 28) | (color << 27);
+		// set all the lower order "groups" of 9 to the ZERO_LEVEL_SENTINEL
+		return (color << 27) | (Coordinates.ZERO_LEVEL_SENTINEL << 18) | 
+							   (Coordinates.ZERO_LEVEL_SENTINEL << 9)  | 
+							   (Coordinates.ZERO_LEVEL_SENTINEL);
 	}
 	
 	/**
@@ -123,8 +152,6 @@ public class ResponsePlayer extends McPlayer {
 	 * @param runnable
 	 * @param moves the moves to force the game to play
 	 */
-	// TODO Change this to remove reference to "tree" (here and in other classes)
-	
 	public void fakePlayMoves(McRunnable runnable, int... moves) {
 		MersenneTwisterFast random = runnable.getRandom();
 		Board board = runnable.getBoard();
@@ -158,11 +185,11 @@ public class ResponsePlayer extends McPlayer {
 	
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		Board board = runnable.getBoard();
+		
 		int toPlay = Colors.BLACK;
-		// TODO Should be more like the version in MctsPlayer
-		for(int i = 0; i < board.getTurn(); i++) {
-			updateWins(i, winner, board, toPlay);
+		// move through all moves after we do a playout 
+		for(int i = getBoard().getTurn(); i < runnable.getBoard().getTurn(); i++) {
+			updateWins(i, winner, runnable.getBoard(), toPlay);
 			// flip to other player
 			toPlay = 1 - toPlay;
 		}
@@ -244,7 +271,6 @@ public class ResponsePlayer extends McPlayer {
 	 * @param toPlay the color that played on this turn
 	 */
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
-		// TODO A level 2 table should only be created if a level 1 table exists
 		
 		AbstractResponseList twoList = null;
 		
@@ -269,51 +295,49 @@ public class ResponsePlayer extends McPlayer {
 			
 		
 		/** other tables shouldn't track passes (see {@link bestStoredMove}) */
-		if (board.getMove(turn) == Coordinates.PASS);
+		if (board.getMove(turn) == Coordinates.PASS)
+			return;
 		
 		AbstractResponseList zeroList = null;
-		
 		// use level zero table if we are making any move *but* a pass
-		if (board.getMove(turn) != Coordinates.PASS) {
-			// if first turn of game (0) or any other move,
-			// we need to update the zero list
-			key = levelZeroEncodedIndex(colorToPlay);
-			
-			zeroList = responses.get(key);
-			
-			if (zeroList == null) { // if the list doesn't exist, create it
-				zeroList = new RawResponseList();
-				responses.put(key, zeroList);
-			}
-			
-
-			if (winner == colorToPlay) // we've won through this node
-				zeroList.addWin(board.getMove(turn));
-			else
-				zeroList.addLoss(board.getMove(turn)); // we've lost through this node	
+		
+		// if first turn of game (0) or any other move,
+		// we need to update the zero list
+		key = levelZeroEncodedIndex(colorToPlay);
+		
+		zeroList = responses.get(key);
+		
+		if (zeroList == null) { // if the list doesn't exist, create it
+			zeroList = new RawResponseList();
+			responses.put(key, zeroList);
 		}
 		
-		AbstractResponseList oneList = null;
+		if (winner == colorToPlay) // we've won through this node
+			zeroList.addWin(board.getMove(turn));
+		else
+			zeroList.addLoss(board.getMove(turn)); // we've lost through this node	
 	
+	
+		
+		
 		// update the level one table if we aren't passing
-		if (board.getMove(turn) != Coordinates.PASS) {
-			
-			prevMove = board.getMove(turn - 1);
-			key = levelOneEncodedIndex(prevMove, colorToPlay);
-			
-			oneList = responses.get(key);
-			
-			if (oneList == null) { // if list doesn't exist create it
-				oneList = new RawResponseList();
-				responses.put(key, oneList); 
-			}
-			
-			if (winner == colorToPlay) // we've won through this node
-				oneList.addWin(board.getMove(turn));
-			else
-				oneList.addLoss(board.getMove(turn)); // we've lost through this node
+		AbstractResponseList oneList = null;
+
+		prevMove = board.getMove(turn - 1);
+		key = levelOneEncodedIndex(prevMove, colorToPlay);
+		
+		oneList = responses.get(key);
+		
+		if (oneList == null) { // if list doesn't exist create it
+			oneList = new RawResponseList();
+			responses.put(key, oneList); 
 		}
 		
+		if (winner == colorToPlay) // we've won through this node
+			oneList.addWin(board.getMove(turn));
+		else
+			oneList.addLoss(board.getMove(turn)); // we've lost through this node
+	
 			
 	}
 	
@@ -374,7 +398,6 @@ public class ResponsePlayer extends McPlayer {
 		
 		
 		// get the second level table (create if it doesn't exist)
-		// TODO: should only create level 2 table if level 1 table exists
 		key = levelTwoEncodedIndex(prevPrevMove, prevPrevMove, colorToPlay);
 		
 		AbstractResponseList twoList = responses.get(key);
@@ -409,7 +432,7 @@ public class ResponsePlayer extends McPlayer {
 		StringBuilder builder = new StringBuilder(200);
 		builder.append("Total Run Counts:");
 		
-		// TODO: do a frequency count of runs against moves in all level two entries for black
+		// Note: do a frequency count of runs against moves in all level two entries for black
 		// Note: we've removed this due to mashing everything together into the hashtable
 		return builder.toString();
 	}
