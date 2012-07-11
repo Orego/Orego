@@ -141,7 +141,7 @@ public class ResponsePlayer extends McPlayer {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateLevelMove(board, history1, history2, random);
+			move = findAppropriateMove(board, history1, history2, random);
 			runnable.acceptMove(move);
 			runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		}
@@ -161,7 +161,7 @@ public class ResponsePlayer extends McPlayer {
 			// play out like generateMovesToFrontier()
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateLevelMove(board, history1, history2, random);
+			move = findAppropriateMove(board, history1, history2, random);
 			runnable.acceptMove(move);
 		}
 	}
@@ -189,7 +189,7 @@ public class ResponsePlayer extends McPlayer {
 		// we need a random generator
 		// threads are stopped at this point so we are blithely unaware of synchronization concerns
 		MersenneTwisterFast random = ((McRunnable)getRunnable(0)).getRandom();
-		int move = findAppropriateLevelMove(board, history1, history2, random);
+		int move = findAppropriateMove(board, history1, history2, random);
 		
 		AbstractResponseList res = responses.get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
 		if(res != null && res.getWinRate(move) < 0.1) {
@@ -209,7 +209,7 @@ public class ResponsePlayer extends McPlayer {
 	 * @param random 
 	 * @return
 	 */
-	protected int findAppropriateLevelMove(Board board, int history1, int history2, MersenneTwisterFast random) {
+	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random) {
 		int turn = board.getTurn();
 		int colorToPlay = board.getColorToPlay();
 		
@@ -349,7 +349,7 @@ public class ResponsePlayer extends McPlayer {
 	}
 	
 	/**
-	 * Add the specified number of wins to *all* tables for a given mvoe
+	 * Add the specified number of wins to *all* tables for a given move
 	 * 
 	 * @param move The move we are biasing
 	 * @param board The current state of the board
