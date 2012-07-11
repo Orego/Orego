@@ -153,7 +153,6 @@ public class ResponsePlayer extends McPlayer {
 	 * @param moves the moves to force the game to play
 	 */
 	public void fakePlayMoves(McRunnable runnable, int... moves) {
-		MersenneTwisterFast random = runnable.getRandom();
 		Board board = runnable.getBoard();
 		// copy the board
 		board.copyDataFrom(getBoard());
@@ -274,27 +273,7 @@ public class ResponsePlayer extends McPlayer {
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
 		
 		AbstractResponseList twoList = null;
-		
-		// if we pass or we have made more than two moves, we can use the
-		// level two list
-		int prevPrevMove = board.getMove(turn - 2);
-		int prevMove 	 = board.getMove(turn - 1);
-		
-		int key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
-		twoList = responses.get(key);
-		
-		if (twoList == null) { // if response list doesn't exist, create it
-			twoList = new RawResponseList();
-			responses.put(key, twoList);
 
-		}
-		
-		if (winner == colorToPlay) // we've won through this node
-			twoList.addWin(board.getMove(turn));
-		else
-			twoList.addLoss(board.getMove(turn)); // we've lost through this node
-			
-		
 		/** other tables shouldn't track passes (see {@link bestStoredMove}) */
 		if (board.getMove(turn) == Coordinates.PASS)
 			return;
@@ -304,7 +283,7 @@ public class ResponsePlayer extends McPlayer {
 		
 		// if first turn of game (0) or any other move,
 		// we need to update the zero list
-		key = levelZeroEncodedIndex(colorToPlay);
+		int key = levelZeroEncodedIndex(colorToPlay);
 		
 		zeroList = responses.get(key);
 		
@@ -324,7 +303,7 @@ public class ResponsePlayer extends McPlayer {
 		// update the level one table if we aren't passing
 		AbstractResponseList oneList = null;
 
-		prevMove = board.getMove(turn - 1);
+		int prevMove = board.getMove(turn - 1);
 		key = levelOneEncodedIndex(prevMove, colorToPlay);
 		
 		oneList = responses.get(key);
@@ -334,12 +313,33 @@ public class ResponsePlayer extends McPlayer {
 			responses.put(key, oneList); 
 		}
 		
+	
+		// we only track passes and most other moves in the two table.
+		// We don't add the entry to the two table unless we've
+		// seen it once and added it to the one level table
+		// This saves space.
+		int prevPrevMove 	= board.getMove(turn - 2);
+		prevMove 	 		= board.getMove(turn - 1);
+		
+		key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
+		twoList = responses.get(key);
+		
+		if (twoList == null) { // if response list doesn't exist, create it
+			twoList = new RawResponseList();
+			responses.put(key, twoList);
+
+		}
+		
+		if (winner == colorToPlay) // we've won through this node
+			twoList.addWin(board.getMove(turn));
+		else
+			twoList.addLoss(board.getMove(turn)); // we've lost through this node
+		
+		// finally add the entry to the one list
 		if (winner == colorToPlay) // we've won through this node
 			oneList.addWin(board.getMove(turn));
 		else
 			oneList.addLoss(board.getMove(turn)); // we've lost through this node
-	
-			
 	}
 	
 	public void reset() {
@@ -392,20 +392,24 @@ public class ResponsePlayer extends McPlayer {
 		
 		AbstractResponseList oneList = responses.get(key);
 		
-		if (oneList == null) {
-			oneList = new RawResponseList();
-			responses.put(key, oneList);
-		}
-		
-		
 		// get the second level table (create if it doesn't exist)
 		key = levelTwoEncodedIndex(prevPrevMove, prevPrevMove, colorToPlay);
 		
 		AbstractResponseList twoList = responses.get(key);
 		
-		if (twoList == null) {
+		// we should only create a two table entry if we have seen the move
+		// before (i.e. not in the one table).
+		// This allows us to save space for moves which we've seen only once
+
+		if (oneList != null && twoList == null) {
 			twoList = new RawResponseList();
 			responses.put(key, twoList);
+		}
+			
+		// finally create the one list
+		if (oneList == null) {
+			oneList = new RawResponseList();
+			responses.put(key, oneList);
 		}
 
 		for(int i = 0; i < wins; i++) {

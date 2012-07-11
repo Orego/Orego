@@ -38,6 +38,10 @@ public class SumResponsePlayer extends ResponsePlayer {
 		double bestSum = 0;
 		
 		// pick table based on threshold values
+		// TODO: these *might* be null, might want to check.
+		// All tables have all moves *unless* there is a pass in which case only
+		// the second level table has an entry. Luckily, only the vacantPoints array
+		// should not have pass?
 		RawResponseList twoList = (RawResponseList)getResponses().get(levelTwoEncodedIndex(history2, history1, colorToPlay));
 		RawResponseList oneList = (RawResponseList)getResponses().get(levelOneEncodedIndex(history1, colorToPlay));
 		RawResponseList zeroList = (RawResponseList)getResponses().get(levelZeroEncodedIndex(colorToPlay));
