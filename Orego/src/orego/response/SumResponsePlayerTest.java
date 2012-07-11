@@ -22,7 +22,7 @@ public class SumResponsePlayerTest {
 	}
 
 	@Test
-	public void testFindAppropriateMove() {
+	public void testFindAppropriateMove1() {
 		// play a fake game
 		McRunnable runnable = new McRunnable(player, null);
 		int move1 = Coordinates.at("d5");
