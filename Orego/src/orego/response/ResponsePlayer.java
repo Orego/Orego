@@ -188,14 +188,13 @@ public class ResponsePlayer extends McPlayer {
 		while (board.getPasses() < 2) {
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
-			move = findAppropriateMove(board, history1, history2, random);
+			move = findAppropriateMove(board, history1, history2, random, false);
 			runnable.acceptMove(move);
 		}
 	}
 	
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		
 		int toPlay = Colors.BLACK;
 		// move through all moves after we do a playout 
 		// we start at our current state and move to the state of the runnable
@@ -218,7 +217,7 @@ public class ResponsePlayer extends McPlayer {
 		// we need a random generator
 		// threads are stopped at this point so we are blithely unaware of synchronization concerns
 		MersenneTwisterFast random = ((McRunnable)getRunnable(0)).getRandom();
-		int move = findAppropriateMove(board, history1, history2, random);
+		int move = findAppropriateMove(board, history1, history2, random, true);
 		
 		
 		// TODO: we have an issue here with passing. We have to track stats on the pass move
@@ -233,6 +232,8 @@ public class ResponsePlayer extends McPlayer {
 		return move;
 	}
 
+	/** Simple testing method for finding the table "level" of the last move*/
+	
 	/**
 	 * Finds the right move to accept, given that the tables
 	 * hold correct and updated information
@@ -242,9 +243,10 @@ public class ResponsePlayer extends McPlayer {
 	 * @param history1 the previous move
 	 * @param history2 Two moves ago
 	 * @param random A random number generator
+	 * @param isFinalMove Indicates we are picking the final move (used for testing)
 	 * @return
 	 */
-	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random) {
+	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random, boolean isFinalMove) {
 
 		int colorToPlay = board.getColorToPlay();
 		
@@ -253,7 +255,9 @@ public class ResponsePlayer extends McPlayer {
 		
 		// can we use the level two table?
 		if(list != null && list.getTotalRuns() >= two_threshold) {
-			last_table_level = TableLevel.LevelTwo;
+			// debugging
+			if (isFinalMove) last_table_level = TableLevel.LevelTwo;
+			
 			return list.bestMove(board, random);
 		}
 		
@@ -261,13 +265,16 @@ public class ResponsePlayer extends McPlayer {
 		
 		// can we use the level one table?
 		if(list != null && list.getTotalRuns() >= one_threshold) {
-			// can we use the level 1 table?
-			last_table_level = TableLevel.LevelOne;
+			// debugging
+			if (isFinalMove) last_table_level = TableLevel.LevelOne;
+			
 			return list.bestMove(board, random);
 		} 
 		
 		list = responses.get(levelZeroEncodedIndex(colorToPlay));
-		last_table_level = TableLevel.LevelZero;
+		
+		// debugging
+		if (isFinalMove) last_table_level = TableLevel.LevelZero;
 		
 		return list.bestMove(board, random);
 	}
@@ -290,9 +297,9 @@ public class ResponsePlayer extends McPlayer {
 		AbstractResponseList oneList = null;
 
 		int prevMove = board.getMove(turn - 1);
-		int key = levelOneEncodedIndex(prevMove, colorToPlay);
+		int oneKey = levelOneEncodedIndex(prevMove, colorToPlay);
 		
-		oneList = responses.get(key);
+		oneList = responses.get(oneKey);
 		
 		AbstractResponseList twoList = null;
 		
@@ -301,22 +308,19 @@ public class ResponsePlayer extends McPlayer {
 		// seen it once and added it to the one level table
 		// This saves space.
 		int prevPrevMove 	= board.getMove(turn - 2);
-		prevMove 	 		= board.getMove(turn - 1);
 		
-		key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
-		twoList = responses.get(key);
+		int twoKey = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
+		twoList = responses.get(twoKey);
 		
 		// only add to the two list if we have seen the move in the one list
 		// this filters out the infrequent nodes and saves space
-		if (oneList != null &&
-			twoList == null) { // if response list doesn't exist, create it
-			
-			twoList = new RawResponseList();
-			responses.put(key, twoList);
-
-		}
-		
 		if (oneList != null) {
+			
+			if (twoList == null) { // if response list doesn't exist, create it
+				twoList = new RawResponseList();
+				responses.put(twoKey, twoList);
+			}
+		
 			if (winner == colorToPlay) // we've won through this node
 				twoList.addWin(board.getMove(turn));
 			else
@@ -324,14 +328,14 @@ public class ResponsePlayer extends McPlayer {
 		}
 		
 		
-		// we should only track PASS wins/losses in the the two table.
+		// we should only track PASS wins/losses in the the two level table.
 		// other tables shouldn't track passes
 		if (board.getMove(turn) == Coordinates.PASS)
 			return;
-	
+		
 		if (oneList == null) { // if list doesn't exist create it
 			oneList = new RawResponseList();
-			responses.put(key, oneList); 
+			responses.put(oneKey, oneList); 
 		}
 		
 		// finally add the entry to the one list
@@ -342,17 +346,13 @@ public class ResponsePlayer extends McPlayer {
 		
 		AbstractResponseList zeroList = null;
 		// use level zero table if we are making any move *but* a pass
+		int zeroKey = levelZeroEncodedIndex(colorToPlay);
 		
-		// if first turn of game (0) or any other move,
-		// we need to update the zero list
-		key = levelZeroEncodedIndex(colorToPlay);
-		
-		
-		zeroList = responses.get(key);
+		zeroList = responses.get(zeroKey);
 		
 		if (zeroList == null) { // if the list doesn't exist, create it
 			zeroList = new RawResponseList();
-			responses.put(key, zeroList);
+			responses.put(zeroKey, zeroList);
 		}
 		
 		if (winner == colorToPlay) // we've won through this node
@@ -401,7 +401,10 @@ public class ResponsePlayer extends McPlayer {
 		
 		AbstractResponseList zeroList = responses.get(key);
 		
-		if (zeroList == null) {
+		// only add the move if it isn't a pass (we only track pass in two table)
+		if (move != Coordinates.PASS && 
+			zeroList == null) {
+			
 			zeroList = new RawResponseList();
 			responses.put(key, zeroList);
 		}
@@ -425,15 +428,17 @@ public class ResponsePlayer extends McPlayer {
 			responses.put(key, twoList);
 		}
 			
-		// finally create the one list
-		if (oneList == null) {
+		// finally create the one list (if not a pass move)
+		if (move != Coordinates.PASS && 
+			oneList == null) {
+			
 			oneList = new RawResponseList();
 			responses.put(key, oneList);
 		}
 
 		for(int i = 0; i < wins; i++) {
-			if (move != Coordinates.PASS) zeroList.addWin(move);
-			if (move != Coordinates.PASS) oneList.addWin(move);
+			if (oneList != null) zeroList.addWin(move);
+			if (oneList != null) oneList.addWin(move);
 			if (twoList != null) twoList.addWin(move);
 		}
 	}

@@ -40,15 +40,24 @@ public class ResponsePlayerTest {
 		player.setOneThreshold(1);
 		player.setTwoThreshold(1);
 		
-		// play a fake game
-		McRunnable runnable = new McRunnable(player, null);
-		runnable.acceptMove(28);
-		runnable.acceptMove(25);
-		runnable.acceptMove(47);
-		runnable.acceptMove(52);
+		// we need two boards to test. ResponsePlayer only
+		// creates a level two table entry after it has seen a move
+		// *twice*.
+		McRunnable run1 = new McRunnable(player, null);
+		run1.acceptMove(28);
+		run1.acceptMove(25);
+		run1.acceptMove(47);
+		run1.acceptMove(52);
+		
+		McRunnable run2 = new McRunnable(player, null);
+		run2.acceptMove(28);
+		run2.acceptMove(25);
+		run2.acceptMove(47);
+		run2.acceptMove(52);
 		
 		// incorporate these moves (black wins for these moves)
-		player.incorporateRun(Colors.BLACK, runnable);
+		player.incorporateRun(Colors.BLACK, run1);
+		player.incorporateRun(Colors.BLACK, run2);
 		
 		HashMap<Integer, AbstractResponseList> responses = player.getResponses();
 		
@@ -61,15 +70,19 @@ public class ResponsePlayerTest {
 		
 		assertThat(blackZeroList, notNullValue());
 		// Make sure all of the Black lists are right
-		assertThat(blackZeroList.getWins()[28], equalTo(2));
-		assertThat(blackZeroList.getRuns()[28], equalTo(3));
-		assertThat(blackZeroList.getWins()[47], equalTo(2));
-		assertThat(blackZeroList.getRuns()[47], equalTo(3));
+		assertThat(blackZeroList.getWins()[28], equalTo(3));
+		assertThat(blackZeroList.getRuns()[28], equalTo(4));
+		assertThat(blackZeroList.getWins()[47], equalTo(3));
+		assertThat(blackZeroList.getRuns()[47], equalTo(4));
 		
+		
+		// test back one move from 47
 		RawResponseList blackOneList = (RawResponseList) responses.get(ResponsePlayer.levelOneEncodedIndex(25, Colors.BLACK));
 		
-		assertThat(blackOneList.getWins(47), equalTo(2));
+		assertThat(blackOneList, notNullValue());
+        assertThat(blackOneList.getWins(47), equalTo(3));
 		
+        // test back two moves from 47
 		RawResponseList blackTwoList = (RawResponseList) responses.get(ResponsePlayer.levelTwoEncodedIndex(28, 25, Colors.BLACK));
 		
 		assertThat(blackTwoList, notNullValue());
@@ -80,7 +93,7 @@ public class ResponsePlayerTest {
 		assertThat(whiteZeroList, notNullValue());
 		
 		assertThat(whiteZeroList.getWins()[25], equalTo(1));
-		assertThat(whiteZeroList.getRuns()[25], equalTo(3));
+		assertThat(whiteZeroList.getRuns()[25], equalTo(4));
 		
 		RawResponseList whiteOneList = (RawResponseList) responses.get(ResponsePlayer.levelOneEncodedIndex(28, Colors.WHITE));
 		
