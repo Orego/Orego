@@ -44,7 +44,7 @@ public class WLSResponseList extends AbstractResponseList {
 		// pick the legal move with the highest confidence
 		// TODO: a different measure might be appropriate
 		
-		for (int i = 0; i < )
+		//for (int i = 0; i < )
 		return 0;
 	}
 
