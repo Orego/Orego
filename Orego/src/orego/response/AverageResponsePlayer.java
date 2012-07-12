@@ -40,7 +40,7 @@ public class AverageResponsePlayer extends ResponsePlayer {
 				levelZeroEncodedIndex(colorToPlay));
 		skipOne = (oneList==null);
 		skipTwo = (twoList==null);
-		
+		// TODO Should we include data from lists with very few updates?
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			int divisor = 1;
