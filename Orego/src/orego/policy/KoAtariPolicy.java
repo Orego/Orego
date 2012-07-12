@@ -20,6 +20,15 @@ public class KoAtariPolicy extends Policy {
 
 	public KoAtariPolicy(Policy fallback) {
 		super(fallback);
+		moves = new IntSet(FIRST_POINT_BEYOND_BOARD);
+	}
+
+	private IntSet moves;
+	
+	public Policy clone() {
+		KoAtariPolicy result = (KoAtariPolicy) super.clone();
+		result.moves = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		return result;
 	}
 
 	/**
@@ -27,10 +36,10 @@ public class KoAtariPolicy extends Policy {
 	 * opponent's stones in atari
 	 */
 	protected IntSet atari(Board board) {
-		IntSet moves = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		moves.clear();
 		for (int point : ALL_POINTS_ON_BOARD) {
-			if (board.getColor(point) == opposite(board.getColorToPlay())
-					&& board.getLibertyCount(point) == 2) {
+			if ((board.getChainId(point) == point) && (board.getColor(point) == opposite(board.getColorToPlay()))
+					&& (board.getLibertyCount(point) == 2)) {
 				moves.add(board.getLiberties(point).get(0));
 				moves.add(board.getLiberties(point).get(1));
 			}
