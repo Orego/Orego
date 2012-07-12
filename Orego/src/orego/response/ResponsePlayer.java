@@ -187,6 +187,7 @@ public class ResponsePlayer extends McPlayer {
 		
 		int toPlay = Colors.BLACK;
 		// move through all moves after we do a playout 
+		// we start at our current state and move to the state of the runnable
 		for(int i = getBoard().getTurn(); i < runnable.getBoard().getTurn(); i++) {
 			updateWins(i, winner, runnable.getBoard(), toPlay);
 			// flip to other player

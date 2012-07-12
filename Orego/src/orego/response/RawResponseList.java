@@ -13,17 +13,6 @@ import orego.util.IntSet;
 
 public class RawResponseList extends AbstractResponseList {
 
-	// initial win rate for each move .50
-	public final static int NORMAL_WINS_PRIOR = 1;
-	public final static int NORMAL_RUNS_PRIOR = 2;
-	
-	// we want a constant .10 win rate for pass
-	// pass win rate should be less than the initial win
-	// rate since we don't want to pass immediately
-
-	public final static int PASS_WINS_PRIOR = 1;
-	public final static int PASS_RUNS_PRIOR = 10;
-
 	private int[] wins;
 	private int[] runs;
 	private long totalRuns;
@@ -102,7 +91,7 @@ public class RawResponseList extends AbstractResponseList {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
-		double bestValue = 0.1;
+		double bestValue = PASS_WINS_PRIOR / (double) PASS_RUNS_PRIOR;
 		int bestMove = Coordinates.PASS;
 		do {
 			int move = vacantPoints.get(i);
