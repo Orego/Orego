@@ -90,7 +90,7 @@ public class ResponsePlayer extends McPlayer {
 	 * Level One
 	 * Level Two
 	 * 
-	 * The level zero has a single response list which maintains stats for every possible moves.
+	 * The level zero has a single response list which maintains stats for every possible move.
 	 * Entries from this table are used mostly at the start of the game.
 	 * 
 	 * The level one table has a response list for every single. In other words, for any given previous move,
@@ -237,7 +237,6 @@ public class ResponsePlayer extends McPlayer {
 	 * Finds the right move to accept, given that the tables
 	 * hold correct and updated information
 	 * 
-	 * @param level the level of table to explore
 	 * @param board The current game board
 	 * @param history1 the previous move
 	 * @param history2 Two moves ago
@@ -435,6 +434,60 @@ public class ResponsePlayer extends McPlayer {
 			if (move != Coordinates.PASS) zeroList.addWin(move);
 			if (move != Coordinates.PASS) oneList.addWin(move);
 			if (twoList != null) twoList.addWin(move);
+		}
+	}
+	
+	/**
+	 * Add the specified number of losses to *all* tables for a given move
+	 * 
+	 * @param move The move we are biasing
+	 * @param board The current state of the board
+	 * @param wins The number of losses we'd like to bias
+	 */
+	public void addLosses(int move, Board board, int losses) {	
+		int prevMove     = board.getMove(board.getTurn() - 1);
+		int prevPrevMove = board.getMove(board.getTurn() - 2);
+		int colorToPlay  = board.getColorToPlay();
+		
+		// get the zero level table (create if it doesn't exist)
+		int key = levelZeroEncodedIndex(colorToPlay);
+		
+		AbstractResponseList zeroList = responses.get(key);
+		
+		if (zeroList == null) {
+			zeroList = new RawResponseList();
+			responses.put(key, zeroList);
+		}
+		
+		// get the one level table (create if it doesn't exist)
+		key = levelOneEncodedIndex(prevMove, colorToPlay);
+		
+		AbstractResponseList oneList = responses.get(key);
+		
+		// get the second level table (create if it doesn't exist)
+		key = levelTwoEncodedIndex(prevPrevMove, prevPrevMove, colorToPlay);
+		
+		AbstractResponseList twoList = responses.get(key);
+		
+		// we should only create a two table entry if we have seen the move
+		// before (i.e. not in the one table).
+		// This allows us to save space for moves which we've seen only once
+
+		if (oneList != null && twoList == null) {
+			twoList = new RawResponseList();
+			responses.put(key, twoList);
+		}
+			
+		// finally create the one list
+		if (oneList == null) {
+			oneList = new RawResponseList();
+			responses.put(key, oneList);
+		}
+
+		for(int i = 0; i < losses; i++) {
+			if (move != Coordinates.PASS) zeroList.addLoss(move);
+			if (move != Coordinates.PASS) oneList.addLoss(move);
+			if (twoList != null) twoList.addLoss(move);
 		}
 	}
 	

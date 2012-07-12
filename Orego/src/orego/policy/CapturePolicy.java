@@ -96,6 +96,7 @@ public class CapturePolicy extends Policy {
 		getFallback().updatePriors(node, board, weight);
 	}
 
+	@Override
 	public void updateResponses(ResponsePlayer player, Board board, int weight) {
 		if(board.getTurn() >= 2) {
 			int enemy = opposite(board.getColorToPlay());
