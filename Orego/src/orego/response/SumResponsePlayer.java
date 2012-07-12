@@ -24,7 +24,7 @@ public class SumResponsePlayer extends ResponsePlayer {
 
 	@Override
 	protected int findAppropriateMove(Board board, int history1, int history2,
-			MersenneTwisterFast random) {
+			MersenneTwisterFast random, boolean isFinalMove) {
 		int colorToPlay = board.getColorToPlay();
 		int bestMove = Coordinates.PASS;
 		double bestSum = 0;

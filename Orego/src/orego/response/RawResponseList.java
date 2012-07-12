@@ -1,20 +1,20 @@
 package orego.response;
 
-/**
- * This object stores information about this move, and potentially stores
- * information about moves made with a relevant history.
- */
-
 import ec.util.MersenneTwisterFast;
-
 import orego.core.Board;
 import orego.core.Coordinates;
 import orego.util.IntSet;
 
+/**
+ * This object stores information about the past success of moves. It is usually
+ * (externally) associated with some context, such as a 2-move history.
+ */
 public class RawResponseList extends AbstractResponseList {
 
 	private int[] wins;
+	
 	private int[] runs;
+
 	private long totalRuns;
 
 	public RawResponseList() {
@@ -58,11 +58,13 @@ public class RawResponseList extends AbstractResponseList {
 	 * Add a win and run to this move.
 	 */
 	public void addWin(int p) {
-		wins[p]++;
+		// TODO Should we replace the first four lines with a call to addLoss()?
+		// It's not clear if the clarity would be worth the extra function call
 		runs[p]++;
 		assert runs[p] > 0 : "runs overflowed";
 		totalRuns++;
 		assert totalRuns > 0 : "totalRuns overflowed";
+		wins[p]++;
 	}
 
 	/**
