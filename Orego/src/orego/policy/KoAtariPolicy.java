@@ -4,6 +4,7 @@ import orego.core.Board;
 import orego.mcts.SearchNode;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
+import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 
@@ -41,7 +42,21 @@ public class KoAtariPolicy extends Policy {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		if (board.getKoPoint() != NO_POINT) {
 			IntSet moves = atari(board);
-			return moves.get(random.nextInt(moves.size()));
+			int start = random.nextInt(moves.size());
+			int i = start;
+			do {
+				int p = moves.get(i);
+				// An atari must be feasible
+				if (board.playFast(p) == PLAY_OK) {
+					return p;
+				}
+				// The magic number 457 is prime and larger than
+				// moves.size().
+				// Advancing by 457 therefore skips "randomly" through the
+				// array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % moves.size();
+			} while (i != start);
 		}
 		return getFallback().selectAndPlayOneMove(random, board);
 	}
