@@ -28,6 +28,17 @@ public class ResponsePlayer extends McPlayer {
 	/** Threshold for the second level table*/
 	private int two_threshold;
 	
+	/** Simply debug information for tracking the last table
+	 * "level" used for picking a move.
+	 */
+	public static enum TableLevel {
+		LevelZero,
+		LevelOne,
+		LevelTwo
+	};
+	
+	private TableLevel last_table_level;
+	
 	/** 
 	 * The large hash table of best response lists. 
 	 * @see levelTwoEncodedIndex 
@@ -242,6 +253,7 @@ public class ResponsePlayer extends McPlayer {
 		
 		// can we use the level two table?
 		if(list != null && list.getTotalRuns() >= two_threshold) {
+			last_table_level = TableLevel.LevelTwo;
 			return list.bestMove(board, random);
 		}
 		
@@ -250,10 +262,12 @@ public class ResponsePlayer extends McPlayer {
 		// can we use the level one table?
 		if(list != null && list.getTotalRuns() >= one_threshold) {
 			// can we use the level 1 table?
+			last_table_level = TableLevel.LevelOne;
 			return list.bestMove(board, random);
 		} 
 		
 		list = responses.get(levelZeroEncodedIndex(colorToPlay));
+		last_table_level = TableLevel.LevelZero;
 		
 		return list.bestMove(board, random);
 	}
@@ -272,19 +286,67 @@ public class ResponsePlayer extends McPlayer {
 	 * @param toPlay the color that played on this turn
 	 */
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
+		// update the level one table if we aren't passing
+		AbstractResponseList oneList = null;
+
+		int prevMove = board.getMove(turn - 1);
+		int key = levelOneEncodedIndex(prevMove, colorToPlay);
+		
+		oneList = responses.get(key);
 		
 		AbstractResponseList twoList = null;
+		
+		// we only track passes and most other moves in the two table.
+		// We don't add the entry to the two table unless we've
+		// seen it once and added it to the one level table
+		// This saves space.
+		int prevPrevMove 	= board.getMove(turn - 2);
+		prevMove 	 		= board.getMove(turn - 1);
+		
+		key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
+		twoList = responses.get(key);
+		
+		// only add to the two list if we have seen the move in the one list
+		// this filters out the infrequent nodes and saves space
+		if (oneList != null &&
+			twoList == null) { // if response list doesn't exist, create it
+			
+			twoList = new RawResponseList();
+			responses.put(key, twoList);
 
-		/** other tables shouldn't track passes (see {@link bestStoredMove}) */
+		}
+		
+		if (oneList != null) {
+			if (winner == colorToPlay) // we've won through this node
+				twoList.addWin(board.getMove(turn));
+			else
+				twoList.addLoss(board.getMove(turn)); // we've lost through this node
+		}
+		
+		
+		// we should only track PASS wins/losses in the the two table.
+		// other tables shouldn't track passes
 		if (board.getMove(turn) == Coordinates.PASS)
 			return;
+	
+		if (oneList == null) { // if list doesn't exist create it
+			oneList = new RawResponseList();
+			responses.put(key, oneList); 
+		}
+		
+		// finally add the entry to the one list
+		if (winner == colorToPlay) // we've won through this node
+			oneList.addWin(board.getMove(turn));
+		else
+			oneList.addLoss(board.getMove(turn)); // we've lost through this node
 		
 		AbstractResponseList zeroList = null;
 		// use level zero table if we are making any move *but* a pass
 		
 		// if first turn of game (0) or any other move,
 		// we need to update the zero list
-		int key = levelZeroEncodedIndex(colorToPlay);
+		key = levelZeroEncodedIndex(colorToPlay);
+		
 		
 		zeroList = responses.get(key);
 		
@@ -297,50 +359,6 @@ public class ResponsePlayer extends McPlayer {
 			zeroList.addWin(board.getMove(turn));
 		else
 			zeroList.addLoss(board.getMove(turn)); // we've lost through this node	
-	
-	
-		
-		
-		// update the level one table if we aren't passing
-		AbstractResponseList oneList = null;
-
-		int prevMove = board.getMove(turn - 1);
-		key = levelOneEncodedIndex(prevMove, colorToPlay);
-		
-		oneList = responses.get(key);
-		
-		if (oneList == null) { // if list doesn't exist create it
-			oneList = new RawResponseList();
-			responses.put(key, oneList); 
-		}
-		
-	
-		// we only track passes and most other moves in the two table.
-		// We don't add the entry to the two table unless we've
-		// seen it once and added it to the one level table
-		// This saves space.
-		int prevPrevMove 	= board.getMove(turn - 2);
-		prevMove 	 		= board.getMove(turn - 1);
-		
-		key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
-		twoList = responses.get(key);
-		
-		if (twoList == null) { // if response list doesn't exist, create it
-			twoList = new RawResponseList();
-			responses.put(key, twoList);
-
-		}
-		
-		if (winner == colorToPlay) // we've won through this node
-			twoList.addWin(board.getMove(turn));
-		else
-			twoList.addLoss(board.getMove(turn)); // we've lost through this node
-		
-		// finally add the entry to the one list
-		if (winner == colorToPlay) // we've won through this node
-			oneList.addWin(board.getMove(turn));
-		else
-			oneList.addLoss(board.getMove(turn)); // we've lost through this node
 	}
 	
 	public void reset() {
@@ -414,9 +432,9 @@ public class ResponsePlayer extends McPlayer {
 		}
 
 		for(int i = 0; i < wins; i++) {
-			zeroList.addWin(move);
-			oneList.addWin(move);
-			twoList.addWin(move);
+			if (move != Coordinates.PASS) zeroList.addWin(move);
+			if (move != Coordinates.PASS) oneList.addWin(move);
+			if (twoList != null) twoList.addWin(move);
 		}
 	}
 	
@@ -424,6 +442,7 @@ public class ResponsePlayer extends McPlayer {
 	public Set<String> getCommands() {
 		Set<String> result = super.getCommands();
 		result.add("gogui-total-runs");
+		result.add("gogui-last-table");
 		return result;
 	}
 
@@ -431,6 +450,8 @@ public class ResponsePlayer extends McPlayer {
 	public Set<String> getGoguiCommands() {
 		Set<String> result = super.getGoguiCommands();
 		result.add("string/Total runs/gogui-total-runs");
+		result.add("string/Table table/gogui-last-table");
+		
 		return result;
 	}
 	
@@ -443,6 +464,10 @@ public class ResponsePlayer extends McPlayer {
 		return builder.toString();
 	}
 	
+	protected String goguiLastTable() {
+		return "Last table: " + last_table_level;
+	}
+	
 	@Override
 	public String handleCommand(String command, StringTokenizer arguments) {
 		boolean threadsWereRunning = threadsRunning();
@@ -450,6 +475,8 @@ public class ResponsePlayer extends McPlayer {
 		String result = null;
 		if (command.equals("gogui-total-runs")) {
 			result = goguiTotalRuns();
+		} else if(command.equals("gogui-last-table")) {
+			result = goguiLastTable();
 		} else {
 			result = super.handleCommand(command, arguments);
 		}
