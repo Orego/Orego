@@ -1,21 +1,27 @@
 package orego.mcts;
 
 import orego.play.UnknownPropertyException;
+import static orego.core.Colors.*;
 
 /** This player uses dynamic komi to affect win rates of playouts. */
 public class DynamicKomiPlayer extends Lgrf2Player {
 
-	/** slowly reduces the amount of positive komi given */
-	private double ratchet;
+	// /** slowly reduces the amount of positive komi given */
+	// private double ratchet;
 	public static final int HANDICAP_STONE_VALUE = 7;
-	// losing threshold
+	/** losing threshold */
 	public static final double RED = .45;
-	// winning threshold
+	/** winning threshold */
 	public static final double GREEN = .5;
-	// number of handicap stones
+	/** number of handicap stones */
 	private int handicap;
-	// cut off between use of linear handicap and value situational handicap
+	/** cut off between use of linear handicap and value situational handicap */
 	private int cutOff;
+	/**
+	 * Records the value of the komi at the begining of the game. THIS VALUE
+	 * WILL NOT BE CHANGED.
+	 */
+	private double komi;
 
 	public static void main(String[] args) {
 		DynamicKomiPlayer p = new DynamicKomiPlayer();
@@ -33,12 +39,16 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 
 	public DynamicKomiPlayer() {
 		super();
-		// orego.experiment.Debug.setDebugFile("debug.txt");
-		ratchet = Double.MAX_VALUE;
+		orego.experiment.Debug.setDebugFile("debug.txt");
+		// ratchet = Double.MAX_VALUE;
 		cutOff = 19 + 2 * handicap;
 		if (handicap > 0) {
 			linearHandicap();
 		}
+	}
+	
+	protected double getPlayerKomi() {
+		return komi;
 	}
 
 	/**
@@ -57,37 +67,45 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 			// If game reaches 95% completion we stop using negative komi.
 			if (getBoard().getVacantPoints().size() <= 86
 					&& getBoard().getKomi() < 0) {
-				getBoard().setKomi(0);
+				getBoard().setKomi(komi);
 			}
 			// if we are losing a lot then reduce the komi by 1
 			if (value < RED) {
 				// record the lowest positive komi given in this situation by
 				// the ratchet variable
-				if (getBoard().getKomi() > 0) {
-					ratchet = getBoard().getKomi();
-				}
+				// if (getBoard().getKomi() > 0) {
+				// ratchet = getBoard().getKomi();
+				// }
 				// when the game is about 95% complete stop adjusting komi
 				// 86 comes from 20% of board is empty at the end of a game and
 				// we stop using negative komi at 95% of game completed. This
 				// comes from http://pasky.or.cz/go/dynkomi.pdf and an email on
 				// the computer go mailing list.
 				if (getBoard().getVacantPoints().size() > 86) {
-					getBoard().setKomi(getBoard().getKomi() - 1);
+					if (getBoard().getColorToPlay() == BLACK) {
+						getBoard().setKomi(getBoard().getKomi() - 1);
+					} else {
+						getBoard().setKomi(getBoard().getKomi() + 1);
+					}
 				}
 				// if we are winning a lot then increase the komi
-			} else if (value > GREEN && getBoard().getKomi() < ratchet) {
-				orego.experiment.Debug.debug("GOT IN TO THE GREEN, RATCHET IS "
-						+ ratchet);
-				if (getBoard().getKomi() + 1 < 30) {
+			} else if (value > GREEN) { // && getBoard().getKomi() < ratchet
+				// orego.experiment.Debug.debug("GOT IN TO THE GREEN, RATCHET IS "
+				// + ratchet);
+				// if (getBoard().getKomi() + 1 < 30) {
+				if (getBoard().getColorToPlay() == BLACK) {
 					getBoard().setKomi(getBoard().getKomi() + 1);
+				} else {
+					getBoard().setKomi(getBoard().getKomi() - 1);
 				}
+				// }
 			}
 
 		}
-//		orego.experiment.Debug.debug("Overall Winrate: "
-//				+ getRoot().overallWinRate() + "\nKomi: "
-//				+ getBoard().getKomi());
-		// orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
+		orego.experiment.Debug.debug("Overall Winrate: "
+				+ getRoot().overallWinRate() + "\nKomi: "
+				+ getBoard().getKomi());
+		orego.experiment.Debug.debug("Komi: " + getBoard().getKomi());
 	}
 
 	private void linearHandicap() {
@@ -106,7 +124,9 @@ public class DynamicKomiPlayer extends Lgrf2Player {
 	@Override
 	public void reset() {
 		super.reset();
+		komi = getBoard().getKomi();
 		handicap = getBoard().getHandicap();
+		// ratchet = Double.MAX_VALUE;
 		if (getTable() == null) {
 			setTable(new TranspositionTable(getPrototypeNode()));
 		}
