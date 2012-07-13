@@ -1,9 +1,14 @@
 package orego.response;
 
-import ec.util.MersenneTwisterFast;
+/**
+ * This object stores information about this move, and potentially stores
+ * information about moves made with a relevant history.
+ */
+
 import orego.core.Board;
 import orego.core.Coordinates;
 import orego.util.IntSet;
+import ec.util.MersenneTwisterFast;
 
 /**
  * This object stores information about the past success of moves. It is usually
@@ -11,10 +16,8 @@ import orego.util.IntSet;
  */
 public class RawResponseList extends AbstractResponseList {
 
-	private int[] wins;
-	
-	private int[] runs;
-
+	protected int[] wins;
+	protected int[] runs;
 	private long totalRuns;
 
 	public RawResponseList() {
@@ -26,6 +29,7 @@ public class RawResponseList extends AbstractResponseList {
 		}
 		wins[Coordinates.PASS] = PASS_WINS_PRIOR;
 		runs[Coordinates.PASS] = PASS_RUNS_PRIOR;
+		totalRuns = NORMAL_RUNS_PRIOR * Coordinates.BOARD_AREA;
 	}
 
 	// TODO: these array getters are only used in tests
