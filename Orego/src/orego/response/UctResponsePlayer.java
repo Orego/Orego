@@ -1,15 +1,9 @@
 package orego.response;
 
-import static orego.core.Coordinates.PASS;
-
-import java.util.HashMap;
-
 import orego.core.Board;
 import orego.core.Colors;
 import orego.core.Coordinates;
 import orego.mcts.McRunnable;
-import orego.response.ResponsePlayer.TableLevel;
-import sun.security.provider.certpath.OCSPResponse.ResponseStatus;
 import ec.util.MersenneTwisterFast;
 
 public class UctResponsePlayer extends ResponsePlayer {
@@ -28,9 +22,12 @@ public class UctResponsePlayer extends ResponsePlayer {
 		int history1;
 		int history2;
 		board.copyDataFrom(getBoard());
+		int playoutLevel = 0;
 		// TODO We'll be doing this differently in the future
 		runnable.getPolicy().updateResponses(this, board, priorsWeight);
-		while (board.getPasses() < 2) {
+		// do a playout until the game finishes or we hit the max playout depth
+		while (board.getPasses() < 2 && playoutLevel < MAX_PLAYOUT_DEPTH) {
+			playoutLevel++; 
 			history1 = board.getMove(board.getTurn() - 1);
 			history2 = board.getMove(board.getTurn() - 2);
 			
