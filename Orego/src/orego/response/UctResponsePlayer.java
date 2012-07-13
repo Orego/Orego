@@ -9,7 +9,6 @@ import orego.core.Colors;
 import orego.core.Coordinates;
 import orego.mcts.McRunnable;
 import orego.response.ResponsePlayer.TableLevel;
-import sun.security.provider.certpath.OCSPResponse.ResponseStatus;
 import ec.util.MersenneTwisterFast;
 
 public class UctResponsePlayer extends ResponsePlayer {
