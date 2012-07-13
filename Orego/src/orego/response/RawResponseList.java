@@ -29,6 +29,7 @@ public class RawResponseList extends AbstractResponseList {
 		}
 		wins[Coordinates.PASS] = PASS_WINS_PRIOR;
 		runs[Coordinates.PASS] = PASS_RUNS_PRIOR;
+		totalRuns = NORMAL_RUNS_PRIOR * Coordinates.BOARD_AREA;
 	}
 
 	// TODO: these array getters are only used in tests

@@ -12,10 +12,12 @@ public class UctResponseList extends RawResponseList {
 	@Override
 	public int bestMove(Board board, MersenneTwisterFast random) {
 		double bestValue = 0;
-		int bestMove = -1;
+		int bestMove = Coordinates.PASS;
 		for (int p: Coordinates.ALL_POINTS_ON_BOARD) {
+			if(!(board.isLegal(p) && board.isFeasible(p)))
+				continue;
 			double value = searchValue(wins[p], runs[p]);
-			if (value > bestValue) {
+			if (value >= bestValue) {
 				bestValue = value;
 				bestMove = p;
 			}
