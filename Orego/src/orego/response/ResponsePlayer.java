@@ -26,6 +26,8 @@ public class ResponsePlayer extends McPlayer {
 	/** Threshold for the second level table*/
 	private int twoThreshold;
 	
+	public static final int MAX_PLAYOUT_DEPTH = 20;
+	
 	// TODO Are we creating objects every time we need one of these?
 	// If so, we should use plain ints (faster, but less safe).
 	/**
