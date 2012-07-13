@@ -51,6 +51,9 @@ public class KoAtariPolicy extends Policy {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		if (board.getKoPoint() != NO_POINT) {
 			IntSet moves = atari(board);
+			if (moves.size() == 0) {
+				return getFallback().selectAndPlayOneMove(random, board);
+			}
 			int start = random.nextInt(moves.size());
 			int i = start;
 			do {
