@@ -2,7 +2,9 @@ package orego.response;
 
 import static orego.core.Coordinates.PASS;
 
+import java.awt.Color;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -37,7 +39,7 @@ public class ResponsePlayer extends McPlayer {
 		LevelTwo
 	};
 	
-	private TableLevel last_table_level;
+	protected TableLevel last_table_level;
 	
 	/** 
 	 * The large hash table of best response lists. 
@@ -46,6 +48,8 @@ public class ResponsePlayer extends McPlayer {
 	 * @see levelZeroEncodedIndex
 	 */
 	private HashMap<Integer, AbstractResponseList> responses;
+	
+	private HashMap<Integer, HashMap<Long,Integer>> watchPoints;
 	
 	/** Weight for updateResponses */
 	private int priorsWeight;
@@ -69,6 +73,7 @@ public class ResponsePlayer extends McPlayer {
 	public ResponsePlayer(){
 		one_threshold = 100;
 		two_threshold = 100;
+		
 		responses = new HashMap<Integer, AbstractResponseList>();
 		priorsWeight = DEFAULT_WEIGHT;
 
@@ -76,6 +81,8 @@ public class ResponsePlayer extends McPlayer {
 		responses.put(levelZeroEncodedIndex(Colors.BLACK), new RawResponseList());
 		// white level zero table
 		responses.put(levelZeroEncodedIndex(Colors.WHITE), new RawResponseList());
+		
+		watchPoints = new HashMap<Integer, HashMap<Long, Integer>>();
 	}
 	
 	
@@ -193,13 +200,45 @@ public class ResponsePlayer extends McPlayer {
 		}
 	}
 	
+	private void instrumentWatchPoints(Board board, int prevPrevMove, int prevMove, int move, int colorToPlay) {
+		if (colorToPlay == Colors.WHITE) {
+
+			HashMap<Long, Integer> watched = watchPoints.get(levelTwoEncodedIndex(prevPrevMove, prevMove, Colors.WHITE));
+			
+			if (watched == null) {
+				watched = new HashMap<Long, Integer>();
+				watchPoints.put(levelTwoEncodedIndex(prevPrevMove, prevMove, Colors.WHITE), watched);
+			}
+			
+			int frequency = 1;
+			if (watched.containsKey(board.getHash())) {
+				frequency = watched.get(board.getHash());
+				frequency++;
+			}
+		
+			watched.put(board.getHash(), frequency);
+		}
+		// actually play the move
+		board.play(move);
+	}
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		int toPlay = Colors.BLACK;
+		int toPlay = getBoard().getColorToPlay(); // current color
+		
+		Board diagnosticBoard = new Board();
+		diagnosticBoard.copyDataFrom(getBoard());
+		
 		// move through all moves after we do a playout 
 		// we start at our current state and move to the state of the runnable
 		for(int i = getBoard().getTurn(); i < runnable.getBoard().getTurn(); i++) {
 			updateWins(i, winner, runnable.getBoard(), toPlay);
+			
+			instrumentWatchPoints(diagnosticBoard, 
+								  runnable.getBoard().getMove(i - 2), 
+								  runnable.getBoard().getMove(i - 1),
+								  runnable.getBoard().getMove(i),
+								  toPlay);
+			
 			// flip to other player
 			toPlay = 1 - toPlay;
 		}
@@ -325,6 +364,7 @@ public class ResponsePlayer extends McPlayer {
 				twoList.addWin(board.getMove(turn));
 			else
 				twoList.addLoss(board.getMove(turn)); // we've lost through this node
+			
 		}
 		
 		
@@ -448,15 +488,19 @@ public class ResponsePlayer extends McPlayer {
 		Set<String> result = super.getCommands();
 		result.add("gogui-total-runs");
 		result.add("gogui-last-table");
+		result.add("gogui-count-points");
+		result.add("gogui-clear-points");
 		return result;
 	}
 
 	@Override
 	public Set<String> getGoguiCommands() {
 		Set<String> result = super.getGoguiCommands();
+		// format: type/label/command
 		result.add("string/Total runs/gogui-total-runs");
-		result.add("string/Table table/gogui-last-table");
-		
+		result.add("string/Last Table/gogui-last-table");
+		result.add("string/Count Points/gogui-count-points %P");
+		result.add("string/Clear Points/gogui-clear-points");
 		return result;
 	}
 	
@@ -473,6 +517,35 @@ public class ResponsePlayer extends McPlayer {
 		return "Last table: " + last_table_level;
 	}
 	
+	protected String goguiCountPoints(StringTokenizer arguments) {
+		StringBuilder builder = new StringBuilder(); 
+		
+		int prevPrevMove = Coordinates.at(arguments.nextToken());
+		int prevMove = Coordinates.at(arguments.nextToken());
+		
+		HashMap<Long, Integer> watched = watchPoints.get(levelTwoEncodedIndex(prevPrevMove, prevMove, Colors.WHITE));
+		
+		if (watched == null) {
+			return "No Entries for (" + prevPrevMove + " " + prevMove + ")";
+		}
+		
+		Set<Map.Entry<Long, Integer>> entries = watched.entrySet();
+		int counter = 0; // x values
+		for (Map.Entry<Long, Integer> entry : entries) {
+			builder.append(counter + ", " + entry.getValue() + "\n");
+			counter++;
+		}
+		
+		return builder.toString();
+	}
+	
+	protected String goguiClearPoints() {
+		watchPoints.clear();
+
+		
+		return "Count: " + watchPoints.size();
+	}
+	
 	@Override
 	public String handleCommand(String command, StringTokenizer arguments) {
 		boolean threadsWereRunning = threadsRunning();
@@ -480,8 +553,12 @@ public class ResponsePlayer extends McPlayer {
 		String result = null;
 		if (command.equals("gogui-total-runs")) {
 			result = goguiTotalRuns();
-		} else if(command.equals("gogui-last-table")) {
+		} else if (command.equals("gogui-last-table")) {
 			result = goguiLastTable();
+		} else if (command.equals("gogui-count-points")) {
+			result = goguiCountPoints(arguments);
+		} else if (command.equals("gogui-clear-points")) {
+			result = goguiClearPoints();
 		} else {
 			result = super.handleCommand(command, arguments);
 		}

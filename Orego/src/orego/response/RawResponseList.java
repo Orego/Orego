@@ -5,6 +5,8 @@ package orego.response;
  * information about moves made with a relevant history.
  */
 
+import java.util.HashMap;
+
 import ec.util.MersenneTwisterFast;
 
 import orego.core.Board;
@@ -13,8 +15,8 @@ import orego.util.IntSet;
 
 public class RawResponseList extends AbstractResponseList {
 
-	private int[] wins;
-	private int[] runs;
+	protected int[] wins;
+	protected int[] runs;
 	private long totalRuns;
 
 	public RawResponseList() {
