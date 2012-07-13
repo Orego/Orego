@@ -5,7 +5,7 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.mcts.SearchNode;
-import orego.response.ResponseList;
+import orego.response.RawResponseList;
 import orego.response.ResponsePlayer;
 import orego.util.*;
 import orego.core.Board;
@@ -96,6 +96,7 @@ public class CapturePolicy extends Policy {
 		getFallback().updatePriors(node, board, weight);
 	}
 
+	@Override
 	public void updateResponses(ResponsePlayer player, Board board, int weight) {
 		if(board.getTurn() >= 2) {
 			int enemy = opposite(board.getColorToPlay());

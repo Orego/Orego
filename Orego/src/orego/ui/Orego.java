@@ -74,7 +74,7 @@ public class Orego {
 	 * allows the user to specify a specific, non-Orego package.
 	 */
 	public static final String[] PLAYER_PACKAGES = { "orego.mcts",
-			"orego.play", "" };
+			"orego.play", "orego.response", "" };
 
 	// TODO Is there some way to automatically update this?
 	/** String to return in response to version command. */

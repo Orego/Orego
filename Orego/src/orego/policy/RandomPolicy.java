@@ -22,7 +22,6 @@ public class RandomPolicy extends Policy {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
-		// TODO Find other place where similar code appears and make the fix below
 		int i = start;
 		do {
 			int p = vacantPoints.get(i);

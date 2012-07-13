@@ -30,9 +30,13 @@ public class WLSout {
     {
 		WinLossStates wls = new WinLossStates();
 
+		System.out.print(wls.visualizer.visualizeStatePath(200));
+		System.exit(0);
+		
 		System.out.println("  WLS tables: dummy program\n");
 
-		System.out.print(wls.visualizer.visualizeStates());
+		
+		
 		
 		System.out.print("State Table: \n");
 		// print all the different states (proportions)
