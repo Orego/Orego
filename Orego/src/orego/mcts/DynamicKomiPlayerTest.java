@@ -25,7 +25,7 @@ public class DynamicKomiPlayerTest {
 		for (int i = 21; i < 39; i++) {
 			komiPlayer.getBoard().play(i);
 		}
-		for (int i = 41; i < 43; i++) {
+		for (int i = 41; i < 44; i++) {
 			komiPlayer.getBoard().play(i);
 		}
 		for (int i = 40; i < 180; i++) {
@@ -33,6 +33,7 @@ public class DynamicKomiPlayerTest {
 			komiPlayer.getRoot().addWins(i, 12);
 		}
 		komiPlayer.valueSituationalCompensation();
+		assertEquals(BLACK, komiPlayer.getBoard().getColorToPlay());
 		assertEquals(29.5, komiPlayer.getBoard().getKomi(), .001);
 
 		komiPlayer.reset();
@@ -42,7 +43,7 @@ public class DynamicKomiPlayerTest {
 		for (int i = 21; i < 39; i++) {
 			komiPlayer.getBoard().play(i);
 		}
-		for (int i = 41; i < 43; i++) {
+		for (int i = 41; i < 44; i++) {
 			komiPlayer.getBoard().play(i);
 		}
 		for (int i = 21; i < 100; i++) {
@@ -57,6 +58,7 @@ public class DynamicKomiPlayerTest {
 	public void testChangesToReset() {
 		komiPlayer.reset();
 		assertEquals(KomiRunnable.class, komiPlayer.getRunnable(0).getClass());
+		assertEquals(7.5, komiPlayer.getPlayerKomi(), .001);
 	}
 
 	@Test

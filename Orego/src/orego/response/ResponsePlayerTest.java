@@ -269,7 +269,7 @@ public class ResponsePlayerTest {
 		
 
 		McRunnable runnable = new McRunnable(player, new RandomPolicy());
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1000; i++) {
 			runnable.performMcRun();
 		}
 		

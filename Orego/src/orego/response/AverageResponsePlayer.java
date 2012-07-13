@@ -40,26 +40,29 @@ public class AverageResponsePlayer extends ResponsePlayer {
 				levelZeroEncodedIndex(colorToPlay));
 		skipOne = (oneList==null);
 		skipTwo = (twoList==null);
-		
+		// TODO Should we include data from lists with very few updates?
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			int divisor = 1;
 			int currMove = vacantPoints.get(i);
 			double currWinRate = zeroList.getWinRate(currMove);
-			currWinRate = skipOne ? currWinRate : (currWinRate+oneList.getWinRate(currMove));
-			divisor = skipOne ? divisor : divisor+1;
-			currWinRate = skipTwo ? currWinRate : (currWinRate+twoList.getWinRate(currMove));
-			divisor = skipTwo ? divisor : divisor+1;
+			if (!skipOne) {
+				currWinRate += oneList.getWinRate(currMove);
+				divisor++;
+				if (!skipTwo) {
+					currWinRate += twoList.getWinRate(currMove);
+					divisor++;
+				}
+			}
 			double average = currWinRate / divisor;
 			if (average > bestSum) {
-				if (board.isLegal(currMove) && board.isFeasible(currMove)) {
+				if (board.isFeasible(currMove) && board.isLegal(currMove)) {
 					bestSum = average;
 					bestMove = currMove;
 				}
 			}
 		}
 		return bestMove;
-
 	}
 
 }

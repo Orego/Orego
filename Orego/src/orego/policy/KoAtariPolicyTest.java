@@ -58,7 +58,10 @@ public class KoAtariPolicyTest {
 			board.setUpProblem(BLACK, problem);
 			board.play(at("F10"));
 			int move = policy.selectAndPlayOneMove(random, board);
-			assertTrue(at("N7") == move || at("O6") == move);		}
+			assertTrue(at("N7") == move || at("O6") == move);
+			// Verify that the move was actually playerd
+			assertTrue((board.getColor(at("n7")) == WHITE) || board.getColor(at("o6")) == WHITE);
+		}
 	}
 
 	@Test

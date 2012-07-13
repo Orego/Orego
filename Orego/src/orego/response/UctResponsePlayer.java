@@ -35,7 +35,7 @@ public class UctResponsePlayer extends ResponsePlayer {
 		}
 		
 		// debugging
-		if (isFinalMove) last_table_level = TableLevel.LevelTwo;
+		if (isFinalMove) lastTableLevel = TableLevel.LevelTwo;
 		
 		return list.bestMove(board, random);
 	
