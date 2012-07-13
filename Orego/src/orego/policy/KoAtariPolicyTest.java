@@ -147,4 +147,40 @@ public class KoAtariPolicyTest {
 		}
 	}
 
+	@Test
+	public void testFallsThroughIfThereIsNoAtari() {
+		if (BOARD_WIDTH == 19) {	
+			String[] problem = { 
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				".....O#............",// 11
+				"....O.O#...........",// 10
+				".....O#............",// 9
+				"...................",// 8
+				"...........O.......",// 7
+				"...........O#......",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................."// 1
+		// 		 ABCDEFGHJKLMNOPQRST
+		};
+			board.setUpProblem(BLACK, problem);
+			board.play(at("F10"));
+			assertEquals(at("G10"), board.getKoPoint());
+			IntSet moves = new IntSet(FIRST_POINT_BEYOND_BOARD);
+			assertEquals(moves, policy.atari(board));
+			int before = board.getTurn();
+			policy.selectAndPlayOneMove(random, board);
+			assertEquals(before + 1, board.getTurn());
+		}
+	}
+	
 }
