@@ -51,6 +51,7 @@ public class Orego {
 			"loadsgf", //
 			"name", //
 			"play", //
+			"playout_count", //
 			"protocol_version", //
 			"reg_genmove", //
 			"showboard", //
@@ -311,6 +312,20 @@ public class Orego {
 			// We lower case the command string because GTP defines colors as
 			// case insensitive.
 			handleCommand(arguments.nextToken().toLowerCase(), arguments);
+		} else if (command.equals("playout_count")) {
+			if (player instanceof orego.mcts.McPlayer) {
+				orego.mcts.McPlayer mctsPlayer = (orego.mcts.McPlayer)player;
+				long playouts = 0;
+				for (int i = 0; i < mctsPlayer.getNumberOfThreads(); i++) {
+					orego.mcts.McRunnable mcRunnable = (orego.mcts.McRunnable)mctsPlayer.getRunnable(i);
+					playouts += mcRunnable.getPlayoutsCompleted();
+				}
+				acknowledge("playout="+playouts);
+			}
+			else {
+				acknowledge("playout=null");
+			}
+			
 		} else if (command.equals("protocol_version")) {
 			acknowledge("2");
 		} else if (command.equals("quit")) {

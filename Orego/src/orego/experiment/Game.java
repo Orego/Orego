@@ -47,6 +47,12 @@ public class Game {
 	/** Flag to indicate a crashed game. If this is true, don't try to find the game winner. */
 	private boolean crashed;
 	
+	/** int containing whether Orego is black or white */
+	private int oregoColor;
+	
+	/** long that has the start of the game. */
+	private long starttime;
+	
 	/**
 	 * @param black
 	 *            shell command to start black player
@@ -61,7 +67,14 @@ public class Game {
 			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+Coordinates.BOARD_WIDTH+"]");
 			out.println("PB["+black+"]");
 			out.println("PW["+white+"]");
+			if (black.contains("Orego")) {
+				oregoColor = orego.core.Colors.BLACK;
+			}
+			else {
+				oregoColor = orego.core.Colors.WHITE;
+			}
 			out.flush();
+			starttime = System.currentTimeMillis();
 		} catch (Throwable e) {
 			out.println("In " + filename + ":");
 			out.println(board);
@@ -78,6 +91,10 @@ public class Game {
 	 * end.
 	 */
 	protected void endPrograms() {
+		out.println("C[starttime:"+starttime+"]");
+		out.flush();
+		out.println("C[endtime:"+System.currentTimeMillis()+"]");
+		out.flush();
 		out.println(")");
 		out.flush();
 		mode = QUITTING;
@@ -98,6 +115,12 @@ public class Game {
 	 * Handles a response string (line) from the player of the given color.
 	 */
 	protected synchronized void handleResponse(int color, String line, Scanner s) {
+		if (color == oregoColor && line.contains("playout")){
+			out.println("C["+line.substring(line.indexOf(' ') + 1)+"]");
+			out.flush();
+			endPrograms();
+			return;
+		}
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				String coordinates = line.substring(line.indexOf(' ') + 1);
@@ -118,7 +141,10 @@ public class Game {
 					winner = opposite(getColorToPlay());
 					out.println("RE["+ (winner == BLACK ? "B" : "W") + "+R]");
 					out.flush();
-					endPrograms();
+					out.println("C[moves:"+board.getTurn()+"]");
+					out.flush();
+					toPrograms[oregoColor].println("playout_count");
+					toPrograms[oregoColor].flush();
 					return;
 				}
 				board.play(at(coordinates));
@@ -133,7 +159,10 @@ public class Game {
 				if (board.getPasses() == 2) {
 					out.println("RE[" + (board.finalWinner() == BLACK ? "B" : "W") +"+"+Math.abs(board.finalScore())+"]");
 					out.flush();
-					endPrograms();
+					out.println("C[moves:"+board.getTurn()+"]");
+					out.flush();
+					toPrograms[oregoColor].println("playout_count");
+					toPrograms[oregoColor].flush();
 					return;
 				} else {
 					mode = REQUESTING_MOVE;
