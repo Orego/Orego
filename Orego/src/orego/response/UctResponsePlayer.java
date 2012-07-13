@@ -21,6 +21,31 @@ public class UctResponsePlayer extends ResponsePlayer {
 	}
 	
 	@Override
+	public void generateMovesToFrontier(McRunnable runnable) {
+		MersenneTwisterFast random = runnable.getRandom();
+		Board board = runnable.getBoard();
+		int move;
+		int history1;
+		int history2;
+		board.copyDataFrom(getBoard());
+		// TODO We'll be doing this differently in the future
+		runnable.getPolicy().updateResponses(this, board, priorsWeight);
+		while (board.getPasses() < 2) {
+			history1 = board.getMove(board.getTurn() - 1);
+			history2 = board.getMove(board.getTurn() - 2);
+			
+			// if the list has never been updated, get a move from the policy
+			AbstractResponseList list = getResponses().get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
+			if(list == null || list.getTotalRuns() == AbstractResponseList.NORMAL_RUNS_PRIOR * Coordinates.BOARD_AREA) {
+				getPolicy().selectAndPlayOneMove(random, board);
+				continue;
+			}
+			move = findAppropriateMove(board, history1, history2, random, false);
+			runnable.acceptMove(move);
+		}
+	}
+	
+	@Override
 	protected int findAppropriateMove(Board board, int history1, int history2, MersenneTwisterFast random, boolean isFinalMove) {
 
 		int colorToPlay = board.getColorToPlay();
@@ -34,26 +59,16 @@ public class UctResponsePlayer extends ResponsePlayer {
 			getResponses().put(levelTwoEncodedIndex(history2, history1, colorToPlay), list);
 		}
 		
-		// debugging
-		if (isFinalMove) lastTableLevel = TableLevel.LevelTwo;
-		
 		return list.bestMove(board, random);
-	
 	}
 	
 	@Override
 	protected synchronized void updateWins(int turn, int winner, Board board, int colorToPlay) {
-
-		int prevMove = board.getMove(turn - 1);
+		int prevPrevMove 	= board.getMove(turn - 2);
+		int prevMove 		= board.getMove(turn - 1);
 		
 		AbstractResponseList twoList = null;
-		
-		// we only track passes and most other moves in the two table.
-		// We don't add the entry to the two table unless we've
-		// seen it once and added it to the one level table
-		// This saves space.
-		int prevPrevMove 	= board.getMove(turn - 2);
-		
+			
 		int twoKey = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
 		twoList = getResponses().get(twoKey);
 		
@@ -75,7 +90,7 @@ public class UctResponsePlayer extends ResponsePlayer {
 		int colorToPlay  = board.getColorToPlay();
 		
 		// get the second level table (create if it doesn't exist)
-		int key = levelTwoEncodedIndex(prevPrevMove, prevPrevMove, colorToPlay);
+		int key = levelTwoEncodedIndex(prevPrevMove, prevMove, colorToPlay);
 		
 		AbstractResponseList twoList = getResponses().get(key);
 

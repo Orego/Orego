@@ -54,10 +54,10 @@ public class ResponsePlayer extends McPlayer {
 	// orego.response.AbstractResponsePlayer to implement some interface
 	// with an update() method.
 	/** Weight for updateResponses */
-	private int priorsWeight;
+	protected int priorsWeight;
 	
 	/** Default weight for updateResponses */
-	private static final int DEFAULT_WEIGHT = 1;
+	public static final int DEFAULT_WEIGHT = 1;
 	
 	public static void main(String[] args) {
 		ResponsePlayer p = new ResponsePlayer();
