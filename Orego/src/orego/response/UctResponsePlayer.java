@@ -36,7 +36,11 @@ public class UctResponsePlayer extends ResponsePlayer {
 			
 			// if the list has never been updated, get a move from the policy
 			AbstractResponseList list = getResponses().get(levelTwoEncodedIndex(history2, history1, board.getColorToPlay()));
-			if(list == null || list.getTotalRuns() == AbstractResponseList.NORMAL_RUNS_PRIOR * Coordinates.BOARD_AREA) {
+			if(list == null || list.getTotalRuns()
+					// TODO Move this magic number elsewhere
+					< 10 * orego.core.Coordinates.BOARD_AREA
+//					== AbstractResponseList.NORMAL_RUNS_PRIOR * Coordinates.BOARD_AREA
+					) {
 				getPolicy().selectAndPlayOneMove(random, board);
 				continue;
 			}
