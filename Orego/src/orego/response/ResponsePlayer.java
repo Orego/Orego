@@ -194,6 +194,8 @@ public class ResponsePlayer extends McPlayer {
 		int history2;
 		board.copyDataFrom(getBoard());
 		// TODO We'll be doing this differently in the future
+		// Note: it is problematic that we are using a special method.
+		// In a world without pain we'd use .addWins()
 		runnable.getPolicy().updateResponses(this, board, priorsWeight);
 		while (board.getPasses() < 2) {
 			history1 = board.getMove(board.getTurn() - 1);
@@ -224,6 +226,7 @@ public class ResponsePlayer extends McPlayer {
 		// actually play the move
 		board.play(move);
 	}
+	
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		int toPlay = getBoard().getColorToPlay(); // current color

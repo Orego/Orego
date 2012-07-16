@@ -95,6 +95,7 @@ public class McRunnable implements Runnable {
 
 	/** @see orego.mcts.MctsPlayer#incorporateRun(int, McRunnable) */
 	public IntSet getPlayedPoints() {
+		// TODO: is never actually updated and SearchNode#recordPlayout never uses it
 		return playedPoints;
 	}
 
@@ -126,6 +127,9 @@ public class McRunnable implements Runnable {
 	/**
 	 * Performs a single Monte Carlo run and incorporates it into player's
 	 * search tree.
+	 * The player should generate moves to the frontier of the known tree, add a 'node',
+	 * and then return. We will handle performing the actual playout in the aptly
+	 * named {@link playout}.
 	 */
 	public void performMcRun() {
 		player.generateMovesToFrontier(this);
