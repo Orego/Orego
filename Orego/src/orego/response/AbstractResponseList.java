@@ -4,27 +4,26 @@ import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 
 public abstract class AbstractResponseList {
-	/** initial win rate for each move .50 */
+
+	/** Number of initial virtual wins given to each non-pass move. */
 	public final static int NORMAL_WINS_PRIOR = 1;
 	
+	/** Number of initial virtual runs given to each non-pass move. */
 	public final static int NORMAL_RUNS_PRIOR = 2;
 	
-	/** we want a constant .10 win rate for pass
-	* pass win rate should be less than the initial win
-	* rate since we don't want to pass immediately.
-	*/
-
+	/** Number of initial virtual wins given to each pass move. */
 	public final static int PASS_WINS_PRIOR = 1;
 	
+	/** Number of initial virtual runs given to each pass move. */
 	public final static int PASS_RUNS_PRIOR = 10;
 	
 	/**
-	 * Add a win and run to this move.
+	 * Add a win and run for move p.
 	 */
 	public abstract void addWin(int p);
 	
 	/**
-	 * Add a run to this move.
+	 * Add a run (but not a win) for move p.
 	 */
 	public abstract void addLoss(int p);
 
@@ -42,7 +41,7 @@ public abstract class AbstractResponseList {
 	
 	/**
 	 * Gets the win rate for a given move in this response list
-	 * TODO: perhaps change to something more generic?
+	 * TODO: perhaps change name to something more generic?
 	 */
 	public abstract double getWinRate(int p);
 
