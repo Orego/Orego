@@ -201,7 +201,7 @@ public class Player implements Playable {
 			Policy prototype = null;
 			for (int i = policyClasses.length - 1; i >= 0; i--) {
 				String genClass = policyClasses[i];
-				if (!genClass.startsWith("orego.")) {
+				if (!genClass.startsWith("orego.") && genClass.indexOf(".") < 0) {
 					// set default path to policies if it isn't given
 					genClass = "orego.policy." + genClass;
 				}
