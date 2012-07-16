@@ -109,7 +109,10 @@ public class MctsResponsePlayer extends MctsPlayer {
 				// A response list will only be created if we expect the node to be visited again.
 				// We create the child only if it does not already exist 
 				if ( ! curResponseList.hasChild(p)) {
-					responseList = new SearchNode();
+					responseList = 		// add to the level two table
+									  responses.findOrAllocate(ResponsePlayer.levelTwoEncodedIndex(prevPrevMove, 
+											  													   prevMove, 
+											  													   colorToPlay));
 					
 					// TODO: should this be .levelTwoEncodedIndex?
 					responseList.reset(runnable.getBoard().getHash());
@@ -117,10 +120,7 @@ public class MctsResponsePlayer extends MctsPlayer {
 					// for quick lookup later
 					curResponseList.setHasChild(p);
 					
-					// add to the level two table
-					responses.findOrAllocate(ResponsePlayer.levelTwoEncodedIndex(prevPrevMove, 
-							  										  prevMove, 
-																	  colorToPlay));
+					
 					// have we had more than default number of runs? (of course)
 					if (curResponseList.isFresh()) { 
 						runnable.getPolicy().updatePriors(responseList,
