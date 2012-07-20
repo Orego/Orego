@@ -8,13 +8,9 @@ import static java.lang.String.format;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.opposite;
-import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.*;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
-
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -157,7 +153,7 @@ public class Response2Player extends McPlayer {
 					best = searchValue;
 					result = move;
 				} else {
-					node.exclude(move);
+//					node.exclude(move);
 				}
 			}
 			// The magic number 457 is prime and larger than vacantPoints.size().
@@ -417,6 +413,7 @@ public class Response2Player extends McPlayer {
 						result += "\n";
 					}
 					double v = searchValue(getRoot(), getBoard(), p);
+					assert ((v - min) / (max - min)) <= 1.0;
 					result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 							colorCode((v - min) / (max - min)),
 							pointToString(p), pointToString(p), v * 100);
@@ -531,9 +528,9 @@ public class Response2Player extends McPlayer {
 	public void reset() {
 		super.reset();
 		if (table == null) {
-			table = new TranspositionTable(getPrototypeNode());
+			table = new TranspositionTable((BOARD_AREA + 2) * (BOARD_AREA + 2) * 2, getPrototypeNode());
 		}
-//		table.sweep();
+		table.sweep();
 		table.findOrAllocate(historyHash(getBoard()));
 		for (int i = 0; i < getNumberOfThreads(); i++) {
 			setRunnable(i, new McRunnable(this, getPolicy().clone()));
@@ -667,7 +664,7 @@ public class Response2Player extends McPlayer {
 		if (root != null) {
 			table.markNodesReachableFrom(root);
 		}
-//		table.sweep();
+		table.sweep();
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {

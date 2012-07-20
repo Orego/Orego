@@ -110,6 +110,17 @@ public class Response2PlayerTest {
 	}
 
 	@Test
+	public void testTwoBoardsWithSameRecentHistory() {
+		for (int i = 0; i < 5; i++) {
+			fakeRun(BLACK, "a1", "b1", "c1", "d1", "e1");
+		}
+		for (int i = 0; i < 4; i++) {
+			fakeRun(BLACK, "f1", "g1", "c1", "d1", "e1");
+		}
+//		System.out.println(player.toString(5));
+	}
+	
+	@Test
 	public void testTreeGrowth() {
 		McRunnable runnable = (McRunnable) player.getRunnable(0);
 		for (int i = 0; i < 5; i++) {
