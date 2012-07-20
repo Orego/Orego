@@ -1,6 +1,5 @@
 package orego.mcts;
 
-import static java.lang.Math.abs;
 import static orego.core.Coordinates.BOARD_AREA;
 import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import static orego.experiment.Debug.debug;
@@ -14,13 +13,13 @@ public class TranspositionTable {
 	public static final int DEFAULT_NODE_POOL_SIZE = 1024 * 1024 * 20 / BOARD_AREA;
 
 	/** ListNodes used to build child lists for SearchNodes. */
-	private Pool<ListNode<SearchNode>> listNodes;
+	protected Pool<ListNode<SearchNode>> listNodes;
 
 	/** Search nodes. */
-	private Pool<SearchNode> searchNodes;
+	protected Pool<SearchNode> searchNodes;
 
 	/** The hash table itself. */
-	private ListNode<SearchNode>[] table;
+	protected ListNode<SearchNode>[] table;
 
 	@SuppressWarnings("unchecked")
 	public TranspositionTable(int size, SearchNode prototype) {

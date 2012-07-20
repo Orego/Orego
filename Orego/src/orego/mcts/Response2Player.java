@@ -1,26 +1,28 @@
 package orego.mcts;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.*;
-import static orego.experiment.Debug.debug;
-import static java.lang.Math.*;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 import static java.lang.String.format;
-import static java.lang.Double.*;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.opposite;
+import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.pointToString;
+import static orego.experiment.Debug.debug;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import orego.core.Board;
 import orego.play.UnknownPropertyException;
 import orego.policy.CoupDeGracePolicy;
-import orego.util.*;
-import orego.core.*;
+import orego.util.IntList;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
-/**
- * Monte-Carlo tree search player, using the UCT algorithm.
- * 
- * @see #searchValue(SearchNode, Board, int)
- */
-public class MctsPlayer extends McPlayer {
+/** Similar to MctsPlayer, but uses the two previous moves instead of the entire board state as context for tree nodes. */
+public class Response2Player extends McPlayer {
 
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
 	public static final double COUP_DE_GRACE_PARAMETER = 0.9;
@@ -32,7 +34,7 @@ public class MctsPlayer extends McPlayer {
 	public static final double RESIGN_PARAMETER = 0.10;
 
 	public static void main(String[] args) {
-		MctsPlayer p = new MctsPlayer();
+		Response2Player p = new Response2Player();
 		try {
 			p.setProperty("policy", "Escape:Pattern:Capture");
 			p.setProperty("threads", "2");
@@ -61,7 +63,7 @@ public class MctsPlayer extends McPlayer {
 	/** The transposition table. */
 	private TranspositionTable table;
 
-	public MctsPlayer() {
+	public Response2Player() {
 		// Default values
 		priors = 20;
 	}
@@ -151,7 +153,7 @@ public class MctsPlayer extends McPlayer {
 					best = searchValue;
 					result = move;
 				} else {
-					node.exclude(move);
+//					node.exclude(move);
 				}
 			}
 			// The magic number 457 is prime and larger than vacantPoints.size().
@@ -181,6 +183,16 @@ public class MctsPlayer extends McPlayer {
 		return table.dagSize(getRoot());
 	}
 
+	// TODO Write a test for this
+	/**
+	 * Returns a long (someday reduced to an int) that encodes the last two moves plus the color to play.
+	 */
+	public long historyHash(Board board) {
+		int p1 = board.getMove(board.getTurn() - 1);
+		int p2 = board.getMove(board.getTurn() - 2);
+		return orego.response.ResponsePlayer.levelTwoEncodedIndex(p2, p1, board.getColorToPlay());
+	}
+
 	/**
 	 * Similar to generateMovesToFrontierOfTree, but chooses the specified
 	 * sequence of moves.
@@ -188,17 +200,18 @@ public class MctsPlayer extends McPlayer {
 	public void fakeGenerateMovesToFrontierOfTree(McRunnable runnable,
 			int... moves) {
 		SearchNode node = getRoot();
-		assert node != null : "Hash code: " + getBoard().getHash();
+		assert node != null : "Hash code: " + historyHash(getBoard());
 		runnable.getBoard().copyDataFrom(getBoard());
 		for (int p : moves) {
 			runnable.acceptMove(p);
-			SearchNode child = table.findIfPresent(runnable.getBoard()
-					.getHash());
+			// Replace the board hash stored by McRunnable
+			runnable.getHashes()[runnable.getBoard().getTurn()] = historyHash(runnable.getBoard());
+			SearchNode child = table.findIfPresent(historyHash(runnable.getBoard()));
 			synchronized (table) {
 				// A child will only be created on the second pass through the
 				// node
 				if (!node.hasChild(p) && (node.getRuns(p) > 2)) {
-					child = table.findOrAllocate(runnable.getBoard().getHash());
+					child = table.findOrAllocate(historyHash(runnable.getBoard()));
 					if (child == null) {
 						return; // No nodes left in pool
 					}
@@ -239,16 +252,15 @@ public class MctsPlayer extends McPlayer {
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		SearchNode node = getRoot();
-		assert node != null : "Hash code: " + getBoard().getHash();
+		assert node != null : "Hash code: " + historyHash(getBoard());
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
 			int p = selectAndPlayMove(node, runnable);
-			SearchNode child = table.findIfPresent(runnable.getBoard()
-					.getHash());
+			SearchNode child = table.findIfPresent(historyHash(runnable.getBoard()));
 			synchronized (table) {
 				// a child will only be created if we expect the node to be visited again
 				if (!node.hasChild(p) && (node.getWins(p) >= 2)) {
-					child = table.findOrAllocate(runnable.getBoard().getHash());
+					child = table.findOrAllocate(historyHash(runnable.getBoard()));
 					if (child == null) {
 						return; // No nodes left in pool
 					}
@@ -309,7 +321,7 @@ public class MctsPlayer extends McPlayer {
 
 	/** Returns the node at the root of the search tree. */
 	public SearchNode getRoot() {
-		return table.findOrAllocate(getBoard().getHash());
+		return table.findOrAllocate(historyHash(getBoard()));
 	}
 
 	/** Returns the transposition table. For testing. */
@@ -371,7 +383,7 @@ public class MctsPlayer extends McPlayer {
 			}
 			result += format(" %s %s", board.getColorToPlay() == BLACK ? "W"
 					: "B", pointToString(best));
-			node = table.findIfPresent(board.getHash());
+			node = table.findIfPresent(historyHash(board));
 		}
 		return result;
 	}
@@ -401,6 +413,7 @@ public class MctsPlayer extends McPlayer {
 						result += "\n";
 					}
 					double v = searchValue(getRoot(), getBoard(), p);
+					assert ((v - min) / (max - min)) <= 1.0;
 					result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 							colorCode((v - min) / (max - min)),
 							pointToString(p), pointToString(p), v * 100);
@@ -515,10 +528,10 @@ public class MctsPlayer extends McPlayer {
 	public void reset() {
 		super.reset();
 		if (table == null) {
-			table = new TranspositionTable(getPrototypeNode());
+			table = new TranspositionTable((BOARD_AREA + 2) * (BOARD_AREA + 2) * 2, getPrototypeNode());
 		}
 		table.sweep();
-		table.findOrAllocate(getBoard().getHash());
+		table.findOrAllocate(historyHash(getBoard()));
 		for (int i = 0; i < getNumberOfThreads(); i++) {
 			setRunnable(i, new McRunnable(this, getPolicy().clone()));
 		}
@@ -568,6 +581,8 @@ public class MctsPlayer extends McPlayer {
 		int move = bestSearchMove(node, runnable.getBoard(),
 				runnable.getRandom());
 		runnable.acceptMove(move);
+		// Replace the board hash stored by McRunnable
+		runnable.getHashes()[runnable.getBoard().getTurn()] = historyHash(runnable.getBoard());
 		return move;
 	}
 
@@ -620,7 +635,7 @@ public class MctsPlayer extends McPlayer {
 				result += indent + node.toString(p);
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
-				SearchNode child = table.findIfPresent(childBoard.getHash());
+				SearchNode child = table.findIfPresent(historyHash(childBoard));
 				if (child != null) {
 					result += toString(maxDepth - 1, child, childBoard, indent
 							+ "  ");
@@ -631,7 +646,7 @@ public class MctsPlayer extends McPlayer {
 			result += indent + node.toString(PASS);
 			childBoard.copyDataFrom(board);
 			childBoard.play(PASS);
-			SearchNode child = table.findIfPresent(childBoard.getHash());
+			SearchNode child = table.findIfPresent(historyHash(childBoard));
 			if (child != null) {
 				result += toString(maxDepth - 1, child, childBoard, indent
 						+ "  ");
@@ -669,7 +684,7 @@ public class MctsPlayer extends McPlayer {
 		if (root != null) {
 			table.markNodesReachableFrom(root);
 		}
-		table.sweep();
+//		table.sweep();
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {

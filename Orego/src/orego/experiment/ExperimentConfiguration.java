@@ -49,9 +49,8 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 playouts=50000 book=FusekiBook policy=Escape:Pattern:Capture:Territory",
-		 "threads=1 playouts=50000 book=FusekiBook",
-//		 "threads=1 msec=4000 book=FusekiBook policy=Escape:Pattern:Capture:ThirdFourthLine",
+		 "threads=1 playouts=50000 player=Response2 policy=Random",
+		 "threads=1 playouts=50000 policy=Random",
 	 };
 
 }
