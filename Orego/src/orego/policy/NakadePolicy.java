@@ -3,6 +3,7 @@ package orego.policy;
 import orego.core.Board;
 import orego.core.Colors;
 import orego.core.Coordinates;
+import orego.mcts.SearchNode;
 import ec.util.MersenneTwisterFast;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
@@ -27,8 +28,8 @@ public class NakadePolicy extends Policy {
 					// Neighbor may be at the center of a 3-point eyespace
 					int[] eyeLiberties = twoVacantNeighbors(neighbor, board);
 					if (eyeLiberties != null) {
-						if ((soleVacantNeighbor(eyeLiberties[0], board) == neighbor) && 
-								(soleVacantNeighbor(eyeLiberties[1], board) == neighbor)) {
+						if ((soleVacantNeighbor(eyeLiberties[0], board) == neighbor)
+								&& (soleVacantNeighbor(eyeLiberties[1], board) == neighbor)) {
 							return neighbor;
 						}
 					}
@@ -115,6 +116,37 @@ public class NakadePolicy extends Policy {
 		return getFallback().selectAndPlayOneMove(random, board);
 	}
 
-	// TODO updatePriors()
+	public void updatePriors(SearchNode node, Board board, int weight) {
+		int lastMove = board.getMove(board.getTurn() - 1);
+		for (int i = 0; i < 4; i++) {
+			int neighbor = Coordinates.NEIGHBORS[lastMove][i];
+			if (board.getColor(neighbor) == VACANT) {
+				int center = soleVacantNeighbor(neighbor, board);
+				if (center == NO_POINT) {
+					// Neighbor may be at the center of a 3-point eyespace
+					int[] eyeLiberties = twoVacantNeighbors(neighbor, board);
+					if (eyeLiberties != null) {
+						if ((soleVacantNeighbor(eyeLiberties[0], board) == neighbor)
+								&& (soleVacantNeighbor(eyeLiberties[1], board) == neighbor)) {
+							node.addWins(neighbor, weight);
+						}
+					}
+				} else {
+					// Center, adjacent to neighbor, may be at the center of
+					// a
+					// 3-point eyespace
+					int[] eyeLiberties = twoVacantNeighbors(center, board);
+					if (eyeLiberties != null) {
+						int other = (eyeLiberties[0] == neighbor) ? eyeLiberties[1]
+								: eyeLiberties[0];
+						if (soleVacantNeighbor(other, board) == center) {
+							node.addWins(center, weight);
+						}
+					}
+				}
+			}
+		}
+		getFallback().updatePriors(node, board, weight);
+	}
 
 }
