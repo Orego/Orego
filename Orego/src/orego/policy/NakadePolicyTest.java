@@ -5,6 +5,7 @@ import static orego.core.Coordinates.*;
 import static org.junit.Assert.*;
 
 import orego.core.Board;
+import orego.mcts.SearchNode;
 import orego.util.IntSet;
 
 import org.junit.Before;
@@ -93,6 +94,40 @@ public class NakadePolicyTest {
 			board.play(at("r1"));
 			board.play(at("h8"));
 			assertTrue(policy.findNakade(at("h8"), board)==at("g8"));
+		}
+	}
+	
+	@Test 
+	public void testUpdatePriors(){
+		SearchNode node = new SearchNode();
+		if (BOARD_WIDTH == 19) {
+			String[] problem = { "...................",// 19
+					"...................",// 18
+					".................##",// 17
+					".................#.",// 16
+					".................#.",// 15
+					".................#.",// 14
+					".................#.",// 13
+					"...................",// 12
+					"...................",// 11
+					".....###...........",// 10
+					".......#...........",// 9
+					".....#.#...........",// 8
+					".....#.#...........",// 7
+					".....###...........",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(BLACK, problem);
+			board.play(at("t13"));
+			node.reset(board.getHash());
+			policy.updatePriors(node, board, 1);
+			assertEquals(3, node.getRuns(at("t15")));
+			assertEquals(2, node.getWins(at("t15")));
 		}
 	}
 }
