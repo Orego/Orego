@@ -5,6 +5,7 @@ import orego.core.Colors;
 import orego.core.Coordinates;
 import ec.util.MersenneTwisterFast;
 import static orego.core.Colors.*;
+import static orego.core.Coordinates.*;
 
 public class NakadePolicy extends Policy {
 
@@ -12,113 +13,108 @@ public class NakadePolicy extends Policy {
 		super(fallback);
 	}
 
-	public boolean isNakadePoint(int lastMove, Board board) {
-		int n;
-		int count = 0;
-		int enemy = 0;
-		int other = 0;
-		int eye = 0;
-		for (int i = 0; i < 4; i++) {
-			n = Coordinates.NEIGHBORS[lastMove][i];
-			if (board.getColor(n) == VACANT) {
-				for (int j = 0; j < 4; j++) {
-					int m = Coordinates.NEIGHBORS[n][j];
-					if (board.getColor(m) == VACANT) {
-						count++;
-					} else if (board.getColor(m) == Colors.opposite(board.getColorToPlay())) {
-						enemy++;
-					}
-				}
-				if (count == 2 && enemy == 2) {
-					eye++;
-				} else if (count == 1 && enemy == 3) {
-					other++;
-				}
-			}
-		}
-		return (eye == 1 && other == 2);
-	}
-	
+	/**
+	 * Returns (if there is one) a point adjacent to the last move that is
+	 * vacant and has two vacant neighbors, all surrounded by enemy stones (or
+	 * board edges).
+	 */
 	public int findNakade(int lastMove, Board board) {
-		int neighbor;
-		int[] eyeLiberties = new int[2];
-		int vacant = 0;
-		int eye = 0;
-		for(int x = 0; x < 4; x++) {
-			neighbor = Coordinates.NEIGHBORS[lastMove][x];
-			if(board.getColor(neighbor) == VACANT) {
-				vacant = conditionOne(neighbor,board);
-				eyeLiberties = conditionTwo(neighbor,board);
-				if(vacant > -1) {
-					eyeLiberties = conditionTwo(vacant,board);
-					if(eyeLiberties != null) {
-						eye = vacant;
-						vacant = (eyeLiberties[0]==vacant) ? eyeLiberties[1] : eyeLiberties[0];
-						if(conditionOne(vacant,board) > -1) {
-							return eye;
+		for (int i = 0; i < 4; i++) {
+			int neighbor = Coordinates.NEIGHBORS[lastMove][i];
+			if (board.getColor(neighbor) == VACANT) {
+				int center = soleVacantNeighbor(neighbor, board);
+				if (center == NO_POINT) {
+					// Neighbor may be at the center of a 3-point eyespace
+					int[] eyeLiberties = twoVacantNeighbors(neighbor, board);
+					if (eyeLiberties != null) {
+						if ((soleVacantNeighbor(eyeLiberties[0], board) == neighbor) && 
+								(soleVacantNeighbor(eyeLiberties[1], board) == neighbor)) {
+							return neighbor;
 						}
 					}
-				} else if(eyeLiberties!=null) {
-					int lib0 = conditionOne(eyeLiberties[0],board);
-					int lib1 = conditionOne(eyeLiberties[1],board);
-					if(lib0 > -1 && lib1 > -1) {
-						return neighbor;
+				} else {
+					// Center, adjacent to neighbor, may be at the center of a
+					// 3-point eyespace
+					int[] eyeLiberties = twoVacantNeighbors(center, board);
+					if (eyeLiberties != null) {
+						int other = (eyeLiberties[0] == neighbor) ? eyeLiberties[1]
+								: eyeLiberties[0];
+						if (soleVacantNeighbor(other, board) == center) {
+							return center;
+						}
 					}
 				}
 			}
 		}
-		return -1;
+		return NO_POINT;
 	}
-	
-	public int conditionOne(int point, Board board) {
+
+	/**
+	 * If point (being vacant) has exactly one vacant neighbor, returns that
+	 * neighbor. Otherwise, returns NO_POINT.
+	 */
+	protected int soleVacantNeighbor(int point, Board board) {
 		int libertyCount = 0;
-		int enemyCount = 0;
 		int liberty = 0;
-		assert board.getColor(point) != OFF_BOARD_COLOR : "\nTrying to get neighbors of no point";
-		for(int i = 0; i < 4; i++) {
+		assert board.getColor(point) != OFF_BOARD_COLOR : "\nTrying to get neighbors of off board point";
+		// TODO We could use neighbor counts from board to count vacant and
+		// enemy neighbors, then
+		// only find the liberty if necessary
+		for (int i = 0; i < 4; i++) {
 			int p = Coordinates.NEIGHBORS[point][i];
-			if(board.getColor(p) == VACANT) {
+			if (board.getColor(p) == VACANT) {
 				libertyCount++;
+				if (libertyCount == 2) {
+					return NO_POINT;
+				}
 				liberty = p;
-			} else if(board.getColor(p) != board.getColorToPlay()) {
-				enemyCount++;
+			} else if (board.getColor(p) == board.getColorToPlay()) {
+				return NO_POINT;
 			}
 		}
-		if(libertyCount == 1 && enemyCount == 3) {
+		if (libertyCount == 1) {
 			return liberty;
 		}
-		return -1;		
+		return NO_POINT;
 	}
-	
-	public int[] conditionTwo(int point, Board board) {
+
+	/**
+	 * Returns (in an array) the two vacant points adjacent to point. Returns
+	 * null if there are not exactly two such points.
+	 */
+	public int[] twoVacantNeighbors(int point, Board board) {
 		int libertyCount = 0;
-		int enemyCount = 0;
-		int liberties[] = new int[2];
-		for(int i = 0; i < 4; i++) {
+		int liberties[] = new int[2]; // TODO Make this a field for speed
+		for (int i = 0; i < 4; i++) {
 			int p = Coordinates.NEIGHBORS[point][i];
-			if(board.getColor(p) == VACANT) {
-				if(libertyCount <= 1) {
+			if (board.getColor(p) == VACANT) {
+				if (libertyCount <= 1) {
 					liberties[libertyCount] = p;
 					libertyCount++;
+				} else {
+					return null;
 				}
-			}else if(board.getColor(p) != board.getColorToPlay()) {
-				enemyCount++;
+			} else if (board.getColor(p) == board.getColorToPlay()) {
+				return null;
 			}
 		}
-		if(libertyCount == 2 && enemyCount == 2) {
+		if (libertyCount == 2) {
 			return liberties;
 		}
 		return null;
-}
+	}
 
 	@Override
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		int lastPlay = board.getMove(board.getTurn() - 1);
-		int move = findNakade(lastPlay,board);
-		if(move > -1) {
+		int move = findNakade(board.getMove(board.getTurn() - 1), board);
+		if (move != NO_POINT) {
+			board.playFast(move); // The move MUST be legal (except possibly
+									// superko)
 			return move;
 		}
 		return getFallback().selectAndPlayOneMove(random, board);
 	}
+
+	// TODO updatePriors()
 
 }

@@ -54,7 +54,6 @@ public class NakadePolicyTest {
 			board.setUpProblem(BLACK, problem);
 			board.play(at("t13"));
 			assertTrue(policy.selectAndPlayOneMove(random, board)== at("t15"));
-			board.play(at("t1"));
 			board.play(at("f9"));
 			assertEquals(at("g8"),policy.findNakade(at("f9"), board));
 		}
@@ -90,7 +89,7 @@ public class NakadePolicyTest {
 			assertTrue(policy.findNakade(at("t13"), board)==at("t15"));
 			board.play(at("t1"));
 			board.play(at("f9"));
-			assertEquals(-1,policy.findNakade(at("f9"), board));
+			assertEquals(NO_POINT,policy.findNakade(at("f9"), board));
 			board.play(at("r1"));
 			board.play(at("h8"));
 			assertTrue(policy.findNakade(at("h8"), board)==at("g8"));
