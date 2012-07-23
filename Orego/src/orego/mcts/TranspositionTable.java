@@ -6,6 +6,7 @@ import static orego.experiment.Debug.debug;
 import orego.util.ListNode;
 import orego.util.Pool;
 
+// TODO Why are we using chaining instead of open addressing here?
 /** A hash table of nodes representing board configurations. */
 public class TranspositionTable {
 
