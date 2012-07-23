@@ -37,7 +37,7 @@ public class Lgrf2Player extends RavePlayer {
 		Lgrf2Player p = new Lgrf2Player();
 		try {
 			p.setProperty("policy", "Escape:Pattern:Capture");
-			p.setProperty("threads", "2");
+			p.setProperty("threads", "1");
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);

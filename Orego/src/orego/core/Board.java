@@ -146,13 +146,6 @@ public class Board {
 	 */
 	private int[] neighborCounts;
 
-	/**
-	 * The 3x3 neighborhood of each point. Undefined for occupied points.
-	 * 
-	 * @see orego.patterns.Patterns
-	 */
-	private char[] neighborhoods;
-
 	/** Neighbors of a stone just captured. Used by removeStone(). */
 	private IntList neighborsOfCapturedStone;
 
@@ -299,7 +292,6 @@ public class Board {
 		selfAtariLiberties = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		moves = new int[MAX_MOVES_PER_GAME];
 		colors = new int[EXTENDED_BOARD_AREA];
-		neighborhoods = new char[EXTENDED_BOARD_AREA];
 		vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		neighborCounts = new int[EXTENDED_BOARD_AREA];
 		koPoint = NO_POINT;
@@ -330,23 +322,6 @@ public class Board {
 				neighborCounts[p] += edgeCount * EDGE_INCREMENT;
 			}
 		}
-		// We need everything set up before we can compute the patterns.
-		for (int p : ALL_POINTS_ON_BOARD) {
-			computeNeighborhood(p);
-		}
-	}
-
-	/**
-	 * Recomputes the neighborhood around p and stores it.
-	 * 
-	 * @see #updateNeighborhoods(int)
-	 */
-	protected void computeNeighborhood(int p) {
-		assert ON_BOARD[p];
-		neighborhoods[p] = 0;
-		for (int i = 0; i < 8; i++) {
-			neighborhoods[p] = (char) ((neighborhoods[p] >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
-		}
 	}
 
 	/**
@@ -356,8 +331,6 @@ public class Board {
 	public void copyDataFrom(Board that) {
 		superKoTable.copyDataFrom(that.superKoTable);
 		System.arraycopy(that.colors, 0, colors, 0, EXTENDED_BOARD_AREA);
-		System.arraycopy(that.neighborhoods, 0, neighborhoods, 0,
-				EXTENDED_BOARD_AREA);
 		System.arraycopy(that.neighborCounts, 0, neighborCounts, 0,
 				EXTENDED_BOARD_AREA);
 		System.arraycopy(that.chainNextPoints, 0, chainNextPoints, 0,
@@ -459,7 +432,6 @@ public class Board {
 		if (liberties[chainIds[p]].size() == 1) {
 			chainsInAtari[colorToPlay].add(chainIds[p]);
 		}
-		updateNeighborhoods(p);
 		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get(vacantPoints.size() - 1);
@@ -702,8 +674,12 @@ public class Board {
 	 */
 	public final char getNeighborhood(int p) {
 		assert ON_BOARD[p];
+		char result = 0;
+		for (int i = 0; i < 8; i++) {
+			result = (char) ((result >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
+		}
 		assert colors[p] == VACANT;
-		return neighborhoods[p];
+		return result;
 	}
 
 	/**
@@ -1144,8 +1120,6 @@ public class Board {
 		hash ^= ZOBRIST_HASHES[color][s];
 		colors[s] = VACANT;
 		vacantPoints.addKnownAbsent(s);
-		computeNeighborhood(s);
-		updateNeighborhoods(s);
 		neighborsOfCapturedStone.clear();
 		for (int k = 0; k < 4; k++) {
 			int n = NEIGHBORS[s][k];
@@ -1285,25 +1259,4 @@ public class Board {
 		result += "\n";
 		return result;
 	}
-
-	/**
-	 * Updates the neighbors of p's neighborhoods to reflect a change in p. If
-	 * the pattern needs to be wholly recomputed, look at computeNeighborhood
-	 * instead.
-	 */
-	protected void updateNeighborhoods(int p) {
-		assert ON_BOARD[p];
-		for (int i = 0; i < 8; i++) {
-			int n = NEIGHBORS[p][i];
-			if (colors[n] != VACANT) {
-				continue;
-			}
-			int shift = UPDATE_NBR_MAP[i];
-			// Clear out the bits
-			neighborhoods[n] &= ~(0x3 << shift);
-			// Reset the bits
-			neighborhoods[n] |= colors[p] << shift;
-		}
-	}
-
 }
