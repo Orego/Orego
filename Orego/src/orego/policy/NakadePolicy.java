@@ -3,6 +3,7 @@ package orego.policy;
 import orego.core.Board;
 import orego.core.Colors;
 import orego.core.Coordinates;
+import orego.mcts.SearchNode;
 import ec.util.MersenneTwisterFast;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
@@ -27,8 +28,8 @@ public class NakadePolicy extends Policy {
 					// Neighbor may be at the center of a 3-point eyespace
 					int[] eyeLiberties = twoVacantNeighbors(neighbor, board);
 					if (eyeLiberties != null) {
-						if ((soleVacantNeighbor(eyeLiberties[0], board) == neighbor) && 
-								(soleVacantNeighbor(eyeLiberties[1], board) == neighbor)) {
+						if ((soleVacantNeighbor(eyeLiberties[0], board) == neighbor)
+								&& (soleVacantNeighbor(eyeLiberties[1], board) == neighbor)) {
 							return neighbor;
 						}
 					}
@@ -115,6 +116,13 @@ public class NakadePolicy extends Policy {
 		return getFallback().selectAndPlayOneMove(random, board);
 	}
 
-	// TODO updatePriors()
+
+	public void updatePriors(SearchNode node, Board board, int weight) {
+		int move = findNakade(board.getMove(board.getTurn() - 1), board);
+		if (move != NO_POINT) {
+			node.addWins(move, weight);
+		}
+		getFallback().updatePriors(node, board, weight);
+	}
 
 }
