@@ -47,7 +47,7 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(3, heuristic.evaluate(at("a2"), WHITE, board));
+		assertEquals(3, heuristic.evaluate(at("a2"), board));
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(6, heuristic.evaluate(at("a2"), WHITE, board));
+		assertEquals(6, heuristic.evaluate(at("a2"), board));
 	}
 
 }

@@ -5,7 +5,7 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
-public class CaptureHeuristic {
+public class CaptureHeuristic implements Heuristic {
 	
 	private IntList neighborId;
 	
@@ -13,8 +13,9 @@ public class CaptureHeuristic {
 		neighborId = new IntList(4);
 	}
 	
-	public int evaluate(int p, int color, Board board) {
-		int enemy = opposite(color);
+	@Override
+	public int evaluate(int p, Board board) {
+		int enemy = opposite(board.getColorToPlay());
 		int result = 0;
 		neighborId.clear();
 		for (int i = 0; i < 4; i++) {
