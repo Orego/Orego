@@ -7,11 +7,14 @@ import orego.mcts.SearchNode;
 import ec.util.MersenneTwisterFast;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
-
+import orego.core.NeighborCounts.*; 
 public class NakadePolicy extends Policy {
+	
+	private int liberties[]; // TODO Make this a field for speed
 
 	public NakadePolicy(Policy fallback) {
 		super(fallback);
+		liberties = new int[2];
 	}
 
 	/**
@@ -61,22 +64,19 @@ public class NakadePolicy extends Policy {
 		// TODO We could use neighbor counts from board to count vacant and
 		// enemy neighbors, then
 		// only find the liberty if necessary
+		if(board.getVacantNeighborCount(point)!=1) {
+			return NO_POINT;
+		}
 		for (int i = 0; i < 4; i++) {
 			int p = Coordinates.NEIGHBORS[point][i];
 			if (board.getColor(p) == VACANT) {
 				libertyCount++;
-				if (libertyCount == 2) {
-					return NO_POINT;
-				}
 				liberty = p;
 			} else if (board.getColor(p) == board.getColorToPlay()) {
 				return NO_POINT;
 			}
 		}
-		if (libertyCount == 1) {
-			return liberty;
-		}
-		return NO_POINT;
+		return liberty;
 	}
 
 	/**
@@ -85,24 +85,19 @@ public class NakadePolicy extends Policy {
 	 */
 	public int[] twoVacantNeighbors(int point, Board board) {
 		int libertyCount = 0;
-		int liberties[] = new int[2]; // TODO Make this a field for speed
+		if(board.getVacantNeighborCount(point)!=2) {
+			return null;
+		}
 		for (int i = 0; i < 4; i++) {
 			int p = Coordinates.NEIGHBORS[point][i];
 			if (board.getColor(p) == VACANT) {
-				if (libertyCount <= 1) {
 					liberties[libertyCount] = p;
 					libertyCount++;
-				} else {
-					return null;
-				}
 			} else if (board.getColor(p) == board.getColorToPlay()) {
 				return null;
 			}
 		}
-		if (libertyCount == 2) {
-			return liberties;
-		}
-		return null;
+		return liberties;
 	}
 
 	@Override

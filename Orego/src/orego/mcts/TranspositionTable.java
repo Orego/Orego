@@ -84,10 +84,6 @@ public class TranspositionTable {
 	/** Returns the node associated with hash, or null if there is no such node. */
 	public synchronized SearchNode findIfPresent(long hash) {
 		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
-		// abs(Long.MIN_VALUE) returns a negative number! The next line deals with this.
-		if (slot < 0) {
-			slot = table.length - 1;
-		}
 		ListNode<SearchNode> listNode = table[slot];
 		while (listNode != null) {
 			if (listNode.getKey().getHash() == hash) {
@@ -105,10 +101,6 @@ public class TranspositionTable {
 	 */
 	public synchronized SearchNode findOrAllocate(long hash) {
 		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
-		// abs(Long.MIN_VALUE) returns a negative number! The next line deals with this.
-		if (slot < 0) {
-			slot = table.length - 1;
-		}
 		ListNode<SearchNode> listNode = table[slot];
 		while (listNode != null) {
 			if (listNode.getKey().getHash() == hash) {
