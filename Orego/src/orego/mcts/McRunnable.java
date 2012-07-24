@@ -45,9 +45,6 @@ public class McRunnable implements Runnable {
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
-	/** Values of neighboring moves. Used by selectAndPlayOneMove(). */
-	private int[] values;
-	
 	public McRunnable(McPlayer player, Policy policy) {
 		board = new Board();
 		this.player = player;
@@ -58,7 +55,6 @@ public class McRunnable implements Runnable {
 		heuristics = new Heuristic[] {
 				new CaptureHeuristic() 
 				};
-		values = new int[8];
 	}
 
 	/**
@@ -199,40 +195,35 @@ public class McRunnable implements Runnable {
 
 	// TODO Is the return value necessary?
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		// TODO Is the bias from not randomizing the order a bad thing?
 		// Compute heuristic values
-		// TODO Should Board have a getLastMove() method?
-		int lastMove = board.getMove(board.getTurn() - 1);
-		for (int i = 0; i < 8; i++) {
-			int p = NEIGHBORS[lastMove][i];
-			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+		int bestMove = NO_POINT;
+		int bestValue = 0;
+		IntSet vacantPoints = board.getVacantPoints();
+		int start = random.nextInt(vacantPoints.size());
+		int i = start;
+		do {
+			int p = vacantPoints.get(i);
+			if (board.isFeasible(p)) {
+				int value = 0;
 				for (Heuristic h : heuristics) {
-					values[i] += h.evaluate(p, board);
+					value += h.evaluate(p, board);
 				}
-			} else {
-				values[i] = 0;
-			}
-		}
-		// Find best suggested move
-		while (true) {
-			int bestIndex = -1;
-			int bestValue = 0;
-			for (int i = 0; i < 8; i++) {
-				if (values[i] > bestValue) {
-					bestIndex = i;
-					bestValue = values[i];
+				if (value > bestValue) {
+					bestValue = value;
+					bestMove = p;
 				}
 			}
-			if (bestIndex == -1) {
-				// No moves suggested -- play randomly
-				return policy.selectAndPlayOneMove(random, board);
-			}
-			int bestMove = NEIGHBORS[lastMove][bestIndex];
-			if (board.playFast(bestMove) == PLAY_OK) {
-				return bestMove;
-			} else {
-				values[bestIndex] = 0;
-			}
+			// The magic number 457 is prime and larger than vacantPoints.size().
+			// Advancing by 457 therefore skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
+		// If there is a best move, try to play it
+		if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
+			return bestMove;
+		} else {
+			// No luck -- play randomly
+			return policy.selectAndPlayOneMove(random, board);
 		}
 	}
 
