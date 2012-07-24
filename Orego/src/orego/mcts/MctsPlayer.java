@@ -255,9 +255,10 @@ public class MctsPlayer extends McPlayer {
 					node.setHasChild(p);
 					table.addChild(node, child);
 					if (child.isFresh()) {
+						runnable.updatePriors(child, runnable.getBoard(), priors);
 						// child might not be fresh if it's a transposition
-						runnable.getPolicy().updatePriors(child,
-								runnable.getBoard(), priors);
+//						runnable.getPolicy().updatePriors(child,
+//								runnable.getBoard(), priors);
 					}
 					return;
 				}

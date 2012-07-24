@@ -49,7 +49,7 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 playouts=5000 player=Rave policy=Capture",
+		 "threads=1 playouts=5000 player=Rave policy=Random",
 	 };
 
 }

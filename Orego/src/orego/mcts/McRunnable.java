@@ -232,4 +232,23 @@ public class McRunnable implements Runnable {
 		this.policy = policy;
 	}
 
+	public void updatePriors(SearchNode node, Board board, int priors) {
+		IntSet vacantPoints = board.getVacantPoints();
+		for (int i = 0; i < vacantPoints.size(); i++) {
+			int p = vacantPoints.get(i);
+			if (board.isFeasible(p)) {
+				int value = 0;
+				for (Heuristic h : heuristics) {
+					value += h.evaluate(p, board);
+				}
+				// TODO This needs more thorough testing -- it passes no matter what priors is
+				if (value > 0) {
+					node.addWins(p, value * priors);
+				} else if (value < 0) {
+					node.addLosses(p, -value * priors);
+				}
+			}
+		}
+	}
+
 }
