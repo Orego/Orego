@@ -1,12 +1,12 @@
 package orego.mcts;
 
-import static java.lang.Math.abs;
 import static orego.core.Coordinates.BOARD_AREA;
 import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import static orego.experiment.Debug.debug;
 import orego.util.ListNode;
 import orego.util.Pool;
 
+// TODO Why are we using chaining instead of open addressing here?
 /** A hash table of nodes representing board configurations. */
 public class TranspositionTable {
 
@@ -14,13 +14,13 @@ public class TranspositionTable {
 	public static final int DEFAULT_NODE_POOL_SIZE = 1024 * 1024 * 20 / BOARD_AREA;
 
 	/** ListNodes used to build child lists for SearchNodes. */
-	private Pool<ListNode<SearchNode>> listNodes;
+	protected Pool<ListNode<SearchNode>> listNodes;
 
 	/** Search nodes. */
-	private Pool<SearchNode> searchNodes;
+	protected Pool<SearchNode> searchNodes;
 
 	/** The hash table itself. */
-	private ListNode<SearchNode>[] table;
+	protected ListNode<SearchNode>[] table;
 
 	@SuppressWarnings("unchecked")
 	public TranspositionTable(int size, SearchNode prototype) {
@@ -84,10 +84,6 @@ public class TranspositionTable {
 	/** Returns the node associated with hash, or null if there is no such node. */
 	public synchronized SearchNode findIfPresent(long hash) {
 		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
-		// abs(Long.MIN_VALUE) returns a negative number! The next line deals with this.
-		if (slot < 0) {
-			slot = table.length - 1;
-		}
 		ListNode<SearchNode> listNode = table[slot];
 		while (listNode != null) {
 			if (listNode.getKey().getHash() == hash) {
@@ -105,10 +101,6 @@ public class TranspositionTable {
 	 */
 	public synchronized SearchNode findOrAllocate(long hash) {
 		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
-		// abs(Long.MIN_VALUE) returns a negative number! The next line deals with this.
-		if (slot < 0) {
-			slot = table.length - 1;
-		}
 		ListNode<SearchNode> listNode = table[slot];
 		while (listNode != null) {
 			if (listNode.getKey().getHash() == hash) {

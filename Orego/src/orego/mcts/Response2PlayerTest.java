@@ -1,34 +1,47 @@
 package orego.mcts;
 
-import static orego.core.Coordinates.*;
-import static orego.core.Colors.*;
+import static orego.core.Board.MAX_MOVES_PER_GAME;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.WHITE;
+import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
+import static orego.core.Coordinates.BOARD_AREA;
+import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.at;
+import static orego.mcts.MctsPlayer.COUP_DE_GRACE_PARAMETER;
 import static org.junit.Assert.*;
-import static orego.core.Board.*;
-import static orego.mcts.MctsPlayer.*;
+
 import java.util.StringTokenizer;
+
+import orego.core.Board;
+import orego.play.UnknownPropertyException;
+import orego.policy.CapturePolicy;
+import orego.policy.CoupDeGracePolicy;
+import orego.policy.Policy;
+import orego.policy.RandomPolicy;
+import orego.policy.SpecificPointPolicy;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import ec.util.MersenneTwisterFast;
-import orego.core.*;
-import orego.play.UnknownPropertyException;
-import orego.policy.*;
 
-public class MctsPlayerTest {
+public class Response2PlayerTest {
 
 	/**
 	 * We would want more than this in a real game, but allocating more for
 	 * tests makes the system thrash.
 	 */
-	public static final int TABLE_SIZE = 1024;
+	public static final int TABLE_SIZE = 2048;
 
-	protected MctsPlayer player;
+	protected Response2Player player;
 
 	protected Board board;
 
 	@Before
 	public void setUp() throws Exception {
-		player = new MctsPlayer();
+		player = new Response2Player();
 		player.setProperty("priors", "0");
 		player.setProperty("pool", "" + TABLE_SIZE);
 		player.setProperty("threads", "1");
@@ -45,7 +58,7 @@ public class MctsPlayerTest {
 	 * @return the hashcode for the table
 	 */
 	public long indexOfBoard(Board board) {
-		return board.getHash();
+		return player.historyHash(board);
 	}
 	
 	/**
@@ -65,6 +78,8 @@ public class MctsPlayerTest {
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
 			runnable.acceptMove(p);
+			// Replace the board hash stored by McRunnable
+			runnable.getHashes()[runnable.getBoard().getTurn()] = player.historyHash(runnable.getBoard());
 		}
 		player.incorporateRun(winner, runnable);
 	}
@@ -78,6 +93,7 @@ public class MctsPlayerTest {
 		fakeRun(BLACK, "a1", "a2", "a3", "a4");
 		SearchNode child = player.getTable().findIfPresent(indexOfBoard(board));
 		assertEquals(3.0 / 5, root.getWinRate(at("a1")), 0.01);
+		assertEquals(4, child.getRuns(at("a2")));
 		assertEquals(2.0 / 4, child.getWinRate(at("a2")), 0.01);
 	}
 
@@ -93,6 +109,17 @@ public class MctsPlayerTest {
 		assertEquals(2.0 / 3, child.getWinRate(at("a2")), 0.01);
 	}
 
+	@Test
+	public void testTwoBoardsWithSameRecentHistory() {
+		for (int i = 0; i < 5; i++) {
+			fakeRun(BLACK, "a1", "b1", "c1", "d1", "e1");
+		}
+		for (int i = 0; i < 4; i++) {
+			fakeRun(BLACK, "f1", "g1", "c1", "d1", "e1");
+		}
+//		System.out.println(player.toString(5));
+	}
+	
 	@Test
 	public void testTreeGrowth() {
 		McRunnable runnable = (McRunnable) player.getRunnable(0);
@@ -122,10 +149,10 @@ public class MctsPlayerTest {
 		assertEquals(2.0 / 3, grandChild.getWinRate(at("a3")), 0.01);
 		if (BOARD_WIDTH == 19) {
 			assertEquals(
-					"Hash: 0 Total runs: 735\nA1:       4/      5 (0.8000)\n  Hash: -8482843705321423540 Total runs: 734\n  A2:       1/      4 (0.2500)\n",
+					"Hash: 513 Total runs: 735\nA1:       4/      5 (0.8000)\n  Hash: 134218621 Total runs: 734\n  A2:       1/      4 (0.2500)\n",
 					player.toString(1));
 			assertEquals(
-					"Hash: 0 Total runs: 735\nA1:       4/      5 (0.8000)\n  Hash: -8482843705321423540 Total runs: 734\n  A2:       1/      4 (0.2500)\n    Hash: 7612148777347051953 Total runs: 733\n    A3:       2/      3 (0.6667)\n",
+					"Hash: 513 Total runs: 735\nA1:       4/      5 (0.8000)\n  Hash: 134218621 Total runs: 734\n  A2:       1/      4 (0.2500)\n    Hash: 195433 Total runs: 733\n    A3:       2/      3 (0.6667)\n",
 					player.toString(2));
 		} else {
 			assertEquals(
@@ -140,11 +167,11 @@ public class MctsPlayerTest {
 		fakeRun(BLACK); // Just passes
 		if (BOARD_WIDTH == 19) {
 			assertEquals(
-					"Hash: 0 Total runs: 736\nA1:       4/      5 (0.8000)\n  Hash: -8482843705321423540 Total runs: 734\n  A2:       1/      4 (0.2500)\nPASS:       2/     11 (0.1818)\n  Hash: -1 Total runs: 733\n  PASS:       1/     11 (0.0909)\n",
+					"Hash: 513 Total runs: 736\nA1:       4/      5 (0.8000)\n  Hash: 134218621 Total runs: 734\n  A2:       1/      4 (0.2500)\nPASS:       2/     11 (0.1818)\n  Hash: 134218240 Total runs: 733\n  PASS:       1/     11 (0.0909)\n",
 					player.toString(1));
 		} else {
 			assertEquals(
-					"Hash: 0 Total runs: 176\nA1:       4/      5 (0.8000)\n  Hash: 428682210287857295 Total runs: 174\n  A2:       1/      4 (0.2500)\nPASS:       2/     11 (0.1818)\n  Hash: -1 Total runs: 173\n  PASS:       1/     11 (0.0909)\n",
+					"Hash: 0 Total runs: 176\nA1:       4/      5 (0.8000)\n  Hash: 134218621 Total runs: 174\n  A2:       1/      4 (0.2500)\nPASS:       2/     11 (0.1818)\n  Hash: -1 Total runs: 173\n  PASS:       1/     11 (0.0909)\n",
 					player.toString(1));
 		}
 	}
@@ -378,19 +405,6 @@ public class MctsPlayerTest {
 			int move = player.bestMove();
 			assertEquals(PASS, move);
 		}
-	}
-
-	@Test
-	public void testReclaimOldNodes() {
-		SearchNode node = player.getTable().findIfPresent(0L);
-		node.incrementTotalRuns();
-		assertEquals(BOARD_AREA * 2 + 10 + 1, node.getTotalRuns());
-		player.acceptMove(at("a1"));
-		long hash = indexOfBoard(player.getBoard());
-		player.acceptMove(at("a2"));
-		player.acceptMove(at("a3"));
-		assertNull(player.getTable().findIfPresent(hash));
-		assertNotNull(player.getTable().findOrAllocate(hash));
 	}
 
 	@Test
@@ -749,28 +763,8 @@ public class MctsPlayerTest {
 		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")));
 	}
 
-	@Test
-	public void testTransposition() throws UnknownPropertyException {
-		fakeRun(BLACK, "c3");
-		fakeRun(BLACK, "c3", "c4", "c5", "c6");
-		fakeRun(BLACK, "c3", "c4", "c5", "c6");
-		fakeRun(BLACK, "c3", "c4", "c5", "c6");
-		board.copyDataFrom(player.getBoard());
-		board.play(at("c3"));
-		board.play(at("c4"));
-		board.play(at("c5"));
-		long greatGrandchild = indexOfBoard(board);
-		SearchNode node = player.getTable().findIfPresent(greatGrandchild);
-		assertEquals(BOARD_AREA * 2 + 11, node.getTotalRuns());
-		board.copyDataFrom(player.getBoard()); // Create other child
-		board.play(at("c5"));
-		fakeRun(BLACK, "c5");
-		fakeRun(BLACK, "c5", "c4", "c3", "c6");
-		board.play(at("c4"));
-		fakeRun(BLACK, "c5", "c4", "c3", "c6");
-		assertEquals(BOARD_AREA * 2 + 12, node.getTotalRuns());
-	}
-
+	// TODO Write a test that verifies that two different boards with the same history are treated as identical
+	
 	@Test
 	public void testSetMillisecondsPerMove() {
 		player.setMillisecondsPerMove(314);

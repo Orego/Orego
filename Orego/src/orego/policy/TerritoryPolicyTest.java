@@ -58,8 +58,8 @@ public class TerritoryPolicyTest {
 		policy.updatePriors(node, board, 2);
 		assertEquals(0, node.getWins(at("f13")));
 		assertEquals(14, node.getRuns(at("f13")));
-		assertEquals(0, node.getWins(at("d13")));
-		assertEquals(0, node.getRuns(at("d13")));
+		assertEquals(0, node.getWins(at("d12")));
+		assertEquals(0, node.getRuns(at("d12")));
 	}
 
 	@Test
@@ -68,17 +68,17 @@ public class TerritoryPolicyTest {
 		ourweights[at("e13")] = 64;
 		ourweights[at("h13")] = 64;
 		policy.dilation(ourweights);
-		assertEquals(72, ourweights[at("e13")]);
-		assertEquals(72, ourweights[at("h13")]);
-		assertEquals(7, ourweights[at("f13")]);
-		assertEquals(7, ourweights[at("g13")]);
-		assertEquals(1, ourweights[at("e10")]);
-		assertEquals(2, ourweights[at("e11")]);		
-		assertEquals(6, ourweights[at("e12")]);
-		assertEquals(6, ourweights[at("d13")]);
-		assertEquals(4, ourweights[at("d12")]);
-		assertEquals(2, ourweights[at("d11")]);
-		assertEquals(0, ourweights[at("d10")]);
+		assertEquals(76, ourweights[at("e13")]);
+		assertEquals(76, ourweights[at("h13")]);
+		assertEquals(11, ourweights[at("f13")]);
+		assertEquals(11, ourweights[at("g13")]);
+		assertEquals(2, ourweights[at("e10")]);
+		assertEquals(6, ourweights[at("e11")]);		
+		assertEquals(10, ourweights[at("e12")]);
+		assertEquals(10, ourweights[at("d13")]);
+		assertEquals(8, ourweights[at("d12")]);
+		assertEquals(4, ourweights[at("d11")]);
+		assertEquals(2, ourweights[at("d10")]);
 	}
 
 	@Test
@@ -89,11 +89,11 @@ public class TerritoryPolicyTest {
 		policy.dilation(ourweights);
 		policy.erosion(ourweights);
 		assertEquals(0, ourweights[at("e10")]);
-		assertEquals(0, ourweights[at("e12")]);
-		assertEquals(0, ourweights[at("e14")]);
-		assertEquals(0, ourweights[at("d13")]);
-		assertEquals(7, ourweights[at("f13")]);
-		assertEquals(68, ourweights[at("e13")]);
+		assertEquals(7, ourweights[at("e12")]);
+		assertEquals(7, ourweights[at("e14")]);
+		assertEquals(5, ourweights[at("d13")]);
+		assertEquals(11, ourweights[at("f13")]);
+		assertEquals(76, ourweights[at("e13")]);
 	}
 
 }

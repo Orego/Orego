@@ -5,7 +5,6 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.patterns.Pattern.*;
 import orego.core.Board;
-import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
 public class FillBoardPolicy extends Policy {
