@@ -5,25 +5,30 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
+/** The value of a move is the number of stones it captures. */
 public class CaptureHeuristic implements Heuristic {
-	
-	private IntList neighborId;
-	
+
+	/** List of chains that would be captured by this move. */
+	private IntList targets;
+
 	public CaptureHeuristic() {
-		neighborId = new IntList(4);
+		targets = new IntList(4);
 	}
-	
+
 	@Override
 	public int evaluate(int p, Board board) {
 		int enemy = opposite(board.getColorToPlay());
 		int result = 0;
-		neighborId.clear();
+		targets.clear();
 		for (int i = 0; i < 4; i++) {
 			int neighbor = NEIGHBORS[p][i];
-			int chainId = board.getChainId(neighbor);
-			if ((board.getColor(neighbor) == enemy) && (board.isInAtari(chainId)) && (!neighborId.contains(chainId))) {
-				neighborId.add(chainId);
-				result += board.getChainSize(neighbor);
+			if (board.getColor(neighbor) == enemy) {
+				int target = board.getChainId(neighbor);
+				if ((board.isInAtari(target))
+						&& (!targets.contains(target))) {
+					targets.add(target);
+					result += board.getChainSize(target);
+				}
 			}
 		}
 		return result;

@@ -155,45 +155,6 @@ public class McRunnable implements Runnable {
 		player.incorporateRun(winner, this);
 	}
 
-	// TODO Is the return value necessary?
-	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		// TODO Is the bias from not randomizing the order a bad thing?
-		// Compute heuristic values
-		// TODO Should Board have a getLastMove() method?
-		int lastMove = board.getMove(board.getTurn() - 1);
-		for (int i = 0; i < 8; i++) {
-			int p = NEIGHBORS[lastMove][i];
-			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-				for (Heuristic h : heuristics) {
-					values[i] += h.evaluate(p, board);
-				}
-			} else {
-				values[i] = 0;
-			}
-		}
-		// Find best suggested move
-		while (true) {
-			int bestIndex = -1;
-			int bestValue = 0;
-			for (int i = 0; i < 8; i++) {
-				if (values[i] > bestValue) {
-					bestIndex = i;
-					bestValue = values[i];
-				}
-			}
-			if (bestIndex == -1) {
-				// No moves suggested -- play randomly
-				return policy.selectAndPlayOneMove(random, board);
-			}
-			int bestMove = NEIGHBORS[lastMove][bestIndex];
-			if (board.playFast(bestMove) == PLAY_OK) {
-				return bestMove;
-			} else {
-				values[bestIndex] = 0;
-			}
-		}
-	}
-
 	/**
 	 * Plays moves to the end of the game and returns the winner: BLACK, WHITE,
 	 * or (in rare event where the playout is canceled because it hits the
@@ -233,6 +194,45 @@ public class McRunnable implements Runnable {
 				|| (!limitPlayouts & getPlayer().shouldKeepRunning())) {
 			performMcRun();
 			playouts++;
+		}
+	}
+
+	// TODO Is the return value necessary?
+	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+		// TODO Is the bias from not randomizing the order a bad thing?
+		// Compute heuristic values
+		// TODO Should Board have a getLastMove() method?
+		int lastMove = board.getMove(board.getTurn() - 1);
+		for (int i = 0; i < 8; i++) {
+			int p = NEIGHBORS[lastMove][i];
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+				for (Heuristic h : heuristics) {
+					values[i] += h.evaluate(p, board);
+				}
+			} else {
+				values[i] = 0;
+			}
+		}
+		// Find best suggested move
+		while (true) {
+			int bestIndex = -1;
+			int bestValue = 0;
+			for (int i = 0; i < 8; i++) {
+				if (values[i] > bestValue) {
+					bestIndex = i;
+					bestValue = values[i];
+				}
+			}
+			if (bestIndex == -1) {
+				// No moves suggested -- play randomly
+				return policy.selectAndPlayOneMove(random, board);
+			}
+			int bestMove = NEIGHBORS[lastMove][bestIndex];
+			if (board.playFast(bestMove) == PLAY_OK) {
+				return bestMove;
+			} else {
+				values[bestIndex] = 0;
+			}
 		}
 	}
 
