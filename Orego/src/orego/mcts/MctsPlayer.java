@@ -206,7 +206,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.getPolicy().updatePriors(child,
+						runnable.updatePriors(child,
 								runnable.getBoard(), priors);
 					}
 					return;
@@ -525,7 +525,7 @@ public class MctsPlayer extends McPlayer {
 		}
 		SearchNode root = getRoot();
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).getPolicy().updatePriors(root,
+			((McRunnable) getRunnable(0)).updatePriors(root,
 					getBoard(), priors);
 		}
 	}
@@ -654,7 +654,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).getPolicy().updatePriors(root,
+			((McRunnable) getRunnable(0)).updatePriors(root,
 					getBoard(), priors);
 		}
 		if (isPondering()) {
@@ -674,7 +674,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).getPolicy().updatePriors(root,
+			((McRunnable) getRunnable(0)).updatePriors(root,
 					getBoard(), priors);
 		}
 		debug(winRateReport());
