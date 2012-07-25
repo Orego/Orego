@@ -12,6 +12,7 @@ import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import orego.heuristic.Heuristic;
+import orego.heuristic.SpecificPointHeuristic;
 import orego.play.UnknownPropertyException;
 import orego.policy.*;
 
@@ -822,15 +823,15 @@ public class MctsPlayerTest {
 	@Test
 	public void testPriorsAtRoot() throws UnknownPropertyException {
 		player.setProperty("priors", "1");
-		player.setPolicy(new SpecificPointPolicy(at("b2")));
+		player.setHeuristics(new Heuristic[] {new SpecificPointHeuristic()});
 		player.reset();
 		SearchNode root = player.getRoot();
-		assertEquals(2, root.getWins(at("b2")));
-		assertEquals(3, root.getRuns(at("b2")));
+		assertEquals(2, root.getWins(at("c5")));
+		assertEquals(3, root.getRuns(at("c5")));
 		player.acceptMove(at("c3"));
 		root = player.getRoot();
-		assertEquals(2, root.getWins(at("b2")));
-		assertEquals(3, root.getRuns(at("b2")));
+		assertEquals(2, root.getWins(at("c5")));
+		assertEquals(3, root.getRuns(at("c5")));
 	}
 
 	@Test

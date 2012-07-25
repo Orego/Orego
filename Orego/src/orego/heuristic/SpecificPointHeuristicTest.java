@@ -1,7 +1,5 @@
 package orego.heuristic;
 
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 
@@ -19,21 +17,14 @@ public class SpecificPointHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new SpecificPointHeuristic(at("g6"));
+		heuristic = new SpecificPointHeuristic();
 	}
 
 	@Test
 	public void testEvaluate() {
-		assertEquals(1, heuristic.evaluate(at("g6"), board));
-		assertEquals(0, heuristic.evaluate(at("a1"), board));
+		assertEquals(1, heuristic.evaluate(at("c5"), board));
+		assertEquals(0, heuristic.evaluate(at("c4"), board));
 
-	}
-
-	@Test
-	public void testSaveMultipleStones() {
-		heuristic = new SpecificPointHeuristic();
-		assertEquals(1, heuristic.evaluate(at("a1"), board));
-		assertEquals(0, heuristic.evaluate(at("g6"), board));
 	}
 
 }
