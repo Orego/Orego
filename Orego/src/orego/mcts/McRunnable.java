@@ -203,15 +203,18 @@ public class McRunnable implements Runnable {
 //		int i = start;
 //		do {
 //			int p = vacantPoints.get(i);
-		for (int p : KNIGHT_NEIGHBORHOOD[board.getMove(board.getTurn() - 1)]) {
-			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-				int value = 0;
-				for (Heuristic h : heuristics) {
-					value += h.evaluate(p, board);
-				}
-				if (value > bestValue) {
-					bestValue = value;
-					bestMove = p;
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (ON_BOARD[lastMove]) {
+			for (int p : KNIGHT_NEIGHBORHOOD[lastMove]) {
+				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+					int value = 0;
+					for (Heuristic h : heuristics) {
+						value += h.evaluate(p, board);
+					}
+					if (value > bestValue) {
+						bestValue = value;
+						bestMove = p;
+					}
 				}
 			}
 		}
