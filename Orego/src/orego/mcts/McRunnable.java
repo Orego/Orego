@@ -244,7 +244,6 @@ public class McRunnable implements Runnable {
 				for (Heuristic h : heuristics) {
 					value += h.evaluate(p, board);
 				}
-				// TODO This needs more thorough testing -- it passes no matter what priors is
 				if (value > 0) {
 					node.addWins(p, value * priors);
 				} else if (value < 0) {
