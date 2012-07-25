@@ -7,6 +7,7 @@ import orego.core.Board;
 import orego.policy.*;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
+import orego.heuristic.*;
 
 /**
  * Players use this class to perform multiple Monte Carlo runs in different
@@ -38,6 +39,9 @@ public class McRunnable implements Runnable {
 	/** Playout policy. */
 	private Policy policy;
 
+	/** Array of heuristics. */
+	private Heuristic[] heuristics;
+
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
@@ -48,6 +52,9 @@ public class McRunnable implements Runnable {
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
 		this.policy = policy;
 		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		heuristics = new Heuristic[] {
+				new CaptureHeuristic() 
+				};
 	}
 
 	/**
@@ -57,7 +64,8 @@ public class McRunnable implements Runnable {
 	 */
 	public void acceptMove(int p) {
 		int legality = board.play(p);
-		assert legality == PLAY_OK : "Legality " + legality + " for move " + pointToString(p) + "\n" + board;
+		assert legality == PLAY_OK : "Legality " + legality + " for move "
+				+ pointToString(p) + "\n" + board;
 		hashes[board.getTurn()] = board.getHash();
 	}
 
@@ -95,7 +103,8 @@ public class McRunnable implements Runnable {
 
 	/** @see orego.mcts.MctsPlayer#incorporateRun(int, McRunnable) */
 	public IntSet getPlayedPoints() {
-		// TODO: is never actually updated and SearchNode#recordPlayout never uses it
+		// TODO: is never actually updated and SearchNode#recordPlayout never
+		// uses it
 		return playedPoints;
 	}
 
@@ -126,10 +135,9 @@ public class McRunnable implements Runnable {
 
 	/**
 	 * Performs a single Monte Carlo run and incorporates it into player's
-	 * search tree.
-	 * The player should generate moves to the frontier of the known tree, add a 'node',
-	 * and then return. We will handle performing the actual playout in the aptly
-	 * named {@link playout}.
+	 * search tree. The player should generate moves to the frontier of the
+	 * known tree, add a 'node', and then return. We will handle performing the
+	 * actual playout in the aptly named {@link playout}.
 	 */
 	public void performMcRun() {
 		player.generateMovesToFrontier(this);
@@ -155,7 +163,7 @@ public class McRunnable implements Runnable {
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				policy.selectAndPlayOneMove(random, board);
+				selectAndPlayOneMove(random, board);
 				hashes[board.getTurn()] = board.getHash();
 			}
 			if (board.getPasses() >= 2) {
@@ -185,9 +193,67 @@ public class McRunnable implements Runnable {
 		}
 	}
 
+	// TODO Is the return value necessary?
+	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+		// Compute heuristic values
+		int bestMove = NO_POINT;
+		int bestValue = 0;
+//		IntSet vacantPoints = board.getVacantPoints();
+//		int start = random.nextInt(vacantPoints.size());
+//		int i = start;
+//		do {
+//			int p = vacantPoints.get(i);
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (ON_BOARD[lastMove]) {
+			for (int p : KNIGHT_NEIGHBORHOOD[lastMove]) {
+				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+					int value = 0;
+					for (Heuristic h : heuristics) {
+						value += h.evaluate(p, board);
+					}
+					if (value > bestValue) {
+						bestValue = value;
+						bestMove = p;
+					}
+				}
+			}
+		}
+//			// The magic number 457 is prime and larger than vacantPoints.size().
+//			// Advancing by 457 therefore skips "randomly" through the array,
+//			// in a manner analogous to double hashing.
+//			i = (i + 457) % vacantPoints.size();
+//		} while (i != start);
+		// If there is a best move, try to play it
+		if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
+			return bestMove;
+		} else {
+			// No luck -- play randomly
+			return policy.selectAndPlayOneMove(random, board);
+		}
+	}
+
 	/** Sets the policy of this McRunnable. */
 	public void setPolicy(Policy policy) {
 		this.policy = policy;
+	}
+
+	public void updatePriors(SearchNode node, Board board, int priors) {
+		IntSet vacantPoints = board.getVacantPoints();
+		for (int i = 0; i < vacantPoints.size(); i++) {
+			int p = vacantPoints.get(i);
+			if (board.isFeasible(p)) {
+				int value = 0;
+				for (Heuristic h : heuristics) {
+					value += h.evaluate(p, board);
+				}
+				// TODO This needs more thorough testing -- it passes no matter what priors is
+				if (value > 0) {
+					node.addWins(p, value * priors);
+				} else if (value < 0) {
+					node.addLosses(p, -value * priors);
+				}
+			}
+		}
 	}
 
 }

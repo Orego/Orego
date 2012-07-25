@@ -34,8 +34,8 @@ public class MctsPlayer extends McPlayer {
 	public static void main(String[] args) {
 		MctsPlayer p = new MctsPlayer();
 		try {
-			p.setProperty("policy", "Escape:Pattern:Capture");
-			p.setProperty("threads", "2");
+			p.setProperty("policy", "Random");
+			p.setProperty("threads", "1");
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -206,7 +206,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.getPolicy().updatePriors(child,
+						runnable.updatePriors(child,
 								runnable.getBoard(), priors);
 					}
 					return;
@@ -255,9 +255,10 @@ public class MctsPlayer extends McPlayer {
 					node.setHasChild(p);
 					table.addChild(node, child);
 					if (child.isFresh()) {
+						runnable.updatePriors(child, runnable.getBoard(), priors);
 						// child might not be fresh if it's a transposition
-						runnable.getPolicy().updatePriors(child,
-								runnable.getBoard(), priors);
+//						runnable.getPolicy().updatePriors(child,
+//								runnable.getBoard(), priors);
 					}
 					return;
 				}
@@ -524,7 +525,7 @@ public class MctsPlayer extends McPlayer {
 		}
 		SearchNode root = getRoot();
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).getPolicy().updatePriors(root,
+			((McRunnable) getRunnable(0)).updatePriors(root,
 					getBoard(), priors);
 		}
 	}
@@ -653,7 +654,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).getPolicy().updatePriors(root,
+			((McRunnable) getRunnable(0)).updatePriors(root,
 					getBoard(), priors);
 		}
 		if (isPondering()) {
@@ -673,7 +674,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).getPolicy().updatePriors(root,
+			((McRunnable) getRunnable(0)).updatePriors(root,
 					getBoard(), priors);
 		}
 		debug(winRateReport());
