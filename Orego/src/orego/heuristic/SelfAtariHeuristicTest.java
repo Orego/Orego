@@ -47,10 +47,10 @@ public class SelfAtariHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-//		assertEquals(-1, heuristic.evaluate(at("a1"), board));
-//		assertEquals(-2, heuristic.evaluate(at("s1"), board));
-//		assertEquals(-3, heuristic.evaluate(at("c15"), board));
-//		assertEquals(-10, heuristic.evaluate(at("h13"), board));
+		assertEquals(-1, heuristic.evaluate(at("a1"), board));
+		assertEquals(-2, heuristic.evaluate(at("s1"), board));
+		assertEquals(-3, heuristic.evaluate(at("c15"), board));
+		assertEquals(-10, heuristic.evaluate(at("h13"), board));
 		assertEquals(-2, heuristic.evaluate(at("g8"), board));
 		assertEquals(-8, heuristic.evaluate(at("o8"), board));
 		assertEquals(0, heuristic.evaluate(at("e3"), board));

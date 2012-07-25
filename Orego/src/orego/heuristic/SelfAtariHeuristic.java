@@ -20,12 +20,12 @@ public class SelfAtariHeuristic implements Heuristic {
 	@Override
 	public int evaluate(int p, Board board) {
 		int result = 0;
+		targets.clear();
 		int color = board.getColorToPlay();
 		if (board.isSelfAtari(p, color)) {
 			for (int i = 0; i < 4; i++) {
 				int neighbor = NEIGHBORS[p][i];
-				if (board.getColor(neighbor) == color) { // if the neighbor is
-															// our color
+				if (board.getColor(neighbor) == color) { // if the neighbor is our color
 					int target = board.getChainId(neighbor);
 					if (!targets.contains(target)) {
 						result -= board.getChainSize(target);
