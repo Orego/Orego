@@ -45,16 +45,14 @@ public class McRunnable implements Runnable {
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
-	public McRunnable(McPlayer player, Policy policy) {
+	public McRunnable(McPlayer player, Policy policy, Heuristic[] heuristics) {
 		board = new Board();
 		this.player = player;
 		random = new MersenneTwisterFast();
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
 		this.policy = policy;
 		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
-		heuristics = new Heuristic[] {
-				new CaptureHeuristic() 
-				};
+		this.heuristics = heuristics;
 	}
 
 	/**
@@ -246,7 +244,6 @@ public class McRunnable implements Runnable {
 				for (Heuristic h : heuristics) {
 					value += h.evaluate(p, board);
 				}
-				// TODO This needs more thorough testing -- it passes no matter what priors is
 				if (value > 0) {
 					node.addWins(p, value * priors);
 				} else if (value < 0) {

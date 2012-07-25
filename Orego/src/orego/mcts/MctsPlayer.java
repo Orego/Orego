@@ -13,6 +13,7 @@ import orego.play.UnknownPropertyException;
 import orego.policy.CoupDeGracePolicy;
 import orego.util.*;
 import orego.core.*;
+import orego.heuristic.Heuristic;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -514,19 +515,28 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void reset() {
-		super.reset();
-		if (table == null) {
-			table = new TranspositionTable(getPrototypeNode());
-		}
-		table.sweep();
-		table.findOrAllocate(getBoard().getHash());
-		for (int i = 0; i < getNumberOfThreads(); i++) {
-			setRunnable(i, new McRunnable(this, getPolicy().clone()));
-		}
-		SearchNode root = getRoot();
-		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard(), priors);
+		try {
+			super.reset();
+			if (table == null) {
+				table = new TranspositionTable(getPrototypeNode());
+			}
+			table.sweep();
+			table.findOrAllocate(getBoard().getHash());
+			for (int i = 0; i < getNumberOfThreads(); i++) {
+				Heuristic[] copy = new Heuristic[getHeuristics().length];
+				for (int j = 0; j < copy.length; j++) {
+					copy[j] = getHeuristics()[j].getClass().newInstance();
+				}
+				setRunnable(i, new McRunnable(this, getPolicy().clone(), copy));
+			}
+			SearchNode root = getRoot();
+			if (root.isFresh()) {
+				((McRunnable) getRunnable(0)).updatePriors(root, getBoard(),
+						priors);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 

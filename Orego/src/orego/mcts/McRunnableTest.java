@@ -5,6 +5,7 @@ import static orego.core.Board.*;
 import static orego.core.Coordinates.*;
 import static org.junit.Assert.*;
 import orego.play.ThreadedPlayer;
+import orego.play.UnknownPropertyException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -96,7 +97,11 @@ public class McRunnableTest {
 	
 	@Test
 	public void testCaptureLargerGroup() {
-		String[] problem = new String[] {
+		try {
+			player.setProperty("heuristic", "Capture");
+			player.reset();
+			runnable = (McRunnable) player.getRunnable(0);
+			String[] problem = new String[] {
 					"...................",//19
 					"...................",//18
 					"...................",//17
@@ -116,11 +121,15 @@ public class McRunnableTest {
 					"#.#O...............",//3
 					"..O#O..............",//2
 					"#O................."//1
-				  // ABCDEFGHJKLMNOPQRST
-				};
-		player.setUpProblem(BLACK, problem);
-		player.acceptMove(at("b2"));
-		assertEquals(at("b3"), runnable.selectAndPlayOneMove(runnable.getRandom(), player.getBoard()));
+					// ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(BLACK, problem);
+			player.acceptMove(at("b2"));
+			assertEquals(at("b3"), runnable.selectAndPlayOneMove(runnable.getRandom(), player.getBoard()));
+		} catch (UnknownPropertyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

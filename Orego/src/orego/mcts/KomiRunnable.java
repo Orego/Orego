@@ -1,12 +1,13 @@
 package orego.mcts;
 
+import orego.heuristic.Heuristic;
 import orego.policy.Policy;
 import static orego.core.Colors.*;
 
 public class KomiRunnable extends McRunnable {
 
 	public KomiRunnable(DynamicKomiPlayer player, Policy policy) {
-		super(player, policy);
+		super(player, policy, new Heuristic[0]); // TODO This is broken
 //		orego.experiment.Debug.setDebugFile("/Network/servers/maccsserver.lclark.edu/Users/nsylvester/Desktop/Dynamic_Komi.txt");
 	}
 
