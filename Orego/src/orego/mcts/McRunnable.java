@@ -198,12 +198,13 @@ public class McRunnable implements Runnable {
 		// Compute heuristic values
 		int bestMove = NO_POINT;
 		int bestValue = 0;
-		IntSet vacantPoints = board.getVacantPoints();
-		int start = random.nextInt(vacantPoints.size());
-		int i = start;
-		do {
-			int p = vacantPoints.get(i);
-			if (board.isFeasible(p)) {
+//		IntSet vacantPoints = board.getVacantPoints();
+//		int start = random.nextInt(vacantPoints.size());
+//		int i = start;
+//		do {
+//			int p = vacantPoints.get(i);
+		for (int p : KNIGHT_NEIGHBORHOOD[board.getMove(board.getTurn() - 1)]) {
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 				int value = 0;
 				for (Heuristic h : heuristics) {
 					value += h.evaluate(p, board);
@@ -213,11 +214,12 @@ public class McRunnable implements Runnable {
 					bestMove = p;
 				}
 			}
-			// The magic number 457 is prime and larger than vacantPoints.size().
-			// Advancing by 457 therefore skips "randomly" through the array,
-			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
-		} while (i != start);
+		}
+//			// The magic number 457 is prime and larger than vacantPoints.size().
+//			// Advancing by 457 therefore skips "randomly" through the array,
+//			// in a manner analogous to double hashing.
+//			i = (i + 457) % vacantPoints.size();
+//		} while (i != start);
 		// If there is a best move, try to play it
 		if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
 			return bestMove;
