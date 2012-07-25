@@ -4,12 +4,10 @@ import static orego.core.Coordinates.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.TreeSet;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import orego.book.OpeningBook;
 import orego.core.Board;
+import orego.heuristic.Heuristic;
 import orego.policy.Policy;
 import orego.policy.RandomPolicy;
 import ec.util.MersenneTwisterFast;
@@ -25,6 +23,9 @@ public class Player implements Playable {
 	private Board board;
 
 	/** Used to generate moves in bestMove(). */
+	private Heuristic[] heuristics;
+	
+	/** Used to generate moves in bestMove(). */
 	private Policy policy;
 
 	/** Move generator for the opening of the game. */
@@ -37,6 +38,7 @@ public class Player implements Playable {
 	public Player() {
 		random = new MersenneTwisterFast();
 		policy = new RandomPolicy();
+		heuristics = new Heuristic[0];
 	}
 
 	public int acceptMove(int p) {
@@ -110,6 +112,11 @@ public class Player implements Playable {
 		return result;
 	}
 
+	/** Returns the array of heuristics associated with this player. */
+	public Heuristic[] getHeuristics() {
+		return heuristics;
+	}
+	
 	/** Returns the number of milliseconds allocated per move. */
 	public int getMillisecondsPerMove() {
 		return 0; // this player responds almost instantly
@@ -185,6 +192,11 @@ public class Player implements Playable {
 		board.setColorToPlay(color);
 	}
 
+	/** Sets the heuristics. */
+	public void setHeuristics(Heuristic[] heuristics) {
+		this.heuristics = heuristics;
+	}
+
 	/** Sets the komi or handicap for the current game. */
 	public void setKomi(double komi) {
 		board.setKomi(komi);
@@ -203,7 +215,7 @@ public class Player implements Playable {
 		assert policy != null : "Policy set to null.";
 		this.policy = policy;
 	}
-
+	
 	public void setProperty(String property, String value)
 			throws UnknownPropertyException {
 		if (property.equals("book")) {
@@ -248,6 +260,32 @@ public class Player implements Playable {
 				}
 			}
 			setPolicy(prototype);
+		} else if (property.equals("heuristic")) {
+			String[] heuristicClasses = value.split(":");
+			List<Heuristic> heuristics = new ArrayList<Heuristic>();
+			for (int i = heuristicClasses.length - 1; i >= 0; i--) {
+				String genClass = heuristicClasses[i];
+				if (!genClass.contains(".")) {
+					// set default path to heuristic if it isn't given
+					genClass = "orego.heuristic." + genClass;
+				}
+				if (!genClass.endsWith("Heuristic")) {
+					// complete the class name if a shortened version is used
+					genClass = genClass + "Heuristic";
+				}
+				try {
+					// Heuristics are currently added in the REVERSE of the order
+					// in which they were specified. If we ever do anything but
+					// look at all of them, we may want to change this.
+					heuristics.add(0, (Heuristic) Class.forName(genClass)
+								.newInstance());
+				} catch (Exception e) {
+					System.err.println("Cannot construct heuristic: " + value);
+					e.printStackTrace();
+					System.exit(1);
+				}
+			}
+			setHeuristics(heuristics.toArray(new Heuristic[0]));			
 		} else if (property.startsWith("policy.")) { // set a *property* on a given policy
 			
 			// Command format: gogui-set-param policy.Escape.threshold 21

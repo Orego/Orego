@@ -3,7 +3,6 @@ package orego.policy;
 import orego.core.Board;
 import orego.mcts.SearchNode;
 import orego.play.UnknownPropertyException;
-import orego.response.ResponsePlayer;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -67,10 +66,4 @@ public abstract class Policy implements Cloneable {
 		getFallback().updatePriors(node, board, weight);
 	}
 	
-	/**
-	 * updatePriors for ResponsePlayer
-	 */
-	public void updateResponses(ResponsePlayer player, Board board, int weight) {
-		getFallback().updateResponses(player, board, weight);
-	}
 }

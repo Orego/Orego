@@ -45,16 +45,14 @@ public class McRunnable implements Runnable {
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
-	public McRunnable(McPlayer player, Policy policy) {
+	public McRunnable(McPlayer player, Policy policy, Heuristic[] heuristics) {
 		board = new Board();
 		this.player = player;
 		random = new MersenneTwisterFast();
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
 		this.policy = policy;
 		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
-		heuristics = new Heuristic[] {
-				new CaptureHeuristic() 
-				};
+		this.heuristics = heuristics;
 	}
 
 	/**

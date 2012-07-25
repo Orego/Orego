@@ -4,7 +4,6 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.core.Board;
 import orego.mcts.SearchNode;
-import orego.response.ResponsePlayer;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -44,18 +43,4 @@ public class CoupDeGracePolicy extends Policy {
 		getFallback().updatePriors(node, board, weight);
 	}
 
-	public void updateResponses(ResponsePlayer player, Board board, int weight) {
-		int enemy = opposite(board.getColorToPlay());
-		for (int p : ALL_POINTS_ON_BOARD) {
-			if (board.getColor(p) == enemy) {
-				for (int i = 0; i < 4; i++) {
-					int n = NEIGHBORS[p][i];
-					if (ON_BOARD[n] && board.isLegal(n)) {
-						player.addWins(n, board, weight * 12 / board.getLibertyCount(p));
-					}
-				}
-			}
-		}
-		getFallback().updateResponses(player, board, weight);
-	}
 }

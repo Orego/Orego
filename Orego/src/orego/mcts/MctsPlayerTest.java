@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import ec.util.MersenneTwisterFast;
 import orego.core.*;
+import orego.heuristic.Heuristic;
 import orego.play.UnknownPropertyException;
 import orego.policy.*;
 
@@ -60,7 +61,7 @@ public class MctsPlayerTest {
 		}
 		moves[i] = PASS;
 		moves[i + 1] = PASS;
-		McRunnable runnable = new McRunnable(player, new RandomPolicy());
+		McRunnable runnable = new McRunnable(player, new RandomPolicy(), new Heuristic[0]);
 		player.fakeGenerateMovesToFrontierOfTree(runnable, moves);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
