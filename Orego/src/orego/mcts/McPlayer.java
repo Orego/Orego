@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import orego.core.Board;
+import orego.heuristic.Heuristic;
 import orego.play.ThreadedPlayer;
 import orego.play.UnknownPropertyException;
 import orego.util.IntList;
@@ -135,6 +136,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		result.add("gogui-mc-playouts");
 		result.add("gogui-live-mc-playouts");
 		result.add("gogui-win-rates");
+		result.add("gogui-heuristics-values");
 		return result;
 	}
 
@@ -144,6 +146,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		result.add("gfx/Win rates/gogui-win-rates");
 		result.add("gfx/Monte-Carlo playouts/gogui-mc-playouts");
 		result.add("none/Live Monte-Carlo playouts/gogui-live-mc-playouts");
+		result.add("gfx/Heuristic values/gogui-heuristics-values");
 		return result;
 	}
 
@@ -163,6 +166,39 @@ public abstract class McPlayer extends ThreadedPlayer {
 
 	/** Returns the number of wins for the current color to play at point p. */
 	public abstract int getWins(int p);
+	
+	/**
+	 * Display heuristics on the board.
+	 */
+	protected String goguiHeuristicsValues(){
+		String result = "INFLUENCE";
+		int[] heuristicsValues = new int[FIRST_POINT_BEYOND_BOARD];
+		int min = Integer.MAX_VALUE;
+		int max = Integer.MIN_VALUE;
+		for (int p : ALL_POINTS_ON_BOARD) {
+			if (getBoard().getColor(p) == VACANT) {
+				Heuristic[] heuristics = getRunnable(0).getHeuristics();
+				for (int i = 0; i < heuristics.length; i++) {
+					heuristicsValues[p] += heuristics[i].evaluate(p, getBoard());
+				}
+			}
+			min = Math.min(min, heuristicsValues[p]);
+			max = Math.max(max, heuristicsValues[p]);
+		}
+		// Display win rates as colors and percentages
+		for (int p : ALL_POINTS_ON_BOARD) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0) {
+					result += "\n";
+				}
+				result += String.format("COLOR %s %s\nLABEL %s %.0f",
+						colorCode((double) heuristicsValues[p] / max),
+						pointToString(p), pointToString(p), (double) heuristicsValues[p]);
+				
+			}
+		}
+		return result;
+	}
 
 	/** Returns GoGui information showing playout distribution and win rates. */
 	protected String goguiPlayouts() {
@@ -248,7 +284,9 @@ public abstract class McPlayer extends ThreadedPlayer {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		String result = null;
-		if (command.equals("gogui-mc-playouts")) {
+		if (command.equals("gogui-heuristics-values")) {
+			result = goguiHeuristicsValues();
+		} else if (command.equals("gogui-mc-playouts")) {
 			result = goguiPlayouts();
 		} else if (command.equals("gogui-live-mc-playouts")) {
 			int oldValue;
