@@ -18,6 +18,9 @@ public class CaptureHeuristic implements Heuristic {
 	@Override
 	public int evaluate(int p, Board board) {
 		int enemy = opposite(board.getColorToPlay());
+		if (board.getNeighborCount(p, enemy) == 0) {
+			return 0;
+		}
 		int result = 0;
 		targets.clear();
 		for (int i = 0; i < 4; i++) {

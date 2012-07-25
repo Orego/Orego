@@ -34,8 +34,8 @@ public class MctsPlayer extends McPlayer {
 	public static void main(String[] args) {
 		MctsPlayer p = new MctsPlayer();
 		try {
-			p.setProperty("policy", "Escape:Pattern:Capture");
-			p.setProperty("threads", "2");
+			p.setProperty("policy", "Random");
+			p.setProperty("threads", "1");
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);

@@ -17,21 +17,17 @@ import orego.play.UnknownPropertyException;
 public class RavePlayer extends MctsPlayer {
 
 	public static void main(String[] args) {
+		RavePlayer p = new RavePlayer();
 		try {
-			RavePlayer p = new RavePlayer();
-			// for (int threads = 1; threads <= 12; threads++) {
-			int threads = 2;
-			p.setProperty("priors", "4");
-			p.setProperty("policy", "Escape:Pattern:Capture");
-			p.setProperty("threads", "" + threads);
-			double kpps = 0;
-			kpps = p.benchmark(false)[0];
-			System.out.printf("%d threads: %1.3f kpps\n", threads, kpps);
-			// }
+			p.setProperty("policy", "Random");
+			p.setProperty("threads", "1");
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
 	}
 
 	/**
@@ -233,7 +229,7 @@ public class RavePlayer extends MctsPlayer {
 	 * David Silver 
 	 * Reinforcement Learning and Simulation-Based Search in Computer Go 
 	 * A thesis submitted to the Faculty of Graduate Studies and Research 
-	 *	in partial fulÞllment of the requirements for the degree of 
+	 *	in partial fulï¿½llment of the requirements for the degree of 
 	 *	Doctor of Philosophy 
 	 *	Department of Computing Science 
 	 * http://papersdb.cs.ualberta.ca/~papersdb/uploaded_files/1029/paper_thesis.pdf

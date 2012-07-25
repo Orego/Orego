@@ -658,6 +658,17 @@ public class Board {
 		return result;
 	}
 
+	// TODO This needs a test
+	/**
+	 * Returns the number of neighbors p has of color, counting
+	 * off-board points as both black and white.
+	 * 
+	 * @see orego.core.NeighborCounts
+	 */
+	public int getNeighborCount(int p, int color) {
+		return extractNeighborCount(neighborCounts[p], color);
+	}
+	
 	/**
 	 * Returns the array of neighbor counts.
 	 * 
