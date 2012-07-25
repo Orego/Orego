@@ -49,9 +49,6 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Escape",
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Pattern",
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture",
 		 "threads=1 msec=4000 player=Rave policy=Random heuristic=",
 		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Escape:Pattern",
 		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Escape:Capture",

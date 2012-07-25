@@ -261,28 +261,27 @@ public class Player implements Playable {
 			}
 			setPolicy(prototype);
 		} else if (property.equals("heuristic")) {
-			String[] heuristicClasses = value.split(":");
 			List<Heuristic> heuristics = new ArrayList<Heuristic>();
-			for (int i = heuristicClasses.length - 1; i >= 0; i--) {
-				String genClass = heuristicClasses[i];
-				if (!genClass.contains(".")) {
-					// set default path to heuristic if it isn't given
-					genClass = "orego.heuristic." + genClass;
-				}
-				if (!genClass.endsWith("Heuristic")) {
-					// complete the class name if a shortened version is used
-					genClass = genClass + "Heuristic";
-				}
-				try {
-					// Heuristics are currently added in the REVERSE of the order
-					// in which they were specified. If we ever do anything but
-					// look at all of them, we may want to change this.
-					heuristics.add(0, (Heuristic) Class.forName(genClass)
-								.newInstance());
-				} catch (Exception e) {
-					System.err.println("Cannot construct heuristic: " + value);
-					e.printStackTrace();
-					System.exit(1);
+			if (!value.isEmpty()) {
+				String[] heuristicClasses = value.split(":");
+				for (int i = heuristicClasses.length - 1; i >= 0; i--) {
+					String genClass = heuristicClasses[i];
+					if (!genClass.contains(".")) {
+						// set default path to heuristic if it isn't given
+						genClass = "orego.heuristic." + genClass;
+					}
+					if (!genClass.endsWith("Heuristic")) {
+						// complete the class name if a shortened version is used
+						genClass = genClass + "Heuristic";
+					}
+					try {
+						heuristics.add(0, (Heuristic) Class.forName(genClass)
+									.newInstance());
+					} catch (Exception e) {
+						System.err.println("Cannot construct heuristic: " + value);
+						e.printStackTrace();
+						System.exit(1);
+					}
 				}
 			}
 			setHeuristics(heuristics.toArray(new Heuristic[0]));			
