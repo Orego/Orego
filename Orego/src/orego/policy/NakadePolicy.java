@@ -61,9 +61,6 @@ public class NakadePolicy extends Policy {
 		int libertyCount = 0;
 		int liberty = 0;
 		assert board.getColor(point) != OFF_BOARD_COLOR : "\nTrying to get neighbors of off board point";
-		// TODO We could use neighbor counts from board to count vacant and
-		// enemy neighbors, then
-		// only find the liberty if necessary
 		if(board.getVacantNeighborCount(point)!=1) {
 			return NO_POINT;
 		}
