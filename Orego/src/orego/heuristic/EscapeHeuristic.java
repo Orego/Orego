@@ -5,7 +5,7 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
-/** The value of a move is the number of stones it captures. */
+/** The value of a move is the number of stones saved * the number of liberties after saving - 1. */
 public class EscapeHeuristic implements Heuristic {
 
 	/** List of chains that would be saved by this move. */
@@ -17,7 +17,6 @@ public class EscapeHeuristic implements Heuristic {
 
 	@Override
 	public int evaluate(int p, Board board) {
-		int enemy = opposite(board.getColorToPlay());
 		int color = board.getColorToPlay();
 		if (board.getNeighborCount(p, color) == 0) {
 			return 0;
