@@ -94,11 +94,19 @@ public class Player implements Playable {
 
 	public Set<String> getCommands() {
 		Set<String> result = new TreeSet<String>();
+		
+		// set any general property
+		result.add("orego-set-param");
+				
 		return result;
 	}
 
 	public Set<String> getGoguiCommands() {
 		Set<String> result = new TreeSet<String>();
+		
+		// set any general property
+		result.add("none/Set Property/orego-set-param %s %s");
+		
 		return result;
 	}
 
@@ -136,6 +144,21 @@ public class Player implements Playable {
 	}
 
 	public String handleCommand(String command, StringTokenizer arguments) {
+		// set any property
+		if (command.equals("orego-set-param")) {
+			try {
+				String prop_name = arguments.nextToken();
+				String prop_value = arguments.nextToken();
+				
+				setProperty(prop_name, prop_value);
+				
+				reset(); // when we change a parameter, we need to restart
+				
+				return "Set '" + prop_name + "' to '" + prop_value + "'";
+			} catch (Exception e) {
+				return e.toString();
+			}
+		}
 		return null;
 	}
 
@@ -225,6 +248,40 @@ public class Player implements Playable {
 				}
 			}
 			setPolicy(prototype);
+		} else if (property.startsWith("policy.")) { // set a *property* on a given policy
+			
+			// Command format: gogui-set-param policy.Escape.threshold 21
+			if (policy == null) {
+				throw new UnsupportedOperationException("No policy exists when setting parameter '" + property + "'");
+			}
+			
+			// TODO: use StringTokenizer for parsing?
+			
+			StringTokenizer parser = new StringTokenizer(property);
+			
+			// skipp the 'policy.' prefix
+			parser.nextToken(".");
+			
+			String policy_name = parser.nextToken(".");
+			
+			String policy_property = parser.nextToken(" ");
+			
+			
+			// now we find the policy matching the policy name
+			Policy cur_policy = getPolicy();
+			while (cur_policy != null) {
+				
+				// we strip the "Policy" suffix and make sure it matches the policy_name
+				if (cur_policy.getClass().getSimpleName().replace("Policy", "").equals(policy_name)) {
+					cur_policy.setProperty(policy_property, value);
+					return;
+				}
+				
+				// move down the chain of policies
+				cur_policy = getPolicy().getFallback();
+			}
+				
+			throw new UnknownPropertyException("No policy exists for '" + policy_name + "' when setting property '" + policy_property + "'");
 		} else {
 			throw new UnknownPropertyException(property
 					+ " is not a known property");

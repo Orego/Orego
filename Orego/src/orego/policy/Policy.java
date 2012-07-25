@@ -1,9 +1,10 @@
 package orego.policy;
 
 import orego.core.Board;
-import ec.util.MersenneTwisterFast;
 import orego.mcts.SearchNode;
+import orego.play.UnknownPropertyException;
 import orego.response.ResponsePlayer;
+import ec.util.MersenneTwisterFast;
 
 /**
  * Generates moves for playouts (beyond the search tree). Many subclasses will
@@ -44,6 +45,12 @@ public abstract class Policy implements Cloneable {
 		return fallback;
 	}
 
+	/** Sets a property to the given value. Used for performance tuning with CLOP.
+	 * By default, we do nothing. */
+	public void setProperty(String property, String value)
+							throws UnknownPropertyException {
+		// no op (so subclasses are not forced to swallow)
+	}
 	/**
 	 * Generates and plays a move. Implementations of this method should, unless
 	 * they return some other move, return
