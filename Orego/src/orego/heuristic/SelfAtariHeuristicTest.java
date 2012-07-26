@@ -19,7 +19,7 @@ public class SelfAtariHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new SelfAtariHeuristic();
+		heuristic = new SelfAtariHeuristic(1);
 	}
 
 	@Test
