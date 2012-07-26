@@ -272,9 +272,9 @@ public class Player implements Playable {
 				}
 			}
 			setPolicy(prototype);
-		} else if (property.equals("heuristic")) {
+		} else if (property.equals("heuristic") && ! value.isEmpty()) {
+			ArrayList<Heuristic> heuristics = new ArrayList<Heuristic>();
 			String[] heuristicClasses = value.split(":");
-			List<Heuristic> heuristics = new ArrayList<Heuristic>();
 			for (int i = heuristicClasses.length - 1; i >= 0; i--) {
 				String[] heuristicAndWeight = heuristicClasses[i].split("@");
 				// if no weight was specified, default to 1
@@ -301,6 +301,8 @@ public class Player implements Playable {
 					System.exit(1);
 				}
 			}
+			
+			// now set the instance array variable (we need a type for .toArray)
 			setHeuristics(heuristics.toArray(new Heuristic[0]));			
 		} else if (property.startsWith("policy.")) { // set a *property* on a given policy
 			
