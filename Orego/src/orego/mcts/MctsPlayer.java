@@ -54,19 +54,8 @@ public class MctsPlayer extends McPlayer {
 	 */
 	private boolean grace;
 
-	/**
-	 * The stronger this is, the more new nodes are biased to focus on moves
-	 * suggested by the policy. It should be a nonnegative integer.
-	 */
-	private int priors;
-
 	/** The transposition table. */
 	private TranspositionTable table;
-
-	public MctsPlayer() {
-		// Default values
-		priors = 20;
-	}
 
 	@Override
 	public void beforeStartingThreads() {
@@ -205,7 +194,7 @@ public class MctsPlayer extends McPlayer {
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
 						runnable.updatePriors(child,
-								runnable.getBoard(), priors);
+								runnable.getBoard());
 					}
 					return;
 				}
@@ -253,10 +242,8 @@ public class MctsPlayer extends McPlayer {
 					node.setHasChild(p);
 					table.addChild(node, child);
 					if (child.isFresh()) {
-						runnable.updatePriors(child, runnable.getBoard(), priors);
 						// child might not be fresh if it's a transposition
-//						runnable.getPolicy().updatePriors(child,
-//								runnable.getBoard(), priors);
+						runnable.updatePriors(child, runnable.getBoard());
 					}
 					return;
 				}
@@ -294,11 +281,6 @@ public class MctsPlayer extends McPlayer {
 	@Override
 	public int getPlayouts(int p) {
 		return getRoot().getRuns(p);
-	}
-
-	/** Returns the coefficient given to priors when initializing new nodes. */
-	public int getPriors() {
-		return priors;
 	}
 
 	/** Returns a node of the type to be used to build the dag. */
@@ -530,8 +512,7 @@ public class MctsPlayer extends McPlayer {
 			}
 			SearchNode root = getRoot();
 			if (root.isFresh()) {
-				((McRunnable) getRunnable(0)).updatePriors(root, getBoard(),
-						priors);
+				((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -587,8 +568,6 @@ public class MctsPlayer extends McPlayer {
 		if (property.equals("pool")) {
 			table = new TranspositionTable(Integer.parseInt(value),
 					getPrototypeNode());
-		} else if (property.equals("priors")) {
-			priors = Integer.parseInt(value);
 		} else if (property.equals("grace")) {
 			assert value.equals("true");
 			grace = true;
@@ -664,7 +643,7 @@ public class MctsPlayer extends McPlayer {
 		assert root != null;
 		if (root.isFresh()) {
 			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard(), priors);
+					getBoard());
 		}
 		if (isPondering()) {
 			startThreads();
@@ -684,7 +663,7 @@ public class MctsPlayer extends McPlayer {
 		assert root != null;
 		if (root.isFresh()) {
 			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard(), priors);
+					getBoard());
 		}
 		debug(winRateReport());
 	}

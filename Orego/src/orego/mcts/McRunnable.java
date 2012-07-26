@@ -227,7 +227,7 @@ public class McRunnable implements Runnable {
 		return PASS;
 	}
 
-	public void updatePriors(SearchNode node, Board board, int priors) {
+	public void updatePriors(SearchNode node, Board board) {
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			int p = vacantPoints.get(i);
@@ -237,9 +237,9 @@ public class McRunnable implements Runnable {
 					value += h.evaluate(p, board) * h.getWeight();
 				}
 				if (value > 0) {
-					node.addWins(p, value * priors);
+					node.addWins(p, value);
 				} else if (value < 0) {
-					node.addLosses(p, -value * priors);
+					node.addLosses(p, -value);
 				}
 			}
 		}
