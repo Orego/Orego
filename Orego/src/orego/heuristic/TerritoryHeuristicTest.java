@@ -17,7 +17,7 @@ public class TerritoryHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new TerritoryHeuristic();
+		heuristic = new TerritoryHeuristic(1);
 	}
 	
 	@Test

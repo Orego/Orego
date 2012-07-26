@@ -24,7 +24,7 @@ public class PatternHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new PatternHeuristic();
+		heuristic = new PatternHeuristic(1);
 	}
 
 	@Test

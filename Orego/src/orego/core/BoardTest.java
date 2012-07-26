@@ -2162,7 +2162,7 @@ public class BoardTest {
 		final int GAMES = 500;
 		IntList liberties = new IntList(FIRST_POINT_BEYOND_BOARD);
 		Player player = new Player();
-		player.setHeuristics(new Heuristic[] {new CaptureHeuristic(), new PatternHeuristic()});
+		player.setHeuristics(new Heuristic[] {new CaptureHeuristic(1), new PatternHeuristic(1)});
 		player.reset();
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for (int game = 0; game < GAMES; game++) {

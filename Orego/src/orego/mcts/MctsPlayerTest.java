@@ -814,7 +814,7 @@ public class MctsPlayerTest {
 	@Test
 	public void testPriorsAtRoot() throws UnknownPropertyException {
 		player.setProperty("priors", "1");
-		player.setHeuristics(new Heuristic[] {new SpecificPointHeuristic()});
+		player.setHeuristics(new Heuristic[] {new SpecificPointHeuristic(1)});
 		player.reset();
 		SearchNode root = player.getRoot();
 		assertEquals(2, root.getWins(at("c5")));

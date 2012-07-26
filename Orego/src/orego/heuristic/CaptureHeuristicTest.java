@@ -19,7 +19,7 @@ public class CaptureHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new CaptureHeuristic();
+		heuristic = new CaptureHeuristic(1);
 	}
 
 	@Test

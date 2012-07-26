@@ -7,6 +7,8 @@ import static orego.experiment.Debug.debug;
 import static java.lang.Math.*;
 import static java.lang.String.format;
 import static java.lang.Double.*;
+
+import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
 import orego.play.UnknownPropertyException;
@@ -520,7 +522,9 @@ public class MctsPlayer extends McPlayer {
 			for (int i = 0; i < getNumberOfThreads(); i++) {
 				Heuristic[] copy = new Heuristic[getHeuristics().length];
 				for (int j = 0; j < copy.length; j++) {
-					copy[j] = getHeuristics()[j].getClass().newInstance();
+					Constructor<?> constructor = getHeuristics()[j].getClass().getConstructor(Double.TYPE);
+					Heuristic heur = (Heuristic) constructor.newInstance(getHeuristics()[j].getWeight());
+					copy[j] = heur;
 				}
 				setRunnable(i, new McRunnable(this, copy));
 			}

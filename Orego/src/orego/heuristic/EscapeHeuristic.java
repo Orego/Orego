@@ -6,12 +6,13 @@ import static orego.core.Colors.*;
 import orego.util.*;
 
 /** The value of a move is the number of stones saved * the number of liberties after saving - 1. */
-public class EscapeHeuristic implements Heuristic {
+public class EscapeHeuristic extends Heuristic {
 
 	/** List of chains that would be saved by this move. */
 	private IntList targets;
 
-	public EscapeHeuristic() {
+	public EscapeHeuristic(double weight) {
+		setWeight(weight);
 		targets = new IntList(4);
 	}
 

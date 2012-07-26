@@ -193,7 +193,7 @@ public class McRunnable implements Runnable {
 				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 					int value = 0;
 					for (Heuristic h : heuristics) {
-						value += h.evaluate(p, board);
+						value += h.evaluate(p, board) * h.getWeight();
 					}
 					if (value > bestValue) {
 						bestValue = value;
@@ -234,7 +234,7 @@ public class McRunnable implements Runnable {
 			if (board.isFeasible(p)) {
 				int value = 0;
 				for (Heuristic h : heuristics) {
-					value += h.evaluate(p, board);
+					value += h.evaluate(p, board) * h.getWeight();
 				}
 				if (value > 0) {
 					node.addWins(p, value * priors);

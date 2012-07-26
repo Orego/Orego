@@ -8,7 +8,11 @@ import static orego.core.Coordinates.NEIGHBORS;
 import orego.core.Board;
 import orego.core.Coordinates;
 
-public class TerritoryHeuristic implements Heuristic {
+public class TerritoryHeuristic extends Heuristic {
+	
+	public TerritoryHeuristic(double weight) {
+		setWeight(weight);
+	}
 	
 	int[] weights;
 
