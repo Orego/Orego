@@ -23,5 +23,16 @@ public abstract class Heuristic {
 	 * board, a negative value if it's bad.
 	 */
 	public abstract int evaluate(int p, Board board);
+	
+	/** Allows external clients to optimize parameters. Subclasses
+	 * should override if they have additional 'tunable' parameters.
+	 * @param property The name of the property
+	 * @param value The value of the property
+	 */
+	public void setProperty(String property, String value) {
+		if (property.equals("weight")) {
+			this.weight = Double.valueOf(weight);
+		}
+	}
 
 }

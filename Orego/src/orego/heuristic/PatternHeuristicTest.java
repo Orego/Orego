@@ -6,10 +6,8 @@ import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-
 import orego.core.Board;
 import orego.mcts.SearchNode;
-import orego.policy.PatternPolicy;
 import orego.util.IntSet;
 
 import org.junit.Before;

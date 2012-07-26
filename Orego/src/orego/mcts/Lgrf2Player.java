@@ -9,14 +9,14 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+import orego.heuristic.Heuristic;
 import orego.play.UnknownPropertyException;
-import orego.policy.*;
 
 /**
  * The last-good-reply (with forgetting) player, responding to two moves.
  */
 public class Lgrf2Player extends RavePlayer {
-	
+
 	/** Indices are color to play, previous move. */
 	private int[][] replies1;
 
@@ -24,7 +24,7 @@ public class Lgrf2Player extends RavePlayer {
 	protected int[][] getReplies1() {
 		return replies1;
 	}
-	
+
 	/** Indices are color, antepenultimate move, previous move. */
 	private int[][][] replies2;
 
@@ -49,31 +49,36 @@ public class Lgrf2Player extends RavePlayer {
 
 	@Override
 	public void reset() {
-		super.reset();
-		replies1 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD];
-		replies2 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
-		for (int c = BLACK; c <= WHITE; c++) {
-			for (int p : ALL_POINTS_ON_BOARD) {
-				replies1[c][p] = NO_POINT;
-				for (int q : ALL_POINTS_ON_BOARD) {
-					replies2[c][p][q] = NO_POINT;
+		try {
+			super.reset();
+			// Create reply tables
+			replies1 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD];
+			replies2 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
+			for (int c = BLACK; c <= WHITE; c++) {
+				for (int p : ALL_POINTS_ON_BOARD) {
+					replies1[c][p] = NO_POINT;
+					for (int q : ALL_POINTS_ON_BOARD) {
+						replies2[c][p][q] = NO_POINT;
+					}
+					replies2[c][p][PASS] = NO_POINT;
+					replies2[c][p][NO_POINT] = NO_POINT;
 				}
-				replies2[c][p][PASS] = NO_POINT;
-				replies2[c][p][NO_POINT] = NO_POINT;
+				replies1[c][PASS] = NO_POINT;
+				replies1[c][NO_POINT] = NO_POINT;
+				replies2[c][NO_POINT][PASS] = NO_POINT;
+				replies2[c][NO_POINT][NO_POINT] = NO_POINT;
 			}
-			replies1[c][PASS] = NO_POINT;
-			replies1[c][NO_POINT] = NO_POINT;
-			replies2[c][NO_POINT][PASS] = NO_POINT;
-			replies2[c][NO_POINT][NO_POINT] = NO_POINT;
-		}
-		for (int i = 0; i < getNumberOfThreads(); i++) {
-			McRunnable runnable = ((McRunnable) getRunnable(i));
-			Lgrf1Policy policy1 = new Lgrf1Policy(runnable.getPolicy());
-			runnable.setPolicy(policy1);
-			policy1.setReplies(replies1);
-			Lgrf2Policy policy2 = new Lgrf2Policy(policy1);
-			runnable.setPolicy(policy2);
-			policy2.setReplies2(replies2);
+			// Replace McRunnables with LgrfMcRunnables
+			for (int i = 0; i < getNumberOfThreads(); i++) {
+				Heuristic[] copy = new Heuristic[getHeuristics().length];
+				for (int j = 0; j < copy.length; j++) {
+					copy[j] = getHeuristics()[j].getClass().newInstance();
+				}
+				setRunnable(i, new LgrfMcRunnable(this, copy, replies1, replies2));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 

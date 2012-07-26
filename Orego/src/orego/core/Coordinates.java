@@ -1,6 +1,10 @@
 package orego.core;
 
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.at;
 import static orego.core.Coordinates.pointToString;
+import static orego.experiment.Debug.debug;
 
 /**
  * This class manages coordinates on the board.
@@ -351,6 +355,48 @@ public final class Coordinates {
 	/** Returns the row r as a lower case letter. This is used for the sgf format.*/
 	public static char rowToChar(int r) {
 		return (char)((BOARD_WIDTH - r) + 'a' - 1); 
+	}
+	
+	/** Returns the point represented by an sgf String.*/
+	public static int sgfToPoint(String label) {
+		int c = label.charAt(0) - 'a';
+		int r = label.charAt(1) - 'a';
+		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
+		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
+		return (r + 1) * SOUTH + (c + 1) * EAST;
+	}
+	
+	/**
+	 * Given an SGF-formatted move, returns the corresponding Orego int
+	 * representation. If the move cannot be meaningfully interpreted, NO_POINT
+	 * is returned.
+	 */
+	protected int sgfToOregoCoordinate(String currentToken) {
+		if (currentToken.equals("B[??]") || currentToken.equals("W[??]")) {
+			debug(currentToken + " makes no sense");
+			return NO_POINT;
+		}
+		if (currentToken.equals("B[]") || currentToken.equals("W[]")) {
+			return PASS;
+		}
+		if (currentToken.length() != 5) {
+			debug(currentToken + " makes no sense");
+			return NO_POINT;
+		}
+		char char2 = currentToken.charAt(2);
+		if (char2 == 't') {
+			return PASS;
+		}
+		int char3 = currentToken.charAt(3);
+		int result = -1;
+		try {
+			result = at(char3 - 'a', char2 - 'a');
+		} catch (AssertionError e) {
+			debug("Couldn't make sense of " + currentToken);
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return result;
 	}
 
 	/** Returns the point south of p (which may be off the board). */

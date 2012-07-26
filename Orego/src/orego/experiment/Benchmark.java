@@ -1,12 +1,18 @@
 package orego.experiment;
 
 import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.KNIGHT_NEIGHBORHOOD;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.PASS;
 import static orego.core.Board.MAX_MOVES_PER_GAME;
+import static orego.core.Board.PLAY_OK;
 import orego.core.Board;
-import orego.policy.*;
-import orego.policy.Policy;
+import orego.heuristic.Heuristic;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 import static orego.mcts.McRunnable.MERCY_THRESHOLD;
 
@@ -24,10 +30,6 @@ public class Benchmark {
 
 	/** Indicates that a playout ran too long and was aborted. */
 	public static final int PLAYOUT_TOO_LONG = 2;
-	
-	/** The policy whose speed is being tested. */
-	public static final Policy POLICY = new EscapePolicy(new PatternPolicy(
-			new CapturePolicy()));
 
 	/** Random number generator. */
 	public static final MersenneTwisterFast RANDOM = new MersenneTwisterFast();
@@ -75,7 +77,7 @@ public class Benchmark {
 				// Playout ran out of moves, probably due to superko
 				return PLAYOUT_TOO_LONG;
 			}
-			POLICY.selectAndPlayOneMove(RANDOM, board);
+			selectAndPlayOneMove(RANDOM, board);
 			if (board.getPasses() == 2) {
 				return PLAYOUT_OK;
 			}
@@ -83,6 +85,29 @@ public class Benchmark {
 				return PLAYOUT_MERCY;
 			}
 		} while (true);
+	}
+
+	// TODO Is the return value necessary?
+	// TODO Do we need to pass in the board or the random here?
+	public static int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+		IntSet vacantPoints = board.getVacantPoints();
+		int start = random.nextInt(vacantPoints.size());
+		int i = start;
+		do {
+			int p = vacantPoints.get(i);
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))
+					&& (board.playFast(p) == PLAY_OK)) {
+				return p;
+			}
+			// The magic number 457 is prime and larger than
+			// vacantPoints.size().
+			// Advancing by 457 therefore skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
+		// No legal move; pass
+		board.pass();
+		return PASS;
 	}
 
 }

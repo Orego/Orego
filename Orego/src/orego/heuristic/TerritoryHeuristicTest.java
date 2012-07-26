@@ -4,15 +4,9 @@ import static orego.core.Colors.BLACK;
 import static orego.core.Coordinates.EXTENDED_BOARD_AREA;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-
 import orego.core.Board;
-import orego.mcts.SearchNode;
-import orego.policy.TerritoryPolicy;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import ec.util.MersenneTwisterFast;
 
 public class TerritoryHeuristicTest {
 
