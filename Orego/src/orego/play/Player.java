@@ -1,6 +1,9 @@
 package orego.play;
 
+import static orego.core.Board.PLAY_OK;
+import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.*;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -8,8 +11,7 @@ import java.util.*;
 import orego.book.OpeningBook;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
-import orego.policy.Policy;
-import orego.policy.RandomPolicy;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
 // TODO When playing many games against GNU Go, occasionally this class complains that
@@ -25,9 +27,6 @@ public class Player implements Playable {
 	/** Used to generate moves in bestMove(). */
 	private Heuristic[] heuristics;
 	
-	/** Used to generate moves in bestMove(). */
-	private Policy policy;
-
 	/** Move generator for the opening of the game. */
 	private OpeningBook openingBook;
 
@@ -37,7 +36,6 @@ public class Player implements Playable {
 	/** A default player with a random policy. */
 	public Player() {
 		random = new MersenneTwisterFast();
-		policy = new RandomPolicy();
 		heuristics = new Heuristic[0];
 	}
 
@@ -68,6 +66,52 @@ public class Player implements Playable {
 		}
 	}
 
+	// TODO Remove arguments?
+	/** Selects and plays a random moves, choosing the heuristically best move, with ties broken randomly. */
+	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+		// Compute the heuristic value of each point
+		IntSet vacantPoints = board.getVacantPoints();
+		int[] values = new int[FIRST_POINT_BEYOND_BOARD];
+		for (int p = 0; p < vacantPoints.size(); p++) {
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+			for (Heuristic h : heuristics) {
+				values[p] += h.evaluate(p, board);
+			}
+			} else {
+				values[p] = Integer.MIN_VALUE;
+			}
+		}
+		// Find the best move
+		while (true) {
+			// Compute heuristic values
+			int bestMove = PASS;
+			int bestValue = Integer.MIN_VALUE;
+			int start = random.nextInt(vacantPoints.size());
+			int i = start;
+			do {
+				int p = vacantPoints.get(i);
+					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+						if (values[p] > bestValue) {
+							bestValue = values[p];
+							bestMove = p;
+						}
+					}
+				// The magic number 457 is prime and larger than vacantPoints.size().
+				// Advancing by 457 therefore skips "randomly" through the array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % vacantPoints.size();
+			} while (i != start);
+			// If there is a best move, try to play it
+			if (board.play(bestMove) == PLAY_OK) { // Note play() instead of playFast()
+				// The best move is legal -- play it
+				return bestMove;
+			} else {
+				// The best move is not legal -- exclude it and try again
+				values[bestMove] = Integer.MIN_VALUE;
+			}
+		}
+	}
+
 	public int bestMove() {
 		int move;
 		if (getOpeningBook() != null) { // play from opening book
@@ -76,7 +120,7 @@ public class Player implements Playable {
 				return move;
 			}
 		}
-		move = policy.selectAndPlayOneMove(random, board);
+		move = selectAndPlayOneMove(random, board);
 		// Replay the move with play() (instead of playFast()) to make sure it's
 		// not a superko violation
 		undo();
@@ -120,11 +164,6 @@ public class Player implements Playable {
 	/** Returns the number of milliseconds allocated per move. */
 	public int getMillisecondsPerMove() {
 		return 0; // this player responds almost instantly
-	}
-
-	/** Returns the policy this player uses. */
-	public Policy getPolicy() {
-		return policy;
 	}
 
 	/** Returns the move played at time t, or NO_POINT if t is negative. */
@@ -210,12 +249,6 @@ public class Player implements Playable {
 		openingBook = book;
 	}
 
-	/** Sets the policy. */
-	public void setPolicy(Policy policy) {
-		assert policy != null : "Policy set to null.";
-		this.policy = policy;
-	}
-	
 	public void setProperty(String property, String value)
 			throws UnknownPropertyException {
 		if (property.equals("book")) {
@@ -231,35 +264,6 @@ public class Player implements Playable {
 				e.printStackTrace();
 				System.exit(1);
 			}
-		} else if (property.equals("policy")) {
-			String[] policyClasses = value.split(":");
-			Policy prototype = null;
-			for (int i = policyClasses.length - 1; i >= 0; i--) {
-				String genClass = policyClasses[i];
-				if (!genClass.contains(".")) {
-					// set default path to policies if it isn't given
-					genClass = "orego.policy." + genClass;
-				}
-				if (!genClass.endsWith("Policy")) {
-					// complete the class name if a shortened version is used
-					genClass = genClass + "Policy";
-				}
-				try {
-					if (prototype == null) {
-						prototype = (Policy) Class.forName(genClass)
-								.newInstance();
-					} else {
-						prototype = (Policy) Class.forName(genClass)
-								.getConstructor(Policy.class).newInstance(
-										prototype);
-					}
-				} catch (Exception e) {
-					System.err.println("Cannot construct policy: " + value);
-					e.printStackTrace();
-					System.exit(1);
-				}
-			}
-			setPolicy(prototype);
 		} else if (property.equals("heuristic")) {
 			List<Heuristic> heuristics = new ArrayList<Heuristic>();
 			if (!value.isEmpty()) {
@@ -285,40 +289,6 @@ public class Player implements Playable {
 				}
 			}
 			setHeuristics(heuristics.toArray(new Heuristic[0]));			
-		} else if (property.startsWith("policy.")) { // set a *property* on a given policy
-			
-			// Command format: gogui-set-param policy.Escape.threshold 21
-			if (policy == null) {
-				throw new UnsupportedOperationException("No policy exists when setting parameter '" + property + "'");
-			}
-			
-			// TODO: use StringTokenizer for parsing?
-			
-			StringTokenizer parser = new StringTokenizer(property);
-			
-			// skipp the 'policy.' prefix
-			parser.nextToken(".");
-			
-			String policy_name = parser.nextToken(".");
-			
-			String policy_property = parser.nextToken(" ");
-			
-			
-			// now we find the policy matching the policy name
-			Policy cur_policy = getPolicy();
-			while (cur_policy != null) {
-				
-				// we strip the "Policy" suffix and make sure it matches the policy_name
-				if (cur_policy.getClass().getSimpleName().replace("Policy", "").equals(policy_name)) {
-					cur_policy.setProperty(policy_property, value);
-					return;
-				}
-				
-				// move down the chain of policies
-				cur_policy = getPolicy().getFallback();
-			}
-				
-			throw new UnknownPropertyException("No policy exists for '" + policy_name + "' when setting property '" + policy_property + "'");
 		} else {
 			throw new UnknownPropertyException(property
 					+ " is not a known property");

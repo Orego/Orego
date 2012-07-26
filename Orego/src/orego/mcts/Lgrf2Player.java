@@ -11,7 +11,6 @@ import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import orego.heuristic.Heuristic;
 import orego.play.UnknownPropertyException;
-import orego.policy.*;
 
 /**
  * The last-good-reply (with forgetting) player, responding to two moves.
@@ -75,8 +74,7 @@ public class Lgrf2Player extends RavePlayer {
 				for (int j = 0; j < copy.length; j++) {
 					copy[j] = getHeuristics()[j].getClass().newInstance();
 				}
-				setRunnable(i, new LgrfMcRunnable(this, getPolicy().clone(),
-						copy, replies1, replies2));
+				setRunnable(i, new LgrfMcRunnable(this, copy, replies1, replies2));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

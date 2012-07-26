@@ -5,7 +5,6 @@ import static orego.core.Colors.VACANT;
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
-import orego.policy.Policy;
 
 /**
  * McRunnable that uses LGRF2 (Last Good Reply with Forgetting, level 2) to
@@ -25,9 +24,9 @@ public class LgrfMcRunnable extends McRunnable {
 	 */
 	private int[][][] replies2;
 
-	public LgrfMcRunnable(McPlayer player, Policy policy,
+	public LgrfMcRunnable(McPlayer player, 
 			Heuristic[] heuristics, int[][] replies1, int[][][] replies2) {
-		super(player, policy, heuristics);
+		super(player, heuristics);
 		this.replies1 = replies1;
 		this.replies2 = replies2;
 	}

@@ -4,11 +4,9 @@ import static orego.core.Colors.*;
 import static org.junit.Assert.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Board.*;
-import java.io.IOException;
 import java.io.PipedOutputStream;
 import orego.core.Board;
 import orego.core.Coordinates;
-import orego.policy.*;
 import orego.ui.Orego;
 import org.junit.*;
 
@@ -148,7 +146,7 @@ public class PlayerTest {
 	
 	@Test
 	public void testCommandLineConstruction() {
-		String[] args = { "player=orego.play.Player" };
+		String[] args = { "player=Player", "heuristic=Capture" };
 		Orego orego = new Orego(System.in, new PipedOutputStream(), args);
 		assertEquals(Player.class, orego.getPlayer().getClass());
 	}
@@ -293,20 +291,6 @@ public class PlayerTest {
 			assertEquals(WHITE, player.getBoard()
 					.getColor(Coordinates.at("j6")));
 		}
-	}
-	
-	@Test
-	public void testSetPropertyPolicy() throws UnknownPropertyException {
-		player.setProperty("policy", "CapturePolicy:RandomPolicy");
-		Policy gen = player.getPolicy();
-		Policy fallback = ((CapturePolicy) gen).getFallback();
-		assertEquals(gen.getClass(), CapturePolicy.class);
-		assertEquals(fallback.getClass(), RandomPolicy.class);
-		player.setProperty("policy", "Pattern:Random");
-		gen = player.getPolicy();
-		fallback = ((PatternPolicy) gen).getFallback();
-		assertEquals(gen.getClass(), PatternPolicy.class);
-		assertEquals(fallback.getClass(), RandomPolicy.class);
 	}
 
 	@Test

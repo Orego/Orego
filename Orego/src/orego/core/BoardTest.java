@@ -4,19 +4,16 @@ import static java.lang.String.format;
 import static orego.core.Board.*;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
-import static orego.policy.PatternPolicy.isPossibleNeighborhood;
 import static orego.patterns.Pattern.*;
+import static orego.heuristic.PatternHeuristic.*;
 import static org.junit.Assert.*;
+import orego.heuristic.*;
 import orego.mcts.McPlayer;
-import orego.policy.CapturePolicy;
-import orego.policy.EscapePolicy;
-import orego.policy.PatternPolicy;
-import orego.policy.Policy;
+import orego.play.Player;
 import orego.util.IntList;
 import orego.util.IntSet;
 import org.junit.Before;
 import org.junit.Test;
-
 import ec.util.MersenneTwisterFast;
 
 // TODO Refactor these tests (and similar ones in other classes) to make testing different board sizes cleaner
@@ -2164,8 +2161,10 @@ public class BoardTest {
 	public void testLibertiesLots() {
 		final int GAMES = 500;
 		IntList liberties = new IntList(FIRST_POINT_BEYOND_BOARD);
+		Player player = new Player();
+		player.setHeuristics(new Heuristic[] {new CaptureHeuristic(), new PatternHeuristic()});
+		player.reset();
 		MersenneTwisterFast random = new MersenneTwisterFast();
-		Policy policy = new EscapePolicy(new PatternPolicy(new CapturePolicy()));
 		for (int game = 0; game < GAMES; game++) {
 			do {
 				IntSet vacant = board.getVacantPoints();
@@ -2200,7 +2199,7 @@ public class BoardTest {
 						}
 					}
 				}
-			} while ((board.getTurn() < MAX_MOVES_PER_GAME) && (policy.selectAndPlayOneMove(random, board) != PASS));
+			} while ((board.getTurn() < MAX_MOVES_PER_GAME) && (player.selectAndPlayOneMove(random, board) != PASS));
 			board.clear();
 		}
 	}
