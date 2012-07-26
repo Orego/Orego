@@ -225,16 +225,16 @@ public class McRunnable implements Runnable {
 		return PASS;
 	}
 
-	public void updatePriors(SearchNode node, Board board, int priors) {
+	public void updatePriors(SearchNode node, Board board) {
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			int p = vacantPoints.get(i);
 			if (board.isFeasible(p)) {
 				int value = heuristics.moveRating(p, board);
 				if (value > 0) {
-					node.addWins(p, value * priors);
+					node.addWins(p, value);
 				} else if (value < 0) {
-					node.addLosses(p, -value * priors);
+					node.addLosses(p, -value);
 				}
 			}
 		}

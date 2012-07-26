@@ -30,7 +30,6 @@ public class MctsPlayerTest {
 	@Before
 	public void setUp() throws Exception {
 		player = new MctsPlayer();
-		player.setProperty("priors", "0");
 		player.setProperty("pool", "" + TABLE_SIZE);
 		player.setProperty("threads", "1");
 		player.setPlayoutLimit(1000);
@@ -814,9 +813,8 @@ public class MctsPlayerTest {
 
 	@Test
 	public void testPriorsAtRoot() throws UnknownPropertyException {
-		player.setProperty("priors", "1");
-		
 		player.setHeuristics(new HeuristicList("SpecificPoint@1"));
+
 		player.reset();
 		SearchNode root = player.getRoot();
 		assertEquals(2, root.getWins(at("c5")));
