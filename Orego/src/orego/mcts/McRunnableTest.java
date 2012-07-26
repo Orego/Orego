@@ -98,7 +98,7 @@ public class McRunnableTest {
 	@Test
 	public void testCaptureLargerGroup() {
 		try {
-			player.setProperty("heuristic", "Capture");
+			player.setProperty("heuristics", "Capture");
 			player.reset();
 			runnable = (McRunnable) player.getRunnable(0);
 			String[] problem = new String[] {

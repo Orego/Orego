@@ -20,7 +20,7 @@ public class Lgrf2PlayerTest {
 		player = new Lgrf2Player();
 		player.setProperty("pool", "" + TABLE_SIZE);
 		player.setProperty("threads", "1");
-		player.setProperty("heuristic", "Pattern:Capture");
+		player.setProperty("heuristics", "Pattern:Capture");
 		player.setPlayoutLimit(1000);
 		player.reset();
 		runnable = (McRunnable) (player.getRunnable(0));

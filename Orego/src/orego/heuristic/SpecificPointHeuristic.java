@@ -9,7 +9,7 @@ import orego.util.*;
 public class SpecificPointHeuristic extends Heuristic {
 
 	public SpecificPointHeuristic(double weight) {
-		setWeight(weight);
+		super(weight);
 	}
 	
 	@Override

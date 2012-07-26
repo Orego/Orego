@@ -70,11 +70,8 @@ public class Lgrf2Player extends RavePlayer {
 			}
 			// Replace McRunnables with LgrfMcRunnables
 			for (int i = 0; i < getNumberOfThreads(); i++) {
-				Heuristic[] copy = new Heuristic[getHeuristics().length];
-				for (int j = 0; j < copy.length; j++) {
-					copy[j] = getHeuristics()[j].getClass().newInstance();
-				}
-				setRunnable(i, new LgrfMcRunnable(this, copy, replies1, replies2));
+				
+				setRunnable(i, new LgrfMcRunnable(this, getHeuristics().clone(), replies1, replies2));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

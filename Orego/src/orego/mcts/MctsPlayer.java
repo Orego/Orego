@@ -520,13 +520,8 @@ public class MctsPlayer extends McPlayer {
 			table.sweep();
 			table.findOrAllocate(getBoard().getHash());
 			for (int i = 0; i < getNumberOfThreads(); i++) {
-				Heuristic[] copy = new Heuristic[getHeuristics().length];
-				for (int j = 0; j < copy.length; j++) {
-					Constructor<?> constructor = getHeuristics()[j].getClass().getConstructor(Double.TYPE);
-					Heuristic heur = (Heuristic) constructor.newInstance(getHeuristics()[j].getWeight());
-					copy[j] = heur;
-				}
-				setRunnable(i, new McRunnable(this, copy));
+				
+				setRunnable(i, new McRunnable(this, getHeuristics().clone()));
 			}
 			SearchNode root = getRoot();
 			if (root.isFresh()) {
