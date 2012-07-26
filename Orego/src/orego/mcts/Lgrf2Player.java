@@ -9,6 +9,9 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+
+import java.lang.reflect.Constructor;
+
 import orego.heuristic.Heuristic;
 import orego.play.UnknownPropertyException;
 
@@ -70,8 +73,8 @@ public class Lgrf2Player extends RavePlayer {
 			}
 			// Replace McRunnables with LgrfMcRunnables
 			for (int i = 0; i < getNumberOfThreads(); i++) {
-				
 				setRunnable(i, new LgrfMcRunnable(this, getHeuristics().clone(), replies1, replies2));
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

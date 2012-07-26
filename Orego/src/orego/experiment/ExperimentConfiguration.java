@@ -49,11 +49,20 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=",
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Escape:Pattern",
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Escape:Capture",
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern",
-		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Escape:Pattern:Capture",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:SelfAtari",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:Escape:SelfAtari",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:Territory",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Territory",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Territory",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Pattern:Territory",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:Territory:SelfAtari",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:SelfAtari:LinesOneTwo",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:Escape:SelfAtari:LinesOneTwo",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:Territory:LinesOneTwo",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Territory:LinesOneTwo",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Territory:LinesOneTwo",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Pattern:Territory:LinesOneTwo",
+		 "threads=1 msec=4000 player=Rave policy=Random heuristic=Capture:Pattern:Territory:SelfAtari:LinesOneTwo",
 	 };
 
 }
