@@ -272,6 +272,34 @@ public class Player implements Playable {
 				}
 			}
 			setPolicy(prototype);
+		} else if (property.startsWith("heuristic.")) { // set a *property* on a given policy
+			
+			// Command format: gogui-set-param heuristic.Escape.threshold 21
+			if (heuristics.length == 0) {
+				throw new UnsupportedOperationException("No heuristics exists when setting parameter '" + property + "'");
+			}
+		
+			// parse the full property name out into its component parts
+			StringTokenizer parser = new StringTokenizer(property);
+			
+			// skip the 'heuristic.' prefix
+			parser.nextToken(".");
+			
+			String heuristicName  	 = parser.nextToken(".");
+			
+			String heuristicProperty = parser.nextToken(" ");
+			
+			
+			// now we find the heuristic matching the heuristic name
+			for (Heuristic heuristic : heuristics) {
+				
+				// strip off class suffix of Heuristic and do compare
+				if (heuristic.getClass().getSimpleName().replace("Heuristic", "").equals(heuristicName)) {
+					heuristic.setProperty(heuristicProperty, value);
+				}
+			}
+				
+			throw new UnknownPropertyException("No heuristic exists for '" + heuristicName + "' when setting property '" + heuristicProperty + "'");
 		} else if (property.equals("heuristic") && ! value.isEmpty()) {
 			ArrayList<Heuristic> heuristics = new ArrayList<Heuristic>();
 			String[] heuristicClasses = value.split(":");
