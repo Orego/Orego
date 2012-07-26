@@ -9,7 +9,7 @@ import orego.util.*;
  * The value of a move is either the number of stones secured or the number of
  * stones that can be captured.
  */
-public class TwoLibertyHeuristic implements Heuristic {
+public class TwoLibertyHeuristic extends Heuristic {
 
 	/**
 	 * String we have looked at.
