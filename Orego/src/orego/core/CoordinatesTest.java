@@ -147,5 +147,14 @@ public class CoordinatesTest {
 			assertTrue(THIRD_OR_FOURTH_LINE[THIRD_AND_FOURTH_LINE_POINTS[i]]);
 		}
 	}
+	
+	@Test
+	public void testSgfToPoint() {
+		assertEquals(at("e15"), sgfToPoint("ee"));
+		assertEquals(at("t1"), sgfToPoint("ss"));
+		assertEquals(at("a19"), sgfToPoint("aa"));
+		assertEquals(at("t19"), sgfToPoint("sa"));
+		assertEquals(at("a1"), sgfToPoint("as"));
+	}
 
 }
