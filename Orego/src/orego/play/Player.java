@@ -1,10 +1,22 @@
 package orego.play;
 
-import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.pointToString;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+
 import orego.book.OpeningBook;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
@@ -260,11 +272,42 @@ public class Player implements Playable {
 				}
 			}
 			setPolicy(prototype);
-		} else if (property.equals("heuristic")) {
+		} else if (property.startsWith("heuristic.")) { // set a *property* on a given policy
+			
+			// Command format: gogui-set-param heuristic.Escape.threshold 21
+			if (heuristics.length == 0) {
+				throw new UnsupportedOperationException("No heuristics exists when setting parameter '" + property + "'");
+			}
+		
+			// parse the full property name out into its component parts
+			StringTokenizer parser = new StringTokenizer(property);
+			
+			// skip the 'heuristic.' prefix
+			parser.nextToken(".");
+			
+			String heuristicName  	 = parser.nextToken(".");
+			
+			String heuristicProperty = parser.nextToken(" ");
+			
+			
+			// now we find the heuristic matching the heuristic name
+			for (Heuristic heuristic : heuristics) {
+				
+				// strip off class suffix of Heuristic and do compare
+				if (heuristic.getClass().getSimpleName().replace("Heuristic", "").equals(heuristicName)) {
+					heuristic.setProperty(heuristicProperty, value);
+				}
+			}
+				
+			throw new UnknownPropertyException("No heuristic exists for '" + heuristicName + "' when setting property '" + heuristicProperty + "'");
+		} else if (property.equals("heuristic") && ! value.isEmpty()) {
+			ArrayList<Heuristic> heuristics = new ArrayList<Heuristic>();
 			String[] heuristicClasses = value.split(":");
-			List<Heuristic> heuristics = new ArrayList<Heuristic>();
 			for (int i = heuristicClasses.length - 1; i >= 0; i--) {
-				String genClass = heuristicClasses[i];
+				String[] heuristicAndWeight = heuristicClasses[i].split("@");
+				// if no weight was specified, default to 1
+				double weight = heuristicAndWeight.length == 2 ? weight = Double.valueOf(heuristicAndWeight[1]) : 1;
+				String genClass = heuristicAndWeight[0];
 				if (!genClass.contains(".")) {
 					// set default path to heuristic if it isn't given
 					genClass = "orego.heuristic." + genClass;
@@ -274,17 +317,20 @@ public class Player implements Playable {
 					genClass = genClass + "Heuristic";
 				}
 				try {
+					Constructor<?> constructor = Class.forName(genClass).getConstructor(Double.TYPE);
+					Heuristic heur = (Heuristic) constructor.newInstance(weight);
 					// Heuristics are currently added in the REVERSE of the order
 					// in which they were specified. If we ever do anything but
 					// look at all of them, we may want to change this.
-					heuristics.add(0, (Heuristic) Class.forName(genClass)
-								.newInstance());
+					heuristics.add(0, heur);
 				} catch (Exception e) {
 					System.err.println("Cannot construct heuristic: " + value);
 					e.printStackTrace();
 					System.exit(1);
 				}
 			}
+			
+			// now set the instance array variable (we need a type for .toArray)
 			setHeuristics(heuristics.toArray(new Heuristic[0]));			
 		} else if (property.startsWith("policy.")) { // set a *property* on a given policy
 			

@@ -3,8 +3,12 @@ package orego.heuristic;
 import orego.core.Board;
 import static orego.core.Coordinates.*;
 
-public class LinesOneTwoHeuristic implements Heuristic{
+public class LinesOneTwoHeuristic extends Heuristic{
 
+	public LinesOneTwoHeuristic(double weight) {
+		setWeight(weight);
+	}
+	
 	@Override
 	public int evaluate(int p, Board board) {
 		// if the point is in one of the first two or last two columns on the

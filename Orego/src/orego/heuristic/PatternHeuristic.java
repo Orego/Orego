@@ -13,7 +13,11 @@ import orego.patterns.Pattern;
 import orego.patterns.SimplePattern;
 import orego.util.BitVector;
 
-public class PatternHeuristic implements Heuristic {
+public class PatternHeuristic extends Heuristic {
+	
+	public PatternHeuristic(double weight) {
+		setWeight(weight);
+	}
 	
 	/**
 	 * The number of total patterns, including impossible ones.

@@ -6,12 +6,13 @@ import static orego.core.Colors.*;
 import orego.util.*;
 
 /** The value of a move is the number of stones it captures. */
-public class CaptureHeuristic implements Heuristic {
+public class CaptureHeuristic extends Heuristic {
 
 	/** List of chains that would be captured by this move. */
 	private IntList targets;
 
-	public CaptureHeuristic() {
+	public CaptureHeuristic(double weight) {
+		setWeight(weight);
 		targets = new IntList(4);
 	}
 

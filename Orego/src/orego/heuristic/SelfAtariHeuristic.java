@@ -8,12 +8,13 @@ import orego.util.*;
  * The value of a move is as negative as the number of stones it puts in
  * self-atari including the point itself.
  */
-public class SelfAtariHeuristic implements Heuristic {
+public class SelfAtariHeuristic extends Heuristic {
 
 	/** List of chains already seen in atari. */
 	private IntList targets;
 
-	public SelfAtariHeuristic() {
+	public SelfAtariHeuristic(double weight) {
+		setWeight(weight);
 		targets = new IntList(4);
 	}
 

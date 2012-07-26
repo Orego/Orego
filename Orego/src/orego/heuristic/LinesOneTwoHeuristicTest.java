@@ -17,7 +17,7 @@ public class LinesOneTwoHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new LinesOneTwoHeuristic();
+		heuristic = new LinesOneTwoHeuristic(1);
 	}
 
 	@Test
