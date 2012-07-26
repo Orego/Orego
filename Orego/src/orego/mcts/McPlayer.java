@@ -192,7 +192,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 					result += "\n";
 				}
 				result += String.format("COLOR %s %s\nLABEL %s %.0f",
-						colorCode((double) heuristicsValues[p] / max),
+						colorCode((double) (heuristicsValues[p]-min) / (max-min)),
 						pointToString(p), pointToString(p), (double) heuristicsValues[p]);
 				
 			}

@@ -223,7 +223,6 @@ public class WinLossStatesTest {
 			}
 		}
 		
-		System.out.println("Successful Convergence: " + successful_convergences + " Total Tries: " + max_iterations);
 		// make sure we converge most of the time!
 		// TODO: .3 is far too high but we want tests to pass!
 		assertEquals(min_successful_conversions, (double) successful_convergences / (double) max_iterations, .3); // +/- .05 too low? too high?
