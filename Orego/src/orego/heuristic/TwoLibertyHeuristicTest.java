@@ -19,7 +19,7 @@ public class TwoLibertyHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new TwoLibertyHeuristic();
+		heuristic = new TwoLibertyHeuristic(2);
 	}
 
 	@Test
