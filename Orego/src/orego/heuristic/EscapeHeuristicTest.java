@@ -19,7 +19,7 @@ public class EscapeHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new EscapeHeuristic();
+		heuristic = new EscapeHeuristic(1);
 	}
 
 	@Test

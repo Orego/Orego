@@ -17,7 +17,7 @@ public class SpecificPointHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new SpecificPointHeuristic();
+		heuristic = new SpecificPointHeuristic(1);
 	}
 
 	@Test

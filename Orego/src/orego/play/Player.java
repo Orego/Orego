@@ -1,10 +1,22 @@
 package orego.play;
 
-import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.pointToString;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+
 import orego.book.OpeningBook;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
@@ -264,7 +276,10 @@ public class Player implements Playable {
 			String[] heuristicClasses = value.split(":");
 			List<Heuristic> heuristics = new ArrayList<Heuristic>();
 			for (int i = heuristicClasses.length - 1; i >= 0; i--) {
-				String genClass = heuristicClasses[i];
+				String[] heuristicAndWeight = heuristicClasses[i].split("@");
+				// if no weight was specified, default to 1
+				double weight = heuristicAndWeight.length == 2 ? weight = Double.valueOf(heuristicAndWeight[1]) : 1;
+				String genClass = heuristicAndWeight[0];
 				if (!genClass.contains(".")) {
 					// set default path to heuristic if it isn't given
 					genClass = "orego.heuristic." + genClass;
@@ -274,11 +289,12 @@ public class Player implements Playable {
 					genClass = genClass + "Heuristic";
 				}
 				try {
+					Constructor<?> constructor = Class.forName(genClass).getConstructor(Double.TYPE);
+					Heuristic heur = (Heuristic) constructor.newInstance(weight);
 					// Heuristics are currently added in the REVERSE of the order
 					// in which they were specified. If we ever do anything but
 					// look at all of them, we may want to change this.
-					heuristics.add(0, (Heuristic) Class.forName(genClass)
-								.newInstance());
+					heuristics.add(0, heur);
 				} catch (Exception e) {
 					System.err.println("Cannot construct heuristic: " + value);
 					e.printStackTrace();
