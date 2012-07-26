@@ -7,10 +7,11 @@ import static orego.experiment.Debug.debug;
 import static java.lang.Math.*;
 import static java.lang.String.format;
 import static java.lang.Double.*;
+
+import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
 import orego.play.UnknownPropertyException;
-import orego.policy.CoupDeGracePolicy;
 import orego.util.*;
 import orego.core.*;
 import orego.heuristic.Heuristic;
@@ -115,13 +116,9 @@ public class MctsPlayer extends McPlayer {
 						.isLegal(result))));
 		// Consider entering coup de grace mode
 		if (grace
-				&& (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)
-				& (((McRunnable) getRunnable(0)).getPolicy().getClass() != CoupDeGracePolicy.class)) {
+				&& (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
 			debug("Initiating coup de grace");
-			for (int i = 0; i < getNumberOfThreads(); i++) {
-				McRunnable m = ((McRunnable) getRunnable(i));
-				m.setPolicy(new CoupDeGracePolicy(m.getPolicy()));
-			}
+			// TODO Implement coup de grace here; it used to be a policy
 		}
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
@@ -525,9 +522,11 @@ public class MctsPlayer extends McPlayer {
 			for (int i = 0; i < getNumberOfThreads(); i++) {
 				Heuristic[] copy = new Heuristic[getHeuristics().length];
 				for (int j = 0; j < copy.length; j++) {
-					copy[j] = getHeuristics()[j].getClass().newInstance();
+					Constructor<?> constructor = getHeuristics()[j].getClass().getConstructor(Double.TYPE);
+					Heuristic heur = (Heuristic) constructor.newInstance(getHeuristics()[j].getWeight());
+					copy[j] = heur;
 				}
-				setRunnable(i, new McRunnable(this, getPolicy().clone(), copy));
+				setRunnable(i, new McRunnable(this, copy));
 			}
 			SearchNode root = getRoot();
 			if (root.isFresh()) {

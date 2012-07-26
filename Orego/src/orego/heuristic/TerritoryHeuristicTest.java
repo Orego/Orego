@@ -1,33 +1,23 @@
-package orego.policy;
+package orego.heuristic;
 
+import static orego.core.Colors.BLACK;
+import static orego.core.Coordinates.EXTENDED_BOARD_AREA;
+import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-
 import orego.core.Board;
-import orego.mcts.SearchNode;
-import static orego.core.Coordinates.*;
-import static orego.core.Colors.*;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
-
-public class TerritoryPolicyTest {
+public class TerritoryHeuristicTest {
 
 	private Board board;
 
-	private TerritoryPolicy policy;
-	
-	private SearchNode node;
-
-	private MersenneTwisterFast random;
+	private TerritoryHeuristic heuristic;
 
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		random = new MersenneTwisterFast();
-		policy = new TerritoryPolicy();
-		node = new SearchNode();
+		heuristic = new TerritoryHeuristic(1);
 	}
 	
 	@Test
@@ -50,16 +40,14 @@ public class TerritoryPolicyTest {
 				"...................",// 5
 				"...................",// 4
 				"...................",// 3
-				"...................",// 2
+				".O.O...............",// 2
 				"..................." // 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		policy.updatePriors(node, board, 2);
-		assertEquals(0, node.getWins(at("f13")));
-		assertEquals(14, node.getRuns(at("f13")));
-		assertEquals(0, node.getWins(at("d12")));
-		assertEquals(0, node.getRuns(at("d12")));
+		assertEquals(-1,heuristic.evaluate(at("f13"), board));
+		assertEquals(-1,heuristic.evaluate(at("c1"), board));
+		assertEquals(0,heuristic.evaluate(at("t6"), board));
 	}
 
 	@Test
@@ -67,7 +55,7 @@ public class TerritoryPolicyTest {
 		int[] ourweights = new int[EXTENDED_BOARD_AREA];
 		ourweights[at("e13")] = 64;
 		ourweights[at("h13")] = 64;
-		policy.dilation(ourweights);
+		heuristic.dilation(ourweights);
 		assertEquals(76, ourweights[at("e13")]);
 		assertEquals(76, ourweights[at("h13")]);
 		assertEquals(11, ourweights[at("f13")]);
@@ -86,8 +74,8 @@ public class TerritoryPolicyTest {
 		int[] ourweights = new int[EXTENDED_BOARD_AREA];
 		ourweights[at("e13")] = 64;
 		ourweights[at("h13")] = 64;
-		policy.dilation(ourweights);
-		policy.erosion(ourweights);
+		heuristic.dilation(ourweights);
+		heuristic.erosion(ourweights);
 		assertEquals(0, ourweights[at("e10")]);
 		assertEquals(7, ourweights[at("e12")]);
 		assertEquals(7, ourweights[at("e14")]);
@@ -95,5 +83,4 @@ public class TerritoryPolicyTest {
 		assertEquals(11, ourweights[at("f13")]);
 		assertEquals(76, ourweights[at("e13")]);
 	}
-
 }

@@ -8,13 +8,11 @@ import static orego.mcts.MctsPlayer.*;
 import java.util.StringTokenizer;
 import org.junit.Before;
 import org.junit.Test;
-
 import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import orego.heuristic.Heuristic;
 import orego.heuristic.SpecificPointHeuristic;
 import orego.play.UnknownPropertyException;
-import orego.policy.*;
 
 public class MctsPlayerTest {
 
@@ -62,7 +60,7 @@ public class MctsPlayerTest {
 		}
 		moves[i] = PASS;
 		moves[i + 1] = PASS;
-		McRunnable runnable = new McRunnable(player, new RandomPolicy(), new Heuristic[0]);
+		McRunnable runnable = new McRunnable(player, new Heuristic[0]);
 		player.fakeGenerateMovesToFrontierOfTree(runnable, moves);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
@@ -151,47 +149,47 @@ public class MctsPlayerTest {
 		}
 	}
 
-	@Test
-	public void testCoupDeGrace() throws UnknownPropertyException {
-		player.setProperty("threads", "4");
-		player.setProperty("grace", "true");
-		player.reset();
-		String[] problem;
-		if (BOARD_WIDTH == 19) {
-			problem = new String[] { "OOO................",// 19
-					"OOO................",// 18
-					"###################",// 17
-					"OOO................",// 16
-					"OOO................",// 15
-					"###################",// 14
-					"OOO................",// 13
-					"OOO................",// 12
-					"###################",// 11
-					"OOO................",// 10
-					"OOO................",// 9
-					"###################",// 8
-					"OOO................",// 7
-					"OOO................",// 6
-					"###################",// 5
-					"OOO................",// 4
-					"OOO................",// 3
-					"###################",// 2
-					"OOO................" // 1
-			// ABCDEFGHJKLMNOPQRST
-			};
-		} else {
-			problem = new String[] { "OOO......", "OOO......", "#########",
-					"OOO......", "OOO......", "#########", "OOO......",
-					"OOO......", "#########" };
-		}
-		player.setUpProblem(BLACK, problem);
-		int p = player.bestMove();
-		assertTrue(player.getWinRate(p) > COUP_DE_GRACE_PARAMETER);
-		assertTrue(((McRunnable) player.getRunnable(1)).getPolicy() instanceof CoupDeGracePolicy);
-		player.bestMove();
-		assertFalse(((McRunnable) player.getRunnable(1)).getPolicy()
-				.getFallback() instanceof CoupDeGracePolicy);
-	}
+//	@Test
+//	public void testCoupDeGrace() throws UnknownPropertyException {
+//		player.setProperty("threads", "4");
+//		player.setProperty("grace", "true");
+//		player.reset();
+//		String[] problem;
+//		if (BOARD_WIDTH == 19) {
+//			problem = new String[] { "OOO................",// 19
+//					"OOO................",// 18
+//					"###################",// 17
+//					"OOO................",// 16
+//					"OOO................",// 15
+//					"###################",// 14
+//					"OOO................",// 13
+//					"OOO................",// 12
+//					"###################",// 11
+//					"OOO................",// 10
+//					"OOO................",// 9
+//					"###################",// 8
+//					"OOO................",// 7
+//					"OOO................",// 6
+//					"###################",// 5
+//					"OOO................",// 4
+//					"OOO................",// 3
+//					"###################",// 2
+//					"OOO................" // 1
+//			// ABCDEFGHJKLMNOPQRST
+//			};
+//		} else {
+//			problem = new String[] { "OOO......", "OOO......", "#########",
+//					"OOO......", "OOO......", "#########", "OOO......",
+//					"OOO......", "#########" };
+//		}
+//		player.setUpProblem(BLACK, problem);
+//		int p = player.bestMove();
+//		assertTrue(player.getWinRate(p) > COUP_DE_GRACE_PARAMETER);
+//		assertTrue(((McRunnable) player.getRunnable(1)).getPolicy() instanceof CoupDeGracePolicy);
+//		player.bestMove();
+//		assertFalse(((McRunnable) player.getRunnable(1)).getPolicy()
+//				.getFallback() instanceof CoupDeGracePolicy);
+//	}
 
 	@Test
 	public void testMultipleMovesAtSamePointNotCounted() {
@@ -804,13 +802,6 @@ public class MctsPlayerTest {
 	}
 
 	@Test
-	public void testSetPropertyPolicy() throws UnknownPropertyException {
-		player.setProperty("policy", "CapturePolicy:RandomPolicy");
-		Policy gen = player.getPolicy();
-		assertEquals(gen.getClass(), CapturePolicy.class);
-	}
-
-	@Test
 	public void testResetClearsTranspositionTable() {
 		player.setPlayoutLimit(5000);
 		int move = player.bestMove();
@@ -823,7 +814,7 @@ public class MctsPlayerTest {
 	@Test
 	public void testPriorsAtRoot() throws UnknownPropertyException {
 		player.setProperty("priors", "1");
-		player.setHeuristics(new Heuristic[] {new SpecificPointHeuristic()});
+		player.setHeuristics(new Heuristic[] {new SpecificPointHeuristic(1)});
 		player.reset();
 		SearchNode root = player.getRoot();
 		assertEquals(2, root.getWins(at("c5")));

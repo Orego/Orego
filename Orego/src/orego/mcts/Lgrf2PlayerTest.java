@@ -6,7 +6,6 @@ import static orego.core.Coordinates.*;
 import static orego.core.Coordinates.PASS;
 import static orego.mcts.MctsPlayerTest.TABLE_SIZE;
 import static org.junit.Assert.*;
-import orego.policy.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,21 +20,10 @@ public class Lgrf2PlayerTest {
 		player = new Lgrf2Player();
 		player.setProperty("pool", "" + TABLE_SIZE);
 		player.setProperty("threads", "1");
-		player.setProperty("policy", "Escape:Pattern:Capture");
+		player.setProperty("heuristic", "Pattern:Capture");
 		player.setPlayoutLimit(1000);
 		player.reset();
 		runnable = (McRunnable) (player.getRunnable(0));
-	}
-
-	@Test
-	public void testNestedPolicies() throws Exception {
-		player.setProperty("threads", "4");
-		player.reset();
-		Policy policy = ((McRunnable) (player.getRunnable(2))).getPolicy();
-		assertSame(Lgrf2Policy.class, policy.getClass());
-		assertSame(Lgrf1Policy.class, policy.getFallback().getClass());
-		assertSame(EscapePolicy.class, policy.getFallback().getFallback()
-				.getClass());
 	}
 
 	/**

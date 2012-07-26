@@ -6,12 +6,13 @@ import static orego.core.Colors.*;
 import orego.util.*;
 
 /** The value of a move is the number of stones saved * the number of liberties after saving - 1. */
-public class EscapeHeuristic implements Heuristic {
+public class EscapeHeuristic extends Heuristic {
 
 	/** List of chains that would be saved by this move. */
 	private IntList targets;
 
-	public EscapeHeuristic() {
+	public EscapeHeuristic(double weight) {
+		setWeight(weight);
 		targets = new IntList(4);
 	}
 
@@ -33,14 +34,15 @@ public class EscapeHeuristic implements Heuristic {
 					targets.add(target);
 					result += board.getChainSize(target);
 				}
-				else{
+				else {
+					// add the liberties of the friendly chain, minus one
 					multiplier += board.getLibertyCount(neighbor) - 1;
 				}
 			}
 		}
 		multiplier += board.getVacantNeighborCount(p);
 		result *= (multiplier - 1);
-		return result;
+		return Math.max(0, result);
 	}
 
 }

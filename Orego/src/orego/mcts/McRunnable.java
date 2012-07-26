@@ -4,7 +4,6 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.*;
 import static orego.core.Board.*;
 import orego.core.Board;
-import orego.policy.*;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 import orego.heuristic.*;
@@ -36,21 +35,17 @@ public class McRunnable implements Runnable {
 	/** Number of playouts completed. */
 	private int playoutsCompleted;
 
-	/** Playout policy. */
-	private Policy policy;
-
 	/** Array of heuristics. */
 	private Heuristic[] heuristics;
 
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
-	public McRunnable(McPlayer player, Policy policy, Heuristic[] heuristics) {
+	public McRunnable(McPlayer player, Heuristic[] heuristics) {
 		board = new Board();
 		this.player = player;
 		random = new MersenneTwisterFast();
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
-		this.policy = policy;
 		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		this.heuristics = heuristics;
 	}
@@ -114,11 +109,6 @@ public class McRunnable implements Runnable {
 	/** Returns the number of playouts completed by this runnable. */
 	public int getPlayoutsCompleted() {
 		return playoutsCompleted;
-	}
-
-	/** Returns this runnable's policy. */
-	public Policy getPolicy() {
-		return policy;
 	}
 
 	/** Returns the random number generator associated with this runnable. */
@@ -192,22 +182,18 @@ public class McRunnable implements Runnable {
 	}
 
 	// TODO Is the return value necessary?
+	// TODO Do we need to pass in the board or the random here?
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		// Compute heuristic values
+		// Compute best heuristic value
 		int bestMove = NO_POINT;
 		int bestValue = 0;
-//		IntSet vacantPoints = board.getVacantPoints();
-//		int start = random.nextInt(vacantPoints.size());
-//		int i = start;
-//		do {
-//			int p = vacantPoints.get(i);
 		int lastMove = board.getMove(board.getTurn() - 1);
 		if (ON_BOARD[lastMove]) {
 			for (int p : KNIGHT_NEIGHBORHOOD[lastMove]) {
 				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 					int value = 0;
 					for (Heuristic h : heuristics) {
-						value += h.evaluate(p, board);
+						value += h.evaluate(p, board) * h.getWeight();
 					}
 					if (value > bestValue) {
 						bestValue = value;
@@ -216,23 +202,29 @@ public class McRunnable implements Runnable {
 				}
 			}
 		}
-//			// The magic number 457 is prime and larger than vacantPoints.size().
-//			// Advancing by 457 therefore skips "randomly" through the array,
-//			// in a manner analogous to double hashing.
-//			i = (i + 457) % vacantPoints.size();
-//		} while (i != start);
 		// If there is a best move, try to play it
 		if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
 			return bestMove;
-		} else {
-			// No luck -- play randomly
-			return policy.selectAndPlayOneMove(random, board);
 		}
-	}
-
-	/** Sets the policy of this McRunnable. */
-	public void setPolicy(Policy policy) {
-		this.policy = policy;
+		// No luck -- play randomly
+		IntSet vacantPoints = board.getVacantPoints();
+		int start = random.nextInt(vacantPoints.size());
+		int i = start;
+		do {
+			int p = vacantPoints.get(i);
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))
+					&& (board.playFast(p) == PLAY_OK)) {
+				return p;
+			}
+			// The magic number 457 is prime and larger than
+			// vacantPoints.size().
+			// Advancing by 457 therefore skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
+		// No legal move; pass
+		board.pass();
+		return PASS;
 	}
 
 	public void updatePriors(SearchNode node, Board board, int priors) {
@@ -242,7 +234,7 @@ public class McRunnable implements Runnable {
 			if (board.isFeasible(p)) {
 				int value = 0;
 				for (Heuristic h : heuristics) {
-					value += h.evaluate(p, board);
+					value += h.evaluate(p, board) * h.getWeight();
 				}
 				if (value > 0) {
 					node.addWins(p, value * priors);

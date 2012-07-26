@@ -1,51 +1,21 @@
-package orego.policy;
+package orego.heuristic;
 
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.*;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.WHITE;
+import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
+import static orego.core.Coordinates.EXTENDED_BOARD_AREA;
+import static orego.core.Coordinates.NEIGHBORS;
 import orego.core.Board;
 import orego.core.Coordinates;
-import orego.mcts.SearchNode;
-import ec.util.MersenneTwisterFast;
 
-public class TerritoryPolicy extends Policy {
-
+public class TerritoryHeuristic extends Heuristic {
+	
+	public TerritoryHeuristic(double weight) {
+		setWeight(weight);
+	}
+	
 	int[] weights;
-	
-	final static int TERRITORY_WEIGHT = 7;
 
-	public TerritoryPolicy() {
-		this(new RandomPolicy());
-	}
-
-	public TerritoryPolicy(Policy fallback) {
-		super(fallback);
-	}
-
-	@Override
-	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		return getFallback().selectAndPlayOneMove(random, board);
-	}
-
-	@Override
-	public void updatePriors(SearchNode node, Board board, int weight) {
-		weights = new int[EXTENDED_BOARD_AREA];
-		for (int p : ALL_POINTS_ON_BOARD) {
-			if (board.getColor(p) == BLACK) {
-				weights[p] = 64;
-			}
-			if (board.getColor(p) == WHITE) {
-				weights[p] = -64;
-			}
-		}
-		dilation(weights);
-		erosion(weights);
-		for (int p : ALL_POINTS_ON_BOARD) {
-			if (weights[p] != 0){
-				node.addLosses(p, weight * TERRITORY_WEIGHT);
-			}
-		}
-	}
-	
 	public int[] calculateTerritory(Board board) {
 		weights = new int[EXTENDED_BOARD_AREA];
 		for (int p : ALL_POINTS_ON_BOARD) {
@@ -120,6 +90,17 @@ public class TerritoryPolicy extends Policy {
 			for (int i = 0; i < newweights.length; i++) {
 				weights[i] = newweights[i];
 			}
+		}
+	}
+	
+	@Override
+	public int evaluate(int p, Board board) {
+		calculateTerritory(board);
+		if (weights[p] != 0) {
+			return -1;
+		}
+		else {
+			return 0;
 		}
 	}
 

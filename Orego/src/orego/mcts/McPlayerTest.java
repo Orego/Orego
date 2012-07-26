@@ -2,8 +2,8 @@ package orego.mcts;
 
 import static org.junit.Assert.*;
 import java.io.PipedOutputStream;
+import orego.heuristic.*;
 import orego.play.UnknownPropertyException;
-import orego.policy.*;
 import orego.ui.Orego;
 import org.junit.*;
 
@@ -48,10 +48,10 @@ public class McPlayerTest {
 	}
 
 	@Test
-	public void testSetPropertyPolicy() throws UnknownPropertyException {
-		player.setProperty("policy", "CapturePolicy:RandomPolicy");
-		Policy gen = player.getPolicy();
-		assertEquals(gen.getClass(), CapturePolicy.class);
+	public void testSetPropertyHeuristic() throws UnknownPropertyException {
+		player.setProperty("heuristic", "Capture:Pattern");
+		assertEquals(CaptureHeuristic.class, player.getHeuristics()[0].getClass());
+		assertEquals(PatternHeuristic.class, player.getHeuristics()[1].getClass());
 	}
 
 	@Test
