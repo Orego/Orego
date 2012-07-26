@@ -528,7 +528,7 @@ public class MctsPlayer extends McPlayer {
 				Heuristic[] copy = new Heuristic[getHeuristics().length];
 				for (int j = 0; j < copy.length; j++) {
 					Constructor<?> constructor = getHeuristics()[j].getClass().getConstructor(Double.TYPE);
-					Heuristic heur = (Heuristic) constructor.newInstance(1);
+					Heuristic heur = (Heuristic) constructor.newInstance(getHeuristics()[j].getWeight());
 					copy[j] = heur;
 				}
 				setRunnable(i, new McRunnable(this, getPolicy().clone(), copy));
