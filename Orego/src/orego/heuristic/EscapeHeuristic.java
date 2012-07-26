@@ -34,14 +34,15 @@ public class EscapeHeuristic extends Heuristic {
 					targets.add(target);
 					result += board.getChainSize(target);
 				}
-				else{
+				else {
+					// add the liberties of the friendly chain, minus one
 					multiplier += board.getLibertyCount(neighbor) - 1;
 				}
 			}
 		}
 		multiplier += board.getVacantNeighborCount(p);
 		result *= (multiplier - 1);
-		return result;
+		return Math.max(0, result);
 	}
 
 }
