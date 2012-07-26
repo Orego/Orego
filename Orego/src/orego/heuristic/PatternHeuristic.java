@@ -1,24 +1,24 @@
-package orego.policy;
+package orego.heuristic;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-import static orego.core.Coordinates.NEIGHBORS;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.OFF_BOARD_COLOR;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.ON_BOARD;
-import static orego.patterns.Pattern.*;
+import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
-import orego.mcts.SearchNode;
-import orego.patterns.*;
-import orego.util.*;
-import ec.util.MersenneTwisterFast;
-/**
- * Generates response moves to the previous play if a there are any pattern
- * matches in the immediate area.
- * 
- * @see orego.patterns
- */
-public class PatternPolicy extends Policy {
+import orego.patterns.ColorSpecificPattern;
+import orego.patterns.Cut1Pattern;
+import orego.patterns.Pattern;
+import orego.patterns.SimplePattern;
+import orego.util.BitVector;
 
+public class PatternHeuristic extends Heuristic {
+	
+	public PatternHeuristic(double weight) {
+		setWeight(weight);
+	}
+	
 	/**
 	 * The number of total patterns, including impossible ones.
 	 */
@@ -99,7 +99,7 @@ public class PatternPolicy extends Policy {
 	public static final boolean isGoodMove(int color, char neighborhood) {
 		return GOOD_NEIGHBORHOODS[color].get(neighborhood);
 	}
-
+	
 	/**
 	 * Returns true if the the specified 3x3 neighborhood can possibly occur.
 	 * Neighborhoods are impossible if, for example, there are non-contiguous
@@ -125,76 +125,14 @@ public class PatternPolicy extends Policy {
 		return false;
 	}
 
-	/** A set of moves determined to have high value from the pattern matcher. */
-	private IntSet goodMoves;
-
-	/** Defaults to random fallback if none is specified. */
-	public PatternPolicy() {
-		this(new RandomPolicy());
-	}
-
-	public PatternPolicy(Policy fallback) {
-		super(fallback);
-		goodMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
-	}
-
-	public Policy clone() {
-		PatternPolicy result = (PatternPolicy) super.clone();
-		result.goodMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
-		return result;
-	}
-
 	@Override
-	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		int lastPlay = board.getMove(board.getTurn() - 1);
-		if (ON_BOARD[lastPlay]) {
-			// clear old moves
-			goodMoves.clear();
-			// populate new good moves from the eight neighbors of the previous
-			// play
-			int[] n = NEIGHBORS[lastPlay];
-			for (int i = 0; i < n.length; i++) {
-				if (ON_BOARD[n[i]]
-						&& board.getColor(n[i]) == VACANT
-						&& isGoodMove(board.getColorToPlay(),
-								board.getNeighborhood(n[i]))) {
-					goodMoves.addKnownAbsent(n[i]);
-				}
-			}
-			// starting from a random point in good moves, return the first
-			// available good move
-			if (goodMoves.size() == 0) {
-				return getFallback().selectAndPlayOneMove(random, board);
-			}
-			int start = random.nextInt(goodMoves.size());
-			int i = start;
-			do {
-				int p = goodMoves.get(i);
-				if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
-					return p;
-				}
-				// The magic number 457 is prime and larger than goodMoves.size().
-				// Advancing by 457 therefore skips "randomly" through the array,
-				// in a manner analogous to double hashing.
-				i = (i + 457) % goodMoves.size();
-			} while (i != start);
-		} // end if
-		return getFallback().selectAndPlayOneMove(random, board);
-	}
-
-	public void updatePriors(SearchNode node, Board board, int weight) {
-		// Update priors for the eight neighbors of the previous play
-		int lastPlay = board.getMove(board.getTurn() - 1);
-		int[] n = NEIGHBORS[lastPlay];
-		for (int i = 0; i < n.length; i++) {
-			if (ON_BOARD[n[i]]
-					&& board.getColor(n[i]) == VACANT
-					&& isGoodMove(board.getColorToPlay(),
-							board.getNeighborhood(n[i]))) {
-				node.addWins(n[i], weight);
-			}
+	public int evaluate(int p, Board board) {
+		if (board.getColor(p) == VACANT
+				&& isGoodMove(board.getColorToPlay(),
+						board.getNeighborhood(p))) {
+			return 1;
 		}
-		getFallback().updatePriors(node, board, weight);
+		return 0;
 	}
 
 }

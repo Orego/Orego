@@ -4,7 +4,6 @@ import static orego.core.Board.*;
 import static orego.core.Coordinates.*;
 import orego.core.Board;
 import orego.mcts.SearchNode;
-import orego.response.ResponsePlayer;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
@@ -41,7 +40,4 @@ public class RandomPolicy extends Policy {
 		// Does nothing
 	}
 
-	public void updateResponses(ResponsePlayer player, Board board, int weight) {
-		// Does nothing
-	}
 }

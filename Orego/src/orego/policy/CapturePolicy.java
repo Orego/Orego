@@ -5,8 +5,6 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.mcts.SearchNode;
-import orego.response.RawResponseList;
-import orego.response.ResponsePlayer;
 import orego.util.*;
 import orego.core.Board;
 import ec.util.MersenneTwisterFast;
@@ -96,19 +94,4 @@ public class CapturePolicy extends Policy {
 		getFallback().updatePriors(node, board, weight);
 	}
 
-	@Override
-	public void updateResponses(ResponsePlayer player, Board board, int weight) {
-		if(board.getTurn() >= 2) {
-			int enemy = opposite(board.getColorToPlay());
-			for (int p : ALL_POINTS_ON_BOARD) {
-				if ((board.getColor(p) == enemy) & (board.getChainId(p) == p)) {
-					int liberty = board.getCapturePoint(p);
-					if (liberty != NO_POINT) {
-						player.addWins(liberty, board, board.getChainSize(p) * weight);
-					}
-				}
-			}
-		}
-		getFallback().updateResponses(player, board, weight);
-	}
 }
