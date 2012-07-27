@@ -90,7 +90,6 @@ public class DynamicPatternTest {
 			DynamicPattern pattern1 = new DynamicPattern(at("f6"), board, 24);
 			DynamicPattern pattern2 = new DynamicPattern(at("p15"), board, 24);
 			assertTrue(pattern1.match(pattern1));
-			assertArrayEquals(pattern1.getPattern()[0], pattern2.getPattern()[5]);
 			assertTrue(pattern1.match(pattern2));
 		}
 	}
