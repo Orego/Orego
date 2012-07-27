@@ -52,7 +52,7 @@ public class HeuristicList implements Cloneable {
 			// loop through heuristics and create *new* instances of each underlying subclass
 			for (int i = 0; i < heuristics.length; i++) {
 				Heuristic heur = heuristics[i];
-				Constructor<?> constructor = heur.getClass().getConstructor(Double.TYPE);
+				Constructor<?> constructor = heur.getClass().getConstructor(Integer.TYPE);
 				Heuristic copy = (Heuristic) constructor.newInstance(heur.getWeight());	
 				
 				copied.getHeuristics()[i] = copy;
@@ -94,8 +94,8 @@ public class HeuristicList implements Cloneable {
 			}
 			
 			try {
-				Constructor<?> constructor = Class.forName(genClass).getConstructor(Double.TYPE);
-				Heuristic heur = (Heuristic) constructor.newInstance(weight);
+				Constructor<?> constructor = Class.forName(genClass).getConstructor(Integer.TYPE);
+				Heuristic heur = (Heuristic) constructor.newInstance((int)(Math.round(weight)));
 				heuristics[i] = heur;
 				
 			} catch (Exception e) {

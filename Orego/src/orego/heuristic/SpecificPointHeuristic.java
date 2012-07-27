@@ -8,7 +8,7 @@ import orego.util.*;
 /** Returns 1 for b2, 0 for all other points. For testing only. */
 public class SpecificPointHeuristic extends Heuristic {
 
-	public SpecificPointHeuristic(double weight) {
+	public SpecificPointHeuristic(int weight) {
 		super(weight);
 	}
 	

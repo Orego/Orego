@@ -10,7 +10,7 @@ import orego.core.Coordinates;
 
 public class TerritoryHeuristic extends Heuristic {
 	
-	public TerritoryHeuristic(double weight) {
+	public TerritoryHeuristic(int weight) {
 		super(weight);
 	}
 	

@@ -5,7 +5,7 @@ import static orego.core.Coordinates.*;
 
 public class LinesOneTwoHeuristic extends Heuristic{
 
-	public LinesOneTwoHeuristic(double weight) {
+	public LinesOneTwoHeuristic(int weight) {
 		super(weight);
 	}
 	
