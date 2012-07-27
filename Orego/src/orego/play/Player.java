@@ -274,6 +274,9 @@ public class Player implements Playable {
 			}
 		} else {
 			getHeuristics().setProperty(property, value); // toss off to the heuristics list 
+			
+			// remove any heuristics which now have a weight of zero
+			getHeuristics().removeZeroWeightedHeuristics();
 		}
 	}
 

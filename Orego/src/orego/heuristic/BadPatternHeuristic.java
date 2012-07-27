@@ -7,6 +7,7 @@ import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.ON_BOARD;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
+import orego.core.Coordinates;
 import orego.patterns.ColorSpecificPattern;
 import orego.patterns.Cut1Pattern;
 import orego.patterns.Pattern;
@@ -15,7 +16,7 @@ import orego.util.BitVector;
 
 public class BadPatternHeuristic extends Heuristic {
 	
-	public BadPatternHeuristic(double weight) {
+	public BadPatternHeuristic(int weight) {
 		super(weight);
 	}
 	
@@ -33,17 +34,16 @@ public class BadPatternHeuristic extends Heuristic {
 	 * "Modification of UCT with Patterns in Monte-Carlo Go"
 	 */
 	private static final Pattern[] PATTERN_LIST = {
+		
 			// BLACK SPECIFIC PATTERNS
 			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
-			new ColorSpecificPattern(".#..#...", BLACK), // Empty Triangle 1
-			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle 2
+			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
 			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
 
 			// WHITE SPECIFIC PATTERNS
-			new ColorSpecificPattern("#.##?++?", WHITE), // Ponnuki 
-			new ColorSpecificPattern(".O..O...", WHITE), // Empty Triangle 1
-			new ColorSpecificPattern(".O..O.?.", WHITE), // Empty Triangle 2
-			new ColorSpecificPattern(".##?##??", WHITE), // Push through bamboo
+			new ColorSpecificPattern("O.OO?oo?", WHITE), // Ponnuki 
+			new ColorSpecificPattern(".#..#.?.", WHITE), // Empty Triangle
+			new ColorSpecificPattern(".OO?OO??", WHITE), // Push through bamboo
 
 			// Color independent patterns
 	};
@@ -63,8 +63,8 @@ public class BadPatternHeuristic extends Heuristic {
 			diagramToNeighborhood("..*\n. *\n***") };
 
 	static {
-		// Find all good neighborhoods, i.e., neighborhoods where a player
-		// should play.
+		// Find all bad neighborhoods, i.e., neighborhoods where a player
+		// should not play.
 		// Note that i has to be an int, rather than a char, because
 		// otherwise incrementing it after Character.MAX_VALUE would
 		// return it to 0, resulting in an infinite loop.
@@ -72,22 +72,17 @@ public class BadPatternHeuristic extends Heuristic {
 			if (!isPossibleNeighborhood((char) i)) {
 				continue;
 			}
-			for (int p = 0; p < 4; p++) {
+					
+			for (int p = 0; p < 3; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					BAD_NEIGHBORHOODS[BLACK].set(i, true);
 				}
 			}
-			for (int p = 4; p < 8; p++) {
+			for (int p = 3; p < 6; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
-			}
-			for (int p = 8; p < PATTERN_LIST.length; p++) {
-				if (PATTERN_LIST[p].matches((char) i)) {
-					BAD_NEIGHBORHOODS[BLACK].set(i, true);
-					BAD_NEIGHBORHOODS[WHITE].set(i, true);
-				}
-			}
+			}	
 		}
 	}
 
@@ -122,9 +117,8 @@ public class BadPatternHeuristic extends Heuristic {
 
 	@Override
 	public int evaluate(int p, Board board) {
-		if (board.getColor(p) == VACANT
-				&& isBadMove(board.getColorToPlay(),
-						board.getNeighborhood(p))) {
+		assert board.getColor(p)==VACANT;
+		if (board.getColor(p) == VACANT && isBadMove(board.getColorToPlay(), board.getNeighborhood(p))) {
 			return -1;
 		}
 		return 0;

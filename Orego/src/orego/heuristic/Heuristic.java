@@ -6,19 +6,19 @@ import orego.core.Board;
 public abstract class Heuristic {
 
 	/**
-	 * The amount of weight given to the heuristic
+	 * The weight given to the heuristic
 	 */
-	private double weight;
+	private int weight;
 	
-	public Heuristic(double weight) {
+	public Heuristic(int weight) {
 		this.weight = weight;
 	}
 	
-	public double getWeight() {
+	public int getWeight() {
 		return weight;
 	}
 
-	public void setWeight(double weight) {
+	public void setWeight(int weight) {
 		this.weight = weight;
 	}
 
@@ -35,7 +35,7 @@ public abstract class Heuristic {
 	 */
 	public void setProperty(String property, String value) {
 		if (property.equals("weight")) {
-			this.weight = Double.valueOf(value);
+			this.weight = Integer.valueOf(value);
 		}
 	}
 

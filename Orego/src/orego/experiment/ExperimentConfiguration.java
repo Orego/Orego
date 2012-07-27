@@ -49,8 +49,7 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 player=Rave heuristic=Capture@1:Pattern@1",
-		 "threads=1 msec=4000 heuristic=Capture@1:Pattern@1",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Capture@20:Pattern@20",
 	 };
 
 }

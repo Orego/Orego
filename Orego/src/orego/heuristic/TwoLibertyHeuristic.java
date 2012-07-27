@@ -16,7 +16,7 @@ public class TwoLibertyHeuristic extends Heuristic {
 	 */
 	private IntList targets;
 
-	public TwoLibertyHeuristic(double weight) {
+	public TwoLibertyHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
 	}

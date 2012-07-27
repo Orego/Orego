@@ -11,7 +11,7 @@ public class EscapeHeuristic extends Heuristic {
 	/** List of chains that would be saved by this move. */
 	private IntList targets;
 
-	public EscapeHeuristic(double weight) {
+	public EscapeHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
 	}
