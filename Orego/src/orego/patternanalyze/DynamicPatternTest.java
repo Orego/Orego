@@ -47,16 +47,16 @@ public class DynamicPatternTest {
 				};
 			board.setUpProblem(BLACK, problem);
 			pattern = new DynamicPattern(at("f6"), board, 24);
-			assertEquals(WHITE, (int)pattern.getPattern()[0][0]);
-			assertEquals(WHITE, (int)pattern.getPattern()[0][19]);
-			assertEquals(WHITE, (int)pattern.getPattern()[1][16]);
-			assertEquals(WHITE, (int)pattern.getPattern()[2][12]);
-			assertEquals(WHITE, (int)pattern.getPattern()[3][15]);
-			assertEquals(WHITE, (int)pattern.getPattern()[4][18]);
-			assertEquals(WHITE, (int)pattern.getPattern()[5][14]);
-			assertEquals(WHITE, (int)pattern.getPattern()[6][13]);
-			assertEquals(WHITE, (int)pattern.getPattern()[7][17]);
-			assertEquals(WHITE, (int)pattern.getPattern()[1][5]);
+			assertEquals(WHITE, pattern.getColorFromPosition(0, 0));
+			assertEquals(WHITE, pattern.getColorFromPosition(0, 19));
+			assertEquals(WHITE, pattern.getColorFromPosition(1, 16));
+			assertEquals(WHITE, pattern.getColorFromPosition(2, 12));
+			assertEquals(WHITE, pattern.getColorFromPosition(3, 15));
+			assertEquals(WHITE, pattern.getColorFromPosition(4, 18));
+			assertEquals(WHITE, pattern.getColorFromPosition(5, 14));
+			assertEquals(WHITE, pattern.getColorFromPosition(6, 13));
+			assertEquals(WHITE, pattern.getColorFromPosition(7, 17));
+			assertEquals(WHITE, pattern.getColorFromPosition(1, 5));
 		}
 	}
 	
