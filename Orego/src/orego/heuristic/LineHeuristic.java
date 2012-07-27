@@ -9,8 +9,8 @@ public class LineHeuristic extends Heuristic {
 	
 	private static double[] morevalues;
 	
-	public LineHeuristic(double weight) {
-		setWeight(weight);
+	public LineHeuristic(int weight) {
+		super(weight);
 	}
 
 	static {
