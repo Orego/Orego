@@ -39,11 +39,7 @@ public class BadPatternHeuristic extends Heuristic {
 			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
 			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
 			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
-			/*
-			new ColorSpecificPattern("#.##?++?", BLACK), // Ponnuki 
-			new ColorSpecificPattern(".O..O.?.", BLACK), // Empty Triangle
-			new ColorSpecificPattern(".##?##??", BLACK), // Push through bamboo
-			*/
+
 			// WHITE SPECIFIC PATTERNS
 			new ColorSpecificPattern("O.OO?oo?", WHITE), // Ponnuki 
 			new ColorSpecificPattern(".#..#.?.", WHITE), // Empty Triangle
@@ -86,17 +82,7 @@ public class BadPatternHeuristic extends Heuristic {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
-			}
-			/*
-			for (int p = 0; p < PATTERN_LIST.length; p++) {
-				if (PATTERN_LIST[p].matches((char) i)) {
-					BAD_NEIGHBORHOODS[BLACK].set(i, true);
-					BAD_NEIGHBORHOODS[WHITE].set(i, true);
-				}
-			}
-			*/
-			
-			
+			}	
 		}
 	}
 
