@@ -49,8 +49,21 @@ public class DynamicPattern {
 		return result;
 	}
 	
+	public static String longToPatternString(long pattern, int patternLength) {
+		String result = "";
+		for (int i = 0; i < patternLength; i++) {
+			result += "#O.*".charAt((int)((pattern & ((long)3 << (i * 2))) >> (i* 2)));
+		}
+		result += ":"+"#O".charAt(((int)(pattern >> 63) & 1));
+		return result;
+	}
+	
 	public int getColorFromPosition(int choice, int position) {
 		return (int)((this.getPattern()[choice] & ((long)3 << (position * 2))) >> (position * 2));
+	}
+	
+	public int getColorToPlay() {
+		return (int)(this.getPattern()[0] >> 63);
 	}
 	
 	/**
@@ -67,7 +80,7 @@ public class DynamicPattern {
 	 * @param choice
 	 */
 	public long setupPattern(int choice, int p, Board board) {
-		long currentPattern = 0;
+		long currentPattern = ((long)board.getColorToPlay()) << 63;
 		int north = 0;
 		int south = 0;
 		int east = 0;
@@ -252,7 +265,7 @@ public class DynamicPattern {
 				}
 				break;
 			case 23:
-				if ((currentPattern & 192) >> 6 != OFF_BOARD_COLOR && (currentPattern & 12582912) != OFF_BOARD_COLOR) {
+				if ((currentPattern & 192) >> 6 != OFF_BOARD_COLOR && (currentPattern & 12582912) >> 22 != OFF_BOARD_COLOR) {
 					currentPattern = (long) (board.getColor(p + south + south + south)) << 46 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 46 | currentPattern;
