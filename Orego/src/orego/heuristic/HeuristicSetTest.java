@@ -74,6 +74,53 @@ public class HeuristicSetTest {
 	}
 	
 	@Test
+	public void testRemoveZeroWeightedHeuristics() throws Exception {
+		heuristics.loadHeuristicList("Escape@2:Capture@3");
+		assertEquals(2, heuristics.size());
+		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
+		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
+		heuristics.setProperty("heuristic.Escape.weight", "0");
+		
+		heuristics.removeZeroWeightedHeuristics();
+		// make sure the escape property is gone
+		assertEquals(1, heuristics.size());
+		assertEquals(CaptureHeuristic.class,  heuristics.getHeuristics()[0].getClass());
+		
+		heuristics.setProperty("heuristic.Capture.weight", "0");
+		
+		heuristics.removeZeroWeightedHeuristics();
+		
+		// make sure the capture property is gone
+		assertEquals(0, heuristics.size());
+	}
+	
+	@Test
+	public void testAddNewHeuristicWhenSettingProperty() throws Exception {
+		heuristics.loadHeuristicList("Escape@2:Capture@3");
+		 
+		assertEquals(2, heuristics.size());
+		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
+		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
+		
+		heuristics.setProperty("heuristic.Proximity.weight", "10");
+		
+		// we should have added the Proximity heuristic
+		assertEquals(3, heuristics.size());
+		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
+		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
+		assertEquals(ProximityHeuristic.class, heuristics.getHeuristics()[2].getClass());
+		
+		// we should now remove the escape heuristic
+		heuristics.setProperty("heuristic.Escape.weight", "0");
+		
+		heuristics.removeZeroWeightedHeuristics();
+		
+		assertEquals(2, heuristics.size());
+		assertEquals(CaptureHeuristic.class,  heuristics.getHeuristics()[0].getClass());
+		assertEquals(ProximityHeuristic.class, heuristics.getHeuristics()[1].getClass());
+	}
+	
+	@Test
 	public void testZeroWeightHeuristic() {
 		heuristics.loadHeuristicList("Escape@2:Capture@0:Pattern@10");
 		assertEquals(2, heuristics.getHeuristics().length);

@@ -110,6 +110,50 @@ public class HeuristicList implements Cloneable {
 		heuristics = list.toArray(new Heuristic[0]);
 	}
 
+	public void removeZeroWeightedHeuristics() {
+		ArrayList<Heuristic> copied = new ArrayList<Heuristic>();
+		
+		for (Heuristic heur : heuristics) {
+			if (heur.getWeight() != 0) {
+				copied.add(heur);
+			}
+		}
+		
+		heuristics = copied.toArray(new Heuristic[0]);
+	}
+	
+	public Heuristic appendNewHeuristic(String heuristicName) {
+		Heuristic heuristic = null;
+		
+		try {
+			if (!heuristicName.contains(".")) {
+				// set default path to heuristic if it isn't given
+				heuristicName = "orego.heuristic." + heuristicName;
+			}
+			if (!heuristicName.endsWith("Heuristic")) {
+				// complete the class name if a shortened version is used
+				heuristicName = heuristicName + "Heuristic";
+			}
+			
+			Constructor<?> constructor = Class.forName(heuristicName).getConstructor(Integer.TYPE);
+			heuristic = (Heuristic) constructor.newInstance(1);
+			
+			// copy into new array
+			Heuristic[] cloned = Arrays.copyOf(heuristics, heuristics.length + 1);
+			
+			// copy into last index
+			cloned[heuristics.length] = heuristic;
+			
+			heuristics = cloned;
+			return heuristic;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		return null;
+	}
+	
 	public void setProperty(String name, String value)
 			throws UnknownPropertyException {
 		if (name.equals("heuristics") && !value.isEmpty()) {
@@ -133,15 +177,15 @@ public class HeuristicList implements Cloneable {
 			// through all our heuristics)
 			for (Heuristic heuristic : heuristics) {
 				// strip off class suffix of Heuristic and do compare
-				if (heuristic.getClass().getSimpleName()
-						.replace("Heuristic", "").equals(heuristicName)) {
+				if (heuristic.getClass().getSimpleName().replace("Heuristic", "").equals(heuristicName)) {
 					heuristic.setProperty(heuristicProperty, value);
 					return;
 				}
 			}
-			throw new UnsupportedOperationException("No heuristic exists for '"
-					+ heuristicName + "' when setting property '"
-					+ heuristicProperty + "'");
+			
+			// create heuristic if it doesn't exist
+			Heuristic newHeuristic = appendNewHeuristic(heuristicName + "Heuristic");
+			newHeuristic.setProperty(heuristicProperty, value);
 		} else {
 			throw new UnknownPropertyException("No property exists for '"
 					+ name + "'");
