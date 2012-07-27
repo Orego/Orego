@@ -15,7 +15,7 @@ import orego.util.BitVector;
 
 public class PatternHeuristic extends Heuristic {
 	
-	public PatternHeuristic(double weight) {
+	public PatternHeuristic(int weight) {
 		super(weight);
 	}
 	

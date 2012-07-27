@@ -11,7 +11,7 @@ public class CaptureHeuristic extends Heuristic {
 	/** List of chains that would be captured by this move. */
 	private IntList targets;
 
-	public CaptureHeuristic(double weight) {
+	public CaptureHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
 	}

@@ -13,7 +13,7 @@ public class SelfAtariHeuristic extends Heuristic {
 	/** List of chains already seen in atari. */
 	private IntList targets;
 
-	public SelfAtariHeuristic(double weight) {
+	public SelfAtariHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
 	}
