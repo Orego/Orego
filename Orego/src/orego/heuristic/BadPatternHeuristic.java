@@ -15,7 +15,7 @@ import orego.util.BitVector;
 
 public class BadPatternHeuristic extends Heuristic {
 	
-	public BadPatternHeuristic(double weight) {
+	public BadPatternHeuristic(int weight) {
 		super(weight);
 	}
 	
@@ -70,22 +70,24 @@ public class BadPatternHeuristic extends Heuristic {
 			if (!isPossibleNeighborhood((char) i)) {
 				continue;
 			}
-			for (int p = 0; p < 4; p++) {
+			for (int p = 0; p < 3; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					BAD_NEIGHBORHOODS[BLACK].set(i, true);
 				}
 			}
-			for (int p = 4; p < 8; p++) {
+			for (int p = 3; p < 6; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
-			for (int p = 8; p < PATTERN_LIST.length; p++) {
+			/*
+			for (int p = 6; p < PATTERN_LIST.length; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					BAD_NEIGHBORHOODS[BLACK].set(i, true);
 					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
+			*/
 		}
 	}
 

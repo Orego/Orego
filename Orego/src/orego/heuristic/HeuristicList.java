@@ -94,7 +94,7 @@ public class HeuristicList implements Cloneable {
 			}
 			
 			try {
-				Constructor<?> constructor = Class.forName(genClass).getConstructor(Double.TYPE);
+				Constructor<?> constructor = Class.forName(genClass).getConstructor(Integer.TYPE);
 				Heuristic heur = (Heuristic) constructor.newInstance(weight);
 				heuristics[i] = heur;
 				
