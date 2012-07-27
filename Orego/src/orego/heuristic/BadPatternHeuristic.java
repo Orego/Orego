@@ -35,14 +35,12 @@ public class BadPatternHeuristic extends Heuristic {
 	private static final Pattern[] PATTERN_LIST = {
 			// BLACK SPECIFIC PATTERNS
 			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
-			new ColorSpecificPattern(".#..#...", BLACK), // Empty Triangle 1
-			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle 2
+			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
 			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
 
 			// WHITE SPECIFIC PATTERNS
 			new ColorSpecificPattern("#.##?++?", WHITE), // Ponnuki 
-			new ColorSpecificPattern(".O..O...", WHITE), // Empty Triangle 1
-			new ColorSpecificPattern(".O..O.?.", WHITE), // Empty Triangle 2
+			new ColorSpecificPattern(".O..O.?.", WHITE), // Empty Triangle
 			new ColorSpecificPattern(".##?##??", WHITE), // Push through bamboo
 
 			// Color independent patterns
@@ -63,8 +61,8 @@ public class BadPatternHeuristic extends Heuristic {
 			diagramToNeighborhood("..*\n. *\n***") };
 
 	static {
-		// Find all good neighborhoods, i.e., neighborhoods where a player
-		// should play.
+		// Find all bad neighborhoods, i.e., neighborhoods where a player
+		// should not play.
 		// Note that i has to be an int, rather than a char, because
 		// otherwise incrementing it after Character.MAX_VALUE would
 		// return it to 0, resulting in an infinite loop.
