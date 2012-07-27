@@ -103,13 +103,14 @@ public class PatternCounter {
 					TEST_DIRECTORY + "output.txt")));
 			String output = "";
 			for (int i = 0; i < patternSeen.length; i++) {
-				output += "Pattern #:" + i;
+				output += "Pattern #:" + (i+1);
 				output += " Seen:" + patternSeen[i];
 				output += " Played:" + patternPlayed[i] + " ";
 				output += "Ratio:" + patternPlayed[i] / (1.0 * patternSeen[i])
 						+ " ";
 				output += PATTERN_STRINGS[i] + "\n";
 			}
+			System.out.println("Done.");
 			bw.write(output);
 			bw.close();
 		} catch (IOException ex) {

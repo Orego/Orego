@@ -12,7 +12,7 @@ public class CaptureHeuristic extends Heuristic {
 	private IntList targets;
 
 	public CaptureHeuristic(double weight) {
-		setWeight(weight);
+		super(weight);
 		targets = new IntList(4);
 	}
 

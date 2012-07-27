@@ -1124,7 +1124,7 @@ public class Board {
 		return (playoutScore() <= 0) ? WHITE : BLACK;
 	}
 
-	/** Removes stone s. */
+	/** Removes stones. */
 	public void removeStone(int s) {
 		int color = colors[s];
 		stoneCounts[color]--;

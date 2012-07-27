@@ -14,7 +14,7 @@ public class SelfAtariHeuristic extends Heuristic {
 	private IntList targets;
 
 	public SelfAtariHeuristic(double weight) {
-		setWeight(weight);
+		super(weight);
 		targets = new IntList(4);
 	}
 

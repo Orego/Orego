@@ -16,12 +16,9 @@ public class TwoLibertyHeuristic extends Heuristic {
 	 */
 	private IntList targets;
 
-	private int weight;
-
-	public TwoLibertyHeuristic(double weight2) {
-		setWeight(weight2);
+	public TwoLibertyHeuristic(double weight) {
+		super(weight);
 		targets = new IntList(4);
-		weight = 1;
 	}
 
 	@Override
@@ -56,10 +53,10 @@ public class TwoLibertyHeuristic extends Heuristic {
 					}
 					
 					if (nblib2 <= 2 && nblib1 > nblib2) {
-						result += weight * board.getChainSize(target);
+						result += board.getChainSize(target);
 					}
 					if ((nblib1 <= 2 && nblib1 == nblib2) && board.getColorToPlay() != board.getColor(target)) {
-						result += weight * board.getChainSize(target);
+						result += board.getChainSize(target);
 					}
 					targets.add(target);
 				}
