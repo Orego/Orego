@@ -23,9 +23,9 @@ public class LineHeuristicTest {
 
 	@Test
 	public void testEvaluate() {
-		assertEquals(10, heuristic.evaluate(Coordinates.at(3,3), board));
-		assertEquals(4, heuristic.evaluate(Coordinates.at(9,9), board));
-		assertEquals(-2, heuristic.evaluate(Coordinates.at(0,0), board));
+		assertEquals(1, heuristic.evaluate(Coordinates.at(3,3), board));
+		assertEquals(0, heuristic.evaluate(Coordinates.at(9,9), board));
+		assertEquals(-3, heuristic.evaluate(Coordinates.at(0,0), board));
 	}
 
 }
