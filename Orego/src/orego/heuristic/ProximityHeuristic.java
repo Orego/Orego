@@ -1,16 +1,13 @@
 package orego.heuristic;
 
 import orego.core.*;
-import static orego.core.Coordinates.*;
-import static orego.core.Colors.*;
-import static orego.core.Board.*;
-import orego.util.*;
+
 
 /** The value of move p is 1 if it is within a large knights move of the previously played move. */
 public class ProximityHeuristic extends Heuristic {
 
 
-	public ProximityHeuristic(double weight) {
+	public ProximityHeuristic(int weight) {
 		super(weight);
 	}
 
