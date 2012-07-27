@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
+import orego.heuristic.HeuristicList;
 import orego.play.UnknownPropertyException;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +32,7 @@ public class RavePlayerTest {
 	}
 	
 	protected void incorporateRun(int winner, String... moves) {
-		McRunnable runnable = new McRunnable(player, new Heuristic[0]);
+		McRunnable runnable = new McRunnable(player, new HeuristicList());
 		runnable.copyDataFrom(player.getBoard());
 		for (String m : moves) {
 			runnable.acceptMove(at(m));

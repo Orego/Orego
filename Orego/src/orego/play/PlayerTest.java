@@ -146,7 +146,7 @@ public class PlayerTest {
 	
 	@Test
 	public void testCommandLineConstruction() {
-		String[] args = { "player=Player", "heuristic=Capture" };
+		String[] args = { "player=Player", "heuristics=Capture" };
 		Orego orego = new Orego(System.in, new PipedOutputStream(), args);
 		assertEquals(Player.class, orego.getPlayer().getClass());
 	}

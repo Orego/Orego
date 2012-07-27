@@ -177,10 +177,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		int max = Integer.MIN_VALUE;
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
-				Heuristic[] heuristics = getHeuristics();
-				for (int i = 0; i < heuristics.length; i++) {
-					heuristicsValues[p] += heuristics[i].evaluate(p, getBoard()) * heuristics[i].getWeight();
-				}
+				heuristicsValues[p] = getHeuristics().moveRating(p, getBoard());
 			}
 			min = Math.min(min, heuristicsValues[p]);
 			max = Math.max(max, heuristicsValues[p]);

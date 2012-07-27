@@ -49,9 +49,9 @@ public class McPlayerTest {
 
 	@Test
 	public void testSetPropertyHeuristic() throws UnknownPropertyException {
-		player.setProperty("heuristic", "Capture:Pattern");
-		assertEquals(CaptureHeuristic.class, player.getHeuristics()[0].getClass());
-		assertEquals(PatternHeuristic.class, player.getHeuristics()[1].getClass());
+		player.setProperty("heuristics", "Capture:Pattern");
+		assertEquals(CaptureHeuristic.class, player.getHeuristics().getHeuristics()[0].getClass());
+		assertEquals(PatternHeuristic.class, player.getHeuristics().getHeuristics()[1].getClass());
 	}
 
 	@Test

@@ -13,9 +13,9 @@ import orego.patterns.Pattern;
 import orego.patterns.SimplePattern;
 import orego.util.BitVector;
 
-public class PatternHeuristic extends Heuristic {
+public class BadPatternHeuristic extends Heuristic {
 	
-	public PatternHeuristic(double weight) {
+	public BadPatternHeuristic(double weight) {
 		super(weight);
 	}
 	
@@ -24,7 +24,7 @@ public class PatternHeuristic extends Heuristic {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	public static final BitVector[] GOOD_NEIGHBORHOODS = {
+	public static final BitVector[] BAD_NEIGHBORHOODS = {
 			new BitVector(NUMBER_OF_NEIGHBORHOODS),
 			new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 
@@ -34,23 +34,18 @@ public class PatternHeuristic extends Heuristic {
 	 */
 	private static final Pattern[] PATTERN_LIST = {
 			// BLACK SPECIFIC PATTERNS
-			new ColorSpecificPattern("O...#O??", BLACK), // Hane4
-			new ColorSpecificPattern("#??*?O**", BLACK), // Edge3
-			new ColorSpecificPattern("O?+*?#**", BLACK), // Edge4
-			new ColorSpecificPattern("O#O*?#**", BLACK), // Edge5
+			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
+			new ColorSpecificPattern(".#..#...", BLACK), // Empty Triangle 1
+			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle 2
+			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
+
 			// WHITE SPECIFIC PATTERNS
-			new ColorSpecificPattern("O...#O??", WHITE), // Hane4
-			new ColorSpecificPattern("#??*?O**", WHITE), // Edge3
-			new ColorSpecificPattern("O?+*?#**", WHITE), // Edge4
-			new ColorSpecificPattern("O#O*?#**", WHITE), // Edge5
+			new ColorSpecificPattern("#.##?++?", WHITE), // Ponnuki 
+			new ColorSpecificPattern(".O..O...", WHITE), // Empty Triangle 1
+			new ColorSpecificPattern(".O..O.?.", WHITE), // Empty Triangle 2
+			new ColorSpecificPattern(".##?##??", WHITE), // Push through bamboo
+
 			// Color independent patterns
-			new SimplePattern("O..?##??"), // Hane1
-			new SimplePattern("O...#.??"), // Hane2
-			new SimplePattern("O#..#???"), // Hane3
-			new Cut1Pattern(), // Cut1
-			new SimplePattern("#OO+??++"), // Cut2
-			new SimplePattern(".O?*#?**"), // Edge1
-			new SimplePattern("#oO*??**") // Edge2
 	};
 
 	/**
@@ -79,25 +74,25 @@ public class PatternHeuristic extends Heuristic {
 			}
 			for (int p = 0; p < 4; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
-					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
+					BAD_NEIGHBORHOODS[BLACK].set(i, true);
 				}
 			}
 			for (int p = 4; p < 8; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
-					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
+					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
 			for (int p = 8; p < PATTERN_LIST.length; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
-					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
-					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
+					BAD_NEIGHBORHOODS[BLACK].set(i, true);
+					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
 		}
 	}
 
-	public static final boolean isGoodMove(int color, char neighborhood) {
-		return GOOD_NEIGHBORHOODS[color].get(neighborhood);
+	public static final boolean isBadMove(int color, char neighborhood) {
+		return BAD_NEIGHBORHOODS[color].get(neighborhood);
 	}
 	
 	/**
@@ -128,9 +123,9 @@ public class PatternHeuristic extends Heuristic {
 	@Override
 	public int evaluate(int p, Board board) {
 		if (board.getColor(p) == VACANT
-				&& isGoodMove(board.getColorToPlay(),
+				&& isBadMove(board.getColorToPlay(),
 						board.getNeighborhood(p))) {
-			return 1;
+			return -1;
 		}
 		return 0;
 	}

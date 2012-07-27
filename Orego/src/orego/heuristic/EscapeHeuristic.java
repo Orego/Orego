@@ -12,7 +12,7 @@ public class EscapeHeuristic extends Heuristic {
 	private IntList targets;
 
 	public EscapeHeuristic(double weight) {
-		setWeight(weight);
+		super(weight);
 		targets = new IntList(4);
 	}
 

@@ -10,6 +10,10 @@ public abstract class Heuristic {
 	 */
 	private double weight;
 	
+	public Heuristic(double weight) {
+		this.weight = weight;
+	}
+	
 	public double getWeight() {
 		return weight;
 	}
@@ -31,7 +35,7 @@ public abstract class Heuristic {
 	 */
 	public void setProperty(String property, String value) {
 		if (property.equals("weight")) {
-			this.weight = Double.valueOf(weight);
+			this.weight = Double.valueOf(value);
 		}
 	}
 

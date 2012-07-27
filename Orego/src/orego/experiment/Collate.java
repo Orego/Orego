@@ -13,8 +13,6 @@ public class Collate {
 		// Maps conditions to results; each result contains the number of wins and the number of games
 		Map<String, int[]> results = new TreeMap<String, int[]>();
 		// total playouts and moves
-		long totalplayouts = 0;
-		long totalmoves = 0;
 		// Gather the data
 		for (String name : dir.list()) {
 			if (name.endsWith(".game")) {
@@ -47,7 +45,7 @@ public class Collate {
 						if (results.containsKey(condition)) {
 							stats = results.get(condition);
 						} else {
-							stats = new int[NUMBER_OF_PLAYER_COLORS];
+							stats = new int[NUMBER_OF_PLAYER_COLORS+2];
 							results.put(condition, stats);
 						}
 					}
@@ -60,11 +58,11 @@ public class Collate {
 					}
 					if (token.equals("C")) {
 						token = stoken.nextToken();
-						if (token.contains("moves")) {
-							totalmoves += (Long.parseLong(token.substring(6)));
-						}
 						if (token.contains("playout")) {
-							totalplayouts += (Long.parseLong(token.substring(8)));
+							stats[2] += (Long.parseLong(token.substring(8)));
+						}
+						if (token.contains("moves")) {
+							stats[3] += (Long.parseLong(token.substring(6)));
 						}
 					}
 				}
@@ -76,8 +74,8 @@ public class Collate {
 			int[] stats = results.get(condition);
 			System.out.printf(condition + ": %d/%d = %1.3f\n", stats[0],
 					stats[1], (((double) (stats[0])) / (stats[1])));
+			System.out.printf("Total playouts:%d, Total moves:%d, average playouts per move:%1.3f\n", stats[2], stats[3], (stats[2]/(stats[3]*1.0)));
 		}
-		System.out.printf("Total playouts:%d, Total moves:%d, average playouts per move:%1.3f\n", totalplayouts, totalmoves, (totalplayouts/(totalmoves*1.0)));
 	}
 
 }

@@ -36,12 +36,12 @@ public class McRunnable implements Runnable {
 	private int playoutsCompleted;
 
 	/** Array of heuristics. */
-	private Heuristic[] heuristics;
+	private HeuristicList heuristics;
 
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
-	public McRunnable(McPlayer player, Heuristic[] heuristics) {
+	public McRunnable(McPlayer player, HeuristicList heuristics) {
 		board = new Board();
 		this.player = player;
 		random = new MersenneTwisterFast();
@@ -191,10 +191,8 @@ public class McRunnable implements Runnable {
 		if (ON_BOARD[lastMove]) {
 			for (int p : KNIGHT_NEIGHBORHOOD[lastMove]) {
 				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-					int value = 0;
-					for (Heuristic h : heuristics) {
-						value += h.evaluate(p, board) * h.getWeight();
-					}
+					int value = heuristics.moveRating(p, board);
+					
 					if (value > bestValue) {
 						bestValue = value;
 						bestMove = p;
@@ -227,19 +225,16 @@ public class McRunnable implements Runnable {
 		return PASS;
 	}
 
-	public void updatePriors(SearchNode node, Board board, int priors) {
+	public void updatePriors(SearchNode node, Board board) {
 		IntSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			int p = vacantPoints.get(i);
 			if (board.isFeasible(p)) {
-				int value = 0;
-				for (Heuristic h : heuristics) {
-					value += h.evaluate(p, board) * h.getWeight();
-				}
+				int value = heuristics.moveRating(p, board);
 				if (value > 0) {
-					node.addWins(p, value * priors);
+					node.addWins(p, value);
 				} else if (value < 0) {
-					node.addLosses(p, -value * priors);
+					node.addLosses(p, -value);
 				}
 			}
 		}

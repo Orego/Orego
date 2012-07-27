@@ -11,6 +11,7 @@ import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import orego.heuristic.Heuristic;
+import orego.heuristic.HeuristicList;
 import orego.heuristic.SpecificPointHeuristic;
 import orego.play.UnknownPropertyException;
 
@@ -29,7 +30,6 @@ public class MctsPlayerTest {
 	@Before
 	public void setUp() throws Exception {
 		player = new MctsPlayer();
-		player.setProperty("priors", "0");
 		player.setProperty("pool", "" + TABLE_SIZE);
 		player.setProperty("threads", "1");
 		player.setPlayoutLimit(1000);
@@ -60,7 +60,7 @@ public class MctsPlayerTest {
 		}
 		moves[i] = PASS;
 		moves[i + 1] = PASS;
-		McRunnable runnable = new McRunnable(player, new Heuristic[0]);
+		McRunnable runnable = new McRunnable(player, new HeuristicList());
 		player.fakeGenerateMovesToFrontierOfTree(runnable, moves);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
@@ -813,8 +813,8 @@ public class MctsPlayerTest {
 
 	@Test
 	public void testPriorsAtRoot() throws UnknownPropertyException {
-		player.setProperty("priors", "1");
-		player.setHeuristics(new Heuristic[] {new SpecificPointHeuristic(1)});
+		player.setHeuristics(new HeuristicList("SpecificPoint@1"));
+
 		player.reset();
 		SearchNode root = player.getRoot();
 		assertEquals(2, root.getWins(at("c5")));
