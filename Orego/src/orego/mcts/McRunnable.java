@@ -186,7 +186,7 @@ public class McRunnable implements Runnable {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Compute best heuristic value
 		int lastMove = board.getMove(board.getTurn() - 1);
-		if (lastMove != NO_POINT) {
+		if (ON_BOARD[lastMove]) {
 			int bestMove = NO_POINT;
 			int bestValue = 0;
 			for (int p : LARGE_KNIGHT_NEIGHBORHOOD[lastMove]) {
