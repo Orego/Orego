@@ -186,14 +186,10 @@ public class McRunnable implements Runnable {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Compute best heuristic value
 		int lastMove = board.getMove(board.getTurn() - 1);
-		if (ON_BOARD[lastMove]) {
+		if (lastMove != NO_POINT) {
 			int bestMove = NO_POINT;
 			int bestValue = 0;
-			int[] nearbyPoints = KNIGHT_NEIGHBORHOOD[lastMove];
-			int start = random.nextInt(nearbyPoints.length);
-			int i = start;			
-			do {
-				int p = nearbyPoints[i];
+			for (int p : LARGE_KNIGHT_NEIGHBORHOOD[lastMove]) {
 				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 					int value = heuristics.moveRating(p, board);
 					
@@ -202,14 +198,7 @@ public class McRunnable implements Runnable {
 						bestMove = p;
 					}
 				}
-				// TODO 457 should be a constant
-				// TODO This sort of traversal appears in several places; refactor?
-				// The magic number 457 is prime and larger than
-				// vacantPoints.size().
-				// Advancing by 457 therefore skips "randomly" through the array,
-				// in a manner analogous to double hashing.
-				i = (i + 457) % nearbyPoints.length;
-			} while (i != start);
+			}
 			// If there is a best move, try to play it
 			if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
 				return bestMove;
