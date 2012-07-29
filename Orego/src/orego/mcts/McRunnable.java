@@ -189,7 +189,7 @@ public class McRunnable implements Runnable {
 		if (ON_BOARD[lastMove]) {
 			int bestMove = NO_POINT;
 			int bestValue = 0;
-			for (int p : LARGE_KNIGHT_NEIGHBORHOOD[lastMove]) {
+			for (int p : NEIGHBORS[lastMove]) {
 				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 					int value = heuristics.moveRating(p, board);
 					
