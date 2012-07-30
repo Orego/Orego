@@ -153,8 +153,8 @@ public class PatternCounter {
 			long maxvalue = initialPatternSeen[maxindex][1];
 			for (int i = j; i < initialPatternSeen.length; i++) {
 				if (initialPatternSeen[i][1] > maxvalue) {
-					maxvalue = initialPatternSeen[i][1];
 					maxindex = i;
+					maxvalue = initialPatternSeen[i][1];
 				}
 			}
 			Long[] swapValue = initialPatternSeen[maxindex];
