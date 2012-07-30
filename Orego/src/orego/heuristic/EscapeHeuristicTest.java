@@ -245,6 +245,12 @@ public class EscapeHeuristicTest {
 		board.setUpProblem(WHITE, problem);
 		assertEquals(1, heuristic.evaluate(at("o4"), board));
 		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		// Do it some additional times to catch "memory leak"
+		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		assertEquals(2, heuristic.evaluate(at("r4"), board));
 	}
 
 }

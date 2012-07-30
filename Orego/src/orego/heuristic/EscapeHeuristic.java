@@ -28,8 +28,9 @@ public class EscapeHeuristic extends Heuristic {
 	public int evaluate(int p, Board board) {
 		int color = board.getColorToPlay();
 		int result = 0;
-		int multiplier = 0;
 		targets.clear();
+		enemies.clear();
+		saved.clear();
 		for (int i = 0; i < 4; i++) {
 			int neighbor = NEIGHBORS[p][i];
 			if (board.getColor(neighbor) == Colors.opposite(color)) {
