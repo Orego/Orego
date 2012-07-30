@@ -14,12 +14,12 @@ public class EscapeHeuristic2Test {
 
 	private Board board;
 
-	private EscapeHeuristic heuristic;
+	private EscapeHeuristic2 heuristic;
 
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new EscapeHeuristic(1);
+		heuristic = new EscapeHeuristic2(1);
 	}
 
 	@Test
