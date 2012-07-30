@@ -93,5 +93,10 @@ public class DynamicPatternTest {
 			assertTrue(pattern1.match(pattern2));
 		}
 	}
+	
+	@Test
+	public void testLongToPatternString() {
+		assertEquals("O##OOOOO###########OO##O:#", DynamicPattern.longToPatternString(71743133734209L, 24));
+	}
 
 }
