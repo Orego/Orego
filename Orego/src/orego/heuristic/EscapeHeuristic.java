@@ -5,15 +5,21 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
-/** The value of a move is the number of stones saved * the number of liberties after saving - 1. */
+/**
+ * The value of a move is the number of stones saved * the number of liberties
+ * after saving - 1.
+ */
 public class EscapeHeuristic extends Heuristic {
 
 	/** List of chains that would be saved by this move. */
 	private IntList targets;
+	/** list of enemies that may be in atari */
+	private IntList enemies;
 
 	public EscapeHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
+		enemies = new IntList(4);
 	}
 
 	@Override
@@ -27,14 +33,19 @@ public class EscapeHeuristic extends Heuristic {
 		targets.clear();
 		for (int i = 0; i < 4; i++) {
 			int neighbor = NEIGHBORS[p][i];
-			if (board.getColor(neighbor) == color) { //if the neighbor is our color
+			if (board.getColor(neighbor) == Colors.opposite(color)) {
+				int enemy = board.getChainId(neighbor);
+				if ((board.isInAtari(enemy)) && (!enemies.contains(enemy))) {
+					enemies.add(enemy);
+				
+				}
+			}else if (board.getColor(neighbor) == color) { // if the neighbor
+															// is our color
 				int target = board.getChainId(neighbor);
-				if ((board.isInAtari(target))
-						&& (!targets.contains(target))) {
+				if ((board.isInAtari(target)) && (!targets.contains(target))) {
 					targets.add(target);
 					result += board.getChainSize(target);
-				}
-				else {
+				} else {
 					// add the liberties of the friendly chain, minus one
 					multiplier += board.getLibertyCount(neighbor) - 1;
 				}
