@@ -103,7 +103,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(8, heuristic.evaluate(at("m12"), board));
+		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -131,7 +131,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(16, heuristic.evaluate(at("m12"), board));
+		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -159,7 +159,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(20, heuristic.evaluate(at("m12"), board));
+		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -187,7 +187,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(40, heuristic.evaluate(at("m12"), board));
+		assertEquals(8, heuristic.evaluate(at("m12"), board));
 	}
 
 	@Test
@@ -217,4 +217,34 @@ public class EscapeHeuristicTest {
 		board.setUpProblem(WHITE, problem);
 		assertEquals(23, heuristic.evaluate(at("k10"), board));
 	}
+	
+	@Test
+	public void testCapture() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"..............#O...",// 5
+				"..............O#...",// 4
+				"..............#O...",// 3
+				"...................",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(WHITE, problem);
+		assertEquals(1, heuristic.evaluate(at("o4"), board));
+		assertEquals(2, heuristic.evaluate(at("r4"), board));
+	}
+
 }

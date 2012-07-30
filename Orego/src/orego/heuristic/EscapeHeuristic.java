@@ -15,19 +15,18 @@ public class EscapeHeuristic extends Heuristic {
 	private IntList targets;
 	/** list of enemies that may be in atari */
 	private IntList enemies;
+	private IntList saved;
 
 	public EscapeHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
 		enemies = new IntList(4);
+		saved = new IntList(4);
 	}
 
 	@Override
 	public int evaluate(int p, Board board) {
 		int color = board.getColorToPlay();
-		if (board.getNeighborCount(p, color) == 0) {
-			return 0;
-		}
 		int result = 0;
 		int multiplier = 0;
 		targets.clear();
@@ -36,24 +35,36 @@ public class EscapeHeuristic extends Heuristic {
 			if (board.getColor(neighbor) == Colors.opposite(color)) {
 				int enemy = board.getChainId(neighbor);
 				if ((board.isInAtari(enemy)) && (!enemies.contains(enemy))) {
+
 					enemies.add(enemy);
-				
+					int next = neighbor;
+					do {
+						for (int j = 0; j < 4; j++) {
+							int m = NEIGHBORS[next][j];
+							int save = board.getChainId(m);
+							if (board.getColor(m) == color && (board.isInAtari(save))) {
+								if (!saved.contains(save)) {
+									result += board.getChainSize(save) + board.getChainSize(enemy);
+									saved.add(save);
+								}
+							}
+						}
+						next = board.getChainNextPoints()[next];
+					} while (next != neighbor);
 				}
-			}else if (board.getColor(neighbor) == color) { // if the neighbor
+			} else if (board.getColor(neighbor) == color) { // if the neighbor
 															// is our color
 				int target = board.getChainId(neighbor);
+				if(board.isSelfAtari(p, color)){
+					return 0;
+				}
 				if ((board.isInAtari(target)) && (!targets.contains(target))) {
 					targets.add(target);
 					result += board.getChainSize(target);
-				} else {
-					// add the liberties of the friendly chain, minus one
-					multiplier += board.getLibertyCount(neighbor) - 1;
 				}
 			}
 		}
-		multiplier += board.getVacantNeighborCount(p);
-		result *= (multiplier - 1);
-		return Math.max(0, result);
+		return result;
 	}
 
 }
