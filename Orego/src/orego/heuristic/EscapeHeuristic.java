@@ -11,33 +11,34 @@ import orego.util.*;
  */
 public class EscapeHeuristic extends Heuristic {
 
-	/** List of chains that would be saved by this move. */
+	/** Endangered chains. */
 	private IntList targets;
-	/** list of enemies that may be in atari */
-	private IntList enemies;
+	
+	/** Chains rescued by capturing. */
 	private IntList saved;
 
 	public EscapeHeuristic(int weight) {
 		super(weight);
 		targets = new IntList(4);
-		enemies = new IntList(4);
-		saved = new IntList(4);
+		saved = new IntList(BOARD_AREA);
 	}
 
 	@Override
 	public int evaluate(int p, Board board) {
 		int color = board.getColorToPlay();
+		if(board.isSelfAtari(p, color)){
+			return 0;
+		}
 		int result = 0;
 		targets.clear();
-		enemies.clear();
-		saved.clear();
 		for (int i = 0; i < 4; i++) {
 			int neighbor = NEIGHBORS[p][i];
 			if (board.getColor(neighbor) == Colors.opposite(color)) {
+				// Can capturing enemy chain save one or more of ours?
 				int enemy = board.getChainId(neighbor);
-				if ((board.isInAtari(enemy)) && (!enemies.contains(enemy))) {
-
-					enemies.add(enemy);
+				if ((board.isInAtari(enemy)) && (!targets.contains(enemy))) {
+					targets.add(enemy);
+					saved.clear();
 					int next = neighbor;
 					do {
 						for (int j = 0; j < 4; j++) {
@@ -53,12 +54,9 @@ public class EscapeHeuristic extends Heuristic {
 						next = board.getChainNextPoints()[next];
 					} while (next != neighbor);
 				}
-			} else if (board.getColor(neighbor) == color) { // if the neighbor
-															// is our color
+			} else if (board.getColor(neighbor) == color) {
+				// Can we save our chain by extending?
 				int target = board.getChainId(neighbor);
-				if(board.isSelfAtari(p, color)){
-					return 0;
-				}
 				if ((board.isInAtari(target)) && (!targets.contains(target))) {
 					targets.add(target);
 					result += board.getChainSize(target);
