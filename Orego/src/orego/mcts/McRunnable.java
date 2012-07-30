@@ -184,26 +184,26 @@ public class McRunnable implements Runnable {
 	// TODO Is the return value necessary?
 	// TODO Do we need to pass in the board or the random here?
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-//		// Compute best heuristic value
-//		int lastMove = board.getMove(board.getTurn() - 1);
-//		if (ON_BOARD[lastMove]) {
-//			int bestMove = NO_POINT;
-//			int bestValue = 0;
-//			for (int p : NEIGHBORS[lastMove]) {
-//				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-//					int value = heuristics.moveRating(p, board);
-//					
-//					if (value > bestValue) {
-//						bestValue = value;
-//						bestMove = p;
-//					}
-//				}
-//			}
-//			// If there is a best move, try to play it
-//			if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
-//				return bestMove;
-//			}
-//		}
+		// Compute best heuristic value
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (ON_BOARD[lastMove]) {
+			int bestMove = NO_POINT;
+			int bestValue = 0;
+			for (int p : NEIGHBORS[lastMove]) {
+				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+					int value = heuristics.moveRating(p, board);
+					
+					if (value > bestValue) {
+						bestValue = value;
+						bestMove = p;
+					}
+				}
+			}
+			// If there is a best move, try to play it
+			if ((bestMove != NO_POINT) && (board.playFast(bestMove) == PLAY_OK)) {
+				return bestMove;
+			}
+		}
 		// No luck -- play randomly
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());

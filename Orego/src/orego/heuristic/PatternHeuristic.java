@@ -24,15 +24,23 @@ public class PatternHeuristic extends Heuristic {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
+
 	public static final BitVector[] GOOD_NEIGHBORHOODS = {
-			new BitVector(NUMBER_OF_NEIGHBORHOODS),
-			new BitVector(NUMBER_OF_NEIGHBORHOODS) };
+		new BitVector(NUMBER_OF_NEIGHBORHOODS),
+		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
+	
+	public static final BitVector[] BAD_NEIGHBORHOODS = {
+		new BitVector(NUMBER_OF_NEIGHBORHOODS),
+		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 
 	/**
 	 * Set of 3x3 patterns taken from Gelly et al,
 	 * "Modification of UCT with Patterns in Monte-Carlo Go"
 	 */
 	private static final Pattern[] PATTERN_LIST = {
+		/**
+		 * Good patterns
+		 */
 			// BLACK SPECIFIC PATTERNS
 			new ColorSpecificPattern("O...#O??", BLACK), // Hane4
 			new ColorSpecificPattern("#??*?O**", BLACK), // Edge3
@@ -50,7 +58,21 @@ public class PatternHeuristic extends Heuristic {
 			new Cut1Pattern(), // Cut1
 			new SimplePattern("#OO+??++"), // Cut2
 			new SimplePattern(".O?*#?**"), // Edge1
-			new SimplePattern("#oO*??**") // Edge2
+			new SimplePattern("#oO*??**"), // Edge2
+		/**
+		 * Bad patterns
+		 */
+			
+			// BLACK SPECIFIC PATTERNS
+			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
+			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
+			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
+
+			// WHITE SPECIFIC PATTERNS
+			new ColorSpecificPattern("O.OO?oo?", WHITE), // Ponnuki 
+			new ColorSpecificPattern(".#..#.?.", WHITE), // Empty Triangle
+			new ColorSpecificPattern(".OO?OO??", WHITE) // Push through bamboo
+			
 	};
 
 	/**
@@ -87,17 +109,35 @@ public class PatternHeuristic extends Heuristic {
 					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
-			for (int p = 8; p < PATTERN_LIST.length; p++) {
+			for (int p = 8; p < 15; p++) {
 				if (PATTERN_LIST[p].matches((char) i)) {
 					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
 					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
+			
+			for (int p = 15; p < 18; p++) {
+				if (PATTERN_LIST[p].matches((char) i)) {
+					BAD_NEIGHBORHOODS[BLACK].set(i, true);
+				}
+			}
+			for (int p = 18; p < PATTERN_LIST.length; p++) {
+				if (PATTERN_LIST[p].matches((char) i)) {
+					BAD_NEIGHBORHOODS[WHITE].set(i, true);
+				}
+			}
+			
 		}
 	}
 
-	public static final boolean isGoodMove(int color, char neighborhood) {
-		return GOOD_NEIGHBORHOODS[color].get(neighborhood);
+	public static final int evaluateMove(int color, char neighborhood) {
+		if(GOOD_NEIGHBORHOODS[color].get(neighborhood)) {
+			return 1;
+		}
+		if(BAD_NEIGHBORHOODS[color].get(neighborhood)) {
+			return -1;
+		}
+		return 0;
 	}
 	
 	/**
@@ -127,12 +167,7 @@ public class PatternHeuristic extends Heuristic {
 
 	@Override
 	public int evaluate(int p, Board board) {
-		if (board.getColor(p) == VACANT
-				&& isGoodMove(board.getColorToPlay(),
-						board.getNeighborhood(p))) {
-			return 1;
-		}
-		return 0;
+		return evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
 	}
 
 }
