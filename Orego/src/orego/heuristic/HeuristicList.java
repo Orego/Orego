@@ -2,9 +2,16 @@ package orego.heuristic;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+
+import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
 import static java.lang.Math.*;
+import static orego.core.Board.PLAY_OK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Coordinates.NEIGHBORS;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.ON_BOARD;
 
 /**
  * Note: we do not override ArrayList since we need the raw speed of a native
@@ -153,7 +160,31 @@ public class HeuristicList implements Cloneable {
 		
 		return null;
 	}
-	
+
+	/**
+	 * Goes through the heuristics until one suggests a legal, feasible move; plays
+	 * that move. In the interest of speed, the FIRST move given a positive value
+	 * by a heuristic is chosen, not necessarily the highest-rated move.
+	 */
+	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+		// Compute best heuristic value
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (ON_BOARD[lastMove]) {
+			for (Heuristic h : heuristics) {
+				for (int p : NEIGHBORS[lastMove]) {
+					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+						if (h.evaluate(p, board) > 0) {
+							if (board.playFast(p) == PLAY_OK) {
+								return p;
+							}
+						}
+					}
+				}
+			}
+		}
+		return NO_POINT;
+	}
+
 	public void setProperty(String name, String value)
 			throws UnknownPropertyException {
 		if (name.equals("heuristics") && !value.isEmpty()) {
