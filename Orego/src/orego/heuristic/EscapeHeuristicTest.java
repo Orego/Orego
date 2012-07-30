@@ -75,7 +75,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		assertEquals(8, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -103,7 +103,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		assertEquals(12, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
