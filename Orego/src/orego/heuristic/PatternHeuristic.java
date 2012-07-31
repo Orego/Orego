@@ -7,6 +7,7 @@ import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.ON_BOARD;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
+import orego.patternanalyze.DynamicPattern;
 import orego.patterns.ColorSpecificPattern;
 import orego.patterns.Cut1Pattern;
 import orego.patterns.Pattern;
@@ -28,6 +29,10 @@ public class PatternHeuristic extends Heuristic {
 			new BitVector(NUMBER_OF_NEIGHBORHOODS),
 			new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 
+//	private static final DynamicPattern[] PATTERN_LIST = {
+//		
+//	}
+	
 	/**
 	 * Set of 3x3 patterns taken from Gelly et al,
 	 * "Modification of UCT with Patterns in Monte-Carlo Go"
