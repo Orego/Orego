@@ -131,7 +131,7 @@ public class PatternHeuristicTest {
 					"...................",// 18
 					"...................",// 17
 					"..#.#..............",// 16
-					"....O..............",// 15
+					"...................",// 15
 					"..#.O..............",// 14
 					"...................",// 13
 					"...................",// 12
@@ -148,7 +148,8 @@ public class PatternHeuristicTest {
 					"..................."// 1
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
-			board.setUpProblem(BLACK, problem);
+			board.setUpProblem(WHITE, problem);
+			board.play("e15");
 			heuristic.prepare(board);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 			assertEquals(1, heuristic.evaluate(at("f15"),board));
@@ -181,7 +182,7 @@ public class PatternHeuristicTest {
 					"...................",// 18
 					"...................",// 17
 					"..O.O..............",// 16
-					"....#..............",// 15
+					"...................",// 15
 					"..O.#..............",// 14
 					"...................",// 13
 					"...................",// 12
@@ -198,7 +199,8 @@ public class PatternHeuristicTest {
 					"..................."// 1
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
-			board.setUpProblem(WHITE, problem);
+			board.setUpProblem(BLACK, problem);
+			board.play("e15");
 			heuristic.prepare(board);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 			assertEquals(1, heuristic.evaluate(at("f15"),board));

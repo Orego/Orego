@@ -175,7 +175,7 @@ public class PatternHeuristic extends Heuristic {
 				values[p] = evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
 				if (values[p] != 0) {
 					getNonzeroPoints().add(p);
-					if ((getBestIndex() == -1) || (values[p] > values[getBestIndex()])) {
+					if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
 						setBestIndex(getNonzeroPoints().size() - 1);
 					}
 				}

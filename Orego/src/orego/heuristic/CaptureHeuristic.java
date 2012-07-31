@@ -25,7 +25,7 @@ public class CaptureHeuristic extends Heuristic {
 			values[p] = beforeEvaluate(p, board);
 			if (values[p] != 0) {
 				getNonzeroPoints().add(p);
-				if ((getBestIndex() == -1) || (values[p] > values[getBestIndex()])) {
+				if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
 					setBestIndex(getNonzeroPoints().size() - 1);
 				}
 			}

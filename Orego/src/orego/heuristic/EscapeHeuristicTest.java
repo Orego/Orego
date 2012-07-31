@@ -264,4 +264,34 @@ public class EscapeHeuristicTest {
 		assertEquals(2, heuristic.evaluate(at("r4"), board));
 	}
 
+	@Test
+	public void testSaveLargerGroup() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"............#O#O#..",// 5
+				"...........#OO#O#..",// 4
+				"............#O.O#..",// 3
+				".............#.#...",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		board.play("p3");
+		heuristic.prepare(board);
+		assertEquals(at("o6"), heuristic.getNonzeroPoints().get(heuristic.getBestIndex()));
+	}
+
 }

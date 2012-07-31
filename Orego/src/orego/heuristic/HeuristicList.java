@@ -10,9 +10,7 @@ import orego.util.IntSet;
 import static java.lang.Math.*;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.NEIGHBORS;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.*;
 
 /**
  * Note: we do not override ArrayList since we need the raw speed of a native
@@ -177,10 +175,12 @@ public class HeuristicList implements Cloneable {
 				IntSet nonzeroPoints = h.getNonzeroPoints();
 				if (nonzeroPoints.size() > 0) {
 					int i = h.getBestIndex();
+//					System.out.println("Best: " + pointToString(nonzeroPoints.get(i)));
 					int j = i;
 					do {
 						int p = nonzeroPoints.get(j);
 						if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+//							System.out.println("Trying " + pointToString(p));
 							if (board.playFast(p) == PLAY_OK) {
 								return p;
 							}

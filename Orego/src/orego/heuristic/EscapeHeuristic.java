@@ -55,7 +55,7 @@ public class EscapeHeuristic extends Heuristic {
 		getValues()[point] += amount;
 		IntSet nonzeroPoints = getNonzeroPoints();
 		nonzeroPoints.add(point);
-		if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getBestIndex()])) {
+		if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getNonzeroPoints().get(getBestIndex())])) {
 			// TODO IntSet can do this directly, faster
 			for (int i = 0; i < nonzeroPoints.size(); i++) {
 				if (nonzeroPoints.get(i) == point) {
