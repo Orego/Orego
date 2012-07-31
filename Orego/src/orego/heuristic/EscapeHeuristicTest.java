@@ -42,11 +42,12 @@ public class EscapeHeuristicTest {
 				"...................",// 5
 				"...................",// 4
 				"..............O##..",// 3
-				"..............O#O#.",// 2
+				"..............O#O..",// 2
 				"...............O..."// 1
-		// ABCDEFGHJKLMNOPQRST
+              // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play(at("s2"));
 		heuristic.prepare(board);
 		assertEquals(1, heuristic.evaluate(at("r1"), board));
 	}
@@ -178,7 +179,7 @@ public class EscapeHeuristicTest {
 				"..........#O#......",// 14
 				"..........#O####...",// 13
 				"............OOOO#..",// 12
-				"..........#O####...",// 11
+				"..........#O.###...",// 11
 				"..........#O#......",// 10
 				"..........#O#......",// 9
 				"..........#O#......",// 8
@@ -191,7 +192,8 @@ public class EscapeHeuristicTest {
 				"..................."// 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("n11");
 		heuristic.prepare(board);
 		assertEquals(8, heuristic.evaluate(at("m12"), board));
 	}
@@ -244,12 +246,13 @@ public class EscapeHeuristicTest {
 				"...................",// 6
 				"..............#O...",// 5
 				"..............O#...",// 4
-				"..............#O...",// 3
+				"...............O...",// 3
 				"...................",// 2
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("p3");
 		heuristic.prepare(board);
 		assertEquals(1, heuristic.evaluate(at("o4"), board));
 		assertEquals(2, heuristic.evaluate(at("r4"), board));

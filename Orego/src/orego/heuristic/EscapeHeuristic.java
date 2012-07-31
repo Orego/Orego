@@ -1,69 +1,81 @@
 package orego.heuristic;
 
 import orego.core.*;
+import static java.util.Arrays.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
 /**
- * The value of a move is the number of stones saved * the number of liberties
- * after saving - 1.
+ * Tries to save any friendly group put in atari by the last move, by capturing or extending.
+ * The value of a move is number of stones saved + number of stones captured (if any).
+ * A move that captures several chains adjacent to the threatened friendly group, or captures while extending, gets additional value.
  */
 public class EscapeHeuristic extends Heuristic {
 
-	/** Endangered chains. */
-	private IntList targets;
+	/** Friendly groups put in atari by the last move. */
+	private IntSet friends;
 	
-	/** Chains rescued by capturing. */
-	private IntList saved;
-
+	/** Enemy chains in atari adjacent to friends. */
+	private IntSet targets;
+	
+	/** Value of each point. */
+	private int[] values;
+	
 	public EscapeHeuristic(int weight) {
 		super(weight);
-		targets = new IntList(4);
-		saved = new IntList(BOARD_AREA);
+		values = new int[FIRST_POINT_BEYOND_BOARD];
+		friends = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		targets = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	@Override
 	public int evaluate(int p, Board board) {
+		return values[p];
+	}
+	
+	@Override
+	public void prepare(Board board) {
+		fill(values, 0);
+		int lastMove = board.getMove(board.getTurn() - 1);
 		int color = board.getColorToPlay();
-		if(board.isSelfAtari(p, color)){
-			return 0;
-		}
-		int result = 0;
+		// Find friendly groups in danger
+		friends.clear();
 		targets.clear();
 		for (int i = 0; i < 4; i++) {
-			int neighbor = NEIGHBORS[p][i];
-			if (board.getColor(neighbor) == Colors.opposite(color)) {
-				// Can capturing enemy chain save one or more of ours?
-				int enemy = board.getChainId(neighbor);
-				if ((board.isInAtari(enemy)) && (!targets.contains(enemy))) {
-					targets.add(enemy);
-					saved.clear();
-					int next = neighbor;
-					do {
-						for (int j = 0; j < 4; j++) {
-							int m = NEIGHBORS[next][j];
-							int save = board.getChainId(m);
-							if (board.getColor(m) == color && (board.isInAtari(save))) {
-								if (!saved.contains(save)) {
-									result += board.getChainSize(save) + board.getChainSize(enemy);
-									saved.add(save);
-								}
-							}
-						}
-						next = board.getChainNextPoints()[next];
-					} while (next != neighbor);
-				}
-			} else if (board.getColor(neighbor) == color) {
-				// Can we save our chain by extending?
-				int target = board.getChainId(neighbor);
-				if ((board.isInAtari(target)) && (!targets.contains(target))) {
-					targets.add(target);
-					result += board.getChainSize(target);
+			int neighbor = NEIGHBORS[lastMove][i];
+			if (board.getColor(neighbor) == color) {
+				int chain = board.getChainId(neighbor);
+				if (!friends.contains(chain)) {
+					int capturePoint = board.getCapturePoint(chain);
+					if ((capturePoint != NO_POINT) && !board.isSelfAtari(capturePoint, color)) {
+						friends.add(chain);
+						// Add value for extending here
+						int size = board.getChainSize(chain);
+						values[capturePoint] += size;
+						findCapturableEnemies(chain, size, opposite(color), board);
+					}
 				}
 			}
 		}
-		return result;
+	}
+	
+	/** Adds value for moves that capture adjacent enemies of chain. */
+	protected void findCapturableEnemies(int chain, int size, int enemyColor, Board board) {
+		int p = chain;
+		int[] next = board.getChainNextPoints();
+		do {
+			for (int i = 0; i < 4; i++) {
+				int target = board.getChainId(NEIGHBORS[p][i]);
+				if ((board.getColor(target) == enemyColor) && !targets.contains(target)){
+					int capturePoint = board.getCapturePoint(target);
+					if (capturePoint != NO_POINT) {
+						values[capturePoint] += board.getChainSize(target) + size;
+					}
+				}
+			}
+			p = next[p];
+		} while (p != chain);
 	}
 
 }
