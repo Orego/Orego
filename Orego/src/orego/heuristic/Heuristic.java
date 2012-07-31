@@ -1,6 +1,7 @@
 package orego.heuristic;
 
 import orego.core.Board;
+import static orego.core.Coordinates.*;
 
 /** Adjusts the probability of playing a move using domain-specific knowledge. */
 public abstract class Heuristic {
@@ -14,6 +15,11 @@ public abstract class Heuristic {
 		this.weight = weight;
 	}
 
+	// TODO Make this abstract
+	public int[] getSearchArea(Board board) {
+		return ALL_POINTS_ON_BOARD;
+	}
+	
 	public int getWeight() {
 		return weight;
 	}

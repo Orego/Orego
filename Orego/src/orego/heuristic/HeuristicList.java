@@ -161,6 +161,7 @@ public class HeuristicList implements Cloneable {
 		return null;
 	}
 
+	// TODO Go through the search area randomly
 	/**
 	 * Goes through the heuristics until one suggests a legal, feasible move; plays
 	 * that move. In the interest of speed, the FIRST move given a positive value
@@ -172,7 +173,7 @@ public class HeuristicList implements Cloneable {
 		if (ON_BOARD[lastMove]) {
 			for (Heuristic h : heuristics) {
 				h.prepare(board);
-				for (int p : NEIGHBORS[lastMove]) {
+				for (int p : h.getSearchArea(board)) {
 					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 						if (h.evaluate(p, board) > 0) {
 							if (board.playFast(p) == PLAY_OK) {

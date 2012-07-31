@@ -4,7 +4,7 @@ import static orego.core.Colors.BLACK;
 import static orego.core.Colors.OFF_BOARD_COLOR;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.*;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
 import orego.patterns.ColorSpecificPattern;
@@ -140,6 +140,10 @@ public class PatternHeuristic extends Heuristic {
 		return 0;
 	}
 	
+	@Override
+	public int[] getSearchArea(Board board) {
+		return NEIGHBORS[board.getMove(board.getTurn() - 1)];
+	}
 	/**
 	 * Returns true if the the specified 3x3 neighborhood can possibly occur.
 	 * Neighborhoods are impossible if, for example, there are non-contiguous

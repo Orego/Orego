@@ -147,4 +147,37 @@ public class HeuristicListTest {
 		assertEquals(at("h5"), heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board));	
 	}
 
+	@Test
+	public void testSelectAndPlayOneMoveDistant() {
+		heuristics.loadHeuristicList("Capture@1:Pattern@1000");
+		String[] problem = new String[] {
+				"...................",//19
+				"...................",//18
+				"...................",//17
+				"...................",//16
+				"...................",//15
+				"...................",//14
+				"...................",//13
+				"...................",//12
+				"...................",//11
+				"...................",//10
+				"...................",//9
+				"...................",//8
+				"...................",//7
+				"....###O...........",//6
+				"...#OOO............",//5
+				"....###O...........",//4
+				"...................",//3
+				"...................",//2
+				"..................."//1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		Board board = new Board();
+		board.setUpProblem(WHITE, problem);
+		board.play(at("r16"));
+		// The heuristics should choose the capture move, even though a pattern match would be more highly rated.
+//		System.out.println(pointToString(heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board)));
+		assertEquals(at("h5"), heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board));	
+	}
+
 }
