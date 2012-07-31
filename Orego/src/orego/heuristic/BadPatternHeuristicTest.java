@@ -48,6 +48,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("d3"),board));
 			assertEquals(0, heuristic.evaluate(at("c3"),board));
 			board.clear();
@@ -97,6 +98,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("d3"),board));
 			assertEquals(0, heuristic.evaluate(at("c3"),board));
 		} else {
@@ -144,6 +146,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("d15"),board));
 			assertEquals(-1, heuristic.evaluate(at("b15"),board));
 			board.clear();
@@ -194,6 +197,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("d15"),board));
 			assertEquals(-1, heuristic.evaluate(at("b15"),board));
 		} else {
@@ -240,6 +244,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("c17"),board));
 			assertEquals(-1, heuristic.evaluate(at("d17"),board));
 			assertEquals(-1, heuristic.evaluate(at("c15"),board));
@@ -288,6 +293,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("c17"),board));
 			assertEquals(-1, heuristic.evaluate(at("d17"),board));
 			assertEquals(-1, heuristic.evaluate(at("c15"),board));
@@ -337,6 +343,7 @@ public class BadPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board);
 			assertEquals(-1, heuristic.evaluate(at("d15"),board));
 			assertEquals(-1, heuristic.evaluate(at("d16"),board));
 		} else {
@@ -383,6 +390,7 @@ public class BadPatternHeuristicTest {
 				// 		 ABCDEFGHJKLMNOPQRST
 				};
 				board.setUpProblem(WHITE, problem);
+				heuristic.prepare(board);
 				assertEquals(-1, heuristic.evaluate(at("d15"),board));
 				assertEquals(-1, heuristic.evaluate(at("d16"),board));
 			} else {

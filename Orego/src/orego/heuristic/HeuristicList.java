@@ -171,6 +171,7 @@ public class HeuristicList implements Cloneable {
 		int lastMove = board.getMove(board.getTurn() - 1);
 		if (ON_BOARD[lastMove]) {
 			for (Heuristic h : heuristics) {
+				h.prepare(board);
 				for (int p : NEIGHBORS[lastMove]) {
 					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 						if (h.evaluate(p, board) > 0) {

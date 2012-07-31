@@ -22,6 +22,7 @@ public class SpecificPointHeuristicTest {
 
 	@Test
 	public void testEvaluate() {
+		heuristic.prepare(board);
 		assertEquals(1, heuristic.evaluate(at("c5"), board));
 		assertEquals(0, heuristic.evaluate(at("c4"), board));
 
