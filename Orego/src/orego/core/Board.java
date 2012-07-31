@@ -704,7 +704,7 @@ public class Board {
 	 * Returns the array stoneCounts, indicating the number of stones of each
 	 * color on the board.
 	 */
-	protected int[] getStoneCounts() {
+	public int[] getStoneCounts() {
 		return stoneCounts;
 	}
 	

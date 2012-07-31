@@ -814,15 +814,17 @@ public class MctsPlayerTest {
 	@Test
 	public void testPriorsAtRoot() throws UnknownPropertyException {
 		player.setHeuristics(new HeuristicList("SpecificPoint@1"));
-
 		player.reset();
+		player.acceptMove(at("b1"));
 		SearchNode root = player.getRoot();
 		assertEquals(2, root.getWins(at("c5")));
 		assertEquals(3, root.getRuns(at("c5")));
-		player.acceptMove(at("c3"));
+		player.acceptMove(at("b2"));
+		player.acceptMove(at("b3"));
+		player.acceptMove(at("b4"));
 		root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(5, root.getWins(at("c5")));
+		assertEquals(6, root.getRuns(at("c5")));
 	}
 
 	@Test
