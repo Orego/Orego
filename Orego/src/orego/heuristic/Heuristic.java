@@ -17,7 +17,8 @@ public abstract class Heuristic {
 
 	// TODO Make this abstract
 	public int[] getSearchArea(Board board) {
-		return ALL_POINTS_ON_BOARD;
+//		return ALL_POINTS_ON_BOARD;
+		return KNIGHT_NEIGHBORHOOD[board.getMove(board.getTurn() - 1)];
 	}
 	
 	public int getWeight() {
