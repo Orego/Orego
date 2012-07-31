@@ -16,8 +16,24 @@ public class CaptureHeuristic extends Heuristic {
 		targets = new IntList(4);
 	}
 
-	@Override
-	public int evaluate(int p, Board board) {
+	public void prepare(Board board) {
+		super.prepare(board);
+		IntSet vacant = board.getVacantPoints();
+		int[] values = getValues();
+		for (int i = 0; i < vacant.size(); i++) {
+			int p = vacant.get(i);
+			values[p] = beforeEvaluate(p, board);
+			if (values[p] != 0) {
+				getNonzeroPoints().add(p);
+				if ((getBestIndex() == -1) || (values[p] > values[getBestIndex()])) {
+					setBestIndex(getNonzeroPoints().size() - 1);
+				}
+			}
+		}
+	}
+
+	// TODO Make this more efficient by looking at chains instead of points next to them
+	public int beforeEvaluate(int p, Board board) {
 		int enemy = opposite(board.getColorToPlay());
 		if (board.getNeighborCount(p, enemy) == 0) {
 			return 0;

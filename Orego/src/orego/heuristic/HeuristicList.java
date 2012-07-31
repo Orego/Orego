@@ -6,6 +6,7 @@ import java.util.*;
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
+import orego.util.IntSet;
 import static java.lang.Math.*;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
@@ -173,14 +174,19 @@ public class HeuristicList implements Cloneable {
 		if (ON_BOARD[lastMove]) {
 			for (Heuristic h : heuristics) {
 				h.prepare(board);
-				for (int p : h.getSearchArea(board)) {
-					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-						if (h.evaluate(p, board) > 0) {
+				IntSet nonzeroPoints = h.getNonzeroPoints();
+				if (nonzeroPoints.size() > 0) {
+					int i = h.getBestIndex();
+					int j = i;
+					do {
+						int p = nonzeroPoints.get(j);
+						if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 							if (board.playFast(p) == PLAY_OK) {
 								return p;
 							}
 						}
-					}
+						j = (j + 1) % nonzeroPoints.size();
+					} while (j != i);
 				}
 			}
 		}

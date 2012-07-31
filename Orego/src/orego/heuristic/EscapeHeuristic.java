@@ -19,24 +19,14 @@ public class EscapeHeuristic extends Heuristic {
 	/** Enemy chains in atari adjacent to friends. */
 	private IntSet targets;
 	
-	/** Value of each point. */
-	private int[] values;
-	
 	public EscapeHeuristic(int weight) {
 		super(weight);
-		values = new int[FIRST_POINT_BEYOND_BOARD];
 		friends = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		targets = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	@Override
-	public int evaluate(int p, Board board) {
-		return values[p];
-	}
-	
-	@Override
 	public void prepare(Board board) {
-		fill(values, 0);
 		int lastMove = board.getMove(board.getTurn() - 1);
 		int color = board.getColorToPlay();
 		// Find friendly groups in danger
@@ -52,9 +42,24 @@ public class EscapeHeuristic extends Heuristic {
 						friends.add(chain);
 						// Add value for extending here
 						int size = board.getChainSize(chain);
-						values[capturePoint] += size;
+						increaseValue(capturePoint, size);
 						findCapturableEnemies(chain, size, opposite(color), board);
 					}
+				}
+			}
+		}
+	}
+	
+	// TODO Move this up to Heuristic
+	protected void increaseValue(int point, int amount) {
+		getValues()[point] += amount;
+		IntSet nonzeroPoints = getNonzeroPoints();
+		nonzeroPoints.add(point);
+		if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getBestIndex()])) {
+			// TODO IntSet can do this directly, faster
+			for (int i = 0; i < nonzeroPoints.size(); i++) {
+				if (nonzeroPoints.get(i) == point) {
+					setBestIndex(i);
 				}
 			}
 		}
@@ -70,7 +75,7 @@ public class EscapeHeuristic extends Heuristic {
 				if ((board.getColor(target) == enemyColor) && !targets.contains(target)){
 					int capturePoint = board.getCapturePoint(target);
 					if (capturePoint != NO_POINT) {
-						values[capturePoint] += board.getChainSize(target) + size;
+						increaseValue(capturePoint, board.getChainSize(target) + size);
 					}
 				}
 			}

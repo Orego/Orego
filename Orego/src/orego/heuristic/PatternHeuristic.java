@@ -134,16 +134,13 @@ public class PatternHeuristic extends Heuristic {
 		if(GOOD_NEIGHBORHOODS[color].get(neighborhood)) {
 			return 1;
 		}
-		if(BAD_NEIGHBORHOODS[color].get(neighborhood)) {
-			return -1;
-		}
+		// TODO Put these back in
+//		if(BAD_NEIGHBORHOODS[color].get(neighborhood)) {
+//			return -1;
+//		}
 		return 0;
 	}
 	
-	@Override
-	public int[] getSearchArea(Board board) {
-		return NEIGHBORS[board.getMove(board.getTurn() - 1)];
-	}
 	/**
 	 * Returns true if the the specified 3x3 neighborhood can possibly occur.
 	 * Neighborhoods are impossible if, for example, there are non-contiguous
@@ -170,8 +167,20 @@ public class PatternHeuristic extends Heuristic {
 	}
 
 	@Override
-	public int evaluate(int p, Board board) {
-		return evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
+	public void prepare(Board board) {
+		super.prepare(board);
+		int[] values = getValues();
+		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
+			if (board.getColor(p) == VACANT) {
+				values[p] = evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
+				if (values[p] != 0) {
+					getNonzeroPoints().add(p);
+					if ((getBestIndex() == -1) || (values[p] > values[getBestIndex()])) {
+						setBestIndex(getNonzeroPoints().size() - 1);
+					}
+				}
+			}
+		}
 	}
 
 }
