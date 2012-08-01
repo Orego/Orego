@@ -45,6 +45,7 @@ public class LinesOneTwoHeuristicTest {
 			  // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
+		heuristic.prepare(board, false);
 		assertEquals(-1, heuristic.evaluate(at("A1"), board));
 		assertEquals(-1, heuristic.evaluate(at("S18"), board));
 		assertEquals(-1, heuristic.evaluate(at("A10"), board));

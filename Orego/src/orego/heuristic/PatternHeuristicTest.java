@@ -56,6 +56,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("e15"),board));
 			assertEquals(0, heuristic.evaluate(at("g15"),board));
 		} else {
@@ -102,6 +103,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 		} else {
 			String[] problem = { 
@@ -129,7 +131,7 @@ public class PatternHeuristicTest {
 					"...................",// 18
 					"...................",// 17
 					"..#.#..............",// 16
-					"....O..............",// 15
+					"...................",// 15
 					"..#.O..............",// 14
 					"...................",// 13
 					"...................",// 12
@@ -146,7 +148,9 @@ public class PatternHeuristicTest {
 					"..................."// 1
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
-			board.setUpProblem(BLACK, problem);
+			board.setUpProblem(WHITE, problem);
+			board.play("e15");
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 			assertEquals(1, heuristic.evaluate(at("f15"),board));
 			assertEquals(1, heuristic.evaluate(at("f16"),board));
@@ -178,7 +182,7 @@ public class PatternHeuristicTest {
 					"...................",// 18
 					"...................",// 17
 					"..O.O..............",// 16
-					"....#..............",// 15
+					"...................",// 15
 					"..O.#..............",// 14
 					"...................",// 13
 					"...................",// 12
@@ -195,7 +199,9 @@ public class PatternHeuristicTest {
 					"..................."// 1
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
-			board.setUpProblem(WHITE, problem);
+			board.setUpProblem(BLACK, problem);
+			board.play("e15");
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 			assertEquals(1, heuristic.evaluate(at("f15"),board));
 			assertEquals(1, heuristic.evaluate(at("f16"),board));
@@ -245,6 +251,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("b14"),board));
 			assertEquals(1, heuristic.evaluate(at("b15"),board));
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
@@ -294,6 +301,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 		} else {
 			String[] problem = { ".........", // 9
@@ -338,6 +346,10 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
+			heuristic.prepare(board, false);
+			heuristic.prepare(board, false);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("d1"),board));
 			assertEquals(1, heuristic.evaluate(at("d2"),board));
 			assertEquals(1, heuristic.evaluate(at("f1"),board));
@@ -389,6 +401,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("d1"),board));
 			assertEquals(1, heuristic.evaluate(at("d2"),board));
 			assertEquals(1, heuristic.evaluate(at("f1"),board));
@@ -438,6 +451,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("f1"),board));
 			assertEquals(1, heuristic.evaluate(at("f3"),board));
 			assertEquals(1, heuristic.evaluate(at("g1"),board));
@@ -489,6 +503,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("q1"),board));
 		} else {
 			String[] problem = { 
@@ -534,6 +549,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("q1"),board));
 			assertEquals(1, heuristic.evaluate(at("s1"),board));
 			assertEquals(1, heuristic.evaluate(at("s2"),board));
@@ -585,6 +601,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("a17"),board));
 			assertEquals(1, heuristic.evaluate(at("b17"),board));
 			assertEquals(1, heuristic.evaluate(at("b19"),board));
@@ -643,6 +660,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("d3"),board));
 //			assertEquals(0, heuristic.evaluate(at("c3"),board));
 //			board.clear();
@@ -692,6 +710,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("d3"),board));
 //			assertEquals(0, heuristic.evaluate(at("c3"),board));
 		} else {
@@ -739,6 +758,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("d15"),board));
 			assertEquals(-1, heuristic.evaluate(at("b15"),board));
 //			board.clear();
@@ -789,6 +809,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("d15"),board));
 			assertEquals(-1, heuristic.evaluate(at("b15"),board));
 		} else {
@@ -835,6 +856,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("c17"),board));
 			assertEquals(-1, heuristic.evaluate(at("d17"),board));
 			assertEquals(-1, heuristic.evaluate(at("c15"),board));
@@ -883,6 +905,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("c17"),board));
 			assertEquals(-1, heuristic.evaluate(at("d17"),board));
 			assertEquals(-1, heuristic.evaluate(at("c15"),board));
@@ -932,6 +955,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board, false);
 			assertEquals(-1, heuristic.evaluate(at("d15"),board));
 			assertEquals(-1, heuristic.evaluate(at("d16"),board));
 		} else {
@@ -978,6 +1002,7 @@ public class PatternHeuristicTest {
 				// 		 ABCDEFGHJKLMNOPQRST
 				};
 				board.setUpProblem(WHITE, problem);
+				heuristic.prepare(board, false);
 				assertEquals(-1, heuristic.evaluate(at("d15"),board));
 				assertEquals(-1, heuristic.evaluate(at("d16"),board));
 			} else {
