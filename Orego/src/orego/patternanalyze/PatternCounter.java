@@ -22,7 +22,7 @@ public class PatternCounter {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	private static final int PATTERN_LENGTH = 8;
+	private static final int PATTERN_LENGTH = 12;
 	
 	private static final int PATTERN_STORAGE_CUTOFF = 5000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
@@ -35,7 +35,7 @@ public class PatternCounter {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Long, Long[]> patternSeen = new HashMap<Long, Long[]>();
-	private static String TEST_DIRECTORY = "../../../Test Games/kgs-19-2011-03-new/";
+	private static String TEST_DIRECTORY = "../../../Test Games/";
 
 	public static void main(String[] args) {
 		new PatternCounter();
@@ -60,6 +60,7 @@ public class PatternCounter {
 			}
 			System.out.println("Done.");
 			bw.write(output);
+			System.out.println("Written to file "+TEST_DIRECTORY + "output"+PATTERN_LENGTH+".txt");
 			bw.close();
 			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
@@ -67,6 +68,7 @@ public class PatternCounter {
 			}
 			ow.flush();
 			ow.close();
+			System.out.println("Written to file "+TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat");
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
