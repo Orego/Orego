@@ -58,6 +58,11 @@ public class DynamicPattern implements Serializable {
 		createReflectionsAndRotations(setupPattern(p, board, patternSize));
 	}
 	
+	public DynamicPattern(long newPattern, int size) {
+		patternSize = size;
+		createReflectionsAndRotations(newPattern);
+	}
+	
 	public boolean match(long incomingPattern, int size) {
 		if (this.getPatternSize() == size) {
 			for (int i = 0; i < NUMBER_CHOICES; i++) {

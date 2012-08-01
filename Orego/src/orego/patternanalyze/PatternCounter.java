@@ -2,12 +2,16 @@ package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
 
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
@@ -22,7 +26,7 @@ public class PatternCounter {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	private static final int PATTERN_LENGTH = 12;
+	private static final int PATTERN_LENGTH = 8;
 	
 	private static final int PATTERN_STORAGE_CUTOFF = 5000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
@@ -35,7 +39,7 @@ public class PatternCounter {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Long, Long[]> patternSeen = new HashMap<Long, Long[]>();
-	private static String TEST_DIRECTORY = "../../../Test Games/";
+	private static String TEST_DIRECTORY = "../../../Test Games/kgs-/";
 
 	public static void main(String[] args) {
 		new PatternCounter();
@@ -64,12 +68,12 @@ public class PatternCounter {
 			bw.close();
 			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
-				ow.writeObject(patternSeen.get(pattern[0]));
+				ow.writeObject(new DynamicPattern(pattern[0], PATTERN_LENGTH));
 			}
 			ow.flush();
 			ow.close();
 			System.out.println("Written to file "+TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat");
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
