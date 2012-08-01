@@ -1,5 +1,7 @@
 package orego.heuristic;
 
+import java.util.HashMap;
+
 import orego.core.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
@@ -9,18 +11,22 @@ import orego.util.*;
  * The value of a move is the number of stones saved * the number of liberties
  * after saving - 1.
  */
-public class EscapeHeuristic extends Heuristic {
+public class EscapeHeuristic2 extends Heuristic {
 
 	/** Endangered chains. */
 	private IntList targets;
 	
-	/** Chains rescued by capturing. */
-	private IntList saved;
+	/** 
+	 * When we consider escaping by capturing enemy stones, we are interested
+	 * in how many liberties the capture will gain for a friendly group in atari.
+	 * libsFromCapture maps chain IDs to these counts of liberties gained.
+	 */
+	HashMap<Integer, Integer> libsFromCapture;
 
-	public EscapeHeuristic(int weight) {
+	public EscapeHeuristic2(int weight) {
 		super(weight);
 		targets = new IntList(4);
-		saved = new IntList(BOARD_AREA);
+		libsFromCapture = new HashMap<Integer, Integer>();
 	}
 
 	@Override
@@ -29,7 +35,10 @@ public class EscapeHeuristic extends Heuristic {
 		if(board.isSelfAtari(p, color)){
 			return 0;
 		}
+		libsFromCapture.clear();
 		int result = 0;
+		int libertiesGained = 0;
+		int captured = 0;
 		targets.clear();
 		for (int i = 0; i < 4; i++) {
 			int neighbor = NEIGHBORS[p][i];
@@ -38,21 +47,28 @@ public class EscapeHeuristic extends Heuristic {
 				int enemy = board.getChainId(neighbor);
 				if ((board.isInAtari(enemy)) && (!targets.contains(enemy))) {
 					targets.add(enemy);
-					saved.clear();
 					int next = neighbor;
 					do {
 						for (int j = 0; j < 4; j++) {
 							int m = NEIGHBORS[next][j];
 							int save = board.getChainId(m);
 							if (board.getColor(m) == color && (board.isInAtari(save))) {
-								if (!saved.contains(save)) {
-									result += board.getChainSize(save) + board.getChainSize(enemy);
-									saved.add(save);
+								if (!libsFromCapture.containsKey(save)) {
+									libsFromCapture.put(save, 1);
+								}
+								else {
+									libsFromCapture.put(save, libsFromCapture.get(save)+1);
 								}
 							}
 						}
 						next = board.getChainNextPoints()[next];
 					} while (next != neighbor);
+					if (!libsFromCapture.isEmpty()) {
+						captured += board.getChainSize(enemy);
+					}
+					for (int chainId : libsFromCapture.keySet()) {
+						result += board.getChainSize(chainId) * libsFromCapture.get(chainId);
+					}
 				}
 			} else if (board.getColor(neighbor) == color) {
 				// Can we save our chain by extending?
@@ -60,10 +76,13 @@ public class EscapeHeuristic extends Heuristic {
 				if ((board.isInAtari(target)) && (!targets.contains(target))) {
 					targets.add(target);
 					result += board.getChainSize(target);
+				} else {
+					libertiesGained += Math.max(0, board.getLibertyCount(neighbor) - 2);
 				}
 			}
 		}
-		return result;
+		libertiesGained += board.getVacantNeighborCount(p);
+		return result * libertiesGained + captured;
 	}
 
 }

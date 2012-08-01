@@ -10,16 +10,16 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
-public class EscapeHeuristicTest {
+public class EscapeHeuristic2Test {
 
 	private Board board;
 
-	private EscapeHeuristic heuristic;
+	private EscapeHeuristic2 heuristic;
 
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new EscapeHeuristic(1);
+		heuristic = new EscapeHeuristic2(1);
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		assertEquals(8, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -103,7 +103,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		assertEquals(12, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -131,7 +131,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		assertEquals(16, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -159,7 +159,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		assertEquals(20, heuristic.evaluate(at("m12"), board));
 	}
 	
 	@Test
@@ -187,7 +187,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(8, heuristic.evaluate(at("m12"), board));
+		assertEquals(40, heuristic.evaluate(at("m12"), board));
 	}
 
 	@Test
@@ -243,14 +243,98 @@ public class EscapeHeuristicTest {
 			  // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		assertEquals(1, heuristic.evaluate(at("o4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		assertEquals(3, heuristic.evaluate(at("o4"), board));
+		assertEquals(4, heuristic.evaluate(at("r4"), board));
 		// Do it some additional times to catch "memory leak"
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		assertEquals(4, heuristic.evaluate(at("r4"), board));
+		assertEquals(4, heuristic.evaluate(at("r4"), board));
+		assertEquals(4, heuristic.evaluate(at("r4"), board));
+		assertEquals(4, heuristic.evaluate(at("r4"), board));
+		assertEquals(4, heuristic.evaluate(at("r4"), board));
+	}
+	
+	@Test
+	public void testCapture2() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				".............##OO..",// 5
+				".............OO##O.",// 4
+				".............##O...",// 3
+				"...................",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(WHITE, problem);
+		assertEquals(6, heuristic.evaluate(at("r3"), board));
+	}
+	
+	@Test
+	public void testCapture3() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				".............OOO...",// 6
+				"............O###...",// 5
+				".............OO##O.",// 4
+				".............##OO..",// 3
+				"...................",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(WHITE, problem);
+		assertEquals(17, heuristic.evaluate(at("r5"), board));
+	}
+	
+	@Test
+	public void testCapture4() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				".............###...",// 7
+				"............#OOO...",// 6
+				"............O###...",// 5
+				".............OO#O..",// 4
+				".............##OO..",// 3
+				"...................",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(WHITE, problem);
+		assertEquals(79, heuristic.evaluate(at("r5"), board));
 	}
 
 }
