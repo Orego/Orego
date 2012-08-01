@@ -167,8 +167,8 @@ public class PatternHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, boolean greedy) {
-		super.prepare(board, greedy);
+	public void prepare(Board board) {
+		super.prepare(board);
 		int[] values = getValues();
 		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
 			if (board.getColor(p) == VACANT) {

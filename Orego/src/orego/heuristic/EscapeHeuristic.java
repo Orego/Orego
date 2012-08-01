@@ -26,8 +26,8 @@ public class EscapeHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, boolean greedy) {
-		super.prepare(board, greedy);
+	public void prepare(Board board) {
+		super.prepare(board);
 		int lastMove = board.getMove(board.getTurn() - 1);
 		int color = board.getColorToPlay();
 		// Find friendly groups in danger
@@ -43,15 +43,10 @@ public class EscapeHeuristic extends Heuristic {
 						friends.add(chain);
 						int size = board.getChainSize(chain);
 						// Consider escaping by capturing
-						if (escapeByCapturing(chain, size, opposite(color), board, greedy) && greedy) {
-							return;
-						}
+						escapeByCapturing(chain, size, opposite(color), board);
 						// Consider escaping by extending
 						if (!board.isSelfAtari(capturePoint, color)) {
 							increaseValue(capturePoint, size);
-							if (greedy) {
-								return;
-							}
 						}
 					}
 				}
@@ -75,7 +70,7 @@ public class EscapeHeuristic extends Heuristic {
 	}
 	
 	/** Adds value for moves that capture adjacent enemies of chain. */
-	protected boolean escapeByCapturing(int chain, int size, int enemyColor, Board board, boolean greedy) {
+	protected void escapeByCapturing(int chain, int size, int enemyColor, Board board) {
 		int p = chain;
 		int[] next = board.getChainNextPoints();
 		do {
@@ -85,15 +80,11 @@ public class EscapeHeuristic extends Heuristic {
 					int capturePoint = board.getCapturePoint(target);
 					if (capturePoint != NO_POINT) {
 						increaseValue(capturePoint, board.getChainSize(target) + size);
-						if (greedy) {
-							return true;
-						}
 					}
 				}
 			}
 			p = next[p];
 		} while (p != chain);
-		return false;
 	}
 
 }

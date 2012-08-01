@@ -48,7 +48,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play(at("s2"));
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(1, heuristic.evaluate(at("r1"), board));
 	}
 
@@ -77,7 +77,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
@@ -106,7 +106,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
@@ -135,7 +135,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
@@ -164,7 +164,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(4, heuristic.evaluate(at("m12"), board));
 	}
 	
@@ -194,7 +194,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(8, heuristic.evaluate(at("m12"), board));
 	}
 
@@ -223,7 +223,7 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(23, heuristic.evaluate(at("k10"), board));
 	}
 	
@@ -253,7 +253,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(1, heuristic.evaluate(at("o4"), board));
 		assertEquals(2, heuristic.evaluate(at("r4"), board));
 		// Do it some additional times to catch "memory leak"
@@ -290,7 +290,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(at("o6"), heuristic.getNonzeroPoints().get(heuristic.getBestIndex()));
 	}
 
@@ -320,10 +320,10 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("q2");
-		heuristic.prepare(board, true);
+		heuristic.prepare(board);
 		assertEquals(1, heuristic.getNonzeroPoints().size());
 		assertEquals(at("p6"), heuristic.getNonzeroPoints().get(0));
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(2, heuristic.getNonzeroPoints().size());
 		assertEquals(at("p6"), heuristic.getNonzeroPoints().get(0));
 		assertEquals(at("q6"), heuristic.getNonzeroPoints().get(1));

@@ -17,8 +17,8 @@ public class CaptureHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, boolean greedy) {
-		super.prepare(board, greedy);
+	public void prepare(Board board) {
+		super.prepare(board);
 		IntSet chains = board.getChainsInAtari(opposite(board.getColorToPlay()));
 		int[] values = getValues();
 		for (int i = 0; i < chains.size(); i++) {
