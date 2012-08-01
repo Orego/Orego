@@ -47,7 +47,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, false);
 		assertEquals(2, heuristic.evaluate(at("b2"), board));
 		assertEquals(0, heuristic.evaluate(at("j7"), board));
 		assertEquals(0, heuristic.evaluate(at("f7"), board));
@@ -87,7 +87,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, false);
 		assertEquals(0, heuristic.evaluate(at("k11"), board));
 		assertEquals(2, heuristic.evaluate(at("j9"), board));
 		board.clear();
@@ -121,7 +121,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, false);
 		assertEquals(12, heuristic.evaluate(at("g8"), board));
 		assertEquals(0, heuristic.evaluate(at("g9"), board));
 		board.clear();
@@ -155,7 +155,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, false);
 		assertEquals(3, heuristic.evaluate(at("r1"), board));
 		board.clear();
 		board.setUpProblem(WHITE, problem);

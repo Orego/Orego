@@ -169,7 +169,7 @@ public class HeuristicList implements Cloneable {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Compute best heuristic value
 		for (Heuristic h : heuristics) {
-			h.prepare(board);
+			h.prepare(board, true);
 			IntSet nonzeroPoints = h.getNonzeroPoints();
 			if (nonzeroPoints.size() > 0) {
 				int i = h.getBestIndex();

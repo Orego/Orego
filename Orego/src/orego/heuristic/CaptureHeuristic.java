@@ -16,8 +16,9 @@ public class CaptureHeuristic extends Heuristic {
 		targets = new IntList(4);
 	}
 
-	public void prepare(Board board) {
-		super.prepare(board);
+	@Override
+	public void prepare(Board board, boolean greedy) {
+		super.prepare(board, greedy);
 		IntSet chains = board.getChainsInAtari(opposite(board.getColorToPlay()));
 		int[] values = getValues();
 		for (int i = 0; i < chains.size(); i++) {

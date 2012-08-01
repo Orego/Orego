@@ -12,8 +12,8 @@ public class SpecificPointHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
+	public void prepare(Board board, boolean greedy) {
+		super.prepare(board, true);
 		getValues()[at("c5")] = board.getStoneCounts()[BLACK] + board.getStoneCounts()[WHITE];
 		getNonzeroPoints().add(at("c5"));
 		setBestIndex(0);

@@ -54,8 +54,10 @@ public abstract class Heuristic {
 	/**
 	 * Called before any calls to evaluate on a given board state. For some
 	 * heuristics, this avoids redundant computation. Does nothing by default.
+	 * 
+	 * @param greedy If true, stop after finding one good move.
 	 */
-	public void prepare(Board board) {
+	public void prepare(Board board, boolean greedy) {
 		nonzeroPoints.clear();
 		bestIndex = -1;
 	}
