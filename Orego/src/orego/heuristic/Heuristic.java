@@ -68,6 +68,24 @@ public abstract class Heuristic {
 		return values[p];
 	}
 
+	protected void increaseValue(int point, int amount) {
+		IntSet nonzeroPoints = getNonzeroPoints();
+		if (nonzeroPoints.contains(point)) {
+			getValues()[point] += amount;
+		} else {
+			getValues()[point] = amount;
+			nonzeroPoints.add(point);
+		}
+		if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getNonzeroPoints().get(getBestIndex())])) {
+			// TODO IntSet can do this directly, faster
+			for (int i = 0; i < nonzeroPoints.size(); i++) {
+				if (nonzeroPoints.get(i) == point) {
+					setBestIndex(i);
+				}
+			}
+		}
+	}
+
 	public void setBestIndex(int bestIndex) {
 		this.bestIndex = bestIndex;
 	}

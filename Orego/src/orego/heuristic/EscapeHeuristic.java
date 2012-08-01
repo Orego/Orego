@@ -53,26 +53,7 @@ public class EscapeHeuristic extends Heuristic {
 			}
 		}
 	}
-	
-	// TODO Move this up to Heuristic
-	protected void increaseValue(int point, int amount) {
-		IntSet nonzeroPoints = getNonzeroPoints();
-		if (nonzeroPoints.contains(point)) {
-			getValues()[point] += amount;
-		} else {
-			getValues()[point] = amount;
-			nonzeroPoints.add(point);
-			if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getNonzeroPoints().get(getBestIndex())])) {
-				// TODO IntSet can do this directly, faster
-				for (int i = 0; i < nonzeroPoints.size(); i++) {
-					if (nonzeroPoints.get(i) == point) {
-						setBestIndex(i);
-					}
-				}
-			}
-		}
-	}
-	
+		
 	/** Adds value for moves that capture adjacent enemies of chain. */
 	protected void escapeByCapturing(int chain, int size, int enemyColor, Board board) {
 		int p = chain;
