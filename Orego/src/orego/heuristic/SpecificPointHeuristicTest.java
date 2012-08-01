@@ -22,9 +22,11 @@ public class SpecificPointHeuristicTest {
 
 	@Test
 	public void testEvaluate() {
-		assertEquals(1, heuristic.evaluate(at("c5"), board));
+		board.play(at("a1"));
+		board.play(at("a2"));
+		heuristic.prepare(board, false);
+		assertEquals(2, heuristic.evaluate(at("c5"), board));
 		assertEquals(0, heuristic.evaluate(at("c4"), board));
-
 	}
 
 }

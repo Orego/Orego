@@ -6,12 +6,11 @@ import java.util.*;
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
+import orego.util.IntSet;
 import static java.lang.Math.*;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.NEIGHBORS;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.*;
 
 /**
  * Note: we do not override ArrayList since we need the raw speed of a native
@@ -161,6 +160,7 @@ public class HeuristicList implements Cloneable {
 		return null;
 	}
 
+	// TODO Go through the search area randomly
 	/**
 	 * Goes through the heuristics until one suggests a legal, feasible move; plays
 	 * that move. In the interest of speed, the FIRST move given a positive value
@@ -168,18 +168,21 @@ public class HeuristicList implements Cloneable {
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Compute best heuristic value
-		int lastMove = board.getMove(board.getTurn() - 1);
-		if (ON_BOARD[lastMove]) {
-			for (Heuristic h : heuristics) {
-				for (int p : NEIGHBORS[lastMove]) {
+		for (Heuristic h : heuristics) {
+			h.prepare(board, true);
+			IntSet nonzeroPoints = h.getNonzeroPoints();
+			if (nonzeroPoints.size() > 0) {
+				int i = h.getBestIndex();
+				int j = i;
+				do {
+					int p = nonzeroPoints.get(j);
 					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-						if (h.evaluate(p, board) > 0) {
-							if (board.playFast(p) == PLAY_OK) {
-								return p;
-							}
+						if (board.playFast(p) == PLAY_OK) {
+							return p;
 						}
 					}
-				}
+					j = (j + 1) % nonzeroPoints.size();
+				} while (j != i);
 			}
 		}
 		return NO_POINT;

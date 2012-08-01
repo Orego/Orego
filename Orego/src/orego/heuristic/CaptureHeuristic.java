@@ -17,25 +17,23 @@ public class CaptureHeuristic extends Heuristic {
 	}
 
 	@Override
-	public int evaluate(int p, Board board) {
-		int enemy = opposite(board.getColorToPlay());
-		if (board.getNeighborCount(p, enemy) == 0) {
-			return 0;
-		}
-		int result = 0;
-		targets.clear();
-		for (int i = 0; i < 4; i++) {
-			int neighbor = NEIGHBORS[p][i];
-			if (board.getColor(neighbor) == enemy) {
-				int target = board.getChainId(neighbor);
-				if ((board.isInAtari(target))
-						&& (!targets.contains(target))) {
-					targets.add(target);
-					result += board.getChainSize(target);
-				}
+	public void prepare(Board board, boolean greedy) {
+		super.prepare(board, greedy);
+		IntSet chains = board.getChainsInAtari(opposite(board.getColorToPlay()));
+		int[] values = getValues();
+		for (int i = 0; i < chains.size(); i++) {
+			int c = chains.get(i);
+			int p = board.getCapturePoint(c);
+			if (getNonzeroPoints().contains(p)) {
+				values[p] += board.getChainSize(c);
+			} else {
+				values[p] = board.getChainSize(c);
+				getNonzeroPoints().add(p);
 			}
+			if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
+				setBestIndex(getNonzeroPoints().size() - 1);
+			}		
 		}
-		return result;
 	}
 
 }

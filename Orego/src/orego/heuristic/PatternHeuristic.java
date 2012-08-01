@@ -4,9 +4,10 @@ import static orego.core.Colors.BLACK;
 import static orego.core.Colors.OFF_BOARD_COLOR;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.*;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
+import orego.patternanalyze.DynamicPattern;
 import orego.patterns.ColorSpecificPattern;
 import orego.patterns.Cut1Pattern;
 import orego.patterns.Pattern;
@@ -33,6 +34,10 @@ public class PatternHeuristic extends Heuristic {
 		new BitVector(NUMBER_OF_NEIGHBORHOODS),
 		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 
+//	private static final DynamicPattern[] PATTERN_LIST = {
+//		
+//	}
+	
 	/**
 	 * Set of 3x3 patterns taken from Gelly et al,
 	 * "Modification of UCT with Patterns in Monte-Carlo Go"
@@ -134,9 +139,10 @@ public class PatternHeuristic extends Heuristic {
 		if(GOOD_NEIGHBORHOODS[color].get(neighborhood)) {
 			return 1;
 		}
-		if(BAD_NEIGHBORHOODS[color].get(neighborhood)) {
-			return -1;
-		}
+		// TODO Put these back in
+//		if(BAD_NEIGHBORHOODS[color].get(neighborhood)) {
+//			return -1;
+//		}
 		return 0;
 	}
 	
@@ -166,8 +172,20 @@ public class PatternHeuristic extends Heuristic {
 	}
 
 	@Override
-	public int evaluate(int p, Board board) {
-		return evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
+	public void prepare(Board board, boolean greedy) {
+		super.prepare(board, greedy);
+		int[] values = getValues();
+		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
+			if (board.getColor(p) == VACANT) {
+				values[p] = evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
+				if (values[p] != 0) {
+					getNonzeroPoints().add(p);
+					if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
+						setBestIndex(getNonzeroPoints().size() - 1);
+					}
+				}
+			}
+		}
 	}
 
 }
