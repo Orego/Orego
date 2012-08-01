@@ -1,35 +1,19 @@
 package orego.patternanalyze;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.BLACK;
-import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
-import static orego.core.Colors.OFF_BOARD_COLOR;
-import static orego.core.Colors.VACANT;
-import static orego.core.Colors.WHITE;
-import static orego.experiment.Debug.debug;
-import static orego.experiment.ExperimentConfiguration.RESULTS_DIRECTORY;
-import static orego.patterns.Pattern.*;
 import static orego.core.Coordinates.*;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 
 import orego.core.Board;
-import orego.patterns.ColorSpecificPattern;
-import orego.patterns.Cut1Pattern;
-import orego.patterns.Pattern;
-import orego.patterns.SimplePattern;
-import orego.util.BitVector;
 
 public class PatternCounter {
 
@@ -38,59 +22,7 @@ public class PatternCounter {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	/*
-	 * public static final BitVector[] GOOD_NEIGHBORHOODS = { new
-	 * BitVector(NUMBER_OF_NEIGHBORHOODS), new
-	 * BitVector(NUMBER_OF_NEIGHBORHOODS) };
-	 */
-
-	/**
-	 * Set of 3x3 patterns taken from Gelly et al,
-	 * "Modification of UCT with Patterns in Monte-Carlo Go"
-	 */
-	private static final String[] PATTERN_STRINGS = {
-			// BLACK SPECIFIC PATTERNS
-			"O...#O??", // Hane4
-			"#??*?O**", // Edge3
-			"O?+*?#**", // Edge4
-			"O#O*?#**", // Edge5
-			// WHITE SPECIFIC PATTERNS
-			"O...#O??", // Hane4
-			"#??*?O**", // Edge3
-			"O?+*?#**", // Edge4
-			"O#O*?#**", // Edge5
-			// Color independent patterns
-			"O..?##??", // Hane1
-			"O...#.??", // Hane2
-			"O#..#???", // Hane3
-			"Cut 1 Pattern",// new Cut1Pattern(), // Cut1
-			"#OO+??++", // Cut2
-			".O?*#?**", // Edge1
-			"#oO*??**", // Edge2
-	};
-
-	private static final Pattern[] PATTERN_LIST = {
-			// BLACK SPECIFIC PATTERNS
-			new ColorSpecificPattern("O...#O??", BLACK), // Hane4
-			new ColorSpecificPattern("#??*?O**", BLACK), // Edge3
-			new ColorSpecificPattern("O?+*?#**", BLACK), // Edge4
-			new ColorSpecificPattern("O#O*?#**", BLACK), // Edge5
-			// WHITE SPECIFIC PATTERNS
-			new ColorSpecificPattern("O...#O??", WHITE), // Hane4
-			new ColorSpecificPattern("#??*?O**", WHITE), // Edge3
-			new ColorSpecificPattern("O?+*?#**", WHITE), // Edge4
-			new ColorSpecificPattern("O#O*?#**", WHITE), // Edge5
-			// Color independent patterns
-			new SimplePattern("O..?##??"), // Hane1
-			new SimplePattern("O...#.??"), // Hane2
-			new SimplePattern("O#..#???"), // Hane3
-			new Cut1Pattern(), // Cut1
-			new SimplePattern("#OO+??++"), // Cut2
-			new SimplePattern(".O?*#?**"), // Edge1
-			new SimplePattern("#oO*??**") // Edge2
-	};
-
-	private static final int PATTERN_LENGTH = 24;
+	private static final int PATTERN_LENGTH = 8;
 	
 	private static final int PATTERN_STORAGE_CUTOFF = 5000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
@@ -103,7 +35,7 @@ public class PatternCounter {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Long, Long[]> patternSeen = new HashMap<Long, Long[]>();
-	private static String TEST_DIRECTORY = "./Test Games/";
+	private static String TEST_DIRECTORY = "../../../Test Games/kgs-19-2012-03-new";
 
 	public static void main(String[] args) {
 		new PatternCounter();
@@ -118,6 +50,8 @@ public class PatternCounter {
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
 				output = "Seen:" + patternSeen.get(pattern[0])[0];
+				output += " Played:" + patternSeen.get(pattern[0])[4];
+				output += " Ratio:" +  (patternSeen.get(pattern[0])[4] / (1.0 * patternSeen.get(pattern[0])[0]));
 				output += " Min Turn:" + patternSeen.get(pattern[0])[1];
 				output += " Max Turn:" + patternSeen.get(pattern[0])[2];
 				output += " Ave Turn:" + (patternSeen.get(pattern[0])[3] / (1.0 * patternSeen.get(pattern[0])[0]));
@@ -127,6 +61,12 @@ public class PatternCounter {
 			System.out.println("Done.");
 			bw.write(output);
 			bw.close();
+			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat")));
+			for (Long[] pattern : initialPatternSeen) {
+				ow.writeObject(patternSeen.get(pattern[0]));
+			}
+			ow.flush();
+			ow.close();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
