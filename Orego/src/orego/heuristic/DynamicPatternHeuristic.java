@@ -14,21 +14,33 @@ public class DynamicPatternHeuristic extends Heuristic{
 	public DynamicPatternHeuristic(int weight) {
 		super(weight);
 		patternList = new ArrayList<DynamicPattern>();
-		try {
-			extractPatternsFromFile("/Network/Servers/maccsserver.lclark.edu/Users/kevitts/git/Orego/Orego/testFiles/pattern8.dat");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		extractPatternsFromFile("/Network/Servers/maccsserver.lclark.edu/Users/kevitts/git/Orego/Orego/testFiles/pattern8.dat");
 	}
 
-	private void extractPatternsFromFile(String fileName) throws IOException,
-			FileNotFoundException, ClassNotFoundException {
-		ObjectInputStream input = new ObjectInputStream(new FileInputStream(new File(fileName)));
-		DynamicPattern pattern = null;
-		while ((pattern = (DynamicPattern) input.readObject()) != null) {
-			patternList.add(pattern);
-		}
-		input.close();
+	private void extractPatternsFromFile(String fileName) {
+
+		ObjectInputStream input;
+		try {
+			input = new ObjectInputStream(new FileInputStream(
+					new File(fileName)));
+			DynamicPattern pattern = null;
+			try {
+				int counter = 0;
+				while ((pattern = (DynamicPattern) input.readObject()) != null && counter < 40) {
+					patternList.add(pattern);
+					counter++;
+				}
+				input.close();
+			} catch (EOFException ex) {
+				input.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} 
 	}
 
 	@Override
