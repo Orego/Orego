@@ -10,7 +10,7 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DynamicPatternHeuristicEvaluateTest {
+public class DynamicPatternHeuristicTest {
 	
 	private Board board;
 	

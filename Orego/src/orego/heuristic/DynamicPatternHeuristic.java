@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import orego.patternanalyze.*;
+import static orego.experiment.Debug.*;
 
 import orego.core.Board;
 
@@ -17,12 +18,11 @@ public class DynamicPatternHeuristic extends Heuristic{
 		super(weight);
 		patternList = new ArrayList<DynamicPattern>();
 		if (test){
-			extractPatternsFromFile("./testFiles/testPattern8.dat");			
+			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/testPattern8.dat");			
 		}
 		else {
-					
+			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat");
 		}
-		System.out.println(patternList.size());
 	}
 
 	private void extractPatternsFromFile(String fileName) {
@@ -34,7 +34,7 @@ public class DynamicPatternHeuristic extends Heuristic{
 			DynamicPattern pattern = null;
 			try {
 				int counter = 0;
-				while ((pattern = (DynamicPattern) input.readObject()) != null && counter < 40) {
+				while ((pattern = (DynamicPattern) input.readObject()) != null && counter < 100) {
 					patternList.add(pattern);
 					counter++;
 				}
