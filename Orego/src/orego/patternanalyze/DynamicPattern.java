@@ -4,11 +4,23 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.core.Board;
 
+/**
+ * A pattern that can be many different sizes. Acceptable sizes are 4, 8, 12,
+ * 20, 24. The positions in the patterns are encoded as follows:
+ *          22
+ *       15  9 16
+ *    14  4  0  5 17
+ * 21  8  3  *  1 10 23
+ *    13  7  2  6 18
+ *       12 11 19
+ *          20
+ */
 public class DynamicPattern {
 	
 	public static final int NUMBER_CHOICES = 8;
 
 	private int patternSize;
+	
 	long[] pattern = new long[NUMBER_CHOICES];
 
 	public int getPatternSize() {
@@ -19,6 +31,15 @@ public class DynamicPattern {
 		return pattern;
 	}
 
+	public DynamicPattern(String diagram) {
+		assert !diagram.equals("");
+		patternSize = diagram.indexOf(':');
+		for (int i = 0; i < patternSize; i++) {
+			pattern[0] |= "#O.*".indexOf(diagram.charAt(i)) << (i * 2);
+		}
+		pattern[0] |= "#O".indexOf(diagram.charAt(patternSize + 1)) * (long) Math.pow(2, 62);
+	}
+	
 	public DynamicPattern(int p, Board board) {
 		this(p, board, 8);
 	} 
@@ -54,7 +75,7 @@ public class DynamicPattern {
 		for (int i = 0; i < patternLength; i++) {
 			result += "#O.*".charAt((int)((pattern & ((long)3 << (i * 2))) >> (i* 2)));
 		}
-		result += ":"+"#O".charAt(((int)(pattern >> 63) & 1));
+		result += ":"+"#O".charAt(((int)(pattern >> 62) & 1));
 		return result;
 	}
 	
@@ -275,5 +296,52 @@ public class DynamicPattern {
 		}
 		return currentPattern;
 	}
-
+	
+	/**
+	 * rotates the long representation of a pattern by 90 degrees
+	 * @param pattern the pattern encoding to be rotated
+	 * @return rotated pattern encoding
+	 */
+	protected static long rotate90(long patternWithColor) {
+		long pattern = patternWithColor << 1 >> 1;
+//		long pattern = patternWithColor & (long)-(1 - Math.pow(2, 64));
+		System.out.println(pattern + " " + patternWithColor);
+		long result = 0L;
+		// blocks:   1    |    2    |     3     |            4            |      5
+		//        0 1 2 3 | 4 5 6 7 | 8 9 10 11 | 12 13 14 15 16 17 18 19 | 20 21 22 23
+		// block 5
+		result |= rotateBlock90(pattern >> 40, 2);
+		// block 4
+		result <<= 16;
+		result |= rotateBlock90(pattern >> 24, 4);
+		// block 3
+		result <<= 8;
+		result |= rotateBlock90(pattern >> 16, 2);
+		// block 2
+		result <<= 8;
+		result |= rotateBlock90(pattern >> 8, 2);
+		// block 1
+		result <<= 8;
+		result |= rotateBlock90(pattern, 2);
+		// get the color to play
+		result |= patternWithColor & (long) Math.pow(2, 63);
+		System.out.println(result);
+		return result;
+	}
+	
+	/**
+	 * Rotates a section of four characters in a pattern to complete a 90 degree rotation.
+	 * @param charBitSize number of bits in each character.
+	 * @param block the block to be rotated
+	 * @return rotated block
+	 */
+	protected static long rotateBlock90(long block, int charBitSize) {
+		long result = 0L;
+		result |= block & (long) -(1 - Math.pow(2, charBitSize));
+//		System.out.println((long) -(1 - Math.pow(2, charBitSize)));
+		result <<= 3 * charBitSize;
+		result |= block >> charBitSize & (long) -(1 - Math.pow(2, charBitSize * 3));
+//		System.out.println((long) -(1 - Math.pow(2, charBitSize * 3)));
+		return result;
+	}
 }
