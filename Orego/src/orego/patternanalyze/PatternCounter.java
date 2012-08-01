@@ -26,7 +26,7 @@ public class PatternCounter {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	private static final int PATTERN_LENGTH = 24;
+	private static final int PATTERN_LENGTH = 8;
 	
 	private static final int PATTERN_STORAGE_CUTOFF = 5000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
