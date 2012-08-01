@@ -55,13 +55,13 @@ public class DynamicPattern implements Serializable {
 	
 	public DynamicPattern(int p, Board board, int size) {
 		patternSize = size;
-		setupPattern(p, board);
+		createReflectionsAndRotations(setupPattern(p, board, patternSize));
 	}
 	
-	public boolean match(DynamicPattern pattern) {
-		if (this.getPatternSize() == pattern.getPatternSize()) {
+	public boolean match(long incomingPattern, int size) {
+		if (this.getPatternSize() == size) {
 			for (int i = 0; i < NUMBER_CHOICES; i++) {
-				if (this.pattern[0] != pattern.getPattern()[i]) {
+				if (incomingPattern == getPattern()[i]) {
 					return true;
 				}
 			}
@@ -107,13 +107,13 @@ public class DynamicPattern implements Serializable {
 	 * @param currentPattern
 	 * @param choice
 	 */
-	public void setupPattern(int p, Board board) {
+	public static long setupPattern(int p, Board board, int size) {
 		long currentPattern = ((long)board.getColorToPlay()) << 62;
 		int north = -SOUTH;
 		int east = EAST;
 		int south = SOUTH;
 		int west = -EAST;
-		for (int i = 0; i < patternSize; i++) {
+		for (int i = 0; i < size; i++) {
 			switch (i) {
 			case 0:
 				currentPattern = (long)(board.getColor(p + north)) << 0 | currentPattern;
@@ -253,7 +253,7 @@ public class DynamicPattern implements Serializable {
 				break;
 			}
 		}
-		createReflectionsAndRotations(currentPattern);
+		return currentPattern;
 	}
 
 	/**

@@ -93,8 +93,9 @@ public class DynamicPatternTest implements Serializable{
 			board.setUpProblem(BLACK, problem);
 			DynamicPattern pattern1 = new DynamicPattern(at("f6"), board, 24);
 			DynamicPattern pattern2 = new DynamicPattern(at("p15"), board, 24);
-			assertTrue(pattern1.match(pattern1));
-			assertTrue(pattern1.match(pattern2));
+			assertTrue(pattern1.match(DynamicPattern.setupPattern(at("f6"), board, 24), 24));
+			assertTrue(pattern2.match(DynamicPattern.setupPattern(at("p15"), board, 24), 24));
+			assertTrue(pattern1.match(DynamicPattern.setupPattern(at("p15"), board, 24), 24));
 		}
 	}
 	
