@@ -19,6 +19,7 @@ public class DynamicPatternHeuristicEvaluateTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
+		DynamicPatternHeuristic.setTestMode(true);
 		heuristic = new DynamicPatternHeuristic(1);
 	}
 
@@ -51,8 +52,9 @@ public class DynamicPatternHeuristicEvaluateTest {
 			heuristic.prepare(board, false);
 			assertEquals(1, heuristic.evaluate(at("a7"), board));
 			assertEquals(1, heuristic.evaluate(at("t7"), board));
-			assertEquals(0, heuristic.evaluate(at("f9"), board));
+			assertEquals(0, heuristic.evaluate(at("k16"), board));
 		}
+		DynamicPatternHeuristic.setTestMode(false);
 	}
 
 }

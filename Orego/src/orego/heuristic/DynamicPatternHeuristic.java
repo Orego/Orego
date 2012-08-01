@@ -11,10 +11,18 @@ public class DynamicPatternHeuristic extends Heuristic{
 
 	private ArrayList<DynamicPattern> patternList;
 	
+	private static boolean test;
+	
 	public DynamicPatternHeuristic(int weight) {
 		super(weight);
 		patternList = new ArrayList<DynamicPattern>();
-		extractPatternsFromFile("/Network/Servers/maccsserver.lclark.edu/Users/kevitts/git/Orego/Orego/testFiles/pattern8.dat");
+		if (test){
+			extractPatternsFromFile("./testFiles/testPattern8.dat");			
+		}
+		else {
+					
+		}
+		System.out.println(patternList.size());
 	}
 
 	private void extractPatternsFromFile(String fileName) {
@@ -66,4 +74,7 @@ public class DynamicPatternHeuristic extends Heuristic{
 		return 0;
 	}
 
+	public static void setTestMode(boolean value) {
+		test = value;
+	}
 }
