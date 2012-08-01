@@ -294,40 +294,4 @@ public class EscapeHeuristicTest {
 		assertEquals(at("o6"), heuristic.getNonzeroPoints().get(heuristic.getBestIndex()));
 	}
 
-	@Test
-	public void testGreed() {
-		String[] problem = new String[] { //
-				"...................",// 19
-				"...................",// 18
-				"...................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				".............O#O#..",// 5
-				".............O#O#..",// 4
-				".............O#O#..",// 3
-				"..............O....",// 2
-				"..................."// 1
-			  // ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		board.play("q2");
-		heuristic.prepare(board);
-		assertEquals(1, heuristic.getNonzeroPoints().size());
-		assertEquals(at("p6"), heuristic.getNonzeroPoints().get(0));
-		heuristic.prepare(board);
-		assertEquals(2, heuristic.getNonzeroPoints().size());
-		assertEquals(at("p6"), heuristic.getNonzeroPoints().get(0));
-		assertEquals(at("q6"), heuristic.getNonzeroPoints().get(1));
-		assertEquals(at("p6"), heuristic.getNonzeroPoints().get(heuristic.getBestIndex()));
-	}
-
 }
