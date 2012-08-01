@@ -35,9 +35,9 @@ public class DynamicPattern {
 		assert !diagram.equals("");
 		patternSize = diagram.indexOf(':');
 		for (int i = 0; i < patternSize; i++) {
-			pattern[0] |= "#O.*".indexOf(diagram.charAt(i)) << (i * 2);
+			pattern[0] |= (long)("#O.*".indexOf(diagram.charAt(i))) << (i * 2);
 		}
-		pattern[0] |= "#O".indexOf(diagram.charAt(patternSize + 1)) * (long) Math.pow(2, 62);
+		pattern[0] |= (long)("#O".indexOf(diagram.charAt(patternSize + 1))) * (long) Math.pow(2, 62);
 	}
 	
 	public DynamicPattern(int p, Board board) {
@@ -304,8 +304,6 @@ public class DynamicPattern {
 	 */
 	protected static long rotate90(long patternWithColor) {
 		long pattern = patternWithColor << 1 >> 1;
-//		long pattern = patternWithColor & (long)-(1 - Math.pow(2, 64));
-		System.out.println(pattern + " " + patternWithColor);
 		long result = 0L;
 		// blocks:   1    |    2    |     3     |            4            |      5
 		//        0 1 2 3 | 4 5 6 7 | 8 9 10 11 | 12 13 14 15 16 17 18 19 | 20 21 22 23
@@ -324,8 +322,7 @@ public class DynamicPattern {
 		result <<= 8;
 		result |= rotateBlock90(pattern, 2);
 		// get the color to play
-		result |= patternWithColor & (long) Math.pow(2, 63);
-		System.out.println(result);
+		result |= patternWithColor & (long) (Math.pow(2, 62));
 		return result;
 	}
 	
@@ -338,10 +335,8 @@ public class DynamicPattern {
 	protected static long rotateBlock90(long block, int charBitSize) {
 		long result = 0L;
 		result |= block & (long) -(1 - Math.pow(2, charBitSize));
-//		System.out.println((long) -(1 - Math.pow(2, charBitSize)));
 		result <<= 3 * charBitSize;
 		result |= block >> charBitSize & (long) -(1 - Math.pow(2, charBitSize * 3));
-//		System.out.println((long) -(1 - Math.pow(2, charBitSize * 3)));
 		return result;
 	}
 }
