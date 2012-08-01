@@ -18,40 +18,21 @@ public class CaptureHeuristic extends Heuristic {
 
 	public void prepare(Board board) {
 		super.prepare(board);
-		IntSet vacant = board.getVacantPoints();
+		IntSet chains = board.getChainsInAtari(opposite(board.getColorToPlay()));
 		int[] values = getValues();
-		for (int i = 0; i < vacant.size(); i++) {
-			int p = vacant.get(i);
-			values[p] = beforeEvaluate(p, board);
-			if (values[p] != 0) {
+		for (int i = 0; i < chains.size(); i++) {
+			int c = chains.get(i);
+			int p = board.getCapturePoint(c);
+			if (getNonzeroPoints().contains(p)) {
+				values[p] += board.getChainSize(c);
+			} else {
+				values[p] = board.getChainSize(c);
 				getNonzeroPoints().add(p);
-				if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
-					setBestIndex(getNonzeroPoints().size() - 1);
-				}
 			}
+			if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
+				setBestIndex(getNonzeroPoints().size() - 1);
+			}		
 		}
-	}
-
-	// TODO Make this more efficient by looking at chains instead of points next to them
-	public int beforeEvaluate(int p, Board board) {
-		int enemy = opposite(board.getColorToPlay());
-		if (board.getNeighborCount(p, enemy) == 0) {
-			return 0;
-		}
-		int result = 0;
-		targets.clear();
-		for (int i = 0; i < 4; i++) {
-			int neighbor = NEIGHBORS[p][i];
-			if (board.getColor(neighbor) == enemy) {
-				int target = board.getChainId(neighbor);
-				if ((board.isInAtari(target))
-						&& (!targets.contains(target))) {
-					targets.add(target);
-					result += board.getChainSize(target);
-				}
-			}
-		}
-		return result;
 	}
 
 }

@@ -168,26 +168,21 @@ public class HeuristicList implements Cloneable {
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Compute best heuristic value
-		int lastMove = board.getMove(board.getTurn() - 1);
-		if (ON_BOARD[lastMove]) {
-			for (Heuristic h : heuristics) {
-				h.prepare(board);
-				IntSet nonzeroPoints = h.getNonzeroPoints();
-				if (nonzeroPoints.size() > 0) {
-					int i = h.getBestIndex();
-//					System.out.println("Best: " + pointToString(nonzeroPoints.get(i)));
-					int j = i;
-					do {
-						int p = nonzeroPoints.get(j);
-						if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-//							System.out.println("Trying " + pointToString(p));
-							if (board.playFast(p) == PLAY_OK) {
-								return p;
-							}
+		for (Heuristic h : heuristics) {
+			h.prepare(board);
+			IntSet nonzeroPoints = h.getNonzeroPoints();
+			if (nonzeroPoints.size() > 0) {
+				int i = h.getBestIndex();
+				int j = i;
+				do {
+					int p = nonzeroPoints.get(j);
+					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+						if (board.playFast(p) == PLAY_OK) {
+							return p;
 						}
-						j = (j + 1) % nonzeroPoints.size();
-					} while (j != i);
-				}
+					}
+					j = (j + 1) % nonzeroPoints.size();
+				} while (j != i);
 			}
 		}
 		return NO_POINT;
