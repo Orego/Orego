@@ -2,6 +2,9 @@ package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
+
+import java.io.Serializable;
+
 import orego.core.Board;
 
 /**
@@ -15,8 +18,13 @@ import orego.core.Board;
  *       12 11 19
  *          20
  */
-public class DynamicPattern {
+public class DynamicPattern implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final int NUMBER_CHOICES = 8;
 
 	private int patternSize;
@@ -38,6 +46,7 @@ public class DynamicPattern {
 			pattern[0] |= (long)("#O.*".indexOf(diagram.charAt(i))) << (i * 2);
 		}
 		pattern[0] |= (long)("#O".indexOf(diagram.charAt(patternSize + 1))) * (long) Math.pow(2, 62);
+		createReflectionsAndRotations(pattern[0]);
 	}
 	
 	public DynamicPattern(int p, Board board) {
@@ -46,9 +55,7 @@ public class DynamicPattern {
 	
 	public DynamicPattern(int p, Board board, int size) {
 		patternSize = size;
-		for (int i = 0; i < NUMBER_CHOICES; i++) {
-			pattern[i] = setupPattern(i, p, board);
-		}
+		setupPattern(p, board);
 	}
 	
 	public boolean match(DynamicPattern pattern) {
@@ -100,205 +107,172 @@ public class DynamicPattern {
 	 * @param currentPattern
 	 * @param choice
 	 */
-	public long setupPattern(int choice, int p, Board board) {
-		long currentPattern = ((long)board.getColorToPlay()) << 63;
-		int north = 0;
-		int south = 0;
-		int east = 0;
-		int west = 0;
-		if (choice == 0) {
-			north = -SOUTH;
-			east = EAST;
-			south = SOUTH;
-			west = -EAST;
-		}
-		if (choice == 1) {
-			north = -EAST;
-			east = -SOUTH;
-			south = EAST;
-			west = SOUTH;
-		}
-		if (choice == 2) {
-			north = SOUTH;
-			east = -EAST;
-			south = -SOUTH;
-			west = EAST;
-		}
-		if (choice == 3) {
-			north = EAST;
-			east = SOUTH;
-			south = -EAST;
-			west = -SOUTH;
-		}
-		if (choice == 4) {
-			north = -SOUTH;
-			east = -EAST;
-			south = SOUTH;
-			west = EAST;
-		}
-		if (choice == 5) {
-			north = EAST;
-			east = -SOUTH;
-			south = -EAST;
-			west = SOUTH;
-		}
-		if (choice == 6) {
-			north = SOUTH;
-			east = EAST;
-			south = -SOUTH;
-			west = -EAST;
-		}
-		if (choice == 7) {
-			north = -EAST;
-			east = SOUTH;
-			south = EAST;
-			west = -SOUTH;
-		}
+	public void setupPattern(int p, Board board) {
+		long currentPattern = ((long)board.getColorToPlay()) << 62;
+		int north = -SOUTH;
+		int east = EAST;
+		int south = SOUTH;
+		int west = -EAST;
 		for (int i = 0; i < patternSize; i++) {
 			switch (i) {
 			case 0:
 				currentPattern = (long)(board.getColor(p + north)) << 0 | currentPattern;
 				break;
 			case 1:
-				currentPattern = (long) (board.getColor(p + west)) << 2 | currentPattern;
+				currentPattern = (long) (board.getColor(p + east)) << 2 | currentPattern;
 				break;
 			case 2:
-				currentPattern = (long) (board.getColor(p + east)) << 4 | currentPattern;
+				currentPattern = (long) (board.getColor(p + south)) << 4 | currentPattern;
 				break;
 			case 3:
-				currentPattern = (long) (board.getColor(p + south)) << 6 | currentPattern;
+				currentPattern = (long) (board.getColor(p + west)) << 6 | currentPattern;
 				break;
 			case 4:
-				currentPattern = (long) (board.getColor(p + north + west)) << 8 | currentPattern;
+				currentPattern = (long) (board.getColor(p + west + north)) << 8 | currentPattern;
 				break;
 			case 5:
-				currentPattern = (long) (board.getColor(p + north + east)) << 10 | currentPattern;
+				currentPattern = (long) (board.getColor(p + east + north)) << 10 | currentPattern;
 				break;
 			case 6:
-				currentPattern = (long) (board.getColor(p + south + west)) << 12 | currentPattern;
+				currentPattern = (long) (board.getColor(p + south + east)) << 12 | currentPattern;
 				break;
 			case 7:
-				currentPattern = (long) (board.getColor(p + south + east)) << 14 | currentPattern;
+				currentPattern = (long) (board.getColor(p + south + west)) << 14 | currentPattern;
 				break;
 			case 8:
-				if ((currentPattern & 3) != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + north + north) << 16) | currentPattern;
+				if ((currentPattern & (3L << 6)) >> 6 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + west + west) << 16) | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 16 | currentPattern;
 				}
 				break;
 			case 9:
-				if ((currentPattern & 12) >> 2 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + west + west)) << 18 | currentPattern;
+				if ((currentPattern & (3L)) != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + north + north)) << 18 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 18 | currentPattern;
 				}
 				break;
 			case 10:
-				if ((currentPattern & 48) >> 4 != OFF_BOARD_COLOR) {
+				if ((currentPattern & (3L << 2)) >> 2 != OFF_BOARD_COLOR) {
 					currentPattern = (long) (board.getColor(p + east + east)) << 20 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 20 | currentPattern;
 				}
 				break;
 			case 11:
-				if ((currentPattern & 192) >> 6 != OFF_BOARD_COLOR) {
+				if ((currentPattern & (3L << 4)) >> 4 != OFF_BOARD_COLOR) {
 					currentPattern = (long) (board.getColor(p + south + south)) << 22 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 22 | currentPattern;
 				}
 				break;
 			case 12:
-				if ((currentPattern & 3) != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + north + north + west)) << 24 | currentPattern;
+				if ((currentPattern & (3L << 4)) >> 4 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + south + south + west)) << 24 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 24 | currentPattern;
 				}
 				break;
 			case 13:
-				if ((currentPattern & 3) != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + north + north + east)) << 26 | currentPattern;
+				if ((currentPattern & (3L << 6)) >> 6 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + west + west + south)) << 26 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 26 | currentPattern;
 				}
 				break;
 			case 14:
-				if ((currentPattern & 12) >> 2 != OFF_BOARD_COLOR) {
+				if ((currentPattern & (3L << 6)) >> 6 != OFF_BOARD_COLOR) {
 					currentPattern = (long) (board.getColor(p + west + west + north)) << 28 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 28 | currentPattern;
 				}
 				break;
 			case 15:
-				if ((currentPattern & 48) >> 4 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + east + east + north)) << 30 | currentPattern;
+				if ((currentPattern & (3L)) != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + north + north + west)) << 30 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 30 | currentPattern;
 				}
 				break;
 			case 16:
-				if ((currentPattern & 12) >> 2 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + west + west + south)) << 32| currentPattern;
+				if ((currentPattern & (3L)) != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + north + north + east)) << 32| currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 32 | currentPattern;
 				}
 				break;
 			case 17:
-				if ((currentPattern & 48) >> 4 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + east + east + south)) << 34 | currentPattern;
+				if ((currentPattern & (3L << 2)) >> 2 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + east + east + north)) << 34 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 34 | currentPattern;
 				}
 				break;
 			case 18:
-				if ((currentPattern & 192) >> 6 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + south + south + west)) << 36 | currentPattern;
+				if ((currentPattern & (3L << 2)) >> 2 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + east + east + south)) << 36 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 36 | currentPattern;
 				}
 				break;
 			case 19:
-				if ((currentPattern & 192) >> 6 != OFF_BOARD_COLOR) {
+				if ((currentPattern & (3L << 4)) >> 4 != OFF_BOARD_COLOR) {
 					currentPattern = (long) (board.getColor(p + south + south + east)) << 38 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 38 | currentPattern;
 				}
 				break;
 			case 20:
-				if ((currentPattern & 3) != OFF_BOARD_COLOR && (currentPattern & 196608) >> 16 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + north + north + north)) << 40 | currentPattern;
+				if ((currentPattern & (3L << 22)) >> 22 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + south + south + south)) << 40 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 40 | currentPattern;
 				}
 				break;
 			case 21:
-				if ((currentPattern & 12) >> 2 != OFF_BOARD_COLOR && (currentPattern & 786432) >> 18 != OFF_BOARD_COLOR) {
+				if ((currentPattern & (3L << 16)) >> 16 != OFF_BOARD_COLOR) {
 					currentPattern = (long) (board.getColor(p + west + west + west)) << 42 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 42 | currentPattern;
 				}
 				break;
 			case 22:
-				if ((currentPattern & 48) >> 4 != OFF_BOARD_COLOR && (currentPattern & 3145728) >> 20 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + east + east + east)) << 44 | currentPattern;
+				if ((currentPattern & (3L << 18)) >> 18 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + north + north + north)) << 44 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 44 | currentPattern;
 				}
 				break;
 			case 23:
-				if ((currentPattern & 192) >> 6 != OFF_BOARD_COLOR && (currentPattern & 12582912) >> 22 != OFF_BOARD_COLOR) {
-					currentPattern = (long) (board.getColor(p + south + south + south)) << 46 | currentPattern;
+				if ((currentPattern & (3L << 20)) >> 20 != OFF_BOARD_COLOR) {
+					currentPattern = (long) (board.getColor(p + east + east + east)) << 46 | currentPattern;
 				} else {
 					currentPattern = (long)OFF_BOARD_COLOR << 46 | currentPattern;
 				}
 				break;
 			}
 		}
-		return currentPattern;
+		createReflectionsAndRotations(currentPattern);
+	}
+
+	/**
+	 * Create the eight possible patterns (reflections and rotations).
+	 * @param Pattern we are looking at.
+	 */
+	private void createReflectionsAndRotations(long currentPattern) {
+		pattern[0] = currentPattern;
+		pattern[1] = rotate90(currentPattern);
+		pattern[2] = rotate90(pattern[1]);
+		pattern[3] = rotate90(pattern[2]);
+		pattern[4] = mirror(pattern[0]);
+		pattern[5] = rotate90(pattern[4]);
+		pattern[6] = rotate90(pattern[5]);
+		pattern[7] = rotate90(pattern[6]);
 	}
 	
 	/**
-	 * rotates the long representation of a pattern by 90 degrees
+	 * rotates the long representation of a pattern by 90 degrees Counter-Clockwise.
 	 * @param pattern the pattern encoding to be rotated
 	 * @return rotated pattern encoding
 	 */
@@ -337,6 +311,23 @@ public class DynamicPattern {
 		result |= block & (long) -(1 - Math.pow(2, charBitSize));
 		result <<= 3 * charBitSize;
 		result |= block >> charBitSize & (long) -(1 - Math.pow(2, charBitSize * 3));
+		return result;
+	}
+	
+	/**
+	 * Mirror the selected pattern across the y-axis.
+	 * @param The pattern selected.
+	 * @return
+	 */
+	protected static long mirror(long block) {
+		long result = 0L;
+		result |= (block & 3L) | ((block & (3L << 6)) >> 4) | (block & (3L << 4)) | ((block & (3L << 2)) << 4);//0-4
+		result |= ((block & (3L << 8)) << 2) | ((block & (3L << 10)) >> 2) | ((block & (3L << 12)) << 2) | ((block & (3L << 14)) >> 2);//4-7
+		result |= ((block & (3L << 16)) << 4) | ((block & (3L << 18))) | ((block & (3L << 20)) >> 4) | ((block & (3L << 22)));//8-11
+		result |= ((block & (3L << 24)) << 14) | ((block & (3L << 26)) << 10) | ((block & (3L << 28)) << 6) | ((block & (3L << 30)) << 2);//12-15
+		result |= ((block & (3L << 32)) >> 2) | ((block & (3L << 34)) >> 6) | ((block & (3L << 36)) >> 10) | ((block & (3L << 38)) >> 14);//16-19
+		result |= ((block & (3L << 40))) | ((block & (3L << 42)) << 4) | ((block & (3L << 44))) | ((block & (3L << 46)) >> 4);//20-23
+		result |= block & (long) (Math.pow(2, 62));
 		return result;
 	}
 }

@@ -39,10 +39,10 @@ public class DynamicPatternTest implements Serializable{
 					"...................",//11
 					"...................",//10
 					".....O.............",//9
-					"....###............",//8
+					"....##O............",//8
 					"...#OO##...........",//7
 					"..###.###..........",//6
-					"...##O##...........",//5
+					"...O#O#O...........",//5
 					"....##O............",//4
 					".....O.............",//3
 					"...................",//2
@@ -57,10 +57,10 @@ public class DynamicPatternTest implements Serializable{
 			assertEquals(WHITE, pattern.getColorFromPosition(2, 12));
 			assertEquals(WHITE, pattern.getColorFromPosition(3, 15));
 			assertEquals(WHITE, pattern.getColorFromPosition(4, 18));
-			assertEquals(WHITE, pattern.getColorFromPosition(5, 14));
-			assertEquals(WHITE, pattern.getColorFromPosition(6, 13));
-			assertEquals(WHITE, pattern.getColorFromPosition(7, 17));
-			assertEquals(WHITE, pattern.getColorFromPosition(1, 5));
+			assertEquals(WHITE, pattern.getColorFromPosition(5, 13));
+			assertEquals(WHITE, pattern.getColorFromPosition(6, 16));
+			assertEquals(WHITE, pattern.getColorFromPosition(7, 14));
+			assertEquals(WHITE, pattern.getColorFromPosition(1, 7));
 		}
 	}
 	
@@ -132,6 +132,16 @@ public class DynamicPatternTest implements Serializable{
 		assertEquals("*******************O:O", DynamicPattern.longToPatternString(DynamicPattern.rotate90(new DynamicPattern("*************O******:O").getPattern()[0]), 20));
 		
 		assertEquals("***********************O:O", DynamicPattern.longToPatternString(DynamicPattern.rotate90(new DynamicPattern("********************O***:O").getPattern()[0]), 24));
+	}
+	
+	@Test
+	public void testMirror() {
+		assertEquals("*###:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("*###:O").getPattern()[0]), 4));
+		assertEquals("#*##:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*:O").getPattern()[0]), 4));
+		assertEquals("#*##*##*:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#:O").getPattern()[0]), 8));
+		assertEquals("#*##*##*#**#:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##:O").getPattern()[0]), 12));
+		assertEquals("#*##*##*#**#####****:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##****####:O").getPattern()[0]), 20));
+		assertEquals("#*##*##*#**#####******##:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##****####*##*:O").getPattern()[0]), 24));
 	}
 
 }
