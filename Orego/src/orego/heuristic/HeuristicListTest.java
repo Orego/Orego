@@ -26,7 +26,7 @@ public class HeuristicListTest {
 		assertEquals(1, heuristics.getHeuristics()[1].getWeight());
 		assertEquals(EscapeHeuristic.class, heuristics.getHeuristics()[0].getClass());
 		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
-		heuristics = new HeuristicList("Territory@23:LinesOneTwo@2");
+		heuristics = new HeuristicList("Pattern@23:SpecificPoint@2");
 		assertEquals(2, heuristics.size());
 	}
 	
