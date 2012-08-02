@@ -172,8 +172,11 @@ public class PatternHeuristic extends Heuristic {
 		int[] values = getValues();
 		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
 			if (board.getColor(p) == VACANT) {
+//				System.out.println("Considering " + pointToString(p));
+//				System.out.println(Pattern.neighborhoodToDiagram(board.getNeighborhood(p)));
 				values[p] = evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
 				if (values[p] != 0) {
+//					System.out.println(pointToString(p) + " is a good move");
 					getNonzeroPoints().add(p);
 					if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
 						setBestIndex(getNonzeroPoints().size() - 1);
