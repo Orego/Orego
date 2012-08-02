@@ -99,27 +99,64 @@ public class PatternCounter {
 	public Long[][] sortHashMapIntoArray() {
 		Set<Long> patterns = patternSeen.keySet();
 		Long[][] sortedArray = new Long[patterns.size()][3];
-		int index = 0; 
+		int index = 0;
+		// puts all of the information into the array
 		for(Long pattern : patterns) {
 			sortedArray[index][SORTED_ARRAY_PATTERN] = pattern;
 			sortedArray[index][SORTED_ARRAY_SEEN] = patternSeen.get(pattern)[PATTERN_SEEN];
 			sortedArray[index][SORTED_ARRAY_PLAYED] = patternSeen.get(pattern)[PATTERN_PLAYED];
 			index++;
 		}
-		for (int j = 0; j < sortedArray.length - 1; j++) {
-			int maxindex = j+1;
-			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
-			for (int i = j+1; i < sortedArray.length; i++) {
-				if ((sortedArray[i][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[i][SORTED_ARRAY_SEEN])) > maxvalue) {
-					maxindex = i;
-					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
-				}
-			}
-			Long[] swapValue = sortedArray[maxindex];
-			sortedArray[maxindex] = sortedArray[j];
-			sortedArray[j] = swapValue;
-		}
+		sortedArray = sortArray(sortedArray, 0, sortedArray.length);
+//		for (int j = 0; j < sortedArray.length - 1; j++) {
+//			int maxindex = j;
+//			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+//			for (int i = maxindex; i < sortedArray.length; i++) {
+//				if ((sortedArray[i][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[i][SORTED_ARRAY_SEEN])) > maxvalue) {
+//					maxindex = i;
+//					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+//				}
+//			}
+//			Long[] swapValue = sortedArray[maxindex];
+//			sortedArray[maxindex] = sortedArray[j];
+//			sortedArray[j] = swapValue;
+//		}
 		return sortedArray;
+	}
+	
+	/**
+	 * Sorts our array of longs based on the played/seen ratio. The sort acts
+	 * recursively sorting chunks of the array.
+	 */
+	private Long[][] sortArray(Long[][] data, int beginIndex, int endIndex) {
+		// base case
+		if (beginIndex >= endIndex) {
+			return data;
+		}
+		// partition array into values less than the split value and values greater than the split value
+		int splitIndex = (endIndex + beginIndex) / 2;
+		double splitValue = data[splitIndex][SORTED_ARRAY_PLAYED] / (1.0 * data[splitIndex][SORTED_ARRAY_SEEN]);
+		data = swap(data, splitIndex, endIndex);
+		int storeIndex = beginIndex;
+		for (int i = beginIndex; i < endIndex; i++) {
+			if (data[i][SORTED_ARRAY_PLAYED] / (1.0 * data[i][SORTED_ARRAY_SEEN]) < splitValue) {
+				data = swap(data, i, storeIndex);
+				storeIndex++;
+			}
+		}
+		data = swap(data, storeIndex, endIndex);
+		// do the same process on the two partitions
+		data = sortArray(data, beginIndex, splitIndex - 1);
+		data = sortArray(data, splitIndex + 1, endIndex);
+		return data;
+	}
+	
+	/** Swap two values in our sorted array. */
+	private Long[][] swap(Long[][] array, int index1, int index2) {
+		Long[] storage = array[index1];
+		array[index1] = array[index2];
+		array[index2] = storage;
+		return array;
 	}
 
 	/**
