@@ -24,7 +24,7 @@ public class ProximityHeuristicTest {
 	@Test
 	public void testEvaluate() {
 		board.play("j10");
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(1, heuristic.evaluate(at("j13"), board));
 		assertEquals(1, heuristic.evaluate(at("h12"), board));
 		assertEquals(1, heuristic.evaluate(at("j12"), board));
@@ -52,7 +52,7 @@ public class ProximityHeuristicTest {
 	@Test
 	public void testNearCorner() {
 		board.play("b3");
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		int sum = 0;
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (p != at("b3")) {

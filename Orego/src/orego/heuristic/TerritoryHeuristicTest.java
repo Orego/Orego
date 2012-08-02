@@ -45,7 +45,7 @@ public class TerritoryHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(-1,heuristic.evaluate(at("f13"), board));
 		assertEquals(-1,heuristic.evaluate(at("c1"), board));
 		assertEquals(0,heuristic.evaluate(at("t6"), board));
