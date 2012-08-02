@@ -8,21 +8,21 @@ import static java.lang.Math.*;
 public class LineHeuristic extends Heuristic {
 
 	/** Values for one corner of the 19x19 board. */
-	private static final int[] CORNER =
-		{-3, -1,-2,-2,-2,-2,-2,-2,-2,-2,
-		 -1,-1, -1, -1, -1,-1,-1,-1,-1,-1,
-		-2,-1, 1, 0, 0, 0, 0, 0, 0, 0,
-		-2, -1, 0, 1, 0, 0, 0, 0, 0, 0,
-		-2, -1, 0, 0, -1,-1,-1,-1,-1,-1, 
-		-2,-1, 0, 0,-1,-1,-1,-1,-1,-1, 
-		-2,-1, 0, 0,-1,-1,-1,-1,-1,-1,
-		-2,-1, 0, 0,-1,-1,-1,-1,-1,-1,
-		-2,-1, 0, 0,-1,-1,-1,-1,-1,-1,
-		-2,-1, 0, 0,-1,-1,-1,-1,-1, 0};
-	
+	private static final int[] CORNER = //
+	{ -3, -1, -2, -2, -2, -2, -2, -2, -2, -2, //
+			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,//
+			-2, -1, 1, 0, 0, 0, 0, 0, 0, 0, //
+			-2, -1, 0, 1, 0, 0, 0, 0, 0, 0, //
+			-2, -1, 0, 0, -1, -1, -1, -1, -1, -1, //
+			-2, -1, 0, 0, -1, -1, -1, -1, -1, -1, //
+			-2, -1, 0, 0, -1, -1, -1, -1, -1, -1,//
+			-2, -1, 0, 0, -1, -1, -1, -1, -1, -1,//
+			-2, -1, 0, 0, -1, -1, -1, -1, -1, -1,//
+			-2, -1, 0, 0, -1, -1, -1, -1, -1, 0 };//
+
 	/** values[p] is the value of playing at point p. */
 	private static final int[] VALUES = new int[Coordinates.FIRST_POINT_BEYOND_BOARD];
-	
+
 	static {
 		assert ((BOARD_WIDTH == 9) || (BOARD_WIDTH == 19)) : "Invalid board size for LineHeuristic";
 		if (BOARD_WIDTH == 9) {
@@ -52,10 +52,12 @@ public class LineHeuristic extends Heuristic {
 	public LineHeuristic(int weight) {
 		super(weight);
 	}
-	
+
 	@Override
-	public int evaluate(int p, Board board) {
-		return VALUES[p];
+	public void prepare(Board board) {
+		for(int p : ALL_POINTS_ON_BOARD){
+			increaseValue(p, VALUES[p]);
+		}
 	}
 
 }
