@@ -1,28 +1,53 @@
 package orego.heuristic;
 
 import orego.core.*;
-import static java.util.Arrays.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
 /**
- * Tries to save any friendly group put in atari by the last move, by capturing or extending.
- * The value of a move is number of stones saved + number of stones captured (if any).
- * A move that captures several chains adjacent to the threatened friendly group, or captures while extending, gets additional value.
+ * Tries to save any friendly group put in atari by the last move, by capturing
+ * or extending. The value of a move is number of stones saved + number of
+ * stones captured (if any). A move that captures several chains adjacent to a
+ * threatened friendly group, or captures while extending, gets additional
+ * value.
  */
 public class EscapeHeuristic extends Heuristic {
 
 	/** Friendly groups put in atari by the last move. */
 	private IntSet friends;
-	
+
 	/** Enemy chains in atari adjacent to friends. */
 	private IntSet targets;
-	
+
 	public EscapeHeuristic(int weight) {
 		super(weight);
 		friends = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		targets = new IntSet(FIRST_POINT_BEYOND_BOARD);
+	}
+
+	/** Adds value for moves that capture adjacent enemies of chain. */
+	protected void escapeByCapturing(int chain, int size, int enemyColor,
+			Board board) {
+		int p = chain;
+		int[] next = board.getChainNextPoints();
+		do {
+			for (int i = 0; i < 4; i++) {
+				int neighbor = NEIGHBORS[p][i];
+				if (board.getColor(neighbor) == enemyColor) {
+					int target = board.getChainId(neighbor);
+					if (!targets.contains(target)) {
+						targets.add(target);
+						int capturePoint = board.getCapturePoint(target);
+						if (capturePoint != NO_POINT) {
+							increaseValue(capturePoint,
+									board.getChainSize(target) + size);
+						}
+					}
+				}
+			}
+			p = next[p];
+		} while (p != chain);
 	}
 
 	@Override
@@ -52,24 +77,6 @@ public class EscapeHeuristic extends Heuristic {
 				}
 			}
 		}
-	}
-		
-	/** Adds value for moves that capture adjacent enemies of chain. */
-	protected void escapeByCapturing(int chain, int size, int enemyColor, Board board) {
-		int p = chain;
-		int[] next = board.getChainNextPoints();
-		do {
-			for (int i = 0; i < 4; i++) {
-				int target = board.getChainId(NEIGHBORS[p][i]);
-				if ((board.getColor(target) == enemyColor) && !targets.contains(target)){
-					int capturePoint = board.getCapturePoint(target);
-					if (capturePoint != NO_POINT) {
-						increaseValue(capturePoint, board.getChainSize(target) + size);
-					}
-				}
-			}
-			p = next[p];
-		} while (p != chain);
 	}
 
 }

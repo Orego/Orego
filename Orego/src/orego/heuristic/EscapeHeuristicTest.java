@@ -326,4 +326,35 @@ public class EscapeHeuristicTest {
 		assertEquals(8, heuristic.evaluate(at("m12"), board));		
 	}
 
+	@Test
+	public void testAvoidMultipleCountOfSameTarget() {
+		String[] problem = new String[] { 
+				"...................",// 19
+				"...........O.......",// 18
+				".....O.....O.......",// 17
+				"..........#O#......",// 16
+				"..........#O#......",// 15
+				"..........#O#......",// 14
+				"..........#O####...",// 13
+				"............OOOO#..",// 12
+				"...........O.###O..",// 11
+				"...........O#.OO...",// 10
+				"...........O#O.....",// 9
+				"...........O#O.....",// 8
+				"...........#O......",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................."// 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		board.play("n11");
+		heuristic.prepare(board);
+		assertEquals(4, heuristic.evaluate(at("m12"), board));		
+		assertEquals(11, heuristic.evaluate(at("o10"), board));		
+	}
+
 }

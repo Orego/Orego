@@ -1,7 +1,6 @@
 package orego.heuristic;
 
 import orego.core.*;
-import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import orego.util.*;
 
@@ -18,8 +17,7 @@ public class CaptureHeuristic extends Heuristic {
 		IntSet chains = board.getChainsInAtari(opposite(board.getColorToPlay()));
 		for (int i = 0; i < chains.size(); i++) {
 			int c = chains.get(i);
-			int p = board.getCapturePoint(c);
-			increaseValue(p, board.getChainSize(c));
+			increaseValue(board.getCapturePoint(c), board.getChainSize(c));
 		}
 	}
 
