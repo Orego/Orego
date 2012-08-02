@@ -54,10 +54,8 @@ public abstract class Heuristic {
 	/**
 	 * Called before any calls to evaluate on a given board state. For some
 	 * heuristics, this avoids redundant computation. Does nothing by default.
-	 * 
-	 * @param greedy If true, stop after finding one good move.
 	 */
-	public void prepare(Board board, boolean greedy) {
+	public void prepare(Board board) {
 		nonzeroPoints.clear();
 		bestIndex = -1;
 	}
@@ -68,6 +66,24 @@ public abstract class Heuristic {
 	 */
 	public int evaluate(int p, Board board) {
 		return values[p];
+	}
+
+	protected void increaseValue(int point, int amount) {
+		IntSet nonzeroPoints = getNonzeroPoints();
+		if (nonzeroPoints.contains(point)) {
+			getValues()[point] += amount;
+		} else {
+			getValues()[point] = amount;
+			nonzeroPoints.add(point);
+		}
+		if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getNonzeroPoints().get(getBestIndex())])) {
+			// TODO IntSet can do this directly, faster
+			for (int i = 0; i < nonzeroPoints.size(); i++) {
+				if (nonzeroPoints.get(i) == point) {
+					setBestIndex(i);
+				}
+			}
+		}
 	}
 
 	public void setBestIndex(int bestIndex) {
