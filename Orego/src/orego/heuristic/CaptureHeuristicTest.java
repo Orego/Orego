@@ -108,7 +108,7 @@ public class CaptureHeuristicTest {
 		heuristic.prepare(board);
 		assertEquals(4, heuristic.evaluate(at("f8"), board));		
 		assertEquals(3, heuristic.evaluate(at("o8"), board));
-		assertEquals(at("f8"), heuristic.getNonzeroPoints().get(heuristic.getBestIndex()));
+		assertEquals(at("f8"), heuristic.getBestMove());
 	}
 
 }

@@ -213,21 +213,16 @@ public class McRunnable implements Runnable {
 		for (Heuristic h : heuristics.getHeuristics()) {
 			h.prepare(board);
 			IntSet nonzeroPoints = h.getNonzeroPoints();
-			if (nonzeroPoints.size() > 0) {
-				int i = h.getBestIndex();
-				int j = i;
-				do {
-					int p = nonzeroPoints.get(j);
-					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-						int value = h.evaluate(p, board);
-						if (value > 0) {
-							node.addWins(p, value * h.getWeight());
-						} else if (value < 0) {
-							node.addLosses(p, -value * h.getWeight());
-						}
+			for (int i = 0; i < nonzeroPoints.size(); i++) {
+				int p = nonzeroPoints.get(i);
+				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+					int value = h.evaluate(p, board);
+					if (value > 0) {
+						node.addWins(p, value * h.getWeight());
+					} else if (value < 0) {
+						node.addLosses(p, -value * h.getWeight());
 					}
-					j = (j + 1) % nonzeroPoints.size();
-				} while (j != i);
+				}
 			}
 		}
 	}

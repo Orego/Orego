@@ -291,7 +291,7 @@ public class EscapeHeuristicTest {
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
 		heuristic.prepare(board);
-		assertEquals(at("o6"), heuristic.getNonzeroPoints().get(heuristic.getBestIndex()));
+		assertEquals(at("o6"), heuristic.getBestMove());
 	}
 
 	@Test

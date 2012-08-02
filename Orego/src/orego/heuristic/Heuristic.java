@@ -8,8 +8,8 @@ import static orego.core.Coordinates.*;
 /** Adjusts the probability of playing a move using domain-specific knowledge. */
 public abstract class Heuristic {
 
-	/** The index, in nonzeroPoints, of the move with the highest rating. */
-	private int bestIndex;
+	/** The move with the highest rating, or NO_POINT if there is no good move. */
+	private int bestMove;
 	
 	// TODO Deal with the possibility of negative values;
 	/** Moves given nonzero value by this heuristic. */
@@ -29,9 +29,9 @@ public abstract class Heuristic {
 		values = new int[FIRST_POINT_BEYOND_BOARD];
 	}
 	
-	/** Returns the index, in nonzeroPoints, of the move with the highest rating. */
-	public int getBestIndex() {
-		return bestIndex;
+	/** Returns the move with the highest rating, or NO_POINT if there is no good move. */
+	public int getBestMove() {
+		return bestMove;
 	}
 
 	/** Returns the set of moves given nonzero value by this heuristic. */
@@ -57,7 +57,7 @@ public abstract class Heuristic {
 	 */
 	public void prepare(Board board) {
 		nonzeroPoints.clear();
-		bestIndex = -1;
+		bestMove = NO_POINT;
 	}
 
 	/**
@@ -71,23 +71,18 @@ public abstract class Heuristic {
 	protected void increaseValue(int point, int amount) {
 		IntSet nonzeroPoints = getNonzeroPoints();
 		if (nonzeroPoints.contains(point)) {
-			getValues()[point] += amount;
+			values[point] += amount;
 		} else {
-			getValues()[point] = amount;
+			values[point] = amount;
 			nonzeroPoints.add(point);
 		}
-		if ((getBestIndex() == -1) || (getValues()[point] > getValues()[getNonzeroPoints().get(getBestIndex())])) {
-			// TODO IntSet can do this directly, faster
-			for (int i = 0; i < nonzeroPoints.size(); i++) {
-				if (nonzeroPoints.get(i) == point) {
-					setBestIndex(i);
-				}
-			}
+		if ((bestMove == NO_POINT) || (values[point] > values[bestMove])) {
+			bestMove = point;
 		}
 	}
 
-	public void setBestIndex(int bestIndex) {
-		this.bestIndex = bestIndex;
+	public void setBestMove(int bestMove) {
+		this.bestMove = bestMove;
 	}
 
 	/**

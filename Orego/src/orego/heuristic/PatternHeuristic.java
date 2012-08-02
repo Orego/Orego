@@ -172,10 +172,10 @@ public class PatternHeuristic extends Heuristic {
 		int[] values = getValues();
 		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
 			if (board.getColor(p) == VACANT) {
-				values[p] = evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
+				values[p] = evaluateMove(board.getColorToPlay(), board.getNeighborhood(p));
 				if (values[p] != 0) {
 					getNonzeroPoints().add(p);
-					setBestIndex(0);
+					setBestMove(p);
 				}
 			}
 		}
