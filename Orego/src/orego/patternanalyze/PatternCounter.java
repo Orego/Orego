@@ -107,9 +107,9 @@ public class PatternCounter {
 			index++;
 		}
 		for (int j = 0; j < sortedArray.length - 1; j++) {
-			int maxindex = j+1;
+			int maxindex = j;
 			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
-			for (int i = j+1; i < sortedArray.length; i++) {
+			for (int i = maxindex; i < sortedArray.length; i++) {
 				if ((sortedArray[i][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[i][SORTED_ARRAY_SEEN])) > maxvalue) {
 					maxindex = i;
 					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
@@ -137,7 +137,6 @@ public class PatternCounter {
 					setUp(filename);
 				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
 					checkPatterns(file);
-					System.out.println(patternSeen.size());
 					clearOutNonsense();
 				}
 			}
