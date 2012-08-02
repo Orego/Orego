@@ -30,9 +30,9 @@ public class PatternHeuristic extends Heuristic {
 		new BitVector(NUMBER_OF_NEIGHBORHOODS),
 		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 	
-	public static final BitVector[] BAD_NEIGHBORHOODS = {
-		new BitVector(NUMBER_OF_NEIGHBORHOODS),
-		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
+//	public static final BitVector[] BAD_NEIGHBORHOODS = {
+//		new BitVector(NUMBER_OF_NEIGHBORHOODS),
+//		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 
 //	private static final DynamicPattern[] PATTERN_LIST = {
 //		
@@ -68,15 +68,15 @@ public class PatternHeuristic extends Heuristic {
 		 * Bad patterns
 		 */
 			
-			// BLACK SPECIFIC PATTERNS
-			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
-			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
-			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
-
-			// WHITE SPECIFIC PATTERNS
-			new ColorSpecificPattern("O.OO?oo?", WHITE), // Ponnuki 
-			new ColorSpecificPattern(".#..#.?.", WHITE), // Empty Triangle
-			new ColorSpecificPattern(".OO?OO??", WHITE) // Push through bamboo
+//			// BLACK SPECIFIC PATTERNS
+//			new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
+//			new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
+//			new ColorSpecificPattern(".OO?OO??", BLACK), // Push through bamboo
+//
+//			// WHITE SPECIFIC PATTERNS
+//			new ColorSpecificPattern("O.OO?oo?", WHITE), // Ponnuki 
+//			new ColorSpecificPattern(".#..#.?.", WHITE), // Empty Triangle
+//			new ColorSpecificPattern(".OO?OO??", WHITE) // Push through bamboo
 			
 	};
 
@@ -121,16 +121,16 @@ public class PatternHeuristic extends Heuristic {
 				}
 			}
 			
-			for (int p = 15; p < 18; p++) {
-				if (PATTERN_LIST[p].matches((char) i)) {
-					BAD_NEIGHBORHOODS[BLACK].set(i, true);
-				}
-			}
-			for (int p = 18; p < PATTERN_LIST.length; p++) {
-				if (PATTERN_LIST[p].matches((char) i)) {
-					BAD_NEIGHBORHOODS[WHITE].set(i, true);
-				}
-			}
+//			for (int p = 15; p < 18; p++) {
+//				if (PATTERN_LIST[p].matches((char) i)) {
+//					BAD_NEIGHBORHOODS[BLACK].set(i, true);
+//				}
+//			}
+//			for (int p = 18; p < PATTERN_LIST.length; p++) {
+//				if (PATTERN_LIST[p].matches((char) i)) {
+//					BAD_NEIGHBORHOODS[WHITE].set(i, true);
+//				}
+//			}
 			
 		}
 	}
@@ -172,17 +172,15 @@ public class PatternHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, boolean greedy) {
-		super.prepare(board, greedy);
+	public void prepare(Board board) {
+		super.prepare(board);
 		int[] values = getValues();
 		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
 			if (board.getColor(p) == VACANT) {
-				values[p] = evaluateMove(board.getColorToPlay(),board.getNeighborhood(p));
+				values[p] = evaluateMove(board.getColorToPlay(), board.getNeighborhood(p));
 				if (values[p] != 0) {
 					getNonzeroPoints().add(p);
-					if ((getBestIndex() == -1) || (values[p] > values[getNonzeroPoints().get(getBestIndex())])) {
-						setBestIndex(getNonzeroPoints().size() - 1);
-					}
+					setBestMove(p);
 				}
 			}
 		}

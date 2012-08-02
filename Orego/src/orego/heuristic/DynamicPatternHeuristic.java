@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import orego.patternanalyze.*;
+import static orego.experiment.Debug.*;
 
 import orego.core.Board;
 
@@ -11,24 +12,43 @@ public class DynamicPatternHeuristic extends Heuristic{
 
 	private ArrayList<DynamicPattern> patternList;
 	
+	private static boolean test;
+	
 	public DynamicPatternHeuristic(int weight) {
 		super(weight);
 		patternList = new ArrayList<DynamicPattern>();
-		try {
-			extractPatternsFromFile("/Network/Servers/maccsserver.lclark.edu/Users/kevitts/git/Orego/Orego/testFiles/pattern8.dat");
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (test){
+			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/testPattern8.dat");			
+		}
+		else {
+			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat");
 		}
 	}
 
-	private void extractPatternsFromFile(String fileName) throws IOException,
-			FileNotFoundException, ClassNotFoundException {
-		ObjectInputStream input = new ObjectInputStream(new FileInputStream(new File(fileName)));
-		DynamicPattern pattern = null;
-		while ((pattern = (DynamicPattern) input.readObject()) != null) {
-			patternList.add(pattern);
-		}
-		input.close();
+	private void extractPatternsFromFile(String fileName) {
+
+		ObjectInputStream input;
+		try {
+			input = new ObjectInputStream(new FileInputStream(
+					new File(fileName)));
+			DynamicPattern pattern = null;
+			try {
+				int counter = 0;
+				while ((pattern = (DynamicPattern) input.readObject()) != null && counter < 100) {
+					patternList.add(pattern);
+					counter++;
+				}
+				input.close();
+			} catch (EOFException ex) {
+				input.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} 
 	}
 
 	@Override
@@ -54,4 +74,7 @@ public class DynamicPatternHeuristic extends Heuristic{
 		return 0;
 	}
 
+	public static void setTestMode(boolean value) {
+		test = value;
+	}
 }

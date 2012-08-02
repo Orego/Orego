@@ -47,7 +47,7 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(3, heuristic.evaluate(at("a2"), board));
 	}
 
@@ -76,8 +76,39 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(6, heuristic.evaluate(at("a2"), board));
+	}
+	
+	@Test
+	public void testBestMove() {
+		String[] problem = new String[] {
+				"...................",//19
+				"...................",//18
+				"...................",//17
+				"...................",//16
+				"...................",//15
+				"...................",//14
+				"...................",//13
+				"...................",//12
+				".....O.............",//11
+				"....O#O............",//10
+				"....O#O...OOO......",//9
+				".........O###......",//8
+				"....O#O...OOO......",//7
+				"....O#O............",//6
+				".....O.............",//5
+				"...................",//4
+				"...................",//3
+				"...................",//2
+				"..................."//1
+			  // ABCDEFGHJKLMNOPQRST
+			};
+		board.setUpProblem(WHITE, problem);
+		heuristic.prepare(board);
+		assertEquals(4, heuristic.evaluate(at("f8"), board));		
+		assertEquals(3, heuristic.evaluate(at("o8"), board));
+		assertEquals(at("f8"), heuristic.getBestMove());
 	}
 
 }

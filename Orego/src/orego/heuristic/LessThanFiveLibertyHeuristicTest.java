@@ -48,7 +48,7 @@ public class LessThanFiveLibertyHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, false);
+		heuristic.prepare(board);
 		assertEquals(0, heuristic.evaluate(at("a15"), board));
 		assertEquals(0, heuristic.evaluate(at("b18"), board));
 		assertEquals(0, heuristic.evaluate(at("t14"), board));

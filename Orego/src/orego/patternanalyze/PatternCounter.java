@@ -28,8 +28,18 @@ public class PatternCounter {
 
 	private static final int PATTERN_LENGTH = 24;
 	
-	private static final int PATTERN_STORAGE_CUTOFF = 5000;
+	private static final int PATTERN_STORAGE_CUTOFF = 100000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
+	
+	private static final int PATTERN_SEEN = 0;
+	private static final int MIN_TURN = 1;
+	private static final int MAX_TURN = 2;
+	private static final int TOTAL_TURN = 3;
+	private static final int PATTERN_PLAYED = 4;
+	
+	private static final int SORTED_ARRAY_PATTERN = 0;
+	private static final int SORTED_ARRAY_SEEN = 1;
+	private static final int SORTED_ARRAY_PLAYED = 2;
 
 	/**
 	 * Long[] will have:
@@ -39,7 +49,7 @@ public class PatternCounter {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Long, Long[]> patternSeen = new HashMap<Long, Long[]>();
-	private static String TEST_DIRECTORY = "../../../Test Games/";
+	private static String TEST_DIRECTORY = "../../../Test Games/kgs-19-2006/";
 
 	public static void main(String[] args) {
 		new PatternCounter();
@@ -48,18 +58,19 @@ public class PatternCounter {
 	public PatternCounter() {
 		try {
 			setUp(TEST_DIRECTORY);
+			removeSinglePatterns(-1);
 			PrintWriter bw = new PrintWriter(new FileWriter(new File(
 					TEST_DIRECTORY + "output"+PATTERN_LENGTH+".txt")));
 			String output = "";
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
-				output = "Seen:" + patternSeen.get(pattern[0])[0];
-				output += " Played:" + patternSeen.get(pattern[0])[4];
-				output += " Ratio:" +  (patternSeen.get(pattern[0])[4] / (1.0 * patternSeen.get(pattern[0])[0]));
-				output += " Min Turn:" + patternSeen.get(pattern[0])[1];
-				output += " Max Turn:" + patternSeen.get(pattern[0])[2];
-				output += " Ave Turn:" + (patternSeen.get(pattern[0])[3] / (1.0 * patternSeen.get(pattern[0])[0]));
-				output += " " + DynamicPattern.longToPatternString(pattern[0], PATTERN_LENGTH) + "\n";
+				output = "Seen:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN];
+				output += " Played:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED];
+				output += " Ratio:" +  (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
+				output += " Min Turn:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[MIN_TURN];
+				output += " Max Turn:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[MAX_TURN];
+				output += " Ave Turn:" + (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[TOTAL_TURN] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
+				output += " " + DynamicPattern.longToPatternString(pattern[SORTED_ARRAY_PATTERN], PATTERN_LENGTH) + "\n";
 				bw.write(output);
 			}
 			System.out.println("Done.");
@@ -87,28 +98,28 @@ public class PatternCounter {
 	 */
 	public Long[][] sortHashMapIntoArray() {
 		Set<Long> patterns = patternSeen.keySet();
-		Long[][] initialPatternSeen = new Long[patterns.size()][3];
+		Long[][] sortedArray = new Long[patterns.size()][3];
 		int index = 0; 
 		for(Long pattern : patterns) {
-			initialPatternSeen[index][0] = pattern;
-			initialPatternSeen[index][1] = patternSeen.get(pattern)[0];
-			initialPatternSeen[index][2] = patternSeen.get(pattern)[4];
+			sortedArray[index][SORTED_ARRAY_PATTERN] = pattern;
+			sortedArray[index][SORTED_ARRAY_SEEN] = patternSeen.get(pattern)[PATTERN_SEEN];
+			sortedArray[index][SORTED_ARRAY_PLAYED] = patternSeen.get(pattern)[PATTERN_PLAYED];
 			index++;
 		}
-		for (int j = 0; j < initialPatternSeen.length - 1; j++) {
+		for (int j = 0; j < sortedArray.length - 1; j++) {
 			int maxindex = j+1;
-			double maxvalue = (initialPatternSeen[maxindex][2] / (1.0 * initialPatternSeen[maxindex][1]));
-			for (int i = j+1; i < initialPatternSeen.length; i++) {
-				if ((initialPatternSeen[i][2] / (1.0 * initialPatternSeen[i][1])) > maxvalue) {
+			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+			for (int i = j+1; i < sortedArray.length; i++) {
+				if ((sortedArray[i][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[i][SORTED_ARRAY_SEEN])) > maxvalue) {
 					maxindex = i;
-					maxvalue = (initialPatternSeen[maxindex][2] / (1.0 * initialPatternSeen[maxindex][1]));
+					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
 				}
 			}
-			Long[] swapValue = initialPatternSeen[maxindex];
-			initialPatternSeen[maxindex] = initialPatternSeen[j];
-			initialPatternSeen[j] = swapValue;
+			Long[] swapValue = sortedArray[maxindex];
+			sortedArray[maxindex] = sortedArray[j];
+			sortedArray[j] = swapValue;
 		}
-		return initialPatternSeen;
+		return sortedArray;
 	}
 
 	/**
@@ -126,6 +137,7 @@ public class PatternCounter {
 					setUp(filename);
 				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
 					checkPatterns(file);
+					System.out.println(patternSeen.size());
 					clearOutNonsense();
 				}
 			}
@@ -140,11 +152,41 @@ public class PatternCounter {
 	 */
 	public void clearOutNonsense() {
 		if (patternSeen.size() > PATTERN_STORAGE_CUTOFF) {
-			Long[][] data = sortHashMapIntoArray();
-			for (int i = PATTERNS_TO_REMOVE; i < data.length; i++) {
-				patternSeen.remove(data[i][0]);
+			int removed = 0;
+			removed = removeSinglePatterns(patternSeen.size() - PATTERN_STORAGE_CUTOFF);
+			if (removed < PATTERNS_TO_REMOVE) {
+				Long[][] data = sortHashMapIntoArray();
+				for (int i = data.length - 1; i > 0; i--) {
+					patternSeen.remove(data[i][SORTED_ARRAY_PATTERN]);
+					removed++;
+					if (removed >= PATTERNS_TO_REMOVE){
+						break;
+					}
+				}
 			}
 		}
+	}
+
+	/**
+	 * Remove patterns seen only once.  If toRemove is -1 it will remove all patterns seen once.
+	 * @param Number of patterns to remove.
+	 * @return
+	 */
+	private int removeSinglePatterns(int toRemove) {
+		int removed = 0;
+		Set<Long> patterns = patternSeen.keySet();
+		Object[] keys = patterns.toArray();
+		for(Object key : keys) {
+			Long pattern = (Long)key;
+			if (patternSeen.get(pattern)[PATTERN_SEEN] == 1) {
+				patternSeen.remove(pattern);
+				removed++;
+				if (removed >= toRemove && toRemove != -1){
+					break;
+				}
+			}
+		}
+		return removed;
 	}
 
 	/** 
@@ -189,27 +231,27 @@ public class PatternCounter {
 							if (patternSeen.containsKey(pattern.getPattern()[i])) {
 								foundPattern = true;
 								Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-								patternData[0] += 1;
-								if (currentTurn < patternData[1]) {
-									patternData[1] = (long)currentTurn;
+								patternData[PATTERN_SEEN] += 1;
+								if (currentTurn < patternData[MIN_TURN]) {
+									patternData[MIN_TURN] = (long)currentTurn;
 								}
-								if (currentTurn > patternData[2]) {
-									patternData[2] = (long)currentTurn;
+								if (currentTurn > patternData[MAX_TURN]) {
+									patternData[MAX_TURN] = (long)currentTurn;
 								}
-								patternData[3] += currentTurn;
+								patternData[TOTAL_TURN] += currentTurn;
 								if (p == currentPlay) {
-									patternData[4]++;
+									patternData[PATTERN_PLAYED]++;
 								}
 								patternSeen.put(pattern.getPattern()[i], patternData);
 							}
 						}
 						if (!foundPattern) {
 							Long[] patternData = new Long[5];
-							patternData[0] = (long)1;
-							patternData[1] = (long)currentTurn;
-							patternData[2] = (long)currentTurn;
-							patternData[3] = (long)currentTurn;
-							patternData[4] = (p == currentPlay) ? 1L: 0L;
+							patternData[PATTERN_SEEN] = (long)1;
+							patternData[MIN_TURN] = (long)currentTurn;
+							patternData[MAX_TURN] = (long)currentTurn;
+							patternData[TOTAL_TURN] = (long)currentTurn;
+							patternData[PATTERN_PLAYED] = (p == currentPlay) ? 1L: 0L;
 							patternSeen.put(pattern.getPattern()[0], patternData);
 						}
 					}

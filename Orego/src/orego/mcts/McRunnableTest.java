@@ -121,11 +121,12 @@ public class McRunnableTest {
 					"#.#O...............",//3
 					"..O#O..............",//2
 					"#O................."//1
-					// ABCDEFGHJKLMNOPQRST
+				  // ABCDEFGHJKLMNOPQRST
 			};
 			player.setUpProblem(BLACK, problem);
 			player.acceptMove(at("b2"));
-			assertEquals(at("b3"), runnable.selectAndPlayOneMove(runnable.getRandom(), player.getBoard()));
+			int move = runnable.selectAndPlayOneMove(runnable.getRandom(), player.getBoard());
+			assertEquals(at("b3"), move);
 		} catch (UnknownPropertyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
