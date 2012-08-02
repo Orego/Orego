@@ -221,9 +221,9 @@ public class McRunnable implements Runnable {
 					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
 						int value = h.evaluate(p, board);
 						if (value > 0) {
-							node.addWins(p, value);
+							node.addWins(p, value * h.getWeight());
 						} else if (value < 0) {
-							node.addLosses(p, -value);
+							node.addLosses(p, -value * h.getWeight());
 						}
 					}
 					j = (j + 1) % nonzeroPoints.size();
