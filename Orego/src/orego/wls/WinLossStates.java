@@ -39,6 +39,9 @@ import java.util.Random;
  * 
  * TODO: should we synchronize this class?
  * 
+ * Note: we store the different states as ints but if you choose a maximum end scale of 21, you can use bytes
+ * to hold the states/action indicies.
+ * 
  * @author sstewart
  *
  */
@@ -151,7 +154,9 @@ public class WinLossStates {
 	/** Gets the singleton instance of our WinLossState class*/
 	public static WinLossStates getWLS() {
 		if (wls == null) {
-			wls = new WinLossStates();
+			synchronized (WinLossStates.class) {
+				wls = new WinLossStates();
+			}
 		}
 		
 		return wls;
