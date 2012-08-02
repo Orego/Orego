@@ -170,19 +170,18 @@ public class HeuristicList implements Cloneable {
 		// Compute best heuristic value
 		for (Heuristic h : heuristics) {
 			h.prepare(board);
-			IntSet nonzeroPoints = h.getNonzeroPoints();
-			if (nonzeroPoints.size() > 0) {
-				int i = h.getBestIndex();
-				int j = i;
-				do {
-					int p = nonzeroPoints.get(j);
-					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-						if (board.playFast(p) == PLAY_OK) {
-							return p;
-						}
+			int p = h.getBestMove();
+			if (p != NO_POINT) {
+				if ((board.getColor(p) == VACANT) && (board.isFeasible(p)) && (board.playFast(p) == PLAY_OK)) {
+					return p;
+				}
+				IntSet nonzeroPoints = h.getNonzeroPoints();
+				for (int i = 0; i < nonzeroPoints.size(); i++) {
+					int q = nonzeroPoints.get(i);
+					if ((q != p) && (board.getColor(q) == VACANT) && (board.isFeasible(q)) && (board.playFast(q) == PLAY_OK)) {
+						return q;
 					}
-					j = (j + 1) % nonzeroPoints.size();
-				} while (j != i);
+				}
 			}
 		}
 		return NO_POINT;
