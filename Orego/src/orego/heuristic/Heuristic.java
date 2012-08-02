@@ -28,6 +28,10 @@ public abstract class Heuristic {
 		values = new int[FIRST_POINT_BEYOND_BOARD];
 	}
 
+	public void setNonzeroPoints(IntSet nonzeroPoints) {
+		this.nonzeroPoints = nonzeroPoints;
+	}
+
 	/**
 	 * Returns a positive value if p is a good move for the current player on
 	 * board, a negative value if it's bad.
@@ -53,6 +57,10 @@ public abstract class Heuristic {
 	protected int[] getValues() {
 		return values;
 
+	}
+
+	public void setValues(int[] values) {
+		this.values = values;
 	}
 
 	public int getWeight() {
