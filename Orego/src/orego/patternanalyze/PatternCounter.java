@@ -2,16 +2,12 @@ package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
 
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
@@ -26,10 +22,12 @@ public class PatternCounter {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	private static final int PATTERN_LENGTH = 24;
+	private static final int PATTERN_LENGTH = 8;
 	
-	private static final int PATTERN_STORAGE_CUTOFF = 100000;
+	private static final int PATTERN_STORAGE_CUTOFF = 500000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
+	
+	private static final int PATTERNS_TO_KEEP = 1000;
 	
 	private static final int PATTERN_SEEN = 0;
 	private static final int MIN_TURN = 1;
@@ -40,6 +38,8 @@ public class PatternCounter {
 	private static final int SORTED_ARRAY_PATTERN = 0;
 	private static final int SORTED_ARRAY_SEEN = 1;
 	private static final int SORTED_ARRAY_PLAYED = 2;
+	
+	private static final boolean DEBUG = false;
 
 	/**
 	 * Long[] will have:
@@ -49,7 +49,7 @@ public class PatternCounter {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Long, Long[]> patternSeen = new HashMap<Long, Long[]>();
-	private static String TEST_DIRECTORY = "../../../Test Games/kgs-19-2006/";
+	private static String TEST_DIRECTORY = "../../../Test Games/";
 
 	public static void main(String[] args) {
 		new PatternCounter();
@@ -58,7 +58,10 @@ public class PatternCounter {
 	public PatternCounter() {
 		try {
 			setUp(TEST_DIRECTORY);
-			removeSinglePatterns(-1);
+			int threshold = 1;
+			while (patternSeen.size() > PATTERNS_TO_KEEP) {
+				removePatterns(-1, threshold++);
+			}
 			PrintWriter bw = new PrintWriter(new FileWriter(new File(
 					TEST_DIRECTORY + "output"+PATTERN_LENGTH+".txt")));
 			String output = "";
@@ -99,51 +102,27 @@ public class PatternCounter {
 	public Long[][] sortHashMapIntoArray() {
 		Set<Long> patterns = patternSeen.keySet();
 		Long[][] sortedArray = new Long[patterns.size()][3];
-		int index = 0;
-		// puts all of the information into the array
+		int index = 0; 
 		for(Long pattern : patterns) {
 			sortedArray[index][SORTED_ARRAY_PATTERN] = pattern;
 			sortedArray[index][SORTED_ARRAY_SEEN] = patternSeen.get(pattern)[PATTERN_SEEN];
 			sortedArray[index][SORTED_ARRAY_PLAYED] = patternSeen.get(pattern)[PATTERN_PLAYED];
 			index++;
 		}
-		sortedArray = sortArray(sortedArray, 0, sortedArray.length);
-		return sortedArray;
-	}
-	
-	/**
-	 * Sorts our array of longs based on the played/seen ratio. The sort acts
-	 * recursively sorting chunks of the array.
-	 */
-	private Long[][] sortArray(Long[][] data, int beginIndex, int endIndex) {
-		// base case
-		if (beginIndex >= endIndex) {
-			return data;
-		}
-		// partition array into values less than the split value and values greater than the split value
-		int splitIndex = (endIndex + beginIndex) / 2;
-		double splitValue = data[splitIndex][SORTED_ARRAY_PLAYED] / (1.0 * data[splitIndex][SORTED_ARRAY_SEEN]);
-		data = swap(data, splitIndex, endIndex);
-		int storeIndex = beginIndex;
-		for (int i = beginIndex; i < endIndex; i++) {
-			if (data[i][SORTED_ARRAY_PLAYED] / (1.0 * data[i][SORTED_ARRAY_SEEN]) < splitValue) {
-				data = swap(data, i, storeIndex);
-				storeIndex++;
+		for (int j = 0; j < sortedArray.length - 1; j++) {
+			int maxindex = j+1;
+			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+			for (int i = j+1; i < sortedArray.length; i++) {
+				if ((sortedArray[i][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[i][SORTED_ARRAY_SEEN])) > maxvalue) {
+					maxindex = i;
+					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+				}
 			}
+			Long[] swapValue = sortedArray[maxindex];
+			sortedArray[maxindex] = sortedArray[j];
+			sortedArray[j] = swapValue;
 		}
-		data = swap(data, storeIndex, endIndex);
-		// do the same process on the two partitions
-		data = sortArray(data, beginIndex, splitIndex - 1);
-		data = sortArray(data, splitIndex + 1, endIndex);
-		return data;
-	}
-	
-	/** Swap two values in our sorted array. */
-	private Long[][] swap(Long[][] array, int index1, int index2) {
-		Long[] storage = array[index1];
-		array[index1] = array[index2];
-		array[index2] = storage;
-		return array;
+		return sortedArray;
 	}
 
 	/**
@@ -161,6 +140,7 @@ public class PatternCounter {
 					setUp(filename);
 				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
 					checkPatterns(file);
+					if (DEBUG) System.out.println("Number of patterns:" + patternSeen.size() + " Game:" + i);
 					clearOutNonsense();
 				}
 			}
@@ -175,17 +155,9 @@ public class PatternCounter {
 	 */
 	public void clearOutNonsense() {
 		if (patternSeen.size() > PATTERN_STORAGE_CUTOFF) {
-			int removed = 0;
-			removed = removeSinglePatterns(patternSeen.size() - PATTERN_STORAGE_CUTOFF);
-			if (removed < PATTERNS_TO_REMOVE) {
-				Long[][] data = sortHashMapIntoArray();
-				for (int i = data.length - 1; i > 0; i--) {
-					patternSeen.remove(data[i][SORTED_ARRAY_PATTERN]);
-					removed++;
-					if (removed >= PATTERNS_TO_REMOVE){
-						break;
-					}
-				}
+			int threshold = 1;
+			while (patternSeen.size() > PATTERNS_TO_REMOVE) {
+				removePatterns(patternSeen.size() - PATTERNS_TO_REMOVE, threshold++);
 			}
 		}
 	}
@@ -195,13 +167,13 @@ public class PatternCounter {
 	 * @param Number of patterns to remove.
 	 * @return
 	 */
-	private int removeSinglePatterns(int toRemove) {
+	private int removePatterns(int toRemove, int threshold) {
 		int removed = 0;
 		Set<Long> patterns = patternSeen.keySet();
 		Object[] keys = patterns.toArray();
 		for(Object key : keys) {
 			Long pattern = (Long)key;
-			if (patternSeen.get(pattern)[PATTERN_SEEN] == 1) {
+			if (patternSeen.get(pattern)[PATTERN_SEEN] <= threshold) {
 				patternSeen.remove(pattern);
 				removed++;
 				if (removed >= toRemove && toRemove != -1){
@@ -209,9 +181,11 @@ public class PatternCounter {
 				}
 			}
 		}
+		if (DEBUG) System.out.println("Removed single patterns:" + removed + " of size:"+threshold);
 		return removed;
 	}
 
+	
 	/** 
 	 * Check for the patterns in a particular file.
 	 * @param SGF file of a particular game.
