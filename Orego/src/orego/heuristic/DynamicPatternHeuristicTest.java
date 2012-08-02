@@ -49,7 +49,7 @@ public class DynamicPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board, false);
+			heuristic.prepare(board);
 			assertEquals(1, heuristic.evaluate(at("a7"), board));
 			assertEquals(1, heuristic.evaluate(at("t7"), board));
 			assertEquals(0, heuristic.evaluate(at("k16"), board));
