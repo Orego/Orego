@@ -8,6 +8,8 @@ import java.util.*;
 import orego.util.*;
 import ec.util.MersenneTwisterFast;
 
+// TODO Include capability to place arbitrary stones before game starts, for problems, tests, handicap, etc.
+
 /** Holds the current state of the board, allows moves to be played, etc. */
 public class Board {
 

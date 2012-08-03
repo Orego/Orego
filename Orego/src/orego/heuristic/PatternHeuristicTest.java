@@ -21,6 +21,8 @@ public class PatternHeuristicTest {
 	
 	private PatternHeuristic heuristic;
 	
+	private MersenneTwisterFast random;
+
 	/**
 	 * Good pattern tests
 	 */
@@ -28,6 +30,7 @@ public class PatternHeuristicTest {
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new PatternHeuristic(1);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -56,7 +59,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("e15"),board));
 			assertEquals(0, heuristic.evaluate(at("g15"),board));
 		} else {
@@ -103,7 +106,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 		} else {
 			String[] problem = { 
@@ -150,7 +153,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("e15");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 			assertEquals(1, heuristic.evaluate(at("f15"),board));
 			assertEquals(1, heuristic.evaluate(at("f16"),board));
@@ -201,7 +204,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play("e15");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 			assertEquals(1, heuristic.evaluate(at("f15"),board));
 			assertEquals(1, heuristic.evaluate(at("f16"),board));
@@ -252,7 +255,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play("c14");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("b14"),board));
 			assertEquals(1, heuristic.evaluate(at("b15"),board));
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
@@ -303,7 +306,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("c15");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("d15"),board));
 		} else {
 			String[] problem = { ".........", // 9
@@ -348,10 +351,10 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board);
-			heuristic.prepare(board);
-			heuristic.prepare(board);
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
+			heuristic.prepare(board, random);
+			heuristic.prepare(board, random);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("d1"),board));
 			assertEquals(1, heuristic.evaluate(at("d2"),board));
 			assertEquals(1, heuristic.evaluate(at("f1"),board));
@@ -404,7 +407,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("e1");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("d1"),board));
 			assertEquals(1, heuristic.evaluate(at("d2"),board));
 			assertEquals(1, heuristic.evaluate(at("f1"),board));
@@ -454,7 +457,7 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("f1"),board));
 			assertEquals(1, heuristic.evaluate(at("f3"),board));
 			assertEquals(1, heuristic.evaluate(at("g1"),board));
@@ -507,7 +510,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play("q2");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("q1"),board));
 		} else {
 			String[] problem = { 
@@ -554,7 +557,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("r2");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("q1"),board));
 			assertEquals(1, heuristic.evaluate(at("s1"),board));
 			assertEquals(1, heuristic.evaluate(at("s2"),board));
@@ -607,13 +610,13 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("b18");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("a17"),board));
 			assertEquals(1, heuristic.evaluate(at("b17"),board));
 			assertEquals(1, heuristic.evaluate(at("b19"),board));
 			board.play("s2");
 			board.play("t2");
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("s3"),board));
 			assertEquals(1, heuristic.evaluate(at("s1"),board));
 			assertEquals(1, heuristic.evaluate(at("t3"),board));
@@ -1033,6 +1036,39 @@ public class PatternHeuristicTest {
 //	}
 	
 
-
+	@Test
+	public void testRandomness() {
+		int[] counts = new int[FIRST_POINT_BEYOND_BOARD];
+		for (int i = 0; i < 1000; i++) {
+			String[] problem = { "...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..#.#..............",// 16
+					"...................",// 15
+					"..#.O..............",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(WHITE, problem);
+			board.play("e15");
+			heuristic.prepare(board, random);
+			counts[heuristic.getBestMove()]++;
+		}
+		assertTrue(counts[at("d15")] > 100);
+		assertTrue(counts[at("f15")] > 100);
+		assertTrue(counts[at("f16")] > 100);
+	}	
 
 }

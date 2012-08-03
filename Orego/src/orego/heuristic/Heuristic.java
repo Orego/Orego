@@ -1,5 +1,6 @@
 package orego.heuristic;
 
+import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.util.*;
 import static orego.core.Coordinates.*;
@@ -26,6 +27,10 @@ public abstract class Heuristic {
 		this.weight = weight;
 		nonzeroPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		values = new int[FIRST_POINT_BEYOND_BOARD];
+	}
+
+	public void setNonzeroPoints(IntSet nonzeroPoints) {
+		this.nonzeroPoints = nonzeroPoints;
 	}
 
 	/**
@@ -55,6 +60,10 @@ public abstract class Heuristic {
 
 	}
 
+	public void setValues(int[] values) {
+		this.values = values;
+	}
+
 	public int getWeight() {
 		return weight;
 	}
@@ -77,8 +86,9 @@ public abstract class Heuristic {
 	 * Called before any calls to evaluate on a given board state. For some
 	 * heuristics, this avoids redundant computation. Overriding versions
 	 * should first call this version.
+	 * @param random TODO
 	 */
-	public void prepare(Board board) {
+	public void prepare(Board board, MersenneTwisterFast random) {
 		nonzeroPoints.clear();
 		bestMove = NO_POINT;
 	}
