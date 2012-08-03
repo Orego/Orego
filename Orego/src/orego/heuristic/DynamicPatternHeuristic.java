@@ -14,33 +14,31 @@ import orego.core.Board;
 
 public class DynamicPatternHeuristic extends Heuristic {
 
-	private ArrayList<DynamicPattern> pattern8List;
-	private ArrayList<DynamicPattern> pattern12List;
-	private ArrayList<DynamicPattern> pattern20List;
-	private ArrayList<DynamicPattern> pattern24List;
+	private static ArrayList<DynamicPattern> pattern8List;
+	private static ArrayList<DynamicPattern> pattern12List;
+	private static ArrayList<DynamicPattern> pattern20List;
+	private static ArrayList<DynamicPattern> pattern24List;
 	
 	private static boolean test;
 	
 	private static int PATTERNS_TO_LOAD = 100;
 	
-	public DynamicPatternHeuristic(int weight) {
-		super(weight);
+	static {
 		pattern8List = new ArrayList<DynamicPattern>();
 		pattern12List = new ArrayList<DynamicPattern>();
 		pattern20List = new ArrayList<DynamicPattern>();
-		pattern24List = new ArrayList<DynamicPattern>();
-		if (test){
-			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/testPattern8.dat", pattern8List);			
-		}
-		else {
-			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", pattern8List);
-			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern12.dat", pattern12List);
-			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern20.dat", pattern20List);
-			extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern24.dat", pattern24List);
-		}
+		pattern24List = new ArrayList<DynamicPattern>();			
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", pattern8List);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern12.dat", pattern12List);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern20.dat", pattern20List);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern24.dat", pattern24List);
+	}
+	
+	public DynamicPatternHeuristic(int weight) {
+		super(weight);
 	}
 
-	private void extractPatternsFromFile(String fileName, ArrayList<DynamicPattern> patternList) {
+	private static void extractPatternsFromFile(String fileName, ArrayList<DynamicPattern> patternList) {
 		ObjectInputStream input;
 		try {
 			input = new ObjectInputStream(new FileInputStream(

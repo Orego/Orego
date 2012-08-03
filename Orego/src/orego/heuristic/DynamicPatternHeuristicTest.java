@@ -43,9 +43,9 @@ public class DynamicPatternHeuristicTest {
 					"...................",// 11
 					"...................",// 10
 					"...................",// 9
-					"O.................O",// 8
-					"...................",// 7
-					".#...............#.",// 6
+					"O#O.............##O",// 8
+					"#.#.............#.#",// 7
+					"###..............#O",// 6
 					"...................",// 5
 					"...................",// 4
 					"...................",// 3
@@ -55,8 +55,8 @@ public class DynamicPatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("a7"), board));
-			assertEquals(1, heuristic.evaluate(at("t7"), board));
+			assertEquals(1, heuristic.evaluate(at("b7"), board));
+			assertEquals(1, heuristic.evaluate(at("s7"), board));
 			assertEquals(0, heuristic.evaluate(at("k16"), board));
 		}
 		DynamicPatternHeuristic.setTestMode(false);
