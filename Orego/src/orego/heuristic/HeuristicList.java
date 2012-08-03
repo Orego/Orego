@@ -2,7 +2,6 @@ package orego.heuristic;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
@@ -23,6 +22,8 @@ public class HeuristicList implements Cloneable {
 
 	private Heuristic[] heuristics;
 
+	private IntSet badMoves;
+	
 	public HeuristicList(String heuristicList) {
 		loadHeuristicList(heuristicList);
 	}
@@ -33,17 +34,21 @@ public class HeuristicList implements Cloneable {
 
 	public HeuristicList(int size) {
 		heuristics = new Heuristic[size];
+		badMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	/**
-	 * Runs each of the heuristics on the given move and returns the result
-	 * TODO: should we maintain a cache of these values to remove needless
-	 * expensive computation
-	 * */
+	 * Returns the weighted sum of recommendations of all of the heuristics.
+	 * (weight for heuristics that recommend move, -weight for heuristics that discourage it)
+	 */
 	public int moveRating(int move, Board board) {
 		int value = 0;
 		for (Heuristic h : heuristics) {
-			value += h.evaluate(move, board) * h.getWeight();
+			if (h.getGoodMoves().contains(move)) {
+				value += h.getWeight();
+			} else {
+				value -= h.getWeight();
+			}
 		}
 		return value;
 	}
@@ -160,31 +165,66 @@ public class HeuristicList implements Cloneable {
 		return null;
 	}
 
-	// TODO Go through the search area randomly
 	/**
 	 * Goes through the heuristics until one suggests a legal, feasible move; plays
-	 * that move. In the interest of speed, the FIRST move given a positive value
-	 * by a heuristic is chosen, not necessarily the highest-rated move.
+	 * one of those moves randomly.
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		// Compute best heuristic value
+		badMoves.clear();
+		// Try to get good moves from heuristics
 		for (Heuristic h : heuristics) {
-			h.prepare(board, random);
-			int p = h.getBestMove();
-			if (p != NO_POINT) {
+			h.prepare(board);
+			IntSet good = h.getGoodMoves();
+			if (good.size() > 0) {
+				int start = random.nextInt(good.size());
+				int i = start;
+				do {
+					int p = good.get(i);
+					if ((board.getColor(p) == VACANT) && (board.isFeasible(p)) && (board.playFast(p) == PLAY_OK)) {
+						return p;
+					}
+					// Advancing by 457 skips "randomly" through the array,
+					// in a manner analogous to double hashing.
+					i = (i + 457) % good.size();
+				} while (i != start);
+			}
+			// Nothing found -- remember the bad moves
+			IntSet bad = h.getBadMoves();
+			for (int i = 0; i < bad.size(); i++) {
+				badMoves.add(bad.get(i));
+			}
+		}
+		// Try to play a random move avoiding the bad moves
+		IntSet vacantPoints = board.getVacantPoints();
+		int start = random.nextInt(vacantPoints.size());
+		int i = start;
+		do {
+			int p = vacantPoints.get(i);
+			if ((board.getColor(p) == VACANT) && !badMoves.contains(p) && (board.isFeasible(p))
+					&& (board.playFast(p) == PLAY_OK)) {
+				return p;
+			}
+			// Advancing by 457 skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
+		// We're desperate -- try the bad moves
+		if (badMoves.size() > 0) {
+			start = random.nextInt(badMoves.size());
+			i = start;
+			do {
+				int p = badMoves.get(i);
 				if ((board.getColor(p) == VACANT) && (board.isFeasible(p)) && (board.playFast(p) == PLAY_OK)) {
 					return p;
 				}
-				IntSet nonzeroPoints = h.getNonzeroPoints();
-				for (int i = 0; i < nonzeroPoints.size(); i++) {
-					int q = nonzeroPoints.get(i);
-					if ((q != p) && (board.getColor(q) == VACANT) && (board.isFeasible(q)) && (board.playFast(q) == PLAY_OK)) {
-						return q;
-					}
-				}
-			}
+				// Advancing by 457 skips "randomly" through the array,
+				// in a manner analogous to double hashing.
+				i = (i + 457) % badMoves.size();
+			} while (i != start);
 		}
-		return NO_POINT;
+		// Nothing left -- pass!
+		board.pass();
+		return PASS;
 	}
 
 	public void setProperty(String name, String value)

@@ -127,7 +127,7 @@ public class HeuristicListTest {
 		board.setUpProblem(WHITE, problem);
 		board.play(at("h6"));
 		// The heuristics should choose the capture move, even though a pattern match would be more highly rated.
-//		System.out.println(pointToString(heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board)));
+		System.out.println(pointToString(heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board)));
 		assertEquals(at("h5"), heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board));	
 	}
 

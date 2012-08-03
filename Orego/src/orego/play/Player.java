@@ -76,51 +76,10 @@ public class Player implements Playable {
 		}
 	}
 
-	// TODO Remove arguments?
+	// TODO Is this delegate method necessary?
 	/** Selects and plays a random moves, choosing the heuristically best move, with ties broken randomly. */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		// Compute the heuristic value of each point
-		IntSet vacantPoints = board.getVacantPoints();
-		int[] values = new int[FIRST_POINT_BEYOND_BOARD];
-		for (Heuristic h : heuristics.getHeuristics()) {
-			h.prepare(board, random);
-		}
-		for (int p = 0; p < vacantPoints.size(); p++) {
-			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-				values[p] = heuristics.moveRating(p, board);
-			} else {
-				values[p] = Integer.MIN_VALUE;
-			}
-		}
-		// Find the best move
-		while (true) {
-			// Compute heuristic values
-			int bestMove = PASS;
-			int bestValue = Integer.MIN_VALUE;
-			int start = random.nextInt(vacantPoints.size());
-			int i = start;
-			do {
-				int p = vacantPoints.get(i);
-					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-						if (values[p] > bestValue) {
-							bestValue = values[p];
-							bestMove = p;
-						}
-					}
-				// The magic number 457 is prime and larger than vacantPoints.size().
-				// Advancing by 457 therefore skips "randomly" through the array,
-				// in a manner analogous to double hashing.
-				i = (i + 457) % vacantPoints.size();
-			} while (i != start);
-			// If there is a best move, try to play it
-			if (board.play(bestMove) == PLAY_OK) { // Note play() instead of playFast()
-				// The best move is legal -- play it
-				return bestMove;
-			} else {
-				// The best move is not legal -- exclude it and try again
-				values[bestMove] = Integer.MIN_VALUE;
-			}
-		}
+		return heuristics.selectAndPlayOneMove(random, board);
 	}
 
 	public int bestMove() {
