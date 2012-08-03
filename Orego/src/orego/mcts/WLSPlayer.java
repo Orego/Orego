@@ -95,7 +95,6 @@ public class WLSPlayer extends RavePlayer {
 					if (win) {
 						bestReplies[color][antepenultimate][previous].addWin(move);
 					} else {
-						System.out.println("Antepenultimate: " + Coordinates.pointToString(antepenultimate) + " penultimate: " + Coordinates.pointToString(previous));
 						// add a loss to this move
 						bestReplies[color][antepenultimate][previous].addLoss(move);
 					}

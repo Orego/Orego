@@ -149,7 +149,6 @@ public class WLSResponseMoveListTest {
 			responses.addWin(at("b4"));
 		}
 		// make sure b4 is the new head honcho
-		
 		assertEquals(at("b4"), responses.getTopResponses()[0]);
 		
 		assertEquals(at("b9"), responses.getTopResponses()[1]);
