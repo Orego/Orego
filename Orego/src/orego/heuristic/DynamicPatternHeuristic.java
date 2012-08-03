@@ -14,20 +14,20 @@ import orego.core.Board;
 
 public class DynamicPatternHeuristic extends Heuristic {
 
-	private static ArrayList<DynamicPattern> pattern8List;
-	private static ArrayList<DynamicPattern> pattern12List;
-	private static ArrayList<DynamicPattern> pattern20List;
-	private static ArrayList<DynamicPattern> pattern24List;
+	private static DynamicPattern[] pattern8List;
+	private static DynamicPattern[] pattern12List;
+	private static DynamicPattern[] pattern20List;
+	private static DynamicPattern[] pattern24List;
 	
 	private static boolean test;
 	
 	private static int PATTERNS_TO_LOAD = 100;
 	
 	static {
-		pattern8List = new ArrayList<DynamicPattern>();
-		pattern12List = new ArrayList<DynamicPattern>();
-		pattern20List = new ArrayList<DynamicPattern>();
-		pattern24List = new ArrayList<DynamicPattern>();			
+		pattern8List = new DynamicPattern[PATTERNS_TO_LOAD];
+		pattern12List = new DynamicPattern[PATTERNS_TO_LOAD];
+		pattern20List = new DynamicPattern[PATTERNS_TO_LOAD];
+		pattern24List = new DynamicPattern[PATTERNS_TO_LOAD];			
 		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", pattern8List);
 		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern12.dat", pattern12List);
 		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern20.dat", pattern20List);
@@ -38,7 +38,7 @@ public class DynamicPatternHeuristic extends Heuristic {
 		super(weight);
 	}
 
-	private static void extractPatternsFromFile(String fileName, ArrayList<DynamicPattern> patternList) {
+	private static void extractPatternsFromFile(String fileName, DynamicPattern[] patternList) {
 		ObjectInputStream input;
 		try {
 			input = new ObjectInputStream(new FileInputStream(
@@ -47,7 +47,7 @@ public class DynamicPatternHeuristic extends Heuristic {
 			try {
 				int counter = 0;
 				while ((pattern = (DynamicPattern) input.readObject()) != null && counter < PATTERNS_TO_LOAD) {
-					patternList.add(pattern);
+					patternList[counter] = pattern;
 					counter++;
 				}
 				input.close();
