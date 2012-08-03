@@ -52,7 +52,8 @@ public class DynamicPatternHeuristic extends Heuristic{
 	}
 
 	@Override
-	public int evaluate(int p, Board board) {
+	public void prepare(Board board) {
+		int p = board.getMove(board.getTurn() - 1);
 		long pattern1 = DynamicPattern.setupPattern(p, board, 8);
 		long pattern2 = DynamicPattern.setupPattern(p, board, 12);
 		long pattern3 = DynamicPattern.setupPattern(p, board, 20);
