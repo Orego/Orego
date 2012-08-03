@@ -8,6 +8,8 @@ import orego.core.Coordinates;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class LineHeuristicTest {
 	
 
@@ -15,10 +17,13 @@ public class LineHeuristicTest {
 	
 	private LineHeuristic heuristic;
 	
+	private MersenneTwisterFast random;
+
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new LineHeuristic(1);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test

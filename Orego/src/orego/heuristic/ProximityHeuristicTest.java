@@ -9,16 +9,21 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class ProximityHeuristicTest {
 
 	private Board board;
 	
 	private ProximityHeuristic heuristic;
 	
+	private MersenneTwisterFast random;
+
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new ProximityHeuristic(1);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test
