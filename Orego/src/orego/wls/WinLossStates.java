@@ -251,8 +251,6 @@ public class WinLossStates {
 			LOSS[stateActionIndex] = findJumpIndexForLoss(state.getWins(),  state.getRuns());
 					
 		}
-		
-		
 	}
 
 	/**
@@ -302,7 +300,6 @@ public class WinLossStates {
 				states[i].getRuns() == runs   )
 				return i;
 		}
-		
 		
 		return NO_STATE_EXISTS;
 	}

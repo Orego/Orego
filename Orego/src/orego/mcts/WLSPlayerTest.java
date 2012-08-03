@@ -52,14 +52,14 @@ public class WLSPlayerTest {
 	@Test
 	public void testIncorporateRun2() {
 		fakeRun(BLACK, "a1", "b1", "b2", "c2", "c1", "d1", "a2", "b1", "b3");
-		int[] topBlackResponses = player.getBestReplies()[BLACK][at("a1")][at("b1")].getTopResponses();
-		int[] topWhiteResponses = player.getBestReplies()[WHITE][at("a2")][at("b1")].getTopResponses();
+		int[] topBlackResponses1 = player.getBestReplies()[BLACK][at("a1")][at("b1")].getTopResponses();
+		int[] topBlackResponses2 = player.getBestReplies()[BLACK][at("a2")][at("b1")].getTopResponses();
 		
-		assertTrue(topBlackResponses.length > 0);
-		assertTrue(topWhiteResponses.length > 0);
+		assertTrue(topBlackResponses1.length > 0);
+		assertTrue(topBlackResponses2.length > 0);
 		
-		assertEquals(at("b2"), topBlackResponses[0]);
-		assertEquals(at("b3"), topWhiteResponses[0]);
+		assertEquals(at("b2"), topBlackResponses1[0]);
+		assertEquals(at("b3"), topBlackResponses2[0]);
 	}
 
 

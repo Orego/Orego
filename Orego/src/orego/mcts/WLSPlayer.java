@@ -9,6 +9,7 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
 
 /**
@@ -59,7 +60,9 @@ public class WLSPlayer extends RavePlayer {
 						bestReplies[c][p][q] 		= new WLSResponseMoveList(TOP_RESPONSES_CAP);
 					}
 					bestReplies[c][p][PASS]     	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
+					bestReplies[c][PASS][p]     	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
 					bestReplies[c][p][NO_POINT] 	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
+					bestReplies[c][NO_POINT][p] 	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
 				}
 				bestReplies[c][NO_POINT][PASS]      = new WLSResponseMoveList(TOP_RESPONSES_CAP);
 				bestReplies[c][NO_POINT][NO_POINT]  = new WLSResponseMoveList(TOP_RESPONSES_CAP);
@@ -92,6 +95,7 @@ public class WLSPlayer extends RavePlayer {
 					if (win) {
 						bestReplies[color][antepenultimate][previous].addWin(move);
 					} else {
+						System.out.println("Antepenultimate: " + Coordinates.pointToString(antepenultimate) + " penultimate: " + Coordinates.pointToString(previous));
 						// add a loss to this move
 						bestReplies[color][antepenultimate][previous].addLoss(move);
 					}

@@ -1,5 +1,6 @@
 package orego.mcts;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
+import orego.core.Coordinates;
 import orego.wls.State;
 import orego.wls.WinLossStates;
 
@@ -14,10 +15,11 @@ import orego.wls.WinLossStates;
 public class WLSResponseMoveList {
 	
 	/** The size of our "top" response list" */
-	private int topResponseLength;
+	private int topResponseLength = Integer.MAX_VALUE;
 	
-	/** The win/loss states (indices) for every move (indexed by move).*/
-	private byte[] movesWLS;
+	/** The win/loss states (indices) for every move (indexed by move). Hence,
+	 * this array serves a second level of indirection [move -> movesWLS -> WLS States]*/
+	private short[] movesWLS;
 	
 	/** The list of top response moves (indexed by "goodness").
 	 * The moves at the front are the best while the moves at the end
@@ -30,19 +32,25 @@ public class WLSResponseMoveList {
 	 * been tried and declared illegal.
 	 * TODO: actually use this
 	 */
-	private short[] responseIllegal;
+	private short[] responsesIllegal;
 	
 	public WLSResponseMoveList(int topResponseListLength) {
 		this.topResponseLength = topResponseListLength;
 		
 		// track all possible moves
-		movesWLS     = new byte[FIRST_POINT_BEYOND_BOARD];
+		movesWLS     = new short[FIRST_POINT_BEYOND_BOARD];
+		
+		movesWLS[Coordinates.NO_POINT] = 0;
 		
 		// track only the top k moves
 		topResponses = new int[topResponseListLength];
+		
+		for (int i = 0; i < topResponseLength; i++) {
+			topResponses[i] = Coordinates.NO_POINT;
+		}
 	}
 	
-	public byte[] getMovesWLS() {
+	public short[] getMovesWLS() {
 		return movesWLS;
 	}
 	
@@ -50,7 +58,7 @@ public class WLSResponseMoveList {
 		return topResponses;
 	}
 		
-	public int getTopResponsePoint() {
+	public int getTopResponsesLength() {
 		return topResponseLength;
 	}
 	
@@ -58,69 +66,108 @@ public class WLSResponseMoveList {
 		return WinLossStates.getWLS().getState(movesWLS[move]);
 	}
 	
+	/** Gets the index of the move in the top response list and returns -1 if
+	 * the move does not exist.
+	 */
+	
+	protected int moveIndexInTopResponses(int move) {
+		for (int i = 0; i < topResponseLength; i++) {
+			if (topResponses[i] == move) return i;
+		}
+		return -1;
+	}
 	/** Checks to see if a given move is already in the top responses list*/
 	protected boolean inTopResponses(int move) {
-		for (int topResponseMove : topResponses) {
-			if (topResponseMove == move) return true;
-		}
-		
-		return false;
+		return (moveIndexInTopResponses(move) >= 0);
 	}
 	/** 
 	 * Simple method which checks to see if a given move should be included
-	 * in the "top responses" list. 
-	 * @param move
+	 * in the "top responses" list. If the move should be included, it makes the appropriate update.
+	 * You must pass in the new proposed state index.
+	 * @param move The proposed move
+	 * @param newStateIndex the proposed WLS state
 	 */
-	protected void rankMove(int move) {
-		// if already in the top response list, simply skip
-		if (inTopResponses(move)) return;
+	protected void rankMove(int move, int newStateIndex) {
 		
 		// start at the worst moves and see if we can "break into" the top moves list.
 		// We then work our way up the list until we find a move which is better than ours.
 		// We place our move back one.
 		WinLossStates wls = WinLossStates.getWLS();
 		
+		// we examine the confidence of the *new* WLS state (to compare against the possibly already existing state in topResponses)
+		double moveConfidence = wls.getState(newStateIndex).getConfidence();
+		
+		int topResponseStartIndex = topResponseLength - 1;
+		
 		// do we break into the list at all?
-		byte responseMoveIndex = movesWLS[topResponseLength - 1];
-		if (wls.getState(movesWLS[move]).getConfidence() > wls.getState(responseMoveIndex).getConfidence()) {
+		short responseMoveIndex = movesWLS[topResponses[topResponseStartIndex]];
+		
+		// if we are better than the smallest element, check to see if we already exist further up the list. Otherwise,
+		// we will add ourselves.
+		if (moveConfidence > wls.getState(responseMoveIndex).getConfidence()) {
 			
-			// simply replace the lowest element in preparation for swappage
-			topResponses[topResponseLength - 1] = move;
+			
+			int start = moveIndexInTopResponses(move);
+			
+			if (start > 0) {
+				// if we are already in the list, we simply swap ourselves up the list into the proper position.
+				// We need to start from the position of our move in the list
+				topResponseStartIndex = start;
+			} else if (start == 0) {
+				// already at the top of the list, don't move it
+				return;
+			} else {
+				// (start < 0 so the element doesn't exist in the list)
+				// if we're a new element, drop the lowest move off the end of the list
+				topResponses[topResponseStartIndex] = move;
+			}
 			
 		} else {
 			return; // we don't even break in
 		}
 		
-		
-		// we start at one less than the end
-		for (int i = (topResponseLength - 1) - 1; i >= 0; i--) {
-			responseMoveIndex = movesWLS[i];
-			if (wls.getState(movesWLS[move]).getConfidence() > wls.getState(responseMoveIndex).getConfidence()) {
-				
-				// swap ourselves into a better position
+		// we start at the move position
+		for (int i = (topResponseStartIndex) - 1; i >= 0; i--) {
+			
+			// find the WLS state for the current move
+			responseMoveIndex = movesWLS[topResponses[i]];
+			if (moveConfidence > wls.getState(responseMoveIndex).getConfidence()) {
+				// swap ourselves into a better position down the list
 				int oldMove = topResponses[i];
 				topResponses[i] = move;
 				topResponses[i + 1] = oldMove;
-				
-				return;
+
 			} else {
 				return; // we've swapped into proper place
 			}
 		}
 	}
+	
+	public String topResponsesToString() {
+		StringBuilder builder = new StringBuilder();
+		for (int move : topResponses) {
+			double confidence = WinLossStates.getWLS().getState(movesWLS[move]).getConfidence();
+			builder.append(Coordinates.pointToString(move) + "( " + confidence + " ) ");
+		}
+		
+		return builder.toString();
+	}
 	public void addWin(int move) {
 		// we increment to the new WLS state after a win (from old WLS state)
-		movesWLS[move] = (byte) WinLossStates.getWLS().addWin((int) movesWLS[move]);
+		short newStateIndex = (short) WinLossStates.getWLS().addWin((int) movesWLS[move]);
 		
-		// decide if we break into the top list or not
-		rankMove(move);
+		// we must rank the move before updating the movesWLS array since we use the
+		// movesWLS array for comparison in rankMove
+		rankMove(move, newStateIndex);
+		
+		movesWLS[move] = newStateIndex;
 	}
 	
 	public void addLoss(int move) {
 		// we increment to the new WLS state after a loss (from old WLS state)
-		movesWLS[move] = (byte) WinLossStates.getWLS().addLoss((int) movesWLS[move]);
+		movesWLS[move] = (short) WinLossStates.getWLS().addLoss((int) movesWLS[move]);
 				
-		// Note: we don't bother to "derank" a moveas this will happen automagically when
+		// Note: we don't bother to "de-rank" a move this will happen auto-magically when
 		// we begin favoring a different moves.
 	}
 	

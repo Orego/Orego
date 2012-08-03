@@ -30,8 +30,8 @@ public class WLSout {
     {
 		WinLossStates wls = new WinLossStates();
 
-		System.out.print(wls.visualizer.visualizeStatePath(200));
-		System.exit(0);
+//		System.out.print(wls.visualizer.visualizeStatePath(200));
+//		System.exit(0);
 		
 		System.out.println("  WLS tables: dummy program\n");
 
