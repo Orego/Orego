@@ -20,8 +20,6 @@ public class PatternHeuristicTest {
 	private Board board;
 	
 	private PatternHeuristic heuristic;
-	
-	private MersenneTwisterFast random;
 
 	/**
 	 * Good pattern tests
@@ -30,12 +28,10 @@ public class PatternHeuristicTest {
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new PatternHeuristic(1);
-		random = new MersenneTwisterFast();
 	}
 
 	@Test
 	public void testLocalHane1and2() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -59,30 +55,13 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("e15"),board));
-			assertEquals(0, heuristic.evaluate(at("g15"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					"..#O#....", // 6
-					".........", // 5
-					"..#O.....", // 4
-					".........", // 3
-					".........", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("d5"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("e15")));
+			assertFalse(heuristic.getGoodMoves().contains(at("g15")));
 	}
 	
 	@Test
 	public void testLocalHane3() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -106,29 +85,12 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("d15"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					"..#.#....", // 6
-					"..#......", // 5
-					"..#O.....", // 4
-					".........", // 3
-					".........", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("d5"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
 	}
 
 	@Test
 	public void testLocalHane4Black() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -153,33 +115,14 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("e15");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("d15"),board));
-			assertEquals(1, heuristic.evaluate(at("f15"),board));
-			assertEquals(1, heuristic.evaluate(at("f16"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					"..#.#....", // 6
-					"....O....", // 5
-					"..#.O....", // 4
-					".........", // 3
-					".........", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("d5"),board));
-			assertEquals(1, heuristic.evaluate(at("f5"),board));
-			assertEquals(1, heuristic.evaluate(at("f6"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f15")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f16")));
 	}
 
 	@Test
 	public void testLocalHane4White() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -204,33 +147,14 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play("e15");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("d15"),board));
-			assertEquals(1, heuristic.evaluate(at("f15"),board));
-			assertEquals(1, heuristic.evaluate(at("f16"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					"..O.O....", // 6
-					"....#....", // 5
-					"..O.#....", // 4
-					".........", // 3
-					".........", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(WHITE, problem);
-			assertEquals(1, heuristic.evaluate(at("d5"),board));
-			assertEquals(1, heuristic.evaluate(at("f5"),board));
-			assertEquals(1, heuristic.evaluate(at("f6"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f15")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f16")));
 	}
 
 	@Test
 	public void testLocalCut1() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -255,33 +179,14 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play("c14");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("b14"),board));
-			assertEquals(1, heuristic.evaluate(at("b15"),board));
-			assertEquals(1, heuristic.evaluate(at("d15"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					"..#O#....", // 6
-					"..O......", // 5
-					"..#.O....", // 4
-					".........", // 3
-					".........", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("b4"),board));
-			assertEquals(1, heuristic.evaluate(at("b5"),board));
-			assertEquals(1, heuristic.evaluate(at("d5"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("b14")));
+			assertTrue(heuristic.getGoodMoves().contains(at("b15")));
+			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
 	}
 
 	@Test
 	public void testLocalCut2() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -306,28 +211,12 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("c15");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("d15"),board));
-		} else {
-			String[] problem = { ".........", // 9
-					".........", // 8
-					".........", // 7
-					"..###....", // 6
-					"..O.O....", // 5
-					"..#......", // 4
-					".........", // 3
-					".........", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("d5"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
 	}
 
 	@Test
 	public void testLocalEdge1() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -351,38 +240,18 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board, random);
-			heuristic.prepare(board, random);
-			heuristic.prepare(board, random);
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("d1"),board));
-			assertEquals(1, heuristic.evaluate(at("d2"),board));
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-			assertEquals(1, heuristic.evaluate(at("f2"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					".........", // 6
-					".........", // 5
-					".........", // 4
-					".........", // 3
-					"....#....", // 2
-					"....O...." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("d1"),board));
-			assertEquals(1, heuristic.evaluate(at("d2"),board));
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-			assertEquals(1, heuristic.evaluate(at("f2"),board));
-		}
+			heuristic.prepare(board);
+			heuristic.prepare(board);
+			heuristic.prepare(board);
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("d1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("d2")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f2")));
 	}
 
 	@Test
 	public void testLocalEdge2() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -407,33 +276,14 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("e1");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("d1"),board));
-			assertEquals(1, heuristic.evaluate(at("d2"),board));
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					".........", // 6
-					".........", // 5
-					".........", // 4
-					".........", // 3
-					"....##...", // 2
-					"....O.O.." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("d1"),board));
-			assertEquals(1, heuristic.evaluate(at("d2"),board));
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("d1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("d2")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f1")));
 	}
 
 	@Test
 	public void testLocalEdge3() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -457,35 +307,15 @@ public class PatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-			assertEquals(1, heuristic.evaluate(at("f3"),board));
-			assertEquals(1, heuristic.evaluate(at("g1"),board));
-			assertEquals(1, heuristic.evaluate(at("g3"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					".........", // 6
-					".........", // 5
-					".........", // 4
-					".........", // 3
-					".....#O..", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-			assertEquals(1, heuristic.evaluate(at("f3"),board));
-			assertEquals(1, heuristic.evaluate(at("g1"),board));
-			assertEquals(1, heuristic.evaluate(at("g3"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("f1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("f3")));
+			assertTrue(heuristic.getGoodMoves().contains(at("g1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("g3")));
 	}
 
 	@Test
 	public void testLocalEdge4() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -510,29 +340,12 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play("q2");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("q1"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					".........", // 6
-					".........", // 5
-					".........", // 4
-					".........", // 3
-					".....#O..", // 2
-					"......O.." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(WHITE, problem);
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("q1")));
 	}
 
 	@Test
 	public void testLocalEdge5() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -557,35 +370,14 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("r2");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("q1"),board));
-			assertEquals(1, heuristic.evaluate(at("s1"),board));
-			assertEquals(1, heuristic.evaluate(at("s2"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					".........", // 8
-					".........", // 7
-					".........", // 6
-					".........", // 5
-					".....#O..", // 4
-					".........", // 3
-					".....#O..", // 2
-					"....O.#.." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("f1"),board));
-			assertEquals(1, heuristic.evaluate(at("h1"),board));
-			assertEquals(1, heuristic.evaluate(at("h2"),board));
-			assertEquals(1, heuristic.evaluate(at("f3"),board));
-			assertEquals(1, heuristic.evaluate(at("g3"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("q1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("s1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("s2")));
 	}
 
 	@Test
 	public void testPatternEdgeCases() {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { 
 					"...................",// 19
 					"#..................",// 18
@@ -610,442 +402,89 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play("b18");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("a17"),board));
-			assertEquals(1, heuristic.evaluate(at("b17"),board));
-			assertEquals(1, heuristic.evaluate(at("b19"),board));
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("a17")));
+			assertTrue(heuristic.getGoodMoves().contains(at("b17")));
+			assertTrue(heuristic.getGoodMoves().contains(at("b19")));
 			board.play("s2");
 			board.play("t2");
-			heuristic.prepare(board, random);
-			assertEquals(1, heuristic.evaluate(at("s3"),board));
-			assertEquals(1, heuristic.evaluate(at("s1"),board));
-			assertEquals(1, heuristic.evaluate(at("t3"),board));
-		} else {
-			String[] problem = { 
-					".........", // 9
-					"#O.......", // 8
-					".........", // 7
-					".........", // 6
-					".........", // 5
-					".........", // 4
-					".........", // 3
-					".......#O", // 2
-					"........." // 1
-			// 		 ABCDEFGHJ
-			};
-			board.setUpProblem(BLACK, problem);
-			assertEquals(1, heuristic.evaluate(at("a7"),board));
-			assertEquals(1, heuristic.evaluate(at("b7"),board));
-			assertEquals(1, heuristic.evaluate(at("b9"),board));
-			assertEquals(1, heuristic.evaluate(at("h3"),board));
-			assertEquals(1, heuristic.evaluate(at("h1"),board));
-			assertEquals(1, heuristic.evaluate(at("j3"),board));
-		}
+			heuristic.prepare(board);
+			assertTrue(heuristic.getGoodMoves().contains(at("s3")));
+			assertTrue(heuristic.getGoodMoves().contains(at("s1")));
+			assertTrue(heuristic.getGoodMoves().contains(at("t3")));
 	}
 	
-//	/**
-//	 * Bad pattern tests
-//	 */
-//	@Test
-//	public void testPonnukiBlack() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"...................",// 16
-//					"...................",// 15
-//					"...................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...OO..............",// 4
-//					"....O..............",// 3
-//					"..#O...............",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("d3"),board));
-////			assertEquals(0, heuristic.evaluate(at("c3"),board));
-////			board.clear();
-////			board.setUpProblem(WHITE, problem);
-////			assertEquals(0, heuristic.evaluate(at("c3"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"...OO....", // 6
-//					"....O....", // 5
-//					"..#O.....", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//	
-//	@Test
-//	public void testPonnukiWhite() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"...................",// 16
-//					"...................",// 15
-//					"...................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...##..............",// 4
-//					"....#..............",// 3
-//					"..O#................",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(WHITE, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("d3"),board));
-////			assertEquals(0, heuristic.evaluate(at("c3"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"...##....", // 6
-//					"....#....", // 5
-//					"..O#.....", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(WHITE, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//
-//	
-//	@Test
-//	public void testEmptyTriangleVerticalBlack() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"..#................",// 16
-//					"..#................",// 15
-//					"..O................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...................",// 4
-//					"...................",// 3
-//					"...................",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("d15"),board));
-//			assertEquals(-1, heuristic.evaluate(at("b15"),board));
-////			board.clear();
-////			board.setUpProblem(WHITE, problem);
-////			assertEquals(0, heuristic.evaluate(at("d15"),board));
-////			assertEquals(0, heuristic.evaluate(at("b15"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"..#......", // 6
-//					"..#......", // 5
-//					"..O......", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//	
-//	@Test
-//	public void testEmptyTriangleVerticalWhite() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"..O................",// 16
-//					"..O................",// 15
-//					"..#................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...................",// 4
-//					"...................",// 3
-//					"...................",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(WHITE, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("d15"),board));
-//			assertEquals(-1, heuristic.evaluate(at("b15"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"..#......", // 6
-//					"..#......", // 5
-//					"..O......", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//	
-//	@Test
-//	public void testEmptyTriangleHorizontalBlack() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"..##O..............",// 16
-//					"...................",// 15
-//					"...................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...................",// 4
-//					"...................",// 3
-//					"...................",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("c17"),board));
-//			assertEquals(-1, heuristic.evaluate(at("d17"),board));
-//			assertEquals(-1, heuristic.evaluate(at("c15"),board));
-//			assertEquals(-1, heuristic.evaluate(at("d15"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"..#......", // 6
-//					"..#......", // 5
-//					"..O......", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//	
-//	@Test
-//	public void testEmptyTriangleHorizontalWhite() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"..OO#..............",// 16
-//					"...................",// 15
-//					"...................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...................",// 4
-//					"...................",// 3
-//					"...................",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(WHITE, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("c17"),board));
-//			assertEquals(-1, heuristic.evaluate(at("d17"),board));
-//			assertEquals(-1, heuristic.evaluate(at("c15"),board));
-//			assertEquals(-1, heuristic.evaluate(at("d15"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"..#......", // 6
-//					"..#......", // 5
-//					"..O......", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//	
-//	
-//	@Test
-//	public void testPushThroughBambooBlack() {
-//		if (BOARD_WIDTH == 19) {
-//			String[] problem = { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"..O.O..............",// 16
-//					"..O.O..............",// 15
-//					"..O#...............",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...................",// 4
-//					"...................",// 3
-//					"...................",// 2
-//					"..................."// 1
-//			// 		 ABCDEFGHJKLMNOPQRST
-//			};
-//			board.setUpProblem(BLACK, problem);
-//			heuristic.prepare(board);
-//			assertEquals(-1, heuristic.evaluate(at("d15"),board));
-//			assertEquals(-1, heuristic.evaluate(at("d16"),board));
-//		} else {
-//			String[] problem = { 
-//					".........", // 9
-//					".........", // 8
-//					".........", // 7
-//					"..#.#....", // 6
-//					"..#.#....", // 5
-//					"..#O.....", // 4
-//					".........", // 3
-//					".........", // 2
-//					"........." // 1
-//			// 		 ABCDEFGHJ
-//			};
-//			board.setUpProblem(WHITE, problem);
-//			assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//		}
-//	}
-//		
-//		@Test
-//		public void testPushThroughBambooWhite() {
-//			if (BOARD_WIDTH == 19) {
-//				String[] problem = { 
-//						"...................",// 19
-//						"...................",// 18
-//						"...................",// 17
-//						"..#.#..............",// 16
-//						"..#.#..............",// 15
-//						"..#O...............",// 14
-//						"...................",// 13
-//						"...................",// 12
-//						"...................",// 11
-//						"...................",// 10
-//						"...................",// 9
-//						"...................",// 8
-//						"...................",// 7
-//						"...................",// 6
-//						"...................",// 5
-//						"...................",// 4
-//						"...................",// 3
-//						"...................",// 2
-//						"..................."// 1
-//				// 		 ABCDEFGHJKLMNOPQRST
-//				};
-//				board.setUpProblem(WHITE, problem);
-//				heuristic.prepare(board);
-//				assertEquals(-1, heuristic.evaluate(at("d15"),board));
-//				assertEquals(-1, heuristic.evaluate(at("d16"),board));
-//			} else {
-//				String[] problem = { 
-//						".........", // 9
-//						".........", // 8
-//						".........", // 7
-//						"..#.#....", // 6
-//						"..#.#....", // 5
-//						"..#O.....", // 4
-//						".........", // 3
-//						".........", // 2
-//						"........." // 1
-//				// 		 ABCDEFGHJ
-//				};
-//				board.setUpProblem(WHITE, problem);
-//				assertEquals(-1, heuristic.evaluate(at("d5"),board));
-//			}
-//	}
-	
-
+	/**
+	 * Bad pattern tests
+	 */
 	@Test
-	public void testRandomness() {
-		int[] counts = new int[FIRST_POINT_BEYOND_BOARD];
-		for (int i = 0; i < 1000; i++) {
-			String[] problem = { "...................",// 19
+	public void testPonnukiBlack() {
+			String[] problem = { 
+					"...................",// 19
 					"...................",// 18
 					"...................",// 17
-					"..#.#..............",// 16
+					"...................",// 16
 					"...................",// 15
-					"..#.O..............",// 14
+					"...................",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...OO..............",// 4
+					"....O..............",// 3
+					"..#O...............",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d3")));
+	}
+	
+	@Test
+	public void testPonnukiWhite() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"...................",// 16
+					"...................",// 15
+					"...................",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...##..............",// 4
+					"....#..............",// 3
+					"..O#................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(WHITE, problem);
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d3")));
+	}
+
+	
+	@Test
+	public void testEmptyTriangleVerticalBlack() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..#................",// 16
+					"..#................",// 15
+					"..O................",// 14
 					"...................",// 13
 					"...................",// 12
 					"...................",// 11
@@ -1059,16 +498,169 @@ public class PatternHeuristicTest {
 					"...................",// 3
 					"...................",// 2
 					"..................."// 1
-			// ABCDEFGHJKLMNOPQRST
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(BLACK, problem);
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d15")));
+			assertTrue(heuristic.getBadMoves().contains(at("b15")));
+	}
+	
+	@Test
+	public void testEmptyTriangleVerticalWhite() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..O................",// 16
+					"..O................",// 15
+					"..#................",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(WHITE, problem);
-			board.play("e15");
-			heuristic.prepare(board, random);
-			counts[heuristic.getBestMove()]++;
-		}
-		assertTrue(counts[at("d15")] > 100);
-		assertTrue(counts[at("f15")] > 100);
-		assertTrue(counts[at("f16")] > 100);
-	}	
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d15")));
+			assertTrue(heuristic.getBadMoves().contains(at("b15")));
+	}
+	
+	@Test
+	public void testEmptyTriangleHorizontalBlack() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..##...............",// 16
+					"...................",// 15
+					"...................",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(WHITE, problem);
+			board.play("e16");
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d17")));
+			assertTrue(heuristic.getBadMoves().contains(at("d15")));
+	}
+	
+	@Test
+	public void testEmptyTriangleHorizontalWhite() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..OO...............",// 16
+					"...................",// 15
+					"...................",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(BLACK, problem);
+			board.play("e16");
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d17")));
+			assertTrue(heuristic.getBadMoves().contains(at("d15")));
 
+	}
+	
+	
+	@Test
+	public void testPushThroughBambooBlack() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..O.O..............",// 16
+					"....O..............",// 15
+					"..O#...............",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(WHITE, problem);
+			board.play("c15");
+			heuristic.prepare(board);
+			assertTrue(heuristic.getBadMoves().contains(at("d15")));
+			assertTrue(heuristic.getBadMoves().contains(at("d16")));
+
+	}
+		
+		@Test
+		public void testPushThroughBambooWhite() {
+				String[] problem = { 
+						"...................",// 19
+						"...................",// 18
+						"...................",// 17
+						"..#.#..............",// 16
+						"....#..............",// 15
+						"..#O...............",// 14
+						"...................",// 13
+						"...................",// 12
+						"...................",// 11
+						"...................",// 10
+						"...................",// 9
+						"...................",// 8
+						"...................",// 7
+						"...................",// 6
+						"...................",// 5
+						"...................",// 4
+						"...................",// 3
+						"...................",// 2
+						"..................."// 1
+				// 		 ABCDEFGHJKLMNOPQRST
+				};
+				board.setUpProblem(BLACK, problem);
+				board.play("c15");
+				heuristic.prepare(board);
+				assertTrue(heuristic.getBadMoves().contains(at("d15")));
+				assertTrue(heuristic.getBadMoves().contains(at("d16")));
+	}
+	
 }

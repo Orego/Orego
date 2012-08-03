@@ -823,8 +823,8 @@ public class MctsPlayerTest {
 		player.acceptMove(at("b3"));
 		player.acceptMove(at("b4"));
 		root = player.getRoot();
-		assertEquals(5, root.getWins(at("c5")));
-		assertEquals(6, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")));
+		assertEquals(3, root.getRuns(at("c5")));
 	}
 
 	@Test

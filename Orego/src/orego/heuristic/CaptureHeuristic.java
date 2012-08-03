@@ -1,6 +1,5 @@
 package orego.heuristic;
 
-import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import static orego.core.Colors.*;
 import orego.util.*;
@@ -13,12 +12,11 @@ public class CaptureHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, MersenneTwisterFast random) {
-		super.prepare(board, random);
+	public void prepare(Board board) {
+		super.prepare(board);
 		IntSet chains = board.getChainsInAtari(opposite(board.getColorToPlay()));
 		for (int i = 0; i < chains.size(); i++) {
-			int c = chains.get(i);
-			increaseValue(board.getCapturePoint(c), board.getChainSize(c));
+			recommend(board.getCapturePoint(chains.get(i)));
 		}
 	}
 

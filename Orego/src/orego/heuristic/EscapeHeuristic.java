@@ -8,10 +8,7 @@ import orego.util.*;
 
 /**
  * Tries to save any friendly group put in atari by the last move, by capturing
- * or extending. The value of a move is number of stones saved + number of
- * stones captured (if any). A move that captures several chains adjacent to a
- * threatened friendly group, or captures while extending, gets additional
- * value.
+ * or extending.
  */
 public class EscapeHeuristic extends Heuristic {
 
@@ -27,8 +24,8 @@ public class EscapeHeuristic extends Heuristic {
 		targets = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
-	/** Adds value for moves that capture adjacent enemies of chain. */
-	protected void escapeByCapturing(int chain, int size, int enemyColor,
+	/** Recommends moves that capture adjacent enemies of chain. */
+	protected void escapeByCapturing(int chain, int enemyColor,
 			Board board) {
 		int p = chain;
 		int[] next = board.getChainNextPoints();
@@ -41,8 +38,7 @@ public class EscapeHeuristic extends Heuristic {
 						targets.add(target);
 						int capturePoint = board.getCapturePoint(target);
 						if (capturePoint != NO_POINT) {
-							increaseValue(capturePoint,
-									board.getChainSize(target) + size);
+							recommend(capturePoint);
 						}
 					}
 				}
@@ -52,8 +48,8 @@ public class EscapeHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, MersenneTwisterFast random) {
-		super.prepare(board, random);
+	public void prepare(Board board) {
+		super.prepare(board);
 		int lastMove = board.getMove(board.getTurn() - 1);
 		int color = board.getColorToPlay();
 		// Find friendly groups in danger
@@ -67,12 +63,11 @@ public class EscapeHeuristic extends Heuristic {
 					int capturePoint = board.getCapturePoint(chain);
 					if (capturePoint != NO_POINT) {
 						friends.add(chain);
-						int size = board.getChainSize(chain);
 						// Consider escaping by capturing
-						escapeByCapturing(chain, size, opposite(color), board);
+						escapeByCapturing(chain, opposite(color), board);
 						// Consider escaping by extending
 						if (!board.isSelfAtari(capturePoint, color)) {
-							increaseValue(capturePoint, size);
+							recommend(capturePoint);
 						}
 					}
 				}
