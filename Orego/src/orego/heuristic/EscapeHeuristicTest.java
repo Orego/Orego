@@ -4,12 +4,9 @@ import static orego.core.Colors.*;
 import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-
 import orego.core.Board;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import ec.util.MersenneTwisterFast;
 
 public class EscapeHeuristicTest {
@@ -18,13 +15,10 @@ public class EscapeHeuristicTest {
 
 	private EscapeHeuristic heuristic;
 
-	private MersenneTwisterFast random;
-
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new EscapeHeuristic(1);
-		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -53,8 +47,8 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play(at("s2"));
-		heuristic.prepare(board, random);
-		assertEquals(1, heuristic.evaluate(at("r1"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("r1")));
 	}
 
 	@Test
@@ -82,8 +76,8 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
 	@Test
@@ -111,8 +105,8 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
 	@Test
@@ -140,8 +134,8 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
 	@Test
@@ -169,8 +163,8 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
 	@Test
@@ -199,8 +193,8 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board, random);
-		assertEquals(8, heuristic.evaluate(at("m12"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 
 	@Test
@@ -228,8 +222,8 @@ public class EscapeHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(23, heuristic.evaluate(at("k10"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("k10")));
 	}
 	
 	@Test
@@ -258,15 +252,9 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
-		heuristic.prepare(board, random);
-		assertEquals(1, heuristic.evaluate(at("o4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		// Do it some additional times to catch "memory leak"
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
-		assertEquals(2, heuristic.evaluate(at("r4"), board));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("o4")));
+		assertTrue(heuristic.getGoodMoves().contains(at("r4")));
 	}
 
 	@Test
@@ -295,8 +283,8 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
-		heuristic.prepare(board, random);
-		assertEquals(at("o6"), heuristic.getBestMove());
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("o6")));
 	}
 
 	@Test
@@ -325,10 +313,10 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board, random);
-		assertEquals(8, heuristic.evaluate(at("m12"), board));		
-		heuristic.prepare(board, random);
-		assertEquals(8, heuristic.evaluate(at("m12"), board));		
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 
 	@Test
@@ -357,9 +345,9 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board, random);
-		assertEquals(4, heuristic.evaluate(at("m12"), board));		
-		assertEquals(11, heuristic.evaluate(at("o10"), board));		
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
+		assertTrue(heuristic.getGoodMoves().contains(at("o10")));
 	}
 
 }

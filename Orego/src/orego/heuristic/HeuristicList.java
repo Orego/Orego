@@ -26,6 +26,7 @@ public class HeuristicList implements Cloneable {
 	
 	public HeuristicList(String heuristicList) {
 		loadHeuristicList(heuristicList);
+		badMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	public HeuristicList() {

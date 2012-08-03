@@ -1,41 +1,29 @@
 package orego.heuristic;
 
 import static org.junit.Assert.*;
-
+import static orego.core.Coordinates.*;
 import orego.core.Board;
-import orego.core.Coordinates;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
-
 public class LineHeuristicTest {
-	
 
 	private Board board;
 	
 	private LineHeuristic heuristic;
 	
-	private MersenneTwisterFast random;
-
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new LineHeuristic(1);
-		random = new MersenneTwisterFast();
 	}
 
 	@Test
 	public void testEvaluate() {
-		heuristic.prepare(board, random);
-		assertEquals(0, heuristic.evaluate(Coordinates.at(3,3), board));
-		assertEquals(0, heuristic.evaluate(Coordinates.at(9,9), board));
-		assertEquals(-3, heuristic.evaluate(Coordinates.at(0,0), board));
-		assertEquals(-1, heuristic.evaluate(Coordinates.at(0,1), board));
-		assertEquals(-2, heuristic.evaluate(Coordinates.at(0,2), board));
-
-
+		heuristic.prepare(board);
+		assertTrue(heuristic.getBadMoves().contains(at("a1")));
+		assertTrue(heuristic.getBadMoves().contains(at("c2")));
+		assertFalse(heuristic.getBadMoves().contains(at("c3")));
 	}
 
 }
