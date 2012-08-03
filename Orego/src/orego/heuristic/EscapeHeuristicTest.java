@@ -1,13 +1,11 @@
 package orego.heuristic;
 
 import static orego.core.Colors.*;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
-import ec.util.MersenneTwisterFast;
 
 public class EscapeHeuristicTest {
 
@@ -348,6 +346,68 @@ public class EscapeHeuristicTest {
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 		assertTrue(heuristic.getGoodMoves().contains(at("o10")));
+	}
+
+	@Test
+	public void testAvoidExtendingIntoSelfAtari() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"......#............",// 4
+				".....#OO#..........",// 3
+				".....#O............",// 2
+				".....#OO#.........."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		board.play("h4");
+		heuristic.prepare(board);
+		assertFalse(heuristic.getGoodMoves().contains(at("h2")));
+		assertTrue(heuristic.getBadMoves().contains(at("h2")));
+	}
+
+	@Test
+	public void testAvoidCapturingIntoSnapback() {
+		String[] problem = new String[] { //
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"......##...........",// 4
+				".....#OO#..........",// 3
+				".....#..OO.........",// 2
+				".....#OO#.........."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		board.play("h2");
+		heuristic.prepare(board);
+		assertFalse(heuristic.getGoodMoves().contains(at("g2")));
+		assertTrue(heuristic.getBadMoves().contains(at("g2")));
 	}
 
 }

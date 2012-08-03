@@ -1,6 +1,5 @@
 package orego.heuristic;
 
-import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
@@ -27,6 +26,7 @@ public class EscapeHeuristic extends Heuristic {
 	/** Recommends moves that capture adjacent enemies of chain. */
 	protected void escapeByCapturing(int chain, int enemyColor,
 			Board board) {
+		int color = board.getColorToPlay();
 		int p = chain;
 		int[] next = board.getChainNextPoints();
 		do {
@@ -38,7 +38,11 @@ public class EscapeHeuristic extends Heuristic {
 						targets.add(target);
 						int capturePoint = board.getCapturePoint(target);
 						if (capturePoint != NO_POINT) {
-							recommend(capturePoint);
+							if (board.isSelfAtari(capturePoint, color)) {
+								discourage(capturePoint);
+							} else {
+								recommend(capturePoint);
+							}
 						}
 					}
 				}
@@ -60,14 +64,16 @@ public class EscapeHeuristic extends Heuristic {
 			if (board.getColor(neighbor) == color) {
 				int chain = board.getChainId(neighbor);
 				if (!friends.contains(chain)) {
-					int capturePoint = board.getCapturePoint(chain);
-					if (capturePoint != NO_POINT) {
+					int liberty = board.getCapturePoint(chain);
+					if (liberty != NO_POINT) {
 						friends.add(chain);
 						// Consider escaping by capturing
 						escapeByCapturing(chain, opposite(color), board);
 						// Consider escaping by extending
-						if (!board.isSelfAtari(capturePoint, color)) {
-							recommend(capturePoint);
+						if (board.isSelfAtari(liberty, color)) {
+							discourage(liberty);
+						} else {
+							recommend(liberty);
 						}
 					}
 				}
