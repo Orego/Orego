@@ -162,7 +162,8 @@ public final class Coordinates {
 					EYELIKE_THRESHOLD[p] = 1;
 				}
 			}
-			if (isOn3rdOr4thLine(p)) {
+			int line = line(p);
+			if ((line >= 3) && (line <= 4)) {
 				THIRD_OR_FOURTH_LINE[p] = true;
 				THIRD_AND_FOURTH_LINE_POINTS[thirdFourthLineCount] = p;
 				thirdFourthLineCount++;
@@ -294,21 +295,19 @@ public final class Coordinates {
 		return valid;
 	}
 
-	/**
-	 * Returns true if p is on the 3rd or 4th line from the edge of the board
-	 */
-	protected static boolean isOn3rdOr4thLine(int p) {
-		// Find the closest distance to wall
-		int r = Math.min(row(p), BOARD_WIDTH - row(p) - 1);
-		int c = Math.min(column(p), BOARD_WIDTH - column(p) - 1);
-		int line = Math.min(r, c);
-		// Return true if p is on line 3 or 4
-		return (line == 2 || line == 3);
-	}
-
 	/** Verifies that a row or column index is valid. */
 	protected static boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < BOARD_WIDTH);
+	}
+
+	/**
+	 * Returns p's line (1-based) from the edge of the board
+	 */
+	public static int line(int p) {
+		// Find the closest distance to wall
+		int r = Math.min(row(p), BOARD_WIDTH - row(p) - 1);
+		int c = Math.min(column(p), BOARD_WIDTH - column(p) - 1);
+		return 1 + Math.min(r, c);
 	}
 
 	/** Returns the point north of p (which may be off the board). */

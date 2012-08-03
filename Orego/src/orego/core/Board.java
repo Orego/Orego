@@ -839,6 +839,10 @@ public class Board {
 	/** Returns true if the play at move p would be a self-atari for color. */
 	public boolean isSelfAtari(int p, int color) {
 		assert colors[p] == VACANT;
+		// Eliminate easy cases
+		if (getVacantNeighborCount(p) >= 2) {
+			return false;
+		}
 		selfAtariLiberties.clear();
 		// We set p so we don't count it as a liberty.
 		selfAtariLiberties.addKnownAbsent(p);

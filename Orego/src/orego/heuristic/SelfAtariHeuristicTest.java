@@ -1,16 +1,11 @@
 package orego.heuristic;
 
 import static orego.core.Colors.*;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-
 import orego.core.Board;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import ec.util.MersenneTwisterFast;
 
 public class SelfAtariHeuristicTest {
 
@@ -18,13 +13,10 @@ public class SelfAtariHeuristicTest {
 
 	private SelfAtariHeuristic heuristic;
 
-	private MersenneTwisterFast random;
-
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new SelfAtariHeuristic(1);
-		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -52,16 +44,15 @@ public class SelfAtariHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(-1, heuristic.evaluate(at("a1"), board));
-		assertEquals(-2, heuristic.evaluate(at("s1"), board));
-		assertEquals(-3, heuristic.evaluate(at("c15"), board));
-		assertEquals(-10, heuristic.evaluate(at("h13"), board));
-		assertEquals(-2, heuristic.evaluate(at("g8"), board));
-		assertEquals(-8, heuristic.evaluate(at("o8"), board));
-		assertEquals(0, heuristic.evaluate(at("e3"), board));
-		assertEquals(0, heuristic.evaluate(at("q16"), board));
-
-
+		heuristic.prepare(board);
+		assertTrue(heuristic.getBadMoves().contains(at("a1")));
+		assertTrue(heuristic.getBadMoves().contains(at("s1")));
+		assertTrue(heuristic.getBadMoves().contains(at("c15")));
+		assertTrue(heuristic.getBadMoves().contains(at("h13")));
+		assertTrue(heuristic.getBadMoves().contains(at("g8")));
+		assertTrue(heuristic.getBadMoves().contains(at("o8")));
+		assertFalse(heuristic.getBadMoves().contains(at("e3")));
+		assertFalse(heuristic.getBadMoves().contains(at("q16")));
 	}
+
 }

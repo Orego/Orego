@@ -182,47 +182,23 @@ public class McRunnable implements Runnable {
 	}
 
 	// TODO Is the return value necessary?
-	// TODO Do we need to pass in the board or the random here?
+	// TODO Do we need to pass in the board here?
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		int suggestion = heuristics.selectAndPlayOneMove(random, board);
-		if (suggestion != NO_POINT) {
-			return suggestion;
-		}
-		// No luck -- play randomly
-		IntSet vacantPoints = board.getVacantPoints();
-		int start = random.nextInt(vacantPoints.size());
-		int i = start;
-		do {
-			int p = vacantPoints.get(i);
-			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))
-					&& (board.playFast(p) == PLAY_OK)) {
-				return p;
-			}
-			// The magic number 457 is prime and larger than
-			// vacantPoints.size().
-			// Advancing by 457 therefore skips "randomly" through the array,
-			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
-		} while (i != start);
-		// No legal move; pass
-		board.pass();
-		return PASS;
+		return heuristics.selectAndPlayOneMove(random, board);
 	}
 
 	public void updatePriors(SearchNode node, Board board) {
 		for (Heuristic h : heuristics.getHeuristics()) {
-			h.prepare(board, random);
-			IntSet nonzeroPoints = h.getNonzeroPoints();
-			for (int i = 0; i < nonzeroPoints.size(); i++) {
-				int p = nonzeroPoints.get(i);
-				if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-					int value = h.evaluate(p, board);
-					if (value > 0) {
-						node.addWins(p, value * h.getWeight());
-					} else if (value < 0) {
-						node.addLosses(p, -value * h.getWeight());
-					}
-				}
+			h.prepare(board);
+			IntSet good = h.getGoodMoves();
+			for (int i = 0; i < good.size(); i++) {
+				int p = good.get(i);
+				node.addWins(p, h.getWeight());
+			}
+			IntSet bad = h.getBadMoves();
+			for (int i = 0; i < bad.size(); i++) {
+				int p = bad.get(i);
+				node.addLosses(p, h.getWeight());
 			}
 		}
 	}

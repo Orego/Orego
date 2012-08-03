@@ -17,14 +17,11 @@ public class CaptureHeuristicTest {
 	private Board board;
 	
 	private CaptureHeuristic heuristic;
-	
-	private MersenneTwisterFast random;
-	
+		
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new CaptureHeuristic(1);
-		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -52,68 +49,11 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(3, heuristic.evaluate(at("a2"), board));
-	}
-
-	@Test
-	public void testMultipleNeighborsInSameGroup() {
-		String[] problem = new String[] {
-					"...................",//19
-					"...................",//18
-					"...................",//17
-					"...................",//16
-					"...................",//15
-					"...................",//14
-					"...................",//13
-					"...................",//12
-					"...................",//11
-					"...................",//10
-					"...................",//9
-					"...................",//8
-					"...................",//7
-					"..O................",//6
-					".OOO...............",//5
-					"OO#O...............",//4
-					"###O...............",//3
-					".#O#O..............",//2
-					"#O................."//1
-				  // ABCDEFGHJKLMNOPQRST
-				};
-		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(6, heuristic.evaluate(at("a2"), board));
-	}
-	
-	@Test
-	public void testBestMove() {
-		String[] problem = new String[] {
-				"...................",//19
-				"...................",//18
-				"...................",//17
-				"...................",//16
-				"...................",//15
-				"...................",//14
-				"...................",//13
-				"...................",//12
-				".....O.............",//11
-				"....O#O............",//10
-				"....O#O...OOO......",//9
-				".........O###......",//8
-				"....O#O...OOO......",//7
-				"....O#O............",//6
-				".....O.............",//5
-				"...................",//4
-				"...................",//3
-				"...................",//2
-				"..................."//1
-			  // ABCDEFGHJKLMNOPQRST
-			};
-		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board, random);
-		assertEquals(4, heuristic.evaluate(at("f8"), board));		
-		assertEquals(3, heuristic.evaluate(at("o8"), board));
-		assertEquals(at("f8"), heuristic.getBestMove());
+		heuristic.prepare(board);
+		assertTrue(heuristic.getGoodMoves().contains(at("a2")));
+		assertTrue(heuristic.getGoodMoves().contains(at("d1")));
+		assertTrue(heuristic.getGoodMoves().contains(at("d4")));
+		assertEquals(3, heuristic.getGoodMoves().size());
 	}
 
 }

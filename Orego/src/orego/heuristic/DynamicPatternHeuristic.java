@@ -64,16 +64,24 @@ public class DynamicPatternHeuristic extends Heuristic {
 	}
 
 	@Override
-	public int evaluate(int p, Board board) {
-		int returnValue = 0;
-		long pattern8 = DynamicPattern.setupPattern(p, board, 8);
-		long pattern12 = DynamicPattern.setupPattern(p, board, 12);
-		long pattern20 = DynamicPattern.setupPattern(p, board, 20);
-		long pattern24 = DynamicPattern.setupPattern(p, board, 24);
-		for (DynamicPattern pattern : pattern24List) {
-			if (pattern.match(pattern24, 24)) {
-				returnValue += 4 * getWeight();
+	public void prepare(Board board) {
+		int p = board.getMove(board.getTurn() - 1);
+		long pattern1 = DynamicPattern.setupPattern(p, board, 8);
+		long pattern2 = DynamicPattern.setupPattern(p, board, 12);
+		long pattern3 = DynamicPattern.setupPattern(p, board, 20);
+		long pattern4 = DynamicPattern.setupPattern(p, board, 24);
+		for (DynamicPattern pattern : patternList) {
+			if (pattern.match(pattern4, 24)) {
+				return 4 * getWeight();
 			}
+			if (pattern.match(pattern3, 20)) {
+				return 3 * getWeight();
+			}
+			if (pattern.match(pattern2, 12)) {
+				return 2 * getWeight();
+			}
+			if (pattern.match(pattern1, 8)) {
+				return 1 * getWeight();
 		}
 		for (DynamicPattern pattern : pattern20List) {
 			if (pattern.match(pattern20, 20)) {

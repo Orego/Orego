@@ -244,6 +244,45 @@ public class WinLossStatesTest {
 	}
 
 	@Test
+	public void testInitialState() {
+		State initState = states.getInitialState();
+		
+		assertEquals(0, initState.getWins());
+		assertEquals(0, initState.getRuns());
+		
+		assertEquals(WinLossStates.MINIMAL_CONFIDENCE, initState.getConfidence(), .000001);
+	}
+	
+	@Test
+	public void testAddWinInitialState() {
+		State initState = states.getInitialState();
+		assertNotNull(initState);
+		
+		assertEquals(0, initState.getWins());
+		assertEquals(0, initState.getRuns());
+		
+		assertEquals(WinLossStates.MINIMAL_CONFIDENCE, initState.getConfidence(), .000001);
+		
+		int initStateIndex = states.findStateIndex(initState);
+		
+		assertEquals(0, initStateIndex);
+		
+		int newStateIndex = states.addWin(initStateIndex);
+		
+		assertTrue(newStateIndex > 0);
+		
+		State newState = states.getState(newStateIndex);
+		
+		assertNotNull(newState);
+		
+		assertEquals(1, newState.getWins());
+		assertEquals(1, newState.getRuns());
+		
+		// 1/1 is much better than many 0/11, 0/8, 0/21 states
+		assertEquals(180, newStateIndex);
+	}
+	
+	@Test
 	public void testSaturatedStates() throws Exception {
 		//  test the 0/21 state to make sure it stays put
 		State saturatedLoss = states.findState(0, 21);

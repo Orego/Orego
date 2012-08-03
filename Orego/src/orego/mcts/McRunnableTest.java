@@ -94,43 +94,5 @@ public class McRunnableTest {
 			assertEquals(10000, runnable.getPlayoutsCompleted());
 		}
 	}
-	
-	@Test
-	public void testCaptureLargerGroup() {
-		try {
-			player.setProperty("heuristics", "Capture");
-			player.reset();
-			runnable = (McRunnable) player.getRunnable(0);
-			String[] problem = new String[] {
-					"...................",//19
-					"...................",//18
-					"...................",//17
-					"...................",//16
-					"...................",//15
-					"...................",//14
-					"...................",//13
-					"...................",//12
-					"...................",//11
-					"...................",//10
-					"...................",//9
-					"...................",//8
-					"...................",//7
-					"..O................",//6
-					".OOO...............",//5
-					"OO#O...............",//4
-					"#.#O...............",//3
-					"..O#O..............",//2
-					"#O................."//1
-				  // ABCDEFGHJKLMNOPQRST
-			};
-			player.setUpProblem(BLACK, problem);
-			player.acceptMove(at("b2"));
-			int move = runnable.selectAndPlayOneMove(runnable.getRandom(), player.getBoard());
-			assertEquals(at("b3"), move);
-		} catch (UnknownPropertyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 }
