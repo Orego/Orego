@@ -49,8 +49,14 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:DynamicPattern@20:Capture@20",
 		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Line@20",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:SelfAtari@20",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Line@20:SelfAtari@20",
+		 "threads=1 playouts=3000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20",
+		 "threads=1 playouts=3000 book=FusekiBook heuristics=Escape@20:DynamicPattern@20:Capture@20",
+		 "threads=1 playouts=3000 book=FusekiBook heuristics=Escape@20:DynamicPattern@20:Pattern@20:Capture@20",
+		 "threads=1 playouts=3000 book=FusekiBook heuristics=Escape@20:Pattern@20:DynamicPattern@20:Capture@20",
 	 };
 
 }
