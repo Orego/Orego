@@ -1,5 +1,6 @@
 package orego.heuristic;
 
+import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.core.Coordinates;
 import orego.util.IntSet;
@@ -67,7 +68,7 @@ public class LineHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board) {
+	public void prepare(Board board, MersenneTwisterFast random) {
 		// does nothing
 	}
 

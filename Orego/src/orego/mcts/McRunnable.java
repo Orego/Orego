@@ -211,7 +211,7 @@ public class McRunnable implements Runnable {
 
 	public void updatePriors(SearchNode node, Board board) {
 		for (Heuristic h : heuristics.getHeuristics()) {
-			h.prepare(board);
+			h.prepare(board, random);
 			IntSet nonzeroPoints = h.getNonzeroPoints();
 			for (int i = 0; i < nonzeroPoints.size(); i++) {
 				int p = nonzeroPoints.get(i);

@@ -10,16 +10,21 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class SelfAtariHeuristicTest {
 
 	private Board board;
 
 	private SelfAtariHeuristic heuristic;
 
+	private MersenneTwisterFast random;
+
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new SelfAtariHeuristic(1);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -47,7 +52,7 @@ public class SelfAtariHeuristicTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(-1, heuristic.evaluate(at("a1"), board));
 		assertEquals(-2, heuristic.evaluate(at("s1"), board));
 		assertEquals(-3, heuristic.evaluate(at("c15"), board));

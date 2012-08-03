@@ -10,16 +10,21 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class CaptureHeuristicTest {
 
 	private Board board;
 	
 	private CaptureHeuristic heuristic;
 	
+	private MersenneTwisterFast random;
+	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new CaptureHeuristic(1);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -47,7 +52,7 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(3, heuristic.evaluate(at("a2"), board));
 	}
 
@@ -76,7 +81,7 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(6, heuristic.evaluate(at("a2"), board));
 	}
 	
@@ -105,7 +110,7 @@ public class CaptureHeuristicTest {
 			  // ABCDEFGHJKLMNOPQRST
 			};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(4, heuristic.evaluate(at("f8"), board));		
 		assertEquals(3, heuristic.evaluate(at("o8"), board));
 		assertEquals(at("f8"), heuristic.getBestMove());

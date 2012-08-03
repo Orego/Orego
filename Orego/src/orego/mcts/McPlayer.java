@@ -7,6 +7,8 @@ import static orego.experiment.Debug.debug;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import ec.util.MersenneTwisterFast;
+
 import orego.core.Board;
 import orego.heuristic.Heuristic;
 import orego.play.ThreadedPlayer;
@@ -176,7 +178,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		for (Heuristic h : getHeuristics().getHeuristics()) {
-			h.prepare(getBoard());
+			h.prepare(getBoard(), new MersenneTwisterFast());
 		}
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
@@ -194,7 +196,6 @@ public abstract class McPlayer extends ThreadedPlayer {
 				result += String.format("COLOR %s %s\nLABEL %s %.0f",
 						colorCode((double) (heuristicsValues[p]-min) / (max-min)),
 						pointToString(p), pointToString(p), (double) heuristicsValues[p]);
-				
 			}
 		}
 		return result;

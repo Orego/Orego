@@ -6,6 +6,7 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.*;
 import static orego.patterns.Pattern.diagramToNeighborhood;
+import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.patternanalyze.DynamicPattern;
 import orego.patterns.ColorSpecificPattern;
@@ -172,17 +173,19 @@ public class PatternHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
+	public void prepare(Board board, MersenneTwisterFast random) {
+		super.prepare(board, random);
 		int[] values = getValues();
 		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
 			if (board.getColor(p) == VACANT) {
 				values[p] = evaluateMove(board.getColorToPlay(), board.getNeighborhood(p));
 				if (values[p] != 0) {
 					getNonzeroPoints().add(p);
-					setBestMove(p);
 				}
 			}
+		}
+		if (getNonzeroPoints().size() > 0) {
+			setBestMove(getNonzeroPoints().get(random.nextInt(getNonzeroPoints().size())));
 		}
 	}
 

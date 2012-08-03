@@ -83,7 +83,7 @@ public class Player implements Playable {
 		IntSet vacantPoints = board.getVacantPoints();
 		int[] values = new int[FIRST_POINT_BEYOND_BOARD];
 		for (Heuristic h : heuristics.getHeuristics()) {
-			h.prepare(board);
+			h.prepare(board, random);
 		}
 		for (int p = 0; p < vacantPoints.size(); p++) {
 			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
