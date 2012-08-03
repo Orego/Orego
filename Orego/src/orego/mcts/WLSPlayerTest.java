@@ -108,5 +108,44 @@ public class WLSPlayerTest {
 		}
 	}
 
+	@Test
+	public void testResizeTopResponseList() throws Exception {
+		// pick a random response list
+		WLSResponseMoveList topMoves = player.getBestReplies()[BLACK][at("e11")][at("b4")];
+		
+		assertEquals(8, topMoves.getTopResponses().length);
+		assertEquals(8, topMoves.getTopResponsesLength());
+		
+		// another random move sequence
+		topMoves = player.getBestReplies()[BLACK][at("h17")][at("d9")];
+		
+		assertEquals(8, topMoves.getTopResponses().length);
+		assertEquals(8, topMoves.getTopResponsesLength());
+		
+		// now resize the length of top responses
+		player.setProperty("topResultsLength", "12");
+		
+		assertEquals(12, WLSPlayer.TOP_RESPONSES_CAP);
+		assertEquals(12, topMoves.getTopResponsesLength());
+		
+		// pick a random response list
+		topMoves = player.getBestReplies()[BLACK][at("e11")][at("b4")];
+		
+		assertEquals(12, topMoves.getTopResponses().length);
+		assertEquals(12, topMoves.getTopResponsesLength());
+		
+		// another random move sequence
+		topMoves = player.getBestReplies()[BLACK][at("h17")][at("d9")];
+		
+		assertEquals(12, topMoves.getTopResponses().length);
+		assertEquals(12, topMoves.getTopResponsesLength());
+		
+		// another random move sequence
+		topMoves = player.getBestReplies()[BLACK][at("h6")][at("d5")];
+				
+		assertEquals(12, topMoves.getTopResponses().length);
+		assertEquals(12, topMoves.getTopResponsesLength());
+		
+	}
 }
 

@@ -197,4 +197,23 @@ public class WLSResponseMoveListTest {
 		assertEquals(0, lossState.getWins());
 		assertEquals(1, lossState.getRuns());
 	}
+	
+	@Test
+	public void testResizeTopResponsesList() {
+		
+		assertEquals(8, responses.getTopResponses().length);
+		assertEquals(8, responses.getTopResponsesLength());
+		
+		responses.getTopResponses()[0] = at("j3");
+		
+		responses.resizeTopResponses(12);
+		
+		assertEquals(12, responses.getTopResponses().length);
+		assertEquals(12, responses.getTopResponsesLength());
+		
+		// ensure we reset all top moves
+		assertEquals(Coordinates.NO_POINT, responses.getTopResponses()[0]);
+		
+		
+	}
 }

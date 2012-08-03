@@ -62,6 +62,15 @@ public class WLSResponseMoveList {
 		return topResponseLength;
 	}
 	
+	public void resizeTopResponses(int newLength) {
+		topResponseLength = newLength;
+		
+		topResponses = new int[newLength];
+		
+		for (int i = 0; i < topResponseLength; i++) {
+			topResponses[i] = Coordinates.NO_POINT;
+		}
+	}
 	public State getWLSState(int move) {
 		return WinLossStates.getWLS().getState(movesWLS[move]);
 	}

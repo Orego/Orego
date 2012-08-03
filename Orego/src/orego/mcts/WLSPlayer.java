@@ -9,7 +9,6 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
-import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
 
 /**
@@ -24,13 +23,13 @@ import orego.play.UnknownPropertyException;
 public class WLSPlayer extends RavePlayer {
 
 	/** Length of "top responses" list (4 - 16) */
-	public final static int TOP_RESPONSES_CAP = 8;
+	public static int TOP_RESPONSES_CAP = 8;
 	
 	/** Indices are color, antepenultimate move, previous move. */
 	private WLSResponseMoveList[][][] bestReplies;
 
 	public static void main(String[] args) {
-		Lgrf2Player p = new Lgrf2Player();
+		WLSPlayer p = new WLSPlayer();
 		try {
 			p.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20");
 			p.setProperty("threads", "1");
@@ -106,5 +105,30 @@ public class WLSPlayer extends RavePlayer {
 				color = opposite(color);
 			}
 		}
+	}
+	
+	@Override
+	public void setProperty(String name, String value) throws UnknownPropertyException {
+		if (name.equals("topResultsLength")) {
+			int newLength = Integer.valueOf(value);
+			TOP_RESPONSES_CAP = newLength;
+			
+			for (int c = BLACK; c <= WHITE; c++) {
+				for (int p : ALL_POINTS_ON_BOARD) {
+					for (int q : ALL_POINTS_ON_BOARD) {
+						bestReplies[c][p][q].resizeTopResponses(newLength);
+					}
+					bestReplies[c][p][PASS].resizeTopResponses(newLength);
+					bestReplies[c][PASS][p].resizeTopResponses(newLength);
+					bestReplies[c][p][NO_POINT].resizeTopResponses(newLength);
+					bestReplies[c][NO_POINT][p].resizeTopResponses(newLength);
+				}
+				bestReplies[c][NO_POINT][PASS].resizeTopResponses(newLength);
+				bestReplies[c][NO_POINT][NO_POINT].resizeTopResponses(newLength);
+			}
+			return;
+		}
+		
+		super.setProperty(name, value);
 	}
 }
