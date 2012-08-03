@@ -10,16 +10,21 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class TwoLibertyHeuristicTest {
 
 	private Board board;
 
 	private TwoLibertyHeuristic heuristic;
 
+	private MersenneTwisterFast random;
+
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		heuristic = new TwoLibertyHeuristic(2);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -47,7 +52,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(2, heuristic.evaluate(at("b2"), board));
 		assertEquals(0, heuristic.evaluate(at("j7"), board));
 		assertEquals(0, heuristic.evaluate(at("f7"), board));
@@ -87,7 +92,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(0, heuristic.evaluate(at("k11"), board));
 		assertEquals(2, heuristic.evaluate(at("j9"), board));
 		board.clear();
@@ -121,7 +126,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(12, heuristic.evaluate(at("g8"), board));
 		assertEquals(0, heuristic.evaluate(at("g9"), board));
 		board.clear();
@@ -155,7 +160,7 @@ public class TwoLibertyHeuristicTest {
 		//       ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		heuristic.prepare(board);
+		heuristic.prepare(board, random);
 		assertEquals(3, heuristic.evaluate(at("r1"), board));
 		board.clear();
 		board.setUpProblem(WHITE, problem);

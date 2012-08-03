@@ -1,5 +1,6 @@
 package orego.heuristic;
 
+import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
@@ -51,8 +52,8 @@ public class EscapeHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
+	public void prepare(Board board, MersenneTwisterFast random) {
+		super.prepare(board, random);
 		int lastMove = board.getMove(board.getTurn() - 1);
 		int color = board.getColorToPlay();
 		// Find friendly groups in danger

@@ -10,17 +10,22 @@ import orego.core.Board;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class DynamicPatternHeuristicTest {
 	
 	private Board board;
 	
 	private DynamicPatternHeuristic heuristic;
 
+	private MersenneTwisterFast random;
+	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
 		DynamicPatternHeuristic.setTestMode(true);
 		heuristic = new DynamicPatternHeuristic(1);
+		random = new MersenneTwisterFast();
 	}
 
 	@Test
@@ -49,7 +54,7 @@ public class DynamicPatternHeuristicTest {
 			// 		 ABCDEFGHJKLMNOPQRST
 			};
 			board.setUpProblem(BLACK, problem);
-			heuristic.prepare(board);
+			heuristic.prepare(board, random);
 			assertEquals(1, heuristic.evaluate(at("a7"), board));
 			assertEquals(1, heuristic.evaluate(at("t7"), board));
 			assertEquals(0, heuristic.evaluate(at("k16"), board));
