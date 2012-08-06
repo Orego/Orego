@@ -1,10 +1,9 @@
 package orego.core;
 
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class manages coordinates on the board.
@@ -99,9 +98,9 @@ public final class Coordinates {
 
 	/**
 	 * SQUARE_NEIGHTBORHOOD[radius][p][] is an array of points in the square
-	 * neighborhood around p.
+	 * (of specified radius) around p.
 	 */
-	public static final int[][][] SQUARE_NEIGHBORHOOD = new int[5][EXTENDED_BOARD_AREA][];
+	public static final int[][][] SQUARE_NEIGHBORHOOD = new int[6][EXTENDED_BOARD_AREA][];
 
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
@@ -182,7 +181,7 @@ public final class Coordinates {
 			}
 			KNIGHT_NEIGHBORHOOD[p] = findKnightNeighborhood(p);
 			LARGE_KNIGHT_NEIGHBORHOOD[p] = findLargeKnightNeighborhood(p);
-			for (int k = 0; k < 5; k++) {
+			for (int k = 1; k < SQUARE_NEIGHBORHOOD.length; k++) {
 				SQUARE_NEIGHBORHOOD[k][p] = findSquareNeighborhood(k, p);
 			}
 		}
@@ -281,34 +280,6 @@ public final class Coordinates {
 	}
 
 	/**
-	 * Used in the static block that initialized SQUARE_NEIGHBORHOOD
-	 *
-	 */
-	private static int[] findSquareNeighborhood(int k, int p) {
-		int radius = k + 1;
-		int r = row(p);
-		int c = column(p);
-		int allocate = 0;
-		for(int i = 1 ; i <=radius; i++){
-			allocate += i; 
-		}
-		allocate *= 8;
-		int valid[] = new int[allocate];
-		int count = 0;
-		for (int i = (0 - radius); i < radius; i++) {
-			for (int j = (0 - radius); j < radius; j++) {
-				if (isValidOneDimensionalCoordinate(r + i)
-						&& isValidOneDimensionalCoordinate(c + j)) {
-					int move = at(r + i, c + j);
-					valid[count] = move;
-					count++;
-				}
-			}
-		}
-		return valid;
-	}
-
-	/**
 	 * Used in the static block that initializes LARGE_KNIGHT_NEIGHBORHOOD.
 	 */
 	protected static int[] findLargeKnightNeighborhood(int p) {
@@ -341,6 +312,34 @@ public final class Coordinates {
 		return valid;
 	}
 
+	/**
+	 * Used in the static block that initializes SQUARE_NEIGHBORHOOD
+	 *
+	 */
+	private static int[] findSquareNeighborhood(int radius, int p) {
+		int r = row(p);
+		int c = column(p);
+		List<Integer> neighbors = new ArrayList<Integer>();
+		for (int i = -radius; i <= radius; i++) {
+			int row = r + i;
+			if (!isValidOneDimensionalCoordinate(row)) {
+				continue;
+			}
+			for (int j = -radius; j <= radius; j++) {
+				int col = c + j;
+				if (!isValidOneDimensionalCoordinate(col) || ((row == r) && (col == c))) {
+					continue;
+				}
+				neighbors.add(at(row, col));
+			}
+		}
+		int[] result = new int[neighbors.size()];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = neighbors.get(i);
+		}
+		return result;
+	}
+	
 	/** Verifies that a row or column index is valid. */
 	protected static boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < BOARD_WIDTH);
