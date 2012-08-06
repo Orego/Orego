@@ -16,6 +16,10 @@ import orego.patterns.Pattern;
 import orego.patterns.SimplePattern;
 import orego.util.BitVector;
 
+/**
+ * Just like PatternHeuristic but looks in a 3x3 (size of 1), 5x5 (size of 2)... area around the last move.
+ *
+ */
 public class SquarePatternHeuristic extends PatternHeuristic {
 
 	private int size;
