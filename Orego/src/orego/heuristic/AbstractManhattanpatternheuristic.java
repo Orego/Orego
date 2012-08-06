@@ -1,19 +1,21 @@
 package orego.heuristic;
 
-
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.MANHATTAN_NEIGHBORHOOD;
 import orego.core.Board;
 
-public class ManhattanPatternHeuristic extends AbstractPatternHeuristic {
-	
-	private int[][] region;
+public abstract class AbstractManhattanpatternheuristic extends
+		AbstractPatternHeuristic {
 
-	public ManhattanPatternHeuristic(int weight){
+	private int[][] region; 
+	
+	public AbstractManhattanpatternheuristic(int weight) {
 		super(weight);
-		region = MANHATTAN_NEIGHBORHOOD[3];
 	}
 	
+	protected void setRegion(int[][]  region) {
+		this.region = region;
+	}
 
 	@Override
 	public void setProperty(String property, String value) {

@@ -12,7 +12,7 @@ public class ManhattanPatternHeuristicTest {
 
 	private Board board;
 	
-	private ManhattanPatternHeuristic heuristic;
+	private AbstractManhattanpatternheuristic heuristic;
 
 	/**
 	 * Good pattern tests
@@ -20,7 +20,7 @@ public class ManhattanPatternHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new ManhattanPatternHeuristic(1);
+		heuristic = new ManhattanPatternHeuristic1(1);
 	}
 
 	@Test
