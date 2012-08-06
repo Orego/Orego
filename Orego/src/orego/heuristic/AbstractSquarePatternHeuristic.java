@@ -7,13 +7,16 @@ import orego.core.Board;
 /**
  * Just like PatternHeuristic but looks in a square region around the last move.
  */
-public class SquarePatternHeuristic extends AbstractPatternHeuristic {
+public abstract class AbstractSquarePatternHeuristic extends AbstractPatternHeuristic {
 
 	private int[][] region;
 
-	public SquarePatternHeuristic(int weight) {
+	public AbstractSquarePatternHeuristic(int weight) {
 		super(weight);
-		region = SQUARE_NEIGHBORHOOD[1]; // Default square is 3x3
+	}
+
+	protected void setRegion(int[][] region) {
+		this.region = region;
 	}
 
 	@Override
@@ -27,7 +30,11 @@ public class SquarePatternHeuristic extends AbstractPatternHeuristic {
 	@Override
 	public void prepare(Board board) {
 		super.prepare(board);
-		for (int p : region[board.getMove(board.getTurn() - 1)]) {
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (!ON_BOARD[lastMove]) {
+			return;
+		}
+		for (int p : region[lastMove]) {
 			if (board.getColor(p) == VACANT) {
 				char neighborhood = board.getNeighborhood(p);
 				if (GOOD_NEIGHBORHOODS[board.getColorToPlay()]

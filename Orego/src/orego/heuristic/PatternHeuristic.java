@@ -13,7 +13,11 @@ public class PatternHeuristic extends AbstractPatternHeuristic {
 	@Override
 	public void prepare(Board board) {
 		super.prepare(board);
-		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (!ON_BOARD[lastMove]) {
+			return;
+		}
+		for (int p : NEIGHBORS[lastMove]) {
 			if (board.getColor(p) == VACANT) {
 				char neighborhood = board.getNeighborhood(p);
 				if(GOOD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {

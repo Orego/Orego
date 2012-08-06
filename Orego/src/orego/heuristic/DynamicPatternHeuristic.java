@@ -2,6 +2,7 @@ package orego.heuristic;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ec.util.MersenneTwisterFast;
 
@@ -14,31 +15,25 @@ import orego.core.Board;
 
 public class DynamicPatternHeuristic extends Heuristic {
 
-	private static DynamicPattern[] pattern8List;
-	private static DynamicPattern[] pattern12List;
-	private static DynamicPattern[] pattern20List;
-	private static DynamicPattern[] pattern24List;
+	private static HashMap<Long, DynamicPattern> patternList;
 	
 	private static boolean test;
 	
 	private static int PATTERNS_TO_LOAD = 100;
 	
 	static {
-		pattern8List = new DynamicPattern[PATTERNS_TO_LOAD];
-		pattern12List = new DynamicPattern[PATTERNS_TO_LOAD];
-		pattern20List = new DynamicPattern[PATTERNS_TO_LOAD];
-		pattern24List = new DynamicPattern[PATTERNS_TO_LOAD];			
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", pattern8List);
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern12.dat", pattern12List);
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern20.dat", pattern20List);
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern24.dat", pattern24List);
+		patternList = new HashMap<Long, DynamicPattern>();
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern12.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern20.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern24.dat", patternList);
 	}
 	
 	public DynamicPatternHeuristic(int weight) {
 		super(weight);
 	}
 
-	private static void extractPatternsFromFile(String fileName, DynamicPattern[] patternList) {
+	private static void extractPatternsFromFile(String fileName, HashMap<Long, DynamicPattern> patternList) {
 		ObjectInputStream input;
 		try {
 			input = new ObjectInputStream(new FileInputStream(
@@ -47,7 +42,9 @@ public class DynamicPatternHeuristic extends Heuristic {
 			try {
 				int counter = 0;
 				while ((pattern = (DynamicPattern) input.readObject()) != null && counter < PATTERNS_TO_LOAD) {
-					patternList[counter] = pattern;
+					for (int i = 0; i < 8; i++){
+						patternList.put(pattern.getPattern()[i], pattern);
+					}
 					counter++;
 				}
 				input.close();
@@ -65,29 +62,21 @@ public class DynamicPatternHeuristic extends Heuristic {
 
 	public int evaluate(int p, Board board) {
 		int returnValue = 0;
-		long pattern8 = DynamicPattern.setupPattern(p, board, 8);
-		long pattern12 = DynamicPattern.setupPattern(p, board, 12);
-		long pattern20 = DynamicPattern.setupPattern(p, board, 20);
 		long pattern24 = DynamicPattern.setupPattern(p, board, 24);
-		for (DynamicPattern pattern : pattern24List) {
-			if (pattern.match(pattern24, 24)) {
-				returnValue += 4 * getWeight();
-			}
-		}		
-		for (DynamicPattern pattern : pattern20List) {
-			if (pattern.match(pattern20, 20)) {
-				returnValue += 3 * getWeight();
-			}
+		long pattern20 = pattern24 & (~(255L << 40));
+		long pattern12 = pattern20 & (~((255L << 24) | (255L << 32)));
+		long pattern8 = pattern12 & (~(255L << 16));
+		if (patternList.containsKey(pattern24)) {
+			return 1;
 		}
-		for (DynamicPattern pattern : pattern12List) {
-			if (pattern.match(pattern12, 12)) {
-				returnValue += 2 * getWeight();
-			}
+		if (patternList.containsKey(pattern20)) {
+			return 1;
 		}
-		for (DynamicPattern pattern : pattern8List) {
-			if (pattern.match(pattern8, 8)) {
-				returnValue += 1 * getWeight();
-			}
+		if (patternList.containsKey(pattern12)) {
+			return 1;
+		}
+		if (patternList.containsKey(pattern8)) {
+			return 1;
 		}
 		return returnValue;
 	}
