@@ -39,7 +39,7 @@ public class Lgrf2Player extends RavePlayer {
 	public static void main(String[] args) {
 		Lgrf2Player p = new Lgrf2Player();
 		try {
-			p.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20");
+			p.setProperty("heuristics", "Line@20");
 			p.setProperty("threads", "1");
 		} catch (UnknownPropertyException e) {
 			e.printStackTrace();
