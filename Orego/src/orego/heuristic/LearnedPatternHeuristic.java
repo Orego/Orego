@@ -78,7 +78,6 @@ public class LearnedPatternHeuristic extends Heuristic {
 					while ((pattern = (DynamicPattern) input.readObject()) != null && counter < GOOD_PATTERNS_TO_LOAD) {
 						if (pattern.getColorToPlay() == color) {
 							ColorSpecificPattern p = translatePattern(pattern.getPattern()[0]);
-							p.setColors(p.getSpecification(), color);
 							returnedPatterns[patternIndex] = p;
 							patternIndex++;
 							counter++;
