@@ -97,6 +97,9 @@ public abstract class Heuristic implements Cloneable {
 		try {
 			clone = (Heuristic)super.clone();
 			clone.setWeight(this.weight);
+			clone.setBadMoves(new IntSet(FIRST_POINT_BEYOND_BOARD));
+			clone.setGoodMoves(new IntSet(FIRST_POINT_BEYOND_BOARD));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			
