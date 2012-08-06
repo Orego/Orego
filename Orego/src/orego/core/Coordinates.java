@@ -1,12 +1,6 @@
 package orego.core;
 
-import static orego.core.Coordinates.EXTENDED_BOARD_AREA;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +48,11 @@ public final class Coordinates {
 
 	/** An array of all the points on the board, for iterating through. */
 	public static final int[] ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
-	
-	/**An array of all the points on the third or fourth line, for iterating through. */
+
+	/**
+	 * An array of all the points on the third or fourth line, for iterating
+	 * through.
+	 */
 	public static final int[] THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
 
 	/** Add this amount to move east one column, or subtract to move west. */
@@ -88,7 +85,7 @@ public final class Coordinates {
 	public static final int FIRST_POINT_ON_BOARD = SOUTH + EAST;
 
 	// TODO Does the array need to be that large?
-	
+
 	/**
 	 * KNIGHT_NEIGHBORHOOD[p] is an array of points within a knight's move of p.
 	 */
@@ -99,12 +96,13 @@ public final class Coordinates {
 	 * knight's move of p.
 	 */
 	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
-	
+
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
-	 * diagonal neighbors (4-7) and four extentions of the neighborhood (indeices 8-11). If a point is at the edge
-	 * (corner) of the board, one (two) of its neighbors are off-board points. The neighbors of
-	 * an off-board point are not defined.
+	 * diagonal neighbors (4-7) and four extentions of the neighborhood
+	 * (indeices 8-11). If a point is at the edge (corner) of the board, one
+	 * (two) of its neighbors are off-board points. The neighbors of an
+	 * off-board point are not defined.
 	 * 
 	 * The neighbors are ordered like this:
 	 * 
@@ -116,7 +114,13 @@ public final class Coordinates {
 	 *   11
 	 * </pre>
 	 */
-	public static final int[][][] MANHATTAN_NEIGHBORHOOD = new int[5][EXTENDED_BOARD_AREA][12];
+	public static final int[][][] MANHATTAN_NEIGHBORHOOD = new int[6][EXTENDED_BOARD_AREA][];
+
+	/**
+	 * SQUARE_NEIGHTBORHOOD[radius][p][] is an array of points in the square (of
+	 * specified radius) around p.
+	 */
+	public static final int[][][] SQUARE_NEIGHBORHOOD = new int[6][EXTENDED_BOARD_AREA][];
 
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
@@ -137,9 +141,12 @@ public final class Coordinates {
 	/** Special coordinate for no point. */
 	public static final int NO_POINT = 1;
 
-	/** Special sentinel value for encoding responses in @see orego.response.ResponsePlayer*/
+	/**
+	 * Special sentinel value for encoding responses in @see
+	 * orego.response.ResponsePlayer
+	 */
 	public static final int ZERO_LEVEL_SENTINEL = 3;
-	
+
 	/** True for points on the board. */
 	public static final boolean[] ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
 
@@ -194,22 +201,32 @@ public final class Coordinates {
 			}
 			KNIGHT_NEIGHBORHOOD[p] = findKnightNeighborhood(p);
 			LARGE_KNIGHT_NEIGHBORHOOD[p] = findLargeKnightNeighborhood(p);
-		}
-		for (int radius = 0; radius < MANHATTAN_NEIGHBORHOOD.length; radius++) {
-			for (int p = 0; p < ALL_POINTS_ON_BOARD.length; p++) {
-				List<Integer> neighbors = new ArrayList<Integer>();
-				for (int q = 0; q < ALL_POINTS_ON_BOARD.length; q++) {
-					if((manhattanDistance(p,q))<=radius){
-						neighbors.add(q);
-					}
-				}
-				MANHATTAN_NEIGHBORHOOD[radius][p] = new int [neighbors.size()];
-				for (int k = 0; k < neighbors.size(); k++) {
-					MANHATTAN_NEIGHBORHOOD[radius][p][k] = neighbors.get(k);
-				}
+			for (int k = 1; k < SQUARE_NEIGHBORHOOD.length; k++) {
+				SQUARE_NEIGHBORHOOD[k][p] = findSquareNeighborhood(k, p);
 			}
-			
+			for (int k = 1; k < MANHATTAN_NEIGHBORHOOD.length; k++) {
+				MANHATTAN_NEIGHBORHOOD[k][p] = findManhattanNeighborhood(k, p);
+			}
 		}
+		
+	}
+
+	public static int[] findManhattanNeighborhood(int radius, int p) {
+		List<Integer> neighbors = new ArrayList<Integer>();
+		for (int i : ALL_POINTS_ON_BOARD) {
+			if (!isValidOneDimensionalCoordinate(row(i))
+					|| !isValidOneDimensionalCoordinate(column(i))) {
+				continue;
+			}
+			if ((manhattanDistance(p, i)) <= radius) {
+				neighbors.add(i);
+			}
+		}
+		int[] result = new int[neighbors.size()];
+		for (int k = 0; k < neighbors.size(); k++) {
+			result[k] = neighbors.get(k);
+		}
+		return result;
 	}
 
 	/** Returns the int representation of the point at row r, column c. */
@@ -253,10 +270,13 @@ public final class Coordinates {
 		// Note that, as per convention, I is missing
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(c);
 	}
-	
-	/** Returns the column c as a lower case letter. This is used for the sgf format.*/
+
+	/**
+	 * Returns the column c as a lower case letter. This is used for the sgf
+	 * format.
+	 */
 	public static char columnToChar(int c) {
-		return (char)(c + 'a'); 
+		return (char) (c + 'a');
 	}
 
 	/** Returns the Euclidean distance from p1 to p2. */
@@ -333,7 +353,36 @@ public final class Coordinates {
 			}
 		return valid;
 	}
-	
+
+	/**
+	 * Used in the static block that initializes SQUARE_NEIGHBORHOOD
+	 * 
+	 */
+	private static int[] findSquareNeighborhood(int radius, int p) {
+		int r = row(p);
+		int c = column(p);
+		List<Integer> neighbors = new ArrayList<Integer>();
+		for (int i = -radius; i <= radius; i++) {
+			int row = r + i;
+			if (!isValidOneDimensionalCoordinate(row)) {
+				continue;
+			}
+			for (int j = -radius; j <= radius; j++) {
+				int col = c + j;
+				if (!isValidOneDimensionalCoordinate(col)
+						|| ((row == r) && (col == c))) {
+					continue;
+				}
+				neighbors.add(at(row, col));
+			}
+		}
+		int[] result = new int[neighbors.size()];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = neighbors.get(i);
+		}
+		return result;
+	}
+
 	/** Verifies that a row or column index is valid. */
 	protected static boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < BOARD_WIDTH);
@@ -348,12 +397,12 @@ public final class Coordinates {
 		int c = Math.min(column(p), BOARD_WIDTH - column(p) - 1);
 		return 1 + Math.min(r, c);
 	}
-	
+
 	/** Returns the Manhattan distance from p1 to p2. */
 	public static double manhattanDistance(int p1, int p2) {
 		int rowd = Math.abs(row(p1) - row(p2));
 		int cold = Math.abs(column(p1) - column(p2));
-		return rowd+cold;
+		return rowd + cold;
 	}
 
 	/** Returns the point north of p (which may be off the board). */
@@ -396,13 +445,16 @@ public final class Coordinates {
 	public static String rowToString(int r) {
 		return "" + (BOARD_WIDTH - r);
 	}
-	
-	/** Returns the row r as a lower case letter. This is used for the sgf format.*/
+
+	/**
+	 * Returns the row r as a lower case letter. This is used for the sgf
+	 * format.
+	 */
 	public static char rowToChar(int r) {
-		return (char)((BOARD_WIDTH - r) + 'a' - 1); 
+		return (char) ((BOARD_WIDTH - r) + 'a' - 1);
 	}
-	
-	/** Returns the point represented by an sgf String.*/
+
+	/** Returns the point represented by an sgf String. */
 	public static int sgfToPoint(String label) {
 		int c = label.charAt(0) - 'a';
 		int r = label.charAt(1) - 'a';
@@ -410,7 +462,7 @@ public final class Coordinates {
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
 		return (r + 1) * SOUTH + (c + 1) * EAST;
 	}
-	
+
 	/**
 	 * Given an SGF-formatted move, returns the corresponding Orego int
 	 * representation. If the move cannot be meaningfully interpreted, NO_POINT
