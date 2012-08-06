@@ -165,11 +165,8 @@ public class Player implements Playable {
 			try {
 				String prop_name = arguments.nextToken();
 				String prop_value = arguments.nextToken();
-				
 				setProperty(prop_name, prop_value);
-				
 				reset(); // when we change a parameter, we need to restart
-				
 				return "Set '" + prop_name + "' to '" + prop_value + "'";
 			} catch (Exception e) {
 				return e.toString();
@@ -235,8 +232,7 @@ public class Player implements Playable {
 				System.exit(1);
 			}
 		} else {
-			getHeuristics().setProperty(property, value); // toss off to the heuristics list 
-			
+			getHeuristics().setProperty(property, value); // toss off to the heuristics list
 			// remove any heuristics which now have a weight of zero
 			getHeuristics().removeZeroWeightedHeuristics();
 		}

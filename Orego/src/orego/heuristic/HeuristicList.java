@@ -251,7 +251,6 @@ public class HeuristicList implements Cloneable {
 					return;
 				}
 			}
-			
 			// create heuristic if it doesn't exist
 			Heuristic newHeuristic = appendNewHeuristic(heuristicName + "Heuristic");
 			newHeuristic.setProperty(heuristicProperty, value);

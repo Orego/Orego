@@ -157,4 +157,8 @@ public class CoordinatesTest {
 		assertEquals(at("a1"), sgfToPoint("as"));
 	}
 
+	@Test
+	public void testSquareNeighborhood() {
+		assertEquals(29, SQUARE_NEIGHBORHOOD[3][at("c2")].length);
+	}
 }
