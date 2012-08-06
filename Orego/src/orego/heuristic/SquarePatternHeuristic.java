@@ -17,7 +17,7 @@ import orego.patterns.SimplePattern;
 import orego.util.BitVector;
 
 /**
- * Just like PatternHeuristic but looks in a 3x3 (size of 1), 5x5 (size of 2)...
+ * Just like PatternHeuristic but looks in a 3x3 (size of 0), 5x5 (size of 1)...
  * area around the last move.
  * 
  */
@@ -30,6 +30,14 @@ public class SquarePatternHeuristic extends PatternHeuristic {
 		this.size = size;
 	}
 
+	@Override
+	public void setProperty(String property, String value) {
+		super.setProperty(property, value);
+		if (property.equals("size")) {
+			this.size = Integer.valueOf(value);
+		}
+	}
+	
 	@Override
 	public void prepare(Board board) {
 		super.prepare(board);
