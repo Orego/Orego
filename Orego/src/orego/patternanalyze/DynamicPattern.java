@@ -96,7 +96,7 @@ public class DynamicPattern implements Serializable {
 	}
 	
 	public int getColorToPlay() {
-		return (int)(this.getPattern()[0] >> 63);
+		return (int)(this.getPattern()[0] >> 62);
 	}
 	
 	/**
