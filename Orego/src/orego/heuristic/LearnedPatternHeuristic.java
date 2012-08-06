@@ -33,7 +33,7 @@ public class LearnedPatternHeuristic extends Heuristic {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 	
-	private static int GOOD_PATTERNS_TO_LOAD = 50;
+	private static int GOOD_PATTERNS_TO_LOAD = 100;
 	private static int BAD_PATTERNS_TO_LOAD = 0;
 	
 	public static final BitVector[] GOOD_NEIGHBORHOODS = {
