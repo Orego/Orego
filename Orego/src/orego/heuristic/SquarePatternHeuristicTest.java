@@ -19,7 +19,7 @@ public class SquarePatternHeuristicTest {
 
 	private Board board;
 	
-	private SquarePatternHeuristic heuristic;
+	private AbstractSquarePatternHeuristic heuristic;
 
 	/**
 	 * Good pattern tests
@@ -27,7 +27,7 @@ public class SquarePatternHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new SquarePatternHeuristic(1);
+		heuristic = new SquarePattern1Heuristic(1);
 	}
 
 	@Test
@@ -696,8 +696,7 @@ public class SquarePatternHeuristicTest {
 		
 		@Test
 		public void testSquarePattern2(){
-			heuristic = new SquarePatternHeuristic(1);
-			heuristic.setProperty("radius", "2");
+			heuristic = new SquarePattern2Heuristic(1);
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -728,8 +727,7 @@ public class SquarePatternHeuristicTest {
 		}
 		@Test
 		public void testSquarePattern4(){
-			heuristic = new SquarePatternHeuristic(1);
-			heuristic.setProperty("radius", "2");
+			heuristic = new SquarePattern2Heuristic(1);
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -761,8 +759,7 @@ public class SquarePatternHeuristicTest {
 		
 		@Test
 		public void testSquarePattern3(){
-			heuristic = new SquarePatternHeuristic(1);
-			heuristic.setProperty("radius", "3");
+			heuristic = new SquarePattern3Heuristic(1);
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
@@ -794,8 +791,7 @@ public class SquarePatternHeuristicTest {
 	
 		@Test
 		public void testSquarePattern5(){
-			heuristic = new SquarePatternHeuristic(1);
-			heuristic.setProperty("radius", "3");
+			heuristic = new SquarePattern3Heuristic(1);
 			String[] problem = { 
 					"...................",// 19
 					"...................",// 18
