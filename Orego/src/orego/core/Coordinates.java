@@ -50,8 +50,11 @@ public final class Coordinates {
 
 	/** An array of all the points on the board, for iterating through. */
 	public static final int[] ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
-	
-	/**An array of all the points on the third or fourth line, for iterating through. */
+
+	/**
+	 * An array of all the points on the third or fourth line, for iterating
+	 * through.
+	 */
 	public static final int[] THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
 
 	/** Add this amount to move east one column, or subtract to move west. */
@@ -95,6 +98,12 @@ public final class Coordinates {
 	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
 
 	/**
+	 * SQUARE_NEIGHTBORHOOD[radius][p][] is an array of points in the square
+	 * neighborhood around p.
+	 */
+	public static final int[][][] SQUARE_NEIGHBORHOOD = new int[5][EXTENDED_BOARD_AREA][];
+
+	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
 	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the
 	 * board, one (two) of its neighbors are off-board points. The neighbors of
@@ -113,9 +122,12 @@ public final class Coordinates {
 	/** Special coordinate for no point. */
 	public static final int NO_POINT = 1;
 
-	/** Special sentinel value for encoding responses in @see orego.response.ResponsePlayer*/
+	/**
+	 * Special sentinel value for encoding responses in @see
+	 * orego.response.ResponsePlayer
+	 */
 	public static final int ZERO_LEVEL_SENTINEL = 3;
-	
+
 	/** True for points on the board. */
 	public static final boolean[] ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
 
@@ -170,6 +182,9 @@ public final class Coordinates {
 			}
 			KNIGHT_NEIGHBORHOOD[p] = findKnightNeighborhood(p);
 			LARGE_KNIGHT_NEIGHBORHOOD[p] = findLargeKnightNeighborhood(p);
+			for (int k = 0; k < 5; k++) {
+				SQUARE_NEIGHBORHOOD[k][p] = findSquareNeighborhood(k, p);
+			}
 		}
 	}
 
@@ -214,10 +229,13 @@ public final class Coordinates {
 		// Note that, as per convention, I is missing
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(c);
 	}
-	
-	/** Returns the column c as a lower case letter. This is used for the sgf format.*/
+
+	/**
+	 * Returns the column c as a lower case letter. This is used for the sgf
+	 * format.
+	 */
 	public static char columnToChar(int c) {
-		return (char)(c + 'a'); 
+		return (char) (c + 'a');
 	}
 
 	/** Returns the Euclidean distance from p1 to p2. */
@@ -259,6 +277,34 @@ public final class Coordinates {
 				valid[v] = large[i];
 				v++;
 			}
+		return valid;
+	}
+
+	/**
+	 * Used in the static block that initialized SQUARE_NEIGHBORHOOD
+	 *
+	 */
+	private static int[] findSquareNeighborhood(int k, int p) {
+		int radius = k + 1;
+		int r = row(p);
+		int c = column(p);
+		int allocate = 0;
+		for(int i = 1 ; i <=radius; i++){
+			allocate += i; 
+		}
+		allocate *= 8;
+		int valid[] = new int[allocate];
+		int count = 0;
+		for (int i = (0 - radius); i < radius; i++) {
+			for (int j = (0 - radius); j < radius; j++) {
+				if (isValidOneDimensionalCoordinate(r + i)
+						&& isValidOneDimensionalCoordinate(c + j)) {
+					int move = at(r + i, c + j);
+					valid[count] = move;
+					count++;
+				}
+			}
+		}
 		return valid;
 	}
 
@@ -350,13 +396,16 @@ public final class Coordinates {
 	public static String rowToString(int r) {
 		return "" + (BOARD_WIDTH - r);
 	}
-	
-	/** Returns the row r as a lower case letter. This is used for the sgf format.*/
+
+	/**
+	 * Returns the row r as a lower case letter. This is used for the sgf
+	 * format.
+	 */
 	public static char rowToChar(int r) {
-		return (char)((BOARD_WIDTH - r) + 'a' - 1); 
+		return (char) ((BOARD_WIDTH - r) + 'a' - 1);
 	}
-	
-	/** Returns the point represented by an sgf String.*/
+
+	/** Returns the point represented by an sgf String. */
 	public static int sgfToPoint(String label) {
 		int c = label.charAt(0) - 'a';
 		int r = label.charAt(1) - 'a';
@@ -364,7 +413,7 @@ public final class Coordinates {
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
 		return (r + 1) * SOUTH + (c + 1) * EAST;
 	}
-	
+
 	/**
 	 * Given an SGF-formatted move, returns the corresponding Orego int
 	 * representation. If the move cannot be meaningfully interpreted, NO_POINT

@@ -17,8 +17,9 @@ import orego.patterns.SimplePattern;
 import orego.util.BitVector;
 
 /**
- * Just like PatternHeuristic but looks in a 3x3 (size of 1), 5x5 (size of 2)... area around the last move.
- *
+ * Just like PatternHeuristic but looks in a 3x3 (size of 1), 5x5 (size of 2)...
+ * area around the last move.
+ * 
  */
 public class SquarePatternHeuristic extends PatternHeuristic {
 
@@ -33,30 +34,18 @@ public class SquarePatternHeuristic extends PatternHeuristic {
 	public void prepare(Board board) {
 		super.prepare(board);
 		int move = board.getMove(board.getTurn() - 1);
-		int r = Coordinates.row(move);
-		int c = Coordinates.column(move);
-		for (int i = (0 - size); i <= size; i++) {
-			int nr = Math.max(0, r + i);
-			nr = Math.min(nr, BOARD_WIDTH-1);
-			for (int j = (0 - size); j <= size; j++) {
-				int nc = Math.max(0, c + j);
-				nc = Math.min(nc, BOARD_WIDTH-1);
-				int p = Coordinates.at(nr, nc);
-				if (board.getColor(p) == VACANT) {
-					char neighborhood = board.getNeighborhood(p);
-					if (GOOD_NEIGHBORHOODS[board.getColorToPlay()]
-							.get(neighborhood)) {
-						recommend(p);
-					}
-					if (BAD_NEIGHBORHOODS[board.getColorToPlay()]
-							.get(neighborhood)) {
-						discourage(p);
-					}
+		for (int p : SQUARE_NEIGHBORHOOD[size][move]) {
+			if (board.getColor(p) == VACANT) {
+				char neighborhood = board.getNeighborhood(p);
+				if (GOOD_NEIGHBORHOODS[board.getColorToPlay()]
+						.get(neighborhood)) {
+					recommend(p);
 				}
-
+				if (BAD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
+					discourage(p);
+				}
 			}
 		}
-
 	}
 
 }
