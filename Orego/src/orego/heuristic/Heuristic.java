@@ -1,5 +1,7 @@
 package orego.heuristic;
 
+import java.lang.reflect.Constructor;
+
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
@@ -7,7 +9,7 @@ import orego.util.*;
 import static orego.core.Coordinates.*;
 
 /** Adjusts the probability of playing a move using domain-specific knowledge. */
-public abstract class Heuristic {
+public abstract class Heuristic implements Cloneable {
 
 	private IntSet goodMoves;
 
@@ -88,5 +90,19 @@ public abstract class Heuristic {
 	public void setWeight(int weight) {
 		this.weight = weight;
 	}
-
+	
+	@Override
+	public Heuristic clone() {
+		Heuristic clone = null;
+		try {
+			clone = (Heuristic)super.clone();
+			clone.setWeight(this.weight);
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			System.exit(1);
+		}
+		
+		return clone;
+	}
 }

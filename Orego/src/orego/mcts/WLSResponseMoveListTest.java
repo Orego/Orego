@@ -186,8 +186,6 @@ public class WLSResponseMoveListTest {
 		responses.addWin(at("k9"));
 		
 		assertEquals(at("k9"), responses.getTopResponses()[6]);
-		
-		
 	}
 	
 	@Test

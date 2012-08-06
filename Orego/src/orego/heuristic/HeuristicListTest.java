@@ -3,8 +3,7 @@ package orego.heuristic;
 import orego.core.*;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,13 +34,22 @@ public class HeuristicListTest {
 	public void testClone() {
 		heuristics.loadHeuristicList("Escape@2:Capture@3");
 		HeuristicList cloned = heuristics.clone();
+		
+		// make sure not the same object (different copies)
+		assertTrue(cloned != heuristics);
+		
 		assertEquals(2, cloned.size());
+		
+		// make sure not the same object (different copies)
+		assertFalse(cloned.getHeuristics()[0] == heuristics.getHeuristics()[0]);
+		assertFalse(cloned.getHeuristics()[1] == heuristics.getHeuristics()[1]);
+		
 		assertEquals(2, cloned.getHeuristics()[0].getWeight(), .000001);
 		assertEquals(3, cloned.getHeuristics()[1].getWeight(), .000001);
+		
 		assertEquals(EscapeHeuristic.class, heuristics.getHeuristics()[0].getClass());
 		assertEquals(CaptureHeuristic.class,   heuristics.getHeuristics()[1].getClass());
-		assertFalse(heuristics.getHeuristics()[0] == cloned.getHeuristics()[0]);
-		assertFalse(heuristics.getHeuristics()[1] == cloned.getHeuristics()[1]);
+		
 	}
 		
 	@Test

@@ -67,12 +67,7 @@ public class HeuristicList implements Cloneable {
 			// loop through heuristics and create *new* instances of each
 			// underlying subclass
 			for (int i = 0; i < heuristics.length; i++) {
-				Heuristic heur = heuristics[i];
-				Constructor<?> constructor = heur.getClass().getConstructor(
-						Integer.TYPE);
-				Heuristic copy = (Heuristic) constructor.newInstance(heur
-						.getWeight());
-				copied.getHeuristics()[i] = copy;
+				copied.getHeuristics()[i] = heuristics[i].clone();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -245,8 +240,6 @@ public class HeuristicList implements Cloneable {
 			parser.nextToken(".");
 			String heuristicName = parser.nextToken(".");
 			String heuristicProperty = parser.nextToken();
-			
-			System.out.println("Heuristic property name: " + heuristicProperty);
 			// strip the prefix '.' off
 			heuristicProperty = heuristicProperty.replace(".", "");
 			// now we find the heuristic matching the heuristic name (we loop
