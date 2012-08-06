@@ -502,7 +502,6 @@ public class MctsPlayer extends McPlayer {
 			table.sweep();
 			table.findOrAllocate(getBoard().getHash());
 			for (int i = 0; i < getNumberOfThreads(); i++) {
-				
 				setRunnable(i, new McRunnable(this, getHeuristics().clone()));
 			}
 			SearchNode root = getRoot();
