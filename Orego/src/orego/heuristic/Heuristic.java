@@ -2,6 +2,7 @@ package orego.heuristic;
 
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
+import orego.play.UnknownPropertyException;
 import orego.util.*;
 import static orego.core.Coordinates.*;
 
@@ -75,9 +76,12 @@ public abstract class Heuristic {
 	 * @param value
 	 *            The value of the property
 	 */
-	public void setProperty(String property, String value) {
+	public void setProperty(String property, String value) throws UnknownPropertyException {
 		if (property.equals("weight")) {
 			this.weight = Integer.valueOf(value);
+		} else {
+			throw new UnknownPropertyException("No property exists for '"
+					+ property + "'");
 		}
 	}
 

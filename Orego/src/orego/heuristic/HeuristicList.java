@@ -244,7 +244,9 @@ public class HeuristicList implements Cloneable {
 			// skip the 'heuristic.' prefix
 			parser.nextToken(".");
 			String heuristicName = parser.nextToken(".");
-			String heuristicProperty = parser.nextToken(" ");
+			String heuristicProperty = parser.nextToken();
+			
+			System.out.println("Heuristic property name: " + heuristicProperty);
 			// strip the prefix '.' off
 			heuristicProperty = heuristicProperty.replace(".", "");
 			// now we find the heuristic matching the heuristic name (we loop
