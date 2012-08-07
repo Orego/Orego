@@ -2,6 +2,13 @@ package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
 
+/**
+ * This class looks only at patterns that were actually played.
+ * These are sorted based on the ratio of patterns seen to patterns played.
+ * @author galbraith
+ *
+ */
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -74,9 +81,9 @@ public class PatternCounter2 {
 			}
 			System.out.println("Done.");
 			bw.write(output);
-			System.out.println("Written to file "+TEST_DIRECTORY + "output"+PATTERN_LENGTH+".txt");
+			System.out.println("Written to file "+TEST_DIRECTORY + "outputPlayed"+PATTERN_LENGTH+".txt");
 			bw.close();
-			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat")));
+			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternPlayed"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
 				ow.writeObject(new DynamicPattern(pattern[0], PATTERN_LENGTH));
 			}
@@ -216,33 +223,31 @@ public class PatternCounter2 {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-						DynamicPattern pattern = new DynamicPattern(lastPlay, patternBoard, PATTERN_LENGTH);
-						boolean foundPattern = false;
-						for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
-							if (patternSeen.containsKey(pattern.getPattern()[i])) {
-								foundPattern = true;
-								Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-								patternData[PATTERN_PLAYED] += 1;
-								if (currentTurn < patternData[MIN_TURN]) {
-									patternData[MIN_TURN] = (long)currentTurn;
-								}
-								if (currentTurn > patternData[MAX_TURN]) {
-									patternData[MAX_TURN] = (long)currentTurn;
-								}
-								patternData[TOTAL_TURN] += currentTurn;
-
-								patternSeen.put(pattern.getPattern()[i], patternData);
+					DynamicPattern pattern = new DynamicPattern(lastPlay, patternBoard, PATTERN_LENGTH);
+					boolean foundPattern = false;
+					for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
+						if (patternSeen.containsKey(pattern.getPattern()[i])) {
+							foundPattern = true;
+							Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
+							patternData[PATTERN_PLAYED] += 1;
+							if (currentTurn < patternData[MIN_TURN]) {
+								patternData[MIN_TURN] = (long)currentTurn;
 							}
+							if (currentTurn > patternData[MAX_TURN]) {
+								patternData[MAX_TURN] = (long)currentTurn;
+							}
+							patternData[TOTAL_TURN] += currentTurn;
+							patternSeen.put(pattern.getPattern()[i], patternData);
 						}
-						if (!foundPattern) {
-							Long[] patternData = new Long[5];
-							patternData[PATTERN_PLAYED] = (long)1;
-							patternData[MIN_TURN] = (long)currentTurn;
-							patternData[MAX_TURN] = (long)currentTurn;
-							patternData[TOTAL_TURN] = (long)currentTurn;
-							patternSeen.put(pattern.getPattern()[0], patternData);
-						}
-					
+					}
+					if (!foundPattern) {
+						Long[] patternData = new Long[5];
+						patternData[PATTERN_PLAYED] = (long)1;
+						patternData[MIN_TURN] = (long)currentTurn;
+						patternData[MAX_TURN] = (long)currentTurn;
+						patternData[TOTAL_TURN] = (long)currentTurn;
+						patternSeen.put(pattern.getPattern()[0], patternData);
+					}
 				}
 				currentTurn++;
 				patternBoard.play(lastPlay);

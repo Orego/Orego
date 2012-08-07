@@ -15,6 +15,14 @@ import java.util.StringTokenizer;
 
 import orego.core.Board;
 
+
+/**
+ * This class uses all the points on the board when looking for patterns.
+ * These are sorted based on the ratio of patterns seen to patterns played.
+ * @author galbraith
+ *
+ */
+
 public class PatternCounter {
 
 	/**
