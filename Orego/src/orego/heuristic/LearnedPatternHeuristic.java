@@ -144,10 +144,10 @@ public class LearnedPatternHeuristic extends Heuristic {
 		// Note that i has to be an int, rather than a char, because
 		// otherwise incrementing it after Character.MAX_VALUE would
 		// return it to 0, resulting in an infinite loop.
-		GOOD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", BLACK, true);
-		GOOD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", WHITE, true);
-		BAD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", BLACK, false);
-		BAD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", WHITE, false);	
+		GOOD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", BLACK, true);
+		GOOD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", WHITE, true);
+		BAD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", BLACK, false);
+		BAD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", WHITE, false);	
 		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
 			GOOD_PATTERN_LIST_BLACK[0].matches((char) i);
 			if (!isPossibleNeighborhood((char) i)) {
