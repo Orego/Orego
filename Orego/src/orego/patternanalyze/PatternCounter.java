@@ -71,7 +71,7 @@ public class PatternCounter {
 				removePatterns(-1, threshold++);
 			}
 			PrintWriter bw = new PrintWriter(new FileWriter(new File(
-					TEST_DIRECTORY + "output"+PATTERN_LENGTH+".txt")));
+					TEST_DIRECTORY + "outputRatio"+PATTERN_LENGTH+".txt")));
 			String output = "";
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
@@ -86,15 +86,15 @@ public class PatternCounter {
 			}
 			System.out.println("Done.");
 			bw.write(output);
-			System.out.println("Written to file "+TEST_DIRECTORY + "output"+PATTERN_LENGTH+".txt");
+			System.out.println("Written to file "+TEST_DIRECTORY + "outputRatio"+PATTERN_LENGTH+".txt");
 			bw.close();
-			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat")));
+			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternRatio"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
 				ow.writeObject(new DynamicPattern(pattern[0], PATTERN_LENGTH));
 			}
 			ow.flush();
 			ow.close();
-			System.out.println("Written to file "+TEST_DIRECTORY + "pattern"+PATTERN_LENGTH+".dat");
+			System.out.println("Written to file "+TEST_DIRECTORY + "patternRatio"+PATTERN_LENGTH+".dat");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
