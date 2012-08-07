@@ -81,6 +81,7 @@ public class ManhattanPatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			board.play(at("g15"));
+			heuristic = new ManhattanPattern3Heuristic(1);
 			heuristic.prepare(board);
 			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
 	}
