@@ -12,7 +12,7 @@ public class ManhattanPatternHeuristicTest {
 
 	private Board board;
 	
-	private AbstractManhattanpatternheuristic heuristic;
+	private AbstractManhattanPatternHeuristic heuristic;
 
 	/**
 	 * Good pattern tests
@@ -20,7 +20,7 @@ public class ManhattanPatternHeuristicTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-		heuristic = new ManhattanPatternHeuristic1(1);
+		heuristic = new ManhattanPattern1Heuristic(1);
 	}
 
 	@Test
@@ -49,6 +49,7 @@ public class ManhattanPatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			board.play(at("g15"));
+			heuristic = new ManhattanPattern2Heuristic(1);
 			heuristic.prepare(board);
 			assertTrue(heuristic.getGoodMoves().contains(at("e15")));
 			assertFalse(heuristic.getGoodMoves().contains(at("g15")));
