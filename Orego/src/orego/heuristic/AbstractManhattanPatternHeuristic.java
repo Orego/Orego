@@ -4,12 +4,12 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.MANHATTAN_NEIGHBORHOOD;
 import orego.core.Board;
 
-public abstract class AbstractManhattanpatternheuristic extends
+public abstract class AbstractManhattanPatternHeuristic extends
 		AbstractPatternHeuristic {
 
 	private int[][] region; 
 	
-	public AbstractManhattanpatternheuristic(int weight) {
+	public AbstractManhattanPatternHeuristic(int weight) {
 		super(weight);
 	}
 	
