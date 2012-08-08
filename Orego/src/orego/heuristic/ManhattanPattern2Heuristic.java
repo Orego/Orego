@@ -3,9 +3,9 @@ package orego.heuristic;
 
 import static orego.core.Coordinates.*;
 
-public class ManhattanPatternHeuristic2 extends AbstractManhattanpatternheuristic {
+public class ManhattanPattern2Heuristic extends AbstractManhattanPatternHeuristic {
 	
-	public ManhattanPatternHeuristic2(int weight){
+	public ManhattanPattern2Heuristic(int weight){
 		super(weight);
 		setRegion(MANHATTAN_NEIGHBORHOOD[2]);
 	}
