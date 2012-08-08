@@ -445,6 +445,36 @@ public class PatternHeuristicTest {
 			heuristic.prepare(board);
 			assertTrue(heuristic.getBadMoves().contains(at("d3")));
 	}
+
+		@Test
+		public void testPonnuki2Black() {
+				String[] problem = { 
+						"...................",// 19
+						"...................",// 18
+						"...................",// 17
+						"...................",// 16
+						"...................",// 15
+						"...................",// 14
+						"...................",// 13
+						"...................",// 12
+						"...................",// 11
+						"...................",// 10
+						"...................",// 9
+						"...................",// 8
+						"...................",// 7
+						".O.................",// 6
+						".O.##..............",// 5
+						"..OO#..............",// 4
+						"....O..............",// 3
+						"...O...............",// 2
+						"..................."// 1
+				// 		 ABCDEFGHJKLMNOPQRST
+				};
+				board.setUpProblem(BLACK, problem);
+				heuristic.prepare(board);
+				assertTrue(heuristic.getBadMoves().contains(at("d3")));
+		}
+		
 	
 	@Test
 	public void testPonnukiWhite() {
