@@ -1,7 +1,7 @@
 package orego.heuristic;
 
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.MANHATTAN_NEIGHBORHOOD;
+import static orego.core.Coordinates.*;
 import orego.core.Board;
 
 public abstract class AbstractManhattanPatternHeuristic extends
@@ -28,7 +28,11 @@ public abstract class AbstractManhattanPatternHeuristic extends
 	@Override
 	public void prepare(Board board) {
 		super.prepare(board);
-		for (int p : region[board.getMove(board.getTurn()-1)]) {
+		int lastMove = board.getMove(board.getTurn() - 1);
+		if (!ON_BOARD[lastMove]) {
+			return;
+		}
+		for (int p : region[lastMove]) {
 			if (board.getColor(p) == VACANT) {
 				char neighborhood = board.getNeighborhood(p);
 				if(GOOD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
