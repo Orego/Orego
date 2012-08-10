@@ -1,16 +1,12 @@
 package orego.heuristic;
 
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-
 import orego.core.Board;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import ec.util.MersenneTwisterFast;
 
 public class CaptureHeuristicTest {
 
@@ -24,6 +20,14 @@ public class CaptureHeuristicTest {
 		heuristic = new CaptureHeuristic(1);
 	}
 
+	@Test
+	public void testClone() throws Exception {
+		CaptureHeuristic copy = heuristic.clone();
+		
+		// should be a new instance
+		assertFalse(copy == heuristic);
+	}
+	
 	@Test
 	public void testEvaluate() {
 		String[] problem = new String[] {

@@ -821,4 +821,29 @@ public class SquarePatternHeuristicTest {
 			assertFalse(heuristic.getGoodMoves().contains(at("s5")));
 		}
 		
+		@Test
+		public void testSetRadius() {
+			heuristic.setRadius(1);
+			
+			int[][] region1 = heuristic.getRegion();
+			
+			assertEquals(1, heuristic.getRadius());
+			
+			heuristic.setRadius(3);
+			
+			assertEquals(3, heuristic.getRadius());
+			
+			assertNotSame(region1, heuristic.getRegion());
+		}
+		
+		@Test
+		public void testClone() {
+			AbstractSquarePatternHeuristic copy = heuristic.clone();
+			
+			assertNotSame(heuristic, copy);
+			
+			assertEquals(copy.getRadius(), heuristic.getRadius());
+			
+			assertEquals(heuristic.getRegion().length, copy.getRegion().length);
+		}
 }

@@ -409,5 +409,17 @@ public class EscapeHeuristicTest {
 		assertFalse(heuristic.getGoodMoves().contains(at("g2")));
 		assertTrue(heuristic.getBadMoves().contains(at("g2")));
 	}
+	
+	@Test
+	public void testClone() {
+		EscapeHeuristic copy = heuristic.clone();
+		
+		assertNotSame(heuristic, copy);
+		
+		assertNotSame(heuristic.getFriends(), copy.getFriends());
+		assertNotSame(heuristic.getTargets(), copy.getTargets());
+		
+		assertEquals(heuristic.getTargets().size(), copy.getTargets().size());
+	}
 
 }

@@ -1,16 +1,24 @@
 package orego.heuristic;
 
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.SQUARE_NEIGHBORHOOD;
+
+import java.util.Arrays;
+
 import orego.core.Board;
+import orego.play.UnknownPropertyException;
 
 /**
  * Just like PatternHeuristic but looks in a square region around the last move.
  */
 public abstract class AbstractSquarePatternHeuristic extends AbstractPatternHeuristic {
-
+	
+	/** Reference to static entry in table SQUARE_NEIGHBORHOOD*/
 	private int[][] region;
 
+	private int radius;
+	
 	public AbstractSquarePatternHeuristic(int weight) {
 		super(weight);
 	}
@@ -18,12 +26,26 @@ public abstract class AbstractSquarePatternHeuristic extends AbstractPatternHeur
 	protected void setRegion(int[][] region) {
 		this.region = region;
 	}
+	
+	protected int[][] getRegion() {
+		return region;
+	}
+	
+	protected void setRadius(int radius) {
+		this.radius = radius;
+		setRegion(SQUARE_NEIGHBORHOOD[radius]);
+	}
+	
+	protected int getRadius() {
+		return radius;
+	}
 
 	@Override
-	public void setProperty(String property, String value) {
+	public void setProperty(String property, String value) throws UnknownPropertyException {
 		super.setProperty(property, value);
 		if (property.equals("radius")) {
-			region = SQUARE_NEIGHBORHOOD[Integer.valueOf(value)];
+			radius = Integer.valueOf(value);
+			region = SQUARE_NEIGHBORHOOD[radius];
 		}
 	}
 	
@@ -48,4 +70,11 @@ public abstract class AbstractSquarePatternHeuristic extends AbstractPatternHeur
 		}
 	}
 
+	@Override
+	public AbstractSquarePatternHeuristic clone() {
+		AbstractSquarePatternHeuristic copy = (AbstractSquarePatternHeuristic) super.clone();
+		
+		copy.setRadius(this.radius);
+		return copy;
+	}
 }

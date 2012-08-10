@@ -29,5 +29,10 @@ public class PatternHeuristic extends AbstractPatternHeuristic {
 			}
 		}
 	}
+	
+	@Override
+	public PatternHeuristic clone() {
+		return (PatternHeuristic) super.clone();
+	}
 
 }

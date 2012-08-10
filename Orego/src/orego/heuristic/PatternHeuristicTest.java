@@ -663,4 +663,11 @@ public class PatternHeuristicTest {
 				assertTrue(heuristic.getBadMoves().contains(at("d16")));
 	}
 	
+	@Test
+	public void testClone() throws Exception {
+		PatternHeuristic copy = heuristic.clone();
+		
+		assertNotSame(heuristic, copy);
+		assertTrue(copy instanceof PatternHeuristic);
+	}
 }

@@ -29,6 +29,12 @@ public class DynamicPatternHeuristicTest {
 	}
 
 	@Test
+	public void testClone() {
+		DynamicPatternHeuristic copy = heuristic.clone();
+		
+		assertFalse(copy == heuristic);
+	}
+	@Test
 	public void testEvaluate() {
 		if (BOARD_WIDTH == 19) {
 			String[] problem = { 

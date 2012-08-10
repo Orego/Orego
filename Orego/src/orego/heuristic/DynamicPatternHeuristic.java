@@ -99,4 +99,9 @@ public class DynamicPatternHeuristic extends Heuristic {
 	public static void setTestMode(boolean value) {
 		test = value;
 	}
+	
+	@Override
+	public DynamicPatternHeuristic clone() {
+		return (DynamicPatternHeuristic) super.clone();
+	}
 }
