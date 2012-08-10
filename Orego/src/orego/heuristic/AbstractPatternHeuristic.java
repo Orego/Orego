@@ -29,6 +29,8 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 	/**
 	 * Set of 3x3 patterns taken from Gelly et al,
 	 * "Modification of UCT with Patterns in Monte-Carlo Go"
+	 * 
+	 * @see orego.core.Coordinates#NEIGHBORS
 	 */
 	/**
 	 * Used by isPossibleNeighborhood().

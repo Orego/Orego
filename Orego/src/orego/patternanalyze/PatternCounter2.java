@@ -2,6 +2,13 @@ package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
 
+/**
+ * This class looks only at patterns that were actually played.
+ * These are sorted based on the ratio of patterns seen to patterns played.
+ * @author galbraith
+ *
+ */
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -15,15 +22,7 @@ import java.util.StringTokenizer;
 
 import orego.core.Board;
 
-
-/**
- * This class uses all the points on the board when looking for patterns.
- * These are sorted based on the ratio of patterns seen to patterns played.
- * @author galbraith
- *
- */
-
-public class PatternCounter {
+public class PatternCounter2 {
 
 	/**
 	 * The number of total patterns, including impossible ones.
@@ -37,15 +36,13 @@ public class PatternCounter {
 	
 	private static final int PATTERNS_TO_KEEP = 1000;
 	
-	private static final int PATTERN_SEEN = 0;
+	private static final int PATTERN_PLAYED = 0;
 	private static final int MIN_TURN = 1;
 	private static final int MAX_TURN = 2;
 	private static final int TOTAL_TURN = 3;
-	private static final int PATTERN_PLAYED = 4;
 	
 	private static final int SORTED_ARRAY_PATTERN = 0;
-	private static final int SORTED_ARRAY_SEEN = 1;
-	private static final int SORTED_ARRAY_PLAYED = 2;
+	private static final int SORTED_ARRAY_PLAYED = 1;
 	
 	private static final boolean DEBUG = false;
 
@@ -60,10 +57,10 @@ public class PatternCounter {
 	private static String TEST_DIRECTORY = "../../../Test Games/";
 
 	public static void main(String[] args) {
-		new PatternCounter();
+		new PatternCounter2();
 	}
 
-	public PatternCounter() {
+	public PatternCounter2() {
 		try {
 			setUp(TEST_DIRECTORY);
 			int threshold = 1;
@@ -71,30 +68,28 @@ public class PatternCounter {
 				removePatterns(-1, threshold++);
 			}
 			PrintWriter bw = new PrintWriter(new FileWriter(new File(
-					TEST_DIRECTORY + "outputRatio"+PATTERN_LENGTH+".txt")));
+					TEST_DIRECTORY + "outputPlayed"+PATTERN_LENGTH+".txt")));
 			String output = "";
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
-				output = "Seen:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN];
-				output += " Played:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED];
-				output += " Ratio:" +  (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
+				output = "Played:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED];
 				output += " Min Turn:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[MIN_TURN];
 				output += " Max Turn:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[MAX_TURN];
-				output += " Ave Turn:" + (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[TOTAL_TURN] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
+				output += " Ave Turn:" + (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[TOTAL_TURN] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED]));
 				output += " " + DynamicPattern.longToPatternString(pattern[SORTED_ARRAY_PATTERN], PATTERN_LENGTH) + "\n";
 				bw.write(output);
 			}
 			System.out.println("Done.");
 			bw.write(output);
-			System.out.println("Written to file "+TEST_DIRECTORY + "outputRatio"+PATTERN_LENGTH+".txt");
+			System.out.println("Written to file "+TEST_DIRECTORY + "outputPlayed"+PATTERN_LENGTH+".txt");
 			bw.close();
-			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternRatio"+PATTERN_LENGTH+".dat")));
+			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternPlayed"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
 				ow.writeObject(new DynamicPattern(pattern[0], PATTERN_LENGTH));
 			}
 			ow.flush();
 			ow.close();
-			System.out.println("Written to file "+TEST_DIRECTORY + "patternRatio"+PATTERN_LENGTH+".dat");
+			System.out.println("Written to file "+TEST_DIRECTORY + "patternPlayed"+PATTERN_LENGTH+".dat");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -113,17 +108,16 @@ public class PatternCounter {
 		int index = 0; 
 		for(Long pattern : patterns) {
 			sortedArray[index][SORTED_ARRAY_PATTERN] = pattern;
-			sortedArray[index][SORTED_ARRAY_SEEN] = patternSeen.get(pattern)[PATTERN_SEEN];
 			sortedArray[index][SORTED_ARRAY_PLAYED] = patternSeen.get(pattern)[PATTERN_PLAYED];
 			index++;
 		}
 		for (int j = 0; j < sortedArray.length - 1; j++) {
 			int maxindex = j+1;
-			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+			double maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED]);
 			for (int i = j+1; i < sortedArray.length; i++) {
-				if ((sortedArray[i][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[i][SORTED_ARRAY_SEEN])) > maxvalue) {
+				if ((sortedArray[i][SORTED_ARRAY_PLAYED]) > maxvalue) {
 					maxindex = i;
-					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED] / (1.0 * sortedArray[maxindex][SORTED_ARRAY_SEEN]));
+					maxvalue = (sortedArray[maxindex][SORTED_ARRAY_PLAYED]);
 				}
 			}
 			Long[] swapValue = sortedArray[maxindex];
@@ -181,7 +175,7 @@ public class PatternCounter {
 		Object[] keys = patterns.toArray();
 		for(Object key : keys) {
 			Long pattern = (Long)key;
-			if (patternSeen.get(pattern)[PATTERN_SEEN] <= threshold) {
+			if (patternSeen.get(pattern)[PATTERN_PLAYED] <= threshold) {
 				patternSeen.remove(pattern);
 				removed++;
 				if (removed >= toRemove && toRemove != -1){
@@ -229,36 +223,30 @@ public class PatternCounter {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-					for (int p : ALL_POINTS_ON_BOARD) {
-						DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
-						boolean foundPattern = false;
-						for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
-							if (patternSeen.containsKey(pattern.getPattern()[i])) {
-								foundPattern = true;
-								Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-								patternData[PATTERN_SEEN] += 1;
-								if (currentTurn < patternData[MIN_TURN]) {
-									patternData[MIN_TURN] = (long)currentTurn;
-								}
-								if (currentTurn > patternData[MAX_TURN]) {
-									patternData[MAX_TURN] = (long)currentTurn;
-								}
-								patternData[TOTAL_TURN] += currentTurn;
-								if (p == currentPlay) {
-									patternData[PATTERN_PLAYED]++;
-								}
-								patternSeen.put(pattern.getPattern()[i], patternData);
+					DynamicPattern pattern = new DynamicPattern(lastPlay, patternBoard, PATTERN_LENGTH);
+					boolean foundPattern = false;
+					for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
+						if (patternSeen.containsKey(pattern.getPattern()[i])) {
+							foundPattern = true;
+							Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
+							patternData[PATTERN_PLAYED] += 1;
+							if (currentTurn < patternData[MIN_TURN]) {
+								patternData[MIN_TURN] = (long)currentTurn;
 							}
+							if (currentTurn > patternData[MAX_TURN]) {
+								patternData[MAX_TURN] = (long)currentTurn;
+							}
+							patternData[TOTAL_TURN] += currentTurn;
+							patternSeen.put(pattern.getPattern()[i], patternData);
 						}
-						if (!foundPattern) {
-							Long[] patternData = new Long[5];
-							patternData[PATTERN_SEEN] = (long)1;
-							patternData[MIN_TURN] = (long)currentTurn;
-							patternData[MAX_TURN] = (long)currentTurn;
-							patternData[TOTAL_TURN] = (long)currentTurn;
-							patternData[PATTERN_PLAYED] = (p == currentPlay) ? 1L: 0L;
-							patternSeen.put(pattern.getPattern()[0], patternData);
-						}
+					}
+					if (!foundPattern) {
+						Long[] patternData = new Long[5];
+						patternData[PATTERN_PLAYED] = (long)1;
+						patternData[MIN_TURN] = (long)currentTurn;
+						patternData[MAX_TURN] = (long)currentTurn;
+						patternData[TOTAL_TURN] = (long)currentTurn;
+						patternSeen.put(pattern.getPattern()[0], patternData);
 					}
 				}
 				currentTurn++;

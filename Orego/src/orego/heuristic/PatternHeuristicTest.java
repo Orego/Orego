@@ -443,8 +443,38 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d3")));
+			assertTrue(heuristic.isBad(at("d3"), board));
 	}
+
+		@Test
+		public void testPonnuki2Black() {
+				String[] problem = { 
+						"...................",// 19
+						"...................",// 18
+						"...................",// 17
+						"...................",// 16
+						"...................",// 15
+						"...................",// 14
+						"...................",// 13
+						"...................",// 12
+						"...................",// 11
+						"...................",// 10
+						"...................",// 9
+						"...................",// 8
+						"...................",// 7
+						".O.................",// 6
+						".O.##..............",// 5
+						"..OO#..............",// 4
+						"....O..............",// 3
+						"...O...............",// 2
+						"..................."// 1
+				// 		 ABCDEFGHJKLMNOPQRST
+				};
+				board.setUpProblem(BLACK, problem);
+				heuristic.prepare(board);
+				assertTrue(heuristic.isBad(at("d3"), board));
+		}
+		
 	
 	@Test
 	public void testPonnukiWhite() {
@@ -472,7 +502,7 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d3")));
+			assertTrue(heuristic.isBad(at("d3"), board));
 	}
 
 	
@@ -502,8 +532,8 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(BLACK, problem);
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d15")));
-			assertTrue(heuristic.getBadMoves().contains(at("b15")));
+			assertTrue(heuristic.isBad(at("d15"), board));
+			assertTrue(heuristic.isBad(at("b15"), board));
 	}
 	
 	@Test
@@ -532,8 +562,8 @@ public class PatternHeuristicTest {
 			};
 			board.setUpProblem(WHITE, problem);
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d15")));
-			assertTrue(heuristic.getBadMoves().contains(at("b15")));
+			assertTrue(heuristic.isBad(at("d15"), board));
+			assertTrue(heuristic.isBad(at("b15"), board));
 	}
 	
 	@Test
@@ -563,8 +593,8 @@ public class PatternHeuristicTest {
 			board.setUpProblem(WHITE, problem);
 			board.play("e16");
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d17")));
-			assertTrue(heuristic.getBadMoves().contains(at("d15")));
+			assertTrue(heuristic.isBad(at("d17"), board));
+			assertTrue(heuristic.isBad(at("d15"), board));
 	}
 	
 	@Test
@@ -594,8 +624,8 @@ public class PatternHeuristicTest {
 			board.setUpProblem(BLACK, problem);
 			board.play("e16");
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d17")));
-			assertTrue(heuristic.getBadMoves().contains(at("d15")));
+			assertTrue(heuristic.isBad(at("d17"), board));
+			assertTrue(heuristic.isBad(at("d15"), board));
 
 	}
 	
@@ -627,8 +657,8 @@ public class PatternHeuristicTest {
 			board.setUpProblem(WHITE, problem);
 			board.play("c15");
 			heuristic.prepare(board);
-			assertTrue(heuristic.getBadMoves().contains(at("d15")));
-			assertTrue(heuristic.getBadMoves().contains(at("d16")));
+			assertTrue(heuristic.isBad(at("d15"), board));
+			assertTrue(heuristic.isBad(at("d16"), board));
 
 	}
 		
@@ -659,8 +689,8 @@ public class PatternHeuristicTest {
 				board.setUpProblem(BLACK, problem);
 				board.play("c15");
 				heuristic.prepare(board);
-				assertTrue(heuristic.getBadMoves().contains(at("d15")));
-				assertTrue(heuristic.getBadMoves().contains(at("d16")));
+				assertTrue(heuristic.isBad(at("d15"), board));
+				assertTrue(heuristic.isBad(at("d16"), board));
 	}
 	
 	@Test
@@ -670,4 +700,34 @@ public class PatternHeuristicTest {
 		assertNotSame(heuristic, copy);
 		assertTrue(copy instanceof PatternHeuristic);
 	}
+		@Test
+		public void testPushThroughBambooWhiteFarFromLastMove() {
+				String[] problem = { 
+						"...................",// 19
+						"...................",// 18
+						"...................",// 17
+						"..#.#..............",// 16
+						"..#.#..............",// 15
+						"..#O...............",// 14
+						"...................",// 13
+						"...................",// 12
+						"...................",// 11
+						"...................",// 10
+						"...................",// 9
+						"...................",// 8
+						"...................",// 7
+						"...................",// 6
+						"...................",// 5
+						"...................",// 4
+						"...................",// 3
+						"...................",// 2
+						"..................."// 1
+				// 		 ABCDEFGHJKLMNOPQRST
+				};
+				board.setUpProblem(BLACK, problem);
+				board.play("a1");
+				heuristic.prepare(board);
+				assertTrue(heuristic.isBad(at("d15"), board));
+	}
+		
 }

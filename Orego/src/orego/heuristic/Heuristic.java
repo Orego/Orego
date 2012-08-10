@@ -1,8 +1,6 @@
 package orego.heuristic;
 
-import java.lang.reflect.Constructor;
 
-import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
 import orego.util.*;
@@ -31,7 +29,6 @@ public abstract class Heuristic implements Cloneable {
 		return goodMoves;
 	}
 
-
 	protected void setGoodMoves(IntSet goodMoves) {
 		this.goodMoves = goodMoves;
 	}
@@ -41,7 +38,13 @@ public abstract class Heuristic implements Cloneable {
 		return badMoves;
 	}
 
-
+	// TODO Does it make sense for the heuristic to be attached to a board when
+	// it is created? Would this make cloning a HeuristicList more complicated?
+	/** Returns true if this heuristic considers p to be a bad move. By default, this simply looks for p in the set of bad moves, but some heuristics do it differently. */
+	public boolean isBad(int p, Board board) {
+		return badMoves.contains(p);
+	}
+	
 	protected void setBadMoves(IntSet badMoves) {
 		this.badMoves = badMoves;
 	}

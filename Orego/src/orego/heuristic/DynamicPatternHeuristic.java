@@ -23,10 +23,10 @@ public class DynamicPatternHeuristic extends Heuristic {
 	
 	static {
 		patternList = new HashMap<Long, DynamicPattern>();
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", patternList);
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern12.dat", patternList);
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern20.dat", patternList);
-		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern24.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed12.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed20.dat", patternList);
+		extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed24.dat", patternList);
 	}
 	
 	public DynamicPatternHeuristic(int weight) {

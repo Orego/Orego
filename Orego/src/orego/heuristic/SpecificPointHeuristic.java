@@ -8,22 +8,23 @@ import orego.play.UnknownPropertyException;
 /** Recommands a given point. For unit testing. */
 public class SpecificPointHeuristic extends Heuristic {
 
-	private int specificPoint = Coordinates.NO_POINT;
+	private int specificPoint = at("c5");
 	
 	public SpecificPointHeuristic(int weight) {
 		super(weight);
-		recommend(at("c5"));
+		recommend(specificPoint);
 	}
 
 	@Override
 	public void prepare(Board board) {
-		// Does nothing
+		// Force do nothing
 	}
 	
 	@Override
 	public void setProperty(String name, String value) throws UnknownPropertyException {
 		if (name.equals("specificPoint")) {
 			specificPoint = Integer.parseInt(value);
+			recommend(specificPoint);
 		} else {
 			super.setProperty(name, value);
 		}

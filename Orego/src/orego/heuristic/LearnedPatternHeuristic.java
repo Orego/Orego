@@ -63,7 +63,6 @@ public class LearnedPatternHeuristic extends Heuristic {
 		BAD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", BLACK, false);
 		BAD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", WHITE, false);	
 		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
-			GOOD_PATTERN_LIST_BLACK[0].matches((char) i);
 			if (!isPossibleNeighborhood((char) i)) {
 				continue;
 			}
@@ -175,8 +174,6 @@ public class LearnedPatternHeuristic extends Heuristic {
 			diagramToNeighborhood("***\n. *\n..*"),
 			diagramToNeighborhood("*..\n* .\n***"),
 			diagramToNeighborhood("..*\n. *\n***") };
-
-	
 
 	public static final int evaluateMove(int color, char neighborhood) {
 		if(GOOD_NEIGHBORHOODS[color].get(neighborhood)) {

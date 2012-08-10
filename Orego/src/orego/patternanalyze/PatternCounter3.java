@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
@@ -23,7 +24,7 @@ import orego.core.Board;
  *
  */
 
-public class PatternCounter {
+public class PatternCounter3 {
 
 	/**
 	 * The number of total patterns, including impossible ones.
@@ -60,10 +61,10 @@ public class PatternCounter {
 	private static String TEST_DIRECTORY = "../../../Test Games/";
 
 	public static void main(String[] args) {
-		new PatternCounter();
+		new PatternCounter3();
 	}
 
-	public PatternCounter() {
+	public PatternCounter3() {
 		try {
 			setUp(TEST_DIRECTORY);
 			int threshold = 1;
@@ -225,6 +226,8 @@ public class PatternCounter {
 			int currentTurn = 0;
 			Board patternBoard = new Board();
 			patternBoard.play(board.getMove(0));
+			ArrayList<Long> patternSeenInGame = new ArrayList<Long>();
+			ArrayList<Long> patternPlayedInGame = new ArrayList<Long>();
 			while (currentTurn <= turn) {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
@@ -236,7 +239,10 @@ public class PatternCounter {
 							if (patternSeen.containsKey(pattern.getPattern()[i])) {
 								foundPattern = true;
 								Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-								patternData[PATTERN_SEEN] += 1;
+								if (!patternSeenInGame.contains(pattern.getPattern()[i])) {
+									patternData[PATTERN_SEEN] += 1;
+									patternSeenInGame.add(pattern.getPattern()[i]);
+								}
 								if (currentTurn < patternData[MIN_TURN]) {
 									patternData[MIN_TURN] = (long)currentTurn;
 								}
@@ -244,20 +250,27 @@ public class PatternCounter {
 									patternData[MAX_TURN] = (long)currentTurn;
 								}
 								patternData[TOTAL_TURN] += currentTurn;
-								if (p == currentPlay) {
-									patternData[PATTERN_PLAYED]++;
-								}
 								patternSeen.put(pattern.getPattern()[i], patternData);
+							}
+							if (patternSeen.containsKey(pattern.getPattern()[i]) && (p == currentPlay) &&
+									(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
+								patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
+								patternPlayedInGame.add(pattern.getPattern()[i]);
 							}
 						}
 						if (!foundPattern) {
 							Long[] patternData = new Long[5];
 							patternData[PATTERN_SEEN] = (long)1;
+							patternSeenInGame.add(pattern.getPattern()[0]);
 							patternData[MIN_TURN] = (long)currentTurn;
 							patternData[MAX_TURN] = (long)currentTurn;
 							patternData[TOTAL_TURN] = (long)currentTurn;
-							patternData[PATTERN_PLAYED] = (p == currentPlay) ? 1L: 0L;
+							patternData[PATTERN_PLAYED] = 0L;
 							patternSeen.put(pattern.getPattern()[0], patternData);
+							if ((p == currentPlay) && (!patternPlayedInGame.contains(pattern.getPattern()[0]))) {
+								patternSeen.get(pattern.getPattern()[0])[PATTERN_PLAYED]++;
+								patternPlayedInGame.add(pattern.getPattern()[0]);
+							}
 						}
 					}
 				}
