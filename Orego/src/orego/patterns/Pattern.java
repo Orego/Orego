@@ -85,6 +85,18 @@ public abstract class Pattern {
 		return result;
 	}
 	
+	public static String arrayToString(int[] p){
+		String result;
+		result= orego.core.Colors.colorToString(p[4]);
+		result +=orego.core.Colors.colorToString(p[0]);
+		result +=orego.core.Colors.colorToString(p[5]);
+		result +=orego.core.Colors.colorToString(p[1]);
+		result +=orego.core.Colors.colorToString(p[2]);
+		result +=orego.core.Colors.colorToString(p[6]);
+		result +=orego.core.Colors.colorToString(p[3]);
+		result +=orego.core.Colors.colorToString(p[7]);
+		return result;
+	}
 	/**
 	 * Takes an char representation of a neighborhood and changes it to be represented as a int array
 	 */

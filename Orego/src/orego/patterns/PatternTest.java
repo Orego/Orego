@@ -34,6 +34,14 @@ public class PatternTest {
 	public void testPatternPrinter() {
 		pattern.patternPrinter();
 	}
+	
+	@Test
+	public void testArrayToString(){
+				int[] n = Pattern.neighborhoodToArray((char)20);
+			String string = neighborhoodToDiagram(arrayToNeighborhood(n));
+			assertEquals("###\nO O\n###", string);
+			assertEquals("###OO###", arrayToString(n));
+	}
 
 	@Test
 	public void testArrayToNeighborhood() {
