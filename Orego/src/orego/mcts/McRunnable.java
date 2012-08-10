@@ -81,6 +81,10 @@ public class McRunnable implements Runnable {
 		return hashes;
 	}
 
+	protected HeuristicList getHeuristics() {
+		return heuristics;
+	}
+
 	/** Returns the move made at turn t, or NO_POINT if t < 0. */
 	public int getMove(int t) {
 		return board.getMove(t);
@@ -195,10 +199,12 @@ public class McRunnable implements Runnable {
 				int p = good.get(i);
 				node.addWins(p, h.getWeight());
 			}
-			IntSet bad = h.getBadMoves();
-			for (int i = 0; i < bad.size(); i++) {
-				int p = bad.get(i);
-				node.addLosses(p, h.getWeight());
+			IntSet vacant = board.getVacantPoints();
+			for (int i = 0; i < vacant.size(); i++) {
+				int p = vacant.get(i);
+				if (h.isBad(p, board)) {
+					node.addLosses(p, h.getWeight());
+				}
 			}
 		}
 	}

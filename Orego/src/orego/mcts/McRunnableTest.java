@@ -4,6 +4,9 @@ import static orego.core.Colors.*;
 import static orego.core.Board.*;
 import static orego.core.Coordinates.*;
 import static org.junit.Assert.*;
+import orego.core.Board;
+import orego.heuristic.HeuristicList;
+import orego.heuristic.PatternHeuristic;
 import orego.play.ThreadedPlayer;
 import orego.play.UnknownPropertyException;
 
@@ -93,6 +96,44 @@ public class McRunnableTest {
 			}
 			assertEquals(10000, runnable.getPlayoutsCompleted());
 		}
+	}
+
+	@Test
+	public void testUpdatePriors() {
+		player.setHeuristics(new HeuristicList("Pattern@5"));
+		player.reset();
+		runnable = (McRunnable)(player.getRunnable(0));
+		assertTrue(runnable.getHeuristics().getHeuristics()[0] instanceof PatternHeuristic);
+		String[] problem = { 
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"..#.#..............",// 16
+				"..#.#..............",// 15
+				"..#O...............",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................."// 1
+		// 		 ABCDEFGHJKLMNOPQRST
+		};
+		Board board = runnable.getBoard();
+		board.setUpProblem(BLACK, problem);
+		board.play("a1");
+		SearchNode node = new SearchNode();
+		node.reset(board.getHash());
+		runnable.updatePriors(node, board);
+		assertEquals(1, node.getWins(at("d15")));
+		assertEquals(7, node.getRuns(at("d15")));
 	}
 
 }

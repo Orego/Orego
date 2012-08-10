@@ -23,11 +23,17 @@ public class PatternHeuristic extends AbstractPatternHeuristic {
 				if(GOOD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
 					recommend(p);
 				}
-				if(BAD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
-					discourage(p); 
-				}
 			}
 		}
+	}
+	
+	@Override
+	public PatternHeuristic clone() {
+		return (PatternHeuristic) super.clone();
+	}
+	
+	public boolean isBad(int p, Board board) {
+		return BAD_NEIGHBORHOODS[board.getColorToPlay()].get(board.getNeighborhood(p));
 	}
 
 }

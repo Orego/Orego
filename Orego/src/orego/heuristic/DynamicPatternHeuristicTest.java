@@ -28,6 +28,7 @@ public class DynamicPatternHeuristicTest {
 		random = new MersenneTwisterFast();
 	}
 
+
 //	@Test
 //	public void testEvaluate() {
 //		if (BOARD_WIDTH == 19) {

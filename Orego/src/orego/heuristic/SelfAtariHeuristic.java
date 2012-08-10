@@ -24,5 +24,10 @@ public class SelfAtariHeuristic extends Heuristic {
 			}
 		}
 	}
+	
+	@Override
+	public SelfAtariHeuristic clone() {
+		return (SelfAtariHeuristic) super.clone();
+	}
 
 }

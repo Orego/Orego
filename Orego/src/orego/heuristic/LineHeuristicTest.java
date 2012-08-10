@@ -25,5 +25,12 @@ public class LineHeuristicTest {
 		assertTrue(heuristic.getBadMoves().contains(at("c2")));
 		assertFalse(heuristic.getBadMoves().contains(at("c3")));
 	}
+	
+	@Test
+	public void testClone() {
+		LineHeuristic copy = heuristic.clone();
+		
+		assertNotSame(heuristic, copy);
+	}
 
 }

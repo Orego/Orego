@@ -67,12 +67,7 @@ public class HeuristicList implements Cloneable {
 			// loop through heuristics and create *new* instances of each
 			// underlying subclass
 			for (int i = 0; i < heuristics.length; i++) {
-				Heuristic heur = heuristics[i];
-				Constructor<?> constructor = heur.getClass().getConstructor(
-						Integer.TYPE);
-				Heuristic copy = (Heuristic) constructor.newInstance(heur
-						.getWeight());
-				copied.getHeuristics()[i] = copy;
+				copied.getHeuristics()[i] = heuristics[i].clone();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -171,7 +166,6 @@ public class HeuristicList implements Cloneable {
 	 * one of those moves randomly.
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
-		badMoves.clear();
 		// Try to get good moves from heuristics
 		for (Heuristic h : heuristics) {
 			h.prepare(board);
@@ -189,21 +183,26 @@ public class HeuristicList implements Cloneable {
 					i = (i + 457) % good.size();
 				} while (i != start);
 			}
-			// Nothing found -- remember the bad moves
-			IntSet bad = h.getBadMoves();
-			for (int i = 0; i < bad.size(); i++) {
-				badMoves.add(bad.get(i));
-			}
 		}
 		// Try to play a random move avoiding the bad moves
+		badMoves.clear();
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
 		do {
 			int p = vacantPoints.get(i);
-			if ((board.getColor(p) == VACANT) && !badMoves.contains(p) && (board.isFeasible(p))
-					&& (board.playFast(p) == PLAY_OK)) {
-				return p;
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+				boolean bad = false;
+				for (Heuristic h : heuristics) {
+					if (h.isBad(p, board)) {
+						bad = true;
+						badMoves.add(p);
+						break;
+					}
+				}
+				if (!bad && (board.playFast(p) == PLAY_OK)) {
+					return p;
+				}
 			}
 			// Advancing by 457 skips "randomly" through the array,
 			// in a manner analogous to double hashing.
@@ -244,7 +243,7 @@ public class HeuristicList implements Cloneable {
 			// skip the 'heuristic.' prefix
 			parser.nextToken(".");
 			String heuristicName = parser.nextToken(".");
-			String heuristicProperty = parser.nextToken(" ");
+			String heuristicProperty = parser.nextToken();
 			// strip the prefix '.' off
 			heuristicProperty = heuristicProperty.replace(".", "");
 			// now we find the heuristic matching the heuristic name (we loop

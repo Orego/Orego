@@ -23,6 +23,22 @@ public class EscapeHeuristic extends Heuristic {
 		targets = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
+	public void setFriends(IntSet friends) {
+		this.friends = friends;
+	}
+	
+	public void setTargets(IntSet targets) {
+		this.targets = targets;
+	}
+	
+	public IntSet getFriends() {
+		return friends;
+	}
+	
+	public IntSet getTargets() {
+		return targets;
+	}
+	
 	/** Recommends moves that capture adjacent enemies of chain. */
 	protected void escapeByCapturing(int chain, int enemyColor,
 			Board board) {
@@ -80,5 +96,16 @@ public class EscapeHeuristic extends Heuristic {
 			}
 		}
 	}
-
+	
+	@Override
+	public EscapeHeuristic clone() {
+		EscapeHeuristic copy = (EscapeHeuristic) super.clone();
+		
+		copy.setFriends(new IntSet(FIRST_POINT_BEYOND_BOARD));
+		copy.setTargets(new IntSet(FIRST_POINT_BEYOND_BOARD));
+		
+		return copy;
+		
+	}
+	
 }

@@ -20,4 +20,8 @@ public class CaptureHeuristic extends Heuristic {
 		}
 	}
 
+	@Override
+	public CaptureHeuristic clone() {
+		return (CaptureHeuristic)super.clone();
+	}
 }

@@ -27,5 +27,10 @@ public class LineHeuristic extends Heuristic {
 		// Does nothing
 		// Specifically, does not call super.prepare(), which would clear badMoves
 	}
+	
+	@Override
+	public LineHeuristic clone() {
+		return (LineHeuristic)super.clone();
+	}
 
 }

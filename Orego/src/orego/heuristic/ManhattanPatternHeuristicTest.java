@@ -86,6 +86,10 @@ public class ManhattanPatternHeuristicTest {
 			assertTrue(heuristic.getGoodMoves().contains(at("d15")));
 	}
 
-
+	@Test
+	public void testBeginningOfGame() {
+		// The heuristic should not crashed when asked for a move at the beginning of the game
+		heuristic.prepare(board);
+	}
 
 }
