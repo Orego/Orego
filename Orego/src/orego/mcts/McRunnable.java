@@ -195,6 +195,7 @@ public class McRunnable implements Runnable {
 				int p = good.get(i);
 				node.addWins(p, h.getWeight());
 			}
+			// TODO This won't find bad moves from PatternHeuristic -- is it worth scanning for them?
 			IntSet bad = h.getBadMoves();
 			for (int i = 0; i < bad.size(); i++) {
 				int p = bad.get(i);

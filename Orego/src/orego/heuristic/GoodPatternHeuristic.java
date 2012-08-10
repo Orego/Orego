@@ -4,9 +4,9 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.*;
 import orego.core.*;
 
-public class PatternHeuristic extends AbstractPatternHeuristic {
+public class GoodPatternHeuristic extends AbstractPatternHeuristic {
 	
-	public PatternHeuristic(int weight) {
+	public GoodPatternHeuristic(int weight) {
 		super(weight);
 	}
 	
@@ -25,11 +25,6 @@ public class PatternHeuristic extends AbstractPatternHeuristic {
 				}
 			}
 		}
-	}
-	
-	@Override
-	public boolean isBad(int p, Board board) {
-		return BAD_NEIGHBORHOODS[board.getColorToPlay()].get(board.getNeighborhood(p));
 	}
 
 }

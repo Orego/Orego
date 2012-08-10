@@ -445,6 +445,36 @@ public class PatternHeuristicTest {
 			heuristic.prepare(board);
 			assertTrue(heuristic.getBadMoves().contains(at("d3")));
 	}
+
+		@Test
+		public void testPonnuki2Black() {
+				String[] problem = { 
+						"...................",// 19
+						"...................",// 18
+						"...................",// 17
+						"...................",// 16
+						"...................",// 15
+						"...................",// 14
+						"...................",// 13
+						"...................",// 12
+						"...................",// 11
+						"...................",// 10
+						"...................",// 9
+						"...................",// 8
+						"...................",// 7
+						".O.................",// 6
+						".O.##..............",// 5
+						"..OO#..............",// 4
+						"....O..............",// 3
+						"...O...............",// 2
+						"..................."// 1
+				// 		 ABCDEFGHJKLMNOPQRST
+				};
+				board.setUpProblem(BLACK, problem);
+				heuristic.prepare(board);
+				assertTrue(heuristic.getBadMoves().contains(at("d3")));
+		}
+		
 	
 	@Test
 	public void testPonnukiWhite() {
@@ -663,4 +693,34 @@ public class PatternHeuristicTest {
 				assertTrue(heuristic.getBadMoves().contains(at("d16")));
 	}
 	
+		@Test
+		public void testPushThroughBambooWhiteFarFromLastMove() {
+				String[] problem = { 
+						"...................",// 19
+						"...................",// 18
+						"...................",// 17
+						"..#.#..............",// 16
+						"..#.#..............",// 15
+						"..#O...............",// 14
+						"...................",// 13
+						"...................",// 12
+						"...................",// 11
+						"...................",// 10
+						"...................",// 9
+						"...................",// 8
+						"...................",// 7
+						"...................",// 6
+						"...................",// 5
+						"...................",// 4
+						"...................",// 3
+						"...................",// 2
+						"..................."// 1
+				// 		 ABCDEFGHJKLMNOPQRST
+				};
+				board.setUpProblem(BLACK, problem);
+				board.play("a1");
+				heuristic.prepare(board);
+				assertTrue(heuristic.isBad(at("d15"), board));
+	}
+		
 }
