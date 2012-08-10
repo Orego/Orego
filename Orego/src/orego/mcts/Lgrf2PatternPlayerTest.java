@@ -122,7 +122,8 @@ public class Lgrf2PatternPlayerTest {
 	public void testPatternFinding() {
 		if (BOARD_WIDTH == 19) {
 			player.reset();
-			String[] diagram = { ".O.................",// 19
+			String[] diagram = {
+					".O.................",// 19
 					"O.O..O.O..#........",// 18
 					"......#...#........",// 17
 					".#OO...............",// 16
@@ -145,11 +146,10 @@ public class Lgrf2PatternPlayerTest {
 			};
 			player.setUpProblem(WHITE, diagram);
 			player.acceptMove(at("b3"));
-
 			assertEquals(2.0 / 3, player.getRoot().getWinRate(at("g18")), .001);
 			assertEquals(2.0 / 3, player.getRoot().getWinRate(at("c15")), .001);
-			assertEquals(1.0 / 3, player.getRoot().getWinRate(at("b18")), .001);
-			assertEquals(1.0 / 3, player.getRoot().getWinRate(at("m18")), .001);
+			assertEquals(1.0 / 4, player.getRoot().getWinRate(at("b18")), .001);
+			assertEquals(1.0 / 4, player.getRoot().getWinRate(at("m18")), .001);
 		}
 	}
 
