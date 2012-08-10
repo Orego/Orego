@@ -1,6 +1,11 @@
 package orego.patterns;
 
 import static orego.core.Colors.*;
+import static orego.core.Coordinates.NEIGHBORS;
+import static orego.core.Coordinates.ON_BOARD;
+import static orego.heuristic.AbstractPatternHeuristic.isPossibleNeighborhood;
+import static orego.patterns.Pattern.diagramToNeighborhood;
+import orego.core.Board;
 
 /**
  * A pattern for matching 3x3 neighborhoods on the board. Note that a
@@ -69,7 +74,27 @@ public abstract class Pattern {
 	public Pattern() {
 		colors = new int[8];
 	}
-
+	/**
+	 * Takes an int array representation of a neighborhood and changes it to be represented as a char
+	 */
+	public static char arrayToNeighborhood(int[] p) {
+		char result = 0;
+		for (int i = 0; i < 8; i++) {
+			result = (char) ((result >>> 2) | (p[i] << 14));
+		}
+		return result;
+	}
+	
+	/**
+	 * Takes an char representation of a neighborhood and changes it to be represented as a int array
+	 */
+	public static int[] neighborhoodToArray(char p) {
+		int[] result = new int[8];
+		for (int i = 0; i < 8; i++) {
+			result[i] = ((p >>> 2*i) & 3);
+		}
+		return result;
+	}
 	/**
 	 * Returns true if color is one of the choices specified by desired. For
 	 * example, both VACANT and BLACK count as NOT_WHITE.
@@ -225,6 +250,37 @@ public abstract class Pattern {
 				assert false : "Unknown color in template: " + s.charAt(i);
 			}
 		}
+	}
+	
+	public void patternPrinter(){
+		int count = 0;
+		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
+			if(isSmallest((char)p) && isPossibleNeighborhood((char)p)){
+				System.out.println(count);
+				System.out.println(neighborhoodToDiagram((char)p));
+				count++;
+			}
+		}
+	}
+
+	public boolean isSmallest(char p) {
+		char q;
+		for (char rotation = 0; rotation < 4; rotation++) {
+			for (char reflection = 0; reflection < 2; reflection++) {
+				int[] a = neighborhoodToArray(p);
+				for (int i = 0; i < rotation; i++) {
+					a = rotate90(a);
+				}
+				for (int i = 0; i < reflection; i++) {
+					a = reflect(a);
+				}
+				q= arrayToNeighborhood(a);
+				if(q<p){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 }
