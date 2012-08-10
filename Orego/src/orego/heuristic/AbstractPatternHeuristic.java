@@ -27,12 +27,6 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 	
 	/**
-	 * Set of 3x3 patterns taken from Gelly et al,
-	 * "Modification of UCT with Patterns in Monte-Carlo Go"
-	 * 
-	 * @see orego.core.Coordinates#NEIGHBORS
-	 */
-	/**
 	 * Used by isPossibleNeighborhood().
 	 */
 	public static final char[] VALID_OFF_BOARD_PATTERNS = {
@@ -46,48 +40,49 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 				diagramToNeighborhood("*..\n* .\n***"),
 				diagramToNeighborhood("..*\n. *\n***") };
 
+	/**
+	 * Set of 3x3 patterns taken from Gelly et al,
+	 * "Modification of UCT with Patterns in Monte-Carlo Go"
+	 * 
+	 * @see orego.core.Coordinates#NEIGHBORS
+	 */
 	static {
-		Pattern[] BLACK_GOOD_PATTERNS = {
-				// BLACK SPECIFIC PATTERNS
-				new ColorSpecificPattern("O...#O??", BLACK), // Hane4
-				new ColorSpecificPattern("#??*?O**", BLACK), // Edge3
-				new ColorSpecificPattern("O?+*?#**", BLACK), // Edge4
-				new ColorSpecificPattern("O#O*?#**", BLACK) // Edge5
+		String[] colorSpecificPatterns = {
+				"O...#O??", // Hane4
+				"#??*?O**", // Edge3
+				"O?+*?#**", // Edge4
+				"O#O*?#**", // Edge5	
 		};
-		
-		Pattern[] WHITE_GOOD_PATTERNS = {
-				// WHITE SPECIFIC PATTERNS
-				new ColorSpecificPattern("O...#O??", WHITE), // Hane4
-				new ColorSpecificPattern("#??*?O**", WHITE), // Edge3
-				new ColorSpecificPattern("O?+*?#**", WHITE), // Edge4
-				new ColorSpecificPattern("O#O*?#**", WHITE) // Edge5	
+		Pattern[] BLACK_GOOD_PATTERNS = new Pattern[colorSpecificPatterns.length];
+		Pattern[] WHITE_GOOD_PATTERNS = new Pattern[colorSpecificPatterns.length];
+		for (int i = 0; i < BLACK_GOOD_PATTERNS.length; i++) {
+			BLACK_GOOD_PATTERNS[i] = new ColorSpecificPattern(colorSpecificPatterns[i], BLACK);
+			WHITE_GOOD_PATTERNS[i] = new ColorSpecificPattern(colorSpecificPatterns[i], WHITE);
+		}
+		String[] colorIndependentPatterns = {
+				"O..?##??", // Hane1
+				"O...#.??", // Hane2
+				"O#..#???", // Hane3
+				"#OO+??++", // Cut2
+				".O?*#?**", // Edge1
+				"#oO*??**", // Edge2				
 		};
-		
-		Pattern[] INDEPENDENT_GOOD_PATTERNS = {
-			// Color independent patterns
-			new SimplePattern("O..?##??"), // Hane1
-			new SimplePattern("O...#.??"), // Hane2
-			new SimplePattern("O#..#???"), // Hane3
-			new Cut1Pattern(), // Cut1
-			new SimplePattern("#OO+??++"), // Cut2
-			new SimplePattern(".O?*#?**"), // Edge1
-			new SimplePattern("#oO*??**") // Edge2
+		Pattern[] INDEPENDENT_GOOD_PATTERNS = new Pattern[colorIndependentPatterns.length + 1];			
+		for (int i = 0; i < colorIndependentPatterns.length; i++) {
+			INDEPENDENT_GOOD_PATTERNS[i] = new SimplePattern(colorIndependentPatterns[i]);
+		}
+		INDEPENDENT_GOOD_PATTERNS[INDEPENDENT_GOOD_PATTERNS.length - 1] = new Cut1Pattern();
+		String[] badPatterns = {
+				"O.OO?oo?", // Tiger's mouth 
+				".#..#.?.", // Empty triangle
+				".OO?OO??", // Push through bamboo
 		};
-		
-		Pattern[] BLACK_BAD_PATTERNS = {
-				// BLACK SPECIFIC PATTERNS
-				new ColorSpecificPattern("O.OO?oo?", BLACK), // Ponnuki 
-				new ColorSpecificPattern(".#..#.?.", BLACK), // Empty Triangle
-				new ColorSpecificPattern(".OO?OO??", BLACK) // Push through bamboo
-		};
-		
-		Pattern[] WHITE_BAD_PATTERNS = {
-				// WHITE SPECIFIC PATTERNS
-				new ColorSpecificPattern("O.OO?oo?", WHITE), // Ponnuki 
-				new ColorSpecificPattern(".#..#.?.", WHITE), // Empty Triangle
-				new ColorSpecificPattern(".OO?OO??", WHITE) // Push through bamboo
-		};
-		
+		Pattern[] BLACK_BAD_PATTERNS = new Pattern[badPatterns.length];
+		Pattern[] WHITE_BAD_PATTERNS = new Pattern[badPatterns.length];
+		for (int i = 0; i < BLACK_BAD_PATTERNS.length; i++) {
+			BLACK_BAD_PATTERNS[i] = new ColorSpecificPattern(badPatterns[i], BLACK);
+			WHITE_BAD_PATTERNS[i] = new ColorSpecificPattern(badPatterns[i], WHITE);
+		}
 		// Find all good neighborhoods, i.e., neighborhoods where a player
 		// should play.
 		// Note that i has to be an int, rather than a char, because
@@ -102,32 +97,27 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
 				}
 			}
-			
 			for (Pattern pattern : WHITE_GOOD_PATTERNS) {
 				if (pattern.matches((char) i)) {
 					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
-			
 			for (Pattern pattern : INDEPENDENT_GOOD_PATTERNS) {
 				if (pattern.matches((char) i)) {
 					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
 					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
-			
 			for (Pattern pattern : BLACK_BAD_PATTERNS) {
 				if (pattern.matches((char) i)) {
 					BAD_NEIGHBORHOODS[BLACK].set(i, true);
 				}
 			}
-			
 			for (Pattern pattern : WHITE_BAD_PATTERNS) {
 				if (pattern.matches((char) i)) {
 					BAD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
-			}
-			
+			}	
 		}
 	}
 
