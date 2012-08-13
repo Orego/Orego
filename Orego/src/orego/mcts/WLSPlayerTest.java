@@ -1,13 +1,12 @@
 package orego.mcts;
 
 import static orego.core.Colors.BLACK;
-import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static orego.mcts.MctsPlayerTest.TABLE_SIZE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -109,6 +108,24 @@ public class WLSPlayerTest {
 		}
 	}
 
+	@Test
+	public void testSetMaxIllegalityCap() throws Exception {
+		assertEquals(5, WLSPlayer.MAX_ILLEGALITY_CAP);
+		
+		player.setProperty("maxIllegalityThreshold", "6");
+		
+		assertEquals(6, WLSPlayer.MAX_ILLEGALITY_CAP);
+	}
+	
+	@Test
+	public void testSetMinWLSThreshold() throws Exception {
+		assertEquals(.55, WLSPlayer.MIN_WLS_THRESHOLD, .000001);
+		
+		player.setProperty("minWlsThreshold", ".634");
+		
+		assertEquals(.634, WLSPlayer.MIN_WLS_THRESHOLD, .000001);
+	}
+	
 	@Test
 	public void testResizeTopResponseList() throws Exception {
 		// pick a random response list

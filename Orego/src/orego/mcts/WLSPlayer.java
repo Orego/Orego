@@ -1,12 +1,10 @@
 package orego.mcts;
 
 import static orego.core.Colors.BLACK;
-import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.opposite;
 import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 
@@ -186,9 +184,11 @@ public class WLSPlayer extends RavePlayer {
 			}
 			return;
 		} else if (name.equals("minWlsThreshold")) {
-			// TODO: set the minimum WLS threshold
+			MIN_WLS_THRESHOLD = Double.parseDouble(value);
+			return;
 		} else if (name.equals("maxIllegalityThreshold")) {
-			// TODO: set the max illegality threshold
+			MAX_ILLEGALITY_CAP = Integer.parseInt(value);
+			return;
 		}
 		
 		super.setProperty(name, value);
