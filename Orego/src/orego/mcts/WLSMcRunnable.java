@@ -3,6 +3,7 @@ package orego.mcts;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import orego.core.Board;
@@ -12,10 +13,10 @@ import ec.util.MersenneTwisterFast;
 
 public class WLSMcRunnable extends McRunnable {
 	/** A *reference* to the WLSPlayer's copy of the level two response table*/
-	private Hashtable<Integer, WLSResponseMoveList> bestReplies;
+	private HashMap<Integer, WLSResponseMoveList> bestReplies;
 	
 	
-	public WLSMcRunnable(McPlayer player, HeuristicList heuristics, Hashtable<Integer, WLSResponseMoveList> bestReplies) {
+	public WLSMcRunnable(McPlayer player, HeuristicList heuristics, HashMap<Integer, WLSResponseMoveList> bestReplies) {
 		super(player, heuristics);
 		
 		this.bestReplies = bestReplies;

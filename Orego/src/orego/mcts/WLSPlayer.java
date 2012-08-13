@@ -8,6 +8,7 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import orego.play.UnknownPropertyException;
@@ -33,7 +34,7 @@ public class WLSPlayer extends RavePlayer {
 	public static double MIN_WLS_THRESHOLD = .55;
 	
 	/** Indices are color, antepenultimate move, previous move. */
-	private Hashtable<Integer, WLSResponseMoveList> bestReplies; 
+	private HashMap<Integer, WLSResponseMoveList> bestReplies; 
 
 	
 	public static void main(String[] args) {
@@ -92,7 +93,7 @@ public class WLSPlayer extends RavePlayer {
 	}
 	
 	/** Returns the level 2 best replies table. */
-	protected Hashtable<Integer, WLSResponseMoveList> getBestReplies() {
+	protected HashMap<Integer, WLSResponseMoveList> getBestReplies() {
 		return bestReplies;
 	}
 	
@@ -101,7 +102,7 @@ public class WLSPlayer extends RavePlayer {
 		try {
 			super.reset();
 			// Create reply tables
-			bestReplies = new Hashtable<Integer, WLSResponseMoveList>();
+			bestReplies = new HashMap<Integer, WLSResponseMoveList>();
 			
 			for (int c = BLACK; c <= WHITE; c++) {
 				for (int p : ALL_POINTS_ON_BOARD) {
