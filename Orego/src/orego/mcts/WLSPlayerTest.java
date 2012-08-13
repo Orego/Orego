@@ -52,8 +52,8 @@ public class WLSPlayerTest {
 	@Test
 	public void testIncorporateRun2() {
 		fakeRun(BLACK, "a1", "b1", "b2", "c2", "c1", "d1", "a2", "b1", "b3");
-		int[] topBlackResponses1 = player.getBestReplies()[BLACK][at("a1")][at("b1")].getTopResponses();
-		int[] topBlackResponses2 = player.getBestReplies()[BLACK][at("a2")][at("b1")].getTopResponses();
+		int[] topBlackResponses1 = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a1"), at("b1"), BLACK)).getTopResponses();
+		int[] topBlackResponses2 = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a2"), at("b1"), BLACK)).getTopResponses();
 		
 		assertTrue(topBlackResponses1.length > 0);
 		assertTrue(topBlackResponses2.length > 0);
@@ -103,21 +103,21 @@ public class WLSPlayerTest {
 				player.getBoard().play(at("a10"));
 				player.bestMove();
 				
-				assertEquals(at("k19"), player.getBestReplies()[BLACK][at("a10")][at("j19")].getTopResponses()[0]);
-				assertEquals(at("j19"), player.getBestReplies()[BLACK][at("a10")][at("k19")].getTopResponses()[0]);
+				assertEquals(at("k19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("j19"), BLACK)).getTopResponses()[0]);
+				assertEquals(at("j19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("k19"), BLACK)).getTopResponses()[0]);
 		}
 	}
 
 	@Test
 	public void testResizeTopResponseList() throws Exception {
 		// pick a random response list
-		WLSResponseMoveList topMoves = player.getBestReplies()[BLACK][at("e11")][at("b4")];
+		WLSResponseMoveList topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("e11"), at("b4"), BLACK));
 		
 		assertEquals(8, topMoves.getTopResponses().length);
 		assertEquals(8, topMoves.getTopResponsesLength());
 		
 		// another random move sequence
-		topMoves = player.getBestReplies()[BLACK][at("h17")][at("d9")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("h17"), at("d9"), BLACK));
 		
 		assertEquals(8, topMoves.getTopResponses().length);
 		assertEquals(8, topMoves.getTopResponsesLength());
@@ -129,19 +129,19 @@ public class WLSPlayerTest {
 		assertEquals(12, topMoves.getTopResponsesLength());
 		
 		// pick a random response list
-		topMoves = player.getBestReplies()[BLACK][at("e11")][at("b4")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("e11"), at("b4"), BLACK));
 		
 		assertEquals(12, topMoves.getTopResponses().length);
 		assertEquals(12, topMoves.getTopResponsesLength());
 		
 		// another random move sequence
-		topMoves = player.getBestReplies()[BLACK][at("h17")][at("d9")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("h17"), at("d9"), BLACK));
 		
 		assertEquals(12, topMoves.getTopResponses().length);
 		assertEquals(12, topMoves.getTopResponsesLength());
 		
 		// another random move sequence
-		topMoves = player.getBestReplies()[BLACK][at("h6")][at("d5")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("h6"), at("d5"), BLACK));
 				
 		assertEquals(12, topMoves.getTopResponses().length);
 		assertEquals(12, topMoves.getTopResponsesLength());

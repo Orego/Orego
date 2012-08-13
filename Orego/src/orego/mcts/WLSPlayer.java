@@ -9,6 +9,9 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+
+import java.util.Hashtable;
+
 import orego.play.UnknownPropertyException;
 
 /**
@@ -32,8 +35,9 @@ public class WLSPlayer extends RavePlayer {
 	public static double MIN_WLS_THRESHOLD = .55;
 	
 	/** Indices are color, antepenultimate move, previous move. */
-	private WLSResponseMoveList[][][] bestReplies;
+	private Hashtable<Integer, WLSResponseMoveList> bestReplies; 
 
+	
 	public static void main(String[] args) {
 		WLSPlayer p = new WLSPlayer();
 		try {
@@ -48,8 +52,49 @@ public class WLSPlayer extends RavePlayer {
 		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: " + benchMarkInfo[1]);
 	}
 
+	
+	/** Converts a sequence of two moves into a hash key for our
+	 * responses hashmap. The {@see responses} maintains a mapping
+	 * between a "history" of a given number of moves and a "response list"
+	 * of possible candidate responses. The response list includes all possible moves
+	 * along with information pertaining to the "choiceness" of the move.
+	 * 
+	 * We maintain three different /conceptual/ tables:
+	 * Level Zero
+	 * Level One
+	 * Level Two
+	 * 
+	 * The level zero has a single response list which maintains stats for every possible move.
+	 * Entries from this table are used mostly at the start of the game.
+	 * 
+	 * The level one table has a response list for every single. In other words, for any given previous move,
+	 * the table returns a list of possible new moves with given stats (response list).
+	 * 
+	 * The level two table has a response list for every combination of previous *two* moves. Hence, for the
+	 * move sequence AB the level two table contains a response list of possible response.
+	 * 
+	 * We encode each of these types of tables as integers for keys in our responses hashmap. Level zero keys are encoded
+	 * as integers with each group of nine bits set to a special sentinel value. 
+	 * 
+	 * Level one keys encode the previous move in the first nine lower order index.
+	 * 
+	 * Level two keys encode the previous two moves in the first nine lower order bits and then the second
+	 * nine bits. Conceivably we can store up to three different "levels" of moves which would consume 24 bits.
+	 * We need nine bits for each move since we have a maximum move index of 361.
+	 * 
+	 * We reserve the 28th bit to indicate the color of the player.
+	 * 
+	 * @param prevPrevMove Two moves ago
+	 * @param prevMove Previous move
+	 * @return An integer key for our {@link responses} hashmap.
+	 */
+	public static int levelTwoEncodedIndex(int prevPrevMove, int prevMove, int color) {
+		// place the color in the upper 28th bit
+		return (color << 27) | (prevPrevMove << 9) | prevMove;
+	}
+	
 	/** Returns the level 2 best replies table. */
-	protected WLSResponseMoveList[][][] getBestReplies() {
+	protected Hashtable<Integer, WLSResponseMoveList> getBestReplies() {
 		return bestReplies;
 	}
 	
@@ -58,19 +103,21 @@ public class WLSPlayer extends RavePlayer {
 		try {
 			super.reset();
 			// Create reply tables
-			bestReplies = new WLSResponseMoveList[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
+			bestReplies = new Hashtable<Integer, WLSResponseMoveList>();
+			
 			for (int c = BLACK; c <= WHITE; c++) {
 				for (int p : ALL_POINTS_ON_BOARD) {
 					for (int q : ALL_POINTS_ON_BOARD) {
-						bestReplies[c][p][q] 		= new WLSResponseMoveList(TOP_RESPONSES_CAP);
+						bestReplies.put(levelTwoEncodedIndex(p, q, c), new WLSResponseMoveList(TOP_RESPONSES_CAP));
 					}
-					bestReplies[c][p][PASS]     	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
-					bestReplies[c][PASS][p]     	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
-					bestReplies[c][p][NO_POINT] 	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
-					bestReplies[c][NO_POINT][p] 	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
+//					bestReplies.put(levelTwoEncodedIndex(p, pass, c), new WLSResponseMoveList(TOP_RESPONSES_CAP));
+//					bestReplies[c][PASS][p]     	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
+//					bestReplies[c][p][NO_POINT] 	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
+//					bestReplies[c][NO_POINT][p] 	= new WLSResponseMoveList(TOP_RESPONSES_CAP);
 				}
-				bestReplies[c][NO_POINT][PASS]      = new WLSResponseMoveList(TOP_RESPONSES_CAP);
-				bestReplies[c][NO_POINT][NO_POINT]  = new WLSResponseMoveList(TOP_RESPONSES_CAP);
+				bestReplies.put(levelTwoEncodedIndex(NO_POINT, NO_POINT, c), new WLSResponseMoveList(TOP_RESPONSES_CAP));
+//				bestReplies[c][NO_POINT][PASS]      = new WLSResponseMoveList(TOP_RESPONSES_CAP);
+//				bestReplies[c][NO_POINT][NO_POINT]  = new WLSResponseMoveList(TOP_RESPONSES_CAP);
 			}
 			
 			// Replace McRunnables with WLSMcRunnables
@@ -97,11 +144,19 @@ public class WLSPlayer extends RavePlayer {
 			for (int t = getTurn(); t < turn; t++) {
 				int move = moves[t];
 				if (move != PASS) {
+					WLSResponseMoveList list = bestReplies.get(levelTwoEncodedIndex(antepenultimate, previous, color));
+					
+					if (list == null) {
+						list = new WLSResponseMoveList(TOP_RESPONSES_CAP);
+						bestReplies.put(levelTwoEncodedIndex(antepenultimate, previous, color), list);
+					}
+					
 					if (win) {
-						bestReplies[color][antepenultimate][previous].addWin(move);
+						
+						list.addWin(move);
 					} else {
 						// add a loss to this move
-						bestReplies[color][antepenultimate][previous].addLoss(move);
+						list.addLoss(move);
 					}
 				}
 				
@@ -122,15 +177,12 @@ public class WLSPlayer extends RavePlayer {
 			for (int c = BLACK; c <= WHITE; c++) {
 				for (int p : ALL_POINTS_ON_BOARD) {
 					for (int q : ALL_POINTS_ON_BOARD) {
-						bestReplies[c][p][q].resizeTopResponses(newLength);
+						WLSResponseMoveList list = bestReplies.get(levelTwoEncodedIndex(p, q, c));
+						if (list != null) {
+							list.resizeTopResponses(newLength);
+						}
 					}
-					bestReplies[c][p][PASS].resizeTopResponses(newLength);
-					bestReplies[c][PASS][p].resizeTopResponses(newLength);
-					bestReplies[c][p][NO_POINT].resizeTopResponses(newLength);
-					bestReplies[c][NO_POINT][p].resizeTopResponses(newLength);
 				}
-				bestReplies[c][NO_POINT][PASS].resizeTopResponses(newLength);
-				bestReplies[c][NO_POINT][NO_POINT].resizeTopResponses(newLength);
 			}
 			return;
 		} else if (name.equals("minWlsThreshold")) {
