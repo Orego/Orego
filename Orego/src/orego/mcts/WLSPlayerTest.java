@@ -74,7 +74,7 @@ public class WLSPlayerTest {
 	}
 	
 	@Test
-	public void testLifeOrDeath() {
+	public void testLifeOrDeath() throws Exception {
 		if (BOARD_WIDTH == 19) {
 				player.reset();
 				String[] diagram = { 
@@ -101,6 +101,7 @@ public class WLSPlayerTest {
 				};
 				player.setUpProblem(BLACK, diagram);
 				player.getBoard().play(at("a10"));
+				player.setProperty("msec", "5000");
 				player.bestMove();
 				
 				assertEquals(at("k19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("j19"), BLACK)).getTopResponses()[0]);
