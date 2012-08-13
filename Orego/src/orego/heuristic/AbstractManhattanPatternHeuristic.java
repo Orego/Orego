@@ -1,8 +1,10 @@
 package orego.heuristic;
 
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.MANHATTAN_NEIGHBORHOOD;
+import static orego.core.Coordinates.ON_BOARD;
 import orego.core.Board;
+import orego.play.UnknownPropertyException;
 
 public abstract class AbstractManhattanPatternHeuristic extends
 		AbstractPatternHeuristic {
@@ -18,7 +20,7 @@ public abstract class AbstractManhattanPatternHeuristic extends
 	}
 
 	@Override
-	public void setProperty(String property, String value) {
+	public void setProperty(String property, String value) throws UnknownPropertyException {
 		super.setProperty(property, value);
 		if (property.equals("radius")) {
 			region = MANHATTAN_NEIGHBORHOOD[Integer.valueOf(value)];

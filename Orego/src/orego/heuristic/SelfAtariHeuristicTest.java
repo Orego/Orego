@@ -54,5 +54,13 @@ public class SelfAtariHeuristicTest {
 		assertFalse(heuristic.getBadMoves().contains(at("e3")));
 		assertFalse(heuristic.getBadMoves().contains(at("q16")));
 	}
+	
+	@Test
+	public void testClone() throws Exception {
+		SelfAtariHeuristic copy = heuristic.clone();
+		
+		assertNotSame(heuristic, copy);
+		assertTrue(copy instanceof SelfAtariHeuristic);
+	}
 
 }

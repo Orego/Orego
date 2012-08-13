@@ -26,13 +26,29 @@ public class WLSMcRunnable extends McRunnable {
 		
 		if (list != null) {
 			// work through our best moves (from best to worst) and test legality
-			for (int responseMove : list.getTopResponses()) {
-				// Try a level 2 reply
-				if (responseMove != Coordinates.NO_POINT &&
-					(board.getColor(responseMove) == VACANT) && 
+			
+			// cache local variables
+			int[] topResponses = list.getTopResponses();
+			int kTopResponses = topResponses.length;
+			
+			for (int i = 0; i < kTopResponses; i++) {
+				int responseMove = topResponses[i];
+				
+				if (responseMove == Coordinates.NO_POINT) {
+					continue;
+				}
+				
+				// Try a level 2 reply and return the first legal move
+				if ((board.getColor(responseMove) == VACANT) && 
 				     board.isFeasible(responseMove) 		 && 
 				     (board.playFast(responseMove) == PLAY_OK)) {
+					// clear the illegality counter
+					list.clearIllegality(i);
+					
 					return responseMove;
+				} else {
+					// note the move at index i is illegal
+					list.addIllegalPlay(i);
 				}
 			}
 		}

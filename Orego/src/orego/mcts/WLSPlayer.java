@@ -25,6 +25,12 @@ public class WLSPlayer extends RavePlayer {
 	/** Length of "top responses" list (4 - 16) */
 	public static int TOP_RESPONSES_CAP = 8;
 	
+	/** The maximum number of times a move can be played and deemed illegal */
+	public static int MAX_ILLEGALITY_CAP = 5;
+	
+	/** The minimum WLS threshold for a move to be considered "playable" */
+	public static double MIN_WLS_THRESHOLD = .55;
+	
 	/** Indices are color, antepenultimate move, previous move. */
 	private WLSResponseMoveList[][][] bestReplies;
 
@@ -127,6 +133,10 @@ public class WLSPlayer extends RavePlayer {
 				bestReplies[c][NO_POINT][NO_POINT].resizeTopResponses(newLength);
 			}
 			return;
+		} else if (name.equals("minWlsThreshold")) {
+			// TODO: set the minimum WLS threshold
+		} else if (name.equals("maxIllegalityThreshold")) {
+			// TODO: set the max illegality threshold
 		}
 		
 		super.setProperty(name, value);

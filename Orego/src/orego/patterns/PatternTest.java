@@ -2,6 +2,8 @@ package orego.patterns;
 
 import static org.junit.Assert.*;
 import static orego.core.Colors.*;
+import static orego.heuristic.AbstractPatternHeuristic.isPossibleNeighborhood;
+
 import org.junit.Before;
 import org.junit.Test;
 import static orego.patterns.Pattern.*;
@@ -24,19 +26,44 @@ public class PatternTest {
 	@Test
 	public void testCountsAsInAnyOrientation() {
 		pattern.setColors(".O..#...", BLACK);
-		assertTrue(pattern.countsAsInAnyOrientation(diagramToNeighborhood(".O#\n. .\n...")));
+		assertTrue(pattern
+				.countsAsInAnyOrientation(diagramToNeighborhood(".O#\n. .\n...")));
+	}
+
+	@Test
+	public void testPatternPrinter() {
+		pattern.patternPrinter();
+	}
+	
+	@Test
+	public void testArrayToString(){
+				int[] n = Pattern.neighborhoodToArray((char)20);
+			String string = neighborhoodToDiagram(arrayToNeighborhood(n));
+			assertEquals("###\nO O\n###", string);
+			assertEquals("###OO###", arrayToString(n));
+	}
+
+	@Test
+	public void testArrayToNeighborhood() {
+		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
+			if(isPossibleNeighborhood((char)p)){
+				int[] n = Pattern.neighborhoodToArray((char)p);
+				char i = Pattern.arrayToNeighborhood(n);
+				assertEquals(i, p);
+			}
+		}
 	}
 
 	@Test
 	public void testRotate90() {
-		assertArrayEquals(new int[] {1, 3, 0, 2, 6, 4, 7, 5}, pattern
-				.rotate90(new int[] {0, 1, 2, 3, 4, 5, 6, 7}));
+		assertArrayEquals(new int[] { 1, 3, 0, 2, 6, 4, 7, 5 },
+				pattern.rotate90(new int[] { 0, 1, 2, 3, 4, 5, 6, 7 }));
 	}
 
 	@Test
 	public void testReflect() {
-		assertArrayEquals(new int[] {0, 2, 1, 3, 5, 4, 7, 6}, pattern
-				.reflect(new int[] {0, 1, 2, 3, 4, 5, 6, 7}));
+		assertArrayEquals(new int[] { 0, 2, 1, 3, 5, 4, 7, 6 },
+				pattern.reflect(new int[] { 0, 1, 2, 3, 4, 5, 6, 7 }));
 	}
 
 	@Test

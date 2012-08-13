@@ -356,7 +356,10 @@ public final class Coordinates {
 
 	/**
 	 * Used in the static block that initializes SQUARE_NEIGHBORHOOD
-	 * 
+	 *
+	 * @param radius The radius around the point p
+	 * @param p A point on the board
+	 * @return an array of points around point p within radius
 	 */
 	private static int[] findSquareNeighborhood(int radius, int p) {
 		int r = row(p);

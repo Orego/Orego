@@ -24,6 +24,8 @@ public class WLSResponseMoveListTest {
 		
 		assertEquals(8, responses.getTopResponses().length);
 		
+		assertEquals(8, responses.getTopResponsesIllegality().length);
+		
 		assertEquals(FIRST_POINT_BEYOND_BOARD, responses.getMovesWLS().length);
 		
 		responses = new WLSResponseMoveList(16);
@@ -31,6 +33,8 @@ public class WLSResponseMoveListTest {
 		assertEquals(16, responses.getTopResponsesLength());
 		
 		assertEquals(16, responses.getTopResponses().length);
+		
+		assertEquals(16, responses.getTopResponsesIllegality().length);
 		
 		assertEquals(FIRST_POINT_BEYOND_BOARD, responses.getMovesWLS().length);
 		
@@ -53,6 +57,29 @@ public class WLSResponseMoveListTest {
 		assertEquals(Coordinates.NO_POINT, responses.getTopResponses()[5]);
 		
 		assertEquals(Coordinates.NO_POINT, responses.getTopResponses()[7]);
+	}
+	
+	@Test
+	public void testIllegalityCounters() {
+		responses.getTopResponses()[0] = at("m2");
+		responses.addIllegalPlay(0);
+		
+		assertEquals(1, responses.getIllegality(0));
+		
+		responses.clearIllegality(0);
+		
+		assertEquals(0, responses.getIllegality(0));
+		
+		responses.addIllegalPlay(0);
+		responses.addIllegalPlay(0);
+		
+		assertEquals(2, responses.getIllegality(0));
+		
+		responses.clearIllegality(0);
+		
+		assertEquals(0, responses.getIllegality(0));
+		
+		assertEquals(at("m2"), responses.getTopResponses()[0]);
 	}
 	
 	@Test
@@ -96,63 +123,142 @@ public class WLSResponseMoveListTest {
 	}
 	
 	@Test
-	public void rankMove() {
-		// add moves with ascending wins
+	public void testAddWinRanking() {
+		// fill the top response list with moves
+		responses.addWin(at("b5"));
+		responses.addWin(at("g6"));
+		responses.addWin(at("f7"));
+		responses.addWin(at("l4"));
 		
-		String movePrefix = "a";
+		responses.addWin(at("e3"));
+		responses.addWin(at("d2"));
+		responses.addWin(at("c1"));
+		responses.addWin(at("a8"));
+		
+		// make sure the moves are entered appropriately
+		assertEquals(at("b5"), responses.getTopResponses()[0]);
+		assertEquals(at("g6"), responses.getTopResponses()[1]);
+		assertEquals(at("f7"), responses.getTopResponses()[2]);
+		assertEquals(at("l4"), responses.getTopResponses()[3]);
+		
+		assertEquals(at("e3"), responses.getTopResponses()[4]);
+		assertEquals(at("d2"), responses.getTopResponses()[5]);
+		assertEquals(at("c1"), responses.getTopResponses()[6]);
+		assertEquals(at("a8"), responses.getTopResponses()[7]);
+		
+		// now make some moves illegal
+		for (int i = 0; i < WLSPlayer.MAX_ILLEGALITY_CAP; i++) {
+			responses.addIllegalPlay(0);
+			responses.addIllegalPlay(7);
+			responses.addIllegalPlay(4);
+		}
+		
+		// now add a win to another move (not in the top list)
+		// and make sure it displaces an illegal move
+		responses.addWin(at("k4"));
+		
+		assertEquals(at("k4"), responses.getTopResponses()[0]);
+		
+		responses.addWin(at("g3"));
+		
+		assertEquals(at("g3"), responses.getTopResponses()[4]);
+		
+		responses.addWin(at("m7"));
+		
+		assertEquals(at("m7"), responses.getTopResponses()[7]);
+		
+		
+		// now add some additional wins to another move to force it into the list
+		responses.addWin(at("o9"));
+		responses.addWin(at("o9"));
+		
+		assertEquals(at("o9"), responses.getTopResponses()[0]);
+		
+		// now add some losses and let that move be replaced
+		responses.addLoss(at("c1"));
+		
+		// try adding an existing move and ensure it doesn't work
+		responses.addWin(at("o9"));
+		
+		assertEquals(at("c1"), responses.getTopResponses()[6]);
+		
+		// now add a new move and watch it replace the losing move c1
+		responses.addWin(at("k9"));
+		
+		assertEquals(at("k9"), responses.getTopResponses()[6]);
+	}
+	
+	@Test
+	public void testSweep() {
+		// fill the top responses list with a move that has some wins
+		responses.addWin(at("b3"));
+		responses.addWin(at("b3"));
+		responses.addWin(at("b3"));
 		for (int i = 0; i < responses.getTopResponsesLength(); i++) {
-			String move = movePrefix + (i + 1);
-			
-			for (int j = 0; j < i + 1; j++) {
-				responses.addWin(at(move));
-			}
+			responses.getTopResponses()[i] = at("b3");
 		}
 		
-				
-		// make certain the top list contains all these moves
-		// a8, a7, a6, ...., a1
+		// we now increment a few moves illegality counter and then sweep them
+		responses.getTopResponses()[1] = at("b7");
+		responses.getTopResponses()[7] = at("c3");
+		responses.getTopResponses()[5] = at("a1");
+		
+		// push these moves to the illegality max
+		for (int i = 0; i < WLSPlayer.MAX_ILLEGALITY_CAP; i++) {
+			responses.addIllegalPlay(1);
+			responses.addIllegalPlay(7);
+			responses.addIllegalPlay(5);
+		}
+		
+		responses.sweep();
+		
+		// make sure illegal moves were pruned
+		assertEquals(Coordinates.NO_POINT, responses.getTopResponses()[1]);
+		assertEquals(Coordinates.NO_POINT, responses.getTopResponses()[7]);
+		assertEquals(Coordinates.NO_POINT, responses.getTopResponses()[5]);
+		
+		// make sure illegality counters were reset
+		assertEquals(0, responses.getIllegality(1));
+		assertEquals(0, responses.getIllegality(7));
+		assertEquals(0, responses.getIllegality(5));
+	
+	}
+	
+	@Test
+	public void testFindLowestWLS() {
+		// fill the top responses array with moves that have at least 5
+		responses.addWin(at("b3"));
+		responses.addWin(at("b3"));
+		responses.addWin(at("b3"));
+		responses.addWin(at("b3"));
+		responses.addWin(at("b3"));
+		
 		for (int i = 0; i < responses.getTopResponsesLength(); i++) {
-			// look at the moves in *descending* order while looking in the slots in *ascending* order
-			// Remember, the best moves are at the beginning of the list
-			assertEquals(at(movePrefix + (responses.getTopResponsesLength() - i)), responses.getTopResponses()[i]);
+			responses.getTopResponses()[i] = at("b3");
 		}
 		
+		// setup some wins for a few moves and compare
+		// +4 wins
+		responses.addWin(at("b1"));
+		responses.addWin(at("b1"));
+		responses.addWin(at("b1"));
+		responses.addWin(at("b1"));
 		
-				
-		// now add 9 wins (more than the highest element) 
-		// to ensure the new move bubbles to the top of the list
+		// +3 wins
+		responses.addWin(at("b9"));
+		responses.addWin(at("b9"));
+		responses.addWin(at("b9"));
 		
-		for (int i = 0; i < responses.getTopResponsesLength() + 1; i++) {
-			responses.addWin(at("b9"));
-		}
+		responses.getTopResponses()[0] = at("b1");
 		
+		responses.getTopResponses()[7] = at("b9");
 		
-		// move should now be at the top of the list
-		assertEquals(at("b9"), responses.getTopResponses()[0]);
+		// no ordering in top k list so only determined by WLS
+		assertEquals(7, responses.findLowestWLS(at("b10")));
 		
-		// now add a move to the middle
-		for (int i = 0; i < responses.getTopResponsesLength() / 2; i++) {
-			responses.addWin(at("b4"));
-		}
-		
-		// it will be bumped down to the two spot (all shifted down since 9 was added, and below 4)
-		assertEquals(at("b4"), responses.getTopResponses()[6]);
-		
-		// now test adding some losses and ensure the moves do not move
-		// add some losses to b9 and watch it fall!
-		for (int i = 0; i < responses.getTopResponsesLength() - 4; i++) {
-			responses.addLoss(at("b9"));
-		}
-		
-		// now promote little b4 up the list
-		for (int i = 0; i < 5; i++) {
-			responses.addWin(at("b4"));
-		}
-		// make sure b4 is the new head honcho
-		assertEquals(at("b4"), responses.getTopResponses()[0]);
-		
-		assertEquals(at("b9"), responses.getTopResponses()[1]);
-		
+		// make sure we don't re-add an existing move (we pass in a proposed move)
+		assertEquals(-1, responses.findLowestWLS(at("b1")));
+		assertEquals(-1, responses.findLowestWLS(at("b3")));
 	}
 	
 	@Test
@@ -196,6 +302,8 @@ public class WLSResponseMoveListTest {
 		
 		assertEquals(0, lossState.getWins());
 		assertEquals(1, lossState.getRuns());
+		
+		// TODO: add a win, then a loss and ensure it deincrements
 	}
 	
 	@Test

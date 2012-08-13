@@ -693,6 +693,13 @@ public class PatternHeuristicTest {
 				assertTrue(heuristic.isBad(at("d16"), board));
 	}
 	
+	@Test
+	public void testClone() throws Exception {
+		PatternHeuristic copy = heuristic.clone();
+		
+		assertNotSame(heuristic, copy);
+		assertTrue(copy instanceof PatternHeuristic);
+	}
 		@Test
 		public void testPushThroughBambooWhiteFarFromLastMove() {
 				String[] problem = { 

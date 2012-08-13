@@ -52,6 +52,43 @@ public class LearnedPatternHeuristic extends Heuristic {
 	private static Pattern[] BAD_PATTERN_LIST_BLACK;
 	private static Pattern[] BAD_PATTERN_LIST_WHITE;
 	
+	static {
+		// Find all good neighborhoods, i.e., neighborhoods where a player
+		// should play.
+		// Note that i has to be an int, rather than a char, because
+		// otherwise incrementing it after Character.MAX_VALUE would
+		// return it to 0, resulting in an infinite loop.
+		GOOD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", BLACK, true);
+		GOOD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", WHITE, true);
+		BAD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", BLACK, false);
+		BAD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/pattern8.dat", WHITE, false);	
+		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
+			if (!isPossibleNeighborhood((char) i)) {
+				continue;
+			}
+			for (int p = 0; p < GOOD_PATTERN_LIST_BLACK.length; p++) {
+				if (GOOD_PATTERN_LIST_BLACK[p].matches((char) i)) {
+					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
+				}
+			}
+			for (int p = 0; p < GOOD_PATTERN_LIST_WHITE.length; p++) {
+				if (GOOD_PATTERN_LIST_WHITE[p].matches((char) i)) {
+					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
+				}
+			}
+			for (int p = 0; p < BAD_PATTERN_LIST_BLACK.length; p++) {
+				if (BAD_PATTERN_LIST_BLACK[p].matches((char) i)) {
+					BAD_NEIGHBORHOODS[BLACK].set(i, true);
+				}
+			}
+			for (int p = 0; p < BAD_PATTERN_LIST_WHITE.length; p++) {
+				if (BAD_PATTERN_LIST_WHITE[p].matches((char) i)) {
+					BAD_NEIGHBORHOODS[WHITE].set(i, true);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Extracts patterns from the specified file.
 	 * @param fileName
@@ -138,44 +175,6 @@ public class LearnedPatternHeuristic extends Heuristic {
 			diagramToNeighborhood("*..\n* .\n***"),
 			diagramToNeighborhood("..*\n. *\n***") };
 
-	static {
-		// Find all good neighborhoods, i.e., neighborhoods where a player
-		// should play.
-		// Note that i has to be an int, rather than a char, because
-		// otherwise incrementing it after Character.MAX_VALUE would
-		// return it to 0, resulting in an infinite loop.
-		GOOD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", BLACK, true);
-		GOOD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", WHITE, true);
-		BAD_PATTERN_LIST_BLACK = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", BLACK, false);
-		BAD_PATTERN_LIST_WHITE = extractPatternsFromFile(OREGO_ROOT_DIRECTORY+File.separator+"testFiles/patternPlayed8.dat", WHITE, false);	
-		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
-			GOOD_PATTERN_LIST_BLACK[0].matches((char) i);
-			if (!isPossibleNeighborhood((char) i)) {
-				continue;
-			}
-			for (int p = 0; p < GOOD_PATTERN_LIST_BLACK.length; p++) {
-				if (GOOD_PATTERN_LIST_BLACK[p].matches((char) i)) {
-					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
-				}
-			}
-			for (int p = 0; p < GOOD_PATTERN_LIST_WHITE.length; p++) {
-				if (GOOD_PATTERN_LIST_WHITE[p].matches((char) i)) {
-					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
-				}
-			}
-			for (int p = 0; p < BAD_PATTERN_LIST_BLACK.length; p++) {
-				if (BAD_PATTERN_LIST_BLACK[p].matches((char) i)) {
-					BAD_NEIGHBORHOODS[BLACK].set(i, true);
-				}
-			}
-			for (int p = 0; p < BAD_PATTERN_LIST_WHITE.length; p++) {
-				if (BAD_PATTERN_LIST_WHITE[p].matches((char) i)) {
-					BAD_NEIGHBORHOODS[WHITE].set(i, true);
-				}
-			}
-		}
-	}
-
 	public static final int evaluateMove(int color, char neighborhood) {
 		if(GOOD_NEIGHBORHOODS[color].get(neighborhood)) {
 			return 1;
@@ -227,4 +226,8 @@ public class LearnedPatternHeuristic extends Heuristic {
 		}
 	}
 
+	@Override
+	public LearnedPatternHeuristic clone() {
+		return (LearnedPatternHeuristic)super.clone();
+	}
 }
