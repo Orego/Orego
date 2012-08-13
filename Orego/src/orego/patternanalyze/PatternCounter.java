@@ -17,7 +17,9 @@ import orego.core.Board;
 
 
 /**
- * This class uses all the points on the board when looking for patterns.
+ * This class uses all the points on the board when looking for patterns.  
+ * Each move we look for all the matching patterns over the whole board, and 
+ * check if that move was played immediately afterwards.
  * These are sorted based on the ratio of patterns seen to patterns played.
  * @author galbraith
  *

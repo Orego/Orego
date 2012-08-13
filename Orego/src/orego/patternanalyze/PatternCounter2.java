@@ -2,13 +2,6 @@ package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
 
-/**
- * This class looks only at patterns that were actually played.
- * These are sorted based on the ratio of patterns seen to patterns played.
- * @author galbraith
- *
- */
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -21,6 +14,14 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import orego.core.Board;
+
+
+/**
+ * This class looks only at patterns that were actually played.
+ * These are sorted based on the ratio of patterns seen to patterns played.
+ * @author galbraith
+ */
+
 
 public class PatternCounter2 {
 

@@ -19,6 +19,8 @@ import orego.core.Board;
 
 /**
  * This class uses all the points on the board when looking for patterns.
+ * A pattern is "Seen" if it was on the board at any point.
+ * A pattern is "Played" if it was played at any point.
  * These are sorted based on the ratio of patterns seen to patterns played.
  * @author galbraith
  *
@@ -31,12 +33,12 @@ public class PatternCounter3 {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
-	private static final int PATTERN_LENGTH = 24;
+	private static final int PATTERN_LENGTH = 8;
 	
 	private static final int PATTERN_STORAGE_CUTOFF = 500000;
 	private static final int PATTERNS_TO_REMOVE = PATTERN_STORAGE_CUTOFF / 2;
 	
-	private static final int PATTERNS_TO_KEEP = 1000;
+	private static final int PATTERNS_TO_KEEP = 3000;
 	
 	private static final int PATTERN_SEEN = 0;
 	private static final int MIN_TURN = 1;
