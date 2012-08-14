@@ -211,7 +211,7 @@ public abstract class Pattern {
 	 *            Colors of the eight points surrounding a point.
 	 * @see orego.core.Coordinates#NEIGHBORS
 	 */
-	protected int[] reflect(int[] colors) {
+	protected static int[] reflect(int[] colors) {
 		int[] transformed = new int[8];
 		transformed[0] = colors[0];
 		transformed[1] = colors[2];
@@ -231,7 +231,7 @@ public abstract class Pattern {
 	 * 
 	 * @param pattern The pattern we are reducing to lowest reflection
 	 */
-	protected char getLowestTransformation(char pattern) {
+	public static char getLowestTransformation(char pattern) {
 		char minPattern = pattern;
 		char curTransform = 0;
 		
@@ -269,7 +269,7 @@ public abstract class Pattern {
 	 *            Colors of the eight points surrounding a point.
 	 * @see orego.core.Coordinates#NEIGHBORS
 	 */
-	protected int[] rotate90(int[] colors) {
+	protected static int[] rotate90(int[] colors) {
 		int[] transformed = new int[8];
 		transformed[0] = colors[1];
 		transformed[1] = colors[3];
