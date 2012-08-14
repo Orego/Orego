@@ -124,6 +124,7 @@ public class PatternCounter5 {
 		Board patternBoard = new Board();
 		playedThisGame.clear();
 		seenThisGame.clear();
+		patternBoard.play(board.getMove(0));
 		for (int t = 1; t < turn; t++) {
 			int currentPlay = board.getMove(t);
 			int lastPlay = board.getMove(t - 1);
