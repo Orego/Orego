@@ -32,7 +32,11 @@ public class PatternTest {
 
 	@Test
 	public void testGetLowestTransformation() {
+		final char originalPattern = diagramToNeighborhood("0#.\nO .\n.#0");
 		
+		
+		// this was found manually
+		final char lowestTransformation = diagramToNeighborhood("##.\nO .\n***");
 	}
 	
 	@Test
