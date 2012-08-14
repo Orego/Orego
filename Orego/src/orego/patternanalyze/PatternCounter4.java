@@ -248,10 +248,9 @@ public class PatternCounter4 {
 			int turn = board.getTurn();
 			int currentTurn = 0;
 			Board patternBoard = new Board();
-			patternBoard.play(board.getMove(0));
 			ArrayList<Long> patternSeenInGame = new ArrayList<Long>();
 			ArrayList<Long> patternPlayedInGame = new ArrayList<Long>();
-			while (currentTurn <= turn) {
+			while (currentTurn < turn) {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
@@ -278,11 +277,11 @@ public class PatternCounter4 {
 									}
 									patternData[TOTAL_TURN] += currentTurn;
 									patternSeen.put(pattern.getPattern()[i], patternData);
-								}
-								if (patternSeen.containsKey(pattern.getPattern()[i]) && (p == currentPlay) &&
-										(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
-									patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
-									patternPlayedInGame.add(pattern.getPattern()[i]);
+									if ((p == currentPlay) &&
+											(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
+										patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
+										patternPlayedInGame.add(pattern.getPattern()[i]);
+									}
 								}
 							}
 							if (!foundPattern) {
@@ -303,7 +302,7 @@ public class PatternCounter4 {
 					}
 				}
 				currentTurn++;
-				patternBoard.play(lastPlay);
+				patternBoard.play(currentPlay);
 			}
 			System.out.println("Finished file "+dir.getName());
 		} catch (IOException ex) {
