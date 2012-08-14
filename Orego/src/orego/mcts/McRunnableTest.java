@@ -8,7 +8,6 @@ import orego.core.Board;
 import orego.heuristic.HeuristicList;
 import orego.heuristic.PatternHeuristic;
 import orego.play.ThreadedPlayer;
-import orego.play.UnknownPropertyException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,6 @@ public class McRunnableTest {
 	
 	@Test
 	public void testDebug1() {
-		if(BOARD_WIDTH == 19) {
 			String[] problem = {
 					"#########OOOOOOOOOO",//19
 					"#########OOOOOOOOOO",//18
@@ -76,26 +74,6 @@ public class McRunnableTest {
 				runnable.performMcRun();
 			}
 			assertEquals(10000, runnable.getPlayoutsCompleted());
-		} else {
-			// This position caused a crash during a game
-			String[] problem = {
-					"..##.#..#",
-					"..#O.#.#.",
-					"..#O##.##",
-					"...#.##O#",
-					"..###OOOO",
-					"###OOOOOO",
-					"OOOO.O###",
-					"#OOOO##OO",
-					".O###.#O.",
-			};
-			player.getBoard().setUpProblem(BLACK, problem);
-			player.acceptMove(PASS);
-			for (int i = 0; i < 10000; i++) {
-				runnable.performMcRun();
-			}
-			assertEquals(10000, runnable.getPlayoutsCompleted());
-		}
 	}
 
 	@Test
