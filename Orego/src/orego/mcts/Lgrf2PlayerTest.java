@@ -58,10 +58,8 @@ public class Lgrf2PlayerTest {
 	public void testIncorporateRun2() {
 		fakeRun(BLACK, "a1", "b1", "b2", "c2", "c1", "d1", "a2", "b1", "b3");
 		assertEquals(at("b3"), player.getReplies1()[BLACK][at("b1")]);
-		assertEquals(at("b2"),
-				player.getReplies2()[BLACK][at("a1")][at("b1")]);
-		assertEquals(at("b3"),
-				player.getReplies2()[BLACK][at("a2")][at("b1")]);
+		assertEquals(at("b2"), player.getReplies2()[BLACK][at("a1")][at("b1")]);
+		assertEquals(at("b3"), player.getReplies2()[BLACK][at("a2")][at("b1")]);
 	}
 
 	@Test
@@ -69,14 +67,10 @@ public class Lgrf2PlayerTest {
 		fakeRun(BLACK, "a1", "b1", "b2", "c2", "c1", "d1", "a2", "b1", "b3");
 		fakeRun(WHITE, "a1", "b1", "b2", "e1", "c1", "d1", "e3", "e4", "b3");
 		assertEquals(at("b3"), player.getReplies1()[BLACK][at("b1")]);
-		assertEquals(NO_POINT,
-				player.getReplies2()[BLACK][at("a1")][at("b1")]);
-		assertEquals(at("e1"),
-				player.getReplies2()[WHITE][at("b1")][at("b2")]);
-		assertEquals(NO_POINT,
-				player.getReplies2()[BLACK][at("a1")][at("b1")]);
-		assertEquals(at("a2"),
-				player.getReplies2()[BLACK][at("c1")][at("d1")]);
+		assertEquals(NO_POINT, player.getReplies2()[BLACK][at("a1")][at("b1")]);
+		assertEquals(at("e1"), player.getReplies2()[WHITE][at("b1")][at("b2")]);
+		assertEquals(NO_POINT, player.getReplies2()[BLACK][at("a1")][at("b1")]);
+		assertEquals(at("a2"), player.getReplies2()[BLACK][at("c1")][at("d1")]);
 	}
 
 	@Test
@@ -88,39 +82,38 @@ public class Lgrf2PlayerTest {
 		runnable.playout();
 		assertEquals(at("b2"), runnable.getMove(2));
 	}
-	
+
 	@Test
 	public void testLifeOrDeath() {
-		if (BOARD_WIDTH == 19) {
-				player.reset();
-				String[] diagram = { 
-						"#######....########",// 19
-						"###################",// 18
-						"###################",// 17
-						"###################",// 16
-						"###################",// 15
-						"###################",// 14
-						"###################",// 13
-						"###################",// 12
-						"###################",// 11
-						".##################",// 10
-						"OOOOOOOOOOOOOOOOOOO",// 9
-						"OOOOOOOOOOOOOOOOOOO",// 8
-						"OOOOOOOOOOOOOOOOOOO",// 7
-						"OOOOOOOOOOOOOOOOOOO",// 6
-						"OOOOOOOOOOOOOOOOOOO",// 5
-						"OOOOOOOOOOOOOOOOOOO",// 4
-						"OOOOOOOOOOOOOOOOOOO",// 3
-						"OOOOOOOOOOOOOOOOOOO",// 2
-						".OOOOOOOOOOOOOOOOO." // 1
-					  // ABCDEFGHJKLMNOPQRST
-				};
-				player.setUpProblem(BLACK, diagram);
-				player.getBoard().play(at("a10"));
-				player.bestMove();
-				assertEquals(at("k19"), player.getReplies2()[BLACK][at("a10")][at("j19")]);
-				assertEquals(at("j19"), player.getReplies2()[BLACK][at("a10")][at("k19")]);
-		}
-	}
 
+		player.reset();
+		String[] diagram = { "#######....########",// 19
+				"###################",// 18
+				"###################",// 17
+				"###################",// 16
+				"###################",// 15
+				"###################",// 14
+				"###################",// 13
+				"###################",// 12
+				"###################",// 11
+				".##################",// 10
+				"OOOOOOOOOOOOOOOOOOO",// 9
+				"OOOOOOOOOOOOOOOOOOO",// 8
+				"OOOOOOOOOOOOOOOOOOO",// 7
+				"OOOOOOOOOOOOOOOOOOO",// 6
+				"OOOOOOOOOOOOOOOOOOO",// 5
+				"OOOOOOOOOOOOOOOOOOO",// 4
+				"OOOOOOOOOOOOOOOOOOO",// 3
+				"OOOOOOOOOOOOOOOOOOO",// 2
+				".OOOOOOOOOOOOOOOOO." // 1
+		// ABCDEFGHJKLMNOPQRST
+		};
+		player.setUpProblem(BLACK, diagram);
+		player.getBoard().play(at("a10"));
+		player.bestMove();
+		assertEquals(at("k19"),
+				player.getReplies2()[BLACK][at("a10")][at("j19")]);
+		assertEquals(at("j19"),
+				player.getReplies2()[BLACK][at("a10")][at("k19")]);
+	}
 }
