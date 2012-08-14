@@ -16,34 +16,31 @@ public class CombinedBookTest {
 
 	@Before
 	public void setUp() throws Exception {
-		if (BOARD_WIDTH == 19) {
-			player = new Player();
-			gen = new CombinedBook("SgfTestFiles");
-			board = new Board();
-			board.clear();
-			player.reset();
-		}
+
+		player = new Player();
+		gen = new CombinedBook("SgfTestFiles");
+		board = new Board();
+		board.clear();
+		player.reset();
 	}
 
 	@Test
 	public void testCombinedBook1() {
 		String[] correct;
-		if (BOARD_WIDTH == 19) {
-			correct = new String[] { "q4", "d16", "c4" };
-			for (String move : correct) {
-				assertEquals(pointToString(at(move)), pointToString(gen.nextMove(board)));
-				board.play(move);
-			}
+
+		correct = new String[] { "q4", "d16", "c4" };
+		for (String move : correct) {
+			assertEquals(pointToString(at(move)),
+					pointToString(gen.nextMove(board)));
+			board.play(move);
 		}
 	}
 
 	@Test
 	public void testOpeningBook() throws UnknownPropertyException {
-		if (BOARD_WIDTH == 19) {
-			player.setOpeningBook(gen);
-			int p = player.bestMove();
-			assertEquals(at("q4"), p);
-		}
-	}
 
+		player.setOpeningBook(gen);
+		int p = player.bestMove();
+		assertEquals(at("q4"), p);
+	}
 }
