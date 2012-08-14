@@ -694,6 +694,22 @@ public class Board {
 		assert colors[p] == VACANT;
 		return result;
 	}
+	
+	/**
+	 * Gets the local 3x3 neighborhood around point p with colors reversed.
+	 */
+	public final char getNeighborhoodColorsReversed(int p){
+		assert ON_BOARD[p];
+		char result = 0;
+		for(int i = 0; i < 8; i++){
+			if(colors[NEIGHBORS[p][i]] == WHITE || colors[NEIGHBORS[p][i]] == BLACK){
+				colors[NEIGHBORS[p][i]] = opposite(colors[NEIGHBORS[p][i]]);
+			}
+			result = (char) ((result >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
+		}
+		assert colors[p] == VACANT;
+		return result;
+	}
 
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
