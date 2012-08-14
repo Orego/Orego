@@ -2,6 +2,10 @@ package orego.mcts;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
+
+import java.util.HashMap;
+import java.util.Hashtable;
+
 import orego.core.Board;
 import orego.core.Coordinates;
 import orego.heuristic.HeuristicList;
@@ -9,10 +13,10 @@ import ec.util.MersenneTwisterFast;
 
 public class WLSMcRunnable extends McRunnable {
 	/** A *reference* to the WLSPlayer's copy of the level two response table*/
-	private WLSResponseMoveList[][][] bestReplies;
+	private HashMap<Integer, WLSResponseMoveList> bestReplies;
 	
 	
-	public WLSMcRunnable(McPlayer player, HeuristicList heuristics, WLSResponseMoveList[][][] bestReplies) {
+	public WLSMcRunnable(McPlayer player, HeuristicList heuristics, HashMap<Integer, WLSResponseMoveList> bestReplies) {
 		super(player, heuristics);
 		
 		this.bestReplies = bestReplies;
@@ -22,7 +26,7 @@ public class WLSMcRunnable extends McRunnable {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		int antepenultimate = board.getMove(board.getTurn() - 2);
 		int previous 	    = board.getMove(board.getTurn() - 1);
-		WLSResponseMoveList list = bestReplies[board.getColorToPlay()][antepenultimate][previous];
+		WLSResponseMoveList list = bestReplies.get(WLSPlayer.levelTwoEncodedIndex(antepenultimate, previous, board.getColorToPlay()));
 		
 		if (list != null) {
 			// work through our best moves (from best to worst) and test legality

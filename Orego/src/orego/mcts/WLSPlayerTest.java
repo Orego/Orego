@@ -5,7 +5,8 @@ import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static orego.mcts.MctsPlayerTest.TABLE_SIZE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +51,8 @@ public class WLSPlayerTest {
 	@Test
 	public void testIncorporateRun2() {
 		fakeRun(BLACK, "a1", "b1", "b2", "c2", "c1", "d1", "a2", "b1", "b3");
-		int[] topBlackResponses1 = player.getBestReplies()[BLACK][at("a1")][at("b1")].getTopResponses();
-		int[] topBlackResponses2 = player.getBestReplies()[BLACK][at("a2")][at("b1")].getTopResponses();
+		int[] topBlackResponses1 = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a1"), at("b1"), BLACK)).getTopResponses();
+		int[] topBlackResponses2 = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a2"), at("b1"), BLACK)).getTopResponses();
 		
 		assertTrue(topBlackResponses1.length > 0);
 		assertTrue(topBlackResponses2.length > 0);
@@ -72,48 +73,67 @@ public class WLSPlayerTest {
 	}
 	
 	@Test
-	public void testLifeOrDeath() {
-				player.reset();
-				String[] diagram = { 
-						"#######....########",// 19
-						"###################",// 18
-						"###################",// 17
-						"###################",// 16
-						"###################",// 15
-						"###################",// 14
-						"###################",// 13
-						"###################",// 12
-						"###################",// 11
-						".##################",// 10
-						"OOOOOOOOOOOOOOOOOOO",// 9
-						"OOOOOOOOOOOOOOOOOOO",// 8
-						"OOOOOOOOOOOOOOOOOOO",// 7
-						"OOOOOOOOOOOOOOOOOOO",// 6
-						"OOOOOOOOOOOOOOOOOOO",// 5
-						"OOOOOOOOOOOOOOOOOOO",// 4
-						"OOOOOOOOOOOOOOOOOOO",// 3
-						"OOOOOOOOOOOOOOOOOOO",// 2
-						".OOOOOOOOOOOOOOOOO." // 1
-					  // ABCDEFGHJKLMNOPQRST
-				};
-				player.setUpProblem(BLACK, diagram);
-				player.getBoard().play(at("a10"));
-				player.bestMove();
-				
-				assertEquals(at("k19"), player.getBestReplies()[BLACK][at("a10")][at("j19")].getTopResponses()[0]);
-				assertEquals(at("j19"), player.getBestReplies()[BLACK][at("a10")][at("k19")].getTopResponses()[0]);
+	public void testLifeOrDeath()  throws Exception{
+			player.reset();
+			String[] diagram = { 
+					"#######....########",// 19
+					"###################",// 18
+					"###################",// 17
+					"###################",// 16
+					"###################",// 15
+					"###################",// 14
+					"###################",// 13
+					"###################",// 12
+					"###################",// 11
+					".##################",// 10
+					"OOOOOOOOOOOOOOOOOOO",// 9
+					"OOOOOOOOOOOOOOOOOOO",// 8
+					"OOOOOOOOOOOOOOOOOOO",// 7
+					"OOOOOOOOOOOOOOOOOOO",// 6
+					"OOOOOOOOOOOOOOOOOOO",// 5
+					"OOOOOOOOOOOOOOOOOOO",// 4
+					"OOOOOOOOOOOOOOOOOOO",// 3
+					"OOOOOOOOOOOOOOOOOOO",// 2
+					".OOOOOOOOOOOOOOOOO." // 1
+				  // ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(BLACK, diagram);
+			player.getBoard().play(at("a10"));
+			player.setProperty("msec", "5000");
+			player.bestMove();
+			
+			assertEquals(at("k19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("j19"), BLACK)).getTopResponses()[0]);
+			assertEquals(at("j19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("k19"), BLACK)).getTopResponses()[0]);
 	}
 
 	@Test
+	public void testSetMaxIllegalityCap() throws Exception {
+		assertEquals(5, WLSPlayer.MAX_ILLEGALITY_CAP);
+		
+		player.setProperty("maxIllegalityThreshold", "6");
+		
+		assertEquals(6, WLSPlayer.MAX_ILLEGALITY_CAP);
+	}
+	
+	@Test
+	public void testSetMinWLSThreshold() throws Exception {
+		assertEquals(.55, WLSPlayer.MIN_WLS_THRESHOLD, .000001);
+		
+		player.setProperty("minWlsThreshold", ".634");
+		
+		assertEquals(.634, WLSPlayer.MIN_WLS_THRESHOLD, .000001);
+	}
+	
+	@Test
 	public void testResizeTopResponseList() throws Exception {
 		// pick a random response list
-		WLSResponseMoveList topMoves = player.getBestReplies()[BLACK][at("e11")][at("b4")];
+		WLSResponseMoveList topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("e11"), at("b4"), BLACK));
 		
 		assertEquals(8, topMoves.getTopResponses().length);
 		assertEquals(8, topMoves.getTopResponsesLength());
 		
 		// another random move sequence
-		topMoves = player.getBestReplies()[BLACK][at("h17")][at("d9")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("h17"), at("d9"), BLACK));
 		
 		assertEquals(8, topMoves.getTopResponses().length);
 		assertEquals(8, topMoves.getTopResponsesLength());
@@ -125,19 +145,19 @@ public class WLSPlayerTest {
 		assertEquals(12, topMoves.getTopResponsesLength());
 		
 		// pick a random response list
-		topMoves = player.getBestReplies()[BLACK][at("e11")][at("b4")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("e11"), at("b4"), BLACK));
 		
 		assertEquals(12, topMoves.getTopResponses().length);
 		assertEquals(12, topMoves.getTopResponsesLength());
 		
 		// another random move sequence
-		topMoves = player.getBestReplies()[BLACK][at("h17")][at("d9")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("h17"), at("d9"), BLACK));
 		
 		assertEquals(12, topMoves.getTopResponses().length);
 		assertEquals(12, topMoves.getTopResponsesLength());
 		
 		// another random move sequence
-		topMoves = player.getBestReplies()[BLACK][at("h6")][at("d5")];
+		topMoves = player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("h6"), at("d5"), BLACK));
 				
 		assertEquals(12, topMoves.getTopResponses().length);
 		assertEquals(12, topMoves.getTopResponsesLength());
