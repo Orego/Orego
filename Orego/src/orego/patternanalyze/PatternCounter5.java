@@ -12,6 +12,7 @@ import orego.core.Board;
 import orego.patterns.RatedPattern;
 import orego.util.BitVector;
 import static orego.patterns.Pattern.*;
+import static orego.core.Board.*;
 
 public class PatternCounter5 {
 
@@ -130,7 +131,8 @@ public class PatternCounter5 {
 		Board patternBoard = new Board();
 		playedThisGame.clear();
 		seenThisGame.clear();
-		patternBoard.play(board.getMove(0));
+		int legality = patternBoard.play(board.getMove(0));
+		assert legality == PLAY_OK;
 		for (int t = 1; t < turn; t++) {
 			int currentPlay = board.getMove(t);
 			int lastPlay = board.getMove(t - 1);
@@ -157,7 +159,8 @@ public class PatternCounter5 {
 					}
 				}
 			}
-			patternBoard.play(currentPlay);
+			legality = patternBoard.play(currentPlay);
+			assert legality == PLAY_OK : "Illegal move #" + t + " at " + pointToString(currentPlay) + " on board:\n" + patternBoard;
 		}
 	}
 
