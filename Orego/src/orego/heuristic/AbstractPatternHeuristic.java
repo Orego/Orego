@@ -384,12 +384,31 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 				"*OO#**..", //1086
 				"*##O**..", //1089
 		};
+//		String[] colorSpecificPatterns = {
+//				"O...#O??", // Hane4
+//				"#??*?O**", // Edge3
+//				"O?+*?#**", // Edge4
+//				"O#O*?#**", // Edge5	
+//		};
 		Pattern[] BLACK_GOOD_PATTERNS = new Pattern[colorSpecificPatterns.length];
 		Pattern[] WHITE_GOOD_PATTERNS = new Pattern[colorSpecificPatterns.length];
 		for (int i = 0; i < BLACK_GOOD_PATTERNS.length; i++) {
 			BLACK_GOOD_PATTERNS[i] = new ColorSpecificPattern(colorSpecificPatterns[i], BLACK);
 			WHITE_GOOD_PATTERNS[i] = new ColorSpecificPattern(colorSpecificPatterns[i], WHITE);
 		}
+//		String[] colorIndependentPatterns = {
+//				"O..?##??", // Hane1
+//				"O...#.??", // Hane2
+//				"O#..#???", // Hane3
+//				"#OO+??++", // Cut2
+//				".O?*#?**", // Edge1
+//				"#oO*??**", // Edge2				
+//		};
+//		Pattern[] INDEPENDENT_GOOD_PATTERNS = new Pattern[colorIndependentPatterns.length + 1];			
+//		for (int i = 0; i < colorIndependentPatterns.length; i++) {
+//			INDEPENDENT_GOOD_PATTERNS[i] = new SimplePattern(colorIndependentPatterns[i]);
+//		}
+//		INDEPENDENT_GOOD_PATTERNS[INDEPENDENT_GOOD_PATTERNS.length - 1] = new Cut1Pattern();
 		String[] badPatterns = {
 				"########", //0
 				"O#######", //1
@@ -904,6 +923,12 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
 				}
 			}
+//			for (Pattern pattern : INDEPENDENT_GOOD_PATTERNS) {
+//				if (pattern.matches((char) i)) {
+//					GOOD_NEIGHBORHOODS[BLACK].set(i, true);
+//					GOOD_NEIGHBORHOODS[WHITE].set(i, true);
+//				}
+//			}
 			for (Pattern pattern : BLACK_BAD_PATTERNS) {
 				if (pattern.matches((char) i)) {
 					BAD_NEIGHBORHOODS[BLACK].set(i, true);
