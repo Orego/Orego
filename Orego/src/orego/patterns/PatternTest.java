@@ -31,6 +31,11 @@ public class PatternTest {
 	}
 
 	@Test
+	public void testGetLowestTransformation() {
+		
+	}
+	
+	@Test
 	public void testPatternPrinter() {
 		pattern.patternPrinter();
 	}

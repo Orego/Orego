@@ -6,6 +6,7 @@ import static orego.core.Coordinates.ON_BOARD;
 import static orego.heuristic.AbstractPatternHeuristic.isPossibleNeighborhood;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
+import orego.patternanalyze.DynamicPattern;
 
 /**
  * A pattern for matching 3x3 neighborhoods on the board. Note that a
@@ -222,7 +223,45 @@ public abstract class Pattern {
 		transformed[7] = colors[6];
 		return transformed;
 	}
-
+	
+	/**
+	 * Returns the lowest pattern value (as a char) of the possible reflections for a given pattern.
+	 * We need each pattern in its "reduced" form so that we can safely compare patterns. While we could easily
+	 * pick the maximum as the standard, minimum is nice for convention.
+	 * 
+	 * @param pattern The pattern we are reducing to lowest reflection
+	 */
+	protected char getLowestTransformation(char pattern) {
+		char minPattern = pattern;
+		char curTransform = 0;
+		
+		int[] pColors = neighborhoodToArray(pattern);
+		
+		for (int i = 0; i < 3; i++) {
+			pColors = rotate90(pColors);
+			curTransform = arrayToNeighborhood(pColors);
+			if (curTransform < minPattern) {
+				minPattern = curTransform;
+			}
+		}
+		
+		pColors = reflect(rotate90(pColors));
+		curTransform = arrayToNeighborhood(pColors);
+		if (curTransform < minPattern) {
+			minPattern = curTransform;
+		}
+		
+		for (int i = 0; i < 3; i++) {
+			pColors = rotate90(pColors);
+			curTransform = arrayToNeighborhood(pColors);
+			if (curTransform < minPattern) {
+				minPattern = curTransform;
+			}
+		}
+		
+		return minPattern;
+	}
+	
 	/**
 	 * Returns colors rotated 90 degrees clockwise.
 	 * 
