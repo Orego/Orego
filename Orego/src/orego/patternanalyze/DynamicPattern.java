@@ -349,7 +349,9 @@ public class DynamicPattern implements Serializable {
 				output = output | (((input.getPattern()[0] >> ((long)i*2L)) & 3L) << ((long)i*2L));
 			}
 		}
-		output |= (long)(~(input.getColorToPlay())) << 62;
+		if (input.getColorToPlay() == BLACK) {
+			output |= 1L << 62;
+		}
 		return new DynamicPattern(output, input.getPatternSize());
 	}
 }
