@@ -76,11 +76,11 @@ public class PatternCounter4 {
 				removePatterns(-1, threshold++);
 			}
 			PrintWriter bw = new PrintWriter(new FileWriter(new File(
-					TEST_DIRECTORY + "GoodPatterns"+PATTERN_LENGTH+".txt")));
+					TEST_DIRECTORY + "BadPatterns"+PATTERN_LENGTH+".txt")));
 			String output = "";
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
-				output += translatePatternToString(pattern[SORTED_ARRAY_PATTERN]) + ", ";
+				output = translatePatternToString(pattern[SORTED_ARRAY_PATTERN]) + ", ";
 				output += " /*Ratio:" +  (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
 				output += " Seen:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN];
 				output += " Played:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED];
@@ -91,7 +91,7 @@ public class PatternCounter4 {
 			}
 			System.out.println("Done.");
 			bw.write(output);
-			System.out.println("Written to file "+TEST_DIRECTORY + "GoodPatterns"+PATTERN_LENGTH+".txt");
+			System.out.println("Written to file "+TEST_DIRECTORY + "BadPatterns"+PATTERN_LENGTH+".txt");
 			bw.close();
 			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternGoodPattern"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
@@ -112,17 +112,10 @@ public class PatternCounter4 {
 	 */
 	public static String translatePatternToString(long input) {
 		String incoming = DynamicPattern.longToPatternString(input, 8);
-		//int color = "#O".indexOf(incoming.charAt(incoming.length() - 1));
 		String output = "" + incoming.charAt(0) + incoming.charAt(3)
 						+ incoming.charAt(1) + incoming.charAt(2) 
 						+ incoming.charAt(4) + incoming.charAt(5)
 						+ incoming.charAt(7) + incoming.charAt(6);
-		/*if (color == WHITE){
-			output = output.replace('#', '(');
-			output = output.replace('O', ')');
-			output = output.replace(')', '#');
-			output = output.replace('(', 'O');
-		}*/
 		return output;
 	}
 
@@ -262,7 +255,7 @@ public class PatternCounter4 {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-					for (int p : NEIGHBORS[lastPlay]) {
+					for (int p : ALL_POINTS_ON_BOARD) {
 						if (patternBoard.getColor(p) == VACANT) {
 							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
 							if (pattern.getColorToPlay() == WHITE) {
