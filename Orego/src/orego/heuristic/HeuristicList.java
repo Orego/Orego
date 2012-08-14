@@ -45,9 +45,10 @@ public class HeuristicList implements Cloneable {
 	public int moveRating(int move, Board board) {
 		int value = 0;
 		for (Heuristic h : heuristics) {
+			h.prepare(board);
 			if (h.getGoodMoves().contains(move)) {
 				value += h.getWeight();
-			} else if(h.getBadMoves().contains(move))	{
+			} else if(h.isBad(move, board))	{
 				value -= h.getWeight();
 			}
 		}
