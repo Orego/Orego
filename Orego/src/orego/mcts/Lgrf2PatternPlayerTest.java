@@ -85,7 +85,6 @@ public class Lgrf2PatternPlayerTest {
 
 	@Test
 	public void testLifeOrDeath() {
-		if (BOARD_WIDTH == 19) {
 			player.reset();
 			String[] diagram = { "#######....########",// 19
 					"###################",// 18
@@ -115,12 +114,10 @@ public class Lgrf2PatternPlayerTest {
 					player.getReplies2()[BLACK][at("a10")][at("j19")]);
 			assertEquals(at("j19"),
 					player.getReplies2()[BLACK][at("a10")][at("k19")]);
-		}
 	}
 
 	@Test
 	public void testPatternFinding() {
-		if (BOARD_WIDTH == 19) {
 			player.reset();
 			String[] diagram = {
 					".O.................",// 19
@@ -150,7 +147,6 @@ public class Lgrf2PatternPlayerTest {
 			assertEquals(2.0 / 3, player.getRoot().getWinRate(at("c15")), .001);
 			assertEquals(1.0 / 4, player.getRoot().getWinRate(at("b18")), .001);
 			assertEquals(1.0 / 4, player.getRoot().getWinRate(at("m18")), .001);
-		}
 	}
 
 }
