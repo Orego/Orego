@@ -117,7 +117,8 @@ public class PatternCounter5 {
 				if (token.equals("tt")) {
 					board.play(PASS);
 				} else {
-					board.play(sgfToPoint(token));
+					int legality = board.play(sgfToPoint(token));
+					assert legality == PLAY_OK;
 				}
 			}
 		}
