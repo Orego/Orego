@@ -40,7 +40,7 @@ public class PatternTest {
 				int[] n = Pattern.neighborhoodToArray((char)20);
 			String string = neighborhoodToDiagram(arrayToNeighborhood(n));
 			assertEquals("###\nO O\n###", string);
-			assertEquals("###OO###", arrayToString(n));
+			assertEquals("#OO#####", arrayToString(n));
 	}
 
 	@Test

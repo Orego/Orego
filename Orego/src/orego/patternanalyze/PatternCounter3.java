@@ -1,6 +1,7 @@
 package orego.patternanalyze;
 
 import static orego.core.Coordinates.*;
+import static orego.core.Colors.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -111,6 +112,7 @@ public class PatternCounter3 {
 	 * @return
 	 */
 	public Long[][] sortHashMapIntoArray() {
+		System.out.println("Sorting array...");
 		Set<Long> patterns = patternSeen.keySet();
 		Long[][] sortedArray = new Long[patterns.size()][3];
 		int index = 0; 
@@ -133,6 +135,7 @@ public class PatternCounter3 {
 			sortedArray[maxindex] = sortedArray[j];
 			sortedArray[j] = swapValue;
 		}
+		System.out.println("Done sorting array");
 		return sortedArray;
 	}
 
@@ -167,9 +170,11 @@ public class PatternCounter3 {
 	public void clearOutNonsense() {
 		if (patternSeen.size() > PATTERN_STORAGE_CUTOFF) {
 			int threshold = 1;
+			System.out.println("Removing patterns...");
 			while (patternSeen.size() > PATTERNS_TO_REMOVE) {
 				removePatterns(patternSeen.size() - PATTERNS_TO_REMOVE, threshold++);
 			}
+			System.out.println("Done removing patterns");
 		}
 	}
 
@@ -203,6 +208,7 @@ public class PatternCounter3 {
 	 */
 	public void checkPatterns(File dir) {
 		try {
+			System.out.println("Starting file "+dir.getName());
 			Board board = new Board();
 			String input = "";
 			Scanner s = new Scanner(dir);
@@ -235,43 +241,45 @@ public class PatternCounter3 {
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
 					for (int p : ALL_POINTS_ON_BOARD) {
-						DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
-						boolean foundPattern = false;
-						for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
-							if (patternSeen.containsKey(pattern.getPattern()[i])) {
-								foundPattern = true;
-								Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-								if (!patternSeenInGame.contains(pattern.getPattern()[i])) {
-									patternData[PATTERN_SEEN] += 1;
-									patternSeenInGame.add(pattern.getPattern()[i]);
+						if (patternBoard.getColor(p) == VACANT) {
+							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
+							boolean foundPattern = false;
+							for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
+								if (patternSeen.containsKey(pattern.getPattern()[i])) {
+									foundPattern = true;
+									Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
+									if (!patternSeenInGame.contains(pattern.getPattern()[i])) {
+										patternData[PATTERN_SEEN] += 1;
+										patternSeenInGame.add(pattern.getPattern()[i]);
+									}
+									if (currentTurn < patternData[MIN_TURN]) {
+										patternData[MIN_TURN] = (long)currentTurn;
+									}
+									if (currentTurn > patternData[MAX_TURN]) {
+										patternData[MAX_TURN] = (long)currentTurn;
+									}
+									patternData[TOTAL_TURN] += currentTurn;
+									patternSeen.put(pattern.getPattern()[i], patternData);
 								}
-								if (currentTurn < patternData[MIN_TURN]) {
-									patternData[MIN_TURN] = (long)currentTurn;
+								if (patternSeen.containsKey(pattern.getPattern()[i]) && (p == currentPlay) &&
+										(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
+									patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
+									patternPlayedInGame.add(pattern.getPattern()[i]);
 								}
-								if (currentTurn > patternData[MAX_TURN]) {
-									patternData[MAX_TURN] = (long)currentTurn;
-								}
-								patternData[TOTAL_TURN] += currentTurn;
-								patternSeen.put(pattern.getPattern()[i], patternData);
 							}
-							if (patternSeen.containsKey(pattern.getPattern()[i]) && (p == currentPlay) &&
-									(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
-								patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
-								patternPlayedInGame.add(pattern.getPattern()[i]);
-							}
-						}
-						if (!foundPattern) {
-							Long[] patternData = new Long[5];
-							patternData[PATTERN_SEEN] = (long)1;
-							patternSeenInGame.add(pattern.getPattern()[0]);
-							patternData[MIN_TURN] = (long)currentTurn;
-							patternData[MAX_TURN] = (long)currentTurn;
-							patternData[TOTAL_TURN] = (long)currentTurn;
-							patternData[PATTERN_PLAYED] = 0L;
-							patternSeen.put(pattern.getPattern()[0], patternData);
-							if ((p == currentPlay) && (!patternPlayedInGame.contains(pattern.getPattern()[0]))) {
-								patternSeen.get(pattern.getPattern()[0])[PATTERN_PLAYED]++;
-								patternPlayedInGame.add(pattern.getPattern()[0]);
+							if (!foundPattern) {
+								Long[] patternData = new Long[5];
+								patternData[PATTERN_SEEN] = (long)1;
+								patternSeenInGame.add(pattern.getPattern()[0]);
+								patternData[MIN_TURN] = (long)currentTurn;
+								patternData[MAX_TURN] = (long)currentTurn;
+								patternData[TOTAL_TURN] = (long)currentTurn;
+								patternData[PATTERN_PLAYED] = 0L;
+								patternSeen.put(pattern.getPattern()[0], patternData);
+								if ((p == currentPlay) && (!patternPlayedInGame.contains(pattern.getPattern()[0]))) {
+									patternSeen.get(pattern.getPattern()[0])[PATTERN_PLAYED]++;
+									patternPlayedInGame.add(pattern.getPattern()[0]);
+								}
 							}
 						}
 					}
@@ -279,6 +287,7 @@ public class PatternCounter3 {
 				currentTurn++;
 				patternBoard.play(lastPlay);
 			}
+			System.out.println("Finished file "+dir.getName());
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
