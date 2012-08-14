@@ -159,6 +159,7 @@ public class PatternCounter5 {
 					}
 				}
 			}
+			assert patternBoard.isLegal(currentPlay);
 			legality = patternBoard.play(currentPlay);
 			assert legality == PLAY_OK : "Illegal move #" + t + " at " + pointToString(currentPlay) + " on board:\n" + patternBoard;
 		}
