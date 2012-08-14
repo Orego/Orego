@@ -141,5 +141,11 @@ public class DynamicPatternTest implements Serializable{
 		assertEquals("#*##*##*#**#####****:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##****####:O").getPattern()[0]), 20));
 		assertEquals("#*##*##*#**#####******##:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##****####*##*:O").getPattern()[0]), 24));
 	}
+	
+	@Test
+	public void testSwitchColor() {
+		assertEquals("OOO*O**O:#", DynamicPattern.longToPatternString(DynamicPattern.switchColor(new DynamicPattern("###*#**#:O")).getPattern()[0], 8));
+		assertEquals("##..OOO*O**O:#", DynamicPattern.longToPatternString(DynamicPattern.switchColor(new DynamicPattern("OO..###*#**#:O")).getPattern()[0], 12));
+	}
 
 }
