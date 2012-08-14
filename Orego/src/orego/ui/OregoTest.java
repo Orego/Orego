@@ -1,9 +1,7 @@
 package orego.ui;
 
-import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
-import orego.core.Board;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
@@ -177,7 +175,6 @@ public class OregoTest {
 	/** Tests the that genmove code resigns when appropriate. */
 	@Test
 	public void testResign() throws IOException {
-		if (BOARD_WIDTH == 19) {
 			String[] problem = {"OOOOOOOOOOOOOOOOOOO",// 19
 								"OOOOOOOOOOOOOOO.O.O",// 18
 								"OOOOOOOOOOOOOOOOOOO",// 17
@@ -210,31 +207,6 @@ public class OregoTest {
 			assertTrue((at(output.substring(2)) == RESIGN)
 					|| (at(output.substring(2)) == PASS));
 			oregoOut.readLine(); // read out the extra return
-		} else {
-			// Create a most unfortunate situation for black
-			String[] problem = { //
-			"OOOOOOOOO", // 9
-					"OOOOO.O.O", // 8
-					"OOOOOOOOO", // 7
-					"OOOOOOOOO", // 6
-					"OOOOOOOOO", // 5
-					"OOOOOOOOO", // 4
-					"###OOOOOO", // 3
-					"###..OOOO", // 2
-					".....OOOO", // 1
-			}; // ABCDEFGHJ
-			orego.getPlayer().getBoard().setUpProblem(BLACK, problem);
-			// Ask for a move by black
-			orego.handleCommand("genmove_black");
-			output = oregoOut.readLine();
-			assertEquals('=', output.charAt(0));
-			// Ideally black would resign, but in practice they pass on
-			// occasion.
-			// Try removing the pass clause and see if things are better.
-			assertTrue((at(output.substring(2)) == RESIGN)
-					|| (at(output.substring(2)) == PASS));
-			oregoOut.readLine(); // read out the extra return
-		}
 	}
 
 	/** Test that genmove passes when appropriate. */
@@ -246,7 +218,6 @@ public class OregoTest {
 		oregoOut = new BufferedReader(new InputStreamReader(
 				new PipedInputStream(out)));
 		orego = new Orego(System.in, out, new String[] { "player=Player" });
-		if (BOARD_WIDTH == 19) {
 			String[] problem = { "OOOOOOOOOOOOOOOOOOO",// 19
 					"OOOOOOOOOOOOOOO.O.O",// 18
 					"OOOOOOOOOOOOOOOOOOO",// 17
@@ -275,27 +246,6 @@ public class OregoTest {
 			assertEquals('=', output.charAt(0));
 			assertTrue(at(output.substring(2)) == PASS);
 			oregoOut.readLine(); // read out the extra return
-		} else {
-			// Black can only pass in this situation
-			String[] problem = new String[] { //
-			"OOOOOOOOO", // 9
-					"OOOOO.O.O", // 8
-					"OOOOOOOOO", // 7
-					"OOOOOOOOO", // 6
-					"OOOOOOOOO", // 5
-					"OOOOOOOOO", // 4
-					"OOOOOOOOO", // 3
-					"OOOOOOOOO", // 2
-					"OOOOOOOOO", // 1
-			}; // ABCDEFGHJ
-			orego.getPlayer().getBoard().setUpProblem(BLACK, problem);
-			// Make sure Black passes
-			orego.handleCommand("genmove_black");
-			output = oregoOut.readLine();
-			assertEquals('=', output.charAt(0));
-			assertTrue(at(output.substring(2)) == PASS);
-			oregoOut.readLine(); // read out the extra return
-		}
 	}
 
 	/** Test the "known_command' command. */
@@ -350,7 +300,6 @@ public class OregoTest {
 	 */
 	@Test
 	public void testLoadSGF() {
-		if (BOARD_WIDTH == 19) {
 			// test the white to move flag (the '1' at the end)
 			orego.handleCommand("loadsgf testFiles/blunder.1.sgf 1");
 			assertEquals(BLACK, orego.getPlayer().getBoard()
@@ -381,28 +330,6 @@ public class OregoTest {
 					.getColor(at("d16")));
 			assertEquals(WHITE, orego.getPlayer().getBoard()
 					.getColor(at("j16")));
-			assertEquals(orego.getPlayer().getBoard().getColorToPlay(), BLACK);
-		} else {
-			// test the white to move flag (the '1' at the end)
-			orego.handleCommand("loadsgf testFiles/blunder.1.sgf 1");
-			assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("a8")));
-			assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("a7")));
-			assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("b7")));
-			assertEquals(WHITE, orego.getPlayer().getBoard().getColor(at("f7")));
-			assertEquals(WHITE, orego.getPlayer().getBoard().getColor(at("d6")));
-			assertEquals(WHITE, orego.getPlayer().getBoard().getColor(at("j6")));
-			assertEquals(orego.getPlayer().getBoard().getColorToPlay(), WHITE);
-			// test with out the flag, black to move by default
-			orego.getPlayer().reset();
-			orego.handleCommand("loadsgf testFiles/blunder.1.sgf");
-			assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("a8")));
-			assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("a7")));
-			assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("b7")));
-			assertEquals(WHITE, orego.getPlayer().getBoard().getColor(at("f7")));
-			assertEquals(WHITE, orego.getPlayer().getBoard().getColor(at("d6")));
-			assertEquals(WHITE, orego.getPlayer().getBoard().getColor(at("j6")));
-			assertEquals(orego.getPlayer().getBoard().getColorToPlay(), BLACK);
-		}
 	}
 
 	/** Test that the "name" command actually returns Orego. */

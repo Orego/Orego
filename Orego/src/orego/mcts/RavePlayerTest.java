@@ -2,14 +2,12 @@ package orego.mcts;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static orego.mcts.MctsPlayerTest.TABLE_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import orego.core.Board;
-import orego.heuristic.Heuristic;
 import orego.heuristic.HeuristicList;
 import orego.play.UnknownPropertyException;
 import org.junit.Before;
@@ -110,7 +108,7 @@ public class RavePlayerTest {
 	
 	@Test
 	public void testMultipleMovesAtSamePointNotCounted2() {
-		if (BOARD_WIDTH == 19) {
+	
 			String[] problem = {
 					"...................",//19
 					"...................",//18
@@ -143,34 +141,12 @@ public class RavePlayerTest {
 			assertEquals(2.0 / 3, child.getWinRate(at("d7")), 0.01);
 			assertEquals(2.0 / 3, child.getRaveWinRate(at("c1")), 0.01);
 			assertEquals(1.0 / 2, child.getRaveWinRate(at("a1")), 0.01);
-		} else {
-			String[] problem = {
-					".........",
-					".........",
-					".........",
-					".........",
-					".........",
-					".........",
-					".........",
-					"OO.......",
-					".#......."
-			};
-			player.setUpProblem(BLACK, problem);
-			board.setUpProblem(BLACK, problem);
-			board.play(at("c5"));
-			player.getTable().findOrAllocate(board.getHash());
-			incorporateRun(WHITE, "c5", "d7", "a1", "c1", "a5", "a1");
-			RaveNode child = (RaveNode) player.getTable().findIfPresent(
-					board.getHash());
-			assertEquals(2.0 / 3, child.getWinRate(at("d7")), 0.01);
-			assertEquals(2.0 / 3, child.getRaveWinRate(at("c1")), 0.01);
-			assertEquals(1.0 / 2, child.getRaveWinRate(at("a1")), 0.01);
-		}
+		
 	}
 
 	@Test
 	public void testDebug1() {
-		if (BOARD_WIDTH == 19) {
+		
 			String[] problem = {
 					"#########OOOOOOOOOO",//19
 					"#########OOOOOOOOOO",//18
@@ -196,23 +172,7 @@ public class RavePlayerTest {
 			player.getBoard().setUpProblem(BLACK, problem);
 			player.acceptMove(PASS);
 			player.bestMove();
-		} else {
-		// This position caused a crash during a game
-			String[] problem = {
-					"..##.#..#",
-					"..#O.#.#.",
-					"..#O##.##",
-					"...#.##O#",
-					"..###OOOO",
-					"###OOOOOO",
-					"OOOO.O###",
-					"#OOOO##OO",
-					".O###.#O.",
-			};
-			player.getBoard().setUpProblem(BLACK, problem);
-			player.acceptMove(PASS);
-			player.bestMove();
-		}
+		
 	}
 
 	@Test
@@ -223,7 +183,7 @@ public class RavePlayerTest {
 	@Test
 	public void testSuperko() {
 		String[] problem;
-		if (BOARD_WIDTH == 19) {
+		
 			problem = new String[] {
 					"...................",//19
 					"...................",//18
@@ -246,20 +206,7 @@ public class RavePlayerTest {
 					"##.O.O............." //1
 			      // ABCDEFGHJKLMNOPQRST
 			};
-		} else {
-			problem = new String[] {
-					   ".........",
-					   ".........",
-					   "......#..",
-					   "OOO......",
-					   "##O......",
-					   ".#O......",
-					   "##OOO....",
-					   "..##O....",
-					   "##.O.O..."
-					 // ABCDEFGHJ
-			};
-		}
+		
 		player.setUpProblem(WHITE, problem);
 		player.acceptMove(at("c1"));
 		player.acceptMove(at("e1"));

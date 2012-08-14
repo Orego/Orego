@@ -37,11 +37,7 @@ public class FusekiBookTest {
 	@Test
 	public void testFusekiBook1() {
 		String[] correct;
-		if (BOARD_WIDTH == 19) {
 			correct = new String[] { "q4", "d16", "c4" };
-		} else {
-			correct = new String[] { "e5", "e3", "e7", "e8"};
-		}
 		for (String move : correct) {
 			assertEquals(pointToString(at(move)), pointToString(gen.nextMove(board)));
 			int m = gen.nextMove(board);
@@ -53,9 +49,7 @@ public class FusekiBookTest {
 	public void testOpeningBook() throws UnknownPropertyException {
 		player.setOpeningBook(gen);
 		int p = player.bestMove();
-		if (BOARD_WIDTH == 19) {
 			assertEquals(pointToString(at("q4")), pointToString(p));
-		}
 	}
 
 }

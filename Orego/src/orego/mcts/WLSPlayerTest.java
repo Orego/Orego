@@ -1,9 +1,7 @@
 package orego.mcts;
 
 import static orego.core.Colors.BLACK;
-import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static orego.mcts.MctsPlayerTest.TABLE_SIZE;
@@ -75,7 +73,6 @@ public class WLSPlayerTest {
 	
 	@Test
 	public void testLifeOrDeath() {
-		if (BOARD_WIDTH == 19) {
 				player.reset();
 				String[] diagram = { 
 						"#######....########",// 19
@@ -105,7 +102,6 @@ public class WLSPlayerTest {
 				
 				assertEquals(at("k19"), player.getBestReplies()[BLACK][at("a10")][at("j19")].getTopResponses()[0]);
 				assertEquals(at("j19"), player.getBestReplies()[BLACK][at("a10")][at("k19")].getTopResponses()[0]);
-		}
 	}
 
 	@Test

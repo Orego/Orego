@@ -54,11 +54,9 @@ public class ThreadedPlayerTest {
 	@Test
 	public void testSetRemainingTime() {
 		player.setRemainingTime(10);
-		if (BOARD_WIDTH == 19) {
+		
 			assertEquals(55, player.getMillisecondsPerMove());
-		} else {
-			assertEquals(250, player.getMillisecondsPerMove());
-		}
+		
 	}
 
 	@Test
