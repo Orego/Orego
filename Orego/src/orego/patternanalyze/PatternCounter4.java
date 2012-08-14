@@ -19,7 +19,8 @@ import orego.core.Board;
 
 
 /**
- * This class uses all the points on the board when looking for patterns.
+ * This class uses all points within the neighborhood of the last move.
+ * It is in the same output format as Pattern.
  * A pattern is "Seen" if it was on the board at any point.
  * A pattern is "Played" if it was played at any point.
  * These are sorted based on the ratio of patterns seen to patterns played.
@@ -27,7 +28,7 @@ import orego.core.Board;
  *
  */
 
-public class PatternCounter3 {
+public class PatternCounter4 {
 
 	/**
 	 * The number of total patterns, including impossible ones.
@@ -64,10 +65,10 @@ public class PatternCounter3 {
 	private static String TEST_DIRECTORY = "../../../Test Games/";
 
 	public static void main(String[] args) {
-		new PatternCounter3();
+		new PatternCounter4();
 	}
 
-	public PatternCounter3() {
+	public PatternCounter4() {
 		try {
 			setUp(TEST_DIRECTORY);
 			int threshold = 1;
@@ -75,33 +76,47 @@ public class PatternCounter3 {
 				removePatterns(-1, threshold++);
 			}
 			PrintWriter bw = new PrintWriter(new FileWriter(new File(
-					TEST_DIRECTORY + "outputRatio"+PATTERN_LENGTH+".txt")));
+					TEST_DIRECTORY + "BadPatterns"+PATTERN_LENGTH+".txt")));
 			String output = "";
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
-				output = "Seen:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN];
+				output = "\""+translatePatternToString(pattern[SORTED_ARRAY_PATTERN]) + "\", ";
+				output += " /*Ratio:" +  (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
+				output += " Seen:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN];
 				output += " Played:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED];
-				output += " Ratio:" +  (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
 				output += " Min Turn:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[MIN_TURN];
 				output += " Max Turn:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[MAX_TURN];
-				//output += " Ave Turn:" + (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[TOTAL_TURN] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
-				output += " " + DynamicPattern.longToPatternString(pattern[SORTED_ARRAY_PATTERN], PATTERN_LENGTH) + "\n";
+				output += " Ave Turn:" + (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[TOTAL_TURN] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN])) + "*/\n";
 				bw.write(output);
 			}
 			System.out.println("Done.");
 			bw.write(output);
-			System.out.println("Written to file "+TEST_DIRECTORY + "outputRatio"+PATTERN_LENGTH+".txt");
+			System.out.println("Written to file "+TEST_DIRECTORY + "BadPatterns"+PATTERN_LENGTH+".txt");
 			bw.close();
-			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternRatio"+PATTERN_LENGTH+".dat")));
+			ObjectOutputStream ow = new ObjectOutputStream(new FileOutputStream(new File(TEST_DIRECTORY + "patternGoodPattern"+PATTERN_LENGTH+".dat")));
 			for (Long[] pattern : initialPatternSeen) {
 				ow.writeObject(new DynamicPattern(pattern[0], PATTERN_LENGTH));
 			}
 			ow.flush();
 			ow.close();
-			System.out.println("Written to file "+TEST_DIRECTORY + "patternRatio"+PATTERN_LENGTH+".dat");
+			System.out.println("Written to file "+TEST_DIRECTORY + "patternGoodPattern"+PATTERN_LENGTH+".dat");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Translate the dynamic pattern to a string.
+	 * @param input
+	 * @return
+	 */
+	public static String translatePatternToString(long input) {
+		String incoming = DynamicPattern.longToPatternString(input, 8);
+		String output = "" + incoming.charAt(0) + incoming.charAt(3)
+						+ incoming.charAt(1) + incoming.charAt(2) 
+						+ incoming.charAt(4) + incoming.charAt(5)
+						+ incoming.charAt(7) + incoming.charAt(6);
+		return output;
 	}
 
 	/**
@@ -240,9 +255,12 @@ public class PatternCounter3 {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-					for (int p : ALL_POINTS_ON_BOARD) {
+					for (int p : NEIGHBORS[lastPlay]) {
 						if (patternBoard.getColor(p) == VACANT) {
 							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
+							if (pattern.getColorToPlay() == WHITE) {
+								pattern = DynamicPattern.switchColor(pattern);
+							}
 							boolean foundPattern = false;
 							for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
 								if (patternSeen.containsKey(pattern.getPattern()[i])) {

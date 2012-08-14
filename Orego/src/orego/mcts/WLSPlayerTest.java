@@ -73,39 +73,37 @@ public class WLSPlayerTest {
 	}
 	
 	@Test
-	public void testLifeOrDeath() throws Exception {
-		if (BOARD_WIDTH == 19) {
-				player.reset();
-				String[] diagram = { 
-						"#######....########",// 19
-						"###################",// 18
-						"###################",// 17
-						"###################",// 16
-						"###################",// 15
-						"###################",// 14
-						"###################",// 13
-						"###################",// 12
-						"###################",// 11
-						".##################",// 10
-						"OOOOOOOOOOOOOOOOOOO",// 9
-						"OOOOOOOOOOOOOOOOOOO",// 8
-						"OOOOOOOOOOOOOOOOOOO",// 7
-						"OOOOOOOOOOOOOOOOOOO",// 6
-						"OOOOOOOOOOOOOOOOOOO",// 5
-						"OOOOOOOOOOOOOOOOOOO",// 4
-						"OOOOOOOOOOOOOOOOOOO",// 3
-						"OOOOOOOOOOOOOOOOOOO",// 2
-						".OOOOOOOOOOOOOOOOO." // 1
-					  // ABCDEFGHJKLMNOPQRST
-				};
-				player.setUpProblem(BLACK, diagram);
-				player.getBoard().play(at("a10"));
-				player.setProperty("msec", "5000");
-				player.bestMove();
-				
-				assertEquals(at("k19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("j19"), BLACK)).getTopResponses()[0]);
-				assertEquals(at("j19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("k19"), BLACK)).getTopResponses()[0]);
-		}
+	public void testLifeOrDeath()  throws Exception{
+			player.reset();
+			String[] diagram = { 
+					"#######....########",// 19
+					"###################",// 18
+					"###################",// 17
+					"###################",// 16
+					"###################",// 15
+					"###################",// 14
+					"###################",// 13
+					"###################",// 12
+					"###################",// 11
+					".##################",// 10
+					"OOOOOOOOOOOOOOOOOOO",// 9
+					"OOOOOOOOOOOOOOOOOOO",// 8
+					"OOOOOOOOOOOOOOOOOOO",// 7
+					"OOOOOOOOOOOOOOOOOOO",// 6
+					"OOOOOOOOOOOOOOOOOOO",// 5
+					"OOOOOOOOOOOOOOOOOOO",// 4
+					"OOOOOOOOOOOOOOOOOOO",// 3
+					"OOOOOOOOOOOOOOOOOOO",// 2
+					".OOOOOOOOOOOOOOOOO." // 1
+				  // ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(BLACK, diagram);
+			player.getBoard().play(at("a10"));
+			player.setProperty("msec", "5000");
+			player.bestMove();
+			
+			assertEquals(at("k19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("j19"), BLACK)).getTopResponses()[0]);
+			assertEquals(at("j19"), player.getBestReplies().get(WLSPlayer.levelTwoEncodedIndex(at("a10"), at("k19"), BLACK)).getTopResponses()[0]);
 	}
 
 	@Test

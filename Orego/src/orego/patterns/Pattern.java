@@ -31,6 +31,8 @@ public abstract class Pattern {
 
 	/** A "color" that matches black and vacant. */
 	public static final int NOT_WHITE = 6;
+	
+	public static SimplePattern pattern;
 
 	/**
 	 * Converts a multiline string into a neighborhood.
@@ -48,6 +50,11 @@ public abstract class Pattern {
 			result = (char) ((result >> 2) | (charToColor(n[i]) << 14));
 		}
 		return result;
+	}
+	
+	public static void main(String[] args) {
+		pattern = new SimplePattern("O...#O??");
+		pattern.patternsToTextFiles();
 	}
 
 	/**
@@ -84,16 +91,18 @@ public abstract class Pattern {
 		}
 		return result;
 	}
-	
+	/**
+	 * Takes an int[] representation of a neighborhood and changes it to be represented as a string
+	 */
 	public static String arrayToString(int[] p){
 		String result;
-		result= orego.core.Colors.colorToString(p[4]);
-		result +=orego.core.Colors.colorToString(p[0]);
-		result +=orego.core.Colors.colorToString(p[5]);
+		result= orego.core.Colors.colorToString(p[0]);
 		result +=orego.core.Colors.colorToString(p[1]);
 		result +=orego.core.Colors.colorToString(p[2]);
-		result +=orego.core.Colors.colorToString(p[6]);
 		result +=orego.core.Colors.colorToString(p[3]);
+		result +=orego.core.Colors.colorToString(p[4]);
+		result +=orego.core.Colors.colorToString(p[5]);
+		result +=orego.core.Colors.colorToString(p[6]);
 		result +=orego.core.Colors.colorToString(p[7]);
 		return result;
 	}
@@ -264,12 +273,23 @@ public abstract class Pattern {
 		}
 	}
 	
+	public void patternsToTextFiles(){
+		int count = 0;
+		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
+			if(isSmallest((char)p) && isPossibleNeighborhood((char)p)){
+				System.out.print("\""+arrayToString(neighborhoodToArray((char)p)));
+				System.out.println("\", //"+count);
+				count++;
+			}
+		}
+	}
+	
 	public void patternPrinter(){
 		int count = 0;
 		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
 			if(isSmallest((char)p) && isPossibleNeighborhood((char)p)){
-				System.out.println(count);
-				System.out.println(neighborhoodToDiagram((char)p));
+//				System.out.println(count);
+//				System.out.println(neighborhoodToDiagram((char)p));
 				count++;
 			}
 		}

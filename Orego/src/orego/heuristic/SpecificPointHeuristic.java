@@ -2,7 +2,6 @@ package orego.heuristic;
 
 import static orego.core.Coordinates.at;
 import orego.core.Board;
-import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
 
 /** Recommands a given point. For unit testing. */

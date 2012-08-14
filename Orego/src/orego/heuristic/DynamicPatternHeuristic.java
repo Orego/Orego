@@ -61,24 +61,23 @@ public class DynamicPatternHeuristic extends Heuristic {
 	}
 
 	public int evaluate(int p, Board board) {
-		int returnValue = 0;
 		long pattern24 = DynamicPattern.setupPattern(p, board, 24);
 		long pattern20 = pattern24 & (~(255L << 40));
 		long pattern12 = pattern20 & (~((255L << 24) | (255L << 32)));
 		long pattern8 = pattern12 & (~(255L << 16));
-		if (patternList.containsKey(pattern24)) {
+		if (patternList.get(pattern8) != null) {
 			return 1;
 		}
-		if (patternList.containsKey(pattern20)) {
+		if (patternList.get(pattern12) != null) {
 			return 1;
 		}
-		if (patternList.containsKey(pattern12)) {
+		if (patternList.get(pattern20) != null) {
 			return 1;
 		}
-		if (patternList.containsKey(pattern8)) {
+		if (patternList.get(pattern24) != null) {
 			return 1;
 		}
-		return returnValue;
+		return 0;
 	}
 	
 	public void prepare(Board board) {

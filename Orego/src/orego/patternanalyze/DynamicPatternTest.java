@@ -26,7 +26,6 @@ public class DynamicPatternTest implements Serializable{
 	@Test
 	public void test() {
 		String[] problem;
-		if (BOARD_WIDTH == 19) {
 			problem = new String[] {
 					"...................",//19
 					"...................",//18
@@ -61,13 +60,11 @@ public class DynamicPatternTest implements Serializable{
 			assertEquals(WHITE, pattern.getColorFromPosition(6, 16));
 			assertEquals(WHITE, pattern.getColorFromPosition(7, 14));
 			assertEquals(WHITE, pattern.getColorFromPosition(1, 7));
-		}
 	}
 	
 	@Test
 	public void testMatch() {
 		String[] problem;
-		if (BOARD_WIDTH == 19) {
 			problem = new String[] {
 					"...................",//19
 					"..............#....",//18
@@ -97,7 +94,6 @@ public class DynamicPatternTest implements Serializable{
 			assertTrue(pattern1.match(DynamicPattern.setupPattern(at("f6"), board, 24), 24));
 			assertTrue(pattern2.match(DynamicPattern.setupPattern(at("p15"), board, 24), 24));
 			assertTrue(pattern1.match(DynamicPattern.setupPattern(at("p15"), board, 24), 24));
-		}
 	}
 	
 	@Test
@@ -144,6 +140,12 @@ public class DynamicPatternTest implements Serializable{
 		assertEquals("#*##*##*#**#:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##:O").getPattern()[0]), 12));
 		assertEquals("#*##*##*#**#####****:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##****####:O").getPattern()[0]), 20));
 		assertEquals("#*##*##*#**#####******##:O", DynamicPattern.longToPatternString(DynamicPattern.mirror(new DynamicPattern("###*#**#**##****####*##*:O").getPattern()[0]), 24));
+	}
+	
+	@Test
+	public void testSwitchColor() {
+		assertEquals("OOO*O**O:#", DynamicPattern.longToPatternString(DynamicPattern.switchColor(new DynamicPattern("###*#**#:O")).getPattern()[0], 8));
+		assertEquals("##..OOO*O**O:#", DynamicPattern.longToPatternString(DynamicPattern.switchColor(new DynamicPattern("OO..###*#**#:O")).getPattern()[0], 12));
 	}
 
 }
