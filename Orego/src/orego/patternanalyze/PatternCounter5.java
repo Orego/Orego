@@ -83,7 +83,9 @@ public class PatternCounter5 {
 					readGames(filename);
 				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
 					Board board = sgfToGame(file);
-					analyze(board);
+					if (board != null) {						
+						analyze(board);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -105,6 +107,10 @@ public class PatternCounter5 {
 		StringTokenizer stoken = new StringTokenizer(input, "()[];");
 		while (stoken.hasMoreTokens()) {
 			String token = stoken.nextToken();
+			if (token.equals("AB")) {
+				s.close();
+				return null; // Handicap game; ignore
+			}
 			if (token.equals("W") || token.equals("B")) {
 				token = stoken.nextToken();
 				if (token.equals("tt")) {
@@ -137,7 +143,6 @@ public class PatternCounter5 {
 						} else {
 							neighborhood = patternBoard.getNeighborhoodColorsReversed(p);
 						}
-						boolean foundPattern = false;
 						char transformed = getLowestTransformation(neighborhood);
 						if (!seenThisGame.get(transformed)) {
 							seenThisGame.set(transformed, true);
