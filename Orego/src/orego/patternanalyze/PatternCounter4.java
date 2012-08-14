@@ -80,7 +80,7 @@ public class PatternCounter4 {
 			String output = "";
 			Long[][] initialPatternSeen = sortHashMapIntoArray();
 			for (Long[] pattern : initialPatternSeen) {
-				output = translatePatternToString(pattern[SORTED_ARRAY_PATTERN]) + ", ";
+				output = "\""+translatePatternToString(pattern[SORTED_ARRAY_PATTERN]) + "\", ";
 				output += " /*Ratio:" +  (patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED] / (1.0 * patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN]));
 				output += " Seen:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_SEEN];
 				output += " Played:" + patternSeen.get(pattern[SORTED_ARRAY_PATTERN])[PATTERN_PLAYED];
@@ -255,7 +255,7 @@ public class PatternCounter4 {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
 				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-					for (int p : ALL_POINTS_ON_BOARD) {
+					for (int p : NEIGHBORS[lastPlay]) {
 						if (patternBoard.getColor(p) == VACANT) {
 							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
 							if (pattern.getColorToPlay() == WHITE) {
