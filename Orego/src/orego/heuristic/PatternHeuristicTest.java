@@ -2,18 +2,13 @@ package orego.heuristic;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 import orego.core.Board;
-import orego.mcts.SearchNode;
-import orego.util.IntSet;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
 
 public class PatternHeuristicTest {
 
