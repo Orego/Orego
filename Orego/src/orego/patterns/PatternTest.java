@@ -34,20 +34,21 @@ public class PatternTest {
 	public void testPatternPrinter() {
 		pattern.patternPrinter();
 	}
-	
+
 	@Test
-	public void testArrayToString(){
-				int[] n = Pattern.neighborhoodToArray((char)20);
-			String string = neighborhoodToDiagram(arrayToNeighborhood(n));
-			assertEquals("###\nO O\n###", string);
-			assertEquals("###OO###", arrayToString(n));
+	public void testArrayToString() {
+		char p = diagramToNeighborhood("***\n* O\n*#.");
+		int[] n = Pattern.neighborhoodToArray(p);
+		String string = neighborhoodToDiagram(arrayToNeighborhood(n));
+		assertEquals("***\n* O\n*#.", string);
+		assertEquals("**O#***.", arrayToString(n));
 	}
 
 	@Test
 	public void testArrayToNeighborhood() {
 		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
-			if(isPossibleNeighborhood((char)p)){
-				int[] n = Pattern.neighborhoodToArray((char)p);
+			if (isPossibleNeighborhood((char) p)) {
+				int[] n = Pattern.neighborhoodToArray((char) p);
 				char i = Pattern.arrayToNeighborhood(n);
 				assertEquals(i, p);
 			}
