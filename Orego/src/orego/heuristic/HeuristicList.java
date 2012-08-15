@@ -209,6 +209,8 @@ public class HeuristicList implements Cloneable {
 			// in a manner analogous to double hashing.
 			i = (i + 457) % vacantPoints.size();
 		} while (i != start);
+		// TODO Would it be faster to NOT maintain the set of bad moves
+		// and re-detect badness in the rare event that we get here?
 		// We're desperate -- try the bad moves
 		if (badMoves.size() > 0) {
 			start = random.nextInt(badMoves.size());

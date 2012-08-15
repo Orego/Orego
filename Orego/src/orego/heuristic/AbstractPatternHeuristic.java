@@ -18,6 +18,7 @@ public abstract class AbstractPatternHeuristic extends Heuristic {
 	 */
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 	
+	// TODO Are these BitVectors extremely sparse? If so, would IntSets be better?
 	public static final BitVector[] BAD_NEIGHBORHOODS = {
 		new BitVector(NUMBER_OF_NEIGHBORHOODS),
 		new BitVector(NUMBER_OF_NEIGHBORHOODS) };
