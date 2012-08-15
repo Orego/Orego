@@ -3,9 +3,7 @@ package orego.patternanalyze;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.*;
 import orego.core.Board;
@@ -22,18 +20,18 @@ public class PatternCounter5 {
 	public static final int NUMBER_OF_NEIGHBORHOODS = Character.MAX_VALUE + 1;
 
 	/** Seen[p] is the number of times p was seen. */
-	private int[] seen;
+	protected int[] seen;
 	
 	/** Played[p] is the number of times p was played. */
-	private int[] played;
+	protected int[] played;
 	
 	public static void main(String[] args) {
 		new PatternCounter5().run();
 	}
 	
-	private BitVector seenThisGame;
+	protected BitVector seenThisGame;
 	
-	private BitVector playedThisGame;
+	protected BitVector playedThisGame;
 	
 	public PatternCounter5() {
 		playedThisGame = new BitVector(NUMBER_OF_NEIGHBORHOODS);
@@ -41,6 +39,8 @@ public class PatternCounter5 {
 	}
 	
 	private static String TEST_DIRECTORY = "../../../Test Games/";
+	
+	protected String outputFile = "GoodPatterns";
 
 	public void run() {
 		played = new int[NUMBER_OF_NEIGHBORHOODS];
@@ -57,14 +57,14 @@ public class PatternCounter5 {
 					patterns.add(new RatedPattern((char)p, (double)played[p] / seen[p]));
 				}
 			}
-			PrintWriter bw = new PrintWriter(new FileWriter(new File(TEST_DIRECTORY + "BadPatterns.txt")));
+			PrintWriter bw = new PrintWriter(new FileWriter(new File(TEST_DIRECTORY + outputFile + ".txt")));
 			for (RatedPattern p : patterns) {
 				char pattern = p.getPattern();
 				bw.println("\"" + arrayToString(neighborhoodToArray(pattern)) + "\", // "
 						+ played[pattern] + "/" + seen[pattern] + " = " + p.getRatio());
 			}
 			System.out.println("Done.");
-			System.out.println("Written to file "+TEST_DIRECTORY + "BadPatterns.txt");
+			System.out.println("Written to file "+TEST_DIRECTORY + outputFile + ".txt");
 			bw.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -126,6 +126,10 @@ public class PatternCounter5 {
 		System.out.println("Finished file "+file.getName());
 		return board;
 	}
+	
+	protected int[] getPointsToAnalyze(int p) {
+		return NEIGHBORS[p];
+	}
 
 	public void analyze(Board board) {
 		int turn = board.getTurn();
@@ -138,7 +142,7 @@ public class PatternCounter5 {
 			int currentPlay = board.getMove(t);
 			int lastPlay = board.getMove(t - 1);
 			if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-				for (int p : NEIGHBORS[lastPlay]) {
+				for (int p : getPointsToAnalyze(lastPlay)) {
 					if (patternBoard.getColor(p) == VACANT) {
 						char neighborhood;
 						if (patternBoard.getColorToPlay() == BLACK) {
