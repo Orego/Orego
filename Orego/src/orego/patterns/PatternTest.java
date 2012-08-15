@@ -2,7 +2,7 @@ package orego.patterns;
 
 import static org.junit.Assert.*;
 import static orego.core.Colors.*;
-import static orego.heuristic.AbstractPatternHeuristic.isPossibleNeighborhood;
+import static orego.heuristic.PatternHeuristic.isPossibleNeighborhood;
 
 import org.junit.Before;
 import org.junit.Test;
