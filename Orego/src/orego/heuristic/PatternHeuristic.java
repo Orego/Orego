@@ -19,6 +19,10 @@ public class PatternHeuristic extends Heuristic {
 	
 	protected int numberOfGoodPatterns;
 	
+	private static int DEFAULT_NUMBER_OF_GOOD_PATTERNS = 250;
+	
+	private static int DEFAULT_NUMBER_OF_BAD_PATTERNS = 250;
+	
 	protected BitVector[] goodNeighborhoods = {
 											new BitVector(NUMBER_OF_NEIGHBORHOODS),
 											new BitVector(NUMBER_OF_NEIGHBORHOODS) };
@@ -35,9 +39,8 @@ public class PatternHeuristic extends Heuristic {
 	public PatternHeuristic(int weight) {
 		super(weight);
 		
-		// TODO: these should be set to an appropriate initial value
-		resizeNumberOfGoodPatterns(250);
-		resizeNumberOfBadPatterns(250);
+		resizeNumberOfGoodPatterns(Math.min(PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length, DEFAULT_NUMBER_OF_GOOD_PATTERNS));
+		resizeNumberOfBadPatterns(Math.min(PatternHeuristicPatterns.ALL_BAD_PATTERNS.length,   DEFAULT_NUMBER_OF_BAD_PATTERNS));
 	}
 
 	

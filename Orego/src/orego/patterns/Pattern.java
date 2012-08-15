@@ -197,7 +197,7 @@ public abstract class Pattern {
 	}
 
 	/** Returns NOT_BLACK for BLACK and NOT_WHITE for WHITE. */
-	protected int not(int color) {
+	protected static int not(int color) {
 		assert isAPlayerColor(color);
 		if (color == WHITE) {
 			return NOT_WHITE;
@@ -293,27 +293,34 @@ public abstract class Pattern {
 	 *            play), + (not opposite color), and ? (ignore).
 	 */
 	protected void setColors(String s, int colorToPlay) {
+		colors = colorSpecificDiagramToArray(s, colorToPlay);
+	}
+	
+	public static int[] colorSpecificDiagramToArray(String s, int colorToPlay) {
+		int[] colorsArray = new int[8];
+		
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) == '#') {
-				colors[i] = colorToPlay;
+				colorsArray[i] = colorToPlay;
 			} else if (s.charAt(i) == 'O') {
-				colors[i] = opposite(colorToPlay);
+				colorsArray[i] = opposite(colorToPlay);
 			} else if (s.charAt(i) == '.') {
-				colors[i] = VACANT;
+				colorsArray[i] = VACANT;
 			} else if (s.charAt(i) == '*') {
-				colors[i] = OFF_BOARD_COLOR;
+				colorsArray[i] = OFF_BOARD_COLOR;
 			} else if (s.charAt(i) == 'o') { // o stands for O or .
-				colors[i] = not(colorToPlay);
+				colorsArray[i] = not(colorToPlay);
 			} else if (s.charAt(i) == '+') { // + stands for # or .
-				colors[i] = not(opposite(colorToPlay));
+				colorsArray[i] = not(opposite(colorToPlay));
 			} else if (s.charAt(i) == '?') {
-				colors[i] = IGNORE_COLOR;
+				colorsArray[i] = IGNORE_COLOR;
 			} else {
 				assert false : "Unknown color in template: " + s.charAt(i);
 			}
 		}
+		
+		return colorsArray;
 	}
-	
 	
 	public void patternsToTextFiles(){
 		int count = 0;
@@ -330,8 +337,6 @@ public abstract class Pattern {
 		int count = 0;
 		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
 			if(isSmallest((char)p) && isPossibleNeighborhood((char)p)){
-//				System.out.println(count);
-//				System.out.println(neighborhoodToDiagram((char)p));
 				count++;
 			}
 		}
