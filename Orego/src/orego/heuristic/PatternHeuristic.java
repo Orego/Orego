@@ -87,12 +87,13 @@ public class PatternHeuristic extends Heuristic {
 		
 		// we start at the bottom of the good list and work our way upwards exactly numberOfGoodPattern times
 		// since the best patterns are at the bottom of the good list
-		int endIndex = (PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - numberOfGoodPatterns) - 1;
-		int startIndex = PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - 1;
+		int startIndex = (PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - numberOfGoodPatterns);
+		int endIndex = PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - 1;
 		
-		for (int i = startIndex; i >= endIndex; i++) {
-			BLACK_GOOD_PATTERNS[i] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], BLACK);
-			WHITE_GOOD_PATTERNS[i] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], WHITE);
+		for (int i = startIndex; i <= endIndex; i++) {
+			// we must subtract start index so that we index relative to the smaller arrays
+			BLACK_GOOD_PATTERNS[i - startIndex] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], BLACK);
+			WHITE_GOOD_PATTERNS[i - startIndex] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], WHITE);
 		}
 		
 		// Find all good neighborhoods, i.e., neighborhoods where a player
