@@ -35,10 +35,12 @@ public class PatternCounter5 {
 
 	protected String outputFile;
 	
+	protected int numberOfGames = 0;
+	
 	public PatternCounter5() {
 		playedThisGame = new BitVector(NUMBER_OF_NEIGHBORHOODS);
 		seenThisGame = new BitVector(NUMBER_OF_NEIGHBORHOODS);	
-		outputFile = "GoodPatterns";
+		outputFile = "GoodPatterns2";
 	}
 	
 	private static String TEST_DIRECTORY = "../../../Test Games/";
@@ -67,6 +69,7 @@ public class PatternCounter5 {
 			System.out.println("Done.");
 			System.out.println("Written to file "+TEST_DIRECTORY + outputFile + ".txt");
 			bw.close();
+			System.out.println("Number of games:" + numberOfGames);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -87,6 +90,7 @@ public class PatternCounter5 {
 					Board board = sgfToGame(file);
 					if (board != null) {						
 						analyze(board);
+						numberOfGames++;
 					}
 				}
 			}
@@ -152,13 +156,9 @@ public class PatternCounter5 {
 							neighborhood = patternBoard.getNeighborhoodColorsReversed(p);
 						}
 						char transformed = getLowestTransformation(neighborhood);
-						if (!seenThisGame.get(transformed)) {
-							seenThisGame.set(transformed, true);
-							seen[transformed]++;
-							assert seen[transformed] >= 0;
-						}
-						if ((p == currentPlay) && !playedThisGame.get(transformed)) {
-							playedThisGame.set(transformed, true);
+						seen[transformed]++;
+						assert seen[transformed] >= 0;	
+						if (p == currentPlay) {
 							played[transformed]++;
 							assert played[transformed] >= 0;
 						}
