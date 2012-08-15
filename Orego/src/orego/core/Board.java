@@ -703,9 +703,10 @@ public class Board {
 		char result = 0;
 		for(int i = 0; i < 8; i++){
 			if(colors[NEIGHBORS[p][i]] == WHITE || colors[NEIGHBORS[p][i]] == BLACK){
-				colors[NEIGHBORS[p][i]] = opposite(colors[NEIGHBORS[p][i]]);
+				result = (char) ((result >>> 2) | (opposite(colors[NEIGHBORS[p][i]]) << 14));
+			} else {
+				result = (char) ((result >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
 			}
-			result = (char) ((result >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
 		}
 		assert colors[p] == VACANT;
 		return result;
