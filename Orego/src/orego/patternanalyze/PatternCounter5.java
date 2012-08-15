@@ -152,7 +152,7 @@ public class PatternCounter5 {
 							seen[transformed]++;
 							assert seen[transformed] >= 0;
 						}
-						if ((p == currentPlay) && !playedThisGame.get(p)) {
+						if ((p == currentPlay) && !playedThisGame.get(transformed)) {
 							playedThisGame.set(transformed, true);
 							played[transformed]++;
 							assert played[transformed] >= 0;
