@@ -36,8 +36,8 @@ public class PatternHeuristic extends Heuristic {
 		super(weight);
 		
 		// TODO: these should be set to an appropriate initial value
-		numberOfGoodPatterns = 400;
-		numberOfBadPatterns  = 3;
+		resizeNumberOfGoodPatterns(250);
+		resizeNumberOfBadPatterns(250);
 	}
 
 	
@@ -82,9 +82,12 @@ public class PatternHeuristic extends Heuristic {
 		Pattern[] BLACK_GOOD_PATTERNS = new Pattern[numberOfGoodPatterns];
 		Pattern[] WHITE_GOOD_PATTERNS = new Pattern[numberOfGoodPatterns];
 		
-		// we start at the bottom of the good list and work our way upwards
+		// we start at the bottom of the good list and work our way upwards exactly numberOfGoodPattern times
 		// since the best patterns are at the bottom of the good list
-		for (int i = numberOfGoodPatterns - 1; i >= 0; i++) {
+		int endIndex = (PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - numberOfGoodPatterns) - 1;
+		int startIndex = PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - 1;
+		
+		for (int i = startIndex; i >= endIndex; i++) {
 			BLACK_GOOD_PATTERNS[i] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], BLACK);
 			WHITE_GOOD_PATTERNS[i] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], WHITE);
 		}
@@ -94,6 +97,9 @@ public class PatternHeuristic extends Heuristic {
 		// Note that i has to be an int, rather than a char, because
 		// otherwise incrementing it after Character.MAX_VALUE would
 		// return it to 0, resulting in an infinite loop.
+		
+		// TODO: this code is slightly inefficient. We should instead loop through all good/bad patterns
+		// and set them according to their char index? Doesn't really matter since this code is called infrequently
 		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
 			if (!isPossibleNeighborhood((char) i)) {
 				continue;
@@ -199,10 +205,6 @@ public class PatternHeuristic extends Heuristic {
 		
 		// we make a shallow copy of the patterns since we only change them once
 		// during Player initialization
-		copy.badNeighborhoods     = this.badNeighborhoods;
-		copy.goodNeighborhoods    = this.goodNeighborhoods;
-		copy.numberOfBadPatterns  = this.numberOfBadPatterns;
-		copy.numberOfGoodPatterns = this.numberOfGoodPatterns;
 		return copy;
 	}
 	

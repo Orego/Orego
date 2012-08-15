@@ -10,7 +10,7 @@ public class PatternCounter6 extends PatternCounter5 {
 	
 	public PatternCounter6() {
 		super();
-		outputFile = "BadPatterns";
+		outputFile = "BadPatterns2";
 	}
 
 	@Override

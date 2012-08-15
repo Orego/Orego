@@ -5,6 +5,7 @@ import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 import orego.core.Board;
+import orego.patterns.Pattern;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -694,35 +695,90 @@ public class PatternHeuristicTest {
 		
 		assertNotSame(heuristic, copy);
 		assertTrue(copy instanceof PatternHeuristic);
+		
+		assertSame(heuristic.badNeighborhoods,  copy.badNeighborhoods);
+		assertSame(heuristic.goodNeighborhoods, copy.goodNeighborhoods);
+		
+		assertSame(heuristic.numberOfBadPatterns,  copy.numberOfBadPatterns);
+		assertSame(heuristic.numberOfGoodPatterns, copy.numberOfGoodPatterns);
+		
 	}
-		@Test
-		public void testPushThroughBambooWhiteFarFromLastMove() {
-				String[] problem = { 
-						"...................",// 19
-						"...................",// 18
-						"...................",// 17
-						"..#.#..............",// 16
-						"..#.#..............",// 15
-						"..#O...............",// 14
-						"...................",// 13
-						"...................",// 12
-						"...................",// 11
-						"...................",// 10
-						"...................",// 9
-						"...................",// 8
-						"...................",// 7
-						"...................",// 6
-						"...................",// 5
-						"...................",// 4
-						"...................",// 3
-						"...................",// 2
-						"..................."// 1
-				// 		 ABCDEFGHJKLMNOPQRST
-				};
-				board.setUpProblem(BLACK, problem);
-				board.play("a1");
-				heuristic.prepare(board);
-				assertTrue(heuristic.isBad(at("d15"), board));
+	
+	private void setupGoodPatterns() {
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[0] = ".OO#O###";
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[1] = "####OOO#";
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[2] = "...#.OOO";
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[3] = "##..OOO#";
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[4] = ".O##...O";
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[5] = "#OO#..OO";
+	}
+	
+	private void setupBadPatterns() {
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[0] = "O.OO?oo?"; 
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[0] = ".#..#.?.";
+		PatternHeuristicPatterns.ALL_BAD_PATTERNS[0] = ".OO?OO??";
+	}
+	
+	
+	@Test
+	public void testConstructor() {
+		
+	}
+	
+	@Test
+	public void testResetGoodPatterns() {
+		setupGoodPatterns();
+		
+		// pick some random samples to make certain we have the appropriate neighborhoods set
+		//assertTrue(heuristic.goodNeighborhoods[BLACK].get());
+	}
+	
+	@Test
+	public void testResetBadPatterns() {
+		// TODO: test that we completely clear all good patterns
+		// then test that we expand or contract our range of bad patterns
+	}
+	
+	@Test
+	public void testResizeGoodPatterns() {
+		// TODO: test that we completely clear all good patterns
+		// then test that we expand or contract our range of good patterns
+		
+	}
+	
+	@Test
+	public void testResizeBadPatterns() {
+		
+	}
+	
+	@Test
+	public void testPushThroughBambooWhiteFarFromLastMove() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...................",// 17
+					"..#.#..............",// 16
+					"..#.#..............",// 15
+					"..#O...............",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			board.setUpProblem(BLACK, problem);
+			board.play("a1");
+			heuristic.prepare(board);
+			assertTrue(heuristic.isBad(at("d15"), board));
 	}
 		
 }
