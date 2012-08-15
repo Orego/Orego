@@ -1,12 +1,14 @@
 package orego.patterns;
 
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.NEIGHBORS;
-import static orego.core.Coordinates.ON_BOARD;
-import static orego.heuristic.AbstractPatternHeuristic.isPossibleNeighborhood;
-import static orego.patterns.Pattern.diagramToNeighborhood;
-import orego.core.Board;
-import orego.patternanalyze.DynamicPattern;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.OFF_BOARD_COLOR;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.WHITE;
+import static orego.core.Colors.charToColor;
+import static orego.core.Colors.colorToChar;
+import static orego.core.Colors.isAPlayerColor;
+import static orego.core.Colors.opposite;
+import static orego.heuristic.PatternHeuristic.*;
 
 /**
  * A pattern for matching 3x3 neighborhoods on the board. Note that a
