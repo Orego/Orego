@@ -19,9 +19,9 @@ public class PatternHeuristic extends Heuristic {
 	
 	protected int numberOfGoodPatterns;
 	
-	private static int DEFAULT_NUMBER_OF_GOOD_PATTERNS = 250;
+	public static int DEFAULT_NUMBER_OF_GOOD_PATTERNS = 250;
 	
-	private static int DEFAULT_NUMBER_OF_BAD_PATTERNS = 250;
+	public static int DEFAULT_NUMBER_OF_BAD_PATTERNS = 250;
 	
 	protected BitVector[] goodNeighborhoods = {
 											new BitVector(NUMBER_OF_NEIGHBORHOODS),
