@@ -49,7 +49,10 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20"
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=200 heuristic.Pattern.numberOfBadPatterns=200",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=100 heuristic.Pattern.numberOfBadPatterns=200",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=200 heuristic.Pattern.numberOfBadPatterns=100",
+		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=100 heuristic.Pattern.numberOfBadPatterns=100",
 	 };
 
 }
