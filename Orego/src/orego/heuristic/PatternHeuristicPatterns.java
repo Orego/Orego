@@ -4,6 +4,8 @@ package orego.heuristic;
  * We have broken the list into this class to render the code cleaner.
  */
 public class PatternHeuristicPatterns {
+	
+	/** Note: this field is *not* static so that we can change them when testing*/
 	public static String[] ALL_GOOD_PATTERNS = {
 			".OO#O###", // 3263/6511 = 0.5011518967900476
 			"####OOO#", // 7110/14170 = 0.5017642907551164
@@ -154,6 +156,7 @@ public class PatternHeuristicPatterns {
 	 * "Modification of UCT with Patterns in Monte-Carlo Go"
 	 * 
 	 * @see orego.core.Coordinates#NEIGHBORS
+	 * Note: this field is *not* static so that we can change them when testing
 	 */
 	public static String[] ALL_BAD_PATTERNS = {
 		"O.OO?oo?", // Tiger's mouth 

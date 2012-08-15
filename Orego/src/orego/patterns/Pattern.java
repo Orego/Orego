@@ -314,6 +314,7 @@ public abstract class Pattern {
 		}
 	}
 	
+	
 	public void patternsToTextFiles(){
 		int count = 0;
 		for (int p = Character.MIN_VALUE; p <= Character.MAX_VALUE; p++) {
