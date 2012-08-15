@@ -32,15 +32,16 @@ public class PatternCounter5 {
 	protected BitVector seenThisGame;
 	
 	protected BitVector playedThisGame;
+
+	protected String outputFile;
 	
 	public PatternCounter5() {
 		playedThisGame = new BitVector(NUMBER_OF_NEIGHBORHOODS);
-		seenThisGame = new BitVector(NUMBER_OF_NEIGHBORHOODS);		
+		seenThisGame = new BitVector(NUMBER_OF_NEIGHBORHOODS);	
+		outputFile = "GoodPatterns";
 	}
 	
 	private static String TEST_DIRECTORY = "../../../Test Games/";
-	
-	protected String outputFile = "GoodPatterns";
 
 	public void run() {
 		played = new int[NUMBER_OF_NEIGHBORHOODS];
