@@ -12,6 +12,7 @@ import orego.patterns.ColorSpecificPattern;
 import orego.patterns.Pattern;
 import orego.play.UnknownPropertyException;
 import orego.util.BitVector;
+import static orego.heuristic.PatternHeuristicPatterns2.*;
 
 public class PatternHeuristic extends Heuristic {
 	
@@ -39,8 +40,8 @@ public class PatternHeuristic extends Heuristic {
 	public PatternHeuristic(int weight) {
 		super(weight);
 		
-		resizeNumberOfGoodPatterns(Math.min(PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length, DEFAULT_NUMBER_OF_GOOD_PATTERNS));
-		resizeNumberOfBadPatterns(Math.min(PatternHeuristicPatterns.ALL_BAD_PATTERNS.length,   DEFAULT_NUMBER_OF_BAD_PATTERNS));
+		resizeNumberOfGoodPatterns(Math.min(ALL_GOOD_PATTERNS.length, DEFAULT_NUMBER_OF_GOOD_PATTERNS));
+		resizeNumberOfBadPatterns(Math.min(ALL_BAD_PATTERNS.length,   DEFAULT_NUMBER_OF_BAD_PATTERNS));
 	}
 
 	
@@ -87,13 +88,13 @@ public class PatternHeuristic extends Heuristic {
 		
 		// we start at the bottom of the good list and work our way upwards exactly numberOfGoodPattern times
 		// since the best patterns are at the bottom of the good list
-		int startIndex = (PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - numberOfGoodPatterns);
-		int endIndex = PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length - 1;
+		int startIndex = (ALL_GOOD_PATTERNS.length - numberOfGoodPatterns);
+		int endIndex = ALL_GOOD_PATTERNS.length - 1;
 		
 		for (int i = startIndex; i <= endIndex; i++) {
 			// we must subtract start index so that we index relative to the smaller arrays
-			BLACK_GOOD_PATTERNS[i - startIndex] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], BLACK);
-			WHITE_GOOD_PATTERNS[i - startIndex] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_GOOD_PATTERNS[i], WHITE);
+			BLACK_GOOD_PATTERNS[i - startIndex] = new ColorSpecificPattern(ALL_GOOD_PATTERNS[i], BLACK);
+			WHITE_GOOD_PATTERNS[i - startIndex] = new ColorSpecificPattern(ALL_GOOD_PATTERNS[i], WHITE);
 		}
 		
 		// Find all good neighborhoods, i.e., neighborhoods where a player
@@ -134,8 +135,8 @@ public class PatternHeuristic extends Heuristic {
 		// we start at the top and work our way down since the "worst" bad patterns are at the top
 		// of the list
 		for (int i = 0; i < numberOfBadPatterns; i++) {
-			BLACK_BAD_PATTERNS[i] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_BAD_PATTERNS[i], BLACK);
-			WHITE_BAD_PATTERNS[i] = new ColorSpecificPattern(PatternHeuristicPatterns.ALL_BAD_PATTERNS[i], WHITE);
+			BLACK_BAD_PATTERNS[i] = new ColorSpecificPattern(ALL_BAD_PATTERNS[i], BLACK);
+			WHITE_BAD_PATTERNS[i] = new ColorSpecificPattern(ALL_BAD_PATTERNS[i], WHITE);
 		}
 		
 		// Find all good neighborhoods, i.e., neighborhoods where a player
