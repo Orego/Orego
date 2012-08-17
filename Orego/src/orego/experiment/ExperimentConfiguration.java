@@ -48,10 +48,16 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=200 heuristic.Pattern.numberOfBadPatterns=200",
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=200 heuristic.Pattern.numberOfBadPatterns=0",
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=0 heuristic.Pattern.numberOfBadPatterns=200",
-	 };
+	 public static final String[] CONDITIONS = new String[49];
+		 
+	static {
+		int i = 0;
+		for (int bad = 0; bad <= 300; bad += 50) {
+			for (int good = 300; good >= 0; good -= 50) {
+				CONDITIONS[i] = "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=" + good + " heuristic.Pattern.numberOfBadPatterns=" + bad;
+				i++;
+			}			
+		}
+	}
 
 }

@@ -12,7 +12,7 @@ import orego.patterns.ColorSpecificPattern;
 import orego.patterns.Pattern;
 import orego.play.UnknownPropertyException;
 import orego.util.BitVector;
-import static orego.heuristic.PatternHeuristicPatterns2.*;
+import static orego.heuristic.PatternHeuristicPatterns.*;
 
 public class PatternHeuristic extends Heuristic {
 	
