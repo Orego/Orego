@@ -44,8 +44,6 @@ public class HeuristicList implements Cloneable {
 			h.prepare(board);
 			if (h.getGoodMoves().contains(move)) {
 				value += h.getWeight();
-			} else if(h.isBad(move, board))	{
-				value -= h.getWeight();
 			}
 		}
 		return value;

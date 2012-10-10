@@ -23,7 +23,6 @@ public class SpecificPointHeuristicTest {
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("c5")));
 		assertEquals(1, heuristic.getGoodMoves().size());
-		assertEquals(0, heuristic.getBadMoves().size());
 	}
 	
 	@Test
@@ -40,7 +39,6 @@ public class SpecificPointHeuristicTest {
 		
 		// should be a different object
 		assertFalse(clone == heuristic);
-		assertFalse(clone.getBadMoves() == heuristic.getBadMoves());
 		assertFalse(clone.getGoodMoves() == heuristic.getGoodMoves());
 		
 		assertTrue(clone.getSpecificPoint() == 19);

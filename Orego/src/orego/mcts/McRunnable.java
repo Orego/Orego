@@ -202,9 +202,6 @@ public class McRunnable implements Runnable {
 			IntSet vacant = board.getVacantPoints();
 			for (int i = 0; i < vacant.size(); i++) {
 				int p = vacant.get(i);
-				if (h.isBad(p, board)) {
-					node.addLosses(p, h.getWeight());
-				}
 			}
 		}
 	}

@@ -376,7 +376,6 @@ public class EscapeHeuristicTest {
 		board.play("h4");
 		heuristic.prepare(board);
 		assertFalse(heuristic.getGoodMoves().contains(at("h2")));
-		assertTrue(heuristic.getBadMoves().contains(at("h2")));
 	}
 
 	@Test
@@ -407,7 +406,6 @@ public class EscapeHeuristicTest {
 		board.play("h2");
 		heuristic.prepare(board);
 		assertFalse(heuristic.getGoodMoves().contains(at("g2")));
-		assertTrue(heuristic.getBadMoves().contains(at("g2")));
 	}
 	
 	@Test

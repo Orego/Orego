@@ -31,7 +31,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 12;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 480;
+	public static final int GAMES_PER_CONDITION = 600;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -48,16 +48,14 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	 public static final String[] CONDITIONS = new String[11 * 11];
+	 public static final String[] CONDITIONS = new String[11];
 		 
 	static {
 		int i = 0;
-		for (int bad = 0; bad <= 500; bad += 50) {
-			for (int good = 500; good >= 0; good -= 50) {
-				CONDITIONS[i] = "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=" + good + " heuristic.Pattern.numberOfBadPatterns=" + bad;
-				i++;
-			}			
-		}
+		for (int good = 500; good >= 0; good -= 50) {
+			CONDITIONS[i] = "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=" + good;
+			i++;
+		}			
 	}
 
 }
