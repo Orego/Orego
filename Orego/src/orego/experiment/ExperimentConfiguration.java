@@ -19,7 +19,7 @@ public class ExperimentConfiguration {
 	 * KillExperiment to work.
 	 */
 	public static final String[] HOSTS = { "fido.bw01.lclark.edu",
-//			"n001.bw01.lclark.edu",
+			"n001.bw01.lclark.edu",
 			"n002.bw01.lclark.edu",
 			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };
 
