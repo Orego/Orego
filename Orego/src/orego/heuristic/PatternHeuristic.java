@@ -21,17 +21,11 @@ public class PatternHeuristic extends Heuristic {
 	protected int numberOfGoodPatterns;
 	
 	private static int DEFAULT_NUMBER_OF_GOOD_PATTERNS = 250;
-	
-	private static int DEFAULT_NUMBER_OF_BAD_PATTERNS = 250;
-	
+		
 	protected BitVector[] goodNeighborhoods = {
 											new BitVector(NUMBER_OF_NEIGHBORHOODS),
 											new BitVector(NUMBER_OF_NEIGHBORHOODS) };
-	
-	protected BitVector[] badNeighborhoods  = {
-											new BitVector(NUMBER_OF_NEIGHBORHOODS),
-											new BitVector(NUMBER_OF_NEIGHBORHOODS) };
-	
+		
 	/**
 	 * The number of total patterns, including impossible ones.
 	 */
@@ -39,9 +33,7 @@ public class PatternHeuristic extends Heuristic {
 	
 	public PatternHeuristic(int weight) {
 		super(weight);
-		
 		resizeNumberOfGoodPatterns(Math.min(ALL_GOOD_PATTERNS.length, DEFAULT_NUMBER_OF_GOOD_PATTERNS));
-		resizeNumberOfBadPatterns(Math.min(ALL_BAD_PATTERNS.length,   DEFAULT_NUMBER_OF_BAD_PATTERNS));
 	}
 
 	
@@ -68,15 +60,7 @@ public class PatternHeuristic extends Heuristic {
 			goodNeighborhoods[WHITE].set(i, false);
 		}
 	}
-	
-	/** Loops through the potentially bad neighborhoods and sets each entry to false*/
-	protected void resetBadPatterns() {
-		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
-			badNeighborhoods[BLACK].set(i, false);
-			badNeighborhoods[WHITE].set(i, false);
-		}
-	}
-	
+		
 	/** Resizes the number of good patterns we examine. */
 	public void resizeNumberOfGoodPatterns(int newLength) {
 		numberOfGoodPatterns = newLength;
@@ -121,45 +105,6 @@ public class PatternHeuristic extends Heuristic {
 			}
 		}
 		
-	}
-	
-	/** Resizes the number of bad patterns we examine. */
-	public void resizeNumberOfBadPatterns(int newLength) {
-		numberOfBadPatterns = newLength;
-		
-		resetBadPatterns();
-		
-		Pattern[] BLACK_BAD_PATTERNS = new Pattern[numberOfBadPatterns];
-		Pattern[] WHITE_BAD_PATTERNS = new Pattern[numberOfBadPatterns];
-		
-		// we start at the top and work our way down since the "worst" bad patterns are at the top
-		// of the list
-		for (int i = 0; i < numberOfBadPatterns; i++) {
-			BLACK_BAD_PATTERNS[i] = new ColorSpecificPattern(ALL_BAD_PATTERNS[i], BLACK);
-			WHITE_BAD_PATTERNS[i] = new ColorSpecificPattern(ALL_BAD_PATTERNS[i], WHITE);
-		}
-		
-		// Find all good neighborhoods, i.e., neighborhoods where a player
-		// should play.
-		// Note that i has to be an int, rather than a char, because
-		// otherwise incrementing it after Character.MAX_VALUE would
-		// return it to 0, resulting in an infinite loop.
-		for (int i = 0; i < NUMBER_OF_NEIGHBORHOODS; i++) {
-			if (!isPossibleNeighborhood((char) i)) {
-				continue;
-			}
-			
-			for (Pattern pattern : BLACK_BAD_PATTERNS) {
-				if (pattern.matches((char) i)) {
-					badNeighborhoods[BLACK].set(i, true);
-				}
-			}
-			for (Pattern pattern : WHITE_BAD_PATTERNS) {
-				if (pattern.matches((char) i)) {
-					badNeighborhoods[WHITE].set(i, true);
-				}
-			}	
-		}
 	}
 	
 	/**
@@ -212,16 +157,10 @@ public class PatternHeuristic extends Heuristic {
 		// during Player initialization
 		return copy;
 	}
-	
-	public boolean isBad(int p, Board board) {
-		return badNeighborhoods[board.getColorToPlay()].get(board.getNeighborhood(p));
-	}
-	
+		
 	@Override
 	public void setProperty(String name, String value) throws UnknownPropertyException {
-		if (name.equals("numberOfBadPatterns")) {
-			resizeNumberOfBadPatterns(Integer.valueOf(value));
-		} else if (name.equals("numberOfGoodPatterns")) {
+		if (name.equals("numberOfGoodPatterns")) {
 			resizeNumberOfGoodPatterns(Integer.valueOf(value));
 		} else {
 			super.setProperty(name, value);
