@@ -54,7 +54,7 @@ public class ExperimentConfiguration {
 		int i = 0;
 		for (int msec = 2000; msec <= 8000; msec *= 2) {
 			for (int threads = 1; threads <= 12; threads++) {
-				CONDITIONS[i] = "threads=" + threads + "msec=" + msec + "book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=400";
+				CONDITIONS[i] = "threads=" + threads + " msec=" + msec + " book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=400";
 				i++;
 			}
 		}
