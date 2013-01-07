@@ -226,7 +226,7 @@ public class Board {
 			// If there is only one friendly neighbor, add this stone to that
 			// chain
 			int c = friendlyNeighboringChainIds.get(0);
-			liberties[c].union(lastPlayLiberties);
+			liberties[c].addAll(lastPlayLiberties);
 			liberties[c].removeKnownPresent(p);
 			addStone(p, c);
 			if (liberties[c].size() == 1) {
@@ -247,7 +247,7 @@ public class Board {
 					c = ally;
 				}
 			}
-			liberties[c].union(lastPlayLiberties);
+			liberties[c].addAll(lastPlayLiberties);
 			assert liberties[c].contains(p);
 			liberties[c].removeKnownPresent(p);
 			if (liberties[c].size() == 1) {
@@ -876,7 +876,7 @@ public class Board {
 				selfAtariLiberties.add(n);
 				enemyNeighboringChainIds.add(chain);
 			} else if (c == color) {
-				selfAtariLiberties.union(liberties[chain]);
+				selfAtariLiberties.addAll(liberties[chain]);
 				adjacentChains.set(chain, true);
 			}
 			if (selfAtariLiberties.size() >= 3) {
@@ -996,7 +996,7 @@ public class Board {
 	 *            two chains.
 	 */
 	protected void mergeChains(int base, int appendage) {
-		liberties[base].union(liberties[appendage]);
+		liberties[base].addAll(liberties[appendage]);
 		chainsInAtari[colors[appendage]].remove(appendage);
 		int active = appendage;
 		do {
