@@ -18,18 +18,29 @@ public class BitVectorTest {
 
 	@Test
 	public void testClear() {
-		for (int i = 0; i < CAPACITY; i++) {
-			vector.set(i, true);
-		}
-		vector.clear();
+		// All bits should be false
 		for (int i = 0; i < CAPACITY; i++) {
 			assertFalse(vector.get(i));
 		}
-
+		// Set all bits to true
+		for (int i = 0; i < CAPACITY; i++) {
+			vector.set(i, true);
+		}
+		// Verify that they are true
+		for (int i = 0; i < CAPACITY; i++) {
+			assertTrue(vector.get(i));
+		}
+		// Clear the vector
+		vector.clear();
+		// All bits should now be false
+		for (int i = 0; i < CAPACITY; i++) {
+			assertFalse(vector.get(i));
+		}
 	}
 
 	@Test
 	public void testSet() {
+		// Toggle each bit, verifying that it changes both ways
 		for (int i = 0; i < CAPACITY; i++) {
 			assertFalse(vector.get(i));
 			vector.set(i, true);
