@@ -5,6 +5,7 @@ import java.util.*;
 import static orego.experiment.ExperimentConfiguration.*;
 import static orego.core.Colors.*;
 
+// TODO There should be an easy way to dump these data into a graph
 /** Collates experimental results stored in many files. */
 public class Collate {
 
@@ -16,6 +17,8 @@ public class Collate {
 		// Gather the data
 		for (String name : dir.list()) {
 			if (name.endsWith(".game")) {
+				// TODO This should be an array of longs; ints overflow
+				// Also check where the numbers are being generated; the same problem may occur there.
 				int[] stats = null;
 				char oregoColor = ' ';
 				String input = "";
