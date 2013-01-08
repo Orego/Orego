@@ -733,13 +733,6 @@ public class PatternHeuristicTest {
 	}
 	
 	@Test
-	public void testConstructors() {
-		heuristic = new PatternHeuristic(1);
-		
-		assertEquals(PatternHeuristic.DEFAULT_NUMBER_OF_GOOD_PATTERNS, heuristic.numberOfBadPatterns);
-		assertEquals(PatternHeuristic.DEFAULT_NUMBER_OF_BAD_PATTERNS, heuristic.numberOfBadPatterns);
-	}
-	@Test
 	public void testResetGoodPatterns() {
 		setupGoodPatterns();
 		
