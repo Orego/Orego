@@ -3,7 +3,7 @@ package orego.util;
 /**
  * A pool of objects of type T. This allows for manual memory management of, for
  * example, tree nodes.
- * 
+ * <p>
  * To fill the pool with objects, create them and pass them to free().
  */
 public class Pool<T extends Poolable<T>> {
