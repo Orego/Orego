@@ -1,10 +1,12 @@
 package orego.util;
 
-// TODO What if this class was final? What if fields were accessed directly? Speed change?
-
 /**
  * Linked list node. T is the type of the key in the node. This is a simple
  * container class with two fields, key and next.
+ * <p>
+ * It may be tempting to optimize this class by making the fields public. In
+ * addition to being bad style, his would cause problems with implementing
+ * Poolable.
  */
 public class ListNode<T> implements Poolable<ListNode<T>> {
 
