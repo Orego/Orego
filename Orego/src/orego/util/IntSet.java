@@ -4,7 +4,7 @@ import static orego.core.Coordinates.pointToString;
 
 /**
  * A set implementation that offers constant time insertion, search, deletion,
- * clearing, and size, assuming that the keys are all in the range [0, n-1].
+ * clearing, and size, assuming that the keys are all in the range [0, n).
  * If space is important, or if the set is fairly dense, BitVector may be
  * preferable.
  * @see BitVector
@@ -35,6 +35,13 @@ public class IntSet {
 		}
 	}
 
+	/** This set becomes the result of the union of this and that. */
+	public void addAll(IntSet that) {
+		for (int i = 0; i < that.size; i++) {
+			add(that.get(i));
+		}
+	}
+
 	/** Adds key, which is known to be absent, to this set. */
 	public void addKnownAbsent(int key) {
 		data[size] = key;
@@ -51,19 +58,6 @@ public class IntSet {
 	public boolean contains(int key) {
 		int location = locations[key];
 		return (location < size) & (data[locations[key]] == key);
-	}
-
-	/**
-	 * Returns true if this is a (non-proper) subset of that. Note that this
-	 * might return true even if the respective universes are different.
-	 */
-	public boolean isSubset(IntSet that) {
-		for (int i = 0; i < size; i++) {
-			if (!that.contains(get(i))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -108,11 +102,6 @@ public class IntSet {
 		return data[i];
 	}
 
-	/** Returns true if this set is empty. */
-	public boolean isEmpty() {
-		return size == 0;
-	}
-
 	/** Removes key, which may or may not be present, from this set. */
 	public void remove(int key) {
 		if (contains(key)) {
@@ -154,17 +143,10 @@ public class IntSet {
 		if (size > 0) {
 			result += pointToString(data[0]);
 			for (int i = 1; i < size; i++) {
-				result += " " + pointToString(data[i]);
+				result += ", " + pointToString(data[i]);
 			}
 		}
 		return result + "}";
-	}
-
-	/** This set becomes the result of the union of this and other. */
-	public void union(IntSet other) {
-		for (int i = 0; i < other.size; i++) {
-			add(other.get(i));
-		}
 	}
 
 }

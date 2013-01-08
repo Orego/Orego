@@ -86,9 +86,9 @@ public class McRunnableTest {
 				"...................",// 19
 				"...................",// 18
 				"...................",// 17
-				"..#.#..............",// 16
+				"...................",// 16
 				"..#.#..............",// 15
-				"..#O...............",// 14
+				"...................",// 14
 				"...................",// 13
 				"...................",// 12
 				"...................",// 11
@@ -105,12 +105,12 @@ public class McRunnableTest {
 		// 		 ABCDEFGHJKLMNOPQRST
 		};
 		Board board = runnable.getBoard();
-		board.setUpProblem(BLACK, problem);
-		board.play("a1");
+		board.setUpProblem(WHITE, problem);
+		board.play("d14");
 		SearchNode node = new SearchNode();
 		node.reset(board.getHash());
 		runnable.updatePriors(node, board);
-		assertEquals(1, node.getWins(at("d15")));
+		assertEquals(6, node.getWins(at("d15")));
 		assertEquals(7, node.getRuns(at("d15")));
 	}
 

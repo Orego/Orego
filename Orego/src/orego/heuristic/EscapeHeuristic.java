@@ -54,9 +54,7 @@ public class EscapeHeuristic extends Heuristic {
 						targets.add(target);
 						int capturePoint = board.getCapturePoint(target);
 						if (capturePoint != NO_POINT) {
-							if (board.isSelfAtari(capturePoint, color)) {
-								discourage(capturePoint);
-							} else {
+							if (!board.isSelfAtari(capturePoint, color)) {
 								recommend(capturePoint);
 							}
 						}
@@ -86,9 +84,7 @@ public class EscapeHeuristic extends Heuristic {
 						// Consider escaping by capturing
 						escapeByCapturing(chain, opposite(color), board);
 						// Consider escaping by extending
-						if (board.isSelfAtari(liberty, color)) {
-							discourage(liberty);
-						} else {
+						if (!board.isSelfAtari(liberty, color)) {
 							recommend(liberty);
 						}
 					}

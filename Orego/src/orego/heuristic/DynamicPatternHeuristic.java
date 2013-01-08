@@ -88,9 +88,6 @@ public class DynamicPatternHeuristic extends Heuristic {
 				if(playValue > 0) {
 					recommend(p);
 				}
-				if(playValue < 0) {
-					discourage(p); 
-				}
 			}
 		}
 	}

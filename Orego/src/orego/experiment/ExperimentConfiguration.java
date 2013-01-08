@@ -28,7 +28,7 @@ public class ExperimentConfiguration {
 	 * more than the number of processor cores on each host. If Orego is being
 	 * run with multiple threads, it might be even smaller.
 	 */
-	public static final int GAMES_PER_HOST = 12;
+	public static final int GAMES_PER_HOST = 1;
 
 	/** Total number of games desired per condition. */
 	public static final int GAMES_PER_CONDITION = 600;
@@ -48,11 +48,16 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	 public static final String[] CONDITIONS = {
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=200 heuristic.Pattern.numberOfBadPatterns=200",
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=100 heuristic.Pattern.numberOfBadPatterns=200",
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=200 heuristic.Pattern.numberOfBadPatterns=100",
-		 "threads=1 msec=4000 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=100 heuristic.Pattern.numberOfBadPatterns=100",
-	 };
+	 public static final String[] CONDITIONS = new String[36];
+		 
+	static {
+		int i = 0;
+		for (int msec = 2000; msec <= 8000; msec *= 2) {
+			for (int threads = 1; threads <= 12; threads++) {
+				CONDITIONS[i] = "threads=" + threads + " msec=" + msec + " book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20 heuristic.Pattern.numberOfGoodPatterns=400";
+				i++;
+			}
+		}
+	}
 
 }

@@ -78,7 +78,7 @@ public class Orego {
 
 	// TODO Is there some way to automatically update this?
 	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "7.10";
+	public static final String VERSION_STRING = "7.12";
 
 	/**
 	 * @param args

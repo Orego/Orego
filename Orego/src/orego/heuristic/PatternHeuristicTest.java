@@ -698,13 +698,9 @@ public class PatternHeuristicTest {
 	@Test
 	public void testClone() throws Exception {
 		PatternHeuristic copy = heuristic.clone();
-		
 		assertNotSame(heuristic, copy);
-		assertTrue(copy instanceof PatternHeuristic);
-		
-		assertSame(heuristic.badNeighborhoods,  copy.badNeighborhoods);
+		assertTrue(copy instanceof PatternHeuristic);		
 		assertSame(heuristic.goodNeighborhoods, copy.goodNeighborhoods);
-		
 		assertEquals(heuristic.numberOfBadPatterns,  copy.numberOfBadPatterns);
 		assertEquals(heuristic.numberOfGoodPatterns, copy.numberOfGoodPatterns);
 		
@@ -718,15 +714,7 @@ public class PatternHeuristicTest {
 		PatternHeuristicPatterns.ALL_GOOD_PATTERNS[3] = "##..OOO#";
 		PatternHeuristicPatterns.ALL_GOOD_PATTERNS[4] = ".O##...O";
 		PatternHeuristicPatterns.ALL_GOOD_PATTERNS[5] = "#OO#..OO";
-	}
-	
-	private void setupBadPatterns() {
-		PatternHeuristicPatterns.ALL_BAD_PATTERNS = new String[3];
-		PatternHeuristicPatterns.ALL_BAD_PATTERNS[0] = "O.OO?oo?"; 
-		PatternHeuristicPatterns.ALL_BAD_PATTERNS[1] = ".#..#.?.";
-		PatternHeuristicPatterns.ALL_BAD_PATTERNS[2] = ".O#?OO??";
-	}
-	
+	}	
 
 	private char diagramToChar(String diagram, int color) {
 		return arrayToNeighborhood(colorSpecificDiagramToArray(diagram, color));
@@ -764,28 +752,7 @@ public class PatternHeuristicTest {
 		assertFalse(heuristic.goodNeighborhoods[WHITE].get(diagramToChar("#OO#..OO", WHITE)));
 		assertFalse(heuristic.goodNeighborhoods[WHITE].get(diagramToChar("####OOO#", WHITE)));
 	}
-	
-	@Test
-	public void testResetBadPatterns() {
-		setupBadPatterns();
 		
-		// we need to now create a new pattern heuristic since we've changed the available pattern set
-		heuristic = new PatternHeuristic(1);
-		
-		// pick some random samples to make certain we have the appropriate neighborhoods set
-		assertTrue(heuristic.badNeighborhoods[BLACK].get(diagramToChar("O.OO?oo?", BLACK)));
-		assertTrue(heuristic.badNeighborhoods[BLACK].get(diagramToChar(".#..#.?.", BLACK)));
-		assertTrue(heuristic.badNeighborhoods[WHITE].get(diagramToChar(".OO?OO??", WHITE))); // try white for good measure
-		
-		heuristic.resetBadPatterns();
-		
-		// again just a random sampling but quite reasonable
-		// we want to ensure the patterns were removed from the goodNeighborhoods
-		assertFalse(heuristic.badNeighborhoods[BLACK].get(diagramToChar("O.OO?oo?", BLACK)));
-		assertFalse(heuristic.badNeighborhoods[BLACK].get(diagramToChar(".#..#.?.", BLACK)));
-		assertFalse(heuristic.badNeighborhoods[WHITE].get(diagramToChar(".OO?OO??", WHITE))); // try white for good measure
-	}
-	
 	@Test
 	public void testResizeGoodPatterns() {
 		
@@ -836,60 +803,17 @@ public class PatternHeuristicTest {
 	}
 	
 	@Test
-	public void testResizeBadPatterns() {
-		setupBadPatterns();
-		
-		
-		// we need to now create a new pattern heuristic since we've changed the available pattern set
-		heuristic = new PatternHeuristic(1);
-		
-		// should have all 3 set to true initially 
-		assertTrue(heuristic.badNeighborhoods[BLACK].get(diagramToChar("O.OO?oo?", BLACK)));
-		assertTrue(heuristic.badNeighborhoods[BLACK].get(diagramToChar(".#..#.?.", BLACK)));
-		assertTrue(heuristic.badNeighborhoods[BLACK].get(diagramToChar(".O#?OO??", BLACK)));
-		
-		assertTrue(heuristic.badNeighborhoods[WHITE].get(diagramToChar("O.OO?oo?", WHITE)));
-		assertTrue(heuristic.badNeighborhoods[WHITE].get(diagramToChar(".#..#.?.", WHITE)));
-		assertTrue(heuristic.badNeighborhoods[WHITE].get(diagramToChar(".O#?OO??", WHITE)));
-		
-		// now resize to 1 and make certain we have only the first pattern
-		heuristic.resizeNumberOfBadPatterns(1);
-		
-		// make certain we have the top four patterns
-		assertTrue(heuristic.badNeighborhoods[BLACK].get(diagramToChar("O.OO?oo?", BLACK)));
-		
-		// make certain white has the same
-		assertTrue(heuristic.badNeighborhoods[WHITE].get(diagramToChar("O.OO?oo?", WHITE)));
-		
-		// make sure we don't have the bottom 2 patterns
-		assertFalse(heuristic.badNeighborhoods[BLACK].get(diagramToChar(".#..#.?.", BLACK)));
-		assertFalse(heuristic.badNeighborhoods[BLACK].get(diagramToChar(".O#?OO??", BLACK)));
-		
-		// make certain white doesn't either
-		assertFalse(heuristic.badNeighborhoods[WHITE].get(diagramToChar(".#..#.?.", WHITE)));
-		assertFalse(heuristic.badNeighborhoods[WHITE].get(diagramToChar(".O#?OO??", WHITE)));
-		
-		// TODO: loop through all good neighborhoods and ensure only 1 has a true values?
-	}
-	
-	@Test
 	public void testSetProperty() throws Exception {
 		setupGoodPatterns();
-		setupBadPatterns();
-		
 		// we need to now create a new pattern heuristic since we've changed the available pattern set
 		heuristic = new PatternHeuristic(1);
 		
 		assertEquals(6, heuristic.numberOfGoodPatterns);
-		assertEquals(3, heuristic.numberOfBadPatterns);
 		
 		heuristic.setProperty("numberOfGoodPatterns", "3");
 		
 		assertEquals(3, heuristic.numberOfGoodPatterns);
 		
-		heuristic.setProperty("numberOfBadPatterns", "2");
-		
-		assertEquals(2, heuristic.numberOfBadPatterns);
 	}
 	
 //	@Test

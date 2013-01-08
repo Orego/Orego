@@ -219,9 +219,6 @@ public class LearnedPatternHeuristic extends Heuristic {
 				if(GOOD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
 					recommend(p);
 				}
-				if(BAD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
-					discourage(p); 
-				}
 			}
 		}
 	}

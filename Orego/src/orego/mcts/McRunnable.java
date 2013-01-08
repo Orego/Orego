@@ -191,6 +191,9 @@ public class McRunnable implements Runnable {
 		return heuristics.selectAndPlayOneMove(random, board);
 	}
 
+	// TODO This is only called on "fresh" nodes. This happens in several
+	// places; could it be consolidated into the few places where fresh nodes
+	// are produced?
 	public void updatePriors(SearchNode node, Board board) {
 		for (Heuristic h : heuristics.getHeuristics()) {
 			h.prepare(board);
@@ -199,12 +202,10 @@ public class McRunnable implements Runnable {
 				int p = good.get(i);
 				node.addWins(p, h.getWeight());
 			}
+			// TODO The remaining code doesn't seem to do anything. Why is it here? Left over from when we had negative heuristics?
 			IntSet vacant = board.getVacantPoints();
 			for (int i = 0; i < vacant.size(); i++) {
 				int p = vacant.get(i);
-				if (h.isBad(p, board)) {
-					node.addLosses(p, h.getWeight());
-				}
 			}
 		}
 	}

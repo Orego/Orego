@@ -59,6 +59,7 @@ public class SearchNode implements Poolable<SearchNode> {
 		runs[p] += n;
 	}
 
+	// TODO Does this need to be synchronized? Maybe, if two threads allocate the same fresh node and then but call McRunnable.updatePriors() on it.
 	/** Adds n wins for p, e.g., as a prior due to a heuristic. */
 	public synchronized void addWins(int p, int n) {
 		totalRuns += n;

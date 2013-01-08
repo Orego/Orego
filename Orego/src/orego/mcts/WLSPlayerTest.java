@@ -72,6 +72,7 @@ public class WLSPlayerTest {
 		assertEquals(at("b2"), runnable.getMove(2));
 	}
 	
+	// TODO This test seems to fail sometimes
 	@Test
 	public void testLifeOrDeath()  throws Exception{
 			player.reset();

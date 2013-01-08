@@ -21,12 +21,9 @@ import static orego.core.Coordinates.*;
 public class HeuristicList implements Cloneable {
 
 	private Heuristic[] heuristics;
-
-	private IntSet badMoves;
 	
 	public HeuristicList(String heuristicList) {
 		loadHeuristicList(heuristicList);
-		badMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	public HeuristicList() {
@@ -35,7 +32,6 @@ public class HeuristicList implements Cloneable {
 
 	public HeuristicList(int size) {
 		heuristics = new Heuristic[size];
-		badMoves = new IntSet(FIRST_POINT_BEYOND_BOARD);
 	}
 
 	/**
@@ -48,8 +44,6 @@ public class HeuristicList implements Cloneable {
 			h.prepare(board);
 			if (h.getGoodMoves().contains(move)) {
 				value += h.getWeight();
-			} else if(h.isBad(move, board))	{
-				value -= h.getWeight();
 			}
 		}
 		return value;
@@ -185,23 +179,14 @@ public class HeuristicList implements Cloneable {
 				} while (i != start);
 			}
 		}
-		// Try to play a random move avoiding the bad moves
-		badMoves.clear();
+		// Nothing recommended; play randomly
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
 		do {
 			int p = vacantPoints.get(i);
 			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-				boolean bad = false;
-				for (Heuristic h : heuristics) {
-					if (h.isBad(p, board)) {
-						bad = true;
-						badMoves.add(p);
-						break;
-					}
-				}
-				if (!bad && (board.playFast(p) == PLAY_OK)) {
+				if (board.playFast(p) == PLAY_OK) {
 					return p;
 				}
 			}
@@ -209,22 +194,6 @@ public class HeuristicList implements Cloneable {
 			// in a manner analogous to double hashing.
 			i = (i + 457) % vacantPoints.size();
 		} while (i != start);
-		// TODO Would it be faster to NOT maintain the set of bad moves
-		// and re-detect badness in the rare event that we get here?
-		// We're desperate -- try the bad moves
-		if (badMoves.size() > 0) {
-			start = random.nextInt(badMoves.size());
-			i = start;
-			do {
-				int p = badMoves.get(i);
-				if ((board.getColor(p) == VACANT) && (board.isFeasible(p)) && (board.playFast(p) == PLAY_OK)) {
-					return p;
-				}
-				// Advancing by 457 skips "randomly" through the array,
-				// in a manner analogous to double hashing.
-				i = (i + 457) % badMoves.size();
-			} while (i != start);
-		}
 		// Nothing left -- pass!
 		board.pass();
 		return PASS;

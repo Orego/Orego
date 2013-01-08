@@ -7,15 +7,15 @@ import java.io.Serializable;
  * Equivalent to an array of booleans, but much smaller. Handy for representing
  * a set when insertion, deletion, clearing, and search are the only operations;
  * the universe is small; and space is of the essence. If it is necessary to
- * quickly compute the size of the set, or to traverse the elements, or if the
- * set is very sparse, IntSet may be preferable.
+ * quickly compute the size of the set or traverse the elements, or if the set
+ * is very sparse, IntSet may be preferable.
  * @see IntSet
  */
 public class BitVector implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/** The bits themselves. */
+	/** The bits themselves, in 64-bit chunks. */
 	private long[] data;
 
 	/** Elements must be in [0, capacity). */
