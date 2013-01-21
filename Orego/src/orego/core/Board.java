@@ -307,7 +307,7 @@ public class Board {
 		superKoTable = new SuperKoTable();
 		diagonalColorCount = new int[NUMBER_OF_COLORS];
 		for (int p = 0; p < EXTENDED_BOARD_AREA; p++) {
-			neighborCounts[p] = initialNeighborCounts();
+			neighborCounts[p] = FOUR_VACANT_NEIGHBORS;
 			chainIds[p] = p;
 			colors[p] = OFF_BOARD_COLOR;
 			if (ON_BOARD[p]) {

@@ -1,9 +1,9 @@
 package orego.core;
 
 import static org.junit.Assert.*;
-import static orego.core.Board.MAX_MOVES_PER_GAME;
 import org.junit.Before;
 import org.junit.Test;
+import static orego.core.Board.MAX_MOVES_PER_GAME;
 
 public class SuperKoTableTest {
 
@@ -16,29 +16,23 @@ public class SuperKoTableTest {
 
 	@Test
 	public void testAdd() {
+		// Add a value and make sure it appears
 		assertFalse(table.contains(-3));
 		table.add(-3);
-		table.add(3);
-		table.add(3);
-		table.add(4);
-		table.add(3 + (2 * MAX_MOVES_PER_GAME));
 		assertTrue(table.contains(-3));
-		long key = -3 + (2 * MAX_MOVES_PER_GAME);
-		assertFalse(table.contains(key));
-		table.add(key);
-		assertTrue(table.contains(key));
-		assertTrue(table.contains(-3));
-		assertTrue(table.contains(3 + (2 * MAX_MOVES_PER_GAME)));
+		// Make sure a redundant add doesn't hurt
+		assertFalse(table.contains(3));
+		table.add(3);
+		assertTrue(table.contains(3));
+		table.add(3);
+		assertTrue(table.contains(3));
 	}
 
 	@Test
 	public void testCopyDataFrom() {
 		SuperKoTable table2 = new SuperKoTable();
 		table.add(-3);
-		long key = -3 + (2 * MAX_MOVES_PER_GAME);
-		table.add(key);
 		table2.copyDataFrom(table);
-		assertTrue(table2.contains(key));
 		assertTrue(table2.contains(-3));
 	}
 
@@ -47,6 +41,7 @@ public class SuperKoTableTest {
 		assertFalse(table.contains(0));
 		table.add(0);
 		assertTrue(table.contains(0));
+		// Make sure the zero information is copied
 		SuperKoTable table2 = new SuperKoTable();
 		assertFalse(table2.contains(0));
 		table2.copyDataFrom(table);
@@ -60,6 +55,16 @@ public class SuperKoTableTest {
 		assertFalse(table.contains(abomination));
 		table.add(abomination);
 		assertTrue(table.contains(abomination));
+	}
+
+	@Test
+	public void testCollision() {
+		// Add two values that would end up in the same slot
+		table.add(5);
+		int key = 5 + (MAX_MOVES_PER_GAME * 2);
+		table.add(key);
+		assertTrue(table.contains(5));
+		assertTrue(table.contains(key));
 	}
 
 }

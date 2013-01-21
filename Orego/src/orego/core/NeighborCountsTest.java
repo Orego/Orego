@@ -12,26 +12,27 @@ public class NeighborCountsTest {
 
 	@Before
 	public void setUp() {
-		counts = initialNeighborCounts();
+		counts = FOUR_VACANT_NEIGHBORS;
 	}
 
 	@Test
 	public void testIncrement() {
-		for (int i = 0; i < MAX_NEIGHBORS; i++) {
-			counts += NEIGHBOR_INCREMENT[BLACK];
-		}
-		assertEquals(4, extractNeighborCount(counts, BLACK));
-		assertEquals(0, extractNeighborCount(counts, WHITE));
-		assertEquals(0, extractNeighborCount(counts, VACANT));
-		assertTrue(hasMaxNeighborsForColor(counts, BLACK));
-		assertFalse(hasMaxNeighborsForColor(counts, WHITE));
-	}
-
-	@Test
-	public void testInitialNeighborCounts() {
+		// Test counts
 		assertEquals(0, extractNeighborCount(counts, BLACK));
 		assertEquals(0, extractNeighborCount(counts, WHITE));
 		assertEquals(4, extractNeighborCount(counts, VACANT));
+		assertFalse(hasMaxNeighborsForColor(counts, BLACK));
+		assertFalse(hasMaxNeighborsForColor(counts, WHITE));
+		// Add some neighbors
+		for (int i = 1; i <= MAX_NEIGHBORS; i++) {
+			counts += NEIGHBOR_INCREMENT[BLACK];
+			assertEquals(i, extractNeighborCount(counts, BLACK));
+			assertEquals(0, extractNeighborCount(counts, WHITE));
+			assertEquals(4 - i, extractNeighborCount(counts, VACANT));
+		}
+		// Test revised counts
+		assertTrue(hasMaxNeighborsForColor(counts, BLACK));
+		assertFalse(hasMaxNeighborsForColor(counts, WHITE));
 	}
 
 }

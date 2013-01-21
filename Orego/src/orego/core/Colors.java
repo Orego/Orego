@@ -1,9 +1,5 @@
 package orego.core;
 
-import static orego.core.Colors.BLACK;
-import static orego.core.Colors.VACANT;
-import static orego.core.Colors.WHITE;
-
 /** Colors of points. */
 public class Colors {
 

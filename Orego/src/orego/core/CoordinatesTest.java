@@ -29,6 +29,7 @@ public class CoordinatesTest {
 	
 	@Test 
 	public void testRowAndColumnToChar() {
+			// These methods are for sgf
 			int p = at("p14");
 			assertEquals('n', rowToChar(row(p)));
 			assertEquals('o', columnToChar(column(p)));
@@ -42,7 +43,7 @@ public class CoordinatesTest {
 
 	@Test
 	public void testIs3or4() {
-			// Moves should be legal if 3 or 4 from both edges
+			// Test whether various points are on line 3 or 4 from both edges
 			assertFalse(THIRD_OR_FOURTH_LINE[at("a1")]);
 			assertTrue(THIRD_OR_FOURTH_LINE[at("e4")]);
 			assertFalse(THIRD_OR_FOURTH_LINE[at("b2")]);
@@ -57,12 +58,14 @@ public class CoordinatesTest {
 
 	@Test
 	public void testIsOnBoard() {
+			// a1 has two neighbors on the board
 			int p = at("a1");
 			assertTrue(ON_BOARD[p]);
 			assertTrue(ON_BOARD[north(p)]);
 			assertTrue(ON_BOARD[east(p)]);
 			assertFalse(ON_BOARD[south(p)]);
 			assertFalse(ON_BOARD[west(p)]);
+			// t19 has a different two neighbors on the board
 			int p2 = at("t19");
 			assertTrue(ON_BOARD[p2]);
 			assertFalse(ON_BOARD[north(p2)]);
@@ -73,16 +76,22 @@ public class CoordinatesTest {
 	@Test
 	public void testPointToString() {
 		assertEquals("E3", pointToString(at("e3")));
+		assertEquals("PASS", pointToString(PASS));
+		assertEquals("NO_POINT", pointToString(NO_POINT));
+		assertEquals("RESIGN", pointToString(RESIGN));
 	}
 
 	@Test
 	public void testGetDistance() {
+		// Test Euclidean distance
 		assertEquals(3, distance(at("a1"), at("d1")), .001);
 		assertEquals(Math.sqrt(13), distance(at("a1"), at("c4")), .001);
 	}
 
 	@Test
 	public void testLargeKnightsMoveNeighbors() {
+		// Point on the edge have fewer large knight neighbors than
+		// points in the center
 		assertEquals(36, LARGE_KNIGHT_NEIGHBORHOOD[at("e5")].length);
 		assertEquals(12, LARGE_KNIGHT_NEIGHBORHOOD[at("a1")].length);
 	}
@@ -105,15 +114,17 @@ public class CoordinatesTest {
 	
 	@Test
 	public void testSgfToPoint() {
+		// Test conversion of sgf (and human-readable strings) to ints
 		assertEquals(at("e15"), sgfToPoint("ee"));
 		assertEquals(at("t1"), sgfToPoint("ss"));
 		assertEquals(at("a19"), sgfToPoint("aa"));
 		assertEquals(at("t19"), sgfToPoint("sa"));
 		assertEquals(at("a1"), sgfToPoint("as"));
 	}
-
+	
 	@Test
-	public void testSquareNeighborhood() {
-		assertEquals(29, SQUARE_NEIGHBORHOOD[3][at("c2")].length);
+	public void testManhattanDistance() {
+		assertEquals(7, manhattanDistance(at("c4"), at("f8")));
 	}
+
 }

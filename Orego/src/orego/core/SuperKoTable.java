@@ -1,6 +1,5 @@
 package orego.core;
 
-import static java.lang.Math.abs;
 import static orego.core.Board.MAX_MOVES_PER_GAME;
 
 /**
@@ -22,7 +21,7 @@ public class SuperKoTable {
 	/**
 	 * True if the special value 0 has been stored. Because this value is used
 	 * to mark an empty slot, we can't look it up in the usual way. Instead, we
-	 * just check this field.
+	 * just set this flags.
 	 */
 	private boolean containsZero;
 

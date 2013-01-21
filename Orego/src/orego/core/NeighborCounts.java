@@ -25,6 +25,9 @@ public class NeighborCounts {
 	protected static final int[] SHIFT = { 0 * FIELD_SIZE, 1 * FIELD_SIZE,
 			2 * FIELD_SIZE };
 
+	/** Counts for a point with four vacant neighbors. */
+	public static final int FOUR_VACANT_NEIGHBORS = MAX_NEIGHBORS << SHIFT[VACANT];
+	
 	/**
 	 * Add this to increment black and white neighbor counts and decrement
 	 * vacant neighbor count.
@@ -59,14 +62,6 @@ public class NeighborCounts {
 	 */
 	public static boolean hasMaxNeighborsForColor(int counts, int color) {
 		return (counts & MAX_COLOR_MASK[color]) == MAX_COLOR_MASK[color];
-	}
-
-	/**
-	 * Returns a neighbor count value indicating no black or white neighbors and
-	 * 4 vacant neighbors.
-	 */
-	protected static int initialNeighborCounts() {
-		return MAX_NEIGHBORS << SHIFT[VACANT];
 	}
 
 }
