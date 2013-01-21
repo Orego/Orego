@@ -8,8 +8,6 @@ import java.util.*;
 import orego.util.*;
 import ec.util.MersenneTwisterFast;
 
-// TODO Include capability to place arbitrary stones before game starts, for problems, tests, handicap, etc.
-
 /** Holds the current state of the board, allows moves to be played, etc. */
 public class Board {
 
@@ -362,7 +360,7 @@ public class Board {
 	 * same liberty counts, etc. Chain ids and chain next points may not match.
 	 * 
 	 * Warning -- this is expensive! Also, does not verify that super ko tables
-	 * are identical.
+	 * are identical. This method is used only for testing.
 	 */
 	public boolean equals(Object thatObject) {
 		if (this == thatObject) {
@@ -660,7 +658,6 @@ public class Board {
 		return result;
 	}
 
-	// TODO This needs a test
 	/**
 	 * Returns the number of neighbors p has of color, counting
 	 * off-board points as both black and white.
@@ -749,7 +746,6 @@ public class Board {
 	public long hashAfterRemovingCapturedStones(int p) {
 		long result = hash;
 		result ^= ZOBRIST_HASHES[colorToPlay][p];
-		int stonesCaptured = 0;
 		adjacentChains.clear(); // Chains to be captured
 		int enemy = opposite(colorToPlay);
 		for (int i = 0; i < 4; i++) {
@@ -759,7 +755,6 @@ public class Board {
 					adjacentChains.set(c, true);
 					int active = c;
 					do {
-						stonesCaptured++;
 						result ^= ZOBRIST_HASHES[enemy][active];
 						active = chainNextPoints[active];
 					} while (active != c);
@@ -1015,7 +1010,6 @@ public class Board {
 			koPoint = NO_POINT;
 		}
 		colorToPlay = opposite(colorToPlay);
-		// hash = ~hash;
 		passes++;
 		moves[turn] = PASS;
 		turn++;
@@ -1053,7 +1047,6 @@ public class Board {
 		if (turn >= MAX_MOVES_PER_GAME - 2) {
 			return PLAY_GAME_TOO_LONG;
 		}
-//		surroundingColors[turn] = getColorsAround(p);
 		assert ON_BOARD[p] : pointToString(p);
 		// Check for occupied point
 		if (colors[p] != VACANT) {
@@ -1107,7 +1100,6 @@ public class Board {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == BOARD_AREA;
 		assert ON_BOARD[p] : pointToString(p);
 		assert colors[p] == VACANT : pointToString(p) + "\n" + this;
-//		surroundingColors[turn] = getColorsAround(p);
 		// Check for simple ko violation
 		if (p == koPoint) {
 			return PLAY_KO_VIOLATION;
@@ -1269,7 +1261,7 @@ public class Board {
 	public String toString() {
 		String result = "";
 		// Upper indices
-		result += BOARD_WIDTH < 10 ? " " : "  ";
+		result += "  ";
 		for (int c = 0; c < BOARD_WIDTH; c++) {
 			result += " " + columnToString(c);
 		}
@@ -1286,11 +1278,12 @@ public class Board {
 			result += " " + rowToString(r) + "\n";
 		}
 		// Lower indices
-		result += BOARD_WIDTH < 10 ? " " : "  ";
+		result += "  ";
 		for (int c = 0; c < BOARD_WIDTH; c++) {
 			result += " " + columnToString(c);
 		}
 		result += "\n";
 		return result;
 	}
+
 }

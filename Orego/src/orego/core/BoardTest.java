@@ -6,9 +6,9 @@ import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static orego.patterns.Pattern.*;
 import static orego.heuristic.PatternHeuristic.*;
+import static orego.heuristic.HeuristicList.selectAndPlayUniformlyRandomMove;
 import static org.junit.Assert.*;
 import orego.heuristic.*;
-import orego.patterns.Pattern;
 import orego.play.Player;
 import orego.util.IntList;
 import orego.util.IntSet;
@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 
-// TODO Refactor these tests (and similar ones in other classes) to make testing different board sizes cleaner
 
 public class BoardTest {
 
@@ -25,25 +24,6 @@ public class BoardTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
-	}
-
-	protected int playARandomMove(MersenneTwisterFast random) {
-		IntSet vacantPoints = board.getVacantPoints();
-		int start = random.nextInt(vacantPoints.size());
-		int i = start;
-		do {
-			int p = vacantPoints.get(i);
-			if (board.isFeasible(p) && board.playFast(p) == PLAY_OK) {
-				return p;
-			}
-			// The magic number 457 is prime and larger than
-			// vacantPoints.size().
-			// Advancing by 457 therefore skips "randomly" through the array,
-			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
-		} while (i != start);
-		board.play(PASS);
-		return PASS;
 	}
 
 	protected void assertLiberties(Board board, String p, String... liberties) {
@@ -1463,7 +1443,7 @@ public class BoardTest {
 	public void testToProblemString() {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for (int i = 0; i < 10; i++) {
-			playARandomMove(random);
+			selectAndPlayUniformlyRandomMove(random, board);
 		}
 		String[] problem = board.toProblemString();
 		Board copy = new Board();
@@ -1495,14 +1475,14 @@ public class BoardTest {
 	public void testEquals() {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for (int i = 0; i < 30; i++) {
-			playARandomMove(random);
+			selectAndPlayUniformlyRandomMove(random, board);
 		}
 		Board backup = new Board();
 		backup.copyDataFrom(board);
 		assertEquals(board, board);
 		assertFalse(board.equals(null));
 		assertFalse(board.equals(5));
-		playARandomMove(random);
+		selectAndPlayUniformlyRandomMove(random, board);
 		assertFalse(board.equals(backup));
 		board.copyDataFrom(backup);
 		for (int p : ALL_POINTS_ON_BOARD) {

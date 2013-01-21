@@ -158,7 +158,7 @@ public class HeuristicList implements Cloneable {
 
 	/**
 	 * Goes through the heuristics until one suggests a legal, feasible move; plays
-	 * one of those moves randomly.
+	 * one of those moves randomly and returns it.
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Try to get good moves from heuristics
@@ -180,6 +180,14 @@ public class HeuristicList implements Cloneable {
 			}
 		}
 		// Nothing recommended; play randomly
+		return selectAndPlayUniformlyRandomMove(random, board);
+	}
+
+	/**
+	 * Plays and returns a random feasible move.
+	 */
+	public static int selectAndPlayUniformlyRandomMove(MersenneTwisterFast random,
+			Board board) {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
