@@ -800,7 +800,7 @@ public class Board {
 	/**
 	 * Returns true if p is a feasible choice to play. The point must not be
 	 * played on an eyelike point, and must either be on the 3rd or 4th row from
-	 * the edge or be within a knight's move of another stone.
+	 * the edge or be within a large knight's move of another stone.
 	 */
 	public boolean isFeasible(int p) {
 		return !isEyelike(p)

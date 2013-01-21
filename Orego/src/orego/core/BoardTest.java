@@ -16,28 +16,29 @@ import org.junit.Before;
 import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 
-
 public class BoardTest {
 
 	private Board board;
 
+	private MersenneTwisterFast random;
+	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board();
+		random = new MersenneTwisterFast();
 	}
 
+	/** Verifies that p has the indicated liberties. */
 	protected void assertLiberties(Board board, String p, String... liberties) {
 		IntSet libs = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		for (String s : liberties) {
 			libs.add(at(s));
 		}
-		IntSet actual = board.getLiberties(at(p));
-		assertEquals(
-				format("Wanted %s but was %s.", libs.toStringAsPoints(),
-						actual.toStringAsPoints()), libs, actual);
+		assertEquals(libs, board.getLiberties(at(p)));
 	}
 
-	protected void assertIntListandSetAreSame(IntList expected, IntSet actual) {
+	/** Verifies that expected and actual contain the same points. */
+	protected void assertIntListAndSetAreSame(IntList expected, IntSet actual) {
 		assertEquals(expected.size(), actual.size());
 		for (int i = 0; i < actual.size(); i++) {
 			assertTrue(expected.contains(actual.get(i)));
@@ -46,7 +47,20 @@ public class BoardTest {
 
 	@Test
 	public void testCalculateHash() {
-		String[] problem = { "...................",// 19
+		board.play("a1");
+		Board b2 = new Board();
+		b2.copyDataFrom(board);
+		// A copy should have the same hash as its original
+		assertEquals(board.getHash(), b2.getHash());
+		// ...until another stone is played
+		b2.play("a2");
+		assertFalse(board.getHash() == b2.getHash());
+	}
+
+	@Test
+	public void testCapture() {
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -61,32 +75,14 @@ public class BoardTest {
 				"...................",// 7
 				"...................",// 6
 				"...................",// 5
-				"O..................",// 4
-				"O#.................",// 3
-				"O##................",// 2
-				".O#................"// 1
-		// ABCDEFGHJKLMNOPQRST
+				"...................",// 4
+				"...................",// 3
+				"..#................",// 2
+				"#OO#................"// 1
+	          // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
-		Board b2 = new Board();
-		b2.copyDataFrom(board);
-		assertEquals(board.getHash(), b2.getHash());
-		b2.play("a1");
-		assertFalse(board.getHash() == b2.getHash());
-	}
-
-	@Test
-	public void testCapture() {
-		board.play(PASS);
-		board.play("b1");
-		board.play(PASS);
-		board.play("c1");
-		board.play("a1");
-		board.play(PASS);
-		board.play("d1");
-		board.play(PASS);
-		board.play("c2");
-		board.play(PASS);
+		board.setUpProblem(BLACK, problem);
+		// This move should capture two white stones
 		board.play("b2");
 		assertEquals(VACANT, board.getColor(at("b1")));
 		assertEquals(6, board.getLibertyCount(at("b2")));
@@ -94,7 +90,8 @@ public class BoardTest {
 
 	@Test
 	public void testCaptureByFillingLastEye() {
-		String[] problem = { "OO##.##..##........",// 19
+		String[] problem = {
+				"OO##.##..##........",// 19
 				"O##.......###.....#",// 18
 				"O#.##......###OO...",// 17
 				"O##.#......###.....",// 16
@@ -113,47 +110,22 @@ public class BoardTest {
 				"OOOOOOOOOOOOOOOOOO#",// 3
 				"OOOOOOOOOOOOOOOOOOO",// 2
 				"OOOOOOOOOOOOOOO.OOO"// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
 		assertLiberties(board, "b1", "q1");
 		assertEquals(1, board.getLibertyCount(at("b1")));
 		assertEquals(WHITE, board.getColor(at("a1")));
+		// This move should capture many white stones
 		assertEquals(PLAY_OK, board.play("q1"));
 		assertEquals(VACANT, board.getColor(at("a1")));
 	}
 
 	@Test
-	public void testCapturePoint() {
-		String[] problem = { "...................",// 19
-				"...................",// 18
-				"...................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...................",// 4
-				"OOO................",// 3
-				"O##................",// 2
-				".O#................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		assertEquals(NO_POINT, board.getCapturePoint(at("a3")));
-	}
-
-	@Test
 	public void testCopyDataFrom() {
 		String[] problem;
-		problem = new String[] { "...................",// 19
+		problem = new String[] {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -172,15 +144,19 @@ public class BoardTest {
 				"O..................",// 3
 				"O##................",// 2
 				".O#................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		Board b = new Board();
 		board.setUpProblem(BLACK, problem);
+		// Capture and set up a ko
 		board.play("a1");
 		assertEquals(5, board.getLibertyCount(at("b2")));
 		assertLiberties(board, "b2", "b1", "b3", "c3", "d2", "d1");
 		assertLiberties(board, "a2", "a4", "b3");
+		// Make a copy
+		Board b = new Board();
 		b.copyDataFrom(board);
+		// Verify that the copy is correct
+		assertEquals(board, b);
 		IntSet vacant = board.getVacantPoints();
 		for (int i = 0; i < vacant.size(); i++) {
 			assertEquals(board.getNeighborhood(vacant.get(i)),
@@ -192,43 +168,15 @@ public class BoardTest {
 		assertEquals(5, b.getLibertyCount(at("b2")));
 		assertLiberties(b, "b2", "b1", "b3", "c3", "d2", "d1");
 		assertLiberties(b, "a2", "a4", "b3");
+		// Playing a move on the copy should affect its hash
 		long before = board.getHash();
 		String beforeString = board.toString();
 		assertEquals(before, b.getHash());
 		b.play("a4");
 		assertFalse(before == b.getHash());
+		// The original should not be affected
 		assertEquals(before, board.getHash());
 		assertEquals(beforeString, board.toString());
-	}
-
-	@Test
-	public void testCopyDataFrom2() {
-		Board b = new Board();
-		String[] problem = { "..................#",// 19
-				"...................",// 18
-				"...................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"O..................",// 4
-				"O##................",// 3
-				".O#................",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		b.copyDataFrom(board);
-		assertEquals(BLACK, board.getColor(at("t19")));
-		assertEquals(BLACK, b.getColor(at("t19")));
 	}
 
 	@Test
@@ -244,7 +192,8 @@ public class BoardTest {
 
 	@Test
 	public void testDebug1() {
-		String[] problem = { "#########OOOOOOOOOO",// 19
+		String[] problem = {
+				"#########OOOOOOOOOO",// 19
 				"#########OOOOOOOOOO",// 18
 				"#########OOOOOOOOOO",// 17
 				"#########OOOOOOOOOO",// 16
@@ -263,16 +212,18 @@ public class BoardTest {
 				"OOOO.O#############",// 3
 				"#OOOO##OOOOOOOOO###",// 2
 				".O###.#O.##########"// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
+		// The program was previously crashing in response to these moves
 		board.play("a1");
 		board.play("j1");
 	}
 
 	@Test
 	public void testDebug2() {
-		String[] problem = { "#########OOOOOOOOOO",// 19
+		String[] problem = {
+				"#########OOOOOOOOOO",// 19
 				"#########OOOOOOOOOO",// 18
 				"#########OOOOOOOOOO",// 17
 				"#########OOOOOOOOOO",// 16
@@ -291,9 +242,10 @@ public class BoardTest {
 				".O###.#..OOOOOOOOOO",// 3
 				"##O##..#OOOOOOOOOOO",// 2
 				".#O.#.#OOOOOOOOOOOO"// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
+		// The program was previously crashing in response to these moves
 		board.play("a5");
 		board.play("b8");
 		board.play("h9");
@@ -313,13 +265,16 @@ public class BoardTest {
 		board.play("a1");
 		board.play("b2");
 		board.play("b1");
-		board.play("c1"); // White still has a liberty at a2
+		// The next move should not capture because white
+		// still has a liberty at a2
+		board.play("c1");
 		assertEquals(WHITE, board.getColor(at("b1")));
 	}
 
 	@Test
 	public void testFinalScore() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -338,7 +293,7 @@ public class BoardTest {
 				"########O..........",// 3
 				"########O..........",// 2
 				".#.#####O.........."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
 		assertEquals(10 + (2 - (50 + (14 * 19))), board.finalScore());
@@ -350,12 +305,15 @@ public class BoardTest {
 			board.play(PASS);
 		}
 		assertEquals(PLAY_OK, board.play("a1"));
+		// At this point, so many moves have been played that
+		// only passes should be legal
 		assertEquals(PLAY_GAME_TOO_LONG, board.play("b1"));
 	}
 
 	@Test
 	public void testGetCapturePoint() {
-		String[] problem = { ".OO................",// 19
+		String[] problem = {
+				".OO................",// 19
 				"O##O...............",// 18
 				".O.................",// 17
 				"...................",// 16
@@ -383,34 +341,11 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testGetCapturePoint2() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				"..O#O#...",// 7
-				".#O.O#...",// 6
-				".##O#....",// 5
-				".........",// 4
-				"...OO....",// 3
-				"..O##....",// 2
-				"...OO....",// 1
-		// ABCDEFGHJ
-		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
-		board.setUpProblem(BLACK, problem);
-		board.play(at("d6"));
-		assertEquals(at("d8"), board.getCapturePoint(at("d6")));
-	}
-
-	@Test
 	public void testGetChainIds() {
 		board.play(at("a1"));
-		board.setColorToPlay(BLACK);
+		board.pass();
 		board.play(at("a2"));
+		// These adjacent stones should be in the same chain
 		assertEquals(board.getChainId(at("a1")), board.getChainId(at("a2")));
 	}
 
@@ -425,7 +360,8 @@ public class BoardTest {
 
 	@Test
 	public void testGetLibertiesOfChain() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"............O......",// 16
@@ -444,194 +380,33 @@ public class BoardTest {
 				"...................",// 3
 				"...................",// 2
 				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
 		IntList liberties = new IntList(3);
 		board.getLibertiesByTraversal(at("n15"), liberties);
-		assertIntListandSetAreSame(liberties, board.getLiberties(at("n15")));
+		assertIntListAndSetAreSame(liberties, board.getLiberties(at("n15")));
 		assertEquals(at("m14"), liberties.get(0));
 		assertLiberties(board, "n15", "m14");
-	}
-
-	@Test
-	public void testGetLibertiesOfChain2() {
-		String[] problem = { ".OO................",// 19
-				"O##O...............",// 18
-				".O.................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...................",// 4
-				"...................",// 3
-				".................#O",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		IntList liberties = new IntList(3);
-		board.getLibertiesByTraversal(at("b18"), liberties);
-		assertIntListandSetAreSame(liberties, board.getLiberties(at("b18")));
-		assertEquals(at("C17"), liberties.get(0));
-		assertLiberties(board, "b18", "c17");
-	}
-
-	@Test
-	public void testGetLibertiesOfChain3() {
-		String[] problem = { ".OO................",// 19
-				"O##................",// 18
-				"...................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...................",// 4
-				"...................",// 3
-				".................#O",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		IntList chainLiberties = new IntList(3);
-		board.getLibertiesByTraversal(at("b18"), chainLiberties);
-		assertIntListandSetAreSame(chainLiberties,
-				board.getLiberties(at("b18")));
-		int[] liberties = new int[] { at("b17"), at("c17"), at("d18") };
-		assertEquals(liberties.length, chainLiberties.size());
-		for (int lib : liberties) {
-			assertTrue(chainLiberties.contains(lib));
-		}
-		assertLiberties(board, "b18", "b17", "c17", "d18");
-	}
-
-	@Test
-	public void testGetLibertiesOfChain4() {
-		String[] problem = { ".OO................",// 19
-				"O##................",// 18
-				"..#................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...................",// 4
-				"...................",// 3
-				".................#O",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		int[] liberties = new int[] { at("B17"), at("C16"), at("D17"),
-				at("D18") };
-		IntList chainLiberties = new IntList(4);
-		board.getLibertiesByTraversal(at("B18"), chainLiberties);
-		assertIntListandSetAreSame(chainLiberties,
-				board.getLiberties(at("b18")));
-		assertEquals(liberties.length, chainLiberties.size());
-		for (int lib : liberties) {
-			assertTrue(chainLiberties.contains(lib));
-
-		}
-		assertLiberties(board, "b18", "b17", "c16", "d17", "d18");
 	}
 
 	@Test
 	public void testGetTurn() {
 		assertEquals(0, board.getTurn());
 		for (int i = 0; i < 10; i++) {
-			board.play(PASS);
+			selectAndPlayUniformlyRandomMove(random, board);
 		}
 		assertEquals(10, board.getTurn());
-		for (int i = 0; i < Board.MAX_MOVES_PER_GAME - 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			board.play(PASS);
 		}
-		assertTrue(board.isLegal(PASS));
-		assertFalse(board.isLegal(at("a1")));
-	}
-
-	@Test
-	public void testGetSecondOrderLiberties() {
-		String[] problem = { ".OO................",// 19
-				"O##................",// 18
-				".O.................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...................",// 4
-				"...................",// 3
-				"...................",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		assertEquals(3, board.getVacantNeighborCount(at("D18")));
-		assertEquals(2, board.getVacantNeighborCount(at("C17")));
-	}
-
-	@Test
-	public void testGetSecondOrderLiberties2() {
-		String[] problem = { ".OO................",// 19
-				"O##.#..............",// 18
-				".O..##.............",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...................",// 4
-				"...................",// 3
-				"...................",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		assertEquals(2, board.getVacantNeighborCount(at("D18")));
-		assertEquals(2, board.getVacantNeighborCount(at("C17")));
+		assertEquals(20, board.getTurn());
 	}
 
 	@Test
 	public void testGetVacantPoints() {
-		String[] problem = { "#########OOOOOOOOOO", // 19
+		String[] problem = {
+				"#########OOOOOOOOOO", // 19
 				"#########OOOOOOOOOO", // 18
 				"#########OOOOOOOOOO", // 17
 				"#########OOOOOOOOOO", // 16
@@ -650,12 +425,13 @@ public class BoardTest {
 				"........#O.........", // 3
 				".......#O.O........", // 2
 				"........#O.........", // 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
 		IntSet vacant = board.getVacantPoints();
 		int hits = 0;
 		assertEquals(50, vacant.size());
+		// Two of the following points should be vacant
 		for (int i = 0; i < vacant.size(); i++) {
 			if (vacant.get(i) == at("h1")) {
 				hits++;
@@ -668,10 +444,12 @@ public class BoardTest {
 			}
 		}
 		assertEquals(2, hits);
+		// Take the ko
 		board.play(at("k2"));
 		vacant = board.getVacantPoints();
 		hits = 0;
 		assertEquals(50, vacant.size());
+		// Two of the following points should be vacant
 		for (int i = 0; i < vacant.size(); i++) {
 			if (vacant.get(i) == at("h1")) {
 				hits++;
@@ -688,7 +466,8 @@ public class BoardTest {
 
 	@Test
 	public void testIgnoreChainIdsOfDeadPoints() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -707,72 +486,86 @@ public class BoardTest {
 				"...................",// 3
 				"OOO................",// 2
 				"###................" // 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
 		board.play("d1");
 		board.play("c1");
 		board.play(PASS);
 		board.play("a1");
+		// b1 is a liberty, not a friendly neighbor, of c1
 		assertEquals(1, board.getLibertyCount(at("c1")));
 	}
 
 	@Test
 	public void testIsEyelike() {
-		String[] problem = { ".O##.##............",// 19
-				"O#.##.#O#..........",// 18
-				"O##.##OO...........",// 17
-				"OO##.####......####",// 16
-				"OO###O.#.........#.",// 15
-				"O.O#OO#.#.....#O#.#",// 14
-				"OOOOO.OO#..........",// 13
-				".OOOOOO............",// 12
-				"OOO.O.OO...........",// 11
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				".......O.O#........",// 6
+				"......O.O.O........",// 5
+				".......O.O#........",// 4
+				"...................",// 3
+				"O#..O...O#........O",// 2
+				".O.O.O.O.O.......O." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		// The result of isEyelike() depends on the player to play
+		board.setUpProblem(WHITE, problem);
+		assertFalse(board.isEyelike(at("a1")));
+		assertTrue(board.isEyelike(at("e1")));
+		assertFalse(board.isEyelike(at("j1")));
+		assertTrue(board.isEyelike(at("t1")));
+		assertTrue(board.isEyelike(at("h5")));
+		assertFalse(board.isEyelike(at("k5")));
+		board.setUpProblem(BLACK, problem);
+		assertFalse(board.isEyelike(at("a1")));
+		assertFalse(board.isEyelike(at("e1")));
+		assertFalse(board.isEyelike(at("j1")));
+		assertFalse(board.isEyelike(at("t1")));
+		assertFalse(board.isEyelike(at("h5")));
+		assertFalse(board.isEyelike(at("k5")));
+	}
+
+	@Test
+	public void testIsFeasible() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
 				"...................",// 10
 				"...................",// 9
 				"...................",// 8
 				"...................",// 7
 				"...................",// 6
 				"...................",// 5
-				"...................",// 4
-				"...................",// 3
-				"...................",// 2
-				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+				"..........#........",// 4
+				".........#.#.......",// 3
+				"..........#........",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		// Moves should be legal if probable eye moves are allowed
-		assertFalse(board.isEyelike(at("a19")));
-		assertFalse(board.isEyelike(at("a12")));
-		assertFalse(board.isEyelike(at("h14")));
-		assertTrue(board.isEyelike(at("t15")));
-		assertTrue(board.isEyelike(at("e16")));
-		board.setUpProblem(WHITE, problem);
-		assertFalse(board.isEyelike(at("a19")));
-		assertTrue(board.isEyelike(at("a12")));
-		assertFalse(board.isEyelike(at("h14")));
-		assertFalse(board.isEyelike(at("t15")));
-		assertFalse(board.isEyelike(at("e16")));
-	}
-
-	@Test
-	public void testIsFeasible() {
-		board.play(at("a1"));
-		assertTrue(board.isFeasible(at("a2")));
-		assertTrue(board.isFeasible(at("a2")));
-		assertFalse(board.isFeasible(at("a7")));
-		assertTrue(board.isFeasible(at("c2")));
-		assertTrue(board.isFeasible(at("f3")));
-		board.setColorToPlay(BLACK);
-		board.play(at("a2"));
-		board.setColorToPlay(BLACK);
-		board.play(at("b1"));
-		board.setColorToPlay(BLACK);
-		board.play(at("c2"));
-		board.setColorToPlay(BLACK);
-		board.play(at("b3"));
-		board.setColorToPlay(BLACK);
-		assertFalse(board.isFeasible(at("b2")));
+		assertFalse(board.isFeasible(at("a2")));
+		assertTrue(board.isFeasible(at("n1")));
+		assertFalse(board.isFeasible(at("l3")));
 	}
 
 	@Test
@@ -1683,7 +1476,7 @@ public class BoardTest {
 											pointToString(board.getMove(board
 													.getTurn() - 1))),
 									NO_POINT, board.getCapturePoint(p));
-							assertIntListandSetAreSame(liberties,
+							assertIntListAndSetAreSame(liberties,
 									board.getLiberties(p));
 						}
 					}
