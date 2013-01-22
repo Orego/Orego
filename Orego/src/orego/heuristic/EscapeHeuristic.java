@@ -44,7 +44,6 @@ public class EscapeHeuristic extends Heuristic {
 			Board board) {
 		int color = board.getColorToPlay();
 		int p = chain;
-		int[] next = board.getChainNextPoints();
 		do {
 			for (int i = 0; i < 4; i++) {
 				int neighbor = NEIGHBORS[p][i];
@@ -61,7 +60,7 @@ public class EscapeHeuristic extends Heuristic {
 					}
 				}
 			}
-			p = next[p];
+			p = board.getChainNextPoint(p);
 		} while (p != chain);
 	}
 

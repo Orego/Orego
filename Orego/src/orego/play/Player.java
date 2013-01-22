@@ -327,7 +327,9 @@ public class Player implements Playable {
 			return true;
 		}
 		int[] moves = new int[getTurn() - 1];
-		board.fillMoves(moves, 0, getTurn() - 2);
+		for (int t = 0; t < getTurn() - 1; t++) {
+			moves[t] = board.getMove(t);
+		}
 		clearBoardWhilePreservingKomi();
 		for (int p : moves) {
 			board.play(p);

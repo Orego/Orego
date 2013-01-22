@@ -45,6 +45,15 @@ public class BoardTest {
 		}
 	}
 
+	/** Returns true if the neighborhood around p matches pattern. */
+	protected void localPatternEqual(String pattern, int p) {
+		char pat = board.getNeighborhood(p);
+		assertEquals(
+				format("Expected\n%s, but was\n%s", pattern,
+						neighborhoodToDiagram(pat)),
+				diagramToNeighborhood(pattern), pat);
+	}
+
 	@Test
 	public void testCalculateHash() {
 		board.play("a1");
@@ -156,7 +165,22 @@ public class BoardTest {
 		Board b = new Board();
 		b.copyDataFrom(board);
 		// Verify that the copy is correct
-		assertEquals(board, b);
+		// We could make an equals() method for Board, but it would
+		// not be used anywhere else
+		assertEquals(board.toString(), b.toString());
+		for (int p : ALL_POINTS_ON_BOARD) {
+			assertEquals(board.getColor(p), b.getColor(p));
+			if (b.getColor(p) != VACANT) {
+				assertEquals(board.getLiberties(p), b.getLiberties(p));
+			}
+		}
+		assertEquals(board.getVacantPoints(), b.getVacantPoints());
+		assertArrayEquals(board.getStoneCounts(), b.getStoneCounts());
+		assertEquals(board.getKoPoint(), b.getKoPoint());
+		assertEquals(board.getHash(), b.getHash());
+		assertEquals(board.getColorToPlay(), b.getColorToPlay());
+		assertEquals(board.getTurn(), b.getTurn());
+		assertEquals(board.getPasses(), b.getPasses());
 		IntSet vacant = board.getVacantPoints();
 		for (int i = 0; i < vacant.size(); i++) {
 			assertEquals(board.getNeighborhood(vacant.get(i)),
@@ -307,6 +331,8 @@ public class BoardTest {
 		assertEquals(PLAY_OK, board.play("a1"));
 		// At this point, so many moves have been played that
 		// only passes should be legal
+		assertFalse(board.isLegal(at("b1")));
+		assertTrue(board.isLegal(PASS));
 		assertEquals(PLAY_GAME_TOO_LONG, board.play("b1"));
 	}
 
@@ -570,7 +596,8 @@ public class BoardTest {
 
 	@Test
 	public void testIsKnight() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"..............#....",// 18
 				"...................",// 17
 				"................O..",// 16
@@ -589,10 +616,9 @@ public class BoardTest {
 				"...................",// 3
 				"...................",// 2
 				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		// Moves should be legal if 3 or 4 from edge
 		assertFalse(board.isWithinAKnightsMoveOfAnotherStone(at("a1")));
 		assertFalse(board.isWithinAKnightsMoveOfAnotherStone(at("e2")));
 		assertFalse(board.isWithinAKnightsMoveOfAnotherStone(at("g8")));
@@ -608,7 +634,8 @@ public class BoardTest {
 
 	@Test
 	public void testIsLargeKnight() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"..............#....",// 18
 				"...................",// 17
 				"................O..",// 16
@@ -627,10 +654,9 @@ public class BoardTest {
 				"...................",// 3
 				"...................",// 2
 				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		// Moves should be legal if 3 or 4 from edge
 		assertFalse(board.isWithinALargeKnightsMoveOfAnotherStone(at("a1")));
 		assertFalse(board.isWithinALargeKnightsMoveOfAnotherStone(at("e2")));
 		assertFalse(board.isWithinALargeKnightsMoveOfAnotherStone(at("g8")));
@@ -658,7 +684,8 @@ public class BoardTest {
 
 	@Test
 	public void testIsLegal() {
-		String[] problem = { ".OO................",// 19
+		String[] problem = {
+				".OO................",// 19
 				"O##O...............",// 18
 				".O.................",// 17
 				"...................",// 16
@@ -677,16 +704,19 @@ public class BoardTest {
 				"...........OO####.#",// 3
 				"..........O.O##.##.",// 2
 				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
+		// p4 is suicide for white
 		assertFalse(board.isLegal(at("p4")));
+		// t3 is occupied
 		assertFalse(board.isLegal(at("t3")));
 	}
 
 	@Test
 	public void testIsLegalOnEdge() {
-		String[] problem = { ".OO................",// 19
+		String[] problem = {
+				".OO................",// 19
 				"O##O...............",// 18
 				".O.................",// 17
 				"...................",// 16
@@ -705,16 +735,19 @@ public class BoardTest {
 				"OOO#.####..........",// 3
 				".OO####.#..........",// 2
 				"O.O#.O##..........."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
+		// Suicide
 		assertFalse(board.isLegal(at("e1")));
+		// Legal
 		assertTrue(board.isLegal(at("a7")));
 	}
 
 	@Test
 	public void testKoDoesNotExtendThroughPass() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"#O.................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -733,18 +766,22 @@ public class BoardTest {
 				"...................",// 3
 				"..OO#............#O",// 2
 				".OO.O#.............."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
+		// Capture to start the ko
 		board.play("d1");
+		// e1 is now a ko violation
 		assertEquals(PLAY_KO_VIOLATION, board.play("e1"));
+		// After a pass, e1 is legal
 		board.play(PASS);
 		assertEquals(PLAY_OK, board.play("e1"));
 	}
 
 	@Test
 	public void testNoFalseKoAlarm() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"#O.................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -763,10 +800,11 @@ public class BoardTest {
 				"...................",// 3
 				"....OO#..........#O",// 2
 				"...O#.O#..........."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("f1");
+		// g1 is not a ko violation because it captures two stones
 		assertEquals(PLAY_OK, board.play("g1"));
 	}
 
@@ -784,13 +822,31 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testPatterns() {
-		board.play(at("a5"));
-		board.play(at("a6"));
-		board.play(at("b4"));
-		board.play(at("c6"));
-		board.play(at("a2"));
-		board.play(at("b2"));
+	public void testGetNeighborhood() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"O.O................",// 6
+				"#..................",// 5
+				".#.................",// 4
+				"...................",// 3
+				"#O.................",// 2
+				"..................."// 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		// All neighborhoods should be possible
 		IntSet vacant = board.getVacantPoints();
 		for (int i = 0; i < vacant.size(); i++) {
 			int p = vacant.get(i);
@@ -799,6 +855,7 @@ public class BoardTest {
 							neighborhoodToDiagram(board.getNeighborhood(p))),
 					isPossibleNeighborhood(board.getNeighborhood(p)));
 		}
+		// Verify the presence of various patterns
 		assertEquals(diagramToNeighborhood("...\n. .\n..."),
 				board.getNeighborhood(at("e5")));
 		assertEquals(diagramToNeighborhood("*#O\n* .\n***"),
@@ -809,30 +866,36 @@ public class BoardTest {
 				board.getNeighborhood(at("b5")));
 		assertEquals(diagramToNeighborhood("...\nO O\n#.."),
 				board.getNeighborhood(at("b6")));
+		// Playing should update board appropriately
 		board.playFast(at("b6"));
 		assertEquals(diagramToNeighborhood("O#O\n# .\n.#."),
 				board.getNeighborhood(at("b5")));
 	}
 
 	@Test
-	public void testPatternsWithCapture() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				".........",// 7
-				".........",// 6
-				".........",// 5
-				".........",// 4
-				".##......",// 3
-				"#OO......",// 2
-				".##......",// 1
-		// ABCDEFGHJ
+	public void testGetNeighborhoodWithCapture() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				".##................",// 3
+				"#OO................",// 2
+				".##................"// 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		board.play(at("D2"));
 		assertEquals(diagramToNeighborhood(".##\n# .\n.##"),
@@ -842,24 +905,29 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testGetNeighborhoodOppositeColor() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				".........",// 7
-				"...O#O...",// 6
-				".....#...",// 5
-				"....OO...",// 4
-				".........",// 3
-				".#O......",// 2
-				"#........",// 1
-		// ABCDEFGHJ
+	public void testGetNeighborhoodColorsReversed() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...O#O.............",// 6
+				".....#.............",// 5
+				"....OO.............",// 4
+				"...................",// 3
+				".#O................",// 2
+				"#.................."// 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		assertEquals(diagramToNeighborhood("#O#\n. O\n.##"),
 				board.getNeighborhoodColorsReversed(at("e5")));
@@ -875,6 +943,7 @@ public class BoardTest {
 		board.play("c1");
 		board.play(PASS);
 		board.play("a1");
+		// b1 is a simple ko violation, so playFast() should catch it
 		assertEquals(PLAY_KO_VIOLATION, board.playFast(at("b1")));
 	}
 
@@ -885,8 +954,9 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testPlayRich() {
-		String[] problem = { ".OO................",// 19
+	public void testPlaySuicide() {
+		String[] problem = {
+				".OO................",// 19
 				"O##O...............",// 18
 				".O.................",// 17
 				"...................",// 16
@@ -905,17 +975,20 @@ public class BoardTest {
 				"...................",// 3
 				"...................",// 2
 				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
+		// c13 is illegal (suicide) for white
 		assertFalse(board.isLegal(at("c13")));
 		assertEquals(PLAY_SUICIDE, board.play(at("c13")));
+		// Attempting to play it should have no effect
 		assertEquals(WHITE, board.getColor(at("c12")));
 	}
 
 	@Test
-	public void testPlayRichUpdatesZobristHash() {
-		String[] problem = { ".OO................",// 19
+	public void testPlayUpdatesZobristHash() {
+		String[] problem = {
+				".OO................",// 19
 				"O##O...............",// 18
 				".O.................",// 17
 				"...................",// 16
@@ -934,7 +1007,7 @@ public class BoardTest {
 				"...................",// 3
 				"...................",// 2
 				"..................."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
 		Board copy = new Board();
@@ -942,12 +1015,15 @@ public class BoardTest {
 		board.play(at("c17"));
 		assertFalse(board.getHash() == copy.getHash());
 		copy.play(at("c17"));
+		// After the same move is played on both boards,
+		// they should have the same hash
 		assertEquals(board.getHash(), copy.getHash());
 	}
 
 	@Test
 	public void testPositionalSuperko() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -964,14 +1040,15 @@ public class BoardTest {
 				"...................",// 5
 				"...................",// 4
 				"...................",// 3
-				"O.#................",// 2
+				"O##................",// 2
 				".O.#..............." // 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(BLACK, problem);
-		board.play("b2");
+		board.setUpProblem(WHITE, problem);
 		board.play("c1");
 		board.play("a1");
+		// b1 would repeat the configuration in the diagram,
+		// violating positional superko
 		assertFalse(board.isLegal(at("b1")));
 		assertEquals(PLAY_KO_VIOLATION, board.play(at("b1")));
 		board.play(at("b1"));
@@ -986,13 +1063,17 @@ public class BoardTest {
 		board.play("a2");
 		assertEquals(3, board.getLibertyCount(at("a1")));
 		board.play(PASS);
+		// b2 has two neighbors in the existing chain
+		// If they are merged properly, the resulting chain
+		// has 4 liberties
 		board.play("b2");
 		assertEquals(4, board.getLibertyCount(at("b2")));
 	}
 
 	@Test
-	public void testScore() {
-		String[] problem = { ".##.#.#.#.#O.O.O.O.",// 19
+	public void testPlayoutScore() {
+		String[] problem = {
+				".##.#.#.#.#O.O.O.O.",// 19
 				"##.#.#.#.##OO.O.O.O",// 18
 				"#.#.#.#.#.#O.O.O.O.",// 17
 				"##.#.#.#.##OO.O.O.O",// 16
@@ -1011,45 +1092,18 @@ public class BoardTest {
 				".##.#.#.#.#O.O.O.O.",// 3
 				"##.#.#.#.##OO.O.O.O",// 2
 				"#.#.#.#.#.#O.O.O.O.",// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		board.setKomi(7);
+		board.setKomi(7.5);
 		assertEquals(50, board.playoutScore());
 		assertEquals(BLACK, board.playoutWinner());
 	}
 
 	@Test
-	public void testScore2() {
-		String[] problem = { ".OO###############.",// 19
-				"O.OO##########.#.##",// 18
-				"##OOOOO##.##.#.#.#.",// 17
-				"##OOOOO##.###..####",// 16
-				".###OOOOO##.#.##.#.",// 15
-				"#.####OO##.#####.##",// 14
-				"##.###OOO#######.#.",// 13
-				".#.#.##OOOOO######.",// 12
-				"####.###OOOO####.##",// 11
-				".#.####OOO########.",// 10
-				"#.#.#.#OO####.#.###",// 9
-				"##.#.#.#OO##..##.#.",// 8
-				".####.###O###..####",// 7
-				"####.###OO#.#.##.#.",// 6
-				"#.#####OO#.#####.##",// 5
-				"##.###OOO#######.##",// 4
-				".###.##OO#.#.#####.",// 3
-				"###.###OO##.####.##",// 2
-				".###.###OO##.##.##.",// 1
-		};
-		board.setUpProblem(BLACK, problem);
-		board.setKomi(7);
-		assertEquals(214, board.playoutScore());
-	}
-
-	@Test
-	public void testScore3() {
-		board.setKomi(7);
-		String[] problem = { "OO##.##...OO##.##..", // 19
+	public void testPlayoutScore2() {
+		String[] problem = {
+				"OO##.##...OO##.##..", // 19
 				"O#.##.#O#OO##.##OO.", // 18
 				"OO##.####.OO####.#.", // 17
 				"O.O#OO####OOOOO.OO#", // 16
@@ -1070,38 +1124,14 @@ public class BoardTest {
 				"OOOOOOO.O.OOOOOOOO." // 1
 		};
 		board.setUpProblem(BLACK, problem);
+		board.setKomi(7.5);
 		assertEquals(-56, board.playoutScore());
 	}
 
 	@Test
 	public void testSimpleKoIncludedInZobristHash() {
-		String[] problem = { "...................",// 19
-				"...................",// 18
-				"...................",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				".OO................",// 9
-				"O##O...............",// 8
-				".O.................",// 7
-				"...................",// 6
-				".##................",// 5
-				"#OO#...............",// 4
-				".O.O#..............",// 3
-				"#OO#...............",// 2
-				".###..............."// 1
-		// ABCDEFGHJKLMNOPQRST
-		};
-		board.setUpProblem(BLACK, problem);
-		board.play(at("c3"));
-		String before = board.toString();
-		int ko = board.getKoPoint();
-		long hashWithKo = board.getHash();
-		problem = new String[] { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -1120,13 +1150,23 @@ public class BoardTest {
 				".O..#..............",// 3
 				"#OO#...............",// 2
 				".###..............."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
+		board.setUpProblem(WHITE, problem);
+		board.play("d3");
+		board.play("c3");
+		String before = board.toString();
+		// This makes d3 the ko point
+		int ko = board.getKoPoint();
+		long hashWithKo = board.getHash();
+		// Now omit the initial move at d3
 		board.setUpProblem(BLACK, problem);
 		assertFalse(board.isSuicidal(at("c3")));
 		assertTrue(board.isLegal(at("c3")));
+		// There is now no capture (and hence no ko)
 		board.play(at("c3"));
 		assertEquals(before, board.toString());
+		// The ko points (and hashes) should be different
 		long hashWithoutKo = board.getHash();
 		assertFalse(ko == board.getKoPoint());
 		assertFalse(hashWithKo == hashWithoutKo);
@@ -1153,7 +1193,8 @@ public class BoardTest {
 
 	@Test
 	public void testSuicide() {
-		String[] problem = { "...................",// 19
+		String[] problem = {
+				"...................",// 19
 				"...................",// 18
 				"...................",// 17
 				"...................",// 16
@@ -1172,7 +1213,7 @@ public class BoardTest {
 				"OOOOO##............",// 3
 				"OOOOOO##...........",// 2
 				"OO.OOOOO##........."// 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
 		assertEquals(PLAY_SUICIDE, board.playFast(at("c1")));
@@ -1180,24 +1221,30 @@ public class BoardTest {
 
 	@Test
 	public void testChainsInAtariWithKo() {
-		String[] problem = { ".....#...", // 9
-				"....#O#..", // 8
-				"....#O#..", // 7
-				"....O.O..", // 6
-				"...O.O...", // 5
-				"..O#O....", // 4
-				"..#.#....", // 3
-				"...#.....", // 2
-				".........", // 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".....#.............",// 9
+				"....#O#............",// 8
+				"....#O#............",// 7
+				"....O.O............",// 6
+				"...O.O.............",// 5
+				"..O#O..............",// 4
+				"..#.#..............",// 3
+				"...#...............",// 2
+				"..................."// 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
+		// Test updating of the set of chains in atari
 		assertEquals(1, board.getLibertyCount(at("f7")));
 		assertEquals(1, board.getLibertyCount(at("d4")));
 		assertTrue(board.getChainsInAtari(WHITE).contains(
@@ -1234,13 +1281,16 @@ public class BoardTest {
 
 	@Test
 	public void testToProblemString() {
-		MersenneTwisterFast random = new MersenneTwisterFast();
+		// Play some random moves
 		for (int i = 0; i < 10; i++) {
 			selectAndPlayUniformlyRandomMove(random, board);
 		}
+		// Produce a problem String
 		String[] problem = board.toProblemString();
+		// Set up that problem on a new board
 		Board copy = new Board();
 		copy.setUpProblem(BLACK, problem);
+		// The boards should look the same
 		assertEquals(board.toString(), copy.toString());
 	}
 
@@ -1256,80 +1306,40 @@ public class BoardTest {
 	@Test
 	public void testGetMove() {
 		assertEquals(NO_POINT, board.getMove(-1));
+		// Play some moves
 		board.play("a1");
 		board.play(PASS);
 		board.play("e3");
+		// Try to retrieve them from the board's history
 		assertEquals(at("a1"), board.getMove(0));
 		assertEquals(PASS, board.getMove(1));
 		assertEquals(at("e3"), board.getMove(2));
 	}
 
 	@Test
-	public void testEquals() {
-		MersenneTwisterFast random = new MersenneTwisterFast();
-		for (int i = 0; i < 30; i++) {
-			selectAndPlayUniformlyRandomMove(random, board);
-		}
-		Board backup = new Board();
-		backup.copyDataFrom(board);
-		assertEquals(board, board);
-		assertFalse(board.equals(null));
-		assertFalse(board.equals(5));
-		selectAndPlayUniformlyRandomMove(random, board);
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		for (int p : ALL_POINTS_ON_BOARD) {
-			if (board.getColor(p) != VACANT) {
-				IntSet liberties = board.getLiberties(p);
-				if (liberties.size() > 0) {
-					liberties.removeKnownPresent(liberties.get(0));
-				}
-			}
-		}
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.getVacantPoints().add(NO_POINT);
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.getStoneCounts()[BLACK]++;
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.setKoPoint(FIRST_POINT_ON_BOARD - 1);
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.setHash(~board.getHash());
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.setColorToPlay(opposite(board.getColorToPlay()));
-		board.setHash(~board.getHash());
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.setTurn(0);
-		assertFalse(board.equals(backup));
-		board.copyDataFrom(backup);
-		board.setPasses(board.getPasses() + 1);
-		assertFalse(board.equals(backup));
-	}
-
-	@Test
 	public void testLocalPatterns() {
-		String[] problem = { ".........", // 9
-				".#.......", // 8
-				".O.......", // 7
-				"...O.....", // 6
-				"..O.#....", // 5
-				"....O....", // 4
-				".........", // 3
-				"#O..O#O..", // 2
-				".O..O.#..", // 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				".#.................",// 8
+				".O.................",// 7
+				"...O...............",// 6
+				"..O.#..............",// 5
+				"....O..............",// 4
+				"...................",// 3
+				"#O..O#O............",// 2
+				".O..O.#............" // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		localPatternEqual("*#O\n* O\n***", at("a1"));
 		localPatternEqual("O..\nO .\n***", at("c1"));
@@ -1339,34 +1349,32 @@ public class BoardTest {
 		localPatternEqual("...\n. .\n...", at("h8"));
 	}
 
-	protected void localPatternEqual(String pattern, int p) {
-		char pat = board.getNeighborhood(p);
-		assertEquals(
-				format("Expected\n%s, but was\n%s.", pattern,
-						neighborhoodToDiagram(pat)),
-				diagramToNeighborhood(pattern), pat);
-	}
-
 	@Test
 	public void testAtariLiberties1() {
-		String[] problem = { ".........", // 9
-				".........", // 8
-				".........", // 7
-				".........", // 6
-				"#O#......", // 5
-				"#O#......", // 4
-				"O#.......", // 3
-				".........", // 2
-				"O#.......", // 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"#O#................",// 5
+				"#O#................",// 4
+				"O#.................",// 3
+				"...................",// 2
+				"O#................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(WHITE, problem);
+		// Verify that board can find the liberties of chains in atari
 		assertEquals(at("a2"),
 				board.getLibertyOfChainInAtari(board.getChainId(at("a1"))));
 		assertEquals(at("a6"),
@@ -1400,25 +1408,30 @@ public class BoardTest {
 
 	@Test
 	public void testAtariLiberties2() {
-		String[] problem = { ".....#...", // 9
-				"....#O#..", // 8
-				"....#.#..", // 7
-				"......O..", // 6
-				"#O#..O.O.", // 5
-				"#O#..O#O.", // 4
-				"O#.......", // 3
-				".....O.O.", // 2
-				"O#....O..", // 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".....#.............",// 9
+				"....#O#............",// 8
+				"....#.#............",// 7
+				"......O............",// 6
+				"#O#..O.O...........",// 5
+				"#O#..O#O...........",// 4
+				"O#.................",// 3
+				"O....O.O...........",// 2
+				"O#....O............" // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
-		board.setUpProblem(WHITE, problem);
-		board.play(at("a2"));
+		board.setUpProblem(BLACK, problem);
+		// Verify that board can find the liberties of chains in atari
 		assertEquals(at("b2"),
 				board.getLibertyOfChainInAtari(board.getChainId(at("a1"))));
 		assertLiberties(board, "a1", "b2");
@@ -1437,76 +1450,31 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testLibertiesLots() {
-		final int GAMES = 500;
-		IntList liberties = new IntList(FIRST_POINT_BEYOND_BOARD);
-		Player player = new Player();
-		player.setHeuristics(new HeuristicList("Capture@1:Pattern@1"));
-		player.reset();
-		MersenneTwisterFast random = new MersenneTwisterFast();
-		for (int game = 0; game < GAMES; game++) {
-			do {
-				IntSet vacant = board.getVacantPoints();
-				for (int i = 0; i < vacant.size(); i++) {
-					int p = vacant.get(i);
-					if (board.getColor(p) < VACANT) {
-						int libertyCount = board.getLibertyCount(p);
-						final String pstr = pointToString(p);
-						board.getLibertiesByTraversal(p, liberties);
-						if (libertyCount == 1) {
-							assertLiberties(board, pstr,
-									pointToString(liberties.get(0)));
-							assertEquals(
-									format("Failed at %s on \n%sLast move was %s",
-											pstr, board,
-											pointToString(board.getMove(board
-													.getTurn() - 1))),
-									liberties.get(0), board.getCapturePoint(p));
-							assertTrue(
-									format("Failed at %s on \n%sLast move was %s",
-											pstr, board,
-											pointToString(board.getMove(board
-													.getTurn() - 1))),
-									board.getChainsInAtari(board.getColor(p))
-											.contains(board.getChainId(p)));
-						} else {
-							assertEquals(
-									format("Failed at %s on \n%sLast move was %s",
-											pstr, board,
-											pointToString(board.getMove(board
-													.getTurn() - 1))),
-									NO_POINT, board.getCapturePoint(p));
-							assertIntListAndSetAreSame(liberties,
-									board.getLiberties(p));
-						}
-					}
-				}
-			} while ((board.getTurn() < MAX_MOVES_PER_GAME)
-					&& (player.selectAndPlayOneMove(random, board) != PASS));
-			board.clear();
-		}
-	}
-
-	@Test
 	public void testSelfAtari() {
-		String[] problem = { "OOOOOOOO.",// 9
-				"O#.#O#.#.",// 8
-				"OO.OOO.O.",// 7
-				".........",// 6
-				"......O.O",// 5
-				".......O.",// 4
-				"##....#..",// 3
-				"OO#..#O#.",// 2
-				".O#....O#",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".OOO...............",// 9
+				"O#.#O#.#...........",// 8
+				"OO.OOO.O...........",// 7
+				"...................",// 6
+				"......O.O..........",// 5
+				".......O...........",// 4
+				"##....#............",// 3
+				"OO#..#O#...........",// 2
+				".O#....O#.........." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
+		// Verify detection of self atari moves
 		assertFalse(board.isSelfAtari(at("a1"), board.getColorToPlay()));
 		assertFalse(board.isSelfAtari(at("g1"), board.getColorToPlay()));
 		assertFalse(board.isSelfAtari(at("g8"), board.getColorToPlay()));
@@ -1521,24 +1489,30 @@ public class BoardTest {
 
 	@Test
 	public void testSelfAtarisSimple() {
-		String[] problem = { ".###.....",// 9
-				"#O.O#....",// 8
-				"...#.....",// 7
-				".........",// 6
-				".........",// 5
-				"...O.O...",// 4
-				".........",// 3
-				".........",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".###...............",// 9
+				"#O.O#..............",// 8
+				"...#...............",// 7
+				"...................",// 6
+				"...................",// 5
+				"...O.O.............",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
+		// Verify detection of self atari moves
 		assertFalse(board.isSelfAtari(at("e4"), board.getColorToPlay()));
 		board.play(at("b7"));
 		assertTrue(board.isSelfAtari(at("c8"), board.getColorToPlay()));
@@ -1552,125 +1526,155 @@ public class BoardTest {
 
 	@Test
 	public void testSelfAtariDistant() {
-		String[] problem = { ".........",// 9
-				"..#####..",// 8
-				"..#OOO#..",// 7
-				"..#.OO#..",// 6
-				"..#OOOO..",// 5
-				"..#OOO#..",// 4
-				"..#####..",// 3
-				".........",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"..#####............",// 8
+				"..#OOO#............",// 7
+				"..#.OO#............",// 6
+				"..#OOOO............",// 5
+				"..#OOO#............",// 4
+				"..#####............",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(WHITE, problem);
+		// Verify detection of self atari moves even when the last liberty
+		// is far away
 		assertTrue(board.isSelfAtari(at("d6"), board.getColorToPlay()));
 	}
 
 	@Test
 	public void testSelfAtariDistant2() {
-		String[] problem = { ".........",// 9
-				"..#####..",// 8
-				"..#.OO#..",// 7
-				"..#.OO#..",// 6
-				"..#.OO#..",// 5
-				"..#OOO#..",// 4
-				"..#####..",// 3
-				".........",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"..#####............",// 8
+				"..#.OO#............",// 7
+				"..#.OO#............",// 6
+				"..#.OO#............",// 5
+				"..#OOO#............",// 4
+				"..#####............",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(WHITE, problem);
 		assertFalse(board.isSelfAtari(at("d6"), board.getColorToPlay()));
 		board.play(at("d6"));
 		board.pass();
+		// Verify detection of self atari moves
 		assertTrue(board.isSelfAtari(at("d5"), board.getColorToPlay()));
 		assertTrue(board.isSelfAtari(at("d7"), board.getColorToPlay()));
 	}
 
 	@Test
 	public void testSelfAtariSharedDistantLiberty() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				".........",// 7
-				".........",// 6
-				".OO......",// 5
-				"#.#O.....",// 4
-				"O#.......",// 3
-				"OO.......",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				".OO................",// 5
+				"#.#O...............",// 4
+				"O#.................",// 3
+				"OO.................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		assertFalse(board.isSelfAtari(at("b4"), board.getColorToPlay()));
 		board.pass();
 		board.play(at("a5"));
+		// Verify detection of self atari when merging chains
 		assertTrue(board.isSelfAtari(at("b4"), board.getColorToPlay()));
 	}
 
 	@Test
 	public void testSelfAtariSharedReallyDistantLiberty() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				".OOOOO...",// 7
-				"#.####O..",// 6
-				"O#OOO##O.",// 5
-				"O#O.OO#O.",// 4
-				"O##O.O#O.",// 3
-				".O#OOO#O.",// 2
-				".O####...",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				".OOOOO.............",// 7
+				"#.####O............",// 6
+				"O#OOO##O...........",// 5
+				"O#O.OO#O...........",// 4
+				"O##O.O#O...........",// 3
+				".O#OOO#O...........",// 2
+				".O####............." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		assertFalse(board.isSelfAtari(at("b6"), board.getColorToPlay()));
 		board.pass();
 		board.play(at("a7"));
+		// Now b6 is self atari
 		assertTrue(board.isSelfAtari(at("b6"), board.getColorToPlay()));
 	}
 
 	@Test
 	public void testSelfAtariAfterMove() {
-		String[] problem = { ".........",// 9
-				"....OO...",// 8
-				"...O##O..",// 7
-				"...O#.O..",// 6
-				"...O#.O..",// 5
-				"...O.OO..",// 4
-				"....O....",// 3
-				".####....",// 2
-				"..OO#....",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"....OO.............",// 8
+				"...O##O............",// 7
+				"...O#.O............",// 6
+				"...O#.O............",// 5
+				"...O.OO............",// 4
+				"....O..............",// 3
+				".####..............",// 2
+				"..OO#.............." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		board.play(at("e4"));
 		// White's self atari
@@ -1685,24 +1689,29 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testSelfAtari2() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				"..#O#....",// 7
-				"..#O#....",// 6
-				"...#.....",// 5
-				".........",// 4
-				".........",// 3
-				".........",// 2
-				".........",// 1
-		// ABCDEFGHJ
+	public void testSelfAtariAfterCapture() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"..#O#..............",// 7
+				"..#O#..............",// 6
+				"...#...............",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		board.play(at("d8"));
 		assertTrue(board.isSelfAtari(at("d6"), board.getColorToPlay()));
@@ -1711,23 +1720,28 @@ public class BoardTest {
 
 	@Test
 	public void testSelfAtariCapture() {
-		String[] problem = { ".........",// 9
-				"...#.....",// 8
-				"..#O#....",// 7
-				".#O.#....",// 6
-				".#O#O....",// 5
-				".#O#O#...",// 4
-				"..#O#.#..",// 3
-				"....O#...",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...#...............",// 8
+				"..#O#..............",// 7
+				".#O.#..............",// 6
+				".#O#O..............",// 5
+				".#O#O#.............",// 4
+				"..#O#.#............",// 3
+				"....O#..............",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(WHITE, problem);
 		assertFalse(board.isSelfAtari(at("d6"), board.getColorToPlay()));
 		assertTrue(board.isSelfAtari(at("f3"), board.getColorToPlay()));
@@ -1735,24 +1749,30 @@ public class BoardTest {
 
 	@Test
 	public void testLibertiesAfterMerge() {
-		String[] problem = { ".........",// 9
-				"....OO...",// 8
-				"...O##...",// 7
-				"##.O#.#O.",// 6
-				".###.##..",// 5
-				"..O##OO..",// 4
-				"....#O...",// 3
-				".........",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"....OO.............",// 8
+				"...O##.............",// 7
+				"##.O#.#O...........",// 6
+				".###.##............",// 5
+				"..O##OO............",// 4
+				"....#O.............",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
+		// Verify that liberties are correct
 		assertLiberties(board, "d5", "e5", "e2", "d3", "b4", "a5", "a7", "b7",
 				"c6");
 		assertLiberties(board, "e6", "e5", "f6", "g7");
@@ -1764,25 +1784,31 @@ public class BoardTest {
 
 	@Test
 	public void testLibertiesAfterCapture() {
-		String[] problem = { ".........",// 9
-				"....OO...",// 8
-				"...O#....",// 7
-				"....O....",// 6
-				".........",// 5
-				".........",// 4
-				".#O#.....",// 3
-				"#OOO#....",// 2
-				".###.....",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"....OO.............",// 8
+				"...O#..............",// 7
+				"....O..............",// 6
+				"...................",// 5
+				"...................",// 4
+				".#O#...............",// 3
+				"#OOO#..............",// 2
+				".###..............." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(BLACK, problem);
 		board.play(at("c4"));
+		// Verify that liberties are correct
 		assertLiberties(board, "a2", "a1", "a3", "b2");
 		assertLiberties(board, "b1", "a1", "b2", "c2", "d2", "e1");
 		assertLiberties(board, "e2", "e1", "e3", "d2", "f2");
@@ -1795,43 +1821,29 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testFillMoves() {
-		board.play(at("a1")); // 0
-		board.play(at("b2")); // 1
-		board.play(at("c3")); // 2
-		board.play(at("d4")); // 3
-		board.play(at("e5")); // 4
-		int[] fill = new int[5];
-		board.fillMoves(fill, 0, board.getTurn() - 1);
-		assertArrayEquals(new int[] { at("a1"), at("b2"), at("c3"), at("d4"),
-				at("e5") }, fill);
-		fill = new int[2];
-		board.fillMoves(fill, 3, board.getTurn() - 1);
-		assertArrayEquals(new int[] { at("d4"), at("e5") }, fill);
-		fill = new int[3];
-		board.fillMoves(fill, 1, 3);
-		assertArrayEquals(new int[] { at("b2"), at("c3"), at("d4") }, fill);
-	}
-
-	@Test
 	public void testTripleKo() {
-		String[] problem = { ".........",// 9
-				".........",// 8
-				".........",// 7
-				".........",// 6
-				".........",// 5
-				".........",// 4
-				".........",// 3
-				"O#.#O.O#.",// 2
-				"#.#O.O..#",// 1
-		// ABCDEFGHJ
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"O#.#O.O#...........",// 2
+				"#.#O.O..#.........." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(WHITE, problem);
 		board.play(at("h1"));
 		board.play(at("g1"));
@@ -1839,63 +1851,66 @@ public class BoardTest {
 		board.play(at("e1"));
 		board.play(at("h1"));
 		board.play(at("a1"));
+		// Now d1 violates superko
 		assertFalse(board.isLegal(at("d1")));
 		assertEquals(PLAY_KO_VIOLATION, board.play(at("d1")));
 	}
 
 	@Test
-	public void testTripleKo2() {
-		String[] problem = { ".........",// 9
-				"..#O.....",// 8
-				".#.#O....",// 7
-				"..#O.....",// 6
-				".........",// 5
-				"..#O.....",// 4
-				".#O.O....",// 3
-				"..#O.....",// 2
-				".........",// 1
-		// ABCDEFGHJ
+	public void testDoubleKo() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"..#O...............",// 8
+				".#.#O..............",// 7
+				"..#O...............",// 6
+				"...................",// 5
+				"..#O...............",// 4
+				".#O.O..............",// 3
+				"..#O...............",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		String[] p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem[i - 10]
-					+ "..........");
-		}
-		problem = p;
 		board.setUpProblem(WHITE, problem);
-		// System.out.println("Begin case 1");
-		// System.out.println(board.getHash());
+		// Flip both kos
 		board.play(at("c7"));
-		// System.out.println(board.getHash());
 		board.play(at("d3"));
-		// System.out.println(board.getHash());
-		// System.out.println("End case 1");
 		long a = board.getHash();
-		String[] problem2 = { ".........",// 9
-				"..#O.....",// 8
-				".#O.O....",// 7
-				"..#O.....",// 6
-				".........",// 5
-				"..#O.....",// 4
-				".#O.O....",// 3
-				"..#O.....",// 2
-				".........",// 1
-		// ABCDEFGHJ
+		String[] problem2 = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"..#O...............",// 8
+				".#O.O..............",// 7
+				"..#O...............",// 6
+				"...................",// 5
+				"..#O...............",// 4
+				".#O.O..............",// 3
+				"..#O...............",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
-		p = new String[19];
-		for (int i = 0; i < p.length; i++) {
-			p[i] = (i < 10 ? "..................." : problem2[i - 10]
-					+ "..........");
-		}
-		problem2 = p;
-
 		board.setUpProblem(BLACK, problem2);
-		// board.play(at("c7"));
-		// System.out.println("Begin case 2");
-		// System.out.println(board.getHash());
+		// Flip the lower ko
 		board.play(at("d3"));
-		// System.out.println(board.getHash());
-		// System.out.println("End case 2");
+		// Now both boards should have the same hash
 		assertEquals(a, board.getHash());
 	}
 
@@ -1913,6 +1928,69 @@ public class BoardTest {
 		assertEquals(BLACK, board.getColor(at("D10")));
 		assertEquals(BLACK, board.getColor(at("Q10")));
 		assertEquals(BLACK, board.getColor(at("K10")));
+		assertEquals(7, board.getHandicap());
+	}
+
+	@Test
+	public void testSelfAtariByMerging() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"O.O................",// 2
+				"#.#O..............." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		board.play(at("b1"));
+		// The chain including b1 is now in atari
+		assertTrue(board.getChainsInAtari(BLACK).contains(board.getChainId(at("b1"))));
+	}
+
+	@Test
+	public void testFinalScoreOnEmptyBoard() {
+		// White wins by komi
+		assertEquals(-7, board.finalScore());
+	}
+
+	@Test
+	public void testGetChainNextPoints() {
+		board.play("a1");
+		board.pass();
+		board.play("a2");
+		assertEquals(at("a2"), board.getChainNextPoint(at("a1")));
+		assertEquals(at("a1"), board.getChainNextPoint(at("a2")));
+	}
+	
+	@Test
+	public void testSetKomi() {
+		board.setKomi(5.5);
+		assertEquals(5.5, board.getKomi(), 0.01);
+	}
+
+	@Test
+	public void testGetMoves() {
+		board.play("a1");
+		board.play("a2");
+		int[] correct = new int[board.getMoves().length];
+		correct[0] = at("a1");
+		correct[1] = at("a2");
+		assertArrayEquals(board.getMoves(), correct);
+		assertEquals("A1 A2 ", board.getMoveSequence());
 	}
 
 }

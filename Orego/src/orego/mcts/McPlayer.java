@@ -109,7 +109,6 @@ public abstract class McPlayer extends ThreadedPlayer {
 		}
 		// Clean up data by chain
 		IntList result = new IntList(BOARD_AREA);
-		int[] next = getBoard().getChainNextPoints();
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
@@ -118,7 +117,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 					int q = p;
 					do {
 						result.add(q);
-						q = next[q];
+						q = getBoard().getChainNextPoint(q);
 					} while (q != p);
 				}
 			}

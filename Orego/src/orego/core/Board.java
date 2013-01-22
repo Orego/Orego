@@ -354,70 +354,6 @@ public class Board {
 		turn = that.turn;
 	}
 
-	@Override
-	/**
-	 * To be equals(), two Boards must have the stones in the same places, the
-	 * same liberty counts, etc. Chain ids and chain next points may not match.
-	 * 
-	 * Warning -- this is expensive! Also, does not verify that super ko tables
-	 * are identical. This method is used only for testing.
-	 */
-	public boolean equals(Object thatObject) {
-		if (this == thatObject) {
-			return true;
-		}
-		if (thatObject == null) {
-			return false;
-		}
-		if (getClass() != thatObject.getClass()) {
-			return false;
-		}
-		Board that = (Board) thatObject;
-		if (!Arrays.equals(colors, that.colors)) {
-			return false;
-		}
-		for (int p : ALL_POINTS_ON_BOARD) {
-			if (colors[p] != VACANT) {
-				if (!liberties[chainIds[p]]
-						.equals(that.liberties[that.chainIds[p]])) {
-					return false;
-				}
-			}
-		}
-		if (vacantPoints.size() != that.vacantPoints.size()) {
-			return false;
-		}
-		if (!Arrays.equals(stoneCounts, that.stoneCounts)) {
-			return false;
-		}
-		if (koPoint != that.koPoint) {
-			return false;
-		}
-		if (hash != that.hash) {
-			return false;
-		}
-		if (colorToPlay != that.colorToPlay) {
-			return false;
-		}
-		if (turn != that.turn) {
-			return false;
-		}
-		if (passes != that.passes) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Fills the array moves with the moves this board has recorded from turn
-	 * start to turn end, inclusive.
-	 */
-	public void fillMoves(int[] moves, int start, int end) {
-		assert 0 <= start && start <= end && end < getTurn() : format(
-				"Tried to fill moves from %d to %d", start, end);
-		System.arraycopy(this.moves, start, moves, 0, end - start + 1);
-	}
-
 	/**
 	 * Updates data structures at the end of a play. Used by play() and
 	 * playFast().
@@ -519,26 +455,14 @@ public class Board {
 		return chainIds[p];
 	}
 
-	/** Returns the array chainNextPoints(). */
-	public int[] getChainNextPoints() {
-		return chainNextPoints;
+	/** Returns the next point in p's chain. Only makes sense for occupied points. */
+	public int getChainNextPoint(int p) {
+		return chainNextPoints[p];
 	}
 
 	/** Returns the chains of color that are in atari. */
 	public IntSet getChainsInAtari(int color) {
 		return chainsInAtari[color];
-	}
-
-	/** Returns the number of stones in the chain including p. */
-	public int getChainSize(int p) {
-		assert colors[p] != VACANT;
-		int result = 0;
-		int q = p;
-		do {
-			result++;
-			q = chainNextPoints[q];
-		} while (q != p);
-		return result;
 	}
 
 	/** Returns the color of point p. */
@@ -590,8 +514,9 @@ public class Board {
 	 * exists only to test that one.
 	 * 
 	 * Fills a list with the liberties of the chain containing point p. If
-	 * liberties has too much room, size is set appropriately. If it does not
-	 * have enough room, the method returns after filling the list.
+	 * liberties has too much room, size is set appropriately. It is assumed
+	 * that liberties does not have too little room; in that case, this method
+	 * would crash when trying to add more.
 	 */
 	protected void getLibertiesByTraversal(int p, IntList liberties) {
 		assert isAPlayerColor(colors[p]);
@@ -603,9 +528,6 @@ public class Board {
 					int neighbor = NEIGHBORS[stone][i];
 					if (getColor(neighbor) == VACANT) {
 						liberties.addIfNotPresent(neighbor);
-					}
-					if (liberties.size() == liberties.capacity()) {
-						return;
 					}
 				}
 			}
@@ -656,25 +578,6 @@ public class Board {
 			result += pointToString(moves[t]) + " ";
 		}
 		return result;
-	}
-
-	/**
-	 * Returns the number of neighbors p has of color, counting
-	 * off-board points as both black and white.
-	 * 
-	 * @see orego.core.NeighborCounts
-	 */
-	public int getNeighborCount(int p, int color) {
-		return extractNeighborCount(neighborCounts[p], color);
-	}
-	
-	/**
-	 * Returns the array of neighbor counts.
-	 * 
-	 * @see orego.core.NeighborCounts
-	 */
-	protected int[] getNeighborCounts() {
-		return neighborCounts;
 	}
 
 	/**
@@ -962,27 +865,6 @@ public class Board {
 	}
 
 	/**
-	 * Returns the color of p if it is occupied, or the color of the player with
-	 * more stones adjacent otherwise. Returns VACANT if adjacent color counts
-	 * are equal.
-	 */
-	public int localOwner(int p) {
-		if (colors[p] == VACANT) {
-			int nc = neighborCounts[p];
-			int difference = extractNeighborCount(nc, BLACK)
-					- extractNeighborCount(nc, WHITE);
-			if (difference > 0) {
-				return BLACK;
-			} else if (difference < 0) {
-				return WHITE;
-			} else {
-				return VACANT;
-			}
-		}
-		return colors[p];
-	}
-
-	/**
 	 * Merges the stones in appendage into the chain at base. Each parameter is
 	 * a stone in one of the chains to be merged.
 	 * 
@@ -1194,29 +1076,14 @@ public class Board {
 		}
 	}
 	
-	/** For testing only. */
-	protected void setHash(long hash) {
-		this.hash = hash;
-	}
-
 	/** Sets the komi. */
 	public void setKomi(double komi) {
 		this.komi = (int) (Math.ceil(-komi));
 	}
 
-	/** For testing only. */
-	protected void setKoPoint(int koPoint) {
-		this.koPoint = koPoint;
-	}
-
 	/** Sets the number of consecutive passes just before now. For testing only. */
 	public void setPasses(int passes) {
 		this.passes = passes;
-	}
-
-	/** For testing only. */
-	protected void setTurn(int turn) {
-		this.turn = turn;
 	}
 
 	/**
