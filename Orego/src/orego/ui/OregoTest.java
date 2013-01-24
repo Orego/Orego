@@ -7,7 +7,6 @@ import orego.play.ThreadedPlayer;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
 import java.io.*;
 import java.util.ArrayList;
 
@@ -16,8 +15,6 @@ public class OregoTest {
 	private Orego orego;
 
 	private BufferedReader oregoOut;
-
-	private String output;
 
 	@Before
 	public void setUp() throws IOException {
@@ -30,7 +27,7 @@ public class OregoTest {
 	@Test
 	public void testId() throws IOException {
 		orego.handleCommand("53 known_command black");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals("53", output.substring(1, 3));
 		assertEquals("1", output.substring(4, 5));
 	}
@@ -38,7 +35,7 @@ public class OregoTest {
 	@Test
 	public void testTrimComments() throws IOException {
 		orego.handleCommand("known_command black #error");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals("= 1", output);
 	}
 
@@ -48,7 +45,7 @@ public class OregoTest {
 		// BOARD_WIDTH + 1 is an invalid size, check for an error
 		// message.
 		orego.handleCommand("boardsize " + (BOARD_WIDTH + 1));
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
 		// Check with a valid BOARD_WIDTH parameter
@@ -69,7 +66,7 @@ public class OregoTest {
 	public void testClearBoard() throws IOException {
 		// First play a piece, otherwise the board is already clear
 		orego.handleCommand("play black a1");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
 		// Next clear the board
@@ -94,7 +91,7 @@ public class OregoTest {
 		// Test the score of an empty board. White should win by default with
 		// points = komi.
 		orego.handleCommand("final_score");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		String[] outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("W")); // White wins
@@ -119,7 +116,7 @@ public class OregoTest {
 	/** Verifies the command output of a genmove. */
 	protected void verifyMove(String output) {
 		assertEquals('=', output.charAt(0));
-		// This convert the text output internal numerical format and verifies
+		// This converts the text output internal numerical format and verifies
 		// the move is valid.
 		assertTrue(at(output.substring(2)) < FIRST_POINT_BEYOND_BOARD);
 	}
@@ -175,31 +172,32 @@ public class OregoTest {
 	/** Tests the that genmove code resigns when appropriate. */
 	@Test
 	public void testResign() throws IOException {
-			String[] problem = {"OOOOOOOOOOOOOOOOOOO",// 19
-								"OOOOOOOOOOOOOOO.O.O",// 18
-								"OOOOOOOOOOOOOOOOOOO",// 17
-								"OOOOOOOOOOOOOOOOOOO",// 16
-								"OOOOOOOOOOOOOOOOOOO",// 15
-								"OOOOOOOOOOOOOOOOOOO",// 14
-								"OOOOOOOOOOOOOOOOOOO",// 13
-								"OOOOOOOOOOOOOOOOOOO",// 12
-								"OOOOOOOOOOOOOOOOOOO",// 11
-								"OOOOOOOOOOOOOOOOOOO",// 10
-								"OOOOOOOOOOOOOOOOOOO",// 9
-								"OOOOOOOOOOOOOOOOOOO",// 8
-								"OOOOOOOOOOOOOOOOOOO",// 7
-								"OOOOOOOOOOOOOOOOOOO",// 6
-								"OOOOOOOOOOOOOOOOOOO",// 5
-								"OOOOOOOOOOOOOOOOOOO",// 4
-								"###OOOOOOOOOOOOOOOO",// 3
-								"###..OOOOOOOOOOOOOO",// 2
-								".....OOOOOOOOOOOOOO" // 1
-							  // ABCDEFGHJKLMNOPQRST
+			String[] problem = {
+					"OOOOOOOOOOOOOOOOOOO",// 19
+					"OOOOOOOOOOOOOOO.O.O",// 18
+					"OOOOOOOOOOOOOOOOOOO",// 17
+					"OOOOOOOOOOOOOOOOOOO",// 16
+					"OOOOOOOOOOOOOOOOOOO",// 15
+					"OOOOOOOOOOOOOOOOOOO",// 14
+					"OOOOOOOOOOOOOOOOOOO",// 13
+					"OOOOOOOOOOOOOOOOOOO",// 12
+					"OOOOOOOOOOOOOOOOOOO",// 11
+					"OOOOOOOOOOOOOOOOOOO",// 10
+					"OOOOOOOOOOOOOOOOOOO",// 9
+					"OOOOOOOOOOOOOOOOOOO",// 8
+					"OOOOOOOOOOOOOOOOOOO",// 7
+					"OOOOOOOOOOOOOOOOOOO",// 6
+					"OOOOOOOOOOOOOOOOOOO",// 5
+					"OOOOOOOOOOOOOOOOOOO",// 4
+					"###OOOOOOOOOOOOOOOO",// 3
+					"###..OOOOOOOOOOOOOO",// 2
+					".....OOOOOOOOOOOOOO" // 1
+				  // ABCDEFGHJKLMNOPQRST
 			};
 			orego.getPlayer().getBoard().setUpProblem(BLACK, problem);
 			// Ask for a move by black
 			orego.handleCommand("genmove_black");
-			output = oregoOut.readLine();
+			String output = oregoOut.readLine();
 			assertEquals('=', output.charAt(0));
 			// Ideally black would resign, but in practice they pass on
 			// occasion.
@@ -218,7 +216,8 @@ public class OregoTest {
 		oregoOut = new BufferedReader(new InputStreamReader(
 				new PipedInputStream(out)));
 		orego = new Orego(System.in, out, new String[] { "player=Player" });
-			String[] problem = { "OOOOOOOOOOOOOOOOOOO",// 19
+			String[] problem = {
+					"OOOOOOOOOOOOOOOOOOO",// 19
 					"OOOOOOOOOOOOOOO.O.O",// 18
 					"OOOOOOOOOOOOOOOOOOO",// 17
 					"OOOOOOOOOOOOOOOOOOO",// 16
@@ -237,12 +236,12 @@ public class OregoTest {
 					"OOOOOOOOOOOOOOOOOOO",// 3
 					"OOOOOOOOOOOOOOOOOOO",// 2
 					"OOOOOOOOOOOOOOOOOOO" // 1
-			// ABCDEFGHJKLMNOPQRST
+			      // ABCDEFGHJKLMNOPQRST
 			};
 			orego.getPlayer().getBoard().setUpProblem(BLACK, problem);
 			// Make sure Black passes
 			orego.handleCommand("genmove_black");
-			output = oregoOut.readLine();
+			String output = oregoOut.readLine();
 			assertEquals('=', output.charAt(0));
 			assertTrue(at(output.substring(2)) == PASS);
 			oregoOut.readLine(); // read out the extra return
@@ -253,7 +252,7 @@ public class OregoTest {
 	public void testKnownCommands() throws IOException {
 		// Make sure an invalid command produces an error.
 		orego.handleCommand("known_command blah");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		assertEquals('0', output.charAt(2));
 		oregoOut.readLine(); // read out the extra return
@@ -270,7 +269,7 @@ public class OregoTest {
 	public void testKomi() throws IOException {
 		// set the komi
 		orego.handleCommand("komi 2.5");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		// verify the komi is what it was set to
 		double komi = orego.getPlayer().getBoard().getKomi();
@@ -278,12 +277,26 @@ public class OregoTest {
 		oregoOut.readLine(); // read out the extra return
 	}
 
+	/** Test the "playout-count" command. */
+	@Test
+	public void testPlayoutCount() throws IOException {
+		orego.handleCommand("genmove black");
+		oregoOut.readLine();
+		oregoOut.readLine();
+		orego.handleCommand("genmove white");
+		oregoOut.readLine();
+		oregoOut.readLine();
+		orego.handleCommand("playout_count");
+		String output = oregoOut.readLine();
+		assertEquals("= playout=200", output);
+	}
+
 	/** Test the "list_commands" command. */
 	@Test
 	public void testListCommands() throws IOException {
 		orego.handleCommand("list_commands");
 		ArrayList<String> commands = orego.getCommands();
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		// check all commands against the command list
 		assertEquals(commands.get(0), output.substring(2));
@@ -293,6 +306,21 @@ public class OregoTest {
 		oregoOut.readLine(); // read out the extra return
 	}
 
+	/** Test the "gogui-analyze_commands" command. */
+	@Test
+	public void testGoguiAnalyzeCommands() throws IOException {
+		orego.handleCommand("gogui-analyze_commands");
+		ArrayList<String> commands = orego.getGoguiCommands();
+		String output = oregoOut.readLine();
+		assertEquals('=', output.charAt(0));
+		// check all commands against the command list
+		assertEquals(commands.get(0), output.substring(2));
+		for (int i = 1; i < commands.size(); i++) {
+			assertEquals(commands.get(i), oregoOut.readLine());
+		}
+		oregoOut.readLine(); // read out the extra return
+	}
+	
 	/**
 	 * Test the "loadsgf" command. This test loads the file at
 	 * testFiles/blunder.1.sgf and will fail if the file does not exist or has
@@ -336,7 +364,7 @@ public class OregoTest {
 	@Test
 	public void testName() throws IOException {
 		orego.handleCommand("name");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		assertEquals("Orego", output.substring(2));
 	}
@@ -345,7 +373,7 @@ public class OregoTest {
 	@Test
 	public void testProtocolVersion() throws IOException {
 		orego.handleCommand("protocol_version");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		assertEquals(Orego.GTP_VERSION + "", output.substring(2));
 	}
@@ -357,12 +385,31 @@ public class OregoTest {
 		assertFalse(orego.handleCommand("quit"));
 	}
 
+	/** Test the "kgs-game_over" command. */
+	@Test
+	public void testKgsGameOver() throws IOException {
+		// This won't work if the QuitAfterGameOver.txt file contains true
+		orego.handleCommand("kgs-game_over");
+		assertEquals("= ", oregoOut.readLine());
+	}
+
+	/** Test the fixed_handicap command. */
+	@Test
+	public void testFixedHandicap() throws IOException {
+		orego.handleCommand("fixed_handicap 5");
+		assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("d4")));
+		assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("q4")));
+		assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("k10")));
+		assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("d16")));
+		assertEquals(BLACK, orego.getPlayer().getBoard().getColor(at("q16")));
+		assertEquals(VACANT, orego.getPlayer().getBoard().getColor(at("d10")));
+	}
+	
 	/** Test the "time_left command. */
 	@Test
 	public void testTimeLeftAndSettings() throws IOException {
-
 		orego.handleCommand("time_left byoyomi 50");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		// 6/19/2009 orego doesn't store time left anywhere, but it might at
 		// some point. If it does, a test would go here
@@ -378,7 +425,7 @@ public class OregoTest {
 	public void testUndo() throws IOException {
 		// test undo on an empty board, should give an error
 		orego.handleCommand("undo");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		assertEquals("Cannot undo", output.substring(2));
 		oregoOut.readLine(); // read out the extra return
@@ -396,7 +443,7 @@ public class OregoTest {
 	@Test
 	public void testVersion() throws IOException {
 		orego.handleCommand("version");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		assertEquals(Orego.VERSION_STRING, output.substring(2,
 				2 + Orego.VERSION_STRING.length()));
@@ -415,7 +462,7 @@ public class OregoTest {
 		oregoOut.readLine();
 		oregoOut.readLine();
 		orego.handleCommand("play white a1");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		assertEquals("illegal move", output.substring(2));
 		oregoOut.readLine(); // read out the extra return
@@ -425,7 +472,7 @@ public class OregoTest {
 	@Test
 	public void testIllegalCommand() throws IOException {
 		orego.handleCommand("nonsense");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		assertEquals("unknown command: nonsense", output.substring(2));
 		oregoOut.readLine(); // read out the extra return
@@ -437,7 +484,7 @@ public class OregoTest {
 		oregoOut.readLine();
 		oregoOut.readLine();
 		orego.handleCommand("42 play white a1");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals("?42 illegal move", output);
 		oregoOut.readLine(); // read out the extra return
 	}
@@ -445,7 +492,7 @@ public class OregoTest {
 	@Test
 	public void testCommandPassedOnToPlayer() throws IOException {
 		orego.handleCommand("final_status_list alive");
-		output = oregoOut.readLine();
+		String output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 	}
 

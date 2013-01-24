@@ -24,9 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-
-import orego.core.Board;
-import orego.core.Coordinates;
 import orego.play.Playable;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
@@ -38,31 +35,31 @@ import orego.play.UnknownPropertyException;
 public class Orego {
 
 	public static final String[] DEFAULT_GTP_COMMANDS = { //
-	"boardsize", // comments keep the commands on
-			"clear_board", // separate lines in the event of a
-			"final_score", // source -> format
-			"genmove", //
-			"genmove_black", //
-			"genmove_white", //
-			"black", "white", //
-			"known_command", //
-			"komi", //
-			"list_commands", //
-			"loadsgf", //
-			"name", //
-			"play", //
-			"playout_count", //
-			"protocol_version", //
-			"reg_genmove", //
-			"showboard", //
-			"time_left", //
-			"time_settings", //
-			"quit", //
-			"undo", //
-			"version", //
-			"kgs-genmove_cleanup", //
-			"gogui-analyze_commands", //
-			"kgs-game_over", //
+		"boardsize", // comments keep the commands on
+		"clear_board", // separate lines in the event of a
+		"final_score", // source -> format
+		"genmove", //
+		"genmove_black", //
+		"genmove_white", //
+		"black", "white", //
+		"known_command", //
+		"komi", //
+		"list_commands", //
+		"loadsgf", //
+		"name", //
+		"play", //
+		"playout_count", //
+		"protocol_version", //
+		"reg_genmove", //
+		"showboard", //
+		"time_left", //
+		"time_settings", //
+		"quit", //
+		"undo", //
+		"version", //
+		"kgs-genmove_cleanup", //
+		"gogui-analyze_commands", //
+		"kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -76,7 +73,6 @@ public class Orego {
 	public static final String[] PLAYER_PACKAGES = { "orego.mcts",
 			"orego.play", "orego.response", "" };
 
-	// TODO Is there some way to automatically update this?
 	/** String to return in response to version command. */
 	public static final String VERSION_STRING = "7.12";
 
@@ -179,9 +175,14 @@ public class Orego {
 		out.println(response + "\n");
 	}
 
-	/** @return array of commands in string form */
+	/** @return list of commands in string form */
 	public ArrayList<String> getCommands() {
 		return commands;
+	}
+
+	/** @return list of gogui commands in string form */
+	public ArrayList<String> getGoguiCommands() {
+		return goguiCommands;
 	}
 
 	/** @return Orego's player */
@@ -247,8 +248,6 @@ public class Orego {
 				|| command.equals("genmove_white")
 				|| command.equals("kgs-genmove_cleanup")
 				|| command.equals("reg_genmove")) {
-			// TODO genmove-cleanup should not pass if there are dead enemy
-			// stones on the board
 			int color;
 			int point;
 			if (command.equals("genmove")
@@ -324,8 +323,7 @@ public class Orego {
 			}
 			else {
 				acknowledge("playout=null");
-			}
-			
+			}			
 		} else if (command.equals("protocol_version")) {
 			acknowledge("2");
 		} else if (command.equals("quit")) {
@@ -338,13 +336,14 @@ public class Orego {
 			player.setRemainingTime(secondsLeft);
 			acknowledge();
 		} else if (command.equals("kgs-game_over")) {
-			Scanner scanner;
 			try {
+				Scanner scanner;
+				acknowledge();
+				player.reset(); // to stop threaded players
 				scanner = new Scanner(new File("QuitAfterGameOver.txt"));
 				if (scanner.nextLine().equals("true")) {
-					// TODO Should this be acknowledge-reset-false as in "quit"
-					// above?
-					System.exit(0);
+					scanner.close();
+					return false;
 				} else {
 					scanner.close();
 					acknowledge();
@@ -470,4 +469,5 @@ public class Orego {
 			}
 		}
 	}
+
 }
