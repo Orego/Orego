@@ -21,10 +21,11 @@ player=Class
 	Name of player class to use. May be a fully-qualified class name, e.g.,
 	orego.mcts.RavePlayer. The "Player" suffix may be dropped. The package may also be
 	dropped if it is orego.play or orego.mcts. Defaults to Lgrf2.
-policy=Class:Class:...:Class
-	Name(s) of policy classes, most important first. May be a fully-qualified class name, e.g.,
-	orego.policy.EscapePolicy. The "Policy" suffix may be dropped. The package may also be
-	dropped if it is orego.policy. Defaults to Escape:Pattern:Capture.
+heuristics=Class@weight:Class@weight:...:Class@weight
+	Name(s) of policy classes, most important first, with their associated integer weights.
+	Each class may be a fully-qualified class name, e.g., orego.heuristic.EscapeHeuristic.
+	The "Heuristic" suffix may be dropped. The package may also be dropped if it is orego.heuristic.
+	Defaults to Escape@20:Pattern@20:Capture@20.
 
 Additional options are available depending on players, policies, and other classes invoked.
 
@@ -59,3 +60,11 @@ RavePlayer adds, in addition to the properties from MctsPlayer:
 
 bias=#
 	A parameter in the RAVE formula. Higher values pay less attention to RAVE. Defaults to 0.0009.
+
+To set properties for individual heuristics, use:
+
+heuristic.HeuristicName.property=#
+
+For example:
+
+heuristic.Pattern.numberOfGoodPatterns=400

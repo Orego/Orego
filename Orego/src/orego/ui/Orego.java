@@ -399,7 +399,7 @@ public class Orego {
 		HashMap<String, String> propertyMap = new HashMap<String, String>();
 		// default settings
 		String playerClass = "Lgrf2";
-		propertyMap.put("heuristics", "Pattern:Capture");
+		propertyMap.put("heuristics", "Escape@20:Pattern@20:Capture@20");
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
 			String argument = args[i];
