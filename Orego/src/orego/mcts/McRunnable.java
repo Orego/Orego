@@ -185,8 +185,6 @@ public class McRunnable implements Runnable {
 		}
 	}
 
-	// TODO Is the return value necessary?
-	// TODO Do we need to pass in the board here?
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		return heuristics.selectAndPlayOneMove(random, board);
 	}

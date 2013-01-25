@@ -30,9 +30,6 @@ public abstract class Heuristic implements Cloneable {
 		this.goodMoves = goodMoves;
 	}
 
-	// TODO Does it make sense for the heuristic to be attached to a board when
-	// it is created? Would this make cloning a HeuristicList more complicated?
-
 	protected void recommend(int p) {
 		goodMoves.add(p);
 	}

@@ -80,18 +80,16 @@ public final class Coordinates {
 	/** Useful in loops over board points. */
 	public static final int FIRST_POINT_ON_BOARD = SOUTH + EAST;
 
-	// TODO Does the array need to be that large?
-
 	/**
 	 * KNIGHT_NEIGHBORHOOD[p] is an array of points within a knight's move of p.
 	 */
-	public static final int[][] KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
+	public static final int[][] KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
 
 	/**
 	 * LARGE_KNIGHT_NEIGHBORHOOD[p] is an array of points within a large
 	 * knight's move of p.
 	 */
-	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[EXTENDED_BOARD_AREA][];
+	public static final int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
 
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
