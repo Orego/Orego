@@ -1,0 +1,33 @@
+<body>
+Classes for running and analyzing experiments.
+<p>
+To run an experiment:
+<ol>
+<li>Clear out the results directory. If doing this from the command line makes you nervous
+(it should!), use a script like this:
+<p>
+<code>
+#!/bin/bash<br>
+rm -f results/*
+</code>
+<p>
+<li>Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
+(or whatever standard opponent you're using), the command-line options to Orego for each
+condition, and other options.
+<p>
+<li>If you are running on a cluster, run Broadcast. You may find it useful to put this in a script:
+<p>
+<code>
+#!/bin/bash<br>
+nohup java -cp <i>/path/to/Orego/binaries/</i> orego.experiment.Broadcast &
+</code>
+<p>
+If you are only running on a single machine, instead run GameBatch.
+<li>Periodically run Collate to display the results.
+</ol>
+If you want to kill an ongoing experiment, run KillExperiment. Note that this is running
+<code>kill -9 -1</code> on all of the machines listed in ExperimentConfiguration.java, so it
+will kill all of your processes and log you out.
+<p>
+To check for statistical significance (whether one condition is better than another), run Significance.
+</body>
