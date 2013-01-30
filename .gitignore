@@ -6,6 +6,12 @@ nbproject/private/
 
 *.sgf
 
+# but we want *some* sgf files
+!Orego/SgfFiles/19
+!Orego/SgfFiles/9
+!Orego/SgfTestFiles/9
+!Orego/SgfTestFiles/19
+
 ## generic files to ignore
 *~
 *.lock
