@@ -3,6 +3,9 @@ Orego
 
 Source code for Dr. Peter Drake's computer Go engine.
 
+## Running with Go GUI
+
+`java -ea -server -Xmx8192M -cp [your local orego repo]/bin orego.ui.Orego threads=1 player=Mcts policy=Random playouts=1000`
 
 ## Command Line Options
 
