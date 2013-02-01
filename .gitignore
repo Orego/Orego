@@ -6,6 +6,8 @@ nbproject/private/
 
 *.sgf
 
+bin
+
 # but we want *some* sgf files
 !Orego/SgfFiles/19
 !Orego/SgfFiles/9
