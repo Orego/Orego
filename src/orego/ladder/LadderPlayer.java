@@ -1,9 +1,12 @@
 package orego.ladder;
 
-public class LadderPlayer {
+import orego.mcts.*;
+import orego.core.*;
+
+public class LadderPlayer extends Lgrf2Player {
 
 	public LadderPlayer() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	/**
