@@ -66,7 +66,7 @@ public class MctsPlayer extends McPlayer {
 			long time) {
 		System.out.println(this);
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+			long pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
 			System.out.println("Thread " + i + ": " + pp + " playouts");
 		}
 		System.out.println("(" + getRoot().getTotalRuns()

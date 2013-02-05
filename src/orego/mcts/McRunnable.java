@@ -33,7 +33,7 @@ public class McRunnable implements Runnable {
 	private McPlayer player;
 
 	/** Number of playouts completed. */
-	private int playoutsCompleted;
+	private long playoutsCompleted;
 
 	/** Array of heuristics. */
 	private HeuristicList heuristics;
@@ -111,7 +111,7 @@ public class McRunnable implements Runnable {
 	}
 
 	/** Returns the number of playouts completed by this runnable. */
-	public int getPlayoutsCompleted() {
+	public long getPlayoutsCompleted() {
 		return playoutsCompleted;
 	}
 
