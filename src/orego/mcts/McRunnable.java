@@ -116,7 +116,7 @@ public class McRunnable implements Runnable {
 	}
 	
 	/** Sets the number of playouts completed (mostly for unit testing) */
-	public void setPlayoutsCompleted(long playoutsCompleted) {
+	protected void setPlayoutsCompleted(long playoutsCompleted) {
 		this.playoutsCompleted = playoutsCompleted;
 	}
 
