@@ -114,6 +114,11 @@ public class McRunnable implements Runnable {
 	public long getPlayoutsCompleted() {
 		return playoutsCompleted;
 	}
+	
+	/** Sets the number of playouts completed (mostly for unit testing) */
+	public void setPlayoutsCompleted(long playoutsCompleted) {
+		this.playoutsCompleted = playoutsCompleted;
+	}
 
 	/** Returns the random number generator associated with this runnable. */
 	public MersenneTwisterFast getRandom() {

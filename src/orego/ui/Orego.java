@@ -319,7 +319,7 @@ public class Orego {
 					orego.mcts.McRunnable mcRunnable = (orego.mcts.McRunnable)mctsPlayer.getRunnable(i);
 					playouts += mcRunnable.getPlayoutsCompleted();
 				}
-				acknowledge("playout="+playouts);
+				acknowledge("playout=" + 	playouts);
 			}
 			else {
 				acknowledge("playout=null");
