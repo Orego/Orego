@@ -1980,6 +1980,8 @@ public class BoardTest {
 	public void testSetKomi() {
 		board.setKomi(5.5);
 		assertEquals(5.5, board.getKomi(), 0.01);
+		board.setKomi(7);
+		assertEquals(7, board.getKomi(), 0.01);
 	}
 
 	@Test
