@@ -12,7 +12,7 @@ public class ExperimentConfiguration {
 	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
-	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/git/Orego/Orego/bin";
+	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin";
 
 	/**
 	 * The host from which commands are given must be listed first for
