@@ -54,9 +54,9 @@ public class RaveNode extends SearchNode {
 
 	// TODO Should this be synchronized, as it is in the superclass?
 	@Override
-	public void recordPlayout(boolean win, int[] moves, int t, int turn,
+	public void recordPlayout(double winProportion, int[] moves, int t, int turn,
 			IntSet playedPoints) {
-		super.recordPlayout(win, moves, t, turn, playedPoints);
+		super.recordPlayout(winProportion, moves, t, turn, playedPoints);
 		// The remaining moves in the sequence are recorded for RAVE
 		int move = moves[t];
 		playedPoints.clear();
@@ -64,12 +64,11 @@ public class RaveNode extends SearchNode {
 			move = moves[t];
 			if ((move != PASS) && !playedPoints.contains(move)) {
 				playedPoints.add(move);
-				if (win) {
+				if (winProportion == 1) {
 					addRaveWin(move);
 				} else {
 					addRaveLoss(move);
 				}
-
 			}
 			t++;
 			if (t >= turn) {

@@ -1,6 +1,7 @@
 package orego.mcts;
 
 import static orego.core.Coordinates.*;
+import static orego.core.Colors.*;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,15 +26,15 @@ public class SearchNodeTest {
 	@Test
 	public void testIsFresh() {
 		assertTrue(node.isFresh());
-		node.recordPlayout(true, new int[] { PASS }, 0, 1, new IntSet(
+		node.recordPlayout(1, new int[] { PASS }, 0, 1, new IntSet(
 				FIRST_POINT_BEYOND_BOARD));
 	}
 
 	@Test
 	public void testToString() {
-		node.recordPlayout(true, new int[] { at("a1") }, 0, 1, new IntSet(
+		node.recordPlayout(1, new int[] { at("a1") }, 0, 1, new IntSet(
 				FIRST_POINT_BEYOND_BOARD));
-		node.recordPlayout(true, new int[] { PASS }, 0, 1, new IntSet(
+		node.recordPlayout(1, new int[] { PASS }, 0, 1, new IntSet(
 				FIRST_POINT_BEYOND_BOARD));
 		int base = (2 * BOARD_AREA) + 12;
 		assertEquals(
@@ -70,12 +71,21 @@ public class SearchNodeTest {
 	@Test
 	public void testGetWinningMove() {
 		assertEquals(NO_POINT, node.getWinningMove());
-		node.recordPlayout(true, new int[] { at("a1") }, 0, 1, new IntSet(
+		node.recordPlayout(1, new int[] { at("a1") }, 0, 1, new IntSet(
 				FIRST_POINT_BEYOND_BOARD));
 		assertEquals(at("a1"), node.getWinningMove());
-		node.recordPlayout(false, new int[] { at("a1") }, 0, 1, new IntSet(
+		node.recordPlayout(0, new int[] { at("a1") }, 0, 1, new IntSet(
 				FIRST_POINT_BEYOND_BOARD));
 		assertEquals(NO_POINT, node.getWinningMove());
 	}
 
+	@Test
+	public void testTieUpdate() {
+		node.reset(0L);
+		node.recordPlayout(0.5, new int[] { at("a1") }, 0, 1, new IntSet(
+				FIRST_POINT_BEYOND_BOARD));
+		assertEquals(3, node.getRuns(at("a1")));
+		assertEquals(1.5, node.getWins(at("a1")), 0.001);
+		assertEquals(0.5, node.getWinRate(at("a1")), 0.001);
+	}
 }

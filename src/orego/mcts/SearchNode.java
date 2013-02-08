@@ -225,13 +225,13 @@ public class SearchNode implements Poolable<SearchNode> {
 	 *            For keeping track of points played to avoid counting
 	 *            already-played points. (Used by, e.g., RavePlayer.)
 	 */
-	public synchronized void recordPlayout(boolean win, int[] moves, int t,
+	public synchronized void recordPlayout(double winProportion, int[] moves, int t,
 			int turn, IntSet playedPoints) {
 		assert t < turn;
 		int move = moves[t];
 		totalRuns++;
 		runs[move]++;
-		if (win) {
+		if (winProportion == 1) {
 			wins[move]++;
 			winningMove = move;
 		} else {

@@ -470,16 +470,19 @@ public class MctsPlayer extends McPlayer {
 			SearchNode node = getRoot();
 			int[] moves = runnable.getMoves();
 			long[] hashes = runnable.getHashes();
-			boolean win = winner == getBoard().getColorToPlay();
+			double winProportion = winner == getBoard().getColorToPlay() ? 1 : 0; 
+			if(winner == VACANT) {
+				winProportion = 0.5;
+			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
-				node.recordPlayout(win, moves, t, turn,
+				node.recordPlayout(winProportion, moves, t, turn,
 						runnable.getPlayedPoints());
 				long hash = hashes[t + 1];
 				node = table.findIfPresent(hash);
 				if (node == null) {
 					return;
 				}
-				win = !win;
+				winProportion = 1 - winProportion;
 			}
 		}
 	}
