@@ -13,6 +13,9 @@ bin
 !SgfTestFiles/19/*.sgf
 !testFiles/*.sgf
 
+SgfFiles/19/*.data
+SgfFiles/9/*.data
+
 ## generic files to ignore
 *~
 *.lock
