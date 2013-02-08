@@ -81,7 +81,7 @@ public class MctsPlayer extends McPlayer {
 	 * to during a playout). We choose the move with the most wins.
 	 */
 	protected int bestPlayMove(SearchNode node) {
-		int best = 1;
+		double best = 1;
 		int result = PASS;
 		IntSet vacantPoints = getBoard().getVacantPoints();
 		do {
@@ -304,7 +304,7 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
-	public int getWins(int p) {
+	public double getWins(int p) {
 		return getRoot().getWins(p);
 	}
 
@@ -393,10 +393,10 @@ public class MctsPlayer extends McPlayer {
 
 	protected String goguiTotalWins() {
 		double max = 0, min = 1;
-		int maxWins = 0;
+		double maxWins = 0;
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
-				int wins = getWins(p);
+				double wins = getWins(p);
 				// Excluded moves have negative win rates
 				if (wins > 0) {
 					max = Math.max(max, wins);
@@ -407,7 +407,7 @@ public class MctsPlayer extends McPlayer {
 		}
 		String result = "INFLUENCE";
 		for (int p : ALL_POINTS_ON_BOARD) {
-			int wins = 0;
+			double wins = 0;
 			if (getBoard().getColor(p) == VACANT) {
 				wins = getWins(p);
 				if (wins > 0) {
@@ -419,7 +419,7 @@ public class MctsPlayer extends McPlayer {
 		// Display win rates as colors and percentages
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
-				int wins = getWins(p);
+				double wins = getWins(p);
 				if (wins > 0) {
 					if (result.length() > 0) {
 						result += "\n";
@@ -465,25 +465,23 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		if (winner != VACANT) {
-			int turn = runnable.getTurn();
-			SearchNode node = getRoot();
-			int[] moves = runnable.getMoves();
-			long[] hashes = runnable.getHashes();
-			double winProportion = winner == getBoard().getColorToPlay() ? 1 : 0; 
-			if(winner == VACANT) {
-				winProportion = 0.5;
+		int turn = runnable.getTurn();
+		SearchNode node = getRoot();
+		int[] moves = runnable.getMoves();
+		long[] hashes = runnable.getHashes();
+		double winProportion = winner == getBoard().getColorToPlay() ? 1 : 0;
+		if (winner == VACANT) {
+			winProportion = 0.5;
+		}
+		for (int t = getBoard().getTurn(); t < turn; t++) {
+			node.recordPlayout(winProportion, moves, t, turn,
+					runnable.getPlayedPoints());
+			long hash = hashes[t + 1];
+			node = table.findIfPresent(hash);
+			if (node == null) {
+				return;
 			}
-			for (int t = getBoard().getTurn(); t < turn; t++) {
-				node.recordPlayout(winProportion, moves, t, turn,
-						runnable.getPlayedPoints());
-				long hash = hashes[t + 1];
-				node = table.findIfPresent(hash);
-				if (node == null) {
-					return;
-				}
-				winProportion = 1 - winProportion;
-			}
+			winProportion = 1 - winProportion;
 		}
 	}
 

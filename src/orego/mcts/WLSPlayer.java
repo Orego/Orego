@@ -132,8 +132,8 @@ public class WLSPlayer extends RavePlayer {
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
+		super.incorporateRun(winner, runnable);
 		if (winner != VACANT) {
-			super.incorporateRun(winner, runnable);
 			int turn = runnable.getTurn();
 			int[] moves = runnable.getMoves();
 			boolean win = winner == getBoard().getColorToPlay();

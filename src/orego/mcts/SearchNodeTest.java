@@ -20,7 +20,7 @@ public class SearchNodeTest {
 	@Test
 	public void testInitialValues() {
 		assertEquals(2, node.getRuns(at("a3")));
-		assertEquals(1, node.getWins(at("a3")));
+		assertEquals(1, node.getWins(at("a3")), 0.001);
 	}
 
 	@Test
@@ -47,9 +47,8 @@ public class SearchNodeTest {
 	@Test
 	public void addWins() {
 		node.addWins(at("b7"), 2);
-		int[] wins = node.getWinsArray();
-		assertEquals(3, wins[at("b7")]);
-		assertEquals("B7 wins 3/4 = 0.75", node.bestWinCountReport());
+		assertEquals(3, node.getWins(at("b7")), 0.001);
+		assertEquals("B7 wins 3.0/4 = 0.75", node.bestWinCountReport());
 	}
 
 	@Test
@@ -64,7 +63,7 @@ public class SearchNodeTest {
 	@Test
 	public void testInitialWins() {
 		node.reset(0L);
-		assertEquals(1, node.getWins(FIRST_POINT_ON_BOARD));
+		assertEquals(1, node.getWins(FIRST_POINT_ON_BOARD), 0.001);
 		assertEquals(2, node.getRuns(FIRST_POINT_ON_BOARD));
 	}
 

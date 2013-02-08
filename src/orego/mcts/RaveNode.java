@@ -66,7 +66,7 @@ public class RaveNode extends SearchNode {
 				playedPoints.add(move);
 				if (winProportion == 1) {
 					addRaveWin(move);
-				} else {
+				} else if(winProportion == 0) {
 					addRaveLoss(move);
 				}
 			}
