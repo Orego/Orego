@@ -320,7 +320,7 @@ public class BoardTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		assertEquals(10 + (2 - (50 + (14 * 19))), board.finalScore());
+		assertEquals(9.5 + (2 - (50 + (14 * 19))), board.finalScore(), 0.001);
 	}
 
 	@Test
@@ -1096,7 +1096,7 @@ public class BoardTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.setKomi(7.5);
-		assertEquals(50, board.playoutScore());
+		assertEquals(49.5, board.playoutScore(), 0.001);
 		assertEquals(BLACK, board.playoutWinner());
 	}
 
@@ -1125,7 +1125,7 @@ public class BoardTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.setKomi(7.5);
-		assertEquals(-56, board.playoutScore());
+		assertEquals(-56.5, board.playoutScore(), 0.001);
 	}
 
 	@Test
@@ -1964,7 +1964,7 @@ public class BoardTest {
 	@Test
 	public void testFinalScoreOnEmptyBoard() {
 		// White wins by komi
-		assertEquals(-7, board.finalScore());
+		assertEquals(-board.getKomi(), board.finalScore(), 0.001);
 	}
 
 	@Test
@@ -1982,6 +1982,14 @@ public class BoardTest {
 		assertEquals(5.5, board.getKomi(), 0.01);
 		board.setKomi(7);
 		assertEquals(7, board.getKomi(), 0.01);
+	}
+	
+	@Test
+	public void testTie() {
+		board.setKomi(0);
+		assertEquals(VACANT, board.approximateWinner());
+		assertEquals(VACANT, board.playoutWinner());
+		assertEquals(VACANT, board.finalWinner());
 	}
 
 	@Test

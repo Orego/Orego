@@ -30,8 +30,8 @@ public class McRunnableTest {
 		runnable.getBoard().setPasses(2);
 		runnable.playout();
 		assertEquals(0, runnable.getTurn());
-		assertEquals(-(int) (runnable.getBoard().getKomi()), runnable
-				.getBoard().playoutScore());
+		assertEquals(-runnable.getBoard().getKomi(), runnable
+				.getBoard().playoutScore(), 0.001);
 	}
 
 	@Test
