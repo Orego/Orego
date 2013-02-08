@@ -54,10 +54,8 @@ public class Collate {
 		
 		// loop through the game data files
 		for (String name : dir.list()) {
-			
-			// only open files containing game data
-			if (name.endsWith(".game")) {
-				
+			if (name.endsWith(".sgf")) {
+				// TODO This should be an array of longs; ints overflow
 				// Also check where the numbers are being generated; the same problem may occur there.
 				long[] stats = null;
 				
