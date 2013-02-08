@@ -125,7 +125,7 @@ public class Board {
 	private long hash;
 
 	/** Komi, stored in a form that speeds score counting. */
-	private int komi;
+	private double komi;
 
 	/** The point, if any, where the simple ko rule prohibits play. */
 	private int koPoint;
@@ -260,7 +260,7 @@ public class Board {
 	 * Returns the score, including komi and counting only stones (not
 	 * territory). Positive scores are good for black.
 	 */
-	public int approximateScore() {
+	public double approximateScore() {
 		return stoneCounts[BLACK] - stoneCounts[WHITE] + komi;
 	}
 
@@ -269,10 +269,7 @@ public class Board {
 	 * territory).
 	 */
 	public int approximateWinner() {
-		if (approximateScore() <= 0) {
-			return WHITE;
-		}
-		return BLACK;
+		return winnerFromScore(approximateScore());
 	}
 
 	/**
@@ -385,7 +382,7 @@ public class Board {
 	 * Similar to playoutScore(), but can handle territories larger than one
 	 * point. Assumes all stones on board are alive.
 	 */
-	public int finalScore() {
+	public double finalScore() {
 		boolean[] visited = new boolean[EXTENDED_BOARD_AREA];
 		int territoryScore = 0;
 		for (int i = 0; i < vacantPoints.size(); i++) {
@@ -410,7 +407,7 @@ public class Board {
 	 * Similar to winner(), but based on finalScore() instead of playoutScore().
 	 */
 	public int finalWinner() {
-		return (finalScore() <= 0) ? WHITE : BLACK;
+		return winnerFromScore(finalScore());
 	}
 
 	/**
@@ -493,7 +490,7 @@ public class Board {
 
 	/** Returns the komi. */
 	public double getKomi() {
-		return -komi + 0.5;
+		return -komi;
 	}
 
 	/**
@@ -999,7 +996,7 @@ public class Board {
 	 * Returns the score, including komi. Positive scores are good for black.
 	 * Counts stones on board and one-point territories.
 	 */
-	public int playoutScore() {
+	public double playoutScore() {
 		int eyeScore = 0;
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			int p = vacantPoints.get(i);
@@ -1018,7 +1015,7 @@ public class Board {
 	 * @see #playoutScore()
 	 */
 	public int playoutWinner() {
-		return (playoutScore() <= 0) ? WHITE : BLACK;
+		return winnerFromScore(playoutScore());
 	}
 
 	/** Removes stones. */
@@ -1078,7 +1075,7 @@ public class Board {
 	
 	/** Sets the komi. */
 	public void setKomi(double komi) {
-		this.komi = (int) (Math.ceil(-komi));
+		this.komi = -komi;
 	}
 
 	/** Sets the number of consecutive passes just before now. For testing only. */
@@ -1153,4 +1150,16 @@ public class Board {
 		return result;
 	}
 
+	// Utility: Calculate a winner from a score
+	private static int winnerFromScore(double score) {
+		if(score == 0) {
+			return VACANT;
+		}
+		else if(score < 0) {
+			return WHITE;
+		}
+		else {
+			return BLACK;
+		}
+	}
 }

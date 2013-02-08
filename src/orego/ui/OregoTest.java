@@ -96,7 +96,7 @@ public class OregoTest {
 		String[] outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("W")); // White wins
 		double komi = orego.getPlayer().getBoard().getKomi();
-		assertEquals(outcome[1], "" + komi); // by points = komi
+		assertEquals("" + komi, outcome[1]); // by points = komi
 		oregoOut.readLine(); // read out the extra return
 		// Test the score when black wins. Play a single piece and black should
 		// win by the max possible point minus komi.

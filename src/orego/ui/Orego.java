@@ -237,7 +237,7 @@ public class Orego {
 			player.reset();
 			acknowledge();
 		} else if (command.equals("final_score")) {
-			double score = player.finalScore() - 0.5;
+			double score = player.finalScore();
 			if (score > 0) {
 				acknowledge("B+" + score);
 			} else {
