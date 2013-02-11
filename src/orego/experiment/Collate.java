@@ -169,15 +169,20 @@ public class Collate {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(output_csv));
 			
 			// write the header
-			writer.write("Configuration,Wins,Runs,Win Rate,Total Playouts,Total Moves,Average PPM\n");
+			writer.write("Configuration,Index,Wins,Runs,Win Rate,Total Playouts,Total Moves,Average PPM\n");
+			
+			// we keep a unique ID for each entry to make stat analysis easier when importing CSV
+			int index = 0;
 			
 			// dump the stats out
 			for (String params : results.keySet()) {
 				long[] stats = results.get(params);
 				
-				String line = String.format("%s,%d,%d,%1.3f,%d,%d,%1.3f\n", params, stats[0], stats[1], ((double) (stats[0])) / (stats[1]),
+				String line = String.format("%s,%d,%d,%d,%1.3f,%d,%d,%1.3f\n", params, index, stats[0], stats[1], ((double) (stats[0])) / (stats[1]),
 																			stats[2], stats[3], (stats[2]/((double) stats[3])));
 				writer.write(line);
+				
+				index++;
 			}
 			
 			writer.flush();
