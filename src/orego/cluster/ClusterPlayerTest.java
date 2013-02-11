@@ -68,7 +68,7 @@ public class ClusterPlayerTest {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(500);
+						Thread.sleep(100);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
