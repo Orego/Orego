@@ -23,6 +23,12 @@ public interface TreeSearcher extends Remote {
 	/** Accepts the given move into the state of the searcher. */
 	void acceptMove(int player, int location) throws RemoteException;
 	
+	/** Sets the player to the Tree Searcher should use.
+	 * @param player the fully qualified player class name.
+	 * @return true if the player exists, false otherwise. 
+	 */
+	boolean setPlayer(String player) throws RemoteException;
+	
 	/** 
 	 * Begins searching for the amount of time/playouts specified by properties set. 
 	 * Results will be reported to the registered controller at the end of the search.
