@@ -30,8 +30,8 @@ public class McRunnableTest {
 		runnable.getBoard().setPasses(2);
 		runnable.playout();
 		assertEquals(0, runnable.getTurn());
-		assertEquals(-(int) (runnable.getBoard().getKomi()), runnable
-				.getBoard().playoutScore());
+		assertEquals(-runnable.getBoard().getKomi(), runnable
+				.getBoard().playoutScore(), 0.001);
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class McRunnableTest {
 		SearchNode node = new SearchNode();
 		node.reset(board.getHash());
 		runnable.updatePriors(node, board);
-		assertEquals(6, node.getWins(at("d15")));
+		assertEquals(6, node.getWins(at("d15")), 0.001);
 		assertEquals(7, node.getRuns(at("d15")));
 	}
 
