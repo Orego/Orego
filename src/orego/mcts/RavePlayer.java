@@ -76,7 +76,7 @@ public class RavePlayer extends MctsPlayer {
 	}
 
 	/** Returns the number of RAVE wins through the root via p. */
-	protected int getRaveWins(int p) {
+	protected double getRaveWins(int p) {
 		return ((RaveNode) getRoot()).getRaveWins(p);
 	}
 
@@ -144,7 +144,7 @@ public class RavePlayer extends MctsPlayer {
 		// Find the maximum and minimum win rates on the board, ignoring
 		// occupied points
 		double max = 0, min = 1;
-		int maxWins = 0;
+		double maxWins = 0;
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getRaveWinRate(p);

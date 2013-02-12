@@ -48,4 +48,13 @@ public class RaveNodeTest {
 		assertEquals(3, node.getRaveRuns(at("a2")), 0.001);
 		assertEquals(2, node.getRaveWins(at("a2")), 0.001);
 	}
+	
+	@Test
+	public void testRecordTiedPlayout() {
+		node.recordPlayout(0.5, new int[] {at("a1"), at("b2"), at("a2")}, 0, 3, new IntSet(FIRST_POINT_BEYOND_BOARD));
+		assertEquals(3, node.getRaveRuns(at("a1")), 0.001);
+		assertEquals(1.5, node.getRaveWins(at("a1")), 0.001);
+		assertEquals(3, node.getRaveRuns(at("a2")), 0.001);
+		assertEquals(1.5, node.getRaveWins(at("a2")), 0.001);
+	}
 }
