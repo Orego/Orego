@@ -184,7 +184,7 @@ public class ClusterPlayerTest {
 	
 	/* Tests related to move generation */
 	@Test
-	public void testSetsController() {
+	public void testShouldSetController() {
 		player.reset();
 		assertTrue(searcher.controller != null);
 	}
