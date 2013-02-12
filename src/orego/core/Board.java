@@ -1151,7 +1151,10 @@ public class Board {
 	}
 
 	// Utility: Calculate a winner from a score
-	private static int winnerFromScore(double score) {
+	protected static int winnerFromScore(double score) {
+		// This test for double equality is ok because we only expect
+		// integer and half-integer values (and if we miss a couple ties, it
+		// won't be the end of the world).
 		if(score == 0) {
 			return VACANT;
 		}
