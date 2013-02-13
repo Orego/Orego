@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static orego.core.Coordinates.*;
 
+import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import orego.cluster.ClusterPlayer.RegistryFactory;
 import orego.play.UnknownPropertyException;
 
 import org.junit.Before;
@@ -25,20 +27,19 @@ public class ClusterPlayerTest {
 	
 	private static class MockTreeSearcher implements TreeSearcher {
 		
-		protected SearchController controller;
 		protected boolean resetDone;
 		protected double komi;
 		protected Map<String, String> properties = new HashMap<String, String>();
 		protected List<Integer> moves = new ArrayList<Integer>();
 		protected boolean beginSearchDone;
 		protected int bestMove = -1;
-		protected String player_name;
-		
-		@Override
-		public void setController(SearchController c) throws RemoteException {
+		protected String playerName;
+		protected ClusterPlayer controller;
+
+		public MockTreeSearcher(ClusterPlayer c){
 			controller = c;
 		}
-
+		
 		@Override
 		public void reset() throws RemoteException {
 			resetDone = true;
@@ -97,31 +98,35 @@ public class ClusterPlayerTest {
 
 		@Override
 		public boolean setPlayer(String player) throws RemoteException {
-			this.player_name = player;
+			this.playerName = player;
 			return true;
 		}
 	}
-
-	private static final String HOST_A = "hosta.local";
 	
-	@Mock private ClusterPlayer.RegistryFactory mockFactory;
-	@Mock private Registry mockRegistryA;
+	@Mock private RegistryFactory mockFactory;
+	@Mock private Registry mockRegistry;
 	private ClusterPlayer player;
 	private MockTreeSearcher searcher;
 	
 	@Before
 	public void setUp() throws Exception {
+		when(mockFactory.getRegistry()).thenReturn(mockRegistry);
+		ClusterPlayer.factory = mockFactory;
 		player = new ClusterPlayer();
-		player.setProperty("search_hosts", HOST_A);
-		searcher = new MockTreeSearcher();
-		player.factory = mockFactory;
-		when(mockFactory.locateRegistry(HOST_A)).thenReturn(mockRegistryA);
-		when(mockRegistryA.lookup(TreeSearcher.SEARCHER_NAME)).thenReturn(searcher);
+		searcher = new MockTreeSearcher(player);
+		player.reset();
+		player.addSearcher(searcher);
 	}
 
 	/* Tests relating to setup */
 	@Test
+	public void testShouldPublish() throws AccessException, RemoteException {
+		verify(mockRegistry).rebind(SearchController.SEARCH_CONTROLLER_NAME, player);
+	}
+	
+	@Test
 	public void testShouldResetSearchers() {
+		searcher.resetDone = false;
 		player.reset();
 		assertTrue(searcher.resetDone);
 	}
@@ -129,7 +134,6 @@ public class ClusterPlayerTest {
 	@Test
 	public void testShouldSetKomi() {
 		double testKomi = 6.5;
-		player.reset();
 		player.setKomi(testKomi);
 		assertEquals(testKomi, searcher.komi, 0.001);
 	}
@@ -141,7 +145,6 @@ public class ClusterPlayerTest {
 		String valA = "1000";
 		String keyB = "ponder";
 		String valB = "true";
-		player.reset();
 		player.setProperty(keyA, valA);
 		player.setProperty(keyB, valB);
 		assertTrue(searcher.properties.containsKey(keyA));
@@ -149,22 +152,35 @@ public class ClusterPlayerTest {
 		assertTrue(searcher.properties.containsKey(keyB));
 		assertTrue(searcher.properties.get(keyB) == valB);
 	}
-	
-	@Test
-	public void testShouldNotSetHosts() throws UnknownPropertyException {
-		player.reset();
-		player.setProperty("search_hosts", HOST_A);
-		assertFalse(searcher.properties.containsKey(HOST_A));
-	}
-	
+		
 	@Test
 	public void testShouldSendOldProperties() throws UnknownPropertyException {
 		String key = "ponder";
 		String val = "true";
 		player.setProperty(key, val);
-		player.reset();
-		assertTrue(searcher.properties.containsKey(key));
-		assertTrue(searcher.properties.get(key) == val);
+		MockTreeSearcher s = new MockTreeSearcher(player);
+		player.addSearcher(s);
+		assertTrue(s.properties.containsKey(key));
+		assertTrue(s.properties.get(key) == val);
+	}
+	
+	@Test
+	public void testShouldSetPlayer() throws UnknownPropertyException {
+		String val = "MCTSPlayer";
+		// Use a new cluster player so we can set the remote_player prop
+		// before adding the searcher
+		ClusterPlayer p = new ClusterPlayer();
+		p.reset();
+		p.setProperty("remote_player", val);
+		p.addSearcher(searcher);
+		assertEquals(val, searcher.playerName);
+	}
+	
+	@Test
+	public void testShouldNotResetPlayer() throws UnknownPropertyException {
+		// Once a remote searcher has connected and had a player set, do not change it
+		player.setProperty("remote_player", "SomePlayer");
+		assertEquals("Lgrf2Player", searcher.playerName);
 	}
 	
 	@Test
@@ -172,7 +188,6 @@ public class ClusterPlayerTest {
 		String key = "msec";
 		long msec = 1200;
 		String val = String.valueOf(msec);
-		player.reset();
 		player.setProperty(key, val);
 		assertEquals(msec, player.getMillisecondsPerMove());
 	}
@@ -180,7 +195,6 @@ public class ClusterPlayerTest {
 	/* Tests relating to moves */
 	@Test
 	public void testShouldSendMoves() {
-		player.reset();
 		ArrayList<Integer> moves = new ArrayList<Integer>();
 		moves.add(at("a1"));
 		moves.add(at("a2"));
@@ -190,15 +204,9 @@ public class ClusterPlayerTest {
 	}
 	
 	/* Tests related to move generation */
-	@Test
-	public void testShouldSetController() {
-		player.reset();
-		assertTrue(searcher.controller != null);
-	}
 	
 	@Test
 	public void testShouldRequestSearch() {
-		player.reset();
 		player.setOpeningBook(null);
 		player.bestMove();
 		assertTrue(searcher.beginSearchDone);
@@ -206,7 +214,6 @@ public class ClusterPlayerTest {
 	
 	@Test
 	public void testShouldUseSearchResults() {
-		player.reset();
 		player.setOpeningBook(null);
 		int best = at("e4");
 		searcher.bestMove = best;
@@ -215,10 +222,20 @@ public class ClusterPlayerTest {
 	
 	@Test
 	public void testShouldUseOpeningBook() throws UnknownPropertyException {
-		player.reset();
 		// Use a simple book with deterministic behavior
 		player.setProperty("book", "StarPointsBook");
 		int expected = player.getOpeningBook().nextMove(player.getBoard());
 		assertEquals(expected, player.bestMove());
+	}
+	
+	@Test
+	public void testShouldClearResults() {
+		player.setOpeningBook(null);
+		int bestA = at("e6");
+		searcher.bestMove = bestA;
+		player.bestMove();
+		int bestB = at("e4");
+		searcher.bestMove = bestB;
+		assertEquals(bestB, player.bestMove());
 	}
 }

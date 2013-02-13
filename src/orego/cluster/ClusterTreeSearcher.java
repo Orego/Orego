@@ -26,12 +26,6 @@ public class ClusterTreeSearcher implements TreeSearcher {
 	}
 
 	@Override
-	public void setController(SearchController c) throws RemoteException {
-		this.controller = c;
-		
-	}
-
-	@Override
 	public void reset() throws RemoteException {
 		if (player == null) return;
 		

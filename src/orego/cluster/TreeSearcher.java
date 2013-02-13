@@ -4,13 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface TreeSearcher extends Remote {
-	public enum SearchType {PLAYOUT_COUNT, TIME}
-	
-	public static final String SEARCHER_NAME = "TreeSearcher";
-	
-	/** Set the Controller that this Searcher will report results to. */
-	void setController(SearchController c) throws RemoteException;
-	
+
 	/** Resets all the state contained in this searcher. */
 	void reset() throws RemoteException;
 	
