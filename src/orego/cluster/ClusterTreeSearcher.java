@@ -21,7 +21,7 @@ public class ClusterTreeSearcher implements TreeSearcher {
 	private Player player;
 	
 	public static void main(String[] args) {
-		// Do we need anything?
+		// TODO: need a way to run the code directly and connect to the server
 
 	}
 
@@ -72,7 +72,16 @@ public class ClusterTreeSearcher implements TreeSearcher {
 
 	@Override
 	public void beginSearch() throws RemoteException {
-		if (player == null) return;
+		if (player == null || controller == null) return;
+		
+		// find the best move.
+		// should we be biasing it in the wins and runs or will
+		// that have happened automatically?
+		int bestMove = this.player.bestMove();
+		
+		
+		// ping right back to the server
+		controller.acceptResults(this, player.getPlayouts(), player.getWins());
 	}
 
 	@Override

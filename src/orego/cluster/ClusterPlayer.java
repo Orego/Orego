@@ -37,6 +37,11 @@ public class ClusterPlayer extends Player {
 		}
 	}
 	
+	/** Simple class to aggregate information about the best move across
+	 * all of the clients.
+	 * @author colingavin
+	 *
+	 */
 	private class ClusterSearchController extends UnicastRemoteObject implements
 			SearchController {
 
@@ -44,21 +49,21 @@ public class ClusterPlayer extends Player {
 		private ReentrantLock searchLock = null;
 		private Condition searchDone = null;
 		private int resultsRemaining;
-		private int[] totalRuns;
-		private int[] totalWins;
+		private long[] totalRuns;
+		private long[] totalWins;
 
 		protected ClusterSearchController() throws RemoteException {
 			super();
 
-			totalRuns = new int[FIRST_POINT_BEYOND_BOARD];
-			totalWins = new int[FIRST_POINT_BEYOND_BOARD];
+			totalRuns = new long[FIRST_POINT_BEYOND_BOARD];
+			totalWins = new long[FIRST_POINT_BEYOND_BOARD];
 		}
 
-		public synchronized int[] getTotalRuns() {
+		public synchronized long[] getTotalRuns() {
 			return totalRuns;
 		}
 
-		public synchronized int[] getTotalWins() {
+		public synchronized long[] getTotalWins() {
 			return totalWins;
 		}
 
@@ -85,6 +90,8 @@ public class ClusterPlayer extends Player {
 				return;
 			}
 			resultsRemaining--;
+			
+			// aggregate all of the recommended moves from the player
 			for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
 				totalRuns[idx] += runs[idx];
 				totalWins[idx] += wins[idx];
@@ -104,19 +111,27 @@ public class ClusterPlayer extends Player {
 	private static final String MOVE_TIME_PROPERTY = "msec";
 
 	private List<TreeSearcher> remoteSearchers;
+	
 	private List<String> searchHosts;
+	
 	private Map<String, String> remoteProperties;
 	// We wait for msecToMove if it is set, otherwise wait for timeout
 	private long msecToMove = -1;
+	
 	// The default timeout for search is 10s
 	private long msecToTimeout = 10000;
+	
 	private ReentrantLock searchLock;
+	
 	private Condition searchDone;
+	
 	private ClusterSearchController controller;
+	
 	// The RegistryFactory used to get remote registries and for testing
 	protected RegistryFactory factory = new RegistryFactory();
 
 	/** Initializes RMI for the master */
+	
 	public ClusterPlayer() {
 		super();
 		remoteSearchers = new ArrayList<TreeSearcher>();
@@ -148,14 +163,18 @@ public class ClusterPlayer extends Player {
 	 * sets resets the properties on all the searchers according the locally set
 	 * properties.
 	 */
+	@Override
 	public void reset() {
 		super.reset();
 		remoteSearchers.clear();
 		for (String address : searchHosts) {
 			try {
 				Registry reg = factory.locateRegistry(address);
+				
+				// wait, why is the server looking up the clients? This should be the other way around...
 				TreeSearcher searcher = (TreeSearcher) reg
 						.lookup(TreeSearcher.SEARCHER_NAME);
+				
 				remoteSearchers.add(searcher);
 				searcher.reset();
 				searcher.setKomi(getBoard().getKomi());
@@ -178,12 +197,16 @@ public class ClusterPlayer extends Player {
 	}
 
 	/** Forwards the played move to the remote searchers */
+	@Override
 	public int acceptMove(int p) {
+		
 		int result = super.acceptMove(p);
+		
 		if (result == PLAY_OK) {
+			
 			TreeSearcher searcher = null;
-			for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it
-					.hasNext();) {
+			
+			for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
 				searcher = it.next();
 				try {
 					searcher.acceptMove(opposite(getBoard().getColorToPlay()),
@@ -205,14 +228,18 @@ public class ClusterPlayer extends Player {
 	 * if there is a move to play. Then, calls each searcher with the current
 	 * search settings and waits for them to reply or time to expire.
 	 */
+	@Override
 	public int bestMove() {
 		// First check the opening book for a move
 		if (getOpeningBook() != null) {
+			
 			int move = getOpeningBook().nextMove(getBoard());
+			
 			if (move != NO_POINT) {
 				return move;
 			}
 		}
+		
 		// If we're here, we need to start searching, call up the searchers
 		controller.beginAcceptingResults(remoteSearchers.size());
 		for (TreeSearcher searcher : remoteSearchers) {
@@ -223,6 +250,7 @@ public class ClusterPlayer extends Player {
 						+ " failed to begin search.");
 			}
 		}
+		
 		// Wait for as long as we can
 		long waitTime = msecToMove > 0 ? msecToMove : msecToTimeout;
 		try {
@@ -238,16 +266,16 @@ public class ClusterPlayer extends Player {
 		return bestSearchMove();
 	}
 
-	/** Decides on a move to play from the data gotten from searchers. */
+	/** Decides on a move to play from the data received from searchers. */
 	private int bestSearchMove() {
 		IntSet vacantPoints = getBoard().getVacantPoints();
 		// TODO: Can we use the runs here too? Maybe a confidence interval?
-		int[] totalWins = controller.getTotalWins();
-		int maxWins = totalWins[PASS];
+		long[] totalWins = controller.getTotalWins();
+		long maxWins = totalWins[PASS];
 		int bestMove = PASS;
 		for (int idx = 0; idx < vacantPoints.size(); idx++) {
 			int point = vacantPoints.get(idx);
-			int wins = totalWins[point];
+			long wins = totalWins[point];
 			if (wins > maxWins) {
 				maxWins = wins;
 				bestMove = point;
@@ -265,15 +293,19 @@ public class ClusterPlayer extends Player {
 	 * connected Searchers. Properties are also stored to be set on searchers
 	 * that connect in the future.
 	 */
+	@Override
 	public void setProperty(String key, String value)
 			throws UnknownPropertyException {
 		if (key == SEARCH_HOSTS_PROPERTY) {
 			// "search_hosts" is expected to be a comma separated list of
 			// hostnames or ip addresses
 			String[] hosts = value.split(",");
+			
+			// cleanup the strings to ensure now trailing whitespace
 			for (int idx = 0; idx < hosts.length; idx++) {
 				hosts[idx] = hosts[idx].trim();
 			}
+			
 			searchHosts = Arrays.asList(hosts);
 			return;
 		}
@@ -291,6 +323,7 @@ public class ClusterPlayer extends Player {
 		// Store the property for future use
 		remoteProperties.put(key, value);
 		// Try to set it on all currently connected searchers
+		// very useful for forwarding GTP commands
 		try {
 			setPropertyOnSearchers(key, value);
 		} catch (RemoteException e) {
@@ -299,7 +332,17 @@ public class ClusterPlayer extends Player {
 		}
 	}
 	
+	@Override
+	public int getWins(int p) {
+		return (int)controller.getTotalWins()[p];
+	}
+	
+	@Override
+	public int getPlayouts(int p) {
+		return (int) controller.getTotalRuns()[p];
+	}
 	/** Sets the komi on the board and the remote searchers */
+	@Override
 	public void setKomi(double komi) {
 		super.setKomi(komi);
 		for(TreeSearcher searcher : remoteSearchers) {
@@ -311,6 +354,7 @@ public class ClusterPlayer extends Player {
 		}
 	}
 	
+	@Override
 	public int getMillisecondsPerMove() {
 		return (int) Math.max(msecToMove, 0);
 	}

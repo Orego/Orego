@@ -283,6 +283,11 @@ public class MctsPlayer extends McPlayer {
 		return getRoot().getRuns(p);
 	}
 
+	@Override
+	public int getWins(int p) {
+		return getRoot().getWins(p);
+	}
+	
 	/** Returns a node of the type to be used to build the dag. */
 	protected SearchNode getPrototypeNode() {
 		return new SearchNode();
@@ -302,12 +307,6 @@ public class MctsPlayer extends McPlayer {
 	public double getWinRate(int p) {
 		return getRoot().getWinRate(p);
 	}
-
-	@Override
-	public int getWins(int p) {
-		return getRoot().getWins(p);
-	}
-
 	/**
 	 * Runs one playout and returns a String that GoGui can use to display that
 	 * playout.

@@ -125,7 +125,49 @@ public class Player implements Playable {
 		
 		return result;
 	}
-
+	
+	/** subclasses should override */
+	@Override
+	public int getWins(int p) {
+		return -1;
+	}
+	
+	@Override
+	public int getPlayouts(int p) {
+		return -1;
+	}
+	
+	/** 
+	 * Gets an array of wins for the entire board
+	 * Each entry is a move.
+	 * Since this method has to rebuild and array of all board positions
+	 * each time, you should not call it that often. 
+	 */
+	public int[] getWins() {
+		int[] wins = new int[FIRST_POINT_BEYOND_BOARD];
+		
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
+			wins[i] = getWins(i);
+		}
+		
+		return wins;
+	}
+	
+	/** Gets an array of runs for the entire board. 
+	 * Each entry is a move.
+	 * Since this method has to rebuild and array of all board positions
+	 * each time, you should not call it that often. 
+	 */
+	public int[] getPlayouts() {
+		int[] runs = new int[FIRST_POINT_BEYOND_BOARD];
+		
+		for (int i = 0; i < FIRST_POINT_BEYOND_BOARD; i++) {
+			runs[i] = getPlayouts(i);
+		}
+		
+		return runs;
+	}
+	
 	/** Returns the array of heuristics associated with this player. */
 	public HeuristicList getHeuristics() {
 		return heuristics;
