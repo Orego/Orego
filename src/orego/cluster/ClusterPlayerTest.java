@@ -32,6 +32,7 @@ public class ClusterPlayerTest {
 		protected List<Integer> moves = new ArrayList<Integer>();
 		protected boolean beginSearchDone;
 		protected int bestMove = -1;
+		protected String player_name;
 		
 		@Override
 		public void setController(SearchController c) throws RemoteException {
@@ -92,6 +93,12 @@ public class ClusterPlayerTest {
 		@Override
 		public String toString() {
 			return "MockTreeSearcher";
+		}
+
+		@Override
+		public boolean setPlayer(String player) throws RemoteException {
+			this.player_name = player;
+			return true;
 		}
 	}
 

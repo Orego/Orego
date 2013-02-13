@@ -159,14 +159,9 @@ public abstract class McPlayer extends ThreadedPlayer {
 		return playoutLimit;
 	}
 
-	/** Returns the top level number of playouts through point p. */
-	public abstract int getPlayouts(int p);
 
 	/** Returns the win rate for the current color to play at point p. */
 	public abstract double getWinRate(int p);
-
-	/** Returns the number of wins for the current color to play at point p. */
-	public abstract int getWins(int p);
 	
 	/**
 	 * Display heuristics on the board.
