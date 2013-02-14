@@ -1,17 +1,14 @@
 package orego.cluster;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import orego.cluster.ClusterPlayer.RegistryFactory;
 import orego.play.UnknownPropertyException;
@@ -20,102 +17,73 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClusterPlayerTest {
 	
-	private static class MockTreeSearcher implements TreeSearcher {
-		
-		protected boolean resetDone;
-		protected double komi;
-		protected Map<String, String> properties = new HashMap<String, String>();
-		protected List<Integer> moves = new ArrayList<Integer>();
-		protected boolean beginSearchDone;
-		protected int bestMove = -1;
-		protected String playerName;
-		protected ClusterPlayer controller;
-
-		public MockTreeSearcher(ClusterPlayer c){
-			controller = c;
-		}
-		
-		@Override
-		public void reset() throws RemoteException {
-			resetDone = true;
-		}
-
-		@Override
-		public void setKomi(double k) throws RemoteException {
-			komi = k;
-		}
-
-		@Override
-		public void setProperty(String key, String value)
-				throws RemoteException {
-			properties.put(key, value);
-		}
-
-		@Override
-		public void acceptMove(int player, int location) throws RemoteException {
-			moves.add(location);
-		}
-
-		@Override
-		public void beginSearch() throws RemoteException {
-			beginSearchDone = true;
-			final TreeSearcher thisSearcher = this;
-			final int bestMoveLoc = bestMove;
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					int[] runs = new int[FIRST_POINT_BEYOND_BOARD];
-					Arrays.fill(runs, 2);
-					int[] wins = new int[FIRST_POINT_BEYOND_BOARD];
-					Arrays.fill(wins, 1);
-					if(bestMoveLoc >= 0) {
-						runs[bestMoveLoc] += 10;
-						wins[bestMoveLoc] += 10;
-					}
-					try {
-						controller.acceptResults(thisSearcher, runs, wins);
-					} catch (RemoteException e) {
-						System.err.println("Controller refused to accept fake results!");
-					}
-				}
-			}).start();
-		}
-		
-		@Override
-		public String toString() {
-			return "MockTreeSearcher";
-		}
-
-		@Override
-		public boolean setPlayer(String player) throws RemoteException {
-			this.playerName = player;
-			return true;
-		}
-	}
-	
 	@Mock private RegistryFactory mockFactory;
 	@Mock private Registry mockRegistry;
+	@Mock TreeSearcher searcher;
+	
 	private ClusterPlayer player;
-	private MockTreeSearcher searcher;
 	
 	@Before
 	public void setUp() throws Exception {
 		when(mockFactory.getRegistry()).thenReturn(mockRegistry);
 		ClusterPlayer.factory = mockFactory;
 		player = new ClusterPlayer();
-		searcher = new MockTreeSearcher(player);
+		//searcher = new MockTreeSearcher(player);
 		player.reset();
 		player.addSearcher(searcher);
+	}
+	
+	/** 
+	 * Stubs out the beginSearch method on the given mock tree searcher.
+	 * The new beginSearch method will respond after msecToRespond with the best
+	 * move at bestMove.
+	 */
+	protected void setupMockSearcher(TreeSearcher mockSearcher, final int msecToRespond, final int bestMove) throws RemoteException {
+		doAnswer(new Answer<Object>() {
+			
+			@Override
+			public Object answer(InvocationOnMock invocation) {
+				final TreeSearcher mock = (TreeSearcher) invocation.getMock();
+				
+				// Begin a new thread that will wait the specified time and then call the server back
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(msecToRespond);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						int[] runs = new int[FIRST_POINT_BEYOND_BOARD];
+						Arrays.fill(runs, 2);
+						int[] wins = new int[FIRST_POINT_BEYOND_BOARD];
+						Arrays.fill(wins, 1);
+						if(bestMove >= 0) {
+							runs[bestMove] += 10;
+							wins[bestMove] += 10;
+						}
+						try {
+							player.acceptResults(mock, runs, wins);
+						} catch (RemoteException e) {
+							System.err.println("Controller refused to accept fake results!");
+						}
+						
+					}
+					
+				}).start();
+				
+				return null;
+			}
+			
+		}).when(mockSearcher).beginSearch();
 	}
 
 	/* Tests relating to setup */
@@ -125,47 +93,43 @@ public class ClusterPlayerTest {
 	}
 	
 	@Test
-	public void testShouldResetSearchers() {
-		searcher.resetDone = false;
+	public void testShouldResetSearchers() throws RemoteException {
 		player.reset();
-		assertTrue(searcher.resetDone);
+		verify(searcher, atMost(2)).reset();
 	}
 	
 	@Test
-	public void testShouldSetKomi() {
+	public void testShouldSetKomi() throws RemoteException {
 		double testKomi = 6.5;
 		player.setKomi(testKomi);
-		assertEquals(testKomi, searcher.komi, 0.001);
+		verify(searcher).setKomi(testKomi);
 	}
 	
 	/* Tests relating to properties */
 	@Test
-	public void testShouldForwardProperties() throws UnknownPropertyException {
+	public void testShouldForwardProperties() throws UnknownPropertyException, RemoteException {
 		String keyA = "msec"; // Use 'msec' here beacuse cluster player treats it specially
 		String valA = "1000";
 		String keyB = "ponder";
 		String valB = "true";
 		player.setProperty(keyA, valA);
 		player.setProperty(keyB, valB);
-		assertTrue(searcher.properties.containsKey(keyA));
-		assertTrue(searcher.properties.get(keyA) == valA);
-		assertTrue(searcher.properties.containsKey(keyB));
-		assertTrue(searcher.properties.get(keyB) == valB);
+		verify(searcher).setProperty(keyA, valA);
+		verify(searcher).setProperty(keyB, valB);
 	}
 		
 	@Test
-	public void testShouldSendOldProperties() throws UnknownPropertyException {
+	public void testShouldSendOldProperties() throws UnknownPropertyException, RemoteException {
 		String key = "ponder";
 		String val = "true";
 		player.setProperty(key, val);
-		MockTreeSearcher s = new MockTreeSearcher(player);
+		TreeSearcher s = mock(TreeSearcher.class);
 		player.addSearcher(s);
-		assertTrue(s.properties.containsKey(key));
-		assertTrue(s.properties.get(key) == val);
+		verify(s).setProperty(key, val);
 	}
 	
 	@Test
-	public void testShouldSetPlayer() throws UnknownPropertyException {
+	public void testShouldSetPlayer() throws UnknownPropertyException, RemoteException {
 		String val = "MCTSPlayer";
 		// Use a new cluster player so we can set the remote_player prop
 		// before adding the searcher
@@ -173,14 +137,15 @@ public class ClusterPlayerTest {
 		p.reset();
 		p.setProperty("remote_player", val);
 		p.addSearcher(searcher);
-		assertEquals(val, searcher.playerName);
+		verify(searcher).setPlayer(val);
 	}
 	
 	@Test
-	public void testShouldNotResetPlayer() throws UnknownPropertyException {
+	public void testShouldNotResetPlayer() throws UnknownPropertyException, RemoteException {
 		// Once a remote searcher has connected and had a player set, do not change it
-		player.setProperty("remote_player", "SomePlayer");
-		assertEquals("Lgrf2Player", searcher.playerName);
+		String playerClass = "SomePlayer";
+		player.setProperty("remote_player", playerClass);
+		verify(searcher, never()).setPlayer(playerClass);
 	}
 	
 	@Test
@@ -194,29 +159,30 @@ public class ClusterPlayerTest {
 	
 	/* Tests relating to moves */
 	@Test
-	public void testShouldSendMoves() {
-		ArrayList<Integer> moves = new ArrayList<Integer>();
-		moves.add(at("a1"));
-		moves.add(at("a2"));
-		player.acceptMove(moves.get(0));
-		player.acceptMove(moves.get(1));
-		assertEquals(searcher.moves, moves);
+	public void testShouldSendMoves() throws RemoteException {
+		int[] moves = new int[] {at("a1"), at("a2")};
+		player.acceptMove(moves[0]);
+		player.acceptMove(moves[1]);
+		verify(searcher).acceptMove(BLACK, moves[0]);
+		verify(searcher).acceptMove(WHITE, moves[1]);
 	}
 	
 	/* Tests related to move generation */
 	
 	@Test
-	public void testShouldRequestSearch() {
+	public void testShouldRequestSearch() throws RemoteException {
+		setupMockSearcher(searcher, 100, -1);
+		
 		player.setOpeningBook(null);
 		player.bestMove();
-		assertTrue(searcher.beginSearchDone);
+		verify(searcher).beginSearch();
 	}
 	
 	@Test
-	public void testShouldUseSearchResults() {
+	public void testShouldUseSearchResults() throws RemoteException {
 		player.setOpeningBook(null);
 		int best = at("e4");
-		searcher.bestMove = best;
+		setupMockSearcher(searcher, 100, best);
 		assertEquals(best, player.bestMove());
 	}
 	
@@ -229,13 +195,13 @@ public class ClusterPlayerTest {
 	}
 	
 	@Test
-	public void testShouldClearResults() {
+	public void testShouldClearResults() throws RemoteException {
 		player.setOpeningBook(null);
 		int bestA = at("e6");
-		searcher.bestMove = bestA;
+		setupMockSearcher(searcher, 100, bestA);
 		player.bestMove();
 		int bestB = at("e4");
-		searcher.bestMove = bestB;
+		setupMockSearcher(searcher, 100, bestB);
 		assertEquals(bestB, player.bestMove());
 	}
 }
