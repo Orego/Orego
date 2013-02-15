@@ -61,8 +61,9 @@ public class ClusterTreeSearcher implements TreeSearcher {
 	public ClusterTreeSearcher(SearchController controller) {
 		this.controller = controller;
 		
+		
 		try {
-			
+			this.reset();
 			controller.addSearcher(this);
 			
 		} catch (RemoteException e) {
@@ -71,6 +72,11 @@ public class ClusterTreeSearcher implements TreeSearcher {
 			System.exit(1);
 		}
 		
+	}
+	
+	/** mostly used for unit testing */
+	protected Player getPlayer() {
+		return this.player;
 	}
 	
 	@Override
