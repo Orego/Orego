@@ -20,6 +20,10 @@ public class RMIStartup {
 		public Registry getRegistry() throws RemoteException {
 			return LocateRegistry.getRegistry();
 		}
+		
+		public Registry getRegistry(String host) throws RemoteException {
+			return LocateRegistry.getRegistry(host);
+		}
 	}
 	
 	/** The location of the security policy that is used for RMI */

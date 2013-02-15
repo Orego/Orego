@@ -3,6 +3,7 @@ package orego.cluster;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 import orego.play.Player;
@@ -16,7 +17,10 @@ import orego.cluster.RMIStartup.RegistryFactory;
  * @author samstewart
  *
  */
-public class ClusterTreeSearcher implements TreeSearcher {
+public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSearcher {
+
+	/** As a remote object, we must be serializable */
+	private static final long serialVersionUID = 5944276914907386971L;
 
 	/** our internal reference to our parent search controller. Serialized over RMI */
 	private SearchController controller;
@@ -28,14 +32,23 @@ public class ClusterTreeSearcher implements TreeSearcher {
 	protected static RegistryFactory factory = new RegistryFactory();
 	
 	public static void main(String[] args) {
+		// make sure that we were given a host to connect to
+		String controllerHost;
+		if(args.length == 0) {
+			System.out.println("Usage: java orego.cluster.ClusterTreeSearcher host");
+			return;
+		}
+		else {
+			controllerHost = args[0];
+		}
+		
 		// we boot ourselves up and connect to the friendly neighborhood server
 		// Do we need the permissions?
 		// we do not need to publish any classes, so pass null for the first argument to configureRmi
 		RMIStartup.configureRmi(null, RMIStartup.SECURITY_POLICY_FILE);
 		
-		Registry reg;
 		try {
-			reg = factory.getRegistry();
+			Registry reg = factory.getRegistry(controllerHost);
 			SearchController controller = (SearchController) reg.lookup(SearchController.SEARCH_CONTROLLER_NAME);
 			
 			ClusterTreeSearcher searcher = new ClusterTreeSearcher(controller);
@@ -46,8 +59,11 @@ public class ClusterTreeSearcher implements TreeSearcher {
 			// RMI calls will happen on the background thread
 			while (!scanner.hasNextLine() || !scanner.nextLine().equals("die"));
 			
-			// clean ourselves up
-			// TODO: notify the server 
+			// TODO: notify the server that we're leaving
+			
+			// forcibly unregister our callback so RMI will let us exit
+			UnicastRemoteObject.unexportObject(searcher, true);
+			
 		} catch (RemoteException e) {
 			System.err.println("Fatal error. Could not connect to ClusterPlayer.");
 			e.printStackTrace();
@@ -59,7 +75,7 @@ public class ClusterTreeSearcher implements TreeSearcher {
 		}
 	}
 
-	public ClusterTreeSearcher(SearchController controller) {
+	public ClusterTreeSearcher(SearchController controller) throws RemoteException {
 		this.controller = controller;
 		
 		try {
