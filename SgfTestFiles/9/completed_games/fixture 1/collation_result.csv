@@ -1,0 +1,2 @@
+Configuration,Index,Wins,Runs,Win Rate,Total Playouts,Total Moves,Average PPM
+threads=2 msec=8000 book=FusekiBook,0,2,3,0.667,13249530,1027,12901.198

@@ -19,15 +19,27 @@ import java.util.TreeMap;
  */
 public class Collate {
 
+	private String resultsDir = RESULTS_DIRECTORY;
+	
 	private final static String OREGO_PACKAGE = "orego.ui.Orego";
 	
-	/** the prefix of the CSV file we'll use for storing stats */
-	private static final String CSV_OUTPUT_FILE_PREFIX = "collation_result_";
+	/** determines whether or not we write a CSV file for analysis*/
+	private boolean doWriteCSVSummary = false;
 	
-	public static void main(String[] args) throws FileNotFoundException {
-		
+	/** the prefix of the CSV file we'll use for storing stats */
+	public static final String CSV_OUTPUT_FILE_PREFIX = "collation_result";
+	
+	public void setResultsDir(String dir) {
+		resultsDir = dir;
+	}
+	
+	public void enableCSVSummary(boolean doCSV) {
+		this.doWriteCSVSummary = doCSV;
+	}
+	
+	public void collate() throws FileNotFoundException {
 		// open up the hardcoded path to the result directory
-		File dir = new File(RESULTS_DIRECTORY);
+		File dir = new File(resultsDir);
 		
 		// map unique combination of orego parameters to set of stats
 		// Stats:
@@ -57,7 +69,7 @@ public class Collate {
 				
 				StringBuilder input = new StringBuilder(); 
 				// open the results file
-				Scanner s = new Scanner(new File(RESULTS_DIRECTORY + name));
+				Scanner s = new Scanner(new File(this.resultsDir + name));
 				
 				while (s.hasNextLine()) {
 					input.append(s.nextLine());
@@ -136,11 +148,18 @@ public class Collate {
 		// Print the results
 		printResults(results);
 		
-		// output the results to a CSV for analysis later
-		writeCSVResults(results);
+		if (doWriteCSVSummary)
+			// output the results to a CSV for analysis later
+			writeCSVResults(results);
 	}
 	
-	private static void printResults(Map<String, long[]> results) {
+	public static void main(String[] args) throws FileNotFoundException {
+		Collate collater = new Collate();
+		
+		collater.collate();
+	}
+	
+	private void printResults(Map<String, long[]> results) {
 		for (String parameters : results.keySet()) {
 			long[] stats = results.get(parameters);
 			
@@ -153,17 +172,19 @@ public class Collate {
 		}
 	}
 	
-	private static void writeCSVResults(Map<String, long[]> results) {
-		File output_csv = new File(RESULTS_DIRECTORY + CSV_OUTPUT_FILE_PREFIX + ".csv");
+	private void writeCSVResults(Map<String, long[]> results) {
+		File output_csv = new File(this.resultsDir + CSV_OUTPUT_FILE_PREFIX + ".csv");
 		
 		try {
 			// does the output file already exist?
-			if (! output_csv.exists()) {
+			if (!output_csv.exists()) {
 					output_csv.createNewFile();
 			} else {
 				
 				// overwrite it if it does
 				output_csv.delete();
+				
+				output_csv.createNewFile();
 			}
 			
 			BufferedWriter writer = new BufferedWriter(new FileWriter(output_csv));
