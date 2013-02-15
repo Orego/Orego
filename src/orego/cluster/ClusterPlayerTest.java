@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
 
-import orego.cluster.ClusterPlayer.RegistryFactory;
+import orego.cluster.RMIStartup.RegistryFactory;
 import orego.play.UnknownPropertyException;
 
 import org.junit.Before;

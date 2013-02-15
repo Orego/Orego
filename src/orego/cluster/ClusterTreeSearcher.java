@@ -5,9 +5,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
 
-import orego.cluster.ClusterPlayer.RegistryFactory;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
+import orego.cluster.RMIStartup.RegistryFactory;
 
 /**
  * Simple implementation of {@link TreeSearch} that enables the {@link SearchController}
@@ -30,7 +30,8 @@ public class ClusterTreeSearcher implements TreeSearcher {
 	public static void main(String[] args) {
 		// we boot ourselves up and connect to the friendly neighborhood server
 		// Do we need the permissions?
-		RMIStartup.configureRmi(ClusterTreeSearcher.class, ClusterPlayer.SECURITY_POLICY_MASTER);
+		// we do not need to publish any classes, so pass null for the first argument to configureRmi
+		RMIStartup.configureRmi(null, RMIStartup.SECURITY_POLICY_FILE);
 		
 		Registry reg;
 		try {

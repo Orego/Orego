@@ -22,19 +22,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
+import orego.cluster.RMIStartup.RegistryFactory;
 
 /**
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
  */
 public class ClusterPlayer extends Player implements SearchController {
 
-	public static class RegistryFactory {
-		public Registry getRegistry() throws RemoteException {
-			return LocateRegistry.getRegistry();
-		}
-	}
-	
-	public static final String SECURITY_POLICY_MASTER = "/allow_all.policy";
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
 	private static final String MOVE_TIME_PROPERTY = "msec";
@@ -79,7 +73,7 @@ public class ClusterPlayer extends Player implements SearchController {
 		totalWins = new long[FIRST_POINT_BEYOND_BOARD];
 
 		// Configure RMI to allow serving the ClusterPlayer class
-		RMIStartup.configureRmi(ClusterPlayer.class, SECURITY_POLICY_MASTER);
+		RMIStartup.configureRmi(ClusterPlayer.class, RMIStartup.SECURITY_POLICY_FILE);
 		
 		// Publish ourself to the local registry
 		Registry reg;
