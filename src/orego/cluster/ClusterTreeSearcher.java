@@ -130,17 +130,30 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 
 	@Override
 	public void beginSearch() throws RemoteException {
-		if (player == null || controller == null) return;
-		
-		/** 
-		 * search for the best move to force the wins/runs tables
-		 * to be filled.
-		 */
-		this.player.bestMove();
+		if (player == null || controller == null) {
+			throw new RemoteException("No player or controller set. Cannot return results.");
+		}
 		
 		
-		// ping right back to the server
-		controller.acceptResults(this, player.getPlayouts(), player.getWins());
+		
+		// run the search on a separate thread so this doesn't block the server
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// search for the best move to force the wins/runs tables to be filled
+				ClusterTreeSearcher.this.player.bestMove();
+				
+				// ping right back to the server
+				try {
+					controller.acceptResults(ClusterTreeSearcher.this, player.getPlayouts(), player.getWins());
+				} catch (RemoteException e) {
+					System.err.println("Failed to report search results to controller.");
+					e.printStackTrace();
+				}
+			}
+		}).start();
+		
 	}
 
 	@Override
