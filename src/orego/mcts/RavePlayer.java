@@ -65,6 +65,16 @@ public class RavePlayer extends MctsPlayer {
 		return new RaveNode();
 	}
 
+	@Override
+	public int getPlayouts(int p) {
+		return ((RaveNode) getRoot()).getRaveRuns(p);
+	}
+
+	@Override
+	public int getWins(int p) {
+		return ((RaveNode) getRoot()).getRaveWins(p);
+	}
+	
 	/** Returns the number of RAVE playouts through the root via p. */
 	protected int getRavePlayouts(int p) {
 		return ((RaveNode) getRoot()).getRaveRuns(p);
@@ -75,10 +85,6 @@ public class RavePlayer extends MctsPlayer {
 		return ((RaveNode) getRoot()).getRaveWinRate(p);
 	}
 
-	/** Returns the number of RAVE wins through the root via p. */
-	protected int getRaveWins(int p) {
-		return ((RaveNode) getRoot()).getRaveWins(p);
-	}
 
 	/** Returns GoGui information showing RAVE coefficient distribution. */
 	protected String goguiRaveCoefficients() {
@@ -152,7 +158,7 @@ public class RavePlayer extends MctsPlayer {
 				if (winRate > 0) {
 					max = Math.max(max, winRate);
 					min = Math.min(min, winRate);
-					maxWins = Math.max(maxWins, getRaveWins(p));
+					maxWins = Math.max(maxWins, getWins(p));
 				}
 			}
 		}
@@ -160,7 +166,7 @@ public class RavePlayer extends MctsPlayer {
 		String result = "INFLUENCE";
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getWinRate(p) > 0) {
-				result += format(" %s %.3f", pointToString(p), getRaveWins(p)
+				result += format(" %s %.3f", pointToString(p), getWins(p)
 						/ (double) maxWins);
 			}
 		}

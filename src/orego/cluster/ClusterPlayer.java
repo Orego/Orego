@@ -28,13 +28,13 @@ import orego.util.IntSet;
  */
 public class ClusterPlayer extends Player implements SearchController {
 
-	static class RegistryFactory {
+	public static class RegistryFactory {
 		public Registry getRegistry() throws RemoteException {
 			return LocateRegistry.getRegistry();
 		}
 	}
 	
-	private static final String SECURITY_POLICY_MASTER = "/allow_all.policy";
+	public static final String SECURITY_POLICY_MASTER = "/allow_all.policy";
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
 	private static final String MOVE_TIME_PROPERTY = "msec";
@@ -86,6 +86,8 @@ public class ClusterPlayer extends Player implements SearchController {
 		try {
 			reg = factory.getRegistry();
 			reg.rebind(SearchController.SEARCH_CONTROLLER_NAME, this);
+			
+			// TODO: don't we need some cleanup code to unbind ourselves when we're finished?
 		} catch (RemoteException e) {
 			System.err.println("Fatal error. Could not publish ClusterPlayer to local registry.");
 			e.printStackTrace();
