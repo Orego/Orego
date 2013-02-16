@@ -59,7 +59,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			// RMI calls will happen on the background thread
 			while (!scanner.hasNextLine() || !scanner.nextLine().equals("die"));
 			
-			// TODO: notify the server that we're leaving
+			controller.removeSearcher(searcher);
 			
 			// forcibly unregister our callback so RMI will let us exit
 			UnicastRemoteObject.unexportObject(searcher, true);

@@ -92,9 +92,9 @@ public class ClusterPlayer extends Player implements SearchController {
 	}
 	
 	/**
-	 * Called by the TreeController to add a new remote searcher
+	 * Called by the TreeSearcher to add a new remote searcher
 	 */
-	public void addSearcher(TreeSearcher s) {
+	public synchronized void addSearcher(TreeSearcher s) {
 		try {
 			s.setKomi(getBoard().getKomi());
 			s.setPlayer(remotePlayerClass);
@@ -108,6 +108,13 @@ public class ClusterPlayer extends Player implements SearchController {
 			e.printStackTrace();
 		}
 	}
+	
+	/** Called by TreeSearcher to remove itself from consideration */
+	public synchronized void removeSearcher(TreeSearcher searcher) throws RemoteException {
+		remoteSearchers.remove(searcher);
+		
+		decrementResultsRemaining();
+	}
 
 	/**
 	 * Called by searchers when they have results ready.
@@ -120,18 +127,13 @@ public class ClusterPlayer extends Player implements SearchController {
 		if (resultsRemaining < 0) {
 			return;
 		}
-		resultsRemaining--;
 		
 		// aggregate all of the recommended moves from the player
 		for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
 			totalRuns[idx] += runs[idx];
 			totalWins[idx] += wins[idx];
 		}
-		if (resultsRemaining == 0) {
-			searchLock.lock();
-			searchDone.signal();
-			searchLock.unlock();
-		}
+		decrementResultsRemaining();
 	}
 	
 	/**
@@ -202,6 +204,11 @@ public class ClusterPlayer extends Player implements SearchController {
 			}
 		}
 		
+		// Check to see if we have searchers, if not, use the super implementation
+		if(remoteSearchers.size() == 0) {
+			return super.bestMove();
+		}
+		
 		// If we're here, we need to start searching, call up the searchers
 		beginAcceptingResults();
 		for (TreeSearcher searcher : remoteSearchers) {
@@ -260,6 +267,15 @@ public class ClusterPlayer extends Player implements SearchController {
 
 	public synchronized void stopAcceptingResults() {
 		resultsRemaining = -1;
+	}
+	
+	private synchronized void decrementResultsRemaining() {
+		resultsRemaining--;
+		if(resultsRemaining <= 0) {
+			searchLock.lock();
+			searchDone.signal();
+			searchLock.unlock();
+		}
 	}
 		
 	/**
