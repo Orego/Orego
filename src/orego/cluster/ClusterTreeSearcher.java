@@ -6,9 +6,9 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
+import orego.cluster.RMIStartup.RegistryFactory;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
-import orego.cluster.RMIStartup.RegistryFactory;
 
 /**
  * Simple implementation of {@link TreeSearch} that enables the {@link SearchController}
@@ -141,7 +141,6 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		
 		
-		
 		// run the search on a separate thread so this doesn't block the server
 		new Thread(new Runnable() {
 			
@@ -175,6 +174,18 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				
 				// Note: we assume the player constructors take no arguments
 				this.player = player_class.newInstance();
+				
+				
+				try {
+					
+					this.player.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20");
+					this.player.setProperty("heuristic.Pattern.numberOfGoodPatterns", "400");
+					this.player.setProperty("threads", "1");
+					
+				} catch (UnknownPropertyException e) {
+					e.printStackTrace();
+				}
+				
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

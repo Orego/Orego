@@ -7,7 +7,6 @@ import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,10 +18,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import orego.cluster.RMIStartup.RegistryFactory;
+import orego.mcts.Lgrf2Player;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
-import orego.cluster.RMIStartup.RegistryFactory;
 
 /**
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
@@ -34,7 +34,7 @@ public class ClusterPlayer extends Player implements SearchController {
 	private static final String MOVE_TIME_PROPERTY = "msec";
 
 	// By default, use Lgrf2Player in the remote searchers
-	private String remotePlayerClass = "Lgrf2Player"; 
+	private String remotePlayerClass = Lgrf2Player.class.getSimpleName(); 
 	
 	private List<TreeSearcher> remoteSearchers;
 	
