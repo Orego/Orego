@@ -19,11 +19,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import orego.cluster.RMIStartup.RegistryFactory;
 import orego.mcts.Lgrf2Player;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
-import orego.cluster.RMIStartup.RegistryFactory;
 
 /**
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
