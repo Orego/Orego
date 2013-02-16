@@ -110,6 +110,8 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public void setProperty(String key, String value) throws RemoteException {
 		if (player == null) return;
 		
+		System.out.println("Set property: " + key + " = " + value);
+		
 		try {
 			
 			this.player.setProperty(key, value);
@@ -124,6 +126,8 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	@Override
 	public void acceptMove(int player, int location) throws RemoteException {
 		if (this.player == null) return;
+		
+		System.out.println("Accepting move: " + location);
 		
 		this.player.acceptMove(location);
 	}
@@ -141,9 +145,12 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			
 			@Override
 			public void run() {
+				System.out.println("Beginning to search.");
+				
 				// search for the best move to force the wins/runs tables to be filled
 				ClusterTreeSearcher.this.player.bestMove();
 				
+				System.out.println("Done searching.");
 				// ping right back to the server
 				try {
 					controller.acceptResults(ClusterTreeSearcher.this, player.getPlayouts(), player.getWins());
@@ -158,7 +165,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 
 	@Override
 	public boolean setPlayer(String player) {
-		if (this.player == null) return false;
+		if (player == null) return false;
 		
 		// load player with java reflection
 		try {

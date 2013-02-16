@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import java.rmi.AccessException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import orego.play.UnknownPropertyException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -89,7 +91,7 @@ public class ClusterPlayerTest {
 	/* Tests relating to setup */
 	@Test
 	public void testShouldPublish() throws AccessException, RemoteException {
-		verify(mockRegistry).rebind(SearchController.SEARCH_CONTROLLER_NAME, player);
+		verify(mockRegistry).rebind(eq(SearchController.SEARCH_CONTROLLER_NAME), (Remote) any());
 	}
 	
 	@Test
@@ -138,6 +140,19 @@ public class ClusterPlayerTest {
 		p.setProperty("remote_player", val);
 		p.addSearcher(searcher);
 		verify(searcher).setPlayer(val);
+	}
+	
+	@Test
+	public void testShouldResetAfterSetPlayer() throws RemoteException, UnknownPropertyException {
+		String val = "MCTSPlayer";
+		TreeSearcher s = mock(TreeSearcher.class);
+		ClusterPlayer p = new ClusterPlayer();
+		p.setProperty("remote_player", val);
+		p.reset();
+		p.addSearcher(s);
+		InOrder inOrder = inOrder(s);
+		inOrder.verify(s).setPlayer(val);
+		inOrder.verify(s).reset();
 	}
 	
 	@Test

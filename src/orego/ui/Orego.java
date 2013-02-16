@@ -71,7 +71,7 @@ public class Orego {
 	 * allows the user to specify a specific, non-Orego package.
 	 */
 	public static final String[] PLAYER_PACKAGES = { "orego.mcts",
-			"orego.play", "orego.response", "" };
+			"orego.play", "orego.response", "orego.cluster", "" };
 
 	/** String to return in response to version command. */
 	public static final String VERSION_STRING = "7.13";

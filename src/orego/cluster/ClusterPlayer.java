@@ -7,8 +7,8 @@ import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import orego.mcts.Lgrf2Player;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
@@ -28,13 +29,13 @@ import orego.cluster.RMIStartup.RegistryFactory;
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
  */
 public class ClusterPlayer extends Player implements SearchController {
-
+	
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
 	private static final String MOVE_TIME_PROPERTY = "msec";
 
 	// By default, use Lgrf2Player in the remote searchers
-	private String remotePlayerClass = "Lgrf2Player"; 
+	private String remotePlayerClass = Lgrf2Player.class.getName();
 	
 	private List<TreeSearcher> remoteSearchers;
 	
@@ -79,7 +80,8 @@ public class ClusterPlayer extends Player implements SearchController {
 		Registry reg;
 		try {
 			reg = factory.getRegistry();
-			reg.rebind(SearchController.SEARCH_CONTROLLER_NAME, this);
+			SearchController stub = (SearchController) UnicastRemoteObject.exportObject(this, 0);
+			reg.rebind(SearchController.SEARCH_CONTROLLER_NAME, stub);
 			
 			// TODO: don't we need some cleanup code to unbind ourselves when we're finished?
 		} catch (RemoteException e) {
@@ -94,15 +96,16 @@ public class ClusterPlayer extends Player implements SearchController {
 	 */
 	public void addSearcher(TreeSearcher s) {
 		try {
-			s.reset();
 			s.setKomi(getBoard().getKomi());
 			s.setPlayer(remotePlayerClass);
+			s.reset();
 			for(String property : remoteProperties.keySet()) {
 				s.setProperty(property, remoteProperties.get(property));
 			}
 			remoteSearchers.add(s);
 		} catch (RemoteException e) {
 			System.err.println("Error configuring new remote searcher: " + s);
+			e.printStackTrace();
 		}
 	}
 
@@ -207,6 +210,7 @@ public class ClusterPlayer extends Player implements SearchController {
 			} catch (RemoteException e) {
 				System.err.println("Searcher: " + searcher
 						+ " failed to begin search.");
+				e.printStackTrace();
 			}
 		}
 		
