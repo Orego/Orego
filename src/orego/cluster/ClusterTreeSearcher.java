@@ -1,5 +1,7 @@
 package orego.cluster;
 
+import static orego.core.Coordinates.pointToString;
+
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -133,7 +135,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public void acceptMove(int player, int location) throws RemoteException {
 		if (this.player == null) return;
 		
-		System.out.println("Accepting move: " + location);
+		System.out.println("Accepting move: " + pointToString(location));
 		
 		this.player.acceptMove(location);
 	}

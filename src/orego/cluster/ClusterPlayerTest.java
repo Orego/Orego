@@ -182,6 +182,18 @@ public class ClusterPlayerTest {
 		verify(searcher).acceptMove(WHITE, moves[1]);
 	}
 	
+	@Test
+	public void testShouldSendOldMoves() throws RemoteException {
+		int[] moves = new int[] {at("a1"), at("a2")};
+		player.acceptMove(moves[0]);
+		player.acceptMove(moves[1]);
+		TreeSearcher s = mock(TreeSearcher.class);
+		player.addSearcher(s);
+		InOrder inOrder = inOrder(s);
+		inOrder.verify(s).acceptMove(BLACK, moves[0]);
+		inOrder.verify(s).acceptMove(WHITE, moves[1]);
+	}
+	
 	/* Tests related to move generation */
 	
 	@Test

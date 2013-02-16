@@ -2,6 +2,7 @@ package orego.cluster;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.opposite;
+import static orego.core.Colors.BLACK;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
@@ -101,6 +102,15 @@ public class ClusterPlayer extends Player implements SearchController {
 			s.reset();
 			for(String property : remoteProperties.keySet()) {
 				s.setProperty(property, remoteProperties.get(property));
+			}
+			// If moves have already been played, sync up the new searcher
+			int turn = getBoard().getTurn();
+			int player = BLACK;
+			if(turn > 0) {
+				for(int moveIdx = 0; moveIdx < turn; moveIdx++) {
+					s.acceptMove(player, getBoard().getMove(moveIdx));
+					player = opposite(player);
+				}
 			}
 			remoteSearchers.add(s);
 		} catch (RemoteException e) {
