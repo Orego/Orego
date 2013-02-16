@@ -231,4 +231,13 @@ public class ClusterPlayerTest {
 		setupMockSearcher(searcher, 100, bestB);
 		assertEquals(bestB, player.bestMove());
 	}
+	
+	@Test
+	public void testShouldNowUseDepartedSearcher() throws RemoteException {
+		player.setOpeningBook(null);
+		player.removeSearcher(searcher);
+		reset(searcher);
+		player.bestMove();
+		verifyZeroInteractions(searcher);
+	}
 }
