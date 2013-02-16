@@ -40,6 +40,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		else {
 			controllerHost = args[0];
+			System.out.println("Trying to connect to host: " + controllerHost);
 		}
 		
 		// we boot ourselves up and connect to the friendly neighborhood server
