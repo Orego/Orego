@@ -240,15 +240,15 @@ public class RavePlayer extends MctsPlayer {
 			return NEGATIVE_INFINITY;
 		}
 		if (move == PASS) {
-			return ((double) node.getWins(move)) / node.getRuns(move);
+			return node.getWinRate(move);
 		}
 		RaveNode raveNode = (RaveNode) node;
 		double c = raveNode.getRuns(move);
-		double w = raveNode.getWins(move);
+		double r = raveNode.getWinRate(move);
 		double rc = raveNode.getRaveRuns(move);
-		double rw = raveNode.getRaveWins(move);
+		double rr = raveNode.getRaveWinRate(move);
 		double coef = raveCoefficient(c, rc);
-		return (w / c) * (1 - coef) + (rw / rc) * coef;
+		return r * (1 - coef) + rr * coef;
 	}
 
 	@Override
