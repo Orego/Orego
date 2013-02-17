@@ -165,6 +165,15 @@ public class ClusterPlayerTest {
 	}
 	
 	@Test
+	public void testShouldNotSendPlayerAsProperty() throws UnknownPropertyException, RemoteException {
+		String playerClass = "SomePlayer";
+		player.setProperty("remote_player", playerClass);
+		TreeSearcher s = mock(TreeSearcher.class);
+		player.addSearcher(s);
+		verify(s, never()).setProperty("remote_player", playerClass);
+	}
+	
+	@Test
 	public void testShouldParseMoveTime() throws UnknownPropertyException {
 		String key = "msec";
 		long msec = 1200;

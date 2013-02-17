@@ -347,15 +347,15 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public void setProperty(String key, String value)
 			throws UnknownPropertyException {
-		if (key == REMOTE_PLAYER_PROPERTY) {
+		if (key.equals(REMOTE_PLAYER_PROPERTY)) {
 			// Do not forward the remote player property to the remote searchers
 			remotePlayerClass = value;
 			return;
 		}
-		if (key == SEARCH_TIMEOUT_PROPERTY) {
+		if (key.equals(SEARCH_TIMEOUT_PROPERTY)) {
 			msecToTimeout = Long.parseLong(value);
 		}
-		if (key == MOVE_TIME_PROPERTY) {
+		if (key.equals(MOVE_TIME_PROPERTY)) {
 			msecToMove = Long.parseLong(value);
 		}
 		// Try to set the property on super, it's ok if it fails

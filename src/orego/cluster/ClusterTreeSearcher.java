@@ -190,6 +190,8 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public boolean setPlayer(String player) {
 		if (player == null) return false;
 		
+		System.out.println("Set player: " + player);
+		
 		// load player with java reflection
 		try {
 			Class<? extends Object> general_class = (Class<? extends Object>) Class.forName(player);
