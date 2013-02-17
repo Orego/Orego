@@ -31,4 +31,9 @@ public interface TreeSearcher extends Remote {
 	 * Results will be reported to the registered controller at the end of the search.
 	 * */
 	void beginSearch() throws RemoteException;
+	
+	/**
+	 * Gets the total number of playouts completed by this searcher during the current game.
+	 */
+	long getTotalPlayoutCount() throws RemoteException;
 }

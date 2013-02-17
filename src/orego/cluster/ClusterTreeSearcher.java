@@ -9,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.mcts.StatisticalPlayer;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 
@@ -28,7 +29,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	private SearchController controller;
 	
 	/** a reference to the player we are controller */
-	private Player player;
+	private StatisticalPlayer player;
 	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
@@ -95,7 +96,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	}
 	
 	/** mostly used for unit testing */
-	protected Player getPlayer() {
+	protected StatisticalPlayer getPlayer() {
 		return this.player;
 	}
 	
@@ -170,7 +171,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				System.out.println("Done searching.");
 				// ping right back to the server
 				try {
-					controller.acceptResults(ClusterTreeSearcher.this, player.getPlayouts(), player.getWins());
+					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), player.getBoardWins());
 				} catch (RemoteException e) {
 					System.err.println("Failed to report search results to controller.");
 					e.printStackTrace();
@@ -178,6 +179,11 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			}
 		}).start();
 		
+	}
+	
+	@Override
+	public long getTotalPlayoutCount() {
+		return player.getTotalPlayoutCount();
 	}
 
 	@Override
@@ -188,8 +194,8 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		try {
 			Class<? extends Object> general_class = (Class<? extends Object>) Class.forName(player);
 			
-			if (Player.class.isAssignableFrom(general_class)) {
-				Class<? extends Player> player_class = general_class.asSubclass(Player.class);
+			if (StatisticalPlayer.class.isAssignableFrom(general_class)) {
+				Class<? extends StatisticalPlayer> player_class = general_class.asSubclass(StatisticalPlayer.class);
 				
 				// Note: we assume the player constructors take no arguments
 				this.player = player_class.newInstance();

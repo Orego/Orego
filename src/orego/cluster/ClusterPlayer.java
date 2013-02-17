@@ -25,6 +25,7 @@ import ec.util.MersenneTwisterFast;
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.core.Board;
 import orego.mcts.Lgrf2Player;
+import orego.mcts.StatisticalPlayer;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
@@ -32,7 +33,7 @@ import orego.util.IntSet;
 /**
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
  */
-public class ClusterPlayer extends Player implements SearchController {
+public class ClusterPlayer extends Player implements SearchController, StatisticalPlayer {
 	
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
@@ -141,7 +142,7 @@ public class ClusterPlayer extends Player implements SearchController {
 	 */
 	@Override
 	public synchronized void acceptResults(TreeSearcher searcher,
-			int[] runs, int[] wins) throws RemoteException {
+			long[] runs, long[] wins) throws RemoteException {
 		if (resultsRemaining < 0) {
 			return;
 		}
@@ -374,16 +375,6 @@ public class ClusterPlayer extends Player implements SearchController {
 		}
 	}
 	
-	@Override
-	public synchronized int getWins(int p) {
-		return (int) totalWins[p];
-	}
-	
-	@Override
-	public int getPlayouts(int p) {
-		return (int) totalRuns[p];
-	}
-	
 	/** Sets the komi on the board and the remote searchers */
 	@Override
 	public void setKomi(double komi) {
@@ -395,6 +386,39 @@ public class ClusterPlayer extends Player implements SearchController {
 				System.err.println("Could not set komi on remote searcher: " + searcher);
 			}
 		}
+	}
+	
+	@Override
+	public synchronized int getWins(int p) {
+		return (int) totalWins[p];
+	}
+	
+	@Override
+	public synchronized int getPlayouts(int p) {
+		return (int) totalRuns[p];
+	}
+	
+	@Override
+	public synchronized long[] getBoardWins() {
+		return totalWins;
+	}
+	
+	@Override
+	public synchronized long[] getBoardPlayouts() {
+		return totalRuns;
+	}
+	
+	@Override
+	public synchronized long getTotalPlayoutCount() {
+		long totalPlayouts = 0;
+		for(TreeSearcher searcher : remoteSearchers) {
+			try {
+				totalPlayouts += searcher.getTotalPlayoutCount();
+			} catch (RemoteException e) {
+				System.err.println("Could not get total playout count from searcher: " + searcher);
+			}
+		}
+		return totalPlayouts;
 	}
 	
 	@Override

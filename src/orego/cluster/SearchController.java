@@ -16,5 +16,5 @@ public interface SearchController extends Remote {
 	void removeSearcher(TreeSearcher searcher) throws RemoteException;
 	
 	/** Accepts search results from a given Searcher. */
-	void acceptResults(TreeSearcher searcher, int[] runs, int[] wins) throws RemoteException; 
+	void acceptResults(TreeSearcher searcher, long[] runs, long[] wins) throws RemoteException; 
 }
