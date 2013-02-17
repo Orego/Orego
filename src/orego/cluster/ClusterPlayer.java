@@ -20,7 +20,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import ec.util.MersenneTwisterFast;
+
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.core.Board;
 import orego.mcts.Lgrf2Player;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
@@ -48,6 +51,8 @@ public class ClusterPlayer extends Player implements SearchController {
 	
 	private long[] totalWins;
 	
+	private MersenneTwisterFast random;
+	
 	// We wait for msecToMove if it is set, otherwise wait for timeout
 	private long msecToMove = -1;
 	
@@ -73,6 +78,9 @@ public class ClusterPlayer extends Player implements SearchController {
 		
 		totalRuns = new long[FIRST_POINT_BEYOND_BOARD];
 		totalWins = new long[FIRST_POINT_BEYOND_BOARD];
+		
+		// RNG used for fallback moves
+		random = new MersenneTwisterFast();
 
 		// Configure RMI to allow serving the ClusterPlayer class
 		RMIStartup.configureRmi(ClusterPlayer.class, RMIStartup.SECURITY_POLICY_FILE);
@@ -196,6 +204,37 @@ public class ClusterPlayer extends Player implements SearchController {
 		}
 		return result;
 	}
+	
+	/**
+	 * Forwards the request to undo to each searcher after undoing here.
+	 */
+	@Override
+	public boolean undo() {
+		
+		// if we can't undo locally, it's a lost cause
+		if(!super.undo()) {
+			return false;
+		}
+		
+		// try to undo on each searcher, removing those that fail
+		TreeSearcher searcher = null;
+		
+		for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
+			searcher = it.next();
+			boolean success = false;
+			try {
+				success = searcher.undo();
+			} catch (RemoteException e) {
+				System.err.println("Searcher: " + searcher
+						+ " failed to undo.");
+			}
+			if(!success) {
+				it.remove();
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Generates moves using the searchers. First, checks the local book to see
@@ -216,7 +255,7 @@ public class ClusterPlayer extends Player implements SearchController {
 		
 		// Check to see if we have searchers, if not, use the super implementation
 		if(remoteSearchers.size() == 0) {
-			return super.bestMove();
+			return fallbackMove();
 		}
 		
 		// If we're here, we need to start searching, call up the searchers
@@ -267,7 +306,18 @@ public class ClusterPlayer extends Player implements SearchController {
 			return bestMove;
 		}
 		// TODO: We need better fallbacks, resign handling, etc.
-		return super.bestMove();
+		return fallbackMove();
+	}
+	
+	/** Use this instead of the super's fallback implementation, which calls undo */
+	private int fallbackMove() {
+		Board copyBoard = new Board();
+		copyBoard.copyDataFrom(getBoard());
+		int move = getHeuristics().selectAndPlayOneMove(random, copyBoard);
+		if(getBoard().isLegal(move)) {
+			return move;
+		}
+		return PASS;
 	}
 
 	/** Utility method to prepare to accept results */

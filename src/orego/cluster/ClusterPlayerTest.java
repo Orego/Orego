@@ -3,6 +3,7 @@ package orego.cluster;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import java.rmi.AccessException;
@@ -194,6 +195,15 @@ public class ClusterPlayerTest {
 		inOrder.verify(s).acceptMove(WHITE, moves[1]);
 	}
 	
+	@Test
+	public void testShouldForwardUndo() throws RemoteException {
+		when(searcher.undo()).thenReturn(true);
+		int move = at("a1");
+		player.acceptMove(move);
+		assertTrue(player.undo());
+		verify(searcher).undo();
+	}
+	
 	/* Tests related to move generation */
 	
 	@Test
@@ -224,7 +234,7 @@ public class ClusterPlayerTest {
 	@Test
 	public void testShouldClearResults() throws RemoteException {
 		player.setOpeningBook(null);
-		int bestA = at("e6");
+		int bestA = at("d3");
 		setupMockSearcher(searcher, 100, bestA);
 		player.bestMove();
 		int bestB = at("e4");

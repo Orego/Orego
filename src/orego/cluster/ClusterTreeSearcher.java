@@ -142,6 +142,15 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	}
 
 	@Override
+	public boolean undo() {
+		if (this.player == null) return false;
+		
+		System.out.println("Undoing move.");
+		
+		return this.player.undo();
+	}
+	
+	@Override
 	public void beginSearch() throws RemoteException {
 		if (player == null || controller == null) {
 			throw new RemoteException("No player or controller set. Cannot return results.");
