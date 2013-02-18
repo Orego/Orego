@@ -1,74 +1,24 @@
 package orego.ladder;
 
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.PASS;
-import ec.util.MersenneTwisterFast;
-import orego.heuristic.HeuristicList;
 import orego.mcts.*;
-import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
-import orego.book.OpeningBook;
 import orego.core.*;
 
 /**
- * This player should look for patterns likely to play out into ladders, 
- * and play out those ladders to determine if it can reach a rescue stone
+ * This player plays out ladders and biases the point that kicks each one off,
+ * either for play (if we win) or against play (if we lose).
  */
 public class LadderPlayer extends Lgrf2Player {
 
-	/** The Board this player plays on. */
-	private Board board;
-	
-	/** Copy of board for playing out ladders*/
-	private Board ladBoard;//
-	
-	private int[][] replies1;
-
-	/** Returns the level 1 reply table. */
-	protected int[][] getReplies1() {
-		return replies1;
-	}
-
-	/** Indices are color, antepenultimate move, previous move. */
-	private int[][][] replies2;
-
-	/** Returns the level 2 replies table. */
-	protected int[][][] getReplies2() {
-		return replies2;
-	}
-
-
-
-	public static void main(String[] args) {
-		try {
-			LadderPlayer lad=new LadderPlayer();
-			//lad.playOutLadders();
-			lad.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20");
-			lad.setProperty("heuristic.Pattern.numberOfGoodPatterns", "400");
-			lad.setProperty("threads", "1");
-			double[] benchMarkInfo = lad.benchmark();
-			System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
-					+ benchMarkInfo[1]);
-		} catch (UnknownPropertyException e) {
-			e.printStackTrace();
-			System.exit(1);
-			
-		}
-
-	}
+	/** Copy of the board for playing out ladders. */
+	private Board ladBoard;
 	
 	@Override
 	/** calls playOutLadders after stopping threads to bias stored moves*/	
 	public int bestMove(){
 		try {
 			stopThreads();
-//			if (getOpeningBook() != null) {
-//				int move = getOpeningBook().nextMove(getBoard());
-//				if (move != NO_POINT) {
-//					return move;
-//				}
-//			}
-			ladBoard=new Board(); //do we need malloc here?
+			ladBoard = new Board();
 			ladBoard.copyDataFrom(getBoard());
 			playOutLadders();
 			runThreads();
@@ -79,27 +29,90 @@ public class LadderPlayer extends Lgrf2Player {
 		return bestStoredMove();
 	}
 
-	public int playOutLadders() {
-		//threads should have been stopped by bestMove at this point
-		findLadChains();
-		
-		return 0;
+	/** 
+	 * Returns the liberties of every ladder where color is on the inside.
+	 */
+	public IntSet libertiesOfLadders(int color) {
+		// our definition of a ladder is: a chain in atari whose
+		// liberty has exactly two vacant neighbors
+		IntSet chainsInAtari = ladBoard.getChainsInAtari(color);
+		IntSet libertiesOfLadders = new IntSet (Coordinates.FIRST_POINT_BEYOND_BOARD);
+		for (int i = 0; i < chainsInAtari.size(); i++) {
+			int liberty = ladBoard.getLibertyOfChainInAtari(chainsInAtari.get(i));
+			if (ladBoard.getVacantNeighborCount(liberty) == 2) {
+				libertiesOfLadders.add(liberty);
+			}
+		}
+		return libertiesOfLadders;
 	}
-	/** Identifies which chains in atari are likely to play out into ladders*/	
-	public int findLadChains(){
-		IntSet lads2play=new IntSet(365);
-		IntSet ataris=ladBoard.getChainsInAtari(ladBoard.getColorToPlay());
+	
+	/**
+	 * Plays out every ladder and biases the search tree.
+	 */
+	public void playOutLadders() {
+		// get the ladders
+		IntSet ladderLiberties = libertiesOfLadders(Colors.BLACK);
+		int numberOfBlackLadders = ladderLiberties.size();
+		ladderLiberties.addAll(libertiesOfLadders(Colors.WHITE));
 		
-		int lib=ladBoard.getLibertyOfChainInAtari(ataris.get(0));
-		if(ladBoard.getLibertyCount(lib)>2){
+		// play out each ladder separately
+		for (int i = 0; i < ladderLiberties.size(); i++) {
+			// we'll be moving, so we use a local copy of the board
+			ladBoard.copyDataFrom(getBoard());
+			int liberty = ladderLiberties.get(i);
+			int insideColor = (i < numberOfBlackLadders) ? Colors.BLACK : Colors.WHITE;
+			boolean insideWon;
 			
+			// start as the inside color
+			ladBoard.setColorToPlay(insideColor);
+			
+			// keep applying the policy of the inside player and the outside player until
+			// the ladder is over (either the inside color is free or has been captured)
+			while (true) {
+				// inside player policy: play in my only liberty
+				int insidePlaysHere = liberty;
+				ladBoard.play(insidePlaysHere);
+				if (ladBoard.getLibertyCount(insidePlaysHere) >= 3)	{
+					// inside player is free
+					insideWon = true;
+					break;
+				}
+				
+				// outside player policy: play in the inside player's liberty
+				// with the most vacant neighbors
+				IntSet libsOfNewChain = ladBoard.getLiberties(insidePlaysHere);
+				int mostVacantNeighbors = -1;
+				int pointWithMostVacantNeighbors = Coordinates.FIRST_POINT_BEYOND_BOARD;
+				
+				for (int j = 0; j < libsOfNewChain.size(); j++)	{
+					if (ladBoard.getVacantNeighborCount(libsOfNewChain.get(j)) > mostVacantNeighbors) {
+						pointWithMostVacantNeighbors = libsOfNewChain.get(j);
+						mostVacantNeighbors = ladBoard.getVacantNeighborCount(pointWithMostVacantNeighbors);
+					}
+				}
+				ladBoard.play(pointWithMostVacantNeighbors);
+				if (ladBoard.getColor(insidePlaysHere) != insideColor) {
+					// inside player was captured
+					insideWon = false;
+					break;
+				}
+			}
+			
+			// bias the search tree appropriately:
+			// - if inside player wins, he wants to play here and
+			//   *so does outside player* (to cut off the ladder)
+			// - if inside player loses, he doesn't want to play here and 
+			//   *neither does outside player* (to allow inside player to do so)
+			if (insideWon) {
+				getRoot().addWins(liberty, 10);
+				System.err.println("Biasing in favor of " + Coordinates.pointToString(liberty));
+			} else {
+				getRoot().addLosses(liberty, 10);
+				System.err.println("Biasing against " + Coordinates.pointToString(liberty));
+
+			}
+			
+			System.err.println(ladBoard);
 		}
-		else{
-			//IntSet lad2play;
-			lads2play.add(lib);
-		}
-String libString=Coordinates.pointToString(lib);
-		System.err.println("E:Liberites of first Chain in Atari: "+libString);
-		return 0;
-	}
+	}		
 }
