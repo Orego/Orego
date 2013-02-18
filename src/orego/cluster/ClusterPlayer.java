@@ -6,6 +6,9 @@ import static orego.core.Colors.BLACK;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.pointToString;
+import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -254,7 +257,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			}
 		}
 		
-		// Check to see if we have searchers, if not, use the super implementation
+		// Check to see if we have searchers, if not, play a random move
+		// Since searchers may come online at any time, a couple bad moves
+		// is better than just resigning
 		if(remoteSearchers.size() == 0) {
 			return fallbackMove();
 		}
@@ -291,23 +296,38 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 
 	/** Decides on a move to play from the data received from searchers. */
 	private int bestSearchMove() {
-		IntSet vacantPoints = getBoard().getVacantPoints();
-		// TODO: Can we use the runs here too? Maybe a confidence interval?
-		long maxWins = totalWins[PASS];
+		IntSet vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		vacantPoints.copyDataFrom(getBoard().getVacantPoints());
 		int bestMove = PASS;
-		for (int idx = 0; idx < vacantPoints.size(); idx++) {
-			int point = vacantPoints.get(idx);
-			long wins = totalWins[point];
-			if (wins > maxWins) {
-				maxWins = wins;
-				bestMove = point;
+		long maxWins = 0;
+		while(vacantPoints.size() > 0) {
+			maxWins = totalWins[PASS];
+			bestMove = PASS;
+			for (int idx = 0; idx < vacantPoints.size(); idx++) {
+				int point = vacantPoints.get(idx);
+				long wins = totalWins[point];
+				if (wins > maxWins) {
+					maxWins = wins;
+					bestMove = point;
+				}
+			}
+			// If the best move found isn't a pass, but it is illegal, try again but remove that move as a possibility
+			if(bestMove != PASS && (!getBoard().isFeasible(bestMove) || !getBoard().isLegal(bestMove))) {
+				vacantPoints.remove(bestMove);
+			}
+			else {
+				// Otherwise, the best thing is either a pass or a legal move
+				break;
 			}
 		}
-		if (bestMove != PASS && getBoard().isFeasible(bestMove) && getBoard().isLegal(bestMove)) {
+		// Resign if the best win rate is less than a set percent
+		double winRate = ((double) maxWins) / ((double) totalRuns[bestMove]);
+		if(winRate < RESIGN_PARAMETER) {
+			return RESIGN;
+		}
+		else {
 			return bestMove;
 		}
-		// TODO: We need better fallbacks, resign handling, etc.
-		return fallbackMove();
 	}
 	
 	/** Use this instead of the super's fallback implementation, which calls undo */
