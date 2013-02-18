@@ -81,7 +81,7 @@ public class SearchNodeTest {
 	@Test
 	public void testTieUpdate() {
 		node.reset(0L);
-		node.recordPlayout(0.5, new int[] { at("a1") }, 0, 1, new IntSet(
+		node.recordPlayout((float) 0.5, new int[] { at("a1") }, 0, 1, new IntSet(
 				FIRST_POINT_BEYOND_BOARD));
 		assertEquals(3, node.getRuns(at("a1")));
 		assertEquals(1.5, node.getWins(at("a1")), 0.001);

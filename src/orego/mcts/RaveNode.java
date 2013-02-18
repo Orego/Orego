@@ -13,11 +13,11 @@ public class RaveNode extends SearchNode {
 	private int[] raveRuns;
 
 	/** Number of RAVE wins through each child of this node. */
-	private double[] raveWinRates;
+	private float[] raveWinRates;
 
 	public RaveNode() {
 		raveRuns = new int[FIRST_POINT_BEYOND_BOARD];
-		raveWinRates = new double[FIRST_POINT_BEYOND_BOARD];
+		raveWinRates = new float[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	public void addRaveLoss(int p) {
@@ -28,7 +28,7 @@ public class RaveNode extends SearchNode {
 		addRaveRun(p, 1);
 	}
 	
-	public void addRaveRun(int p, double w) {
+	public void addRaveRun(int p, float w) {
 		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p]) / (1 + raveRuns[p]);
 		raveRuns[p]++;
 	}
@@ -39,18 +39,18 @@ public class RaveNode extends SearchNode {
 	}
 
 	/** Returns the RAVE win rate for move p. */
-	public double getRaveWinRate(int p) {
+	public float getRaveWinRate(int p) {
 		return raveWinRates[p];
 	}
 
 	/** Returns the number of RAVE wins through move p. */
-	public double getRaveWins(int p) {
+	public float getRaveWins(int p) {
 		return raveWinRates[p] * raveRuns[p];
 	}
 
 	// TODO Should this be synchronized, as it is in the superclass?
 	@Override
-	public void recordPlayout(double winProportion, int[] moves, int t, int turn,
+	public void recordPlayout(float winProportion, int[] moves, int t, int turn,
 			IntSet playedPoints) {
 		super.recordPlayout(winProportion, moves, t, turn, playedPoints);
 		// The remaining moves in the sequence are recorded for RAVE
@@ -75,7 +75,7 @@ public class RaveNode extends SearchNode {
 	public void reset(long hash) {
 		super.reset(hash);
 		fill(raveRuns, 2);
-		fill(raveWinRates, 0.5);
+		fill(raveWinRates, (float) 0.5);
 	}
 
 	@Override

@@ -45,18 +45,18 @@ public class SearchNode implements Poolable<SearchNode> {
 	private int winningMove;
 
 	/** Number of wins through each child of this node. */
-	private double[] winRates;
+	private float[] winRates;
 
 	public SearchNode() {
 		runs = new int[FIRST_POINT_BEYOND_BOARD];
-		winRates = new double[FIRST_POINT_BEYOND_BOARD];
+		winRates = new float[FIRST_POINT_BEYOND_BOARD];
 		hasChild = new BitVector(FIRST_POINT_BEYOND_BOARD);
 	}
 	
 	/** Update the win rate for p, by adding 'wins' for n runs. 
 	 * 	Warning: you must call this *before* updating the runs count.
 	 * */
-	private void updateWinRate(int p, int n, double wins) {
+	private void updateWinRate(int p, int n, float wins) {
 		winRates[p] = (wins + winRates[p]*runs[p])/(n + runs[p]);
 	}
 
@@ -86,7 +86,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	}
 
 	/** Returns the win rate of the best move. */
-	public double bestWinRate() {
+	public float bestWinRate() {
 		int best = getMoveWithMostWins();
 		return getWinRate(best);
 	}
@@ -151,12 +151,12 @@ public class SearchNode implements Poolable<SearchNode> {
 	}
 
 	/** Returns the win rate through this node for move p. */
-	public double getWinRate(int p) {
+	public float getWinRate(int p) {
 		return winRates[p];
 	}
 
 	/** Returns the number of wins through move p. */
-	public double getWins(int p) {
+	public float getWins(int p) {
 		return winRates[p] * runs[p];
 	}
 
@@ -194,7 +194,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	 * Returns the total ratio of wins to runs for moves from this node. This is
 	 * slow.
 	 */
-	public double overallWinRate() {
+	public float overallWinRate() {
 		int runs = 0;
 		int wins = 0;
 		for (int p : ALL_POINTS_ON_BOARD) {
@@ -205,7 +205,7 @@ public class SearchNode implements Poolable<SearchNode> {
 		}
 		wins += getWins(PASS);
 		runs += getRuns(PASS);
-		return 1.0 * wins / runs;
+		return (float) (1.0 * wins / runs);
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	 *            For keeping track of points played to avoid counting
 	 *            already-played points. (Used by, e.g., RavePlayer.)
 	 */
-	public synchronized void recordPlayout(double winProportion, int[] moves, int t,
+	public synchronized void recordPlayout(float winProportion, int[] moves, int t,
 			int turn, IntSet playedPoints) {
 		assert t < turn;
 		int move = moves[t];
@@ -247,12 +247,12 @@ public class SearchNode implements Poolable<SearchNode> {
 		this.hash = hash;
 		totalRuns = 2 * BOARD_AREA + 10;
 		fill(runs, (char) 2);
-		fill(winRates, (double) 0.5);
+		fill(winRates, (float) 0.5);
 		hasChild.clear();
 		// Make passing look very bad, so it will only be tried if all other
 		// moves lose
 		runs[PASS] = 10;
-		winRates[PASS] = 1.0/10.0;
+		winRates[PASS] = (float) (1.0/10.0);
 		children = null;
 		winningMove = NO_POINT;
 	}

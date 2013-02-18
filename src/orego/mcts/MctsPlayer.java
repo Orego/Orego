@@ -469,9 +469,9 @@ public class MctsPlayer extends McPlayer {
 		SearchNode node = getRoot();
 		int[] moves = runnable.getMoves();
 		long[] hashes = runnable.getHashes();
-		double winProportion = winner == getBoard().getColorToPlay() ? 1 : 0;
+		float winProportion = winner == getBoard().getColorToPlay() ? 1 : 0;
 		if (winner == VACANT) {
-			winProportion = 0.5;
+			winProportion = (float) 0.5;
 		}
 		for (int t = getBoard().getTurn(); t < turn; t++) {
 			node.recordPlayout(winProportion, moves, t, turn,
