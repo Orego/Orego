@@ -7,7 +7,6 @@ import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.RESIGN;
-import static orego.core.Coordinates.pointToString;
 import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
 import java.rmi.RemoteException;

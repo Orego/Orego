@@ -10,7 +10,6 @@ import java.util.Scanner;
 
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.mcts.StatisticalPlayer;
-import orego.play.Player;
 import orego.play.UnknownPropertyException;
 
 /**
