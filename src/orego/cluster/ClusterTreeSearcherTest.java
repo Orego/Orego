@@ -1,24 +1,24 @@
 package orego.cluster;
 
-import static org.junit.Assert.*;
+import static orego.core.Coordinates.at;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import static orego.core.Coordinates.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.rmi.registry.Registry;
 
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.mcts.Lgrf2Player;
-import orego.play.Player;
+import orego.mcts.StatisticalPlayer;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClusterTreeSearcherTest {
@@ -35,7 +35,7 @@ public class ClusterTreeSearcherTest {
 	private SearchController controller;
 	
 	@Mock
-	private Player player;
+	private StatisticalPlayer player;
 	
 	@Before
 	public void setup() throws Exception {
@@ -66,11 +66,11 @@ public class ClusterTreeSearcherTest {
 	
 	@Test
 	public void testShouldGetBestMoveFromPlayer() throws Exception {
-		int[] wins = new int[4];
-		int[] runs = new int[4];
+		long[] wins = new long[4];
+		long[] runs = new long[4];
 		
-		when(player.getWins()).thenReturn(wins);
-		when(player.getPlayouts()).thenReturn(runs);
+		when(player.getBoardWins()).thenReturn(wins);
+		when(player.getBoardPlayouts()).thenReturn(runs);
 		
 		when(player.bestMove()).thenReturn(at("a8"));
 		

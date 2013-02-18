@@ -52,12 +52,6 @@ public interface Playable {
 
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void reset();
-
-	/** gets the number of wins through point p*/
-	public int getWins(int p);
-	
-	/** gets the number of runs through point p */
-	public int getPlayouts(int p);
 	
 	/**
 	 * @see orego.core.Board#setKomi(double)

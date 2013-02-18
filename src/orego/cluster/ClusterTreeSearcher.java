@@ -1,5 +1,7 @@
 package orego.cluster;
 
+import static orego.core.Coordinates.pointToString;
+
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -7,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.mcts.StatisticalPlayer;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 
@@ -26,7 +29,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	private SearchController controller;
 	
 	/** a reference to the player we are controller */
-	private Player player;
+	private StatisticalPlayer player;
 	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
@@ -60,7 +63,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			// RMI calls will happen on the background thread
 			while (!scanner.hasNextLine() || !scanner.nextLine().equals("die"));
 			
-			// TODO: notify the server that we're leaving
+			controller.removeSearcher(searcher);
 			
 			// forcibly unregister our callback so RMI will let us exit
 			UnicastRemoteObject.unexportObject(searcher, true);
@@ -91,8 +94,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		
 	}
-	
-	
+
 	
 	@Override
 	public void reset() throws RemoteException {
@@ -131,11 +133,20 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public void acceptMove(int player, int location) throws RemoteException {
 		if (this.player == null) return;
 		
-		System.out.println("Accepting move: " + location);
+		System.out.println("Accepting move: " + pointToString(location));
 		
 		this.player.acceptMove(location);
 	}
 
+	@Override
+	public boolean undo() {
+		if (this.player == null) return false;
+		
+		System.out.println("Undoing move.");
+		
+		return this.player.undo();
+	}
+	
 	@Override
 	public void beginSearch() throws RemoteException {
 		if (player == null || controller == null) {
@@ -156,7 +167,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				System.out.println("Done searching.");
 				// ping right back to the server
 				try {
-					controller.acceptResults(ClusterTreeSearcher.this, player.getPlayouts(), player.getWins());
+					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), player.getBoardWins());
 				} catch (RemoteException e) {
 					System.err.println("Failed to report search results to controller.");
 					e.printStackTrace();
@@ -165,13 +176,18 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}).start();
 		
 	}
+	
+	@Override
+	public long getTotalPlayoutCount() {
+		return player.getTotalPlayoutCount();
+	}
 
 	/** Mostly used for unit testing dependency injection*/
-	public void setPlayer(Player player) {
+	protected void setPlayer(StatisticalPlayer player) {
 		this.player = player;
 	}
 	
-	public Player getPlayer() {
+	protected StatisticalPlayer getPlayer() {
 		return this.player;
 	}
 	
@@ -179,12 +195,14 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public boolean setPlayer(String player) {
 		if (player == null) return false;
 		
+		System.out.println("Set player: " + player);
+		
 		// load player with java reflection
 		try {
 			Class<? extends Object> general_class = (Class<? extends Object>) Class.forName(player);
 			
-			if (Player.class.isAssignableFrom(general_class)) {
-				Class<? extends Player> player_class = general_class.asSubclass(Player.class);
+			if (StatisticalPlayer.class.isAssignableFrom(general_class)) {
+				Class<? extends StatisticalPlayer> player_class = general_class.asSubclass(StatisticalPlayer.class);
 				
 				// Note: we assume the player constructors take no arguments
 				this.player = player_class.newInstance();

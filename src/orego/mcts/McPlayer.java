@@ -7,8 +7,6 @@ import static orego.experiment.Debug.debug;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import ec.util.MersenneTwisterFast;
-
 import orego.core.Board;
 import orego.heuristic.Heuristic;
 import orego.play.ThreadedPlayer;
@@ -16,7 +14,7 @@ import orego.play.UnknownPropertyException;
 import orego.util.IntList;
 
 /** A Monte-Carlo player. */
-public abstract class McPlayer extends ThreadedPlayer {
+public abstract class McPlayer extends ThreadedPlayer implements StatisticalPlayer {
 
 	/** The maximum playouts a thread will run, if no time limit is set. */
 	private int playoutLimit;

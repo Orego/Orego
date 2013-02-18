@@ -312,13 +312,8 @@ public class Orego {
 			// case insensitive.
 			handleCommand(arguments.nextToken().toLowerCase(), arguments);
 		} else if (command.equals("playout_count")) {
-			if (player instanceof orego.mcts.McPlayer) {
-				orego.mcts.McPlayer mctsPlayer = (orego.mcts.McPlayer)player;
-				long playouts = 0;
-				for (int i = 0; i < mctsPlayer.getNumberOfThreads(); i++) {
-					orego.mcts.McRunnable mcRunnable = (orego.mcts.McRunnable)mctsPlayer.getRunnable(i);
-					playouts += mcRunnable.getPlayoutsCompleted();
-				}
+			if (player instanceof orego.mcts.StatisticalPlayer) {
+				long playouts = ((orego.mcts.StatisticalPlayer) player).getTotalPlayoutCount();
 				acknowledge("playout="+playouts);
 			}
 			else {

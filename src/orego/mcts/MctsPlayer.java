@@ -288,6 +288,34 @@ public class MctsPlayer extends McPlayer {
 		return getRoot().getWins(p);
 	}
 	
+	private long[] nodeResultsToLong(int[] nodeResults) {
+		long[] cast = new long[nodeResults.length];
+		for(int idx = 0; idx < nodeResults.length; idx++) {
+			cast[idx] = (long)nodeResults[idx];
+		}
+		return cast;
+	}
+	
+	@Override
+	public long[] getBoardWins() {
+		return nodeResultsToLong(getRoot().getWinsArray());
+	}
+	
+	@Override
+	public long[] getBoardPlayouts() {
+		return nodeResultsToLong(getRoot().getRunsArray());
+	}
+	
+	@Override
+	public long getTotalPlayoutCount() {
+		long playouts = 0;
+		for (int i = 0; i < getNumberOfThreads(); i++) {
+			McRunnable mcRunnable = (McRunnable)getRunnable(i);
+			playouts += mcRunnable.getPlayoutsCompleted();
+		}
+		return playouts;
+	}
+	
 	/** Returns a node of the type to be used to build the dag. */
 	protected SearchNode getPrototypeNode() {
 		return new SearchNode();

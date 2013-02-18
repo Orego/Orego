@@ -2,9 +2,13 @@ package orego.cluster;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.opposite;
+import static orego.core.Colors.BLACK;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.pointToString;
+import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -19,8 +23,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import ec.util.MersenneTwisterFast;
+
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.core.Board;
 import orego.mcts.Lgrf2Player;
+import orego.mcts.StatisticalPlayer;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
@@ -28,7 +36,7 @@ import orego.util.IntSet;
 /**
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
  */
-public class ClusterPlayer extends Player implements SearchController {
+public class ClusterPlayer extends Player implements SearchController, StatisticalPlayer {
 	
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
@@ -46,6 +54,8 @@ public class ClusterPlayer extends Player implements SearchController {
 	private long[] totalRuns;
 	
 	private long[] totalWins;
+	
+	private MersenneTwisterFast random;
 	
 	// We wait for msecToMove if it is set, otherwise wait for timeout
 	private long msecToMove = -1;
@@ -72,6 +82,9 @@ public class ClusterPlayer extends Player implements SearchController {
 		
 		totalRuns = new long[FIRST_POINT_BEYOND_BOARD];
 		totalWins = new long[FIRST_POINT_BEYOND_BOARD];
+		
+		// RNG used for fallback moves
+		random = new MersenneTwisterFast();
 
 		// Configure RMI to allow serving the ClusterPlayer class
 		RMIStartup.configureRmi(ClusterPlayer.class, RMIStartup.SECURITY_POLICY_FILE);
@@ -92,9 +105,9 @@ public class ClusterPlayer extends Player implements SearchController {
 	}
 	
 	/**
-	 * Called by the TreeController to add a new remote searcher
+	 * Called by the TreeSearcher to add a new remote searcher
 	 */
-	public void addSearcher(TreeSearcher s) {
+	public synchronized void addSearcher(TreeSearcher s) {
 		try {
 			s.setKomi(getBoard().getKomi());
 			s.setPlayer(remotePlayerClass);
@@ -102,11 +115,27 @@ public class ClusterPlayer extends Player implements SearchController {
 			for(String property : remoteProperties.keySet()) {
 				s.setProperty(property, remoteProperties.get(property));
 			}
+			// If moves have already been played, sync up the new searcher
+			int turn = getBoard().getTurn();
+			int player = BLACK;
+			if(turn > 0) {
+				for(int moveIdx = 0; moveIdx < turn; moveIdx++) {
+					s.acceptMove(player, getBoard().getMove(moveIdx));
+					player = opposite(player);
+				}
+			}
 			remoteSearchers.add(s);
 		} catch (RemoteException e) {
 			System.err.println("Error configuring new remote searcher: " + s);
 			e.printStackTrace();
 		}
+	}
+	
+	/** Called by TreeSearcher to remove itself from consideration */
+	public synchronized void removeSearcher(TreeSearcher searcher) throws RemoteException {
+		remoteSearchers.remove(searcher);
+		
+		decrementResultsRemaining();
 	}
 
 	/**
@@ -116,22 +145,17 @@ public class ClusterPlayer extends Player implements SearchController {
 	 */
 	@Override
 	public synchronized void acceptResults(TreeSearcher searcher,
-			int[] runs, int[] wins) throws RemoteException {
+			long[] runs, long[] wins) throws RemoteException {
 		if (resultsRemaining < 0) {
 			return;
 		}
-		resultsRemaining--;
 		
 		// aggregate all of the recommended moves from the player
 		for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
 			totalRuns[idx] += runs[idx];
 			totalWins[idx] += wins[idx];
 		}
-		if (resultsRemaining == 0) {
-			searchLock.lock();
-			searchDone.signal();
-			searchLock.unlock();
-		}
+		decrementResultsRemaining();
 	}
 	
 	/**
@@ -184,6 +208,37 @@ public class ClusterPlayer extends Player implements SearchController {
 		}
 		return result;
 	}
+	
+	/**
+	 * Forwards the request to undo to each searcher after undoing here.
+	 */
+	@Override
+	public boolean undo() {
+		
+		// if we can't undo locally, it's a lost cause
+		if(!super.undo()) {
+			return false;
+		}
+		
+		// try to undo on each searcher, removing those that fail
+		TreeSearcher searcher = null;
+		
+		for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
+			searcher = it.next();
+			boolean success = false;
+			try {
+				success = searcher.undo();
+			} catch (RemoteException e) {
+				System.err.println("Searcher: " + searcher
+						+ " failed to undo.");
+			}
+			if(!success) {
+				it.remove();
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Generates moves using the searchers. First, checks the local book to see
@@ -200,6 +255,13 @@ public class ClusterPlayer extends Player implements SearchController {
 			if (move != NO_POINT) {
 				return move;
 			}
+		}
+		
+		// Check to see if we have searchers, if not, play a random move
+		// Since searchers may come online at any time, a couple bad moves
+		// is better than just resigning
+		if(remoteSearchers.size() == 0) {
+			return fallbackMove();
 		}
 		
 		// If we're here, we need to start searching, call up the searchers
@@ -234,23 +296,49 @@ public class ClusterPlayer extends Player implements SearchController {
 
 	/** Decides on a move to play from the data received from searchers. */
 	private int bestSearchMove() {
-		IntSet vacantPoints = getBoard().getVacantPoints();
-		// TODO: Can we use the runs here too? Maybe a confidence interval?
-		long maxWins = totalWins[PASS];
+		IntSet vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		vacantPoints.copyDataFrom(getBoard().getVacantPoints());
 		int bestMove = PASS;
-		for (int idx = 0; idx < vacantPoints.size(); idx++) {
-			int point = vacantPoints.get(idx);
-			long wins = totalWins[point];
-			if (wins > maxWins) {
-				maxWins = wins;
-				bestMove = point;
+		long maxWins = 0;
+		while(vacantPoints.size() > 0) {
+			maxWins = totalWins[PASS];
+			bestMove = PASS;
+			for (int idx = 0; idx < vacantPoints.size(); idx++) {
+				int point = vacantPoints.get(idx);
+				long wins = totalWins[point];
+				if (wins > maxWins) {
+					maxWins = wins;
+					bestMove = point;
+				}
+			}
+			// If the best move found isn't a pass, but it is illegal, try again but remove that move as a possibility
+			if(bestMove != PASS && (!getBoard().isFeasible(bestMove) || !getBoard().isLegal(bestMove))) {
+				vacantPoints.remove(bestMove);
+			}
+			else {
+				// Otherwise, the best thing is either a pass or a legal move
+				break;
 			}
 		}
-		if (bestMove != PASS && getBoard().isFeasible(bestMove) && getBoard().isLegal(bestMove)) {
+		// Resign if the best win rate is less than a set percent
+		double winRate = ((double) maxWins) / ((double) totalRuns[bestMove]);
+		if(winRate < RESIGN_PARAMETER) {
+			return RESIGN;
+		}
+		else {
 			return bestMove;
 		}
-		// TODO: We need better fallbacks, resign handling, etc.
-		return super.bestMove();
+	}
+	
+	/** Use this instead of the super's fallback implementation, which calls undo */
+	private int fallbackMove() {
+		Board copyBoard = new Board();
+		copyBoard.copyDataFrom(getBoard());
+		int move = getHeuristics().selectAndPlayOneMove(random, copyBoard);
+		if(getBoard().isLegal(move)) {
+			return move;
+		}
+		return PASS;
 	}
 
 	/** Utility method to prepare to accept results */
@@ -261,6 +349,15 @@ public class ClusterPlayer extends Player implements SearchController {
 	public synchronized void stopAcceptingResults() {
 		resultsRemaining = -1;
 	}
+	
+	private synchronized void decrementResultsRemaining() {
+		resultsRemaining--;
+		if(resultsRemaining <= 0) {
+			searchLock.lock();
+			searchDone.signal();
+			searchLock.unlock();
+		}
+	}
 		
 	/**
 	 * Sets a property on the ClusterPlayer as well as all the currently
@@ -270,15 +367,15 @@ public class ClusterPlayer extends Player implements SearchController {
 	@Override
 	public void setProperty(String key, String value)
 			throws UnknownPropertyException {
-		if (key == REMOTE_PLAYER_PROPERTY) {
+		if (key.equals(REMOTE_PLAYER_PROPERTY)) {
 			// Do not forward the remote player property to the remote searchers
 			remotePlayerClass = value;
 			return;
 		}
-		if (key == SEARCH_TIMEOUT_PROPERTY) {
+		if (key.equals(SEARCH_TIMEOUT_PROPERTY)) {
 			msecToTimeout = Long.parseLong(value);
 		}
-		if (key == MOVE_TIME_PROPERTY) {
+		if (key.equals(MOVE_TIME_PROPERTY)) {
 			msecToMove = Long.parseLong(value);
 		}
 		// Try to set the property on super, it's ok if it fails
@@ -298,16 +395,6 @@ public class ClusterPlayer extends Player implements SearchController {
 		}
 	}
 	
-	@Override
-	public synchronized int getWins(int p) {
-		return (int) totalWins[p];
-	}
-	
-	@Override
-	public int getPlayouts(int p) {
-		return (int) totalRuns[p];
-	}
-	
 	/** Sets the komi on the board and the remote searchers */
 	@Override
 	public void setKomi(double komi) {
@@ -319,6 +406,39 @@ public class ClusterPlayer extends Player implements SearchController {
 				System.err.println("Could not set komi on remote searcher: " + searcher);
 			}
 		}
+	}
+	
+	@Override
+	public synchronized int getWins(int p) {
+		return (int) totalWins[p];
+	}
+	
+	@Override
+	public synchronized int getPlayouts(int p) {
+		return (int) totalRuns[p];
+	}
+	
+	@Override
+	public synchronized long[] getBoardWins() {
+		return totalWins;
+	}
+	
+	@Override
+	public synchronized long[] getBoardPlayouts() {
+		return totalRuns;
+	}
+	
+	@Override
+	public synchronized long getTotalPlayoutCount() {
+		long totalPlayouts = 0;
+		for(TreeSearcher searcher : remoteSearchers) {
+			try {
+				totalPlayouts += searcher.getTotalPlayoutCount();
+			} catch (RemoteException e) {
+				System.err.println("Could not get total playout count from searcher: " + searcher);
+			}
+		}
+		return totalPlayouts;
 	}
 	
 	@Override

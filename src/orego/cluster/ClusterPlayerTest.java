@@ -3,6 +3,8 @@ package orego.cluster;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 import java.rmi.AccessException;
@@ -47,7 +49,7 @@ public class ClusterPlayerTest {
 	 * The new beginSearch method will respond after msecToRespond with the best
 	 * move at bestMove.
 	 */
-	protected void setupMockSearcher(TreeSearcher mockSearcher, final int msecToRespond, final int bestMove) throws RemoteException {
+	protected void setupMockSearcher(TreeSearcher mockSearcher, final int msecToRespond, final int bestMove, final int runsPerPoint, final int winsPerPoint) throws RemoteException {
 		doAnswer(new Answer<Object>() {
 			
 			@Override
@@ -64,10 +66,10 @@ public class ClusterPlayerTest {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						int[] runs = new int[FIRST_POINT_BEYOND_BOARD];
-						Arrays.fill(runs, 2);
-						int[] wins = new int[FIRST_POINT_BEYOND_BOARD];
-						Arrays.fill(wins, 1);
+						long[] runs = new long[FIRST_POINT_BEYOND_BOARD];
+						Arrays.fill(runs, runsPerPoint);
+						long[] wins = new long[FIRST_POINT_BEYOND_BOARD];
+						Arrays.fill(wins, winsPerPoint);
 						if(bestMove >= 0) {
 							runs[bestMove] += 10;
 							wins[bestMove] += 10;
@@ -86,6 +88,10 @@ public class ClusterPlayerTest {
 			}
 			
 		}).when(mockSearcher).beginSearch();
+	}
+	
+	protected void setupMockSearcher(TreeSearcher mockSearcher, final int msecToRespond, final int bestMove) throws RemoteException {
+		setupMockSearcher(mockSearcher, msecToRespond, bestMove, 1, 2);
 	}
 
 	/* Tests relating to setup */
@@ -164,6 +170,15 @@ public class ClusterPlayerTest {
 	}
 	
 	@Test
+	public void testShouldNotSendPlayerAsProperty() throws UnknownPropertyException, RemoteException {
+		String playerClass = "SomePlayer";
+		player.setProperty("remote_player", playerClass);
+		TreeSearcher s = mock(TreeSearcher.class);
+		player.addSearcher(s);
+		verify(s, never()).setProperty("remote_player", playerClass);
+	}
+	
+	@Test
 	public void testShouldParseMoveTime() throws UnknownPropertyException {
 		String key = "msec";
 		long msec = 1200;
@@ -180,6 +195,27 @@ public class ClusterPlayerTest {
 		player.acceptMove(moves[1]);
 		verify(searcher).acceptMove(BLACK, moves[0]);
 		verify(searcher).acceptMove(WHITE, moves[1]);
+	}
+	
+	@Test
+	public void testShouldSendOldMoves() throws RemoteException {
+		int[] moves = new int[] {at("a1"), at("a2")};
+		player.acceptMove(moves[0]);
+		player.acceptMove(moves[1]);
+		TreeSearcher s = mock(TreeSearcher.class);
+		player.addSearcher(s);
+		InOrder inOrder = inOrder(s);
+		inOrder.verify(s).acceptMove(BLACK, moves[0]);
+		inOrder.verify(s).acceptMove(WHITE, moves[1]);
+	}
+	
+	@Test
+	public void testShouldForwardUndo() throws RemoteException {
+		when(searcher.undo()).thenReturn(true);
+		int move = at("a1");
+		player.acceptMove(move);
+		assertTrue(player.undo());
+		verify(searcher).undo();
 	}
 	
 	/* Tests related to move generation */
@@ -212,11 +248,36 @@ public class ClusterPlayerTest {
 	@Test
 	public void testShouldClearResults() throws RemoteException {
 		player.setOpeningBook(null);
-		int bestA = at("e6");
+		int bestA = at("d3");
 		setupMockSearcher(searcher, 100, bestA);
 		player.bestMove();
 		int bestB = at("e4");
 		setupMockSearcher(searcher, 100, bestB);
 		assertEquals(bestB, player.bestMove());
+	}
+	
+	@Test
+	public void testShouldNotUseDepartedSearcher() throws RemoteException {
+		player.setOpeningBook(null);
+		player.removeSearcher(searcher);
+		reset(searcher);
+		player.bestMove();
+		verifyZeroInteractions(searcher);
+	}
+	
+	@Test
+	public void testShouldNotPlayIllegalMove() throws RemoteException {
+		int bestButIllegal = at("a1");
+		player.setOpeningBook(null);
+		player.acceptMove(bestButIllegal);
+		setupMockSearcher(searcher, 100, bestButIllegal);
+		assertFalse(player.bestMove() == bestButIllegal);
+	}
+	
+	@Test
+	public void testShouldResign() throws RemoteException {
+		player.setOpeningBook(null);
+		setupMockSearcher(searcher, 100, -1, 11, 1);
+		assertEquals(RESIGN, player.bestMove());
 	}
 }
