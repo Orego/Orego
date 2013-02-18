@@ -92,10 +92,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 	}
 	
-	/** mostly used for unit testing */
-	protected Player getPlayer() {
-		return this.player;
-	}
+	
 	
 	@Override
 	public void reset() throws RemoteException {
@@ -169,6 +166,15 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 	}
 
+	/** Mostly used for unit testing dependency injection*/
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+	
+	public Player getPlayer() {
+		return this.player;
+	}
+	
 	@Override
 	public boolean setPlayer(String player) {
 		if (player == null) return false;
