@@ -4,6 +4,8 @@ import orego.mcts.*;
 import orego.util.IntSet;
 import orego.core.*;
 
+// CHANGE (2)
+
 /**
  * This player plays out ladders and biases the point that kicks each one off,
  * either for play (if we win) or against play (if we lose).
