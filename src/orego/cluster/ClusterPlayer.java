@@ -62,6 +62,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	// The default timeout for search is 10s
 	private long msecToTimeout = 10000;
 	
+	// By default, wait 100ms more than the time allotted to search
+	// We stop waiting when all the players respond, so it doesn't matter
+	// if this is longer than necessary
+	private long latencyFudge = 100;
+	
 	private ReentrantLock searchLock;
 	
 	private Condition searchDone;
@@ -148,7 +153,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		if (resultsRemaining < 0) {
 			return;
 		}
-		
+
 		// aggregate all of the recommended moves from the player
 		for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
 			totalRuns[idx] += runs[idx];
@@ -276,7 +281,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 		
 		// Wait for as long as we can
-		long waitTime = msecToMove > 0 ? msecToMove : msecToTimeout;
+		long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
 		try {
 			searchLock.lock();
 			searchDone.await(waitTime, TimeUnit.MILLISECONDS);
@@ -346,6 +351,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	}
 
 	public synchronized void stopAcceptingResults() {
+		if(resultsRemaining > 0) {
+			System.err.println("Results missing from " + resultsRemaining  + " searchers.");
+		}
 		resultsRemaining = -1;
 	}
 	
