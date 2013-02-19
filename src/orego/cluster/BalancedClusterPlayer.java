@@ -35,25 +35,22 @@ public class BalancedClusterPlayer extends ClusterPlayer {
 		redistributePointAllocation();
 	}
 	
-	// TODO: This is repetitive, we should break this method into two parts
 	@Override
-	public void acceptResults(TreeSearcher searcher, long[] runs, long[] wins) throws RemoteException {
-		if(resultsRemaining < 0) {
-			return;
-		}
-		
+	public void tallyResults(TreeSearcher searcher, long[] runs, long[] wins) {		
 		// Only tally the results from the points that this searcher was 
-		// supposed to consider		
-		int id = searcher.getSearcherId();
-		IntSet consideredPoints = searchersToPoints.get(id);
-		
-		for(int idx = 0; idx < consideredPoints.size(); idx++) {
-			int p = consideredPoints.get(idx);
-			totalRuns[p] += runs[p];
-			totalWins[p] += wins[p];
+		// supposed to consider
+		try {
+			int id = searcher.getSearcherId();
+			IntSet consideredPoints = searchersToPoints.get(id);
+			
+			for(int idx = 0; idx < consideredPoints.size(); idx++) {
+				int p = consideredPoints.get(idx);
+				totalRuns[p] += runs[p];
+				totalWins[p] += wins[p];
+			}
+		} catch (RemoteException e) {
+			System.err.println("Could not get ID from searcher: " + searcher + " to record results.");
 		}
-		
-		decrementResultsRemaining();
 	}
 	
 	private void redistributePointAllocation() throws RemoteException {

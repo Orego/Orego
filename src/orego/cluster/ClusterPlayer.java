@@ -163,12 +163,17 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			return;
 		}
 		
+		tallyResults(searcher, runs, wins);
+		
+		decrementResultsRemaining();
+	}
+	
+	public void tallyResults(TreeSearcher searcher, long[] runs, long[] wins) {
 		// aggregate all of the recommended moves from the player
 		for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
 			totalRuns[idx] += runs[idx];
 			totalWins[idx] += wins[idx];
 		}
-		decrementResultsRemaining();
 	}
 	
 	/**
@@ -366,7 +371,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		resultsRemaining = -1;
 	}
 	
-	protected synchronized void decrementResultsRemaining() {
+	private synchronized void decrementResultsRemaining() {
 		resultsRemaining--;
 		if(resultsRemaining <= 0) {
 			searchLock.lock();
