@@ -10,7 +10,6 @@ import java.util.Scanner;
 
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.mcts.StatisticalPlayer;
-import orego.play.Player;
 import orego.play.UnknownPropertyException;
 
 /**
@@ -30,6 +29,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	
 	/** a reference to the player we are controller */
 	private StatisticalPlayer player;
+	
+	/** maximum amount of time we are willing to wait for a connection*/
+	protected static int MAX_WAIT = 1000 * 60 * 5; // 5 minutes
 	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
@@ -52,7 +54,11 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		RMIStartup.configureRmi(null, RMIStartup.SECURITY_POLICY_FILE);
 		
 		try {
-			Registry reg = factory.getRegistry(controllerHost);
+			Registry reg = tryToConnectToRegistry(controllerHost, MAX_WAIT);
+			
+			if (reg == null)
+				System.exit(1);
+			
 			SearchController controller = (SearchController) reg.lookup(SearchController.SEARCH_CONTROLLER_NAME);
 			
 			ClusterTreeSearcher searcher = new ClusterTreeSearcher(controller);
@@ -79,6 +85,38 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 	}
 
+	/** simple utility method to continually try to connect to the registry until
+	 * the timeout limit is reached.
+	 * @param timeout the maximum wait time, in milliseconds
+	 * @parma host the host we wish to connect to.
+	 */
+	protected static Registry tryToConnectToRegistry(String host, int timeout) {
+		int totalTime = 0;
+		
+		while (totalTime < timeout) {
+			try {
+				Registry reg = factory.getRegistry(host);
+				
+				return reg;
+			} catch (RemoteException e) {
+				if (totalTime >= timeout) {
+					System.out.println("Connection attempts timed out");
+					return null;
+				}
+				
+				System.out.println("Failed to connect, waiting then trying again...");
+				try {
+					Thread.sleep(1000); // wait a second; literally
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+					return null;
+				} 
+				
+				totalTime += 1000;
+			}
+		}
+		return null;
+	}
 	public ClusterTreeSearcher(SearchController controller) throws RemoteException {
 		this.controller = controller;
 		

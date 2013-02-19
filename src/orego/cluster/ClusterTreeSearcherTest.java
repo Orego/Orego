@@ -1,13 +1,13 @@
 package orego.cluster;
 
 import static orego.core.Coordinates.at;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+
+import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
 import orego.cluster.RMIStartup.RegistryFactory;
@@ -88,6 +88,39 @@ public class ClusterTreeSearcherTest {
 		verify(controller).addSearcher(searcher);
 	}
 	
+	@Test
+	public void testShouldWaitBeforeAttemptingReconnect() throws Exception {
+		RegistryFactory mockRegistry = mock(RegistryFactory.class);
+		when(mockRegistry.getRegistry(any(String.class))).thenThrow(new RemoteException());
+		
+		long startTime = System.currentTimeMillis();
+		
+		ClusterTreeSearcher.factory = mockRegistry;
+		
+		Registry reg = ClusterTreeSearcher.tryToConnectToRegistry("dummy.com", 1000 * 3); // three second timeout
+		
+		// we subtract 50 as a variation parameter to make certain we waited the appropriate amount of time
+		assertTrue(System.currentTimeMillis() - startTime >= 1000 * 3 - 50);
+		
+		assertNull(reg);
+		
+		
+	}
+	
+	@Test
+	public void testShouldProperlyConnectToRegistry() throws Exception {
+		
+		RegistryFactory mockRegistry = mock(RegistryFactory.class);
+		when(mockRegistry.getRegistry(any(String.class))).thenReturn(registry);
+		
+		ClusterTreeSearcher.factory = mockRegistry;
+		
+		Registry reg = ClusterTreeSearcher.tryToConnectToRegistry("dummy.com", 1000 * 3); // three second timeout
+		
+		assertSame(reg, registry);
+		
+		
+	}
 	@Test
 	public void testShouldInitializeProperSubclassUsingReflection() {
 		searcher.setPlayer(Lgrf2Player.class.getName());
