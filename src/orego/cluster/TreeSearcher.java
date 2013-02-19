@@ -5,6 +5,12 @@ import java.rmi.RemoteException;
 
 public interface TreeSearcher extends Remote {
 
+	/** Sets an ID that is used internally by the server. */
+	void setSearcherId(int id) throws RemoteException;
+	
+	/** Retrieves the ID that was set with setSearcherId, return -1 if no ID was set */
+	int getSearcherId() throws RemoteException;
+	
 	/** Resets all the state contained in this searcher. */
 	void reset() throws RemoteException;
 	

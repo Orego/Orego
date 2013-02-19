@@ -30,6 +30,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/** a reference to the player we are controller */
 	private StatisticalPlayer player;
 	
+	/** an id set by the controller for internal use */
+	private int searcherId = -1;
+	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
 	
@@ -224,6 +227,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 		return true;
 		
+	}
+
+	@Override
+	public void setSearcherId(int id) throws RemoteException {
+		searcherId = id;
+	}
+
+	@Override
+	public int getSearcherId() throws RemoteException {
+		return searcherId;
 	}
 
 }

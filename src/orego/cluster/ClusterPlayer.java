@@ -40,7 +40,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
 	private static final String MOVE_TIME_PROPERTY = "msec";
-
+	
 	// By default, use Lgrf2Player in the remote searchers
 	private String remotePlayerClass = Lgrf2Player.class.getName();
 	
@@ -49,6 +49,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	private Map<String, String> remoteProperties;
 	
 	private int resultsRemaining;
+	
+	private int nextSearcherId = 1;
 	
 	private long[] totalRuns;
 	
@@ -113,6 +115,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 */
 	public synchronized void addSearcher(TreeSearcher s) {
 		try {
+			s.setSearcherId(nextSearcherId);
 			s.setKomi(getBoard().getKomi());
 			s.setPlayer(remotePlayerClass);
 			s.reset();
@@ -129,6 +132,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				}
 			}
 			remoteSearchers.add(s);
+			nextSearcherId++;
 		} catch (RemoteException e) {
 			System.err.println("Error configuring new remote searcher: " + s);
 			e.printStackTrace();
