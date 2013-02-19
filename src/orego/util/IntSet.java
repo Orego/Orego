@@ -2,6 +2,8 @@ package orego.util;
 
 import static orego.core.Coordinates.pointToString;
 
+import java.io.Serializable;
+
 /**
  * A set implementation that offers constant time insertion, search, deletion,
  * clearing, and size, assuming that the keys are all in the range [0, n).
@@ -9,7 +11,9 @@ import static orego.core.Coordinates.pointToString;
  * preferable.
  * @see BitVector
  */
-public class IntSet {
+public class IntSet implements Serializable {
+
+	private static final long serialVersionUID = 3336799989129195312L;
 
 	/** data[i] is the ith element of this set. */
 	private int[] data;

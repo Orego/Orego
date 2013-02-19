@@ -48,13 +48,13 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	private Map<String, String> remoteProperties;
 	
-	private int resultsRemaining;
+	protected int resultsRemaining;
 	
-	private int nextSearcherId = 1;
+	private int nextSearcherId = 0;
 	
-	private long[] totalRuns;
+	protected long[] totalRuns;
 	
-	private long[] totalWins;
+	protected long[] totalWins;
 	
 	private MersenneTwisterFast random;
 	
@@ -112,8 +112,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	/**
 	 * Called by the TreeSearcher to add a new remote searcher
+	 * @throws RemoteException 
 	 */
-	public synchronized void addSearcher(TreeSearcher s) {
+	public synchronized void addSearcher(TreeSearcher s) throws RemoteException {
 		try {
 			s.setSearcherId(nextSearcherId);
 			s.setKomi(getBoard().getKomi());
@@ -139,6 +140,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 	}
 	
+	public List<TreeSearcher> getRemoteSearchers() {
+		return remoteSearchers;
+	}
+	
 	/** Called by TreeSearcher to remove itself from consideration */
 	public synchronized void removeSearcher(TreeSearcher searcher) throws RemoteException {
 		remoteSearchers.remove(searcher);
@@ -157,7 +162,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		if (resultsRemaining < 0) {
 			return;
 		}
-
+		
 		// aggregate all of the recommended moves from the player
 		for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
 			totalRuns[idx] += runs[idx];
@@ -361,7 +366,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		resultsRemaining = -1;
 	}
 	
-	private synchronized void decrementResultsRemaining() {
+	protected synchronized void decrementResultsRemaining() {
 		resultsRemaining--;
 		if(resultsRemaining <= 0) {
 			searchLock.lock();
