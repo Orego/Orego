@@ -56,7 +56,6 @@ public class LadderPlayer extends Lgrf2Player {
 		IntSet ladderLiberties = libertiesOfLadders(Colors.BLACK);
 		int numberOfBlackLadders = ladderLiberties.size();
 		ladderLiberties.addAll(libertiesOfLadders(Colors.WHITE));
-		int ladderLength = 0;
 		
 		// play out each ladder separately
 		for (int i = 0; i < ladderLiberties.size(); i++) {
@@ -72,7 +71,6 @@ public class LadderPlayer extends Lgrf2Player {
 			// keep applying the policy of the inside player and the outside player until
 			// the ladder is over (either the inside color is free or has been captured)
 			while (true) {
-				ladderLength++;
 				// inside player policy: play in my only liberty
 				int insidePlaysHere = liberty;
 				ladBoard.play(insidePlaysHere);
@@ -100,6 +98,11 @@ public class LadderPlayer extends Lgrf2Player {
 					insideWon = false;
 					break;
 				}
+				
+				
+				
+				// add code here looking for outside stones in atari
+				
 			}
 			
 			// bias the search tree appropriately:
@@ -108,10 +111,10 @@ public class LadderPlayer extends Lgrf2Player {
 			// - if inside player loses, he doesn't want to play here and 
 			//   *neither does outside player* (to allow inside player to do so)
 			if (insideWon) {
-				getRoot().addWins(liberty, ladderLength*10);
+				getRoot().addWins(liberty, 10);
 				System.err.println("Biasing in favor of " + Coordinates.pointToString(liberty));
 			} else {
-				getRoot().addLosses(liberty, ladderLength*10);
+				getRoot().addLosses(liberty, 10);
 				System.err.println("Biasing against " + Coordinates.pointToString(liberty));
 
 			}

@@ -38,6 +38,7 @@ public class LadderPlayerTest {
 				"..................."// 1
 	          // ABCDEFGHJKLMNOPQRST
 		};
+		
 		game.getPlayer().getBoard().setUpProblem(BLACK, problem);
 		game.handleCommand("genmove black");
 	}
