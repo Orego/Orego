@@ -1,6 +1,7 @@
 package orego.cluster;
 
 import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -9,8 +10,10 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.mcts.MctsPlayer;
 import orego.mcts.StatisticalPlayer;
 import orego.play.UnknownPropertyException;
+import orego.util.IntSet;
 
 /**
  * Simple implementation of {@link TreeSearch} that enables the {@link SearchController}
@@ -32,6 +35,12 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	
 	/** maximum amount of time we are willing to wait for a connection*/
 	protected static int MAX_WAIT = 1000 * 60 * 5; // 5 minutes
+
+	/** an id set by the controller for internal use */
+	private int searcherId = -1;
+	
+	/** the points that will be considered by this searcher */
+	private IntSet consideredPoints;
 	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
@@ -118,6 +127,8 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		return null;
 	}
 	public ClusterTreeSearcher(SearchController controller) throws RemoteException {
+		this.consideredPoints = null;
+		
 		this.controller = controller;
 		
 		
@@ -166,6 +177,14 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		
 	}
+	
+	@Override
+	public void setPointsToConsider(IntSet pts) throws RemoteException {
+		System.out.println("Going to consider: " + pts.size() + " points.");
+		
+		consideredPoints = pts;
+		excludeIgnoredPoints();
+	}
 
 	@Override
 	public void acceptMove(int player, int location) throws RemoteException {
@@ -174,6 +193,19 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		System.out.println("Accepting move: " + pointToString(location));
 		
 		this.player.acceptMove(location);
+		
+		excludeIgnoredPoints();
+	}
+	
+	private void excludeIgnoredPoints() {
+		if(consideredPoints == null) return;
+		
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			if(!consideredPoints.contains(idx)) {
+				// TODO: This is a bit of a hack
+				((MctsPlayer)this.player).getRoot().exclude(idx);
+			}
+		}
 	}
 
 	@Override
@@ -263,6 +295,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 		return true;
 		
+	}
+
+	@Override
+	public void setSearcherId(int id) throws RemoteException {
+		searcherId = id;
+	}
+
+	@Override
+	public int getSearcherId() throws RemoteException {
+		return searcherId;
 	}
 
 }

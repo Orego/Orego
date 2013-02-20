@@ -7,7 +7,6 @@ import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.RESIGN;
-import static orego.core.Coordinates.pointToString;
 import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
 import java.rmi.RemoteException;
@@ -41,7 +40,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
 	private static final String MOVE_TIME_PROPERTY = "msec";
-
+	
 	// By default, use Lgrf2Player in the remote searchers
 	private String remotePlayerClass = Lgrf2Player.class.getName();
 	
@@ -49,11 +48,13 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	private Map<String, String> remoteProperties;
 	
-	private int resultsRemaining;
+	protected int resultsRemaining;
 	
-	private long[] totalRuns;
+	private int nextSearcherId = 0;
 	
-	private long[] totalWins;
+	protected long[] totalRuns;
+	
+	protected long[] totalWins;
 	
 	private MersenneTwisterFast random;
 	
@@ -62,6 +63,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	// The default timeout for search is 10s
 	private long msecToTimeout = 10000;
+	
+	// By default, wait 100ms more than the time allotted to search
+	// We stop waiting when all the players respond, so it doesn't matter
+	// if this is longer than necessary
+	private long latencyFudge = 100;
 	
 	private ReentrantLock searchLock;
 	
@@ -106,9 +112,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	/**
 	 * Called by the TreeSearcher to add a new remote searcher
+	 * @throws RemoteException 
 	 */
-	public synchronized void addSearcher(TreeSearcher s) {
+	public synchronized void addSearcher(TreeSearcher s) throws RemoteException {
 		try {
+			s.setSearcherId(nextSearcherId);
 			s.setKomi(getBoard().getKomi());
 			s.setPlayer(remotePlayerClass);
 			s.reset();
@@ -125,10 +133,15 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				}
 			}
 			remoteSearchers.add(s);
+			nextSearcherId++;
 		} catch (RemoteException e) {
 			System.err.println("Error configuring new remote searcher: " + s);
 			e.printStackTrace();
 		}
+	}
+	
+	public List<TreeSearcher> getRemoteSearchers() {
+		return remoteSearchers;
 	}
 	
 	/** Called by TreeSearcher to remove itself from consideration */
@@ -277,7 +290,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 		
 		// Wait for as long as we can
-		long waitTime = msecToMove > 0 ? msecToMove : msecToTimeout;
+		long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
 		try {
 			searchLock.lock();
 			searchDone.await(waitTime, TimeUnit.MILLISECONDS);
@@ -347,10 +360,13 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	}
 
 	public synchronized void stopAcceptingResults() {
+		if(resultsRemaining > 0) {
+			System.err.println("Results missing from " + resultsRemaining  + " searchers.");
+		}
 		resultsRemaining = -1;
 	}
 	
-	private synchronized void decrementResultsRemaining() {
+	protected synchronized void decrementResultsRemaining() {
 		resultsRemaining--;
 		if(resultsRemaining <= 0) {
 			searchLock.lock();

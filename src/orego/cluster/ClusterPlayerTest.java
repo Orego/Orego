@@ -113,6 +113,11 @@ public class ClusterPlayerTest {
 		verify(searcher).setKomi(testKomi);
 	}
 	
+	@Test
+	public void testShouldSetId() throws RemoteException {
+		verify(searcher).setSearcherId(anyInt());
+	}
+	
 	/* Tests relating to properties */
 	@Test
 	public void testShouldForwardProperties() throws UnknownPropertyException, RemoteException {

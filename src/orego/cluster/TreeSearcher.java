@@ -3,13 +3,24 @@ package orego.cluster;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import orego.util.IntSet;
+
 public interface TreeSearcher extends Remote {
 
+	/** Sets an ID that is used internally by the server. */
+	void setSearcherId(int id) throws RemoteException;
+	
+	/** Retrieves the ID that was set with setSearcherId, return -1 if no ID was set */
+	int getSearcherId() throws RemoteException;
+	
 	/** Resets all the state contained in this searcher. */
 	void reset() throws RemoteException;
 	
 	/** Sets the komi for the search. */
 	void setKomi(double komi) throws RemoteException;
+	
+	/** Sets the points that this searcher will consider playing at. */
+	void setPointsToConsider(IntSet pts) throws RemoteException;
 	
 	/** Sets the specified property on the represented player. */
 	void setProperty(String key, String value) throws RemoteException;
