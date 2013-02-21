@@ -61,7 +61,7 @@ public class GameBatch implements Runnable {
 //			if (black.contains("Orego")) {
 //				game = new Game(fileStem + ".game", black + " debugfile=" + fileStem + ".debug", white);
 //			} else {
-				game = new Game(fileStem + ".game", black, white);				
+				game = new Game(fileStem + ".sgf", black, white);				
 //			}
 			wins[game.play()]++;
 		}
