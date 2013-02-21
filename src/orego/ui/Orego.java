@@ -226,13 +226,11 @@ public class Orego {
 			if (arguments.countTokens() == 1) {
 				int width = parseInt(arguments.nextToken());
 				if (width == BOARD_WIDTH) {
-					System.out.println(BOARD_WIDTH);
 					player.reset();
 					acknowledge();
 				} else if(width == 9 || width == 19){
-					System.out.println(BOARD_WIDTH);
 					setBoardWidth(width);
-					System.out.println(BOARD_WIDTH);
+					player.reset();
 					acknowledge();
 				}else{
 					error("unacceptable size");

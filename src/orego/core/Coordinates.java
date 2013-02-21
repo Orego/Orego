@@ -36,7 +36,9 @@ public final class Coordinates {
 	// These constants are not in alphabetical order because some are defined in
 	// terms of others.
 
-	/** Width of the board, e.g., 9 or 19. */
+	/** Width of the board
+	 * Defaults to 19, can be set to 9 with boardsize command
+	 */
 	public static int BOARD_WIDTH = 19;
 
 	/** Number of points on the board. */
