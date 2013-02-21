@@ -26,20 +26,20 @@ public class Game {
 	/** The board on which this game is played. */
 	private Board board;
 	
-	/** Shell commands to start the two contestants. */
-	private String[] contestants;
+	/** Shell commands to start the two playersShellCommands. */
+	private String[] playersShellCommands;
 	
 	/** File to which the results of this game are sent. */
-	private String filename;
+	private String sgfGameLogBetweenPlayersFilename;
 	
 	/** One of QUITTING, REQUESTING MOVE, or SENDING_MOVE. */
 	private int mode;
 	
-	/** Prints to the file specified by filename. */
-	private PrintWriter out;
+	/** Prints to the file specified by sgfGameLogBetweenPlayersFilename. */
+	private PrintWriter sgfGameLogBetweenPlayers;
 	
 	/** Prints to the two program processes. */
-	public PrintWriter[] toPrograms;
+	public PrintWriter[] playerProgramsSTDIN;
 	
 	/** Number of the winning player (BLACK or WHITE). */
 	private int winner;
@@ -59,48 +59,54 @@ public class Game {
 	 * @param white
 	 *            shell command to start white player
 	 */
-	public Game(String filename, String black, String white) {
+	public Game(String sgfLogFilename, String black, String white) {
 		try {
-			this.filename = filename;
-			out = new PrintWriter(filename);
-			contestants = new String[] { black, white };
-			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+Coordinates.BOARD_WIDTH+"]");
-			out.println("PB["+black+"]");
-			out.println("PW["+white+"]");
+			this.sgfGameLogBetweenPlayersFilename = sgfLogFilename;
+			sgfGameLogBetweenPlayers = new PrintWriter(sgfLogFilename);
+			
+			playersShellCommands = new String[] { black, white };
+			
+			sgfGameLogBetweenPlayers.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+Coordinates.BOARD_WIDTH+"]");
+			sgfGameLogBetweenPlayers.println("PB["+black+"]");
+			sgfGameLogBetweenPlayers.println("PW["+white+"]");
+			
 			if (black.contains("Orego")) {
 				oregoColor = orego.core.Colors.BLACK;
 			}
 			else {
 				oregoColor = orego.core.Colors.WHITE;
 			}
-			out.flush();
+			
+			sgfGameLogBetweenPlayers.flush();
 			starttime = System.currentTimeMillis();
 		} catch (Throwable e) {
-			out.println("In " + filename + ":");
-			out.println(board);
-			e.printStackTrace(out);
-			out.flush();
-			out.close();
+			sgfGameLogBetweenPlayers.println("In " + sgfLogFilename + ":");
+			sgfGameLogBetweenPlayers.println(board);
+			e.printStackTrace(sgfGameLogBetweenPlayers);
+			sgfGameLogBetweenPlayers.flush();
+			sgfGameLogBetweenPlayers.close();
 			System.exit(1);
 		}
 		
 	}
 	
 	/**
-	 * Sends the quit command to both contestants, so that the processes will
+	 * Sends the quit command to both playersShellCommands, so that the processes will
 	 * end.
 	 */
 	protected void endPrograms() {
-		out.println(";C[starttime:"+starttime+"]");
-		out.flush();
-		out.println(";C[endtime:"+System.currentTimeMillis()+"]");
-		out.flush();
-		out.println(")");
-		out.flush();
+		
+		sgfGameLogBetweenPlayers.println(";C[starttime:"+starttime+"]");
+		sgfGameLogBetweenPlayers.flush();
+		sgfGameLogBetweenPlayers.println(";C[endtime:"+System.currentTimeMillis()+"]");
+		sgfGameLogBetweenPlayers.flush();
+		sgfGameLogBetweenPlayers.println(")");
+		sgfGameLogBetweenPlayers.flush();
+		
 		mode = QUITTING;
 		for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
-			toPrograms[color].println("quit");
-			toPrograms[color].flush();
+			playerProgramsSTDIN[color].println("quit");
+			playerProgramsSTDIN[color].flush();
 		}
 	}
 	
@@ -116,59 +122,60 @@ public class Game {
 	 */
 	protected synchronized void handleResponse(int color, String line, Scanner s) {
 		if (color == oregoColor && line.contains("playout")){
-			out.println(";C["+line.substring(line.indexOf(' ') + 1)+"]");
-			out.flush();
+			sgfGameLogBetweenPlayers.println(";C["+line.substring(line.indexOf(' ') + 1)+"]");
+			sgfGameLogBetweenPlayers.flush();
 			endPrograms();
 			return;
 		}
+		
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				String coordinates = line.substring(line.indexOf(' ') + 1);
 				//sgf output
 				if (coordinates.equals("PASS")) {
-					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[]");
-					out.flush();
+					sgfGameLogBetweenPlayers.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[]");
+					sgfGameLogBetweenPlayers.flush();
 				}
 				else if (coordinates.toLowerCase().equals("resign")) {
 					//do nothing.
 				}
 				else {
-					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]");
-					out.flush();
+					sgfGameLogBetweenPlayers.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]");
+					sgfGameLogBetweenPlayers.flush();
 				}
 				//end sgf output
 				if (coordinates.toLowerCase().equals("resign")) {
 					winner = opposite(getColorToPlay());
-					out.println(";RE["+ (winner == BLACK ? "B" : "W") + "+R]");
-					out.flush();
-					out.println(";C[moves:"+board.getTurn()+"]");
-					out.flush();
-					toPrograms[oregoColor].println("playout_count");
-					toPrograms[oregoColor].flush();
+					sgfGameLogBetweenPlayers.println(";RE["+ (winner == BLACK ? "B" : "W") + "+R]");
+					sgfGameLogBetweenPlayers.flush();
+					sgfGameLogBetweenPlayers.println(";C[moves:"+board.getTurn()+"]");
+					sgfGameLogBetweenPlayers.flush();
+					playerProgramsSTDIN[oregoColor].println("playout_count");
+					playerProgramsSTDIN[oregoColor].flush();
 					return;
 				}
 				board.play(at(coordinates));
 				mode = SENDING_MOVE;
 				// Note the color reversal here, because the color to play has
 				// already been switched
-				toPrograms[getColorToPlay()]
+				playerProgramsSTDIN[getColorToPlay()]
 				.println(spellOutColorName(opposite(getColorToPlay()))
 						 + " " + coordinates);
-				toPrograms[getColorToPlay()].flush();
+				playerProgramsSTDIN[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
 				if (board.getPasses() == 2) {
-					out.println(";RE[" + (board.finalWinner() == BLACK ? "B" : "W") +"+"+Math.abs(board.finalScore())+"]");
-					out.flush();
-					out.println(";C[moves:"+board.getTurn()+"]");
-					out.flush();
-					toPrograms[oregoColor].println("playout_count");
-					toPrograms[oregoColor].flush();
+					sgfGameLogBetweenPlayers.println(";RE[" + (board.finalWinner() == BLACK ? "B" : "W") +"+"+Math.abs(board.finalScore())+"]");
+					sgfGameLogBetweenPlayers.flush();
+					sgfGameLogBetweenPlayers.println(";C[moves:"+board.getTurn()+"]");
+					sgfGameLogBetweenPlayers.flush();
+					playerProgramsSTDIN[oregoColor].println("playout_count");
+					playerProgramsSTDIN[oregoColor].flush();
 					return;
 				} else {
 					mode = REQUESTING_MOVE;
-					toPrograms[getColorToPlay()].println("genmove "
+					playerProgramsSTDIN[getColorToPlay()].println("genmove "
 														 + spellOutColorName(getColorToPlay()));
-					toPrograms[getColorToPlay()].flush();
+					playerProgramsSTDIN[getColorToPlay()].flush();
 				}
 			} else { // Mode is QUITTING
 				// Do nothing
@@ -176,15 +183,15 @@ public class Game {
 		} else {
 			if (line.length() > 0) {
 				crashed = true;
-				out.println("In " + filename + ":");
-				out.println(board);
-				out.println("Got something other than an acknowledgment: "
+				sgfGameLogBetweenPlayers.println("In " + sgfGameLogBetweenPlayersFilename + ":");
+				sgfGameLogBetweenPlayers.println(board);
+				sgfGameLogBetweenPlayers.println("Got something other than an acknowledgment: "
 							+ line);
 				endPrograms();
 				while (s.hasNextLine()) {
-					out.println(s.nextLine());
+					sgfGameLogBetweenPlayers.println(s.nextLine());
 				}
-				out.flush();
+				sgfGameLogBetweenPlayers.flush();
 				System.exit(1);
 			}
 		}
@@ -199,44 +206,64 @@ public class Game {
 	public int play() {
 		try {
 			winner = -1;
-			Process[] programs = new Process[NUMBER_OF_PLAYER_COLORS];
-			toPrograms = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
+			
+			Process[] programs 	= new Process[NUMBER_OF_PLAYER_COLORS];
+			
+			playerProgramsSTDIN = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
+			
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
-				ProcessBuilder builder = new ProcessBuilder("nohup", "bash",
-															"-c", contestants[color], "&");
+				
+				ProcessBuilder builder = new ProcessBuilder("nohup", "bash", "-c", playersShellCommands[color], "&");
+				
+				// redirect the error stream to standard out
 				builder.redirectErrorStream(true);
+				
 				programs[color] = builder.start();
-				toPrograms[color] = new PrintWriter(
+				
+				playerProgramsSTDIN[color] = new PrintWriter(
 													programs[color].getOutputStream());
+				
+				// setup a listener to STDOUT of the given program.
+				// handleResponse will be called whenever we get a response.
 				new Thread(new PlayerListener(color,
 											  programs[color].getInputStream(), this)).start();
 			}
+			
 			board = new Board();
 			mode = REQUESTING_MOVE;
-			toPrograms[BLACK].println("genmove black");
-			toPrograms[BLACK].flush();
+			playerProgramsSTDIN[BLACK].println("genmove black");
+			playerProgramsSTDIN[BLACK].flush();
+			
 			// Wait for programs to finish
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				programs[color].waitFor();
 			}
-			if (!crashed) {if (winner == -1) { // Game not already resolved by resignation
-				winner = board.finalWinner();
+			
+			if (!crashed) {
+				if (winner == -1) { // Game not already resolved by resignation
+					winner = board.finalWinner();
+				}
 			}
-			}
+			
 			for (int c = BLACK; c < NUMBER_OF_PLAYER_COLORS; c++) {
-				toPrograms[c].close();
+				playerProgramsSTDIN[c].close();
 				programs[c].getInputStream().close();
 				programs[c].getOutputStream().close();
 				programs[c].getErrorStream().close();
 				programs[c].destroy();
 			}
-			out.close();
+			
+			sgfGameLogBetweenPlayers.close();
 		} catch (Throwable e) {
-			out.println("In " + filename + ":");
-			out.println(board);
-			e.printStackTrace(out);
-			out.flush();
-			out.close();
+			
+			sgfGameLogBetweenPlayers.println("In " + sgfGameLogBetweenPlayersFilename + ":");
+			sgfGameLogBetweenPlayers.println(board);
+			
+			e.printStackTrace(sgfGameLogBetweenPlayers);
+			
+			sgfGameLogBetweenPlayers.flush();
+			sgfGameLogBetweenPlayers.close();
+			
 			System.exit(1);
 		}
 		return winner;

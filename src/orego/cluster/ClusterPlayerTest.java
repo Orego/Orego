@@ -97,9 +97,18 @@ public class ClusterPlayerTest {
 	/* Tests relating to setup */
 	@Test
 	public void testShouldPublish() throws AccessException, RemoteException {
+		// verify that we bind when created and don't use the player index
 		verify(mockRegistry).rebind(eq(SearchController.SEARCH_CONTROLLER_NAME), (Remote) any());
 	}
 	
+	@Test
+	public void testShouldRebindWithNewPlayerIndexWhenSet() throws Exception {
+		player.setProperty("cluster_player_index", "2");
+		
+		// make certain that we rename ourselves
+		verify(mockRegistry).unbind(eq(SearchController.SEARCH_CONTROLLER_NAME));
+		verify(mockRegistry).bind(eq(SearchController.SEARCH_CONTROLLER_NAME + "2"), player);
+	}
 	@Test
 	public void testShouldResetSearchers() throws RemoteException {
 		player.reset();

@@ -7,7 +7,7 @@ import static orego.experiment.ExperimentConfiguration.*;
 public class GameBatch implements Runnable {
 
 	/** Command to run Orego, but without command line arguments. */
-	public static final String OREGO_BASE = JAVA_WITH_OREGO_CLASSPATH
+	private String oregoBaseCommand = JAVA_WITH_OREGO_CLASSPATH
 			+ " -ea -server -Xmx1024M orego.ui.Orego";
 
 	/**
@@ -15,12 +15,18 @@ public class GameBatch implements Runnable {
 	 *            element 0 is the host name.
 	 */
 	public static void main(String[] args) {
+		assert args.length == 1;
+		
+		launchGameBatches(args[0]);
+	}
+	
+	public static void launchGameBatches(String machineName) {
 		try {
-			System.out.println(java.util.Arrays.toString(args));
-			assert args.length == 1;
+			
 			for (int i = 0; i < GAMES_PER_HOST; i++) {
-				new Thread(new GameBatch(i, args[0])).start();
+				new Thread(new GameBatch(i, machineName)).start();
 			}
+			
 		} catch (Throwable e) {
 			e.printStackTrace(System.out);
 			System.exit(1);
@@ -30,6 +36,11 @@ public class GameBatch implements Runnable {
 	/** Number of the batch (used as part of the filename). */
 	private int batchNumber;
 
+	/** Sets the base Orego java command */
+	public void setOregoBaseCommand(String command) {
+		this.oregoBaseCommand = command;
+	}
+	
 	/**
 	 * First part (before the first period) of the hostname (used as part of the
 	 * filename).
@@ -45,7 +56,7 @@ public class GameBatch implements Runnable {
 	@Override
 	public void run() {
 		for (String condition : CONDITIONS) {
-			String orego = OREGO_BASE + " " + condition;
+			String orego = this.oregoBaseCommand + " " + condition;
 			runGames(orego, GNUGO);
 			runGames(GNUGO, orego);
 		}
@@ -58,11 +69,9 @@ public class GameBatch implements Runnable {
 			String fileStem = RESULTS_DIRECTORY + machine + "-b"
 			+ batchNumber + "-" + System.currentTimeMillis();
 			Game game;
-//			if (black.contains("Orego")) {
-//				game = new Game(fileStem + ".game", black + " debugfile=" + fileStem + ".debug", white);
-//			} else {
-				game = new Game(fileStem + ".sgf", black, white);				
-//			}
+
+			game = new Game(fileStem + ".sgf", black, white);
+			
 			wins[game.play()]++;
 		}
 	}

@@ -2,6 +2,7 @@
 
 # simple script to run the RMI registry and the number of instances requested for live integration testing
 # helpful guide: http://www.symkat.com/understanding-job-control-in-bash
+# Useful guide for getting RMI up and running: http://www.cs.man.ac.uk/~fellowsd/work/usingRMI.html
 
 echo "Reading in configuration..."
 
@@ -17,4 +18,4 @@ nohup ssh $HOSTNAME rmiregistry&
 
 echo "Spinning up server to listen at $HOSTNAME"
 
-java -ea -Xmx2048M -cp  $OREGO_CP -Djava.rmi.server.hostname=$HOSTNAME orego.ui.Orego player=ClusterPlayer threads=2 msec=2000
+nohup ssh $HOSTNAME java -ea -Xmx2048M -cp $OREGO_CP -Djava.rmi.server.hostname=$HOSTNAME orego.ui.Orego player=ClusterPlayer threads=2 msec=2000

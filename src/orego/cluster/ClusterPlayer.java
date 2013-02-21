@@ -9,6 +9,7 @@ import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.RESIGN;
 import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -40,6 +41,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	private static final String SEARCH_TIMEOUT_PROPERTY = "search_timeout";
 	private static final String REMOTE_PLAYER_PROPERTY = "remote_player";
 	private static final String MOVE_TIME_PROPERTY = "msec";
+	private static final String CLUSTER_PLAYER_INDEX = "cluster_player_index";
 	
 	// By default, use Lgrf2Player in the remote searchers
 	private String remotePlayerClass = Lgrf2Player.class.getName();
@@ -49,6 +51,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	private Map<String, String> remoteProperties;
 	
 	protected int resultsRemaining;
+	
+	/** the player index of this machine */
+	private int playerIndex = -1;
 	
 	private int nextSearcherId = 0;
 	
@@ -92,6 +97,47 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		// RNG used for fallback moves
 		random = new MersenneTwisterFast();
 
+		// we don't use a player index by default
+		bindRMI(playerIndex);
+	}
+	
+	/**
+	 * Unbinds an existing version of ourselves from the rmi registry.
+	 * @param int playerIndex an optional index parameter to allow multiple players. if it is < 0 we don't use it.
+	 */
+	protected void unbindRMI(int playerIndex) {
+		// check to see if we are in the local registry
+		Registry reg;
+		try {
+			reg = factory.getRegistry();
+			SearchController stub = (SearchController) UnicastRemoteObject.exportObject(this, 0);
+			
+			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME + playerIndex);
+			
+			for (String boundName : reg.list()) {
+				if (boundName == name) {
+					reg.unbind(boundName);
+					break;
+				}
+			}
+			
+		
+		} catch (RemoteException e) {
+			System.err.println("Fatal error. Could not publish ClusterPlayer to local registry.");
+			e.printStackTrace();
+			System.exit(1);
+		} catch (NotBoundException e) {
+			System.err.println("Fatal error. Could not unbind ClusterPlayer because it was not bound.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	/**
+	 * Method to actually bind this object in the RMI registry
+	 * @param int playerIndex an optional player index parameter to allow multiple players. If it is < 0 we don't use it.
+	 */
+	protected void bindRMI(int playerIndex) {
 		// Configure RMI to allow serving the ClusterPlayer class
 		RMIStartup.configureRmi(ClusterPlayer.class, RMIStartup.SECURITY_POLICY_FILE);
 		
@@ -100,7 +146,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		try {
 			reg = factory.getRegistry();
 			SearchController stub = (SearchController) UnicastRemoteObject.exportObject(this, 0);
-			reg.rebind(SearchController.SEARCH_CONTROLLER_NAME, stub);
+			
+			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME + playerIndex);
+			
+			reg.rebind(name, stub);
 			
 			// TODO: don't we need some cleanup code to unbind ourselves when we're finished?
 		} catch (RemoteException e) {
@@ -109,7 +158,6 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			System.exit(1);
 		}
 	}
-	
 	/**
 	 * Called by the TreeSearcher to add a new remote searcher
 	 * @throws RemoteException 
@@ -396,6 +444,15 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		if (key.equals(SEARCH_TIMEOUT_PROPERTY)) {
 			msecToTimeout = Long.parseLong(value);
 		}
+		if (key.equals(CLUSTER_PLAYER_INDEX)) {
+			this.playerIndex = Integer.parseInt(value);
+			
+			// rename ourselves
+			unbindRMI(this.playerIndex);
+			
+			bindRMI(this.playerIndex);
+		}
+		
 		if (key.equals(MOVE_TIME_PROPERTY)) {
 			msecToMove = Long.parseLong(value);
 		}
