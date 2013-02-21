@@ -9,6 +9,7 @@ import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
 import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.setBoardWidth;
 import static orego.experiment.Debug.debug;
 import static orego.experiment.Debug.*;
 import java.io.BufferedReader;
@@ -225,9 +226,15 @@ public class Orego {
 			if (arguments.countTokens() == 1) {
 				int width = parseInt(arguments.nextToken());
 				if (width == BOARD_WIDTH) {
+					System.out.println(BOARD_WIDTH);
 					player.reset();
 					acknowledge();
-				} else {
+				} else if(width == 9 || width == 19){
+					System.out.println(BOARD_WIDTH);
+					setBoardWidth(width);
+					System.out.println(BOARD_WIDTH);
+					acknowledge();
+				}else{
 					error("unacceptable size");
 				}
 			} else {

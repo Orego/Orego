@@ -37,7 +37,7 @@ public final class Coordinates {
 	// terms of others.
 
 	/** Width of the board, e.g., 9 or 19. */
-	public static final int BOARD_WIDTH = 19;
+	public static int BOARD_WIDTH = 19;
 
 	/** Number of points on the board. */
 	public static final int BOARD_AREA = BOARD_WIDTH * BOARD_WIDTH;
@@ -167,6 +167,8 @@ public final class Coordinates {
 		}
 		
 	}
+	
+	
 
 	/** Returns the int representation of the point at row r, column c. */
 	public static int at(int r, int c) {
@@ -359,6 +361,12 @@ public final class Coordinates {
 	 */
 	public static char rowToChar(int r) {
 		return (char) ((BOARD_WIDTH - r) + 'a' - 1);
+	}
+	
+	//sets the BOARD_WIDTH constant to given width
+	//default width is 19
+	public static void setBoardWidth(int width){
+		BOARD_WIDTH = width;
 	}
 
 	/** Returns the point represented by an sgf String. */

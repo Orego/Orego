@@ -26,7 +26,7 @@ public class AdjacentHeuristicTest {
 	}
 	
 	@Test
-	public void testEvaluate1(){
+	public void testFindCoordinates(){
 		board.play(at("c3"));
 		board.play(at("s2"));
 		heuristic.prepare(board);
@@ -38,7 +38,7 @@ public class AdjacentHeuristicTest {
 	}
 	/** Makes sure illegal moves aren't suggested */
 	@Test
-	public void testEvaluate2(){
+	public void testFindCoordinatesWithoutPieces(){
 		String[] problem = new String[] {
 			"...................",//19
 			"...................",//18
@@ -71,7 +71,7 @@ public class AdjacentHeuristicTest {
 	
 	/** Makes sure moves off the board aren't suggested */
 	@Test
-	public void testEvaluate3(){
+	public void testFindCoordinatesInCorners(){
 		board.play(at("a1"));
 		board.play(at("s2"));
 		heuristic.prepare(board);

@@ -2,6 +2,7 @@ package orego.heuristic;
 
 import orego.core.*;
 import static orego.core.Colors.VACANT;
+import static orego.core.Coordinates.NEIGHBORS;
 
 
 public class AdjacentHeuristic extends Heuristic{
@@ -17,10 +18,10 @@ public class AdjacentHeuristic extends Heuristic{
 		super.prepare(board);
 		int lastMove = board.getMove(board.getTurn() - 2);
 		//creates an array of points orthogonally adjacent to last move
-		int[] neighbors = {lastMove + 20, 
-				lastMove - 20, 
-				lastMove + 1,
-				lastMove - 1};
+		int[] neighbors = {NEIGHBORS[lastMove][0], 
+				NEIGHBORS[lastMove][1], 
+				NEIGHBORS[lastMove][2],
+				NEIGHBORS[lastMove][3]};
 		for(int i = 0; i < 4; i++){
 			if(board.getColor(neighbors[i]) == VACANT){
 				recommend(neighbors[i]);
