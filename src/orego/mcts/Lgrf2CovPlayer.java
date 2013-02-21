@@ -124,13 +124,4 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		}
 		return result;
 	}
-
-	public static void main(String[] args) {
-		Board b = new Board();
-		for(int idx = 0; idx < b.getVacantPoints().size(); idx++) {
-			int p = b.getVacantPoints().get(idx);
-			System.out.println(p);
-			System.out.println(b.isFeasible(p));
-		}
-	}
 }
