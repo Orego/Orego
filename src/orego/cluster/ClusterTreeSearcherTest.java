@@ -121,10 +121,13 @@ public class ClusterTreeSearcherTest {
 	public void testShouldProperlyConnectToRegistry() throws Exception {
 		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "3"))).thenReturn(mockController);
 		
-		SearchController controller  = ClusterTreeSearcher.tryToConnectToController(mockRegistry, 3, 1000 * 3); // three second timeout
+		ClusterTreeSearcher searcher = ClusterTreeSearcher.connectToRMI("dummy.129.2*", 3); 
 		
-		assertSame(mockController, controller);
+		assertNotNull(searcher);
+		assertEquals(3, searcher.controllerIndex);
 	}
+	
+	
 	@Test
 	public void testShouldInitializeProperSubclassUsingReflection() {
 		searcher.setPlayer(Lgrf2Player.class.getName());
