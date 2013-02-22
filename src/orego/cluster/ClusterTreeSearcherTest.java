@@ -29,27 +29,31 @@ public class ClusterTreeSearcherTest {
 	private RegistryFactory factory;
 	
 	@Mock
-	private Registry registry;
+	private Registry mockRegistry;
 	
 	@Mock
-	private SearchController controller;
+	private SearchController mockController;
 	
 	@Mock
 	private StatisticalPlayer player;
 	
 	@Before
 	public void setup() throws Exception {
-		when(factory.getRegistry()).thenReturn(registry);
+		when(factory.getRegistry()).thenReturn(mockRegistry);
+		when(factory.getRegistry((String)any())).thenReturn(mockRegistry);
+		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME))).thenReturn(mockController);
 		
+		ClusterTreeSearcher.factory = factory;
 		ClusterPlayer.factory = factory;
 		
 		// now we setup the mock cluster player
-		doNothing().when(controller).addSearcher(any(TreeSearcher.class));
+		doNothing().when(mockController).addSearcher(any(TreeSearcher.class));
 				
-		searcher = new ClusterTreeSearcher(controller);
+		// start it with the default player index (no indexing, just straight name)
+		searcher = new ClusterTreeSearcher(mockController, -1);
 		
 		// make certain we add ourselves
-		verify(controller).addSearcher(searcher);
+		verify(mockController).addSearcher(searcher);
 
 		searcher.setPlayer(player);
 		
@@ -57,6 +61,15 @@ public class ClusterTreeSearcherTest {
 		// TODO: if I had more time, I would like to check the null edge case guards in the methods
 	}
 	
+	@Test
+	public void testShouldRequestProperClusterPlayerWithPlayerIndex() throws Exception {
+		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "4"))).thenReturn(mockController);
+		
+		searcher = ClusterTreeSearcher.connectToRMI("192.random.123", 4);
+		assertEquals(4, searcher.controllerIndex);
+		
+		verify(mockRegistry).lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "4"));
+	}
 	@Test
 	public void testShouldResetOnPlayer() throws Exception {
 		searcher.reset();
@@ -80,46 +93,37 @@ public class ClusterTreeSearcherTest {
 		Thread.sleep(100);
 		
 		// did we call back to the controller?
-		verify(controller).acceptResults(searcher, runs, wins);
+		verify(mockController).acceptResults(searcher, runs, wins);
 	}
 	
 	@Test
 	public void testShouldAddItselfToClusterPlayer() throws Exception {
-		verify(controller).addSearcher(searcher);
+		verify(mockController).addSearcher(searcher);
 	}
 	
 	@Test
 	public void testShouldWaitBeforeAttemptingReconnect() throws Exception {
-		RegistryFactory mockRegistry = mock(RegistryFactory.class);
-		when(mockRegistry.getRegistry(any(String.class))).thenThrow(new RemoteException());
+		// make certain to fail
+		when(mockRegistry.lookup(any(String.class))).thenThrow(new RemoteException());
 		
 		long startTime = System.currentTimeMillis();
 		
-		ClusterTreeSearcher.factory = mockRegistry;
-		
-		Registry reg = ClusterTreeSearcher.tryToConnectToRegistry("dummy.com", 1000 * 3); // three second timeout
+		SearchController controller  = ClusterTreeSearcher.tryToConnectToController(mockRegistry, 3, 1000 * 3); // three second timeout
 		
 		// we subtract 50 as a variation parameter to make certain we waited the appropriate amount of time
 		assertTrue(System.currentTimeMillis() - startTime >= 1000 * 3 - 50);
 		
-		assertNull(reg);
-		
-		
+		assertNull(controller);
+	
 	}
 	
 	@Test
 	public void testShouldProperlyConnectToRegistry() throws Exception {
+		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "3"))).thenReturn(mockController);
 		
-		RegistryFactory mockRegistry = mock(RegistryFactory.class);
-		when(mockRegistry.getRegistry(any(String.class))).thenReturn(registry);
+		SearchController controller  = ClusterTreeSearcher.tryToConnectToController(mockRegistry, 3, 1000 * 3); // three second timeout
 		
-		ClusterTreeSearcher.factory = mockRegistry;
-		
-		Registry reg = ClusterTreeSearcher.tryToConnectToRegistry("dummy.com", 1000 * 3); // three second timeout
-		
-		assertSame(reg, registry);
-		
-		
+		assertSame(mockController, controller);
 	}
 	@Test
 	public void testShouldInitializeProperSubclassUsingReflection() {

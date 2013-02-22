@@ -103,19 +103,20 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	/**
 	 * Unbinds an existing version of ourselves from the rmi registry.
-	 * @param int playerIndex an optional index parameter to allow multiple players. if it is < 0 we don't use it.
+	 * @param playerIndex an optional index parameter to allow multiple players. if it is < 0 we don't use it.
 	 */
 	protected void unbindRMI(int playerIndex) {
 		// check to see if we are in the local registry
 		Registry reg;
 		try {
-			reg = factory.getRegistry();
-			SearchController stub = (SearchController) UnicastRemoteObject.exportObject(this, 0);
+			UnicastRemoteObject.unexportObject(this, true);
 			
-			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME + playerIndex);
+			reg = factory.getRegistry();
+			
+			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME);
 			
 			for (String boundName : reg.list()) {
-				if (boundName == name) {
+				if (boundName.equals(name)) {
 					reg.unbind(boundName);
 					break;
 				}
@@ -147,7 +148,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			reg = factory.getRegistry();
 			SearchController stub = (SearchController) UnicastRemoteObject.exportObject(this, 0);
 			
-			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME + playerIndex);
+			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME);
 			
 			reg.rebind(name, stub);
 			
@@ -445,10 +446,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			msecToTimeout = Long.parseLong(value);
 		}
 		if (key.equals(CLUSTER_PLAYER_INDEX)) {
-			this.playerIndex = Integer.parseInt(value);
-			
+
 			// rename ourselves
 			unbindRMI(this.playerIndex);
+			
+			this.playerIndex = Integer.parseInt(value);
 			
 			bindRMI(this.playerIndex);
 		}

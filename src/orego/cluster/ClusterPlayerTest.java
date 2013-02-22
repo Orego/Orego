@@ -39,6 +39,8 @@ public class ClusterPlayerTest {
 		when(mockFactory.getRegistry()).thenReturn(mockRegistry);
 		ClusterPlayer.factory = mockFactory;
 		player = new ClusterPlayer();
+		// add to list of bound objects
+		when(mockRegistry.list()).thenReturn(new String[] {SearchController.SEARCH_CONTROLLER_NAME});
 		//searcher = new MockTreeSearcher(player);
 		player.reset();
 		player.addSearcher(searcher);
@@ -103,11 +105,48 @@ public class ClusterPlayerTest {
 	
 	@Test
 	public void testShouldRebindWithNewPlayerIndexWhenSet() throws Exception {
+				
+		// test actually setting on the player
 		player.setProperty("cluster_player_index", "2");
+		
+
+		// make certain that we rename ourselves
+		verify(mockRegistry).unbind(eq(SearchController.SEARCH_CONTROLLER_NAME));
+		verify(mockRegistry).rebind(eq(SearchController.SEARCH_CONTROLLER_NAME + "2"), (Remote) any());
+	}
+	
+	@Test
+	public void testShouldUnbindWhenTold() throws Exception {
+		
+		// unbind default
+		player.unbindRMI(-1);
 		
 		// make certain that we rename ourselves
 		verify(mockRegistry).unbind(eq(SearchController.SEARCH_CONTROLLER_NAME));
-		verify(mockRegistry).bind(eq(SearchController.SEARCH_CONTROLLER_NAME + "2"), player);
+		
+		player.bindRMI(4);
+		
+		when(mockRegistry.list()).thenReturn(new String[] {SearchController.SEARCH_CONTROLLER_NAME + "4"});
+		
+		// now make sure that we unbind
+		player.unbindRMI(4);
+		
+		verify(mockRegistry).unbind(eq(SearchController.SEARCH_CONTROLLER_NAME + "4"));
+				
+	}
+	
+	@Test
+	public void testShouldBindWhenTold() throws Exception {
+		// add a list of currently bound objects
+		when(mockRegistry.list()).thenReturn(new String[] {SearchController.SEARCH_CONTROLLER_NAME});
+		
+		// unbind default
+		player.unbindRMI(-1);
+		
+		player.bindRMI(4);
+		
+		
+		verify(mockRegistry).rebind(eq(SearchController.SEARCH_CONTROLLER_NAME + "4"), (Remote) any());
 	}
 	@Test
 	public void testShouldResetSearchers() throws RemoteException {

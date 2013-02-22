@@ -3,6 +3,7 @@ package orego.cluster;
 import static orego.core.Coordinates.pointToString;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -33,6 +34,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/** a reference to the player we are controller */
 	private StatisticalPlayer player;
 	
+	/** the index of the specific controller we are connected to */
+	protected int controllerIndex;
+	
 	/** maximum amount of time we are willing to wait for a connection*/
 	protected static int MAX_WAIT = 1000 * 60 * 5; // 5 minutes
 
@@ -48,66 +52,83 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public static void main(String[] args) {
 		// make sure that we were given a host to connect to
 		String controllerHost;
-		if(args.length == 0) {
-			System.out.println("Usage: java orego.cluster.ClusterTreeSearcher host");
+		int controllerIndex = -1;
+		if(args.length < 2) {
+			System.out.println("Usage: java orego.cluster.ClusterTreeSearcher host machine_index");
 			return;
 		}
 		else {
 			controllerHost = args[0];
-			System.out.println("Trying to connect to host: " + controllerHost);
+			controllerIndex = Integer.parseInt(args[1]);
+			System.out.println("Trying to connect to host: " + controllerHost + " with machine index: " + controllerIndex);
 		}
 		
+		// try to connect to RMI and get a reference to a controller
+		ClusterTreeSearcher searcher = connectToRMI(controllerHost, controllerIndex);
+		
+		// now wait around until someone kills us
+		Scanner scanner = new Scanner(System.in);
+		
+		// RMI calls will happen on the background thread
+		while (!scanner.hasNextLine() || !scanner.nextLine().equals("die"));
+		
+		// forcibly unregister ourselves so RMI will let us exit
+		searcher.removeFromController();
+	
+	}
+
+	/**
+	 * Attempts to connect to RMI
+	 * @param hostname the name of the remote RMI registry
+	 * @param controllerIndex the index of the cluster controller we wish to connect to. Allows multiple instances.
+	 */
+	protected static ClusterTreeSearcher connectToRMI(String hostname, int controllerIndex) {
 		// we boot ourselves up and connect to the friendly neighborhood server
 		// Do we need the permissions?
 		// we do not need to publish any classes, so pass null for the first argument to configureRmi
 		RMIStartup.configureRmi(null, RMIStartup.SECURITY_POLICY_FILE);
 		
 		try {
-			Registry reg = tryToConnectToRegistry(controllerHost, MAX_WAIT);
+			// this call does not actually try to connect; RMI only connects
+			// when we call .lookup()
+			Registry reg = factory.getRegistry(hostname);
 			
 			if (reg == null)
 				System.exit(1);
 			
-			SearchController controller = (SearchController) reg.lookup(SearchController.SEARCH_CONTROLLER_NAME);
 			
-			ClusterTreeSearcher searcher = new ClusterTreeSearcher(controller);
+			SearchController controller = tryToConnectToController(reg, controllerIndex, MAX_WAIT);
 			
-			// now wait around until someone kills us
-			Scanner scanner = new Scanner(System.in);
-			
-			// RMI calls will happen on the background thread
-			while (!scanner.hasNextLine() || !scanner.nextLine().equals("die"));
-			
-			controller.removeSearcher(searcher);
-			
-			// forcibly unregister our callback so RMI will let us exit
-			UnicastRemoteObject.unexportObject(searcher, true);
-			
+			return new ClusterTreeSearcher(controller, controllerIndex);
 		} catch (RemoteException e) {
 			System.err.println("Fatal error. Could not connect to ClusterPlayer.");
 			e.printStackTrace();
 			System.exit(1);
-		} catch (NotBoundException e) {
-			System.err.println("Fatal error. Could not find ClusterPlayer.");
-			e.printStackTrace();
-			System.exit(1);
-		}
+		} 
+		
+		return null;
 	}
-
-	/** simple utility method to continually try to connect to the registry until
-	 * the timeout limit is reached.
+	/** 
+	 * simple utility method to continually try to connect to the registry until
+	 * the timeout limit is reached. Because RMI makes the actual connection only
+	 * when you request an object, you must pass in the name you wish to request.
+	 * @param registry the registry we wish to connect to.
 	 * @param timeout the maximum wait time, in milliseconds
 	 * @parma host the host we wish to connect to.
 	 */
-	protected static Registry tryToConnectToRegistry(String host, int timeout) {
+	protected static SearchController tryToConnectToController(Registry registry, int playerIndex, int timeout) {
 		int totalTime = 0;
 		
 		while (totalTime < timeout) {
 			try {
-				Registry reg = factory.getRegistry(host);
+				// if player index < 0, go with default
+				String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME);
 				
-				return reg;
-			} catch (RemoteException e) {
+				SearchController controller = (SearchController) registry.lookup(name);
+				
+				return controller;
+			} catch (Exception e) { // we have to swallow any exception because java doesn't allow multiple
+									// acception handling (we need Java 7)
 				if (totalTime >= timeout) {
 					System.out.println("Connection attempts timed out");
 					return null;
@@ -126,9 +147,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		return null;
 	}
-	public ClusterTreeSearcher(SearchController controller) throws RemoteException {
+	public ClusterTreeSearcher(SearchController controller, int controllerIndex) throws RemoteException {
 		this.consideredPoints = null;
-		
+		this.controllerIndex = controllerIndex;
 		this.controller = controller;
 		
 		
@@ -144,6 +165,22 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 	}
 
+	
+	/** Removes ourselves from our controller and un-publishes ourselves from the RMI registry*/
+	public void removeFromController() {
+		if (this.controller == null) return;
+		
+		try {
+			this.controller.removeSearcher(this);
+			
+			UnicastRemoteObject.unexportObject(this, true);
+			
+		} catch (RemoteException e) {
+			System.err.println("Could not remove ClusterTreeSearcher from the controller.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 	
 	@Override
 	public void reset() throws RemoteException {
