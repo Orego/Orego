@@ -16,7 +16,7 @@ public class Collate {
 		// total playouts and moves
 		// Gather the data
 		for (String name : dir.list()) {
-			if (name.endsWith(".game")) {
+			if (name.endsWith(".sgf")) {
 				// TODO This should be an array of longs; ints overflow
 				// Also check where the numbers are being generated; the same problem may occur there.
 				int[] stats = null;
