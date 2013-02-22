@@ -108,7 +108,7 @@ public class ClusterTreeSearcherTest {
 		
 		long startTime = System.currentTimeMillis();
 		
-		SearchController controller  = ClusterTreeSearcher.tryToConnectToController(mockRegistry, 3, 1000 * 3); // three second timeout
+		SearchController controller = ClusterTreeSearcher.tryToConnectToController(mockRegistry, 3, 1000 * 3); // three second timeout
 		
 		// we subtract 50 as a variation parameter to make certain we waited the appropriate amount of time
 		assertTrue(System.currentTimeMillis() - startTime >= 1000 * 3 - 50);
