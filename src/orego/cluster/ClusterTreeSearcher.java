@@ -29,13 +29,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	private static final long serialVersionUID = 5944276914907386971L;
 
 	/** our internal reference to our parent search controller. Serialized over RMI */
-	private SearchController controller;
+	protected SearchController controller;
 	
 	/** a reference to the player we are controller */
 	private StatisticalPlayer player;
 	
 	/** the index of the specific controller we are connected to */
 	protected int controllerIndex;
+	
+	/** the hostname of the main controller RMI server*/
+	protected String controllerHost;
 	
 	/** maximum amount of time we are willing to wait for a connection*/
 	protected static int MAX_WAIT = 1000 * 60 * 5; // 5 minutes
@@ -49,7 +52,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		// make sure that we were given a host to connect to
 		String controllerHost;
 		int controllerIndex = -1;
@@ -64,7 +67,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		
 		// try to connect to RMI and get a reference to a controller
-		ClusterTreeSearcher searcher = connectToRMI(controllerHost, controllerIndex);
+		ClusterTreeSearcher searcher = new ClusterTreeSearcher(controllerHost, controllerIndex);
 		
 		// now wait around until someone kills us
 		Scanner scanner = new Scanner(System.in);
@@ -80,33 +83,32 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/**
 	 * Attempts to connect to RMI
 	 * @param hostname the name of the remote RMI registry
-	 * @param controllerIndex the index of the cluster controller we wish to connect to. Allows multiple instances.
 	 */
-	protected static ClusterTreeSearcher connectToRMI(String hostname, int controllerIndex) {
+	protected void connectToRMI() throws RemoteException {
 		// we boot ourselves up and connect to the friendly neighborhood server
 		// Do we need the permissions?
 		// we do not need to publish any classes, so pass null for the first argument to configureRmi
 		RMIStartup.configureRmi(null, RMIStartup.SECURITY_POLICY_FILE);
 		
-		try {
-			// this call does not actually try to connect; RMI only connects
-			// when we call .lookup()
-			Registry reg = factory.getRegistry(hostname);
-			
-			if (reg == null)
-				System.exit(1);
-			
-			
-			SearchController controller = tryToConnectToController(reg, controllerIndex, MAX_WAIT);
-			
-			return new ClusterTreeSearcher(controller, controllerIndex);
-		} catch (RemoteException e) {
-			System.err.println("Fatal error. Could not connect to ClusterPlayer.");
-			e.printStackTrace();
-			System.exit(1);
-		} 
+		// this call does not actually try to connect; RMI only connects
+		// when we call .lookup()
+		Registry reg = factory.getRegistry(controllerHost);
 		
-		return null;
+		if (reg == null)
+			throw new RemoteException();
+		
+		
+		SearchController controller = tryToConnectToController(reg, controllerIndex, MAX_WAIT);
+		
+		this.controller = controller;
+		
+		this.reset();
+		
+		if (controller == null) throw new RemoteException();
+		
+		controller.addSearcher(this);
+			
+		
 	}
 	/** 
 	 * simple utility method to continually try to connect to the registry until
@@ -116,7 +118,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	 * @param timeout the maximum wait time, in milliseconds
 	 * @parma host the host we wish to connect to.
 	 */
-	protected static SearchController tryToConnectToController(Registry registry, int playerIndex, int timeout) {
+	protected SearchController tryToConnectToController(Registry registry, int playerIndex, int timeout) {
 		int totalTime = 0;
 		
 		while (totalTime < timeout) {
@@ -128,7 +130,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				
 				return controller;
 			} catch (Exception e) { // we have to swallow any exception because java doesn't allow multiple
-									// acception handling (we need Java 7)
+									// exception handling (we need Java 7)
 				if (totalTime >= timeout) {
 					System.out.println("Connection attempts timed out");
 					return null;
@@ -147,22 +149,11 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		return null;
 	}
-	public ClusterTreeSearcher(SearchController controller, int controllerIndex) throws RemoteException {
+	public ClusterTreeSearcher(String hostname, int controllerIndex) throws RemoteException {
 		this.consideredPoints = null;
 		this.controllerIndex = controllerIndex;
-		this.controller = controller;
-		
-		
-		try {
-			this.reset();
-			controller.addSearcher(this);
-			
-		} catch (RemoteException e) {
-			System.err.println("Fatal error. Could not add ourselves to ClusterPlayer.");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
+	
+		connectToRMI();
 	}
 
 	
@@ -190,6 +181,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 	}
 
+	@Override
+	public void kill() throws RemoteException {
+		if (this.controller == null) return;
+		
+		this.removeFromController();
+		
+		// try to reconnect
+		this.connectToRMI();
+	}
+	
 	@Override
 	public void setKomi(double komi) throws RemoteException {
 		if (player == null) return;

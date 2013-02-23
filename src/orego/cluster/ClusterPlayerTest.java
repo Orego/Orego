@@ -104,6 +104,14 @@ public class ClusterPlayerTest {
 	}
 	
 	@Test
+	public void testShouldNotForwardControllerIndexToClient() throws Exception {
+		
+		player.setProperty("cluster_player_index", "4");
+		
+		verify(searcher, never()).setProperty(eq("cluster_player_index"), (String)any());
+	}
+	
+	@Test
 	public void testShouldRebindWithNewPlayerIndexWhenSet() throws Exception {
 				
 		// test actually setting on the player

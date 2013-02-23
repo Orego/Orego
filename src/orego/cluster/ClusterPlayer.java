@@ -453,11 +453,13 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			this.playerIndex = Integer.parseInt(value);
 			
 			bindRMI(this.playerIndex);
+			
+			return;
 		}
-		
 		if (key.equals(MOVE_TIME_PROPERTY)) {
 			msecToMove = Long.parseLong(value);
 		}
+		
 		// Try to set the property on super, it's ok if it fails
 		try {
 			super.setProperty(key, value);
@@ -465,6 +467,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 		// Store the property for future use
 		remoteProperties.put(key, value);
+		
 		// Try to set it on all currently connected searchers
 		// very useful for forwarding GTP commands
 		try {

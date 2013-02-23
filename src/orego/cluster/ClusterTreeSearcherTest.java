@@ -39,6 +39,7 @@ public class ClusterTreeSearcherTest {
 	
 	@Before
 	public void setup() throws Exception {
+		ClusterTreeSearcher.MAX_WAIT = 1000 * 5 * 60;
 		when(factory.getRegistry()).thenReturn(mockRegistry);
 		when(factory.getRegistry((String)any())).thenReturn(mockRegistry);
 		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME))).thenReturn(mockController);
@@ -50,7 +51,7 @@ public class ClusterTreeSearcherTest {
 		doNothing().when(mockController).addSearcher(any(TreeSearcher.class));
 				
 		// start it with the default player index (no indexing, just straight name)
-		searcher = new ClusterTreeSearcher(mockController, -1);
+		searcher = new ClusterTreeSearcher("dummy.3813*", -1);
 		
 		// make certain we add ourselves
 		verify(mockController).addSearcher(searcher);
@@ -65,7 +66,10 @@ public class ClusterTreeSearcherTest {
 	public void testShouldRequestProperClusterPlayerWithPlayerIndex() throws Exception {
 		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "4"))).thenReturn(mockController);
 		
-		searcher = ClusterTreeSearcher.connectToRMI("192.random.123", 4);
+		searcher = new ClusterTreeSearcher("192.random.123", 4);
+		
+		assertSame(mockController, searcher.controller);
+		
 		assertEquals(4, searcher.controllerIndex);
 		
 		verify(mockRegistry).lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "4"));
@@ -98,22 +102,25 @@ public class ClusterTreeSearcherTest {
 	
 	@Test
 	public void testShouldAddItselfToClusterPlayer() throws Exception {
+		// adds itself on initialization
 		verify(mockController).addSearcher(searcher);
 	}
 	
-	@Test
+	@Test(expected=RemoteException.class)
 	public void testShouldWaitBeforeAttemptingReconnect() throws Exception {
 		// make certain to fail
 		when(mockRegistry.lookup(any(String.class))).thenThrow(new RemoteException());
 		
+		ClusterTreeSearcher.MAX_WAIT = 1000 * 2;
+		
 		long startTime = System.currentTimeMillis();
 		
-		SearchController controller = ClusterTreeSearcher.tryToConnectToController(mockRegistry, 3, 1000 * 3); // three second timeout
+		searcher = new ClusterTreeSearcher("dummy.123*", 3);
 		
 		// we subtract 50 as a variation parameter to make certain we waited the appropriate amount of time
 		assertTrue(System.currentTimeMillis() - startTime >= 1000 * 3 - 50);
 		
-		assertNull(controller);
+		assertNull(searcher.controller);
 	
 	}
 	
@@ -121,10 +128,11 @@ public class ClusterTreeSearcherTest {
 	public void testShouldProperlyConnectToRegistry() throws Exception {
 		when(mockRegistry.lookup(eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "3"))).thenReturn(mockController);
 		
-		ClusterTreeSearcher searcher = ClusterTreeSearcher.connectToRMI("dummy.129.2*", 3); 
+		ClusterTreeSearcher searcher = new ClusterTreeSearcher("dummy.129.2*", 3); 
 		
 		assertNotNull(searcher);
 		assertEquals(3, searcher.controllerIndex);
+		assertSame(mockController, searcher.controller);
 	}
 	
 	
