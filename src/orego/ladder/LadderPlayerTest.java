@@ -7,12 +7,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LadderPlayerTest {
+	private LadderPlayer player;
 	private Orego game;
 	
 	@Before
 	public void setUp() {
-		String args[] = new String[0];
-		game = new Orego(args);
+		player = new LadderPlayer();
 	}
 	@Test
 	public void testPlayLadder() {
@@ -39,8 +39,11 @@ public class LadderPlayerTest {
 	          // ABCDEFGHJKLMNOPQRST
 		};
 		
-		game.getPlayer().getBoard().setUpProblem(BLACK, problem);
-		game.handleCommand("genmove black");
+		System.out.println(player.getBoard());
+		
+		player.getBoard().setUpProblem(BLACK, problem);
+		//System.err.println(player.bestMove());
+		//game.handleCommand("genmove black");
 	}
 
 }

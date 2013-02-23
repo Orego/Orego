@@ -15,6 +15,12 @@ public class LadderPlayer extends Lgrf2Player {
 	/** Copy of the board for playing out ladders. */
 	private Board ladBoard;
 	
+	McRunnable runnable;
+
+	public LadderPlayer() {
+		 ladBoard = new Board();
+	}
+	
 	@Override
 	/** calls playOutLadders after stopping threads to bias stored moves*/	
 	public int bestMove(){
@@ -54,6 +60,9 @@ public class LadderPlayer extends Lgrf2Player {
 	 * Plays out every ladder and biases the search tree.
 	 */
 	public void playOutLadders() {
+
+		runnable = new McRunnable(this, null);
+		
 		// get the ladders
 		IntSet ladderLiberties = libertiesOfLadders(Colors.BLACK);
 		int numberOfBlackLadders = ladderLiberties.size();
@@ -61,8 +70,11 @@ public class LadderPlayer extends Lgrf2Player {
 		
 		// play out each ladder separately
 		for (int i = 0; i < ladderLiberties.size(); i++) {
+			
 			// we'll be moving, so we use a local copy of the board
 			ladBoard.copyDataFrom(getBoard());
+			runnable.copyDataFrom(getBoard());
+			
 			int liberty = ladderLiberties.get(i);
 			int insideColor = (i < numberOfBlackLadders) ? Colors.BLACK : Colors.WHITE;
 			boolean insideWon;
@@ -76,6 +88,7 @@ public class LadderPlayer extends Lgrf2Player {
 				// inside player policy: play in my only liberty
 				int insidePlaysHere = liberty;
 				ladBoard.play(insidePlaysHere);
+				runnable.acceptMove(insidePlaysHere);
 				if (ladBoard.getLibertyCount(insidePlaysHere) >= 3)	{
 					// inside player is free
 					insideWon = true;
@@ -95,13 +108,12 @@ public class LadderPlayer extends Lgrf2Player {
 					}
 				}
 				ladBoard.play(pointWithMostVacantNeighbors);
+				runnable.acceptMove(pointWithMostVacantNeighbors);
 				if (ladBoard.getColor(insidePlaysHere) != insideColor) {
 					// inside player was captured
 					insideWon = false;
 					break;
 				}
-				
-				
 				
 				// add code here looking for outside stones in atari
 				
@@ -113,10 +125,16 @@ public class LadderPlayer extends Lgrf2Player {
 			// - if inside player loses, he doesn't want to play here and 
 			//   *neither does outside player* (to allow inside player to do so)
 			if (insideWon) {
-				getRoot().addWins(liberty, 10);
+				for (int j = 0; j < 500; j++) {
+					incorporateRun(insideColor, runnable);
+				}
+				//getRoot().addWins(liberty, 10);
 				System.err.println("Biasing in favor of " + Coordinates.pointToString(liberty));
 			} else {
-				getRoot().addLosses(liberty, 10);
+				for (int j = 0; j < 500; j++) {
+					incorporateRun(Colors.opposite(insideColor), runnable);
+				}
+				//getRoot().addLosses(liberty, 10);
 				System.err.println("Biasing against " + Coordinates.pointToString(liberty));
 
 			}
