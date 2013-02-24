@@ -229,7 +229,11 @@ public class Orego {
 					player.reset();
 					acknowledge();
 				} else if(width == 9 || width == 19){
-					setBoardWidth(width);
+					try{
+						setBoardWidth(width);
+					}catch(IndexOutOfBoundsException e){
+						error("unacceptable size");
+					}
 					player.reset();
 					acknowledge();
 				}else{

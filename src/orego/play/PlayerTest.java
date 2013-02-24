@@ -194,18 +194,18 @@ public class PlayerTest {
 
 	}
 
-//	@Test
-//	public void testSgf() {
-//
-//		player.setUpSgf("testFiles/blunder.1.sgf", 1);
-//		assertEquals(BLACK, player.getBoard().getColor(Coordinates.at("a18")));
-//		assertEquals(BLACK, player.getBoard().getColor(Coordinates.at("a17")));
-//		assertEquals(BLACK, player.getBoard().getColor(Coordinates.at("b17")));
-//		assertEquals(WHITE, player.getBoard().getColor(Coordinates.at("f17")));
-//		assertEquals(WHITE, player.getBoard().getColor(Coordinates.at("d16")));
-//		assertEquals(WHITE, player.getBoard().getColor(Coordinates.at("j16")));
-//
-//	}
+	@Test
+	public void testSgf() {
+
+		player.setUpSgf("testFiles/blunder.1.sgf", 1);
+		assertEquals(BLACK, player.getBoard().getColor(Coordinates.at("a18")));
+		assertEquals(BLACK, player.getBoard().getColor(Coordinates.at("a17")));
+		assertEquals(BLACK, player.getBoard().getColor(Coordinates.at("b17")));
+		assertEquals(WHITE, player.getBoard().getColor(Coordinates.at("f17")));
+		assertEquals(WHITE, player.getBoard().getColor(Coordinates.at("d16")));
+		assertEquals(WHITE, player.getBoard().getColor(Coordinates.at("j16")));
+
+	}
 
 	@Test
 	public void testUnknownProperty() {

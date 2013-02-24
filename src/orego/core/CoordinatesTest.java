@@ -1,7 +1,34 @@
 package orego.core;
 
-import static org.junit.Assert.*;
-import static orego.core.Coordinates.*;
+import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.EXTENDED_BOARD_AREA;
+import static orego.core.Coordinates.LARGE_KNIGHT_NEIGHBORHOOD;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.THIRD_AND_FOURTH_LINE_POINTS;
+import static orego.core.Coordinates.THIRD_OR_FOURTH_LINE;
+import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.column;
+import static orego.core.Coordinates.columnToChar;
+import static orego.core.Coordinates.columnToString;
+import static orego.core.Coordinates.distance;
+import static orego.core.Coordinates.east;
+import static orego.core.Coordinates.manhattanDistance;
+import static orego.core.Coordinates.north;
+import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.row;
+import static orego.core.Coordinates.rowToChar;
+import static orego.core.Coordinates.rowToString;
+import static orego.core.Coordinates.setBoardWidth;
+import static orego.core.Coordinates.sgfToPoint;
+import static orego.core.Coordinates.south;
+import static orego.core.Coordinates.west;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class CoordinatesTest {
@@ -125,6 +152,22 @@ public class CoordinatesTest {
 	@Test
 	public void testManhattanDistance() {
 		assertEquals(7, manhattanDistance(at("c4"), at("f8")));
+	}
+	
+	/** THis test will throw an IndexOutOfBounds exception, and therefore fail, 
+	 * on the attempt to set BOARD_WIDTH to 8. This means setBoardWidth is working correctly.
+	 * 
+	 */
+	@Test(expected=IndexOutOfBoundsException.class)
+	public void testSetBoardWidth(){
+		setBoardWidth(9);
+		assertEquals(9, BOARD_WIDTH);
+		setBoardWidth(19);
+		assertEquals(19, BOARD_WIDTH);
+		try{
+			setBoardWidth(8);
+		}catch(IndexOutOfBoundsException e){
+		}
 	}
 
 }

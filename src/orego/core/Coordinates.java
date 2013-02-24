@@ -365,10 +365,17 @@ public final class Coordinates {
 		return (char) ((BOARD_WIDTH - r) + 'a' - 1);
 	}
 	
-	//sets the BOARD_WIDTH constant to given width
-	//default width is 19
+	/**
+	 * Sets BOARD_WIDTH to given width
+	 * Default width is 19, can be set to 9 or 19
+	 */
 	public static void setBoardWidth(int width){
-		BOARD_WIDTH = width;
+		if(width == 9 || width == 19){
+			BOARD_WIDTH = width;
+		}else{
+			throw new IndexOutOfBoundsException();
+		}
+		
 	}
 
 	/** Returns the point represented by an sgf String. */
