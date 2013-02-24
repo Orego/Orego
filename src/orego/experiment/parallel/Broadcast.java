@@ -26,6 +26,11 @@ public class Broadcast {
 		spinUpRemoteSearchers();
 	}
 	
+	/**
+	 * TODO: this method might be useless because we log output to a file. 
+	 * @param p
+	 * @throws Exception
+	 */
 	private static void pipeOutput(Process p) throws Exception {
 		final Process process = p;
 		Runnable listener = new Runnable() {
@@ -59,8 +64,21 @@ public class Broadcast {
 			
 			final Process process = pBuilder.start();
 			processes.add(process);
-			// whip up a listener to pipe the output
-			pipeOutput(process);
+		}
+		
+		
+	}
+	
+	private static void spinUpServer() throws Exception {
+		ArrayList<Process> processes = new ArrayList<Process>();
+
+		for (String remoteHost : ExperimentConfiguration.HOSTS) {
+			String javaCommand = JAVA_WITH_OREGO_CLASSPATH + " orego.experiment.parallel.GameBatch " + remoteHost + "&>" + RESULTS_DIRECTORY + remoteHost + ".batch";
+			
+			ProcessBuilder builder = new ProcessBuilder("nohup", "ssh", remoteHost, javaCommand, "&");
+
+			final Process process = builder.start();
+			processes.add(process);
 		}
 		
 		// make sure we wait for each process
@@ -68,10 +86,6 @@ public class Broadcast {
 			process.waitFor();
 		}
 		
-	}
-	
-	private static void spinUpServer() throws Exception {
-		// todo: fire up a new game batch on the server machine.
 		
 	}
 }
