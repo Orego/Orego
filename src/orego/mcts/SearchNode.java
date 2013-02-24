@@ -205,7 +205,7 @@ public class SearchNode implements Poolable<SearchNode> {
 		}
 		wins += getWins(PASS);
 		runs += getRuns(PASS);
-		return (float) (1.0 * wins / runs);
+		return 1.0f * wins / runs;
 	}
 
 	/**
@@ -247,12 +247,12 @@ public class SearchNode implements Poolable<SearchNode> {
 		this.hash = hash;
 		totalRuns = 2 * BOARD_AREA + 10;
 		fill(runs, (char) 2);
-		fill(winRates, (float) 0.5);
+		fill(winRates, 0.5f);
 		hasChild.clear();
 		// Make passing look very bad, so it will only be tried if all other
 		// moves lose
 		runs[PASS] = 10;
-		winRates[PASS] = (float) (1.0/10.0);
+		winRates[PASS] = 1.0f/10.0f;
 		children = null;
 		winningMove = NO_POINT;
 	}

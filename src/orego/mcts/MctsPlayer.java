@@ -104,8 +104,7 @@ public class MctsPlayer extends McPlayer {
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
 		// Consider entering coup de grace mode
-		if (grace
-				&& (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
+		if (grace && (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
 			debug("Initiating coup de grace");
 			// TODO Implement coup de grace here; it used to be a policy
 		}
@@ -141,7 +140,8 @@ public class MctsPlayer extends McPlayer {
 					node.exclude(move);
 				}
 			}
-			// The magic number 457 is prime and larger than vacantPoints.size().
+			// The magic number 457 is prime and larger than
+			// vacantPoints.size().
 			// Advancing by 457 therefore skips "randomly" through the array,
 			// in a manner analogous to double hashing.
 			i = (i + 457) % vacantPoints.size();
@@ -193,8 +193,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.updatePriors(child,
-								runnable.getBoard());
+						runnable.updatePriors(child, runnable.getBoard());
 					}
 					return;
 				}
@@ -233,7 +232,8 @@ public class MctsPlayer extends McPlayer {
 			SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getHash());
 			synchronized (table) {
-				// a child will only be created if we expect the node to be visited again
+				// a child will only be created if we expect the node to be
+				// visited again
 				if (!node.hasChild(p) && (node.getWins(p) >= 2)) {
 					child = table.findOrAllocate(runnable.getBoard().getHash());
 					if (child == null) {
@@ -471,7 +471,7 @@ public class MctsPlayer extends McPlayer {
 		long[] hashes = runnable.getHashes();
 		float winProportion = winner == getBoard().getColorToPlay() ? 1 : 0;
 		if (winner == VACANT) {
-			winProportion = (float) 0.5;
+			winProportion = 0.5f;
 		}
 		for (int t = getBoard().getTurn(); t < turn; t++) {
 			node.recordPlayout(winProportion, moves, t, turn,
@@ -570,7 +570,7 @@ public class MctsPlayer extends McPlayer {
 			super.setProperty(property, value);
 		}
 	}
-	
+
 	protected void setTable(TranspositionTable table) {
 		this.table = table;
 	}
@@ -637,8 +637,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 		}
 		if (isPondering()) {
 			startThreads();
@@ -657,8 +656,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 		}
 		debug(winRateReport());
 	}
