@@ -175,6 +175,7 @@ public class Player implements Playable {
 		return null;
 	}
 
+	@Override
 	public void reset() {
 		if (board == null) {
 			board = new Board();
@@ -183,6 +184,11 @@ public class Player implements Playable {
 		}
 	}
 
+	@Override
+	public void terminate() {
+		this.reset();
+	}
+	
 	protected void clearBoardWhilePreservingKomi() {
 		double komi = board.getKomi();
 		board.clear();

@@ -520,6 +520,11 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
+	public void terminate() {
+		this.reset();
+	}
+	
+	@Override
 	public void reset() {
 		try {
 			super.reset();

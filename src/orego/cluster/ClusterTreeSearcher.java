@@ -185,9 +185,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public void kill() throws RemoteException {
 		if (this.controller == null) return;
 		
-		this.removeFromController();
+		// we need to do this asynchronously to avoid deadlock
+		new Thread() {
+			@Override
+			public void run() {
+				removeFromController();
+			}
+		}.run();
 		
-		// try to reconnect
+		
+		// try to reconnect. This will wait around until the server restarts.
 		this.connectToRMI();
 	}
 	

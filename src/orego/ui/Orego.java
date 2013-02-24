@@ -323,7 +323,7 @@ public class Orego {
 			acknowledge("2");
 		} else if (command.equals("quit")) {
 			acknowledge();
-			player.reset(); // to stop threaded players
+			player.terminate(); // notify the player that we're done
 			return false;
 		} else if (command.equals("time_left")) {
 			arguments.nextToken(); // Throw one argument away -- it's irrelevant

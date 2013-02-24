@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -53,7 +54,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	protected int resultsRemaining;
 	
 	/** the player index of this machine */
-	private int playerIndex = -1;
+	protected int playerIndex = -1;
 	
 	private int nextSearcherId = 0;
 	
@@ -84,7 +85,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	public ClusterPlayer() {
 		super();
-		remoteSearchers = new ArrayList<TreeSearcher>();
+		// we need a copy on write array list to avoid concurrent modification exceptions.
+		// the number of searchers is small enough that this is fine.
+		remoteSearchers = new CopyOnWriteArrayList<TreeSearcher>();
 		remoteProperties = new HashMap<String, String>();
 
 		// Set up lock and condition for search
@@ -98,14 +101,14 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		random = new MersenneTwisterFast();
 
 		// we don't use a player index by default
-		bindRMI(playerIndex);
+		bindRMI();
 	}
 	
 	/**
 	 * Unbinds an existing version of ourselves from the rmi registry.
 	 * @param playerIndex an optional index parameter to allow multiple players. if it is < 0 we don't use it.
 	 */
-	protected void unbindRMI(int playerIndex) {
+	protected void unbindRMI() {
 		// check to see if we are in the local registry
 		Registry reg;
 		try {
@@ -138,7 +141,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 * Method to actually bind this object in the RMI registry
 	 * @param int playerIndex an optional player index parameter to allow multiple players. If it is < 0 we don't use it.
 	 */
-	protected void bindRMI(int playerIndex) {
+	protected void bindRMI() {
 		// Configure RMI to allow serving the ClusterPlayer class
 		RMIStartup.configureRmi(ClusterPlayer.class, RMIStartup.SECURITY_POLICY_FILE);
 		
@@ -152,7 +155,6 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			
 			reg.rebind(name, stub);
 			
-			// TODO: don't we need some cleanup code to unbind ourselves when we're finished?
 		} catch (RemoteException e) {
 			System.err.println("Fatal error. Could not publish ClusterPlayer to local registry.");
 			e.printStackTrace();
@@ -194,8 +196,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	}
 	
 	/** Called by TreeSearcher to remove itself from consideration */
-	public synchronized void removeSearcher(TreeSearcher searcher) throws RemoteException {
+	public void removeSearcher(TreeSearcher searcher) throws RemoteException {
 		remoteSearchers.remove(searcher);
+		
 		
 		decrementResultsRemaining();
 	}
@@ -246,7 +249,52 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			}
 		}
 	}
-
+	
+	/**
+	 * Tells the searchers that we are going to die.
+	 * It blocks until all players are unregistered then removes itself from RMI.
+	 */
+	@Override
+	public void terminate() {
+		TreeSearcher searcher = null;
+		
+		// we use an iterator because elements might be removed
+		for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
+			searcher = it.next();
+			
+			// we use this to ensure that we can kill clients one by one. Should we be doing this
+			// in a single batch?
+			resultsRemaining = 1;
+			
+			try {
+				
+				searcher.kill();
+				
+				// wait for the client to unregister itself
+				long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
+				
+				try {
+					// grab a lock on the conditional variable
+					searchLock.lock();
+					// wait on the condition until the client notifies us in removeSearcher();
+					// Or, we might timeout. Waiting release our lock on the condition?
+					searchDone.await(waitTime, TimeUnit.MILLISECONDS);
+					System.out.println("Awake");
+				} catch (InterruptedException e) {
+					System.err.println("Search timed out or was interrupted.");
+				} finally {
+					searchLock.unlock();
+				}
+				
+			} catch (RemoteException e) {
+				System.err.println("Searcher: " + searcher + " failed to reset.");
+				it.remove();
+			}
+		}
+		
+		// now remove ourselves from RMI
+		this.unbindRMI();
+	}
 	/** 
 	 * Forwards the played move to the remote searchers.
 	 * Searchers that respond with an exception will be disconnected.
@@ -421,11 +469,14 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	}
 	
 	private synchronized void decrementResultsRemaining() {
+		
 		resultsRemaining--;
 		if(resultsRemaining <= 0) {
 			searchLock.lock();
 			searchDone.signal();
 			searchLock.unlock();
+			
+			System.out.println("Signalled");
 		}
 	}
 		
@@ -448,11 +499,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		if (key.equals(CLUSTER_PLAYER_INDEX)) {
 
 			// rename ourselves
-			unbindRMI(this.playerIndex);
+			unbindRMI();
 			
 			this.playerIndex = Integer.parseInt(value);
 			
-			bindRMI(this.playerIndex);
+			bindRMI();
 			
 			return;
 		}

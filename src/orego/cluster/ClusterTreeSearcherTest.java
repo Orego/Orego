@@ -82,6 +82,30 @@ public class ClusterTreeSearcherTest {
 	}
 	
 	@Test
+	public void shouldNotifyTheControllerWhenTerminatingAndThenTryToReconnect() throws Exception {
+		when(mockRegistry.lookup(any(String.class))).thenThrow(new RemoteException());
+		
+		// decide how long we should wait for a reconnect
+		ClusterTreeSearcher.MAX_WAIT = 1000;
+		
+		long startTime = System.currentTimeMillis();
+		
+		// the reconnection phase will throw an exception
+		try {
+			searcher.kill();
+		} catch (RemoteException e) {
+			// we want to absorb it quietly
+		}
+		
+		
+		verify(mockController).removeSearcher(searcher);
+
+		// make certain we waited around a bit
+		assertTrue(System.currentTimeMillis() - startTime >= 1000 - 50);
+		assertNull(searcher.controller);
+		
+	}
+	@Test
 	public void testShouldGetBestMoveFromPlayer() throws Exception {
 		long[] wins = new long[4];
 		long[] runs = new long[4];

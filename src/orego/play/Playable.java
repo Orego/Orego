@@ -53,6 +53,12 @@ public interface Playable {
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void reset();
 	
+	/** 
+	 * Stronger that reset() because it indicates that the Player should terminate.
+	 * It allows the player to perform any cleanup before termination.
+	 */
+	public void terminate();
+	
 	/**
 	 * @see orego.core.Board#setKomi(double)
 	 */

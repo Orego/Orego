@@ -2,9 +2,8 @@ package orego.cluster;
 
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.rmi.AccessException;
@@ -96,6 +95,52 @@ public class ClusterPlayerTest {
 		setupMockSearcher(mockSearcher, msecToRespond, bestMove, 1, 2);
 	}
 
+	@Test
+	public void testShouldTerminateByKillingClientsAndUnregisteringItself() throws Exception {
+		
+		// make sure that the player pings back when told to kill
+		doAnswer(new Answer<Object>() {
+			
+			@Override
+			public Object answer(InvocationOnMock invocation) {
+				final TreeSearcher mock = (TreeSearcher) invocation.getMock();
+				
+				// this needs to be on another thread to avoid deadlock
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// tell the player that we're done
+						try {
+							// we need to wait to simulate network latency
+							Thread.sleep(1000);
+							
+							player.removeSearcher(mock);
+							
+						} catch (RemoteException e) {
+							fail(e.getMessage());
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}).start();
+				
+				
+				return null;
+			}
+			
+		}).when(searcher).kill();
+		
+		player.terminate();
+		
+		verify(searcher).kill();
+		
+		// make sure we unregistered from RMI
+		verify(mockRegistry).unbind(SearchController.SEARCH_CONTROLLER_NAME);
+		// how can we tell if UnicastRemoteObject.unexportObject was called? Should we refactor that into a factory?
+		
+	}
+	
 	/* Tests relating to setup */
 	@Test
 	public void testShouldPublish() throws AccessException, RemoteException {
@@ -127,17 +172,19 @@ public class ClusterPlayerTest {
 	public void testShouldUnbindWhenTold() throws Exception {
 		
 		// unbind default
-		player.unbindRMI(-1);
+		player.playerIndex = -1;
+		player.unbindRMI();
 		
 		// make certain that we rename ourselves
 		verify(mockRegistry).unbind(eq(SearchController.SEARCH_CONTROLLER_NAME));
 		
-		player.bindRMI(4);
+		player.playerIndex = 4;
+		player.bindRMI();
 		
 		when(mockRegistry.list()).thenReturn(new String[] {SearchController.SEARCH_CONTROLLER_NAME + "4"});
 		
 		// now make sure that we unbind
-		player.unbindRMI(4);
+		player.unbindRMI();
 		
 		verify(mockRegistry).unbind(eq(SearchController.SEARCH_CONTROLLER_NAME + "4"));
 				
@@ -149,9 +196,11 @@ public class ClusterPlayerTest {
 		when(mockRegistry.list()).thenReturn(new String[] {SearchController.SEARCH_CONTROLLER_NAME});
 		
 		// unbind default
-		player.unbindRMI(-1);
+		player.playerIndex = -1;
+		player.unbindRMI();
 		
-		player.bindRMI(4);
+		player.playerIndex = 4;
+		player.bindRMI();
 		
 		
 		verify(mockRegistry).rebind(eq(SearchController.SEARCH_CONTROLLER_NAME + "4"), (Remote) any());
