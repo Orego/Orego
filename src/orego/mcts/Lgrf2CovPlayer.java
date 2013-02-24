@@ -5,11 +5,19 @@ import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NEIGHBORS;
 import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.at;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
 
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+import java.io.Writer;
 
 import orego.core.Board;
 
@@ -80,10 +88,29 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		return ((double) (d[BB]*d[WW] - d[BW]*d[WB])) / Math.pow((d[BB] + d[BW] + d[WB] + d[WW]), 2);
 	}
 
+	/** Get the maximum covariance value for the chain that the specified point belongs to. */
+	public double getCovarianceOverChain(int p) {
+		if(covarianceData == null) return Double.NaN;
+		
+		double maxCov = getCovariance(p);
+		
+		if(getBoard().getColor(p) == VACANT) return maxCov; 
+		
+		int chainId = getBoard().getChainId(p);
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			if(getBoard().getChainId(idx) == chainId && getCovariance(idx) > maxCov) {
+				maxCov = getCovariance(idx);
+			}
+		}
+		return maxCov;
+		
+	}
+	
 	@Override
 	public Set<String> getCommands() {
 		Set<String> result = super.getCommands();
 		result.add("gogui-covariance");
+		result.add("csv-covariance");
 		return result;
 	}
 
@@ -99,6 +126,14 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		if(command.equals("gogui-covariance")) {
 			return goguiCovariance();
 		}
+		if(command.equals("csv-covariance")) {
+			String filename = arguments.nextToken();
+			try {
+				return writeCovarianceDataToFile(filename);
+			} catch (Exception e) {
+				return "error";
+			}
+		}
 		return super.handleCommand(command, arguments);
 	}
 	
@@ -108,7 +143,7 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		double max = 0;
 		double min = Double.POSITIVE_INFINITY;
 		for (int p : ALL_POINTS_ON_BOARD) {
-			double cov = getCovariance(p);
+			double cov = getCovarianceOverChain(p);
 			
 			if (cov > max) {
 				max = cov;
@@ -120,8 +155,38 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		// Display normalized covariance through each move
 		String result = "INFLUENCE";
 		for (int p : ALL_POINTS_ON_BOARD) {
-			result += format(" %s %.3f", pointToString(p), (getCovariance(p) - min) / (max - min));
+			result += format(" %s %.3f", pointToString(p), (getCovarianceOverChain(p) - min) / (max - min));
 		}
 		return result;
+	}
+	
+	protected String writeCovarianceDataToFile(String filename) throws IOException {
+		Writer fileWriter = null;
+		try {
+			fileWriter = new OutputStreamWriter(new FileOutputStream(filename));
+		} catch (FileNotFoundException e) {
+			return "File could not be opened.";
+		}
+		try {
+			writeCovarianceDataToStream(fileWriter);
+		} catch (Exception e) {
+			return "Could not write data.";
+		} finally {
+			fileWriter.close();
+		}
+		return "Success";
+	}
+	
+	protected void writeCovarianceDataToStream(Writer stream) throws IOException {
+		for(int row = 0; row < BOARD_WIDTH; row++) {
+			StringBuilder lineBuilder = new StringBuilder();
+			for(int col = 0; col < BOARD_WIDTH; col++) {
+				int p = at(row, col);
+				lineBuilder.append(getCovarianceOverChain(p));
+				if(col < BOARD_WIDTH - 1) lineBuilder.append(", ");
+			}
+			lineBuilder.append('\n');
+			stream.write(lineBuilder.toString());
+		}
 	}
 }
