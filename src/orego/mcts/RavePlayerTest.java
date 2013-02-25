@@ -214,7 +214,7 @@ public class RavePlayerTest {
 		// Add some wins so the move looks good
 		player.getRoot().addWins(at("d1"), 1000);
 		player.bestMove();
-		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")));
+		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")), 0.001);
 	}
 	
 }

@@ -116,6 +116,9 @@ public class Orego {
 
 	/** The Player object that selects moves. */
 	private Playable player;
+	
+	/** The komi given on the command line. */
+	private double komiArgument = -1;
 
 	/**
 	 * @param inStream
@@ -130,6 +133,11 @@ public class Orego {
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
 		player.reset();
+		// TODO: This has to be done separately because players can't deal with
+		// having komi set before reset has been issued.
+		if(komiArgument >= 0) {
+			player.setKomi(komiArgument);
+		}
 		commands = new ArrayList<String>();
 		for (String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
@@ -237,7 +245,7 @@ public class Orego {
 			player.reset();
 			acknowledge();
 		} else if (command.equals("final_score")) {
-			double score = player.finalScore() - 0.5;
+			double score = player.finalScore();
 			if (score > 0) {
 				acknowledge("B+" + score);
 			} else {
@@ -421,6 +429,8 @@ public class Orego {
 				setDebugToStderr(true);
 			} else if (left.equals("debugfile")) {
 				setDebugFile(right);
+			} else if(left.equals("komi")) {
+				komiArgument = Double.parseDouble(right);
 			} else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
