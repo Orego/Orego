@@ -5,9 +5,8 @@ import static orego.experiment.ExperimentConfiguration.*;
 
 /** Plays a series of experimental games on one machine. */
 public class GameBatch implements Runnable {
-	/** entire hostname*/
-	protected String hostname;
-	
+	/** prefix (until first dot) of the hostname */
+	protected String hostnamePrefix;
 
 	/** Number of the batch (used as part of the filename). */
 	private int batchNumber;
@@ -22,14 +21,7 @@ public class GameBatch implements Runnable {
 		launchGameBatches(args[0]);
 	}
 	
-	/** simple gettter for the orego command. We make this protected
-	 * so that subclasses can override in the template pattern.
-	 * @return the bash command used to run orego.
-	 */
-	protected String getOregoCommand() {
-		return JAVA_WITH_OREGO_CLASSPATH
-		+ " -ea -server -Xmx1024M orego.ui.Orego";
-	}
+	
 	
 	public static void launchGameBatches(String machineName) {
 		try {
@@ -48,13 +40,13 @@ public class GameBatch implements Runnable {
 	public GameBatch(int batchNumber, String machine) {
 		System.out.println("Creating game batch " + batchNumber + " on " + machine);
 		this.batchNumber = batchNumber;
-		this.hostname = machine.substring(0, machine.indexOf('.'));
+		this.hostnamePrefix = machine.substring(0, machine.indexOf('.'));
 	}
 
 	@Override
 	public void run() {
 		for (String condition : CONDITIONS) {
-			String orego = this.getOregoCommand() + " " + condition;
+			String orego = JAVA_WITH_OREGO_CLASSPATH + " -ea -server -Xmx1024M orego.ui.Orego " + condition;
 			// run a game where orego is black
 			runGames(orego, GNUGO);
 			
@@ -69,12 +61,9 @@ public class GameBatch implements Runnable {
 	public void runGames(String black, String white) {
 		int[] wins = new int[NUMBER_OF_PLAYER_COLORS];
 		
-		// only get the prefix before the fist dot to avoid bad file paths
-		String dirPrefix = this.hostname.substring(0, this.hostname.indexOf("."));
-		
 		// no we run all the number of games per color
 		for (int i = 0; i < GAMES_PER_COLOR; i++) {
-			String fileStem = RESULTS_DIRECTORY +  dirPrefix + "-b"
+			String fileStem = RESULTS_DIRECTORY +  hostnamePrefix + "-b"
 			+ batchNumber + "-" + System.currentTimeMillis();
 			Game game;
 

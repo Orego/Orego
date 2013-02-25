@@ -23,7 +23,6 @@ public class Broadcast {
 	public static void main(String[] args) throws Exception {
 		spinUpServer();
 		
-		spinUpRemoteSearchers();
 	}
 	
 	/**
@@ -52,22 +51,7 @@ public class Broadcast {
 		new Thread(listener).start();
 	}
 	
-	private static void spinUpRemoteSearchers() throws Exception {
-		
-		ArrayList<Process> processes = new ArrayList<Process>();
-		
-		for (String remoteHost : ExperimentConfiguration.HOSTS) {
-			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M " + " orego.cluster.ClusterTreeSearcher " + remoteHost + "&> " +
-								 RESULTS_DIRECTORY + REMOTE_SEARCHER_RESULTS + remoteHost + ".log";
-			
-			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
-			
-			final Process process = pBuilder.start();
-			processes.add(process);
-		}
-		
-		
-	}
+	
 	
 	private static void spinUpServer() throws Exception {
 		ArrayList<Process> processes = new ArrayList<Process>();

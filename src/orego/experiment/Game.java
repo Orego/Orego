@@ -231,10 +231,14 @@ public class Game {
 			
 			board = new Board();
 			mode = REQUESTING_MOVE;
+			
+			// seed the game by telling black to go first
 			playerProgramsSTDIN[BLACK].println("genmove black");
 			playerProgramsSTDIN[BLACK].flush();
 			
-			// Wait for programs to finish
+			// Wait for programs to finish.
+			// This code is key because otherwise each player would run asynchronously.
+			// We are blocking the entire thread while waiting.
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				programs[color].waitFor();
 			}
