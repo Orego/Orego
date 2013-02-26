@@ -3,12 +3,12 @@ package orego.cluster;
 import static orego.core.Coordinates.pointToString;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.rmi.NoSuchObjectException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
 
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.mcts.MctsPlayer;
@@ -49,6 +49,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/** the points that will be considered by this searcher */
 	private IntSet consideredPoints;
 	
+	/** a flag that lets the application exit after an unsuccessful connection attempt */
+	private boolean shouldExit = false;
+	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
 	
@@ -67,13 +70,23 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		}
 		
 		// try to connect to RMI and get a reference to a controller
-		ClusterTreeSearcher searcher = new ClusterTreeSearcher(controllerHost, controllerIndex);
+		ClusterTreeSearcher searcher = null;
+		try {
+			searcher = new ClusterTreeSearcher(controllerHost, controllerIndex);
+		} catch (RemoteException e) {
+			System.exit(1);
+		}
 		
-		// now wait around until someone kills us
-		Scanner scanner = new Scanner(System.in);
+		// now wait around until someone kills us (or the searcher says we can exit)
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		
 		// RMI calls will happen on the background thread
-		while (!scanner.hasNextLine() || !scanner.nextLine().equals("die"));
+		while(!searcher.shouldExit) {
+			if(reader.ready() && reader.readLine().equals("die")) {
+				break;
+			}
+			Thread.sleep(100);
+		}
 		
 		// forcibly unregister ourselves so RMI will let us exit
 		searcher.removeFromController();
@@ -83,8 +96,13 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/**
 	 * Attempts to connect to RMI
 	 * @param hostname the name of the remote RMI registry
+	 * @throws RemoteException 
 	 */
 	protected void connectToRMI() throws RemoteException {
+		
+		// Clear out the player so RMI doesn't try to send it to the controller
+		this.player = null;
+		
 		// we boot ourselves up and connect to the friendly neighborhood server
 		// Do we need the permissions?
 		// we do not need to publish any classes, so pass null for the first argument to configureRmi
@@ -99,16 +117,14 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 		
 		SearchController controller = tryToConnectToController(reg, controllerIndex, MAX_WAIT);
-		
+				
 		this.controller = controller;
 		
 		this.reset();
-		
+				
 		if (controller == null) throw new RemoteException();
 		
 		controller.addSearcher(this);
-			
-		
 	}
 	/** 
 	 * simple utility method to continually try to connect to the registry until
@@ -131,22 +147,17 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				return controller;
 			} catch (Exception e) { // we have to swallow any exception because java doesn't allow multiple
 									// exception handling (we need Java 7)
-				if (totalTime >= timeout) {
-					System.out.println("Connection attempts timed out");
-					return null;
-				}
-				
-				System.out.println("Failed to connect, waiting then trying again...");
+				System.out.println("Failed to connect, waiting 1s then trying again...");
 				try {
 					Thread.sleep(1000); // wait a second; literally
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 					return null;
 				} 
-				
 				totalTime += 1000;
 			}
 		}
+		System.out.println("Connection attempts timed out");
 		return null;
 	}
 	public ClusterTreeSearcher(String hostname, int controllerIndex) throws RemoteException {
@@ -183,19 +194,26 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 
 	@Override
 	public void kill() throws RemoteException {
-		if (this.controller == null) return;
+		// clear out our controller
+		this.controller = null;
 		
-		// we need to do this asynchronously to avoid deadlock
+		// we need to do this asynchronously to avoid blocking the server
 		new Thread() {
 			@Override
 			public void run() {
-				removeFromController();
+				// try to reconnect, this will wait until a new server starts
+				try {
+					ClusterTreeSearcher.this.connectToRMI();
+				} catch (Exception e) {
+					try {
+						UnicastRemoteObject.unexportObject(ClusterTreeSearcher.this, true);
+						ClusterTreeSearcher.this.shouldExit = true;
+					} catch (NoSuchObjectException ex) {
+						ex.printStackTrace();
+					}
+				}
 			}
-		}.run();
-		
-		
-		// try to reconnect. This will wait around until the server restarts.
-		this.connectToRMI();
+		}.start();
 	}
 	
 	@Override

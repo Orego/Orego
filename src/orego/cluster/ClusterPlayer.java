@@ -13,7 +13,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -211,6 +210,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public synchronized void acceptResults(TreeSearcher searcher,
 			long[] runs, long[] wins) throws RemoteException {
+		
 		if (resultsRemaining < 0) {
 			return;
 		}
@@ -255,45 +255,21 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 * It blocks until all players are unregistered then removes itself from RMI.
 	 */
 	@Override
-	public void terminate() {
-		TreeSearcher searcher = null;
+	public void terminate() {		
 		
-		// we use an iterator because elements might be removed
-		for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
-			searcher = it.next();
-			
-			// we use this to ensure that we can kill clients one by one. Should we be doing this
-			// in a single batch?
-			resultsRemaining = 1;
-			
+		// Remove ourselves from RMI first so the searchers don't reconnect to us.
+		this.unbindRMI();
+		
+		// Send the kill message to each tree searcher in turn.
+		for(TreeSearcher searcher : remoteSearchers) {
 			try {
-				
 				searcher.kill();
-				
-				// wait for the client to unregister itself
-				long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
-				
-				try {
-					// grab a lock on the conditional variable
-					searchLock.lock();
-					// wait on the condition until the client notifies us in removeSearcher();
-					// Or, we might timeout. Waiting release our lock on the condition?
-					searchDone.await(waitTime, TimeUnit.MILLISECONDS);
-					System.out.println("Awake");
-				} catch (InterruptedException e) {
-					System.err.println("Search timed out or was interrupted.");
-				} finally {
-					searchLock.unlock();
-				}
-				
 			} catch (RemoteException e) {
-				System.err.println("Searcher: " + searcher + " failed to reset.");
-				it.remove();
+				// Nothing we can recover from, just print out the trace.
+				e.printStackTrace();
 			}
 		}
 		
-		// now remove ourselves from RMI
-		this.unbindRMI();
 	}
 	/** 
 	 * Forwards the played move to the remote searchers.
@@ -475,8 +451,6 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			searchLock.lock();
 			searchDone.signal();
 			searchLock.unlock();
-			
-			System.out.println("Signalled");
 		}
 	}
 		
