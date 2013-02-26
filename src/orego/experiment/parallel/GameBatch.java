@@ -57,12 +57,13 @@ public class GameBatch implements Runnable {
 
 	@Override
 	public void run() {
+		// spin up some clients who will start waiting
+		// do this outside of the following loop because we reuse searchers
+		spinUpRemoteSearchers(this.batchNumber);
+		
 		// we run a series of games for each of the conditions (synchronously)
 		for (String condition : CONDITIONS) {
 			String orego = JAVA_WITH_OREGO_CLASSPATH + " -ea -server -Xmx1024M orego.ui.Orego cluster_player_index=" + this.batchNumber + " " + condition;
-			
-			// spin up some clients who will start waiting
-			spinUpRemoteSearchers(this.batchNumber);
 			
 			// run a game where orego is black. Block until all black games are run.
 			runGames(orego, GNUGO);
@@ -103,7 +104,7 @@ public class GameBatch implements Runnable {
 		for (String remoteHost : ExperimentConfiguration.HOSTS) {
 			
 			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M " + " orego.cluster.ClusterTreeSearcher " + remoteHost + " " + playerIndex + "&> " +
-								 RESULTS_DIRECTORY  + remoteHost + ".log";
+								 RESULTS_DIRECTORY  + remoteHost + "_" + playerIndex + ".log";
 			
 			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
 			

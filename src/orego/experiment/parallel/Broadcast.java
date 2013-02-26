@@ -1,6 +1,5 @@
 package orego.experiment.parallel;
 
-import static orego.experiment.ExperimentConfiguration.HOSTS;
 import static orego.experiment.ExperimentConfiguration.JAVA_WITH_OREGO_CLASSPATH;
 import static orego.experiment.ExperimentConfiguration.RESULTS_DIRECTORY;
 
