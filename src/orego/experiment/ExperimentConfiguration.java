@@ -40,6 +40,9 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_COLOR = GAMES_PER_CONDITION
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
+	/** Only one server at a time. */
+	public static final int PARALLEL_GAMES_PER_COLOR = GAMES_PER_CONDITION / (2 * 1 * GAMES_PER_HOST);
+	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
 	}
@@ -53,7 +56,7 @@ public class ExperimentConfiguration {
 	static {
 		int i = 0;
 		for (int msec = 2000; msec <= 8000; msec *= 2) {
-			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook";
+			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook player=ClusterPlayer";
 			i++;
 		}
 	}

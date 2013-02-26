@@ -2,7 +2,7 @@ package orego.experiment.parallel;
 
 import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
 import static orego.experiment.ExperimentConfiguration.CONDITIONS;
-import static orego.experiment.ExperimentConfiguration.GAMES_PER_COLOR;
+import static orego.experiment.ExperimentConfiguration.PARALLEL_GAMES_PER_COLOR;
 import static orego.experiment.ExperimentConfiguration.GAMES_PER_HOST;
 import static orego.experiment.ExperimentConfiguration.GNUGO;
 import static orego.experiment.ExperimentConfiguration.JAVA_WITH_OREGO_CLASSPATH;
@@ -85,7 +85,7 @@ public class GameBatch implements Runnable {
 		String dirPrefix = this.hostname.substring(0, this.hostname.indexOf("."));
 		
 		// no we run all the number of games per color
-		for (int i = 0; i < GAMES_PER_COLOR; i++) {
+		for (int i = 0; i < PARALLEL_GAMES_PER_COLOR; i++) {
 			String fileStem = RESULTS_DIRECTORY +  dirPrefix + "-b" + batchNumber + "-" + System.currentTimeMillis();
 			Game game;
 
@@ -105,7 +105,7 @@ public class GameBatch implements Runnable {
 			
 			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M " + " orego.cluster.ClusterTreeSearcher " + remoteHost + " " + playerIndex + "&> " +
 								 RESULTS_DIRECTORY  + remoteHost + "_" + playerIndex + ".log";
-			
+						
 			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
 			
 			Process process;
