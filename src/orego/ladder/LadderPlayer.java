@@ -13,11 +13,9 @@ public class LadderPlayer extends Lgrf2Player {
 	McRunnable runnable;
 
 	@Override
-	/** calls playOutLadders after stopping threads to bias stored moves*/	
+	/** Calls playOutLadders to bias the search tree. */	
 	public int bestMove() {
 		try {
-//			System.err.println(getRoot().getTotalRuns());
-//			System.err.println(getRoot().getTotalRuns());
 			stopThreads();
 			playOutLadders();
  			runThreads();
@@ -30,6 +28,8 @@ public class LadderPlayer extends Lgrf2Player {
 
 	/** 
 	 * Returns the liberties of every ladder where color is on the inside.
+	 * This is enough information to play out the ladder
+	 * (see {@link #playOutLadders()}playOutLadders()).
 	 */
 	public IntSet libertiesOfLadders(int color) {
 		// our definition of a ladder is: a chain in atari whose
@@ -49,40 +49,38 @@ public class LadderPlayer extends Lgrf2Player {
 	 * Plays out every ladder and biases the search tree.
 	 */
 	public void playOutLadders() {
+		// Each ladder will be played out on runnable and then that whole
+		// playout (run) will be incorporated into the search tree.
 
-		runnable = new McRunnable(this, null);
-		
 		// get the ladders
 		IntSet ladderLiberties = libertiesOfLadders(Colors.BLACK);
 		int numberOfBlackLadders = ladderLiberties.size();
 		ladderLiberties.addAll(libertiesOfLadders(Colors.WHITE));
 		
-		Board localBoard = new Board();
+		// each playout will play on a McRunnable, whose board is reset each time
+		runnable = new McRunnable(this, null);
 		
-		// play out each ladder separately
+		// play out each ladder (separately)
 		for (int i = 0; i < ladderLiberties.size(); i++) {
 			
 			int ladderLength = 0;
 			
-			// we'll be moving, so we use a local copy of the board
-			localBoard.copyDataFrom(getBoard());
-			runnable.copyDataFrom(localBoard);
+			runnable.copyDataFrom(getBoard());
 			
 			int liberty = ladderLiberties.get(i);
 			int insideColor = (i < numberOfBlackLadders) ? Colors.BLACK : Colors.WHITE;
 			boolean insideWon;
 			
 			// start as the inside color
-			localBoard.setColorToPlay(insideColor);
+			runnable.getBoard().setColorToPlay(insideColor);
 			
 			// keep applying the policy of the inside player and the outside player until
-			// the ladder is over (either the inside color is free or has been captured)
+			// the ladder is over (either the inside player is free or has been captured)
 			while (true) {
 				// inside player policy: play in my only liberty
 				int insidePlaysHere = liberty;
-				localBoard.play(insidePlaysHere);
 				runnable.acceptMove(insidePlaysHere);
-				if (localBoard.getLibertyCount(insidePlaysHere) >= 3) {
+				if (runnable.getBoard().getLibertyCount(insidePlaysHere) >= 3) {
 					// inside player is free
 					insideWon = true;
 					break;
@@ -90,19 +88,19 @@ public class LadderPlayer extends Lgrf2Player {
 				
 				// outside player policy: play in the inside player's liberty
 				// with the most vacant neighbors
-				IntSet libsOfNewChain = localBoard.getLiberties(insidePlaysHere);
+				IntSet insidesLiberties = runnable.getBoard().getLiberties(insidePlaysHere);
 				int mostVacantNeighbors = -1;
 				int pointWithMostVacantNeighbors = Coordinates.FIRST_POINT_BEYOND_BOARD;
 				
-				for (int j = 0; j < libsOfNewChain.size(); j++)	{
-					if (localBoard.getVacantNeighborCount(libsOfNewChain.get(j)) > mostVacantNeighbors) {
-						pointWithMostVacantNeighbors = libsOfNewChain.get(j);
-						mostVacantNeighbors = localBoard.getVacantNeighborCount(pointWithMostVacantNeighbors);
+				for (int j = 0; j < insidesLiberties.size(); j++) {
+					if (runnable.getBoard().getVacantNeighborCount(insidesLiberties.get(j)) > mostVacantNeighbors) {
+						pointWithMostVacantNeighbors = insidesLiberties.get(j);
+						mostVacantNeighbors = runnable.getBoard().getVacantNeighborCount(pointWithMostVacantNeighbors);
 					}
 				}
-				localBoard.play(pointWithMostVacantNeighbors);
+				
 				runnable.acceptMove(pointWithMostVacantNeighbors);
-				if (localBoard.getColor(insidePlaysHere) != insideColor) {
+				if (runnable.getBoard().getColor(insidePlaysHere) != insideColor) {
 					// inside player was captured
 					insideWon = false;
 					break;
@@ -110,23 +108,15 @@ public class LadderPlayer extends Lgrf2Player {
 				
 				ladderLength++;
 
-				// add code here looking for outside stones in atari
+				// TODO Add code here looking for outside stones in atari.
 			}
 			
-			// bias the search tree: call this a playout for the winner
-			if (insideWon) {
-				for (int j = 0; j < ladderLength*10; j++) {
-					incorporateRun(insideColor, runnable);
-				}
-				System.err.println("Biasing in favor of " + Coordinates.pointToString(liberty));
-			} else {
-				for (int j = 0; j < ladderLength*10; j++) {
-					incorporateRun(Colors.opposite(insideColor), runnable);
-				}
-				System.err.println("Biasing against " + Coordinates.pointToString(liberty));
+			// bias the search tree: call this playout for the winner.
+			// longer ladders are biased more because the stakes are higher.
+			int winner = insideWon ? insideColor : Colors.opposite(insideColor); 
+			for (int j = 0; j < ladderLength*10; j++) {
+				incorporateRun(winner, runnable);
 			}
-			
-			System.err.println(localBoard);
 		}
 	}		
 }
