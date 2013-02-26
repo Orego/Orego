@@ -148,6 +148,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			} catch (Exception e) { // we have to swallow any exception because java doesn't allow multiple
 									// exception handling (we need Java 7)
 				System.out.println("Failed to connect, waiting 1s then trying again...");
+				System.out.println(e.toString());
 				try {
 					Thread.sleep(1000); // wait a second; literally
 				} catch (InterruptedException e1) {

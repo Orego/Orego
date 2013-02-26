@@ -103,7 +103,7 @@ public class GameBatch implements Runnable {
 		
 		for (String remoteHost : ExperimentConfiguration.HOSTS) {
 			
-			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M " + " orego.cluster.ClusterTreeSearcher " + this.hostname + " " + playerIndex + "&> " +
+			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M -Djava.rmi.server.hostname=" + this.hostname + " orego.cluster.ClusterTreeSearcher " + this.hostname + " " + playerIndex + "&> " +
 								 RESULTS_DIRECTORY  + remoteHost + "_" + playerIndex + ".log";
 						
 			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
