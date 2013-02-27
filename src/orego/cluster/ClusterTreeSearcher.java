@@ -164,6 +164,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public ClusterTreeSearcher(String hostname, int controllerIndex) throws RemoteException {
 		this.consideredPoints = null;
 		this.controllerIndex = controllerIndex;
+		this.controllerHost = hostname;
 	
 		connectToRMI();
 	}
