@@ -108,6 +108,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		// RNG used for fallback moves
 		random = new MersenneTwisterFast();
 
+		// Reset to avoid null pointer issues when cluster searchers connect
+		reset();
+		
 		// we don't use a player index by default
 		bindRMI();
 	}
