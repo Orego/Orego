@@ -297,12 +297,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				System.out.println("Beginning to search.");
 				
 				// search for the best move to force the wins/runs tables to be filled
-				ClusterTreeSearcher.this.player.bestMove();
+				int localBest = ClusterTreeSearcher.this.player.bestMove();
+				long[] boardWins = player.getBoardWins();
+				
+				System.out.println("Playouts completed: " + player.getTotalPlayoutCount());
+				System.out.println("Found best move: " + pointToString(localBest) + " with wins: " + boardWins[localBest]);
 				
 				System.out.println("Done searching.");
 				// ping right back to the server
 				try {
-					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), player.getBoardWins());
+					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), boardWins);
 				} catch (RemoteException e) {
 					System.err.println("Failed to report search results to controller.");
 					e.printStackTrace();

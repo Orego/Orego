@@ -59,11 +59,13 @@ public class GameBatch implements Runnable {
 	public void run() {
 		// spin up some clients who will start waiting
 		// do this outside of the following loop because we reuse searchers
-		spinUpRemoteSearchers(this.batchNumber);
+		spinUpRemoteSearchers(this.batchNumber);  
 		
 		// we run a series of games for each of the conditions (synchronously)
 		for (String condition : CONDITIONS) {
-			String orego = JAVA_WITH_OREGO_CLASSPATH + " -ea -server -Xmx1024M orego.ui.Orego cluster_player_index=" + this.batchNumber + " " + condition;
+			String logFile = RESULTS_DIRECTORY + "game_batch_" + this.batchNumber + ".log";
+			
+			String orego = JAVA_WITH_OREGO_CLASSPATH + " -ea -server -Xmx1024M orego.ui.Orego cluster_player_index=" + this.batchNumber + " cluster_player_log=" + logFile + " " + condition;
 			
 			// run a game where orego is black. Block until all black games are run.
 			runGames(orego, GNUGO);
