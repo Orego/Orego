@@ -13,7 +13,9 @@ public class LadderPlayer extends Lgrf2Player {
 	McRunnable runnable;
 	/**this records total wins for the ladder this has most recently finished playing out (should be made into a list)**/
 	int wins[];
+	
 	int lengths[];
+	
 	@Override
 	/** Calls playOutLadders to bias the search tree. */	
 	public int bestMove() {
@@ -71,10 +73,15 @@ public class LadderPlayer extends Lgrf2Player {
 		// each playout will play on a McRunnable, whose board is reset each time
 		runnable = new McRunnable(this, null);
 		int lNum=0;//keeps track of which ladder for index of array of bias #s
+		
+		// each playout will play on a McRunnable, whose board is reset each time
+		runnable = new McRunnable(this, null);
+		
 		// play out each ladder (separately)
 		for (int i = 0; i < ladderLiberties.size(); i++) {
+			
 			int ladderLength = 0;
-//			wins=0;
+			
 			runnable.copyDataFrom(getBoard());
 			
 			int liberty = ladderLiberties.get(i);
@@ -124,6 +131,7 @@ public class LadderPlayer extends Lgrf2Player {
 			// bias the search tree: call this playout for the winner.
 			// longer ladders are biased more because the stakes are higher.
 			int winner = insideWon ? insideColor : Colors.opposite(insideColor); 
+
 			//System.err.println("ladder "+lNum+" Length="+ladderLength);
 			for (int j = 0; j < ladderLength*10; j++) {
 				incorporateRun(winner, runnable);
@@ -134,6 +142,11 @@ public class LadderPlayer extends Lgrf2Player {
 //			System.out.println("wins array: "+wins[lNum]);
 //			System.out.println("lad length="+lengths[lNum]);
 			lNum++;
+
+			for (int j = 0; j < ladderLength*10; j++) {
+				incorporateRun(winner, runnable);
+			}
+
 		}
 	}		
 }

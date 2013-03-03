@@ -17,6 +17,7 @@ public class LadderPlayerTest {
 	}
 
 	@Test
+
 	public void testPlayLadderWin() {
 		String[] diagram1 = {
 				"...................",// 19
@@ -39,7 +40,8 @@ public class LadderPlayerTest {
 				"...................",// 2
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
-		};//Ladder length=30
+		};
+		
 		
 		player.reset();
 		player.setUpProblem(WHITE, diagram1);
