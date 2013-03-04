@@ -6,29 +6,28 @@ import static orego.core.Coordinates.BOARD_WIDTH;
 public class ExperimentConfiguration {
 
 	/** Directory where game files are stored. */
-	public static final String RESULTS_DIRECTORY = "/home/drake/results/";
+	public static final String RESULTS_DIRECTORY = "/Users/samstewart/Documents/results/";
 
 	/** Path to run GNUGO on your machine. */
 	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
-	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin";
+	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /Users/samstewart/Documents/workspace/Orego/bin";
 
 	/**
 	 * The host from which commands are given must be listed first for
 	 * KillExperiment to work.
 	 */
-	public static final String[] HOSTS = { "fido.bw01.lclark.edu",
-			"n001.bw01.lclark.edu",
-			"n002.bw01.lclark.edu",
-			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };
+	public static final String[] HOSTS = { 
+			"localhost"
+	};
 
 	/**
 	 * Number of games to run simultaneously on each host. This should be no
 	 * more than the number of processor cores on each host. If Orego is being
 	 * run with multiple threads, it might be even smaller.
 	 */
-	public static final int GAMES_PER_HOST = 6;
+	public static final int GAMES_PER_HOST = 1;
 
 	/** Total number of games desired per condition. */
 	public static final int GAMES_PER_CONDITION = 600;
