@@ -30,9 +30,9 @@ public class RatioClassifier {
 
 	public RatioClassifier(int history) {
 		this.history = history;
-		counts = new int[2][LAST_POINT_ON_BOARD + 1][history][LAST_POINT_ON_BOARD + 1][2];
+		counts = new int[2][FIRST_POINT_BEYOND_BOARD][history][FIRST_POINT_BEYOND_BOARD][2];
 		for (int color = BLACK; color <= WHITE; color++) {
-			for (int from = 0; from <= LAST_POINT_ON_BOARD; from++) {
+			for (int from = 0; from < FIRST_POINT_BEYOND_BOARD; from++) {
 				for (int h = 0; h < history; h++) {
 					for (int to : ALL_POINTS_ON_BOARD) {
 						counts[color][from][h][to][WINS] = 1;

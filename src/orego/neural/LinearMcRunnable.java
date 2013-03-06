@@ -1,8 +1,8 @@
 package orego.neural;
 
+import orego.heuristic.HeuristicList;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
-import orego.policy.Policy;
 
 public class LinearMcRunnable extends McRunnable {
 
@@ -14,8 +14,8 @@ public class LinearMcRunnable extends McRunnable {
 		return classifier;
 	}
 
-	public LinearMcRunnable(McPlayer player, Policy policy, double learn, int history) {
-		super(player, policy);
+	public LinearMcRunnable(McPlayer player, HeuristicList heuristics, double learn, int history) {
+		super(player, heuristics);
 		classifier = new LinearClassifier(learn, history);
 	}
 

@@ -5,7 +5,6 @@ import static orego.core.Colors.*;
 import orego.core.Board;
 import orego.mcts.McRunnable;
 import orego.mcts.MctsPlayer;
-import orego.policy.RandomPolicy;
 import static orego.core.Coordinates.*;
 
 import org.junit.Before;
@@ -38,7 +37,7 @@ public class NeuralPlayerTest {
 		}
 		moves[i] = PASS;
 		moves[i + 1] = PASS;
-		McRunnable runnable = new McRunnable(player, new RandomPolicy());
+		McRunnable runnable = (McRunnable) player.getRunnable(0);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
 			runnable.acceptMove(p);

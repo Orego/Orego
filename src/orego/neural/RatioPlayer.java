@@ -152,10 +152,10 @@ public class RatioPlayer extends McPlayer {
 	public void reset() {
 		super.reset();
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			setRunnable(i, new RatioMcRunnable(this, getPolicy().clone(),
+			setRunnable(i, new RatioMcRunnable(this, getHeuristics().clone(),
 					history));
 		}
-		playouts = new int[LAST_POINT_ON_BOARD + 1];
+		playouts = new int[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	/**
@@ -419,6 +419,30 @@ public class RatioPlayer extends McPlayer {
 			result += "\nCOLOR green " + pointToString(best);
 		}
 		return result;
+	}
+
+	@Override
+	public long[] getBoardWins() {
+		// TODO: There may be a better way to estimate wins
+		return getBoardPlayouts();
+	}
+
+	@Override
+	public long[] getBoardPlayouts() {
+		long[] longPlayouts = new long[FIRST_POINT_BEYOND_BOARD];
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			longPlayouts[idx] = (long) playouts[idx];
+		}
+		return longPlayouts;
+	}
+
+	@Override
+	public long getTotalPlayoutCount() {
+		long total = 0;
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			total += playouts[idx];
+		}
+		return total;
 	}
 
 }

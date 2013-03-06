@@ -185,9 +185,9 @@ public class NeuralPlayer extends McPlayer {
 		super.reset();
 		network = new Network(learn, hidden, history);
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			setRunnable(i, new McRunnable(this, getPolicy().clone()));
+			setRunnable(i, new McRunnable(this, getHeuristics().clone()));
 		}
-		playouts = new int[LAST_POINT_ON_BOARD + 1];
+		playouts = new int[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	/**
@@ -242,6 +242,30 @@ public class NeuralPlayer extends McPlayer {
 	@Override
 	protected String winRateReport() {
 		return null;
+	}
+
+	@Override
+	public long[] getBoardWins() {
+		// TODO: There may be a better way to estimate wins
+		return getBoardPlayouts();
+	}
+
+	@Override
+	public long[] getBoardPlayouts() {
+		long[] longPlayouts = new long[FIRST_POINT_BEYOND_BOARD];
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			longPlayouts[idx] = (long) playouts[idx];
+		}
+		return longPlayouts;
+	}
+
+	@Override
+	public long getTotalPlayoutCount() {
+		long total = 0;
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			total += playouts[idx];
+		}
+		return total;
 	}
 
 }

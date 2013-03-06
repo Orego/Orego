@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
 import orego.play.UnknownPropertyException;
-import orego.policy.RandomPolicy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,8 @@ public class LinearPlayerTest {
 		}
 		moves[i] = PASS;
 		moves[i + 1] = PASS;
-		McRunnable runnable = new McRunnable(player, new RandomPolicy());
+		//McRunnable runnable = new McRunnable(player, new RandomPolicy());
+		McRunnable runnable = (McRunnable) player.getRunnable(0);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
 			runnable.acceptMove(p);

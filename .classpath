@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="orego/neural/Rich1Classifier.java|orego/neural/Rich1ClassifierTest.java|orego/neural/Rich1McRunnable.java|orego/neural/Rich1Player.java|orego/neural/Rich1PlayerTest.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/mockito-all-1.9.5.jar"/>

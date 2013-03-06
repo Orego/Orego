@@ -3,7 +3,6 @@ package orego.neural;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import orego.mcts.McRunnable;
-import orego.policy.*;
 
 /** Extends LinearPlayer with the LGRF-2 policy. */
 public class Lgrf2LinearPlayer extends LinearPlayer {
@@ -60,8 +59,8 @@ public class Lgrf2LinearPlayer extends LinearPlayer {
 	@Override
 	public void reset() {
 		super.reset();
-		replies1 = new int[NUMBER_OF_PLAYER_COLORS][LAST_POINT_ON_BOARD + 1];
-		replies2 = new int[NUMBER_OF_PLAYER_COLORS][LAST_POINT_ON_BOARD + 1][LAST_POINT_ON_BOARD + 1];
+		replies1 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD];
+		replies2 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
 		for (int c = BLACK; c <= WHITE; c++) {
 			for (int p : ALL_POINTS_ON_BOARD) {
 				replies1[c][p] = NO_POINT;
@@ -76,7 +75,7 @@ public class Lgrf2LinearPlayer extends LinearPlayer {
 			replies2[c][NO_POINT][PASS] = NO_POINT;
 			replies2[c][NO_POINT][NO_POINT] = NO_POINT;
 		}
-		for (int i = 0; i < getNumberOfThreads(); i++) {
+		/*for (int i = 0; i < getNumberOfThreads(); i++) {
 			McRunnable runnable = ((McRunnable) getRunnable(i));
 			Lgrf1Policy policy1 = new Lgrf1Policy(runnable.getPolicy());
 			runnable.setPolicy(policy1);
@@ -84,7 +83,7 @@ public class Lgrf2LinearPlayer extends LinearPlayer {
 			Lgrf2Policy policy2 = new Lgrf2Policy(policy1);
 			runnable.setPolicy(policy2);
 			policy2.setReplies2(replies2);
-		}
+		}*/
 	}
 
 }

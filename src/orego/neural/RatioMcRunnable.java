@@ -1,7 +1,7 @@
 package orego.neural;
 
+import orego.heuristic.HeuristicList;
 import orego.mcts.McRunnable;
-import orego.policy.Policy;
 
 public class RatioMcRunnable extends McRunnable {
 
@@ -9,8 +9,8 @@ public class RatioMcRunnable extends McRunnable {
 	
 	private int playouts;
 	
-	public RatioMcRunnable(RatioPlayer player, Policy policy, int history) {
-		super(player, policy);
+	public RatioMcRunnable(RatioPlayer player, HeuristicList heuristics, int history) {
+		super(player, heuristics);
 		classifier = new RatioClassifier(history);
 	}
 

@@ -18,10 +18,10 @@ public class AveragePlayer extends LinearPlayer {
 	public void reset() {
 		super.reset();
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			setRunnable(i, new AverageMcRunnable(this, getPolicy().clone(),
+			setRunnable(i, new AverageMcRunnable(this, getHeuristics().clone(),
 					getLearn(), getHistory()));
 		}
-		setPlayouts(new int[LAST_POINT_ON_BOARD + 1]);
+		setPlayouts(new int[FIRST_POINT_BEYOND_BOARD]);
 	}
 
 	@Override

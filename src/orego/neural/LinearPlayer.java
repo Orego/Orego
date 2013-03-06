@@ -54,6 +54,7 @@ public class LinearPlayer extends McPlayer {
 	 * playouts is chosen.
 	 */
 	private int[] playouts;
+	private long totalPlayouts = 0;
 
 	public LinearPlayer() {
 		setLearn(0.01);
@@ -426,6 +427,7 @@ public class LinearPlayer extends McPlayer {
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		if (winner != VACANT) {
+			totalPlayouts++;
 			LinearClassifier classifier = ((LinearMcRunnable) runnable)
 					.getClassifier();
 			int turn = runnable.getTurn();
@@ -461,10 +463,11 @@ public class LinearPlayer extends McPlayer {
 	public void reset() {
 		super.reset();
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			setRunnable(i, new LinearMcRunnable(this, getPolicy().clone(),
+			setRunnable(i, new LinearMcRunnable(this, getHeuristics().clone(),
 					getLearn(), getHistory()));
 		}
-		setPlayouts(new int[LAST_POINT_ON_BOARD + 1]);
+		totalPlayouts = 0;
+		setPlayouts(new int[FIRST_POINT_BEYOND_BOARD]);
 	}
 
 	/**
@@ -522,11 +525,32 @@ public class LinearPlayer extends McPlayer {
 	}
 
 	public void setPlayouts(int[] playouts) {
+		System.out.println("Set playouts");
 		this.playouts = playouts;
 	}
 
 	public int[] getPlayouts() {
 		return playouts;
+	}
+
+	@Override
+	public long[] getBoardWins() {
+		// TODO: There may be a better way to estimate wins
+		return getBoardPlayouts();
+	}
+
+	@Override
+	public long[] getBoardPlayouts() {
+		long[] longPlayouts = new long[FIRST_POINT_BEYOND_BOARD];
+		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+			longPlayouts[idx] = (long) playouts[idx];
+		}
+		return longPlayouts;
+	}
+
+	@Override
+	public long getTotalPlayoutCount() {
+		return totalPlayouts;
 	}
 
 }

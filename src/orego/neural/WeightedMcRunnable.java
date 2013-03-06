@@ -1,8 +1,8 @@
 package orego.neural;
 
+import orego.heuristic.HeuristicList;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
-import orego.policy.Policy;
 
 public class WeightedMcRunnable extends McRunnable{
 	
@@ -14,8 +14,8 @@ public class WeightedMcRunnable extends McRunnable{
 		return classifier;
 	}
 
-	public WeightedMcRunnable(McPlayer player, Policy policy, double learn, int history) {
-		super(player, policy);
+	public WeightedMcRunnable(McPlayer player, HeuristicList heuristics, double learn, int history) {
+		super(player, heuristics);
 		classifier = new WeightedClassifier(learn, history);
 	}
 
