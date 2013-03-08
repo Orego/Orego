@@ -96,7 +96,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		remoteProperties = new HashMap<String, String>();
 		
 		// Set up the PrintWriter that will be used for error messages
-		logWriter = new PrintWriter(System.err, true); 
+		setLogWriter(new PrintWriter(System.err, true)); 
 		
 		// Set up lock and condition for search
 		searchLock = new ReentrantLock();
@@ -222,7 +222,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public synchronized void acceptResults(TreeSearcher searcher,
 			long[] runs, long[] wins) throws RemoteException {
-		logWriter.println("Accepting results. " + resultsRemaining + " remaining.");
+		getLogWriter().println("Accepting results. " + resultsRemaining + " remaining.");
 		
 		if (resultsRemaining < 0) {
 			return;
@@ -257,8 +257,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			try {
 				searcher.reset();
 			} catch (RemoteException e) {
-				logWriter.println("Searcher: " + searcher + " failed to reset.");
-				e.printStackTrace(logWriter);
+				getLogWriter().println("Searcher: " + searcher + " failed to reset.");
+				e.printStackTrace(getLogWriter());
 				remoteSearchers.remove(it);
 			}
 		}
@@ -304,7 +304,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 					searcher.acceptMove(opposite(getBoard().getColorToPlay()), p);
 				} catch (RemoteException e) {
 					// If a searcher fails to accept a move, drop it from the list
-					logWriter.println("Searcher: " + searcher + " failed to accept move.");
+					getLogWriter().println("Searcher: " + searcher + " failed to accept move.");
 					remoteSearchers.remove(searcher);
 				}
 			}
@@ -332,7 +332,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			try {
 				success = searcher.undo();
 			} catch (RemoteException e) {
-				logWriter.println("Searcher: " + searcher + " failed to undo.");
+				getLogWriter().println("Searcher: " + searcher + " failed to undo.");
 			}
 			if(!success) {
 				remoteSearchers.remove(searcher);
@@ -363,7 +363,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		// Since searchers may come online at any time, a couple bad moves
 		// is better than just resigning
 		if(remoteSearchers.size() == 0) {
-			logWriter.println("No searchers connected. Falling back to heuristic move.");
+			getLogWriter().println("No searchers connected. Falling back to heuristic move.");
 			return fallbackMove();
 		}
 		
@@ -373,8 +373,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			try {
 				searcher.beginSearch();
 			} catch (RemoteException e) {
-				logWriter.println("Searcher: " + searcher + " failed to begin search.");
-				e.printStackTrace(logWriter);
+				getLogWriter().println("Searcher: " + searcher + " failed to begin search.");
+				e.printStackTrace(getLogWriter());
 			}
 		}
 		
@@ -384,7 +384,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			searchLock.lock();
 			searchDone.await(waitTime, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logWriter.println("Search timed out or was interrupted.");
+			getLogWriter().println("Search timed out or was interrupted.");
 		} finally {
 			searchLock.unlock();
 		}
@@ -397,7 +397,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	}
 
 	/** Decides on a move to play from the data received from searchers. */
-	private int bestSearchMove() {
+	protected int bestSearchMove() {
 		IntSet vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
 		vacantPoints.copyDataFrom(getBoard().getVacantPoints());
 		int bestMove = PASS;
@@ -450,7 +450,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 
 	public synchronized void stopAcceptingResults() {
 		if(resultsRemaining > 0) {
-			logWriter.println("Results missing from " + resultsRemaining  + " searchers.");
+			getLogWriter().println("Results missing from " + resultsRemaining  + " searchers.");
 		}
 		resultsRemaining = -1;
 	}
@@ -481,9 +481,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		if (key.equals(LOG_FILE_PROPERTY)) {
 			try {
 				FileOutputStream stream = new FileOutputStream(value);
-				logWriter = new PrintWriter(stream, true);
+				setLogWriter(new PrintWriter(stream, true));
 			} catch (FileNotFoundException e) {
-				logWriter.println("File " + value + " could not be opened for writing.");
+				getLogWriter().println("File " + value + " could not be opened for writing.");
 			}
 			return;
 		}
@@ -564,7 +564,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			try {
 				totalPlayouts += searcher.getTotalPlayoutCount();
 			} catch (RemoteException e) {
-				logWriter.println("Could not get total playout count from searcher: " + searcher);
+				getLogWriter().println("Could not get total playout count from searcher: " + searcher);
 			}
 		}
 		return totalPlayouts;
@@ -573,6 +573,14 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public int getMillisecondsPerMove() {
 		return (int) Math.max(msecToMove, 0);
+	}
+
+	protected PrintWriter getLogWriter() {
+		return logWriter;
+	}
+
+	protected void setLogWriter(PrintWriter logWriter) {
+		this.logWriter = logWriter;
 	}
 
 	/** Utility method to set a property on all the currently known searchers. */

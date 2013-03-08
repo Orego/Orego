@@ -49,7 +49,7 @@ public class BalancedClusterPlayer extends ClusterPlayer {
 				totalWins[p] += wins[p];
 			}
 		} catch (RemoteException e) {
-			System.err.println("Could not get ID from searcher: " + searcher + " to record results.");
+			getLogWriter().println("Could not get ID from searcher: " + searcher + " to record results.");
 		}
 	}
 	
