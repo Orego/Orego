@@ -2,22 +2,24 @@ package orego.experiment;
 
 import java.io.IOException;
 import java.util.*;
-import static orego.experiment.ExperimentConfiguration.*;
 
 /** Kills all processes on all hosts listed in orego.experiment.SystemConfiguration.HOSTS. */
 public class KillExperiment {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		Configuration config = new Configuration();
+		
 		try {
 			// Make sure the FIRST host in HOSTS is killed last, as it is
 			// presumably the machine from which this program is being run.
-			String[] hosts = new String[HOSTS.length];
-			for (int i = 0; i < HOSTS.length; i++) {
-				hosts[i] = HOSTS[(i + 1) % HOSTS.length];
+			List<String> hosts = config.getHosts();
+			
+			for (int i = 0; i < hosts.size(); i++) {
+				hosts.set(i, hosts.get((i + 1) % hosts.size()));
 			}
-			Process[] processes = new Process[hosts.length];
-			for (int i = 0; i < hosts.length; i++) {
-				String host = hosts[i];
+			Process[] processes = new Process[hosts.size()];
+			for (int i = 0; i < hosts.size(); i++) {
+				String host = hosts.get(i);
 				ProcessBuilder builder = new ProcessBuilder("ssh", host,
 						"kill -9 -1", "&");
 				builder.redirectErrorStream(true);
@@ -33,7 +35,7 @@ public class KillExperiment {
 				};
 				new Thread(listener).start();
 			}
-			for (int i = 0; i < HOSTS.length; i++) {
+			for (int i = 0; i < hosts.size(); i++) {
 				processes[i].waitFor();
 			}
 		} catch (InterruptedException e) {

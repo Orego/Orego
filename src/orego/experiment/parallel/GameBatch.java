@@ -1,22 +1,20 @@
 package orego.experiment.parallel;
 
 import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
-import static orego.experiment.ExperimentConfiguration.CONDITIONS;
-import static orego.experiment.ExperimentConfiguration.PARALLEL_GAMES_PER_COLOR;
-import static orego.experiment.ExperimentConfiguration.GAMES_PER_HOST;
-import static orego.experiment.ExperimentConfiguration.GNUGO;
-import static orego.experiment.ExperimentConfiguration.JAVA_WITH_OREGO_CLASSPATH;
-import static orego.experiment.ExperimentConfiguration.RESULTS_DIRECTORY;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import orego.experiment.ExperimentConfiguration;
+import orego.experiment.Configuration;
 import orego.experiment.Game;
 
 
 public class GameBatch implements Runnable {
 
+	/** our handle to the configuration data*/
+	private Configuration config;
+	
 	/** entire hostname*/
 	protected String hostname;
 
@@ -38,9 +36,10 @@ public class GameBatch implements Runnable {
 	public static void launchGameBatches(String hostname) {
 		try {
 			
-			// runs the batches in parallel according to the maximum number of simultaneous games per host
-			for (int i = 0; i < GAMES_PER_HOST; i++) {
-				new Thread(new orego.experiment.parallel.GameBatch(i, hostname)).start();
+			Configuration config = new Configuration();
+			
+			for (int i = 0; i < config.getGamesPerHost(); i++) {
+				new Thread(new GameBatch(i, hostname, config)).start();
 			}
 			
 		} catch (Throwable e) {
@@ -50,9 +49,11 @@ public class GameBatch implements Runnable {
 	}
 
 
-	public GameBatch(int batchNumber, String machine) {
+	public GameBatch(int batchNumber, String machine, Configuration config) {
+		System.out.println("Creating game batch " + batchNumber + " on " + machine);
 		this.batchNumber = batchNumber;
 		this.hostname = machine;
+		this.config = config;
 	}
 
 	@Override
@@ -62,16 +63,16 @@ public class GameBatch implements Runnable {
 		spinUpRemoteSearchers(this.batchNumber);  
 		
 		// we run a series of games for each of the conditions (synchronously)
-		for (String condition : CONDITIONS) {
-			String logFile = RESULTS_DIRECTORY + "game_batch_" + this.batchNumber + ".log";
+		for (String condition : config.getRunningConditions()) {
+			String logFile = config.getResultsDirectory() + File.separator + "game_batch_" + this.batchNumber + ".log";
 			
-			String orego = JAVA_WITH_OREGO_CLASSPATH + " -ea -server -Xmx1024M orego.ui.Orego cluster_player_index=" + this.batchNumber + " cluster_player_log=" + logFile + " " + condition;
+			String orego = "java -cp " + config.getOregoClasspath() + " -ea -server -Xmx1024M orego.ui.Orego cluster_player_index=" + this.batchNumber + " cluster_player_log=" + logFile + " " + condition;
 			
 			// run a game where orego is black. Block until all black games are run.
-			runGames(orego, GNUGO);
+			runGames(orego, config.getGnuGoCommand());
 			
 			// run a game where orego is white. Block until all white games are run.
-			runGames(GNUGO, orego);
+			runGames(config.getGnuGoCommand(), orego);
 		}
 	}
 
@@ -87,8 +88,8 @@ public class GameBatch implements Runnable {
 		String dirPrefix = this.hostname.substring(0, this.hostname.indexOf("."));
 		
 		// no we run all the number of games per color
-		for (int i = 0; i < PARALLEL_GAMES_PER_COLOR; i++) {
-			String fileStem = RESULTS_DIRECTORY +  dirPrefix + "-b" + batchNumber + "-" + System.currentTimeMillis();
+		for (int i = 0; i < config.getParallelGamesPerColor(); i++) {
+			String fileStem = config.getResultsDirectory() + File.separator +  dirPrefix + "-b" + batchNumber + "-" + System.currentTimeMillis();
 			Game game;
 
 			game = new Game(fileStem + ".sgf", black, white);
@@ -103,10 +104,10 @@ public class GameBatch implements Runnable {
 		
 		ArrayList<Process> processes = new ArrayList<Process>();
 		
-		for (String remoteHost : ExperimentConfiguration.HOSTS) {
+		for (String remoteHost : config.getHosts()) {
 			
-			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M orego.cluster.ClusterTreeSearcher " + this.hostname + " " + playerIndex + "&> " +
-								 RESULTS_DIRECTORY  + remoteHost + "_" + playerIndex + ".log";
+			String java_command = "java -ea -server -cp " + config.getOregoClasspath() + " -Xmx2048M orego.cluster.ClusterTreeSearcher " + this.hostname + " " + playerIndex + "&> " +
+								 config.getResultsDirectory() + File.separator + remoteHost + "_" + playerIndex + ".log";
 						
 			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
 			

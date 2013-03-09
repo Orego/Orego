@@ -2,15 +2,16 @@ package orego.experiment;
 
 import java.io.*;
 import java.util.*;
-import static orego.experiment.ExperimentConfiguration.*;
 import static orego.core.Colors.*;
 
 // TODO There should be an easy way to dump these data into a graph
 /** Collates experimental results stored in many files. */
 public class Collate {
 
-	public static void main(String[] args) throws FileNotFoundException {
-		File dir = new File(RESULTS_DIRECTORY);
+	public static void main(String[] args) throws Exception {
+		Configuration config = new Configuration();
+		
+		File dir = config.getResultsDirectory();
 		// Maps conditions to results; each result contains the number of wins and the number of games
 		Map<String, int[]> results = new TreeMap<String, int[]>();
 		// total playouts and moves
@@ -23,7 +24,7 @@ public class Collate {
 				char oregoColor = ' ';
 				String input = "";
 				String condition = null;
-				Scanner s = new Scanner(new File(RESULTS_DIRECTORY + name));
+				Scanner s = new Scanner(new File(config.getResultsDirectory().getAbsolutePath() + File.separator + name));
 				while (s.hasNextLine()) {
 					input += s.nextLine();
 				}

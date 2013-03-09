@@ -1,18 +1,23 @@
 package orego.experiment;
 
-import static orego.experiment.ExperimentConfiguration.*;
+import java.io.File;
 import java.util.*;
 
 /** Runs GameBatch on each of several machines. */
 public class Broadcast {
 
 	public static void main(String[] args) throws Exception {
-		Process[] processes = new Process[HOSTS.length];
-		for (int i = 0; i < HOSTS.length; i++) {
-			String host = HOSTS[i];
+		Configuration config = new Configuration();
+		List<String> hosts = config.getHosts();
+		
+		Process[] processes = new Process[hosts.size()];
+		
+		for (int i = 0; i < hosts.size(); i++) {
+			String host = hosts.get(i);
+			
 			ProcessBuilder builder = new ProcessBuilder("nohup", "ssh", host,
-					JAVA_WITH_OREGO_CLASSPATH + " orego.experiment.GameBatch "
-							+ host + "&>" + RESULTS_DIRECTORY + host + ".batch", "&");
+					"java -server -ea -cp " + config.getOregoClasspath() + " orego.experiment.GameBatch "
+							+ host + "&>" + config.getResultsDirectory().getAbsolutePath() + File.separator + host + ".batch", "&");
 			builder.redirectErrorStream(true);
 			processes[i] = builder.start();
 			final Process p = processes[i];
@@ -34,7 +39,7 @@ public class Broadcast {
 			};
 			new Thread(listener).start();
 		}
-		for (int i = 0; i < HOSTS.length; i++) {
+		for (int i = 0; i < hosts.size(); i++) {
 			processes[i].waitFor();
 		}
 	}
