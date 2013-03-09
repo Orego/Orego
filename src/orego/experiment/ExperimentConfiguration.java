@@ -3,7 +3,7 @@ package orego.experiment;
 import static orego.core.Coordinates.BOARD_WIDTH;
 
 /** Defines some system-dependent constants for experiments. */
-public class ExperimentConfiguration {
+public class ExperimentConfiguration1 {
 
 	/** Directory where game files are stored. */
 	public static final String RESULTS_DIRECTORY = "/home/drake/results/";

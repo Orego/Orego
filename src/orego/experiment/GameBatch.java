@@ -5,6 +5,7 @@ import static orego.experiment.ExperimentConfiguration.*;
 
 /** Plays a series of experimental games on one machine. */
 public class GameBatch implements Runnable {
+	
 	/** prefix (until first dot) of the hostname */
 	protected String hostnamePrefix;
 
