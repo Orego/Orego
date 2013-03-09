@@ -50,7 +50,7 @@ public class ClusterPlayerTest {
 	 * The new beginSearch method will respond after msecToRespond with the best
 	 * move at bestMove.
 	 */
-	protected void setupMockSearcher(TreeSearcher mockSearcher, final int msecToRespond, final int bestMove, final int runsPerPoint, final int winsPerPoint) throws RemoteException {
+	protected static void setupMockSearcher(TreeSearcher mockSearcher, final ClusterPlayer player, final int msecToRespond, final int bestMove, final int runsPerPoint, final int winsPerPoint) throws RemoteException {
 		doAnswer(new Answer<Object>() {
 			
 			@Override
@@ -91,8 +91,8 @@ public class ClusterPlayerTest {
 		}).when(mockSearcher).beginSearch();
 	}
 	
-	protected void setupMockSearcher(TreeSearcher mockSearcher, final int msecToRespond, final int bestMove) throws RemoteException {
-		setupMockSearcher(mockSearcher, msecToRespond, bestMove, 1, 2);
+	protected static void setupMockSearcher(TreeSearcher mockSearcher, final ClusterPlayer player, final int msecToRespond, final int bestMove) throws RemoteException {
+		setupMockSearcher(mockSearcher, player, msecToRespond, bestMove, 1, 2);
 	}
 
 	@Test
@@ -332,7 +332,7 @@ public class ClusterPlayerTest {
 	
 	@Test
 	public void testShouldRequestSearch() throws RemoteException {
-		setupMockSearcher(searcher, 100, -1);
+		setupMockSearcher(searcher, player, 100, -1);
 		
 		player.setOpeningBook(null);
 		player.bestMove();
@@ -343,7 +343,7 @@ public class ClusterPlayerTest {
 	public void testShouldUseSearchResults() throws RemoteException {
 		player.setOpeningBook(null);
 		int best = at("e4");
-		setupMockSearcher(searcher, 100, best);
+		setupMockSearcher(searcher, player, 100, best);
 		assertEquals(best, player.bestMove());
 	}
 	
@@ -359,10 +359,10 @@ public class ClusterPlayerTest {
 	public void testShouldClearResults() throws RemoteException {
 		player.setOpeningBook(null);
 		int bestA = at("d3");
-		setupMockSearcher(searcher, 100, bestA);
+		setupMockSearcher(searcher, player, 100, bestA);
 		player.bestMove();
 		int bestB = at("e4");
-		setupMockSearcher(searcher, 100, bestB);
+		setupMockSearcher(searcher, player, 100, bestB);
 		assertEquals(bestB, player.bestMove());
 	}
 	
@@ -380,14 +380,14 @@ public class ClusterPlayerTest {
 		int bestButIllegal = at("a1");
 		player.setOpeningBook(null);
 		player.acceptMove(bestButIllegal);
-		setupMockSearcher(searcher, 100, bestButIllegal);
+		setupMockSearcher(searcher, player, 100, bestButIllegal);
 		assertFalse(player.bestMove() == bestButIllegal);
 	}
 	
 	@Test
 	public void testShouldResign() throws RemoteException {
 		player.setOpeningBook(null);
-		setupMockSearcher(searcher, 100, -1, 11, 1);
+		setupMockSearcher(searcher, player, 100, -1, 11, 1);
 		assertEquals(RESIGN, player.bestMove());
 	}
 }

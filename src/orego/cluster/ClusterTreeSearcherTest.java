@@ -1,6 +1,7 @@
 package orego.cluster;
 
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -109,8 +110,8 @@ public class ClusterTreeSearcherTest {
 
 	@Test
 	public void testShouldGetBestMoveFromPlayer() throws Exception {
-		long[] wins = new long[4];
-		long[] runs = new long[4];
+		long[] wins = new long[FIRST_POINT_BEYOND_BOARD];
+		long[] runs = new long[FIRST_POINT_BEYOND_BOARD];
 
 		when(player.getBoardWins()).thenReturn(wins);
 		when(player.getBoardPlayouts()).thenReturn(runs);
