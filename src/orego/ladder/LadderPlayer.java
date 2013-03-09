@@ -146,6 +146,8 @@ public class LadderPlayer extends Lgrf2Player {
 			for (int j = 0; j < ladderLength*10; j++) {
 				incorporateRun(winner, runnable);
 			}
+			
+			liberty = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
 
 		}
 	}		
