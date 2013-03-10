@@ -1,9 +1,9 @@
 package orego.cluster;
 
 import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.pointToString;
 
+import orego.util.IntSet;
 import orego.util.Pair;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -53,7 +53,9 @@ public class MaxClusterPlayer extends ClusterPlayer {
 			// Find the point on the board with the most wins for this searcher
 			long maxWins = wins[PASS];
 			int bestPoint = PASS;
-			for(int p : ALL_POINTS_ON_BOARD) {
+			IntSet vacantPoints = getBoard().getVacantPoints();
+			for(int idx = 0; idx < vacantPoints.size(); idx++) {
+				int p = vacantPoints.get(idx);
 				long winCount = wins[p];
 				if(winCount > maxWins) {
 					bestPoint = p;
