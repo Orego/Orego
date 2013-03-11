@@ -33,7 +33,7 @@ public class McRunnable implements Runnable {
 	private McPlayer player;
 
 	/** Number of playouts completed. */
-	private int playoutsCompleted;
+	private long playoutsCompleted;
 
 	/** Array of heuristics. */
 	private HeuristicList heuristics;
@@ -111,8 +111,13 @@ public class McRunnable implements Runnable {
 	}
 
 	/** Returns the number of playouts completed by this runnable. */
-	public int getPlayoutsCompleted() {
+	public long getPlayoutsCompleted() {
 		return playoutsCompleted;
+	}
+	
+	/** Sets the number of playouts completed (mostly for unit testing) */
+	protected void setPlayoutsCompleted(long playoutsCompleted) {
+		this.playoutsCompleted = playoutsCompleted;
 	}
 
 	/** Returns the random number generator associated with this runnable. */

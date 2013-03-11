@@ -77,6 +77,28 @@ public class McRunnableTest {
 	}
 
 	@Test
+	public void testShouldNotOverflowPlayouts() {
+		// seed the playouts completed with an initial value close to the maximum
+		// value for an integer
+		runnable.setPlayoutsCompleted(Integer.MAX_VALUE);
+		
+		runnable.performMcRun();
+		runnable.performMcRun();
+		
+		assertEquals(runnable.getPlayoutsCompleted(), (long)Integer.MAX_VALUE + 2L);
+		
+	}
+	
+	@Test
+	public void testShouldSettingPlayoutsCompletedWork() {
+		assertEquals(runnable.getPlayoutsCompleted(), 0);
+		
+		runnable.setPlayoutsCompleted(Integer.MAX_VALUE);
+		
+		assertEquals(Integer.MAX_VALUE, runnable.getPlayoutsCompleted());
+	}
+	
+	@Test
 	public void testUpdatePriors() {
 		player.setHeuristics(new HeuristicList("Pattern@5"));
 		player.reset();

@@ -1,20 +1,27 @@
 package orego.mcts;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.*;
-import static orego.experiment.Debug.debug;
-import static java.lang.Math.*;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 import static java.lang.String.format;
-import static java.lang.Double.*;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.opposite;
+import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.pointToString;
+import static orego.experiment.Debug.debug;
 
-import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import orego.core.Board;
 import orego.play.UnknownPropertyException;
-import orego.util.*;
-import orego.core.*;
-import orego.heuristic.Heuristic;
+import orego.util.IntList;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -66,7 +73,7 @@ public class MctsPlayer extends McPlayer {
 			long time) {
 		System.out.println(this);
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+			long pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
 			System.out.println("Thread " + i + ": " + pp + " playouts");
 		}
 		System.out.println("(" + getRoot().getTotalRuns()

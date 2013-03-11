@@ -39,6 +39,22 @@ public class OregoTest {
 		assertEquals("= 1", output);
 	}
 
+	@Test
+	public void testPlayoutCounterWorks() throws IOException {
+		orego.handleCommand("genmove_black");
+		
+		oregoOut.readLine();
+		oregoOut.readLine(); // read extra return
+		
+		assertTrue(orego.handleCommand("playout_count"));
+		
+		String playouts_str = oregoOut.readLine().replace("= playout=", ""); // trim off suffix
+		oregoOut.readLine(); // read extra return
+		
+		long playouts = Long.valueOf(playouts_str);
+		
+		assertTrue(playouts > 0);
+	}
 	/** A test of the to verify the "boardsize" command. */
 	@Test
 	public void testBoardSize() throws IOException {

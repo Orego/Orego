@@ -70,8 +70,9 @@ public class Orego {
 	 * the second is tried, and so on. The last, empty string in this array
 	 * allows the user to specify a specific, non-Orego package.
 	 */
-	public static final String[] PLAYER_PACKAGES = { "orego.mcts",
-			"orego.play", "orego.response", "" };
+	public static final String[] PLAYER_PACKAGES = { "orego.ladder"};//CHANGED
+//			"orego.mcts",
+//			"orego.play", "orego.response", "" };
 
 	/** String to return in response to version command. */
 	public static final String VERSION_STRING = "7.13";
@@ -327,7 +328,7 @@ public class Orego {
 					orego.mcts.McRunnable mcRunnable = (orego.mcts.McRunnable)mctsPlayer.getRunnable(i);
 					playouts += mcRunnable.getPlayoutsCompleted();
 				}
-				acknowledge("playout="+playouts);
+				acknowledge("playout=" + 	playouts);
 			}
 			else {
 				acknowledge("playout=null");
@@ -406,7 +407,7 @@ public class Orego {
 	protected void handleCommandLineArguments(String[] args) {
 		HashMap<String, String> propertyMap = new HashMap<String, String>();
 		// default settings
-		String playerClass = "Lgrf2";
+		String playerClass = "Ladder";//CHANGED
 		propertyMap.put("heuristics", "Escape@20:Pattern@20:Capture@20");
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
