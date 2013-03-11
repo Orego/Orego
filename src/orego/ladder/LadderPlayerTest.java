@@ -16,10 +16,10 @@ public class LadderPlayerTest {
 		player = new LadderPlayer();
 	}
 
+	/** Assert that LadderPlayer wants to play a winning ladder. */
 	@Test
-
-	public void testPlayLadderWin() {
-		String[] diagram1 = {
+	public void testWinningLadder() {
+		String[] diagram = {
 				"...................",// 19
 				"...................",// 18
 				"...................",// 17
@@ -42,23 +42,16 @@ public class LadderPlayerTest {
 			  // ABCDEFGHJKLMNOPQRST
 		};
 		
-		
 		player.reset();
-		player.setUpProblem(WHITE, diagram1);
+		player.setUpProblem(WHITE, diagram);
 		player.getBoard().play(at("E13"));
-		assertEquals(player.bestMove(),Coordinates.at("F13"));//blacks best move should be F13
-		assertEquals((30*10)+1, player.getWinsFor(0));//win bias of 300
-		assertEquals(player.getLadLengths(0),30);
-		
-		player.getBoard().play(at("A19"));//make black play somewhere random to change turn
-		assertFalse(player.bestMove()==Coordinates.at("F13"));//white doesn't want to immediately capture?
-		System.out.println(player.getRoot());
-		assertEquals(1, player.getWinsFor(0));//no wins for white
+		assertTrue(player.bestMove() == at("F13"));
 	}
+
+	/** Assert that LadderPlayer does not want to play a losing ladder. */
 	@Test
-	public void testPlayLadderLose(){
-		
-		String[] diagram2 = {
+	public void testLosingLadder() {		
+		String[] diagram = {
 				"...................",// 19
 				"...................",// 18
 				"...................",// 17
@@ -79,18 +72,11 @@ public class LadderPlayerTest {
 				"...................",// 2
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
-		};//ladder length=48
+		}; // length is 48
 		
 		player.reset();
-		player.setUpProblem(WHITE, diagram2);
+		player.setUpProblem(WHITE, diagram);
 		player.getBoard().play(at("E13"));
-		assertFalse(player.bestMove()==Coordinates.at("F13"));//blacks best move= anything but F13
-		assertEquals(1, player.getWinsFor(0));//no wins for black (defaultVal=1)
-		
-		player.getBoard().play(at("A19"));//make black play somewhere away from ladder
-		player.bestMove();
-		assertEquals((48*10)+1,player.getWinsFor(0));//white has win bias of 480 for lad#1
-		assertEquals(player.getLadLengths(0),48);
-		
+		assertTrue(player.bestMove() != at("F13"));
 	}
 }

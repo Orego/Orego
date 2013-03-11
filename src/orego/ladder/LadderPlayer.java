@@ -3,21 +3,29 @@ package orego.ladder;
 import orego.mcts.*;
 import orego.util.IntSet;
 import orego.core.*;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.WHITE;
+import static orego.core.Colors.opposite;
+import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 
 /**
- * This player plays out ladders and biases the point that kicks each one off,
- * either for play (if we win) or against play (if we lose).
+ * This player plays out all the ladders on the board to find out who wins
+ * and biases each position for the winner.
  */
 public class LadderPlayer extends Lgrf2Player {
-	/**This runnable is for incorporating runs to the main tree. The board belonging to this is where we play out the ladders **/
+
+	/**
+	 * The McRunnable used for incorporating ladder playouts into the search tree.
+	 * (We play out ladders on runnable.getBoard()).
+	 */
 	McRunnable runnable;
-	/**this records total wins for the ladder this has most recently finished playing out (should be made into a list)**/
-	int wins[];
-	
-	int lengths[];
+
+//	/**this records total wins for the ladder this has most recently finished playing out (should be made into a list)**/
+//	int wins[];
+//	int lengths[];
 	
 	@Override
-	/** Calls playOutLadders to bias the search tree. */	
+	/** Returns the best move, first biasing the search tree with the results of ladder playouts. */
 	public int bestMove() {
 		try {
 			stopThreads();
@@ -29,19 +37,21 @@ public class LadderPlayer extends Lgrf2Player {
 		}
 		return bestStoredMove();
 	}
-	/**returns wins for ladder #p. This is essentially the same as getWins() in mctsPlayer
-	 *  but allows us to test our ladder bias values once bestMove() has resumed other threads (which would change wins/runs etc.)**/
-	public int getWinsFor(int p){
-		return wins[p];
-	}
-	/**returns length of ladder p**/
-	public int getLadLengths(int p){
-		return lengths[p];
-	}
+
+//	/**returns wins for ladder #p. This is essentially the same as getWins() in mctsPlayer
+//	 *  but allows us to test our ladder bias values once bestMove() has resumed other threads (which would change wins/runs etc.)**/
+//	public int getWinsFor(int p){
+//		return wins[p];
+//	}
+//	/**returns length of ladder p**/
+//	public int getLadLengths(int p){
+//		return lengths[p];
+//	}
+	
 	/** 
 	 * Returns the liberties of every ladder where color is on the inside.
 	 * This is enough information to play out the ladder
-	 * (see {@link #playOutLadders()}playOutLadders()).
+	 * (see {@link #playOutLadders()}).
 	 */
 	public IntSet libertiesOfLadders(int color) {
 		// our definition of a ladder is: a chain in atari whose
@@ -58,97 +68,85 @@ public class LadderPlayer extends Lgrf2Player {
 	}
 	
 	/**
-	 * Plays out every ladder and biases the search tree.
+	 * Plays out every ladder and biases the search tree for each.
 	 */
 	public void playOutLadders() {
-		// Each ladder will be played out on runnable and then that whole
+		// Each ladder will be played out on runnable and then that entire
 		// playout (run) will be incorporated into the search tree.
-
+		
+		runnable = new McRunnable(this, null); // ladders are played out here
+		
 		// get the ladders
-		IntSet ladderLiberties = libertiesOfLadders(Colors.BLACK);
+		IntSet ladderLiberties = libertiesOfLadders(BLACK);
 		int numberOfBlackLadders = ladderLiberties.size();
-		ladderLiberties.addAll(libertiesOfLadders(Colors.WHITE));
-		wins=new int[ladderLiberties.size()];
-		lengths=new int[ladderLiberties.size()];
-		// each playout will play on a McRunnable, whose board is reset each time
-		runnable = new McRunnable(this, null);
-		int lNum=0;//keeps track of which ladder for index of array of bias #s
-		
-		// each playout will play on a McRunnable, whose board is reset each time
-		runnable = new McRunnable(this, null);
-		
-		// play out each ladder (separately)
+		ladderLiberties.addAll(libertiesOfLadders(WHITE));
+
+		// play out each ladder separately
 		for (int i = 0; i < ladderLiberties.size(); i++) {
-			
-			int ladderLength = 0;
-			
 			runnable.copyDataFrom(getBoard());
+			int insidePlaysHere = ladderLiberties.get(i);
+			int insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
+			int outsideColor = opposite(insideColor);
+			int winner;
+			int length = 0; // "length" of this ladder
 			
-			int liberty = ladderLiberties.get(i);
-			int insideColor = (i < numberOfBlackLadders) ? Colors.BLACK : Colors.WHITE;
-			boolean insideWon;
-			
-			// start as the inside color
 			runnable.getBoard().setColorToPlay(insideColor);
 			
 			// keep applying the policy of the inside player and the outside player until
 			// the ladder is over (either the inside player is free or has been captured)
 			while (true) {
 				// inside player policy: play in my only liberty
-				int insidePlaysHere = liberty;
 				runnable.acceptMove(insidePlaysHere);
 				if (runnable.getBoard().getLibertyCount(insidePlaysHere) >= 3) {
 					// inside player is free
-					insideWon = true;
+					winner = insideColor;
 					break;
 				}
 				
-				// outside player policy: play in the inside player's liberty
-				// with the most vacant neighbors
-				IntSet insidesLiberties = runnable.getBoard().getLiberties(insidePlaysHere);
+				// outside player policy: play in the inside player's
+				// liberty with the most vacant neighbors
+				IntSet insideLiberties = runnable.getBoard().getLiberties(insidePlaysHere);
 				int mostVacantNeighbors = -1;
-				int pointWithMostVacantNeighbors = Coordinates.FIRST_POINT_BEYOND_BOARD;
-				
-				for (int j = 0; j < insidesLiberties.size(); j++) {
-					if (runnable.getBoard().getVacantNeighborCount(insidesLiberties.get(j)) > mostVacantNeighbors) {
-						pointWithMostVacantNeighbors = insidesLiberties.get(j);
-						mostVacantNeighbors = runnable.getBoard().getVacantNeighborCount(pointWithMostVacantNeighbors);
+				int pointToPlay = FIRST_POINT_BEYOND_BOARD;
+				for (int j = 0; j < insideLiberties.size(); j++) {
+					int lib = insideLiberties.get(j);
+					int vacantNeighborCount = runnable.getBoard().getVacantNeighborCount(lib);
+					if (vacantNeighborCount > mostVacantNeighbors) {
+						mostVacantNeighbors = vacantNeighborCount;
+						pointToPlay = lib;
 					}
 				}
-				
-				runnable.acceptMove(pointWithMostVacantNeighbors);
+				runnable.acceptMove(pointToPlay);
 				if (runnable.getBoard().getColor(insidePlaysHere) != insideColor) {
 					// inside player was captured
-					insideWon = false;
+					winner = outsideColor;
 					break;
 				}
 				
-				ladderLength++;
-
-				// TODO Add code here looking for outside stones in atari.
+				insidePlaysHere = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
+				length++;
 			}
 			
 			// bias the search tree: call this playout for the winner.
 			// longer ladders are biased more because the stakes are higher.
-			int winner = insideWon ? insideColor : Colors.opposite(insideColor); 
-
-			//System.err.println("ladder "+lNum+" Length="+ladderLength);
-			for (int j = 0; j < ladderLength*10; j++) {
-				incorporateRun(winner, runnable);
-				lengths[lNum]=ladderLength;
-			}
-			wins[lNum]=getRoot().getWins(Coordinates.at("F13"));
-//			System.out.println("wins at F13:"+getRoot().getWins(Coordinates.at("F13")));
-//			System.out.println("wins array: "+wins[lNum]);
-//			System.out.println("lad length="+lengths[lNum]);
-			lNum++;
-
-			for (int j = 0; j < ladderLength*10; j++) {
+			for (int j = 0; j < length * 10; j++) {
 				incorporateRun(winner, runnable);
 			}
-			
-			liberty = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
-
 		}
-	}		
+	}
 }
+
+//		wins=new int[ladderLiberties.size()];
+//		lengths=new int[ladderLiberties.size()];
+//		int lNum=0;//keeps track of which ladder for index of array of bias #s
+//		
+//				
+//				ladderLength++;
+//
+//			for (int j = 0; j < ladderLength*10; j++) {
+//				incorporateRun(winner, runnable);
+//				lengths[lNum]=ladderLength;
+//			}
+//			wins[lNum]=getRoot().getWins(Coordinates.at("F13"));
+//			lNum++;
+//
