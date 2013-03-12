@@ -57,5 +57,19 @@ public class MaxClusterPlayerTest {
 		
 		assertEquals(player.bestMove(), best);
 	}
+	
+	@Test
+	public void testDoesNotChooseOccupiedPoint() throws RemoteException {
+		int bestButOccupied = at("e4");
+		
+		TreeSearcher searcher = mock(TreeSearcher.class);
+		when(searcher.getSearcherId()).thenReturn(1);
+		setupMockSearcher(searcher, player, 100, bestButOccupied);
+		player.addSearcher(searcher);
+		
+		player.acceptMove(at("e4"));
+		
+		assertTrue(player.bestMove() != bestButOccupied);
+	}
 
 }
