@@ -104,6 +104,7 @@ public class Configuration {
 			}
 		}
 		
+		
 		return hosts;
 	}
 	
