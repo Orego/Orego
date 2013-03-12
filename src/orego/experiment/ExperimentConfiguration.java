@@ -32,7 +32,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 200;
+	public static final int GAMES_PER_CONDITION = 180;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
