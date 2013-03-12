@@ -51,6 +51,11 @@ public class ConfigurationTest {
 	}
 	
 	@Test
+	public void testShouldBeAbleToUseExternalConfig() {
+		fail("Not implemented");
+	}
+	
+	@Test
 	public void testShouldGetConditions() {
 		List<String> conds = new ArrayList<String>();
 		

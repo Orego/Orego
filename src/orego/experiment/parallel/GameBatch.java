@@ -26,17 +26,20 @@ public class GameBatch implements Runnable {
 	 *            element 0 is the host name.
 	 */
 	public static void main(String[] args) {
-		assert args.length == 1;
+		if (args.length != 2) {
+			System.out.println("Usage: java orego.experiment.parallel.GameBatch [rmi hostname] [configuration file path]");
+			System.exit(1);
+		}
 		
-		launchGameBatches(args[0]);
+		launchGameBatches(args[0], args[1]);
 	}
 	
 	
 	
-	public static void launchGameBatches(String hostname) {
+	public static void launchGameBatches(String hostname, String config_filename) {
 		try {
 			
-			Configuration config = new Configuration();
+			Configuration config = new Configuration(config_filename);
 			
 			for (int i = 0; i < config.getGamesPerHost(); i++) {
 				new Thread(new GameBatch(i, hostname, config)).start();
