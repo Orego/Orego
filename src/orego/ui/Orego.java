@@ -8,8 +8,8 @@ import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.pointToString;
 import static orego.core.Coordinates.setBoardWidth;
+import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
 import static orego.experiment.Debug.*;
 import java.io.BufferedReader;
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
 import orego.play.Playable;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
@@ -228,9 +229,10 @@ public class Orego {
 				if (width == BOARD_WIDTH) {
 					player.reset();
 					acknowledge();
-				} else if(width == 9 || width == 19){
+				} else if(width > 0){
 					try{
 						setBoardWidth(width);
+						player.getBoard().clear();
 					}catch(IndexOutOfBoundsException e){
 						error("unacceptable size");
 					}

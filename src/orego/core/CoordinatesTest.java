@@ -159,15 +159,16 @@ public class CoordinatesTest {
 	 * 
 	 */
 	@Test(expected=IndexOutOfBoundsException.class)
-	public void testSetBoardWidth(){
+	public void testSetBoardWidthFailure() throws IndexOutOfBoundsException{
+		setBoardWidth(-8);
+	}
+	
+	@Test
+	public void testSetBoardWidth() {
 		setBoardWidth(9);
 		assertEquals(9, BOARD_WIDTH);
 		setBoardWidth(19);
 		assertEquals(19, BOARD_WIDTH);
-		try{
-			setBoardWidth(8);
-		}catch(IndexOutOfBoundsException e){
-		}
 	}
 
 }

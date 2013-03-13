@@ -2,6 +2,7 @@ package orego.ui;
 
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import orego.core.Coordinates;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
@@ -42,10 +43,14 @@ public class OregoTest {
 	/** A test of the to verify the "boardsize" command. */
 	@Test
 	public void testBoardSize() throws IOException {
-		// BOARD_WIDTH + 1 is an invalid size, check for an error
+		// 0 or fewer is an invalid size, check for an error
 		// message.
-		orego.handleCommand("boardsize " + (BOARD_WIDTH + 1));
+		orego.handleCommand("boardsize " + 0);
 		String output = oregoOut.readLine();
+		assertEquals('?', output.charAt(0));
+		oregoOut.readLine(); // read out the extra return
+		orego.handleCommand("boardsize " + -9);
+		output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
 		// Check with a valid BOARD_WIDTH parameter
@@ -58,6 +63,7 @@ public class OregoTest {
 		output = oregoOut.readLine();
 		assertEquals ('=', output.charAt(0));
 		assertEquals(9, BOARD_WIDTH);
+		assertEquals(81, Coordinates.BOARD_AREA);
 		oregoOut.readLine();
 		//set back to 19 so other tests will work
 		orego.handleCommand("boardsize " + 19);
@@ -66,10 +72,10 @@ public class OregoTest {
 		// Check without a parameter. Check for error message.
 		orego.handleCommand("boardsize");
 		output = oregoOut.readLine();
-		System.out.println(output);
 		assertEquals('?', output.charAt(0));
 		assertTrue(output.substring(2).equals("unacceptable size"));
 		oregoOut.readLine(); // read out the extra return
+		orego.handleCommand("boardsize " + 19);
 	}
 
 	/** Test the "clear_board" command. */
