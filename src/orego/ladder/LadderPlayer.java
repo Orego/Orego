@@ -80,7 +80,7 @@ public class LadderPlayer extends Lgrf2Player {
 		IntSet ladderLiberties = libertiesOfLadders(BLACK);
 		int numberOfBlackLadders = ladderLiberties.size();
 		ladderLiberties.addAll(libertiesOfLadders(WHITE));
-
+		
 		// play out each ladder separately
 		for (int i = 0; i < ladderLiberties.size(); i++) {
 			runnable.copyDataFrom(getBoard());
@@ -89,14 +89,23 @@ public class LadderPlayer extends Lgrf2Player {
 			int outsideColor = opposite(insideColor);
 			int winner;
 			int length = 0; // "length" of this ladder
-			
+			int neighborCounter=0;   // a counter for neighboring stones to the outside stone most recently played that are in atari.
 			runnable.getBoard().setColorToPlay(insideColor);
 			
 			// keep applying the policy of the inside player and the outside player until
 			// the ladder is over (either the inside player is free or has been captured)
 			while (true) {
 				// inside player policy: play in my only liberty
-				runnable.acceptMove(insidePlaysHere);
+				// Must check if move is legal first (not suicide)
+				
+				
+				if(runnable.getBoard().isLegal(insidePlaysHere)){
+					runnable.acceptMove(insidePlaysHere);
+				}else{
+					winner=outsideColor;
+					break;
+				}
+						
 				if (runnable.getBoard().getLibertyCount(insidePlaysHere) >= 3) {
 					// inside player is free
 					winner = insideColor;
@@ -116,10 +125,32 @@ public class LadderPlayer extends Lgrf2Player {
 						pointToPlay = lib;
 					}
 				}
-				runnable.acceptMove(pointToPlay);
+				if(runnable.getBoard().isLegal(pointToPlay)){
+					runnable.acceptMove(pointToPlay);
+				}else{
+					winner=insideColor;
+					break;
+				}
+				
 				if (runnable.getBoard().getColor(insidePlaysHere) != insideColor) {
 					// inside player was captured
 					winner = outsideColor;
+					break;
+				}
+				
+				
+				// for loop looks through each of the neighbors for the newly placed inside stone
+				// checks each of these neighbors against the list of stones in atari and checks if they belong to the opposite color
+				// if an outside stone is in atari it sets winner to inside color and breaks.
+//				for (int x = 0; x < 4; x++) {
+//				  	int n = Coordinates.NEIGHBORS[insidePlaysHere][x];
+//				  	if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
+//				  		neighborCounter++;
+//				  	}
+//				 }
+				
+				if(neighborCounter>=1){
+					winner=insideColor;
 					break;
 				}
 				
@@ -128,8 +159,8 @@ public class LadderPlayer extends Lgrf2Player {
 			}
 			
 			// bias the search tree: call this playout for the winner.
-			// longer ladders are biased more because the stakes are higher.
-			for (int j = 0; j < length * 10; j++) {
+			// 100 is used as the number of runs incorporated, this needs to be tuned.
+			for (int j = 0; j < 100; j++) {
 				incorporateRun(winner, runnable);
 			}
 		}
