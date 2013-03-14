@@ -28,8 +28,9 @@ import ec.util.MersenneTwisterFast;
 // GNU Go has made an illegal move. I suspect that Player is actually making illegal
 // moves (superko violations).
 
-/** Chooses moves to play. The default implementation is a pure random player. */
-public class Player implements Playable {
+/** Identical to Player except line 272 (command stoken.nextToken()) 
+ * commented out to work with computer go test collection sgf board setup.*/
+public class CGTCPlayer extends Player {
 
 	/** The Board this player plays on. */
 	private Board board;
@@ -44,7 +45,7 @@ public class Player implements Playable {
 	private MersenneTwisterFast random;
 
 	/** A default player with a random policy. */
-	public Player() {
+	public CGTCPlayer() {
 		random = new MersenneTwisterFast();
 		heuristics = new HeuristicList();
 	}
@@ -269,7 +270,7 @@ public class Player implements Playable {
 			}
 			StringTokenizer stoken = new StringTokenizer(input, ";");
 			stoken.nextToken();
-			stoken.nextToken();
+			//stoken.nextToken();
 			String boardSetup = stoken.nextToken();
 			stoken = new StringTokenizer(boardSetup, "[]()");
 			int state = 0;
