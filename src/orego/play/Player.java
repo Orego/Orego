@@ -269,7 +269,7 @@ public class Player implements Playable {
 			}
 			StringTokenizer stoken = new StringTokenizer(input, ";");
 			stoken.nextToken();
-			stoken.nextToken();
+			//stoken.nextToken();
 			String boardSetup = stoken.nextToken();
 			stoken = new StringTokenizer(boardSetup, "[]()");
 			int state = 0;
