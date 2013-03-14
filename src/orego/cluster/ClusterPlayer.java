@@ -7,10 +7,10 @@ import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.pointToString;
 import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -78,7 +78,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	// By default, wait 100ms more than the time allotted to search
 	// We stop waiting when all the players respond, so it doesn't matter
 	// if this is longer than necessary
-	private long latencyFudge = 100;
+	private long latencyFudge = 500;
 	
 	private ReentrantLock searchLock;
 	
@@ -178,6 +178,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 */
 	public synchronized void addSearcher(TreeSearcher s) throws RemoteException {
 		try {
+			getLogWriter().println("Adding searcher. ID will be " + nextSearcherId);
 			s.setSearcherId(nextSearcherId);
 			s.setKomi(getBoard().getKomi());
 			s.setPlayer(remotePlayerClass);
@@ -271,6 +272,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public void terminate() {		
 		
+		getLogWriter().println("ClusterPlayer is terminating.");
+		
 		// Remove ourselves from RMI first so the searchers don't reconnect to us.
 		this.unbindRMI();
 		
@@ -291,6 +294,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 */
 	@Override
 	public int acceptMove(int p) {
+		
+		getLogWriter().println("ClusterPlayer acceptMove: " + pointToString(p));
 		
 		int result = super.acceptMove(p);
 		
@@ -349,12 +354,15 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 */
 	@Override
 	public int bestMove() {
+		getLogWriter().println("ClusterPlayer bestMove called.");
+
 		// First check the opening book for a move
 		if (getOpeningBook() != null) {
 			
 			int move = getOpeningBook().nextMove(getBoard());
 			
 			if (move != NO_POINT) {
+				getLogWriter().println("Returning opening book move.");
 				return move;
 			}
 		}
@@ -480,9 +488,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 		if (key.equals(LOG_FILE_PROPERTY)) {
 			try {
-				FileOutputStream stream = new FileOutputStream(value);
-				setLogWriter(new PrintWriter(stream, true));
-			} catch (FileNotFoundException e) {
+				setLogWriter(new PrintWriter(new FileWriter(value, true), true));
+				getLogWriter().println("Now logging ClusterPlayer debug information to: " + value);
+			} catch (Exception e) {
 				getLogWriter().println("File " + value + " could not be opened for writing.");
 			}
 			return;
