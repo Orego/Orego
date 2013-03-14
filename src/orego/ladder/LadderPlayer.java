@@ -89,7 +89,7 @@ public class LadderPlayer extends Lgrf2Player {
 			int outsideColor = opposite(insideColor);
 			int winner;
 			int length = 0; // "length" of this ladder
-			int neighborCounter=0;   // a counter for neighboring stones to the outside stone most recently played that are in atari.
+			boolean neighborAtari=false;   // test to see if neighboring stones are in atari
 			runnable.getBoard().setColorToPlay(insideColor);
 			
 			// keep applying the policy of the inside player and the outside player until
@@ -142,17 +142,18 @@ public class LadderPlayer extends Lgrf2Player {
 				// for loop looks through each of the neighbors for the newly placed inside stone
 				// checks each of these neighbors against the list of stones in atari and checks if they belong to the opposite color
 				// if an outside stone is in atari it sets winner to inside color and breaks.
+				
+				// This code is commented out as it causes a null pointer exception sometimes.
 //				for (int x = 0; x < 4; x++) {
 //				  	int n = Coordinates.NEIGHBORS[insidePlaysHere][x];
 //				  	if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
-//				  		neighborCounter++;
+//				  		neighborAtari=true;
 //				  	}
 //				 }
-				
-				if(neighborCounter>=1){
-					winner=insideColor;
-					break;
-				}
+//				if(neighborAtari){
+//					winner=insideColor;
+//					break;
+//				}
 				
 				insidePlaysHere = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
 				length++;
