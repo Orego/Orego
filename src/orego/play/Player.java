@@ -19,6 +19,7 @@ import java.util.TreeSet;
 
 import orego.book.OpeningBook;
 import orego.core.Board;
+import orego.core.ParseSGF;
 import orego.heuristic.Heuristic;
 import orego.heuristic.HeuristicList;
 import orego.util.IntSet;
@@ -254,58 +255,67 @@ public class Player implements Playable {
 		reset();
 		board.setColorToPlay(colorToPlay);
 		try {
-			File file = new File(filepath);
-			BufferedReader bf = new BufferedReader(new FileReader(file));
-			String input = "";
-			String current = "";
+			ParseSGF anSGF = new ParseSGF(filepath + ".txt");
+			int[][] handicap = anSGF.getAddBlack();
+			int[][] problem = anSGF.getAddWhite();
 			char[][] ourBoard = new char[BOARD_WIDTH][BOARD_WIDTH];
-			for (int i = 0; i < BOARD_WIDTH; i++) {
-				for (int j = 0; j < BOARD_WIDTH; j++) {
-					ourBoard[i][j] = '.';
-				}
+			for( int i = 0; i < handicap.length; i++ ){
+				ourBoard[handicap[i][0]][handicap[i][1]] = '#';
+				ourBoard[problem[i][0]][problem[i][1]] = 'O';
 			}
-			while ((current = bf.readLine()) != null) {
-				input += current;
-			}
-			StringTokenizer stoken = new StringTokenizer(input, ";");
-			stoken.nextToken();
-			stoken.nextToken();
-			String boardSetup = stoken.nextToken();
-			stoken = new StringTokenizer(boardSetup, "[]()");
-			int state = 0;
-			String currentToken = "";
-			while (stoken.hasMoreTokens()) {
-				currentToken = stoken.nextToken();
-				assert currentToken.length() == 2;
-				if (currentToken.equals("AB")) {
-					// Add black stones (handicap)
-					state = 0;
-				} else if (currentToken.equals("AW")) {
-					// Add white stones
-					state = 1;
-				} else if (Character.isUpperCase(currentToken.charAt(0))) {
-					// Other special SGF codes; ignore
-					state = 2;
-				} else if (state == 0) {
-					if (currentToken.length() == 2) {
-						int row = currentToken.charAt(1) - 'a';
-						int col = currentToken.charAt(0) - 'a';
-						ourBoard[row][col] = '#';
-						// place black stone here.
-					}
-				} else if (state == 1) {
-					if (currentToken.length() == 2) {
-						int row = currentToken.charAt(1) - 'a';
-						int col = currentToken.charAt(0) - 'a';
-						ourBoard[row][col] = 'O';
-						// place white stone here.
-					}
-				}
-			}
+//			char[][] ourBoard = new char[BOARD_WIDTH][BOARD_WIDTH];
+//			File file = new File(filepath + ".txt"); // TODO in the end this shouldn't have ".txt" at the end
+//			BufferedReader bf = new BufferedReader(new FileReader(file));
+//			String input = "";
+//			String current = "";
+//			for (int i = 0; i < BOARD_WIDTH; i++) {
+//				for (int j = 0; j < BOARD_WIDTH; j++) {
+//					ourBoard[i][j] = '.';
+//				}
+//			}
+//			while ((current = bf.readLine()) != null) {
+//				input += current;
+//			}
+//			StringTokenizer stoken = new StringTokenizer(input, ";");
+//			stoken.nextToken();
+//			stoken.nextToken();
+//			String boardSetup = stoken.nextToken();
+//			stoken = new StringTokenizer(boardSetup, "[]()");
+//			int state = 0;
+//			String currentToken = "";
+//			while (stoken.hasMoreTokens()) {
+//				currentToken = stoken.nextToken();
+//				assert currentToken.length() == 2;
+//				if (currentToken.equals("AB")) {
+//					// Add black stones (handicap)
+//					state = 0;
+//				} else if (currentToken.equals("AW")) {
+//					// Add white stones
+//					state = 1;
+//				} else if (Character.isUpperCase(currentToken.charAt(0))) {
+//					// Other special SGF codes; ignore
+//					state = 2;
+//				} else if (state == 0) {
+//					if (currentToken.length() == 2) {
+//						int row = currentToken.charAt(1) - 'a';
+//						int col = currentToken.charAt(0) - 'a';
+//						ourBoard[row][col] = '#';
+//						// place black stone here.
+//					}
+//				} else if (state == 1) {
+//					if (currentToken.length() == 2) {
+//						int row = currentToken.charAt(1) - 'a';
+//						int col = currentToken.charAt(0) - 'a';
+//						ourBoard[row][col] = 'O';
+//						// place white stone here.
+//					}
+//				}
+//			}
 			String[] arrayOfStrings = new String[BOARD_WIDTH];
 			for (int i = 0; i < arrayOfStrings.length; i++) {
 				arrayOfStrings[i] = new String(ourBoard[i]);
 			}
+			// System.out.println(arrayOfStrings);
 			getBoard().setUpProblem(colorToPlay, arrayOfStrings);
 		} catch (Exception e) {
 			e.printStackTrace();

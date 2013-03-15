@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import orego.core.ParseSGF;
 import static orego.experiment.Debug.*;
 
 /**
@@ -272,7 +274,7 @@ public abstract class BookBuilder {
 					return result;
 				}
 			} while (c != '(');
-			List<Integer> game = getGame(in);
+			List<Integer> game = getGame(reader);//getGame(in);
 			if (game != null) {
 				if (game.size() >= MAX_BOOK_DEPTH) {
 					result.add(game);
@@ -283,6 +285,19 @@ public abstract class BookBuilder {
 				}
 			}
 		}
+	}
+
+	private List<Integer> getGame(BufferedReader reader) {
+		List<Integer> result = new ArrayList<Integer>();
+		ParseSGF parser= new ParseSGF(reader);
+		int[] moves = parser.getMoves();
+		if(parser.getAddBlack()[0][0] != 0 || parser.getAddWhite()[0][0] != 0 || parser.getSize() != BOARD_WIDTH){
+			return null;
+		}
+		for(int i = 0; i < MAX_BOOK_DEPTH; i++ ){
+			result.add(moves[i]);
+		}
+		return result;
 	}
 
 	/**
@@ -477,6 +492,7 @@ public abstract class BookBuilder {
 				if (file.isDirectory()) {
 					setUp(filename);
 				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
+					ParseSGF mySGF = new ParseSGF(file);
 					debug("Processing " + dirList[i]);
 					FileReader reader = new FileReader(file);
 					BufferedReader bf = new BufferedReader(reader);
