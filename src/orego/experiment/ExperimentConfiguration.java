@@ -18,10 +18,11 @@ public class ExperimentConfiguration1 {
 	 * The host from which commands are given must be listed first for
 	 * KillExperiment to work.
 	 */
-	public static final String[] HOSTS = { "fido.bw01.lclark.edu",
+	/*public static final String[] HOSTS = { "fido.bw01.lclark.edu",
 			"n001.bw01.lclark.edu",
 			"n002.bw01.lclark.edu",
-			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };
+			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };*/
+	public static final String[] HOSTS = { "fido.bw01.lclark.edu" };
 
 	/**
 	 * Number of games to run simultaneously on each host. This should be no
@@ -31,7 +32,7 @@ public class ExperimentConfiguration1 {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 600;
+	public static final int GAMES_PER_CONDITION = 180;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -54,9 +55,9 @@ public class ExperimentConfiguration1 {
 	public static final String[] CONDITIONS = new String[3];
 		 
 	static {
-		CONDITIONS[0] = "threads=2 msec=2000 book=FusekiBook player=VotingClusterPlayer";
-		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook player=MaxClusterPlayer";
-		CONDITIONS[2] = "threads=2 msec=2000 book=FusekiBook player=BalancedClusterPlayer";
+		CONDITIONS[0] = "threads=2 msec=2000 book=FusekiBook player=ClusterPlayer";
+		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook player=VotingClusterPlayer";
+		CONDITIONS[2] = "threads=2 msec=2000 book=FusekiBook player=MaxClusterPlayer";
 	}
 	/*static {
 		int i = 0;

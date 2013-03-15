@@ -2,6 +2,7 @@ package orego.experiment;
 
 import java.io.*;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
@@ -219,7 +220,7 @@ public class Game {
 				builder.redirectErrorStream(true);
 				
 				programs[color] = builder.start();
-				
+								
 				playerProgramsSTDIN[color] = new PrintWriter(
 													programs[color].getOutputStream());
 				
@@ -228,6 +229,9 @@ public class Game {
 				new Thread(new PlayerListener(color,
 											  programs[color].getInputStream(), this)).start();
 			}
+			
+			// Before starting the game, wait 5s for Orego to establish networking
+			Thread.sleep(TimeUnit.SECONDS.toMillis(5));
 			
 			board = new Board();
 			mode = REQUESTING_MOVE;
