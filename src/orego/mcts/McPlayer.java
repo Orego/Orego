@@ -166,7 +166,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 	public abstract double getWinRate(int p);
 
 	/** Returns the number of wins for the current color to play at point p. */
-	public abstract int getWins(int p);
+	public abstract double getWins(int p);
 	
 	/**
 	 * Display heuristics on the board.
@@ -240,7 +240,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// Find the maximum and minimum win rates on the board, ignoring
 		// occupied points
 		double max = 0, min = 1;
-		int maxWins = 0;
+		double maxWins = 0;
 		for (int p : ALL_POINTS_ON_BOARD) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
