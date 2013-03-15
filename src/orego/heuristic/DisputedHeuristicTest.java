@@ -4,6 +4,7 @@ import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 import orego.core.Board;
+import orego.play.UnknownPropertyException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,11 +54,20 @@ public class DisputedHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
+		heuristic.setMaxVacancies(19*19);
 		heuristic.prepare(board);
 		assertFalse(heuristic.getGoodMoves().contains(at("b2")));
 		assertFalse(heuristic.getGoodMoves().contains(at("r17")));
 		assertTrue(heuristic.getGoodMoves().contains(at("q2")));
 		assertTrue(heuristic.getGoodMoves().contains(at("k8")));
+	}
+	
+	@Test
+	public void testSetProperty() throws UnknownPropertyException {
+		heuristic.setProperty("threshold", "5.13");
+		assertTrue(heuristic.threshold == 5.13);
+		heuristic.setProperty("maxVacancies", "7237");
+		assertTrue(heuristic.maxVacancies == 7237);
 	}
 
 }
