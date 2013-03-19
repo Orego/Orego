@@ -28,10 +28,10 @@ public class ExperimentConfiguration {
 	 * more than the number of processor cores on each host. If Orego is being
 	 * run with multiple threads, it might be even smaller.
 	 */
-	public static final int GAMES_PER_HOST = 6;
+	public static final int GAMES_PER_HOST = 1;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 600;
+	public static final int GAMES_PER_CONDITION = 60;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of

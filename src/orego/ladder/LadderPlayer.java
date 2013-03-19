@@ -143,17 +143,18 @@ public class LadderPlayer extends Lgrf2Player {
 				// checks each of these neighbors against the list of stones in atari and checks if they belong to the opposite color
 				// if an outside stone is in atari it sets winner to inside color and breaks.
 				
-				// This code is commented out as it causes a null pointer exception sometimes.
-//				for (int x = 0; x < 4; x++) {
-//				  	int n = Coordinates.NEIGHBORS[insidePlaysHere][x];
-//				  	if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
-//				  		neighborAtari=true;
-//				  	}
-//				 }
-//				if(neighborAtari){
-//					winner=insideColor;
-//					break;
-//				}
+				for (int x = 0; x < 4; x++) {
+				  	int n = Coordinates.NEIGHBORS[insidePlaysHere][x];
+				  	if(Coordinates.ON_BOARD[n]){
+				  		if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
+				  			neighborAtari=true;
+				  		}
+				  	}
+				 }
+				if(neighborAtari){
+					winner=insideColor;
+					break;
+				}
 				
 				insidePlaysHere = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
 				length++;
@@ -161,7 +162,8 @@ public class LadderPlayer extends Lgrf2Player {
 			
 			// bias the search tree: call this playout for the winner.
 			// 100 is used as the number of runs incorporated, this needs to be tuned.
-			for (int j = 0; j < 100; j++) {
+			for (int j = 0; j < 1000; j++) {
+				
 				incorporateRun(winner, runnable);
 			}
 		}
