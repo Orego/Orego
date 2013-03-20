@@ -1,8 +1,8 @@
 package orego.heuristic;
 
-import static orego.core.Coordinates.*;
 import orego.core.Board;
 import static orego.core.Colors.*;
+import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
 
@@ -16,8 +16,12 @@ public class DisputedHeuristic extends Heuristic {
 		super(weight);
 		setThreshold(0.21);		// these might be good defaults
 		setMaxVacancies(50);	// I'm currenly looking for better ones
-		/* Point the neighborhood array to the LARGE_KNIGHT_NEIGHBORHOOD array */
-		this.neighborhood = LARGE_KNIGHT_NEIGHBORHOOD;
+		/* Point the neighborhood array to the KNIGHT_NEIGHBORHOOD array */
+		try {
+			setNeighborhood("largeknight");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void setThreshold(double newThreshold) {
@@ -28,12 +32,19 @@ public class DisputedHeuristic extends Heuristic {
 		this.maxVacancies = newMax;
 	}
 	
+	public void setNeighborhood(String str) throws UnknownPropertyException {
+		if (str.equals("largeknight")) neighborhood = Coordinates.LARGE_KNIGHT_NEIGHBORHOOD;
+		else if (str.equals("knight")) neighborhood = Coordinates.KNIGHT_NEIGHBORHOOD;
+		else if (str.equals("adjacent")) neighborhood = Coordinates.NEIGHBORS;
+		else throw new UnknownPropertyException("Invalid neighborhood: " + str);
+	}
+	
 	@Override
 	public void prepare(Board board) {
 		super.prepare(board);
 		IntSet vacantPoints = board.getVacantPoints();
 		if (vacantPoints.size() <= maxVacancies) {
-			for (int i = 0; i < vacantPoints.size(); i	++) {
+			for (int i = 0; i < vacantPoints.size(); i++) {
 				int numBlack = 0;	
 				int numWhite = 0;
 				int[] neighborhoodAtPoint = neighborhood[vacantPoints.get(i)];
@@ -65,6 +76,8 @@ public class DisputedHeuristic extends Heuristic {
 			setThreshold(Double.valueOf(value));
 		} else if (name.equals("maxVacancies")) {
 			setMaxVacancies(Integer.parseInt(value));
+		} else if (name.equals("neighborhood")) {
+			setNeighborhood(value);
 		} else {
 			super.setProperty(name, value);
 		}

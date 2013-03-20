@@ -1,6 +1,7 @@
 package orego.heuristic;
 
 import static orego.core.Colors.WHITE;
+import orego.core.Coordinates;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 import orego.core.Board;
@@ -68,6 +69,8 @@ public class DisputedHeuristicTest {
 		assertTrue(heuristic.threshold == 5.13);
 		heuristic.setProperty("maxVacancies", "7237");
 		assertTrue(heuristic.maxVacancies == 7237);
+		heuristic.setProperty("neighborhood", "knight");
+		assertTrue(heuristic.neighborhood == Coordinates.KNIGHT_NEIGHBORHOOD);
 	}
 
 }
