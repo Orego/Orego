@@ -8,9 +8,6 @@ public class ExperimentConfiguration {
 	/** Directory where game files are stored. */
 	public static final String RESULTS_DIRECTORY = "/home/drake/results/";
 
-	/** Path to run GNUGO on your machine. */
-	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
-
 	/** Command to start Java Virtual Machine with Orego's classpath. */
 	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin";
 

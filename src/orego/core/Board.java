@@ -17,7 +17,7 @@ public class Board {
 	 * run this long. It's faster to just cut off such unusual runs (by forcing
 	 * passes) than to check for superko in playouts.
 	 */
-	public static final int MAX_MOVES_PER_GAME = BOARD_AREA * 3;
+	public static int MAX_MOVES_PER_GAME = BOARD_AREA * 3;
 
 	/**
 	 * The result returned by play() when the playout has run too long; only
@@ -285,6 +285,7 @@ public class Board {
 		colorToPlay = BLACK;
 		handicap = 0;
 		hash = 0L;
+		MAX_MOVES_PER_GAME = BOARD_AREA * 3;
 		friendlyNeighboringChainIds = new IntList(4);
 		enemyNeighboringChainIds = new IntList(4);
 		lastPlayLiberties = new IntSet(FIRST_POINT_BEYOND_BOARD);
