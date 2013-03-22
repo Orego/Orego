@@ -1,0 +1,12 @@
+orego.book
+orego.core
+orego.decision
+orego.experiment
+orego.heuristic
+orego.mcts
+orego.patternanalyze
+orego.patterns
+orego.play
+orego.ui
+orego.util
+orego.wls
