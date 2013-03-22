@@ -54,7 +54,7 @@ public class OregoTest {
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
 		// Check with a valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + BOARD_WIDTH);
+		orego.handleCommand("boardsize " + getBoardWidth());
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
@@ -62,8 +62,8 @@ public class OregoTest {
 		orego.handleCommand("boardsize " + 9);
 		output = oregoOut.readLine();
 		assertEquals ('=', output.charAt(0));
-		assertEquals(9, BOARD_WIDTH);
-		assertEquals(81, Coordinates.BOARD_AREA);
+		assertEquals(9, getBoardWidth());
+		assertEquals(81, Coordinates.getBoardArea());
 		oregoOut.readLine();
 		//set back to 19 so other tests will work
 		orego.handleCommand("boardsize " + 19);
@@ -95,7 +95,7 @@ public class OregoTest {
 		orego.handleCommand("showboard");
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
-		for (int i = 0; i < BOARD_WIDTH + 2; i++) {
+		for (int i = 0; i < getBoardWidth() + 2; i++) {
 			output = oregoOut.readLine();
 			assertFalse(output.contains("#"));
 		}
@@ -126,7 +126,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("B")); // Black wins
-		double blackScore = BOARD_AREA - komi; // With max territory
+		double blackScore = getBoardArea() - komi; // With max territory
 		assertEquals(outcome[1], "" + blackScore);
 	}
 
@@ -135,7 +135,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		// This converts the text output internal numerical format and verifies
 		// the move is valid.
-		assertTrue(at(output.substring(2)) < FIRST_POINT_BEYOND_BOARD);
+		assertTrue(at(output.substring(2)) < getFirstPointBeyondBoard());
 	}
 
 	@Test

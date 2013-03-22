@@ -4,9 +4,9 @@ import static orego.core.Colors.BLACK;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.opposite;
-import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.getAllPointsOnBoard;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -105,8 +105,8 @@ public class WLSPlayer extends RavePlayer {
 			bestReplies = new HashMap<Integer, WLSResponseMoveList>();
 			
 			for (int c = BLACK; c <= WHITE; c++) {
-				for (int p : ALL_POINTS_ON_BOARD) {
-					for (int q : ALL_POINTS_ON_BOARD) {
+				for (int p : getAllPointsOnBoard()) {
+					for (int q : getAllPointsOnBoard()) {
 						bestReplies.put(levelTwoEncodedIndex(p, q, c), new WLSResponseMoveList(TOP_RESPONSES_CAP));
 					}
 //					bestReplies.put(levelTwoEncodedIndex(p, pass, c), new WLSResponseMoveList(TOP_RESPONSES_CAP));
@@ -174,8 +174,8 @@ public class WLSPlayer extends RavePlayer {
 			TOP_RESPONSES_CAP = newLength;
 			
 			for (int c = BLACK; c <= WHITE; c++) {
-				for (int p : ALL_POINTS_ON_BOARD) {
-					for (int q : ALL_POINTS_ON_BOARD) {
+				for (int p : getAllPointsOnBoard()) {
+					for (int q : getAllPointsOnBoard()) {
 						WLSResponseMoveList list = bestReplies.get(levelTwoEncodedIndex(p, q, c));
 						if (list != null) {
 							list.resizeTopResponses(newLength);

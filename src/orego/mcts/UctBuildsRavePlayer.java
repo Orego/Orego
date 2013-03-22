@@ -97,7 +97,7 @@ public class UctBuildsRavePlayer extends RavePlayer {
 		int count1 = 0;
 		int count2 = 0;
 		String s = "";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			double value = searchValue(getRoot(), getBoard(), p);
 			if (value >= 0) {
 				count1 ++;
@@ -107,7 +107,7 @@ public class UctBuildsRavePlayer extends RavePlayer {
 		}
 		s += "Stored " + count1 + "|||||||||||";
 		s += "RAVE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			double value = searchValue2(getRoot(), getBoard(), p);
 			if (moves.contains((Integer) p)) {
 				count2 ++;

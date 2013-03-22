@@ -30,7 +30,7 @@ public class BoardTest {
 
 	/** Verifies that p has the indicated liberties. */
 	protected void assertLiberties(Board board, String p, String... liberties) {
-		IntSet libs = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet libs = new IntSet(getFirstPointBeyondBoard());
 		for (String s : liberties) {
 			libs.add(at(s));
 		}
@@ -168,7 +168,7 @@ public class BoardTest {
 		// We could make an equals() method for Board, but it would
 		// not be used anywhere else
 		assertEquals(board.toString(), b.toString());
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			assertEquals(board.getColor(p), b.getColor(p));
 			if (b.getColor(p) != VACANT) {
 				assertEquals(board.getLiberties(p), b.getLiberties(p));

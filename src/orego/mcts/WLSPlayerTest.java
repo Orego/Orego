@@ -1,7 +1,6 @@
 package orego.mcts;
 
 import static orego.core.Colors.BLACK;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static orego.mcts.MctsPlayerTest.TABLE_SIZE;

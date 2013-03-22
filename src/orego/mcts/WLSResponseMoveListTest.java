@@ -1,7 +1,7 @@
 package orego.mcts;
 
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static org.junit.Assert.*;
 import orego.core.Coordinates;
 import orego.wls.State;
@@ -26,7 +26,7 @@ public class WLSResponseMoveListTest {
 		
 		assertEquals(8, responses.getTopResponsesIllegality().length);
 		
-		assertEquals(FIRST_POINT_BEYOND_BOARD, responses.getMovesWLS().length);
+		assertEquals(getFirstPointBeyondBoard(), responses.getMovesWLS().length);
 		
 		responses = new WLSResponseMoveList(16);
 		
@@ -36,7 +36,7 @@ public class WLSResponseMoveListTest {
 		
 		assertEquals(16, responses.getTopResponsesIllegality().length);
 		
-		assertEquals(FIRST_POINT_BEYOND_BOARD, responses.getMovesWLS().length);
+		assertEquals(getFirstPointBeyondBoard(), responses.getMovesWLS().length);
 		
 		// make certain an uninitialized move is at WLS state 0/0
 		State initState = responses.getWLSState(at("m8"));

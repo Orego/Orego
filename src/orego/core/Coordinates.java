@@ -39,19 +39,19 @@ public final class Coordinates {
 	/** Width of the board
 	 * Defaults to 19, can be set to 9 with boardsize command
 	 */
-	public static int BOARD_WIDTH = 19;
+	private static int BOARD_WIDTH = 19;
 
 	/** Number of points on the board. */
-	public static int BOARD_AREA = BOARD_WIDTH * BOARD_WIDTH;
+	private static int BOARD_AREA = BOARD_WIDTH * BOARD_WIDTH;
 
 	/** An array of all the points on the board, for iterating through. */
-	public static int[] ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
+	private static int[] ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
 
 	/**
 	 * An array of all the points on the third or fourth line, for iterating
 	 * through.
 	 */
-	public static int[] THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
+	private static int[] THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
 
 	/** Add this amount to move east one column, or subtract to move west. */
 	public static final int EAST = 1;
@@ -60,38 +60,38 @@ public final class Coordinates {
 	 * Number of points on the board including the buffer of sentinels around
 	 * the outside.
 	 */
-	public static int EXTENDED_BOARD_AREA = (BOARD_WIDTH + 1)
+	private static int EXTENDED_BOARD_AREA = (BOARD_WIDTH + 1)
 			* (BOARD_WIDTH + 2) + 1;
 
 	/** Add this amount to move south one row, or subtract to move north. */
-	public static int SOUTH = BOARD_WIDTH + 1;
+	private static int SOUTH = BOARD_WIDTH + 1;
 
 	/** True for edge and corner points, false for others. */
-	public static boolean[] EDGE_OR_CORNER = new boolean[EXTENDED_BOARD_AREA];
+	private static boolean[] EDGE_OR_CORNER = new boolean[EXTENDED_BOARD_AREA];
 
 	/**
 	 * If there are this many enemy stones on diagonal neighbors, a point is not
 	 * eyelike.
 	 */
-	public static int[] EYELIKE_THRESHOLD = new int[EXTENDED_BOARD_AREA];
+	private static int[] EYELIKE_THRESHOLD = new int[EXTENDED_BOARD_AREA];
 
 	/** Highest index of any point on the board. */
-	public static int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH
+	private static int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH
 			* (SOUTH + EAST) + 1;
 
 	/** Useful in loops over board points. */
-	public static int FIRST_POINT_ON_BOARD = SOUTH + EAST;
+	private static int FIRST_POINT_ON_BOARD = SOUTH + EAST;
 
 	/**
 	 * KNIGHT_NEIGHBORHOOD[p] is an array of points within a knight's move of p.
 	 */
-	public static int[][] KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
+	private static int[][] KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
 
 	/**
 	 * LARGE_KNIGHT_NEIGHBORHOOD[p] is an array of points within a large
 	 * knight's move of p.
 	 */
-	public static int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
+	private static int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
 
 	/**
 	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
@@ -107,13 +107,13 @@ public final class Coordinates {
 	 * 637
 	 * </pre>
 	 */
-	public static int[][] NEIGHBORS = new int[EXTENDED_BOARD_AREA][8];
+	private static int[][] NEIGHBORS = new int[EXTENDED_BOARD_AREA][8];
 
 	/** Special coordinate for no point. */
 	public static final int NO_POINT = 1;
 
 	/** True for points on the board. */
-	public static boolean[] ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
+	private static boolean[] ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
 
 	/** Special coordinate for passing. */
 	public static final int PASS = 0;
@@ -122,7 +122,7 @@ public final class Coordinates {
 	public static final int RESIGN = 2;
 
 	/** True for 3rd or 4th line points, false for others. */
-	public static boolean[] THIRD_OR_FOURTH_LINE = new boolean[EXTENDED_BOARD_AREA];
+	private static boolean[] THIRD_OR_FOURTH_LINE = new boolean[EXTENDED_BOARD_AREA];
 
 	// Initialize various arrays
 	static {
@@ -297,6 +297,65 @@ public final class Coordinates {
 		return valid;
 	}
 
+	public static int getBoardWidth(){
+		return BOARD_WIDTH;
+	}
+	
+	public static int getBoardArea(){
+		return BOARD_AREA;
+	}
+	
+	public static int[] getAllPointsOnBoard(){
+		return ALL_POINTS_ON_BOARD;
+	}
+	
+	public static int[] getThirdAndFourthLinePoints(){
+		return THIRD_AND_FOURTH_LINE_POINTS;
+	}
+	
+	public static int getExtendedBoardArea(){
+		return EXTENDED_BOARD_AREA;
+	}
+	
+	public static int getSouth(){
+		return SOUTH;
+	}
+	
+	public static boolean[] getEdgeOrCorner(){
+		return EDGE_OR_CORNER;
+	}
+	
+	public static int[] getEyelikeThreshold(){
+		return EYELIKE_THRESHOLD;
+	}
+	
+	public static int getFirstPointBeyondBoard(){
+		return FIRST_POINT_BEYOND_BOARD;
+	}
+	
+	public static int getFirstPointOnBoard(){
+		return FIRST_POINT_ON_BOARD;
+	}
+	
+	public static int[][] getKnightNeighborhood(){
+		return KNIGHT_NEIGHBORHOOD;
+	}
+	
+	public static int[][] getLargeKnightNeighborhood(){
+		return LARGE_KNIGHT_NEIGHBORHOOD;
+	}
+	
+	public static int[][] getNeighbors(){
+		return NEIGHBORS;
+	}
+	
+	public static boolean[] getOnBoard(){
+		return ON_BOARD;
+	}
+	
+	public static boolean[] getThirdOrFourthLine(){
+		return THIRD_OR_FOURTH_LINE;
+	}
 	/** Verifies that a row or column index is valid. */
 	protected static boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < BOARD_WIDTH);

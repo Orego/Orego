@@ -96,20 +96,20 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// Perform runs to see which points survive
 		int runs = 1000;
 		McRunnable r = (McRunnable) getRunnable(0);
-		int[] survivals = new int[EXTENDED_BOARD_AREA];
+		int[] survivals = new int[getExtendedBoardArea()];
 		for (int i = 0; i < runs; i++) {
 			r.getBoard().copyDataFrom(getBoard());
 			r.getBoard().setPasses(0);
 			r.playout();
-			for (int p : ALL_POINTS_ON_BOARD) {
+			for (int p : getAllPointsOnBoard()) {
 				if (r.getBoard().getColor(p) == getBoard().getColor(p)) {
 					survivals[p]++;
 				}
 			}
 		}
 		// Clean up data by chain
-		IntList result = new IntList(BOARD_AREA);
-		for (int p : ALL_POINTS_ON_BOARD) {
+		IntList result = new IntList(getBoardArea());
+		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
 				if (survivals[p] < runs / 2) {
@@ -173,13 +173,13 @@ public abstract class McPlayer extends ThreadedPlayer {
 	 */
 	protected String goguiHeuristicsValues(){
 		String result = "INFLUENCE";
-		int[] heuristicsValues = new int[FIRST_POINT_BEYOND_BOARD];
+		int[] heuristicsValues = new int[getFirstPointBeyondBoard()];
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		for (Heuristic h : getHeuristics().getHeuristics()) {
 			h.prepare(getBoard());
 		}
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				heuristicsValues[p] = getHeuristics().moveRating(p, getBoard());
 			}
@@ -187,7 +187,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 			max = Math.max(max, heuristicsValues[p]);
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0) {
 					result += "\n";
@@ -204,7 +204,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 	protected String goguiPlayouts() {
 		// Find the max playouts of any move
 		int max = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			int playouts = getPlayouts(p);
 			if (playouts > max) {
 				max = playouts;
@@ -212,12 +212,12 @@ public abstract class McPlayer extends ThreadedPlayer {
 		}
 		// Display proportional playouts through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			result += format(" %s %.3f", pointToString(p), getPlayouts(p)
 					/ (double) max);
 		}
 		// Label all moves with number of playouts
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				if (getWinRate(p) > 0) {
 					result += format("\nLABEL %s %d", pointToString(p),
@@ -229,7 +229,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// TODO This causes some (but not all) infeasible moves to be excluded
 		// -- why?
 		int best = bestStoredMove();
-		if (ON_BOARD[best]) {
+		if (getOnBoard()[best]) {
 			result += "\nCOLOR green " + pointToString(best);
 		}
 		return result;
@@ -241,7 +241,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// occupied points
 		double max = 0, min = 1;
 		int maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				// Excluded moves have negative win rates
@@ -254,14 +254,14 @@ public abstract class McPlayer extends ThreadedPlayer {
 		}
 		// Display proportional wins through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getWinRate(p) > 0) {
 				result += format(" %s %.3f", pointToString(p), getWins(p)
 						/ (double) maxWins);
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -329,7 +329,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
 		IntList dead = deadStones();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) == getBoard().getColorToPlay())
 					&& dead.contains(p)) {
 				after.removeStone(p);

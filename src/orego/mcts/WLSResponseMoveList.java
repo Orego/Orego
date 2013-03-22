@@ -1,5 +1,6 @@
 package orego.mcts;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
+
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import orego.core.Coordinates;
 import orego.wls.State;
 import orego.wls.WinLossStates;
@@ -35,7 +36,7 @@ public class WLSResponseMoveList {
 	public WLSResponseMoveList(int topResponseListLength) {
 		
 		// track all possible moves
-		allMovesWLS     = new short[FIRST_POINT_BEYOND_BOARD];
+		allMovesWLS     = new short[getFirstPointBeyondBoard()];
 		
 		// keep illegality counters for each move
 		topResponsesIllegality = new short[topResponseListLength];

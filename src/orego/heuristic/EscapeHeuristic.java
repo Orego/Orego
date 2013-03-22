@@ -19,8 +19,8 @@ public class EscapeHeuristic extends Heuristic {
 
 	public EscapeHeuristic(int weight) {
 		super(weight);
-		friends = new IntSet(FIRST_POINT_BEYOND_BOARD);
-		targets = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		friends = new IntSet(getFirstPointBeyondBoard());
+		targets = new IntSet(getFirstPointBeyondBoard());
 	}
 
 	public void setFriends(IntSet friends) {
@@ -46,7 +46,7 @@ public class EscapeHeuristic extends Heuristic {
 		int p = chain;
 		do {
 			for (int i = 0; i < 4; i++) {
-				int neighbor = NEIGHBORS[p][i];
+				int neighbor = getNeighbors()[p][i];
 				if (board.getColor(neighbor) == enemyColor) {
 					int target = board.getChainId(neighbor);
 					if (!targets.contains(target)) {
@@ -73,7 +73,7 @@ public class EscapeHeuristic extends Heuristic {
 		friends.clear();
 		targets.clear();
 		for (int i = 0; i < 4; i++) {
-			int neighbor = NEIGHBORS[lastMove][i];
+			int neighbor = getNeighbors()[lastMove][i];
 			if (board.getColor(neighbor) == color) {
 				int chain = board.getChainId(neighbor);
 				if (!friends.contains(chain)) {
@@ -96,8 +96,8 @@ public class EscapeHeuristic extends Heuristic {
 	public EscapeHeuristic clone() {
 		EscapeHeuristic copy = (EscapeHeuristic) super.clone();
 		
-		copy.setFriends(new IntSet(FIRST_POINT_BEYOND_BOARD));
-		copy.setTargets(new IntSet(FIRST_POINT_BEYOND_BOARD));
+		copy.setFriends(new IntSet(getFirstPointBeyondBoard()));
+		copy.setTargets(new IntSet(getFirstPointBeyondBoard()));
 		
 		return copy;
 		

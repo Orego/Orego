@@ -5,9 +5,9 @@ import static java.lang.Integer.parseInt;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.core.Coordinates.setBoardWidth;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
@@ -226,7 +226,7 @@ public class Orego {
 		if (command.equals("boardsize")) {
 			if (arguments.countTokens() == 1) {
 				int width = parseInt(arguments.nextToken());
-				if (width == BOARD_WIDTH) {
+				if (width == getBoardWidth()) {
 					player.reset();
 					acknowledge();
 				} else if(width > 0){

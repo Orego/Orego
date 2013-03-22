@@ -1,7 +1,7 @@
 package orego.experiment;
 
 import static orego.core.Colors.*;
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.experiment.ExperimentConfiguration.*;
 
 /** Plays a series of experimental games on one machine. */
@@ -48,7 +48,7 @@ public class GameBatch implements Runnable {
 		for (String condition : CONDITIONS) {
 			String orego = OREGO_BASE + " " + condition;
 			/** Path to run GNUGO on your machine. */
-			String gnugo = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+			String gnugo = "/usr/local/bin/gnugo --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 			runGames(orego, gnugo);
 			runGames(gnugo, orego);
 		}
