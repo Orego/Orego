@@ -2,6 +2,7 @@ package orego.mcts;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
+import static orego.core.Coordinates.NO_POINT;
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
@@ -32,8 +33,7 @@ public class LgrfMcRunnable extends McRunnable {
 		this.replies2 = replies2;
 	}
 
-	@Override
-	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+	protected int selectAndPlayLgrfMove(MersenneTwisterFast random, Board board) {
 		int p = board.getMove(board.getTurn() - 2);
 		int q = board.getMove(board.getTurn() - 1);
 		int r = replies2[board.getColorToPlay()][p][q];
@@ -47,6 +47,15 @@ public class LgrfMcRunnable extends McRunnable {
 		if ((board.getColor(r) == VACANT) && board.isFeasible(r)
 				&& (board.playFast(r) == PLAY_OK)) {
 			return r;
+		}
+		return NO_POINT;
+	}
+	
+	@Override
+	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+		int lgrfMove = selectAndPlayLgrfMove(random, board);
+		if(lgrfMove != NO_POINT) {
+			return lgrfMove;
 		}
 		// No good replies stored; proceed normally
 		return super.selectAndPlayOneMove(random, board);

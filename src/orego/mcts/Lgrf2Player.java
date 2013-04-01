@@ -21,7 +21,7 @@ import orego.play.UnknownPropertyException;
 public class Lgrf2Player extends RavePlayer {
 
 	/** Indices are color to play, previous move. */
-	private int[][] replies1;
+	protected int[][] replies1;
 
 	/** Returns the level 1 reply table. */
 	protected int[][] getReplies1() {
@@ -29,7 +29,7 @@ public class Lgrf2Player extends RavePlayer {
 	}
 
 	/** Indices are color, antepenultimate move, previous move. */
-	private int[][][] replies2;
+	protected int[][][] replies2;
 
 	/** Returns the level 2 replies table. */
 	protected int[][][] getReplies2() {
