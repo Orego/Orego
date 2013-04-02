@@ -31,6 +31,10 @@ public class WeightTrainingPlayer extends Player {
 		return basePi.weights[idx];
 	}
 	
+	public void setWeights(double[] weights) {
+		basePi.weights = weights;
+	}
+	
 	public double[] getWeights() {
 		return basePi.weights;
 	}
