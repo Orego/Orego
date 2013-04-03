@@ -10,7 +10,7 @@ After compiling Orego, you can run it with the default settings with the command
 
 where &lt;Orego directory> is the main directory of your Orego repository, and [options] are optional arguments described below. Orego requires about 2 GB of available memory to run.
 
-## Command Line Options
+### Command Line Options
 
 <strong>book</strong>=<em>class</em>  
 Name of opening book to use. Books must be located in the orego.Book package.
@@ -27,9 +27,9 @@ Name of player class to use. May be a fully-qualified class name, e.g., orego.mc
 <strong>heuristics</strong>=<em>heuristic@weight:heuristic@weight:...</em>  
 List of policy classes, most important first, with their associated integer weights. Each class may be a fully-qualified class name, e.g., orego.heuristic.EscapeHeuristic. The "Heuristic" suffix may be dropped. If no package is specified, it defaults to orego.Heuristic. Defaults to Escape@20:Pattern@20:Capture@20.
 
-## Player-Specific Options
+### Player-Specific Options
 
-### ThreadedPlayer
+#### ThreadedPlayer
 
 <strong>msec</strong>=<em>integer</em>  
 Milliseconds per move. 1000 by default. A GTP time_left command will automatically set this to an appropriate value.
@@ -40,19 +40,19 @@ Think during the opponent's turn.
 <strong>threads</strong>=<em>integer</em>  
 Number of threads to run. 2 by default.
 
-### McPlayer
+#### McPlayer
 
 In addition to the above,
 
 <strong>playouts</strong>=<em>integer</em>  
 Number of playouts per thread. This is mutually exclusive with msec; the most recently set value will be used, the other ignored.
 
-### MctsPlayer
+#### MctsPlayer
 
 In addition to the above,
 
 <strong>grace</strong>  
-If true, Orego enters "coup de grace" mode when it is far ahead. This mode concentrates	on killing dead enemy stones so that Orego may safely pass, rather than playing the game out to the bitter end. This is a courtesy to human opponents.
+If true, Orego enters "coup de grace" mode when it is far ahead. This mode concentrates on killing dead enemy stones so that Orego may safely pass, rather than playing the game out to the bitter end. This is a courtesy to human opponents.
 
 <strong>pool</strong>=<em>integer</em>    
 Number of search nodes allocated at startup. Defaults to 1024 * 1024 * 20 / BOARD_AREA.
@@ -60,12 +60,12 @@ Number of search nodes allocated at startup. Defaults to 1024 * 1024 * 20 / BOAR
 <strong>priors</strong>=<em>integer</em>    
 Weight to give heuristics when initializing each node. Defaults to 20.
 
-### RavePlayer
+#### RavePlayer
 
 <strong>bias</strong>=<em>integer</em>    
 A parameter in the RAVE formula. Higher values pay less attention to RAVE. Defaults to 0.0009.
 
-## Heuristic-Specific Options
+### Heuristic-Specific Options
 	
 To set properties for individual heuristics, use:
 
@@ -74,3 +74,31 @@ heuristic.HeuristicName.property=value
 For example:
 
 heuristic.Pattern.numberOfGoodPatterns=400
+
+## Running Experiments
+
+To run an experiment:
+
+1. Clear out the results directory. If doing this from the command line makes you nervous, use a script like this:
+
+        #!/bin/bash
+        rm -f results/*
+
+2. Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
+(or whatever standard opponent you're using), the command-line options to Orego for each
+condition, and other options.
+
+3. If you are running on a cluster, run Broadcast. You may find it useful to put this in a script:
+
+        #!/bin/bash
+        nohup java -cp */path/to/Orego/binaries/* orego.experiment.Broadcast &
+
+   If you are only running on a single machine, instead run GameBatch.
+
+4. Periodically run Collate to display the results.
+
+If you want to kill an ongoing experiment, run KillExperiment. Note that this is running
+`kill -9 -1` on all of the machines listed in ExperimentConfiguration.java, so it
+will kill all of your processes and log you out.
+
+To check for statistical significance (whether one condition is better than another), run Significance.
