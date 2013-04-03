@@ -54,6 +54,9 @@ public class Board {
 	public static final int[] UPDATE_NBR_MAP = new int[] { 6, 4, 2, 0, 14, 12,
 			10, 8 };
 
+	/** Cache of all neighborhoods around a givne point*/
+	public char[] neighbors;
+	
 	/**
 	 * Random numbers for Zobrist hashes, indexed by color and point. The last
 	 * row is for the simple ko point.
@@ -319,6 +322,7 @@ public class Board {
 				neighborCounts[p] += edgeCount * EDGE_INCREMENT;
 			}
 		}
+		cacheNeighborhoods();
 	}
 
 	/**
@@ -337,6 +341,7 @@ public class Board {
 		}
 		System.arraycopy(that.chainIds, 0, chainIds, 0, EXTENDED_BOARD_AREA);
 		System.arraycopy(that.moves, 0, moves, 0, that.turn);
+		System.arraycopy(this.neighbors, 0, that.neighbors, 0, BOARD_WIDTH);
 		chainsInAtari[BLACK].copyDataFrom(that.chainsInAtari[BLACK]);
 		chainsInAtari[WHITE].copyDataFrom(that.chainsInAtari[WHITE]);
 		vacantPoints.copyDataFrom(that.vacantPoints);
@@ -578,18 +583,47 @@ public class Board {
 	}
 
 	/**
+	 * Caches 3x3 local neighbor for the given point.
+	 * @see orego.patterns
+	 */
+	private void cacheNeighborhood(int p) {
+		char neighborhood = 0;
+		for (int i = 0; i < 8; i++) {
+			// we know that a Java char has 16 bits so we have plenty of room to store
+			// VACANT, WHITE, or BLACK.
+			// This expression below simply makes a list of the stones surrounding point p
+			// by constantly shifting down by 2 and then inserting the new color at the "top".
+			// we give each entry a max width of 2 bits because we only have three values
+			// the magic number 14 comes from the fact that we shift downwards a total of 8 times (16 positions)
+			// but we don't shift down the first iteration since all zeros so we only need '7 spots' 
+			// since the last one will simply go at position 14 (and since 2 bits wide will cover up to 16)
+			neighborhood = (char) ((neighborhood >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
+		}
+		assert colors[p] == VACANT;
+		
+		neighbors[p] = neighborhood;
+	}
+	/**
+	 * Caches all the local 3x3 neighborhoods around all points on the board.
+	 * @see orego.patterns
+	 */
+	private void cacheNeighborhoods() {
+		neighbors = new char[BOARD_WIDTH];
+		// loop through all points on the board
+		for (int p = 0; p < BOARD_WIDTH; p++) {
+			cacheNeighborhood(p);
+		}
+	}
+	/**
 	 * Gets the local 3x3 neighborhood around point p.
 	 * 
 	 * @see orego.patterns
 	 */
 	public final char getNeighborhood(int p) {
 		assert ON_BOARD[p];
-		char result = 0;
-		for (int i = 0; i < 8; i++) {
-			result = (char) ((result >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
-		}
-		assert colors[p] == VACANT;
-		return result;
+		
+		// just grab it from the cache
+		return neighbors[p];
 	}
 	
 	/**
@@ -900,9 +934,21 @@ public class Board {
 		colors[p] = color;
 		hash ^= ZOBRIST_HASHES[colors[p]][p];
 		vacantPoints.remove(p);
+		// update the count of the four orthogonal neighbors for capture calculations
 		for (int i = 0; i < 4; i++) {
 			int n = NEIGHBORS[p][i];
 			neighborCounts[n] += NEIGHBOR_INCREMENT[color];
+		}
+		
+		// adjust the cached neighbors around this point
+		// Let's say we play in the corner
+		// # # .
+		// 0 . 0
+		// # # #
+		// then 8 surrounding stone's neighborhoods need to be updated
+		for (int i = 0; i < 8; i++) {
+			int n = NEIGHBORS[p][i];
+			cacheNeighborhood(n);
 		}
 	}
 
@@ -1046,6 +1092,17 @@ public class Board {
 		// (This would be a problem when updating liberties if the same move
 		// were replayed.)
 		chainIds[s] = s;
+		
+		// adjust the cached neighbors around this point
+		// Let's say we play in the corner
+		// # # .
+		// 0 . 0
+		// # # #
+		// then 8 surrounding stone's neighborhoods need to be updated
+		for (int i = 0; i < 8; i++) {
+			int n = NEIGHBORS[s][i];
+			cacheNeighborhood(n);
+		}
 	}
 
 	/** For testing only. */
