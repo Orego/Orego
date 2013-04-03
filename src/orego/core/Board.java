@@ -600,7 +600,7 @@ public class Board {
 			neighborhood = (char) ((neighborhood >>> 2) | (colors[NEIGHBORS[p][i]] << 14));
 		}
 		assert colors[p] == VACANT;
-		
+
 		neighbors[p] = neighborhood;
 	}
 	/**
@@ -608,9 +608,9 @@ public class Board {
 	 * @see orego.patterns
 	 */
 	private void cacheNeighborhoods() {
-		neighbors = new char[BOARD_WIDTH];
+		neighbors = new char[FIRST_POINT_BEYOND_BOARD];
 		// loop through all points on the board
-		for (int p = 0; p < BOARD_WIDTH; p++) {
+		for (int p : ALL_POINTS_ON_BOARD) {
 			cacheNeighborhood(p);
 		}
 	}
@@ -948,7 +948,9 @@ public class Board {
 		// then 8 surrounding stone's neighborhoods need to be updated
 		for (int i = 0; i < 8; i++) {
 			int n = NEIGHBORS[p][i];
-			cacheNeighborhood(n);
+			if(ON_BOARD[n]) {
+				cacheNeighborhood(n);
+			}
 		}
 	}
 
@@ -1101,7 +1103,9 @@ public class Board {
 		// then 8 surrounding stone's neighborhoods need to be updated
 		for (int i = 0; i < 8; i++) {
 			int n = NEIGHBORS[s][i];
-			cacheNeighborhood(n);
+			if(ON_BOARD[n]) {
+				cacheNeighborhood(n);
+			}
 		}
 	}
 
