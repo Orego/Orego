@@ -12,6 +12,8 @@ import java.util.Map;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 
+import orego.heuristic.PatternHeuristic;
+import orego.heuristic.PatternHeuristicPatterns;
 import orego.mcts.WeightTrainingPlayer;
 import orego.patterns.Pattern;
 import orego.play.Player;
@@ -66,6 +68,13 @@ public class WeightTrainer {
 		}
 		
 		trainingPlayer = new WeightTrainingPlayer();
+		try {
+			trainingPlayer.setProperty("heuristics", "Escape@20:Capture@20");
+		} catch (UnknownPropertyException e) {
+			System.err.println("Could not set heuristics for the training player.");
+			e.printStackTrace();
+			System.exit(1);
+		}
 		trainingPlayer.reset();
 		if(weights != null) {
 			trainingPlayer.setWeights(weights);
@@ -84,7 +93,7 @@ public class WeightTrainer {
 	
 	private void train() throws FileNotFoundException, IOException, UnknownPropertyException {
 		for(int trainingIdx = 0; trainingIdx < this.learningIterations; trainingIdx++) {
-			if(winRate > 0) {
+			if(winRate > 0 && patternsCount < PatternHeuristicPatterns.ALL_GOOD_PATTERNS.length) {
 				patternsCount++;
 				System.out.println(String.format("Adding another pattern to the opponent. Now using %d patterns.", patternsCount));
 				referencePlayer.setProperty("heuristic.Pattern.numberOfGoodPatterns", Integer.toString(patternsCount));
@@ -93,7 +102,7 @@ public class WeightTrainer {
 			Map<Character, Double> grad = estimateGradient();
 			for(char feature : grad.keySet()) {
 				double newWeight = trainingPlayer.getWeight(feature) + learningRate * grad.get(feature);
-				trainingPlayer.setWeight(feature, newWeight);
+				trainingPlayer.setWeight(feature, Math.min(newWeight, 700.0));
 				//trainingPlayer.setWeight(inverse(feature), newWeight);
 			}
 			learningRate = decayRate * learningRate;
