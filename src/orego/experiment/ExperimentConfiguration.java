@@ -54,5 +54,8 @@ public class ExperimentConfiguration {
 			i++;
 		}
 	}
+	
+	/** Path to run gnugo on your machine */
+	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 
 }
