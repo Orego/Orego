@@ -79,7 +79,7 @@ heuristic.Pattern.numberOfGoodPatterns=400
 
 To run an experiment:
 
-1. Clear out the results directory. If doing this from the command line makes you nervous, use a script like this:
+1. Clear out the results directory. If doing this from the command line makes you nervous, use a script like this:
 
         #!/bin/bash
         rm -f results/*
