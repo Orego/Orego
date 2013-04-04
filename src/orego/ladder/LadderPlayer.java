@@ -1,6 +1,7 @@
 package orego.ladder;
 
 import orego.mcts.*;
+import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
 import orego.core.*;
 import static orego.core.Colors.BLACK;
@@ -19,6 +20,7 @@ public class LadderPlayer extends Lgrf2Player {
 	 * (We play out ladders on runnable.getBoard()).
 	 */
 	McRunnable runnable;
+	private int ladderBias=100;
 
 //	/**this records total wins for the ladder this has most recently finished playing out (should be made into a list)**/
 //	int wins[];
@@ -162,11 +164,27 @@ public class LadderPlayer extends Lgrf2Player {
 			
 			// bias the search tree: call this playout for the winner.
 			// 100 is used as the number of runs incorporated, this needs to be tuned.
-			for (int j = 0; j < 1000; j++) {
+			for (int j = 0; j < ladderBias; j++) {
 				
 				incorporateRun(winner, runnable);
 			}
 		}
+	}
+	
+	@Override
+	public void setProperty(String property, String value)
+			throws UnknownPropertyException {
+		if (property.equals("bias")) {
+			setLadderBias(Integer.parseInt(value));
+		} else {
+			super.setProperty(property, value);
+		}
+	}
+
+	private void setLadderBias(int bias) {
+		assert bias >= 0 : "Cannot have a negative bias";
+		ladderBias=bias;
+		
 	}
 }
 
