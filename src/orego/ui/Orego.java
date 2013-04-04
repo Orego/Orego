@@ -233,11 +233,11 @@ public class Orego {
 					try{
 						setBoardWidth(width);
 						player.getBoard().clear();
+						player.reset();
+						acknowledge();
 					}catch(IndexOutOfBoundsException e){
 						error("unacceptable size");
 					}
-					player.reset();
-					acknowledge();
 				}else{
 					error("unacceptable size");
 				}

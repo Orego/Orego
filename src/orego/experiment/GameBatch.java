@@ -48,9 +48,8 @@ public class GameBatch implements Runnable {
 		for (String condition : CONDITIONS) {
 			String orego = OREGO_BASE + " " + condition;
 			/** Path to run GNUGO on your machine. */
-			String gnugo = "/usr/local/bin/gnugo --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
-			runGames(orego, gnugo);
-			runGames(gnugo, orego);
+			runGames(orego, GNUGO);
+			runGames(GNUGO, orego);
 		}
 	}
 
