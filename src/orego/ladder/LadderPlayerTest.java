@@ -90,7 +90,7 @@ public class LadderPlayerTest {
 		lgrfPlayer.reset();
 		lgrfPlayer.setUpProblem(WHITE, diagram);
 		lgrfPlayer.getBoard().play(at("E13"));
-		assertTrue(lgrfPlayer.bestMove() != at("F13"));
+		assertTrue(lgrfPlayer.bestMove() == at("F13"));
 	}
 	
 	

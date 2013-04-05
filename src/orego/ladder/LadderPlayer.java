@@ -21,6 +21,7 @@ public class LadderPlayer extends Lgrf2Player {
 	 */
 	McRunnable runnable;
 	private int ladderBias=100;
+	private boolean ladderMult = false;
 
 //	/**this records total wins for the ladder this has most recently finished playing out (should be made into a list)**/
 //	int wins[];
@@ -97,6 +98,7 @@ public class LadderPlayer extends Lgrf2Player {
 			// keep applying the policy of the inside player and the outside player until
 			// the ladder is over (either the inside player is free or has been captured)
 			while (true) {
+				
 				// inside player policy: play in my only liberty
 				// Must check if move is legal first (not suicide)
 				
@@ -164,7 +166,7 @@ public class LadderPlayer extends Lgrf2Player {
 			
 			// bias the search tree: call this playout for the winner.
 			// 100 is used as the number of runs incorporated, this needs to be tuned.
-			for (int j = 0; j < ladderBias; j++) {
+			for (int j = 0; j < (ladderMult? length*ladderBias: ladderBias); j++) {
 				
 				incorporateRun(winner, runnable);
 			}
@@ -174,9 +176,13 @@ public class LadderPlayer extends Lgrf2Player {
 	@Override
 	public void setProperty(String property, String value)
 			throws UnknownPropertyException {
-		if (property.equals("bias")) {
+		if (property.equals("ladderBias")) {
 			setLadderBias(Integer.parseInt(value));
-		} else {
+		} else if (property.equals("ladderMult")) {
+			assert value.equals("true");
+			ladderMult = true;
+		}
+		else {
 			super.setProperty(property, value);
 		}
 	}
@@ -184,7 +190,6 @@ public class LadderPlayer extends Lgrf2Player {
 	private void setLadderBias(int bias) {
 		assert bias >= 0 : "Cannot have a negative bias";
 		ladderBias=bias;
-		
 	}
 }
 
