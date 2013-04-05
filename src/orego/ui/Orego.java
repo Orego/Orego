@@ -396,10 +396,11 @@ public class Orego {
 
 	@SuppressWarnings("unchecked")
 	protected void handleCommandLineArguments(String[] args) {
-		HashMap<String, String> propertyMap = new HashMap<String, String>();
-		// default settings
+		ArrayList<String> properties = new ArrayList<String>();
+		ArrayList<String> values = new ArrayList<String>();
+		// Default settings
 		String playerClass = "Lgrf2";
-		propertyMap.put("heuristics", "Escape@20:Pattern@20:Capture@20");
+		boolean heuristicsSet = false;
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
 			String argument = args[i];
@@ -424,7 +425,8 @@ public class Orego {
 			} else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
-				propertyMap.put(left, right);
+				properties.add(left);
+				values.add(right);
 			}
 		}
 		try { // Create player from string
@@ -460,13 +462,18 @@ public class Orego {
 					"Could not create a player for class %s.", playerClass));
 		}
 		// Let the player set all other properties
-		for (String property : propertyMap.keySet()) {
-			try {
-				player.setProperty(property, propertyMap.get(property));
-			} catch (UnknownPropertyException e) {
-				e.printStackTrace();
-				System.exit(1);
+		try {
+			for (int i = 0; i < properties.size(); i++) {
+				player.setProperty(properties.get(i), values.get(i));
 			}
+			// If the heuristics weren't set, use default values
+			if (!heuristicsSet) {
+				player.setProperty("heuristics",
+						"Escape@20:Pattern@20:Capture@20");
+			}
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
