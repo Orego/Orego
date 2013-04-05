@@ -1,14 +1,14 @@
 # Orego
 
-Orego is an ongoing, multi-year project to research and develop programs for playing the game of Go. For more information, go [here](https://sites.google.com/a/lclark.edu/drake/research/orego "Orego").
+Orego is an ongoing, multi-year project to research and develop programs for playing the game of Go. It is supervised by Dr. Peter Drake of Lewis & Clark College in Portland, OR. For more information, go to the [Orego research page](https://sites.google.com/a/lclark.edu/drake/research/orego "Orego").
 
 ## Running from the Command Line
 
 After compiling Orego, you can run it with the default settings with the command
 
-      java -ea -server -Xmx2048M -cp <Orego directory>/bin orego.ui.Orego [options]
+      java -ea -server -Xmx2048M -cp /path/to/Orego/binaries/ orego.ui.Orego [options]
 
-where &lt;Orego directory> is the main directory of your Orego repository, and [options] are optional arguments described below. Orego requires about 2 GB of available memory to run.
+where [options] are optional arguments described below. Orego requires about 2 GB of available memory to run.
 
 ### Command Line Options
 
@@ -79,21 +79,21 @@ heuristic.Pattern.numberOfGoodPatterns=400
 
 To run an experiment:
 
-1. Clear out the results directory. If doing this from the command line makes you nervous, use a script like this:
-
-        #!/bin/bash
-        rm -f results/*
-
-2. Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
+1. Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
 (or whatever standard opponent you're using), the command-line options to Orego for each
 condition, and other options.
 
-3. If you are running on a cluster, run Broadcast. You may find it useful to put this in a script:
+2. Make and clear the results directory specified in ExperimentConfiguration.java.
 
-        #!/bin/bash
-        nohup java -cp */path/to/Orego/binaries/* orego.experiment.Broadcast &
+3. If you are running on a cluster, run Broadcast using the command
 
-   If you are only running on a single machine, instead run GameBatch.
+        nohup java -cp /path/to/Orego/binaries/ orego.experiment.Broadcast &
+
+    If you are only running on a single machine, instead run GameBatch with the command
+   
+        nohup java -cp /path/to/Orego/binaries/ orego.experiment.GameBatch <HOST> &
+   		
+    where &lt;HOST> is one of the hosts listed in orego.experiment.ExperimentConfiguration (note that if you are running an experiment locally, the host will probably have the form <em>hostname</em>.localhost, with <em>hostname</em> being the name of your computer.
 
 4. Periodically run Collate to display the results.
 
