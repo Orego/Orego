@@ -28,7 +28,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 1;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 6;
+	public static final int GAMES_PER_CONDITION = 2;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -42,15 +42,15 @@ public class ExperimentConfiguration {
 	}
 
 	/**
-	 * Command line arguments to Orego for the various conditions in the
+	 * Command line0 arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[3];
+	public static final String[] CONDITIONS = new String[1];
 		 
 	static {
 		int i = 0;
-		for (int msec = 2000; msec <= 8000; msec *= 2) {
-			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook";
+		for (int msec = 2000; msec <= 2000; msec *= 2) {
+			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook player=LadderPlayer ladderBias=1";
 			i++;
 		}
 	}
