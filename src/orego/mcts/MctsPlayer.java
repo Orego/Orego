@@ -23,7 +23,7 @@ import ec.util.MersenneTwisterFast;
  * @see #searchValue(SearchNode, Board, int)
  */
 public class MctsPlayer extends McPlayer {
-
+	
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
 	public static final double COUP_DE_GRACE_PARAMETER = 0.9;
 
@@ -54,6 +54,8 @@ public class MctsPlayer extends McPlayer {
 	 */
 	private boolean grace;
 
+	private boolean kgsCleanup = false;
+	
 	/** The transposition table. */
 	private TranspositionTable table;
 
@@ -92,6 +94,9 @@ public class MctsPlayer extends McPlayer {
 			if (result != PASS) {
 				node.exclude(result);
 				result = PASS;
+			}
+			if (kgsCleanup && cleanup()) { //if kgsCleanup is true and there are enemy dead stones, do not consider PASS
+				result = vacantPoints.get(0);
 			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int move = vacantPoints.get(i);
@@ -454,6 +459,9 @@ public class MctsPlayer extends McPlayer {
 			result = goguiOnePlayout();
 		} else if (command.equals("gogui-total-wins")) {
 			result = goguiTotalWins();
+		} else if (command.equals("kgs-genmove_cleanup")){
+			kgsCleanup = !(kgsCleanup); // this toggles it
+			result = "kgs-genmove_cleanup: " + kgsCleanup;
 		} else {
 			result = super.handleCommand(command, arguments);
 		}
@@ -461,6 +469,20 @@ public class MctsPlayer extends McPlayer {
 			startThreads();
 		}
 		return result;
+	}
+
+	/*
+	 * this method should return true if there are enemy dead stones on the board.
+	 */
+	private boolean cleanup() {
+		IntList alreadyDeadStones = deadStones();
+		for(int i = 0; i < alreadyDeadStones.size(); i++) {
+			// if there are enemy dead stones
+			if(getBoard().getColor(alreadyDeadStones.get(i)) != getBoard().getColorToPlay()) { // I'm assuming colorToPlay is orego's color
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
