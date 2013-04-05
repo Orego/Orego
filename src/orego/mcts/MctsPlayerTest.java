@@ -588,7 +588,7 @@ public class MctsPlayerTest {
 		// Add some wins so the move looks good
 		player.getRoot().addWins(at("d1"), 1000);
 		player.bestMove();
-		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")));
+		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")), 0.001);
 	}
 
 	@Test
@@ -659,14 +659,14 @@ public class MctsPlayerTest {
 		player.reset();
 		player.acceptMove(at("b1"));
 		SearchNode root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")), 0.001);
+		assertEquals(3, root.getRuns(at("c5")), 0.001);
 		player.acceptMove(at("b2"));
 		player.acceptMove(at("b3"));
 		player.acceptMove(at("b4"));
 		root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")), 0.001);
+		assertEquals(3, root.getRuns(at("c5")), 0.001);
 	}
 
 	@Test

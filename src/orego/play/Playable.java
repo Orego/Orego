@@ -23,7 +23,7 @@ public interface Playable {
 	/**
 	 * @see orego.core.Board#finalScore()
 	 */
-	public int finalScore();
+	public double finalScore();
 
 	/**
 	 * @return the board
