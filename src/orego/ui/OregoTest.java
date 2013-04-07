@@ -22,6 +22,7 @@ public class OregoTest {
 		PipedOutputStream out = new PipedOutputStream();
 		oregoOut = new BufferedReader(new InputStreamReader(
 				new PipedInputStream(out)));
+		// TODO Is this expensive to do before every test?
 		orego = new Orego(System.in, out, new String[] {"playouts=100", "threads=1"});
 	}
 
@@ -113,7 +114,7 @@ public class OregoTest {
 		String[] outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("W")); // White wins
 		double komi = orego.getPlayer().getBoard().getKomi();
-		assertEquals(outcome[1], "" + komi); // by points = komi
+		assertEquals("" + komi, outcome[1]); // by points = komi
 		oregoOut.readLine(); // read out the extra return
 		// Test the score when black wins. Play a single piece and black should
 		// win by the max possible point minus komi.
@@ -532,4 +533,15 @@ public class OregoTest {
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
 	}
+	
+	@Test
+	public void testCommandLineArgumentsOrder() {
+		orego = new Orego(new String[] { "player=Mcts", "msec=100", "playouts=100"});
+		assertEquals(-1, orego.getPlayer().getMillisecondsPerMove());
+		assertEquals(100, ((McPlayer)(orego.getPlayer())).getPlayoutLimit());
+		orego = new Orego(new String[] { "player=Mcts", "playouts=100", "msec=100"});
+		assertEquals(100, orego.getPlayer().getMillisecondsPerMove());
+		assertEquals(-1, ((McPlayer)(orego.getPlayer())).getPlayoutLimit());
+	}
+
 }

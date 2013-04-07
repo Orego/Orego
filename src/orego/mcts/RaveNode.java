@@ -13,28 +13,24 @@ public class RaveNode extends SearchNode {
 	private int[] raveRuns;
 
 	/** Number of RAVE wins through each child of this node. */
-	private int[] raveWins;
+	private float[] raveWinRates;
 
 	public RaveNode() {
 		raveRuns = new int[FIRST_POINT_BEYOND_BOARD];
-		raveWins = new int[FIRST_POINT_BEYOND_BOARD];
+		raveWinRates = new float[FIRST_POINT_BEYOND_BOARD];
 	}
 
 	public void addRaveLoss(int p) {
-		raveRuns[p]++;
+		addRaveRun(p, 0);
 	}
 
 	public void addRaveWin(int p) {
-		raveWins[p]++;
+		addRaveRun(p, 1);
+	}
+	
+	public void addRaveRun(int p, float w) {
+		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p]) / (1 + raveRuns[p]);
 		raveRuns[p]++;
-	}
-
-	protected void setRaveWins(int p, int n) {
-		raveWins[p] = n;
-	}
-
-	protected void setRaveRuns(int p, int n) {
-		raveRuns[p] = n;
 	}
 
 	/** Returns the number of RAVE runs through move p. */
@@ -43,20 +39,20 @@ public class RaveNode extends SearchNode {
 	}
 
 	/** Returns the RAVE win rate for move p. */
-	public double getRaveWinRate(int p) {
-		return ((double) raveWins[p]) / raveRuns[p];
+	public float getRaveWinRate(int p) {
+		return raveWinRates[p];
 	}
 
 	/** Returns the number of RAVE wins through move p. */
-	public int getRaveWins(int p) {
-		return raveWins[p];
+	public float getRaveWins(int p) {
+		return raveWinRates[p] * raveRuns[p];
 	}
 
 	// TODO Should this be synchronized, as it is in the superclass?
 	@Override
-	public void recordPlayout(boolean win, int[] moves, int t, int turn,
+	public void recordPlayout(float winProportion, int[] moves, int t, int turn,
 			IntSet playedPoints) {
-		super.recordPlayout(win, moves, t, turn, playedPoints);
+		super.recordPlayout(winProportion, moves, t, turn, playedPoints);
 		// The remaining moves in the sequence are recorded for RAVE
 		int move = moves[t];
 		playedPoints.clear();
@@ -64,12 +60,7 @@ public class RaveNode extends SearchNode {
 			move = moves[t];
 			if ((move != PASS) && !playedPoints.contains(move)) {
 				playedPoints.add(move);
-				if (win) {
-					addRaveWin(move);
-				} else {
-					addRaveLoss(move);
-				}
-
+				addRaveRun(move, winProportion);
 			}
 			t++;
 			if (t >= turn) {
@@ -84,15 +75,15 @@ public class RaveNode extends SearchNode {
 	public void reset(long hash) {
 		super.reset(hash);
 		fill(raveRuns, 2);
-		fill(raveWins, 1);
+		fill(raveWinRates, (float) 0.5);
 	}
 
 	@Override
 	public String toString(int p) {
 		return format("%s: %7d/%7d (%1.4f), RAVE %7d/%7d (%1.4f)\n",
-				pointToString(p), getWins(p), getRuns(p), ((double) getWins(p))
-						/ getRuns(p), (int) raveWins[p], (int) raveRuns[p],
-				((double) raveWins[p]) / raveRuns[p]);
+				pointToString(p), getWins(p), getRuns(p), getWinRate(p), 
+				(int) getRaveWins(p), (int) raveRuns[p],
+				raveWinRates[p]);
 	}
 
 }

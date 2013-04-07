@@ -118,6 +118,9 @@ public class Orego {
 
 	/** The Player object that selects moves. */
 	private Playable player;
+	
+	/** The komi given on the command line. */
+	private double komiArgument = -1;
 
 	/**
 	 * @param inStream
@@ -132,6 +135,11 @@ public class Orego {
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
 		player.reset();
+		// TODO: This has to be done separately because players can't deal with
+		// having komi set before reset has been issued.
+		if(komiArgument >= 0) {
+			player.setKomi(komiArgument);
+		}
 		commands = new ArrayList<String>();
 		for (String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
@@ -248,7 +256,7 @@ public class Orego {
 			player.reset();
 			acknowledge();
 		} else if (command.equals("final_score")) {
-			double score = player.finalScore() - 0.5;
+			double score = player.finalScore();
 			if (score > 0) {
 				acknowledge("B+" + score);
 			} else {
@@ -407,10 +415,11 @@ public class Orego {
 
 	@SuppressWarnings("unchecked")
 	protected void handleCommandLineArguments(String[] args) {
-		HashMap<String, String> propertyMap = new HashMap<String, String>();
-		// default settings
+		ArrayList<String> properties = new ArrayList<String>();
+		ArrayList<String> values = new ArrayList<String>();
+		// Default settings
 		String playerClass = "Lgrf2";
-		propertyMap.put("heuristics", "Escape@20:Pattern@20:Capture@20");
+		boolean heuristicsSet = false;
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
 			String argument = args[i];
@@ -440,10 +449,13 @@ public class Orego {
 					player.reset();
 				}
 					
+			} else if(left.equals("komi")) {
+				komiArgument = Double.parseDouble(right);
 			} else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
-				propertyMap.put(left, right);
+				properties.add(left);
+				values.add(right);
 			}
 		}
 		try { // Create player from string
@@ -479,13 +491,18 @@ public class Orego {
 					"Could not create a player for class %s.", playerClass));
 		}
 		// Let the player set all other properties
-		for (String property : propertyMap.keySet()) {
-			try {
-				player.setProperty(property, propertyMap.get(property));
-			} catch (UnknownPropertyException e) {
-				e.printStackTrace();
-				System.exit(1);
+		try {
+			for (int i = 0; i < properties.size(); i++) {
+				player.setProperty(properties.get(i), values.get(i));
 			}
+			// If the heuristics weren't set, use default values
+			if (!heuristicsSet) {
+				player.setProperty("heuristics",
+						"Escape@20:Pattern@20:Capture@20");
+			}
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
