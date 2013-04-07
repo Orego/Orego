@@ -76,40 +76,45 @@ public class HeuristicList implements Cloneable {
 	}
 
 	public void loadHeuristicList(String heuristicList) {
-		List<Heuristic> list = new ArrayList<Heuristic>();
-		String[] heuristicClasses = heuristicList.split(":");
-		for (int i = 0; i < heuristicClasses.length; i++) {
-			String[] heuristicAndWeight = heuristicClasses[i].split("@");
-			// if no weight was specified, default to 1
-			int weight = 1;
-			if (heuristicAndWeight.length == 2) {
-				weight = (int) (round(Double.valueOf(heuristicAndWeight[1])));
+		if (heuristicList.isEmpty()) {
+			heuristics = new Heuristic[0];
+		} else {
+			List<Heuristic> list = new ArrayList<Heuristic>();
+			String[] heuristicClasses = heuristicList.split(":");
+			for (int i = 0; i < heuristicClasses.length; i++) {
+				String[] heuristicAndWeight = heuristicClasses[i].split("@");
+				// if no weight was specified, default to 1
+				int weight = 1;
+				if (heuristicAndWeight.length == 2) {
+					weight = (int) (round(Double.valueOf(heuristicAndWeight[1])));
+				}
+				if (weight != 0) {
+					String genClass = heuristicAndWeight[0];
+					if (!genClass.contains(".")) {
+						// set default path to heuristic if it isn't given
+						genClass = "orego.heuristic." + genClass;
+					}
+					if (!genClass.endsWith("Heuristic")) {
+						// complete the class name if a shortened version is
+						// used
+						genClass = genClass + "Heuristic";
+					}
+					try {
+						Constructor<?> constructor = Class.forName(genClass)
+								.getConstructor(Integer.TYPE);
+						Heuristic heur = (Heuristic) constructor
+								.newInstance(weight);
+						list.add(heur);
+					} catch (Exception e) {
+						System.err.println("Cannot construct heuristic: "
+								+ heuristicList);
+						e.printStackTrace();
+						System.exit(1);
+					}
+				}
 			}
-			if (weight != 0) {
-				String genClass = heuristicAndWeight[0];
-				if (!genClass.contains(".")) {
-					// set default path to heuristic if it isn't given
-					genClass = "orego.heuristic." + genClass;
-				}
-				if (!genClass.endsWith("Heuristic")) {
-					// complete the class name if a shortened version is used
-					genClass = genClass + "Heuristic";
-				}
-				try {
-					Constructor<?> constructor = Class.forName(genClass)
-							.getConstructor(Integer.TYPE);
-					Heuristic heur = (Heuristic) constructor
-							.newInstance(weight);
-					list.add(heur);
-				} catch (Exception e) {
-					System.err.println("Cannot construct heuristic: "
-							+ heuristicList);
-					e.printStackTrace();
-					System.exit(1);
-				}
-			}
+			heuristics = list.toArray(new Heuristic[0]);
 		}
-		heuristics = list.toArray(new Heuristic[0]);
 	}
 
 	public void removeZeroWeightedHeuristics() {
@@ -209,7 +214,7 @@ public class HeuristicList implements Cloneable {
 
 	public void setProperty(String name, String value)
 			throws UnknownPropertyException {
-		if (name.equals("heuristics") && !value.isEmpty()) {
+		if (name.equals("heuristics")) {
 			loadHeuristicList(value);
 		} else if (name.startsWith("heuristic.") && !value.isEmpty()) {
 			// Command format: gogui-set-param heuristic.Escape.threshold 21
