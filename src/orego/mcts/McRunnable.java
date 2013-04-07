@@ -14,12 +14,6 @@ import orego.heuristic.*;
  */
 public class McRunnable implements Runnable {
 
-	/**
-	 * If one player's number of stones on the board exceeds the opponent's by
-	 * this much, the playout is considered a win for that player.
-	 */
-	public static final int MERCY_THRESHOLD = BOARD_AREA / 2;
-
 	/** The board on which this McRunnable plays its moves. */
 	private Board board;
 
@@ -162,7 +156,8 @@ public class McRunnable implements Runnable {
 				// Game ended
 				return board.playoutWinner();
 			}
-			if (Math.abs(board.approximateScore()) > MERCY_THRESHOLD) {
+			/** BOARD_AREA/2 is the mercy threshold*/
+			if (Math.abs(board.approximateScore()) > BOARD_AREA / 2) {
 				// One player has far more stones on the board
 				return board.approximateWinner();
 			}

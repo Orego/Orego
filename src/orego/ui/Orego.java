@@ -8,6 +8,7 @@ import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.setBoardWidth;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
 import static orego.experiment.Debug.*;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
 import orego.play.Playable;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
@@ -235,7 +237,16 @@ public class Orego {
 				if (width == BOARD_WIDTH) {
 					player.reset();
 					acknowledge();
-				} else {
+				} else if(width > 0){
+					try{
+						setBoardWidth(width);
+						player.getBoard().clear();
+						player.reset();
+						acknowledge();
+					}catch(IndexOutOfBoundsException e){
+						error("unacceptable size");
+					}
+				}else{
 					error("unacceptable size");
 				}
 			} else {
@@ -430,6 +441,14 @@ public class Orego {
 				setDebugToStderr(true);
 			} else if (left.equals("debugfile")) {
 				setDebugFile(right);
+			} else if(left.equals("boardsize")){
+				int width = Integer.parseInt(right);
+				setBoardWidth(width);
+				if (player != null) {
+					player.getBoard().clear();
+					player.reset();
+				}
+					
 			} else if(left.equals("komi")) {
 				komiArgument = Double.parseDouble(right);
 			} else if (left.equals("player")) {
