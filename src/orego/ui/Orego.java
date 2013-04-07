@@ -433,27 +433,13 @@ public class Orego {
 			} else if (left.equals("debugfile")) {
 				setDebugFile(right);
 			} else if(left.equals("boardsize")){
-				StringTokenizer boardWidth = new StringTokenizer(right);
-				if (boardWidth.countTokens() == 1) {
-					int width = parseInt(boardWidth.nextToken());
-					if (width == BOARD_WIDTH) {
-						player.reset();
-						acknowledge();
-					} else if(width > 0){
-						try{
-							setBoardWidth(width);
-							player.getBoard().clear();
-							player.reset();
-							acknowledge();
-						}catch(IndexOutOfBoundsException e){
-							error("unacceptable size");
-						}
-					}else{
-						error("unacceptable size");
-					}
-				} else {
-					error("unacceptable size");
+				int width = Integer.parseInt(right);
+				setBoardWidth(width);
+				if (player != null) {
+					player.getBoard().clear();
+					player.reset();
 				}
+					
 			} else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
