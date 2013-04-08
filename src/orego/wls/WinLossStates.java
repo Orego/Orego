@@ -4,7 +4,7 @@ package orego.wls;
  LICENSE:
  ========
 
- Copyright (c) 2011 Jacques Basaldúa.
+ Copyright (c) 2011 Jacques Basald'a.
  All rights reserved.
 
  Redistribution and use in source and binary forms are permitted
