@@ -25,7 +25,7 @@ Print debugging info to the specified file.
 Name of player class to use. May be a fully-qualified class name, e.g., orego.mcts.RavePlayer. The "Player" suffix may be dropped. The package may also be dropped if it is orego.play or orego.mcts. Defaults to Lgrf2.
 
 <strong>heuristics</strong>=<em>heuristic@weight:heuristic@weight:...</em>  
-List of policy classes, most important first, with their associated integer weights. Each class may be a fully-qualified class name, e.g., orego.heuristic.EscapeHeuristic. The "Heuristic" suffix may be dropped. If no package is specified, it defaults to orego.Heuristic. Defaults to Escape@20:Pattern@20:Capture@20.
+List of policy classes, most important first, with their associated integer weights. Each class may be a fully-qualified class name, e.g., orego.heuristic.EscapeHeuristic. The "Heuristic" suffix may be dropped. If no package is specified, it defaults to orego.Heuristic. Defaults to Escape@20:Pattern@20:Capture@20. To use no heuristics (uniform random moves beyond the tree), use heuristics= with nothing on the right side.
 
 ### Player-Specific Options
 
