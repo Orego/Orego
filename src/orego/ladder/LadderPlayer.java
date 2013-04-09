@@ -181,8 +181,12 @@ public class LadderPlayer extends Lgrf2Player {
 		if (property.equals("ladderBias")) {
 			setLadderBias(Integer.parseInt(value));
 		} else if (property.equals("ladderMult")) {
-			assert value.equals("true");
-			ladderMult = true;
+			if(ladderMult){
+				ladderMult = true;
+			}
+			else{
+				ladderMult=false;
+			}
 		}
 		else {
 			super.setProperty(property, value);
