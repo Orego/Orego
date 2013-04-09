@@ -516,5 +516,8 @@ public class OregoTest {
 		player = (McPlayer) orego.getPlayer();
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=19", "msec=100",
+		"ponder" });
+		//sets boardsize back to 19 so tests will work?
 	}
 }
