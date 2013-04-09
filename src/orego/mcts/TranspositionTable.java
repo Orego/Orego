@@ -10,9 +10,6 @@ import orego.util.Pool;
 /** A hash table of nodes representing board configurations. */
 public class TranspositionTable {
 
-	/** Number of nodes to allocate in general. */
-	public static final int DEFAULT_NODE_POOL_SIZE = 1024 * 1024 * 20 / BOARD_AREA;
-
 	/** ListNodes used to build child lists for SearchNodes. */
 	protected Pool<ListNode<SearchNode>> listNodes;
 
@@ -45,7 +42,8 @@ public class TranspositionTable {
 	}
 
 	public TranspositionTable(SearchNode prototype) {
-		this(DEFAULT_NODE_POOL_SIZE, prototype);
+		/** The calculation here is for the number of nodes to allocate in general */
+		this(1024 * 1024 * 20 / BOARD_AREA, prototype);
 	}
 
 	/** Adds child as a child of parent. */

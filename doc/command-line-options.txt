@@ -25,7 +25,8 @@ heuristics=Class@weight:Class@weight:...:Class@weight
 	Name(s) of policy classes, most important first, with their associated integer weights.
 	Each class may be a fully-qualified class name, e.g., orego.heuristic.EscapeHeuristic.
 	The "Heuristic" suffix may be dropped. The package may also be dropped if it is orego.heuristic.
-	Defaults to Escape@20:Pattern@20:Capture@20.
+	Defaults to Escape@20:Pattern@20:Capture@20. To use no heuristics (uniform random moves beyond
+	the tree), use heuristics= with nothing on the right side.
 
 Additional options are available depending on players, policies, and other classes invoked.
 

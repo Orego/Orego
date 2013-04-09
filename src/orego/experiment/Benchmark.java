@@ -3,11 +3,11 @@ package orego.experiment;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.BOARD_AREA;
 import static orego.core.Board.MAX_MOVES_PER_GAME;
 import static orego.heuristic.HeuristicList.selectAndPlayUniformlyRandomMove;
 import orego.core.Board;
 import ec.util.MersenneTwisterFast;
-import static orego.mcts.McRunnable.MERCY_THRESHOLD;
 
 /** Simply runs a bunch of playouts to test speed (with one thread and no tree). */
 public class Benchmark {
@@ -74,7 +74,8 @@ public class Benchmark {
 			if (board.getPasses() == 2) {
 				return PLAYOUT_OK;
 			}
-			if (Math.abs(board.approximateScore()) > MERCY_THRESHOLD) {
+			/** BOARD_AREA / 2 (below) is mercy threshold */
+			if (Math.abs(board.approximateScore()) > BOARD_AREA / 2) {
 				return PLAYOUT_MERCY;
 			}
 		} while (true);

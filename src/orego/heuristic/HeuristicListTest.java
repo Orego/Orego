@@ -1,6 +1,7 @@
 package orego.heuristic;
 
 import orego.core.*;
+import orego.play.UnknownPropertyException;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static org.junit.Assert.*;
@@ -172,38 +173,11 @@ public class HeuristicListTest {
 		assertEquals(at("h5"), heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board));	
 	}
 
-//	@Test
-//	public void testGoodAndBadPoints() {
-//		for (int i = 0; i < 100; i++) {
-//			String[] problem = new String[] { 
-//					"...................",// 19
-//					"...................",// 18
-//					"...................",// 17
-//					"...................",// 16
-//					"...................",// 15
-//					"...................",// 14
-//					"...................",// 13
-//					"...................",// 12
-//					"...................",// 11
-//					"...................",// 10
-//					"...................",// 9
-//					"...................",// 8
-//					"...................",// 7
-//					"...................",// 6
-//					"...................",// 5
-//					"...................",// 4
-//					"...................",// 3
-//					".........OO........",// 2
-//					".........##O......."// 1
-//			      // ABCDEFGHJKLMNOPQRST
-//			};
-//			Board board = new Board();
-//			board.setUpProblem(WHITE, problem);
-//			MersenneTwisterFast random = new MersenneTwisterFast();
-//			heuristics.loadHeuristicList("Capture@1:Line@1");
-//			assertEquals(at("j1"), heuristics.selectAndPlayOneMove(random, board));
-//			assertFalse(line(heuristics.selectAndPlayOneMove(random, board)) < 3);
-//		}
-//	}
-	
+
+	@Test
+	public void testNoHeuristics() throws Exception {
+		heuristics.setProperty("heuristics", "");
+		assertEquals(0, heuristics.getHeuristics().length);
+	}
+
 }
