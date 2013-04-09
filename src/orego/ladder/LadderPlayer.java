@@ -40,6 +40,8 @@ public class LadderPlayer extends Lgrf2Player {
 		}
 		return bestStoredMove();
 	}
+	
+	//Commit test
 
 //	/**returns wins for ladder #p. This is essentially the same as getWins() in mctsPlayer
 //	 *  but allows us to test our ladder bias values once bestMove() has resumed other threads (which would change wins/runs etc.)**/
