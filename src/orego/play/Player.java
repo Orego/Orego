@@ -100,7 +100,7 @@ public class Player implements Playable {
 		return PASS;
 	}
 
-	public int finalScore() {
+	public double finalScore() {
 		return board.finalScore();
 	}
 

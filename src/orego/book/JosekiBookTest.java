@@ -40,7 +40,6 @@ public class JosekiBookTest {
 	@Test
 	public void JosekiTest1() {
 		String[] correct;
-
 		correct = new String[] { "d16", "c14", "q16", "r14", "q4" };
 		for (String move : correct) {
 			int played = gen.nextMove(board);
