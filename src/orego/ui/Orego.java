@@ -229,16 +229,7 @@ public class Orego {
 				if (width == getBoardWidth()) {
 					player.reset();
 					acknowledge();
-				} else if(width > 0){
-					try{
-						setBoardWidth(width);
-						player.getBoard().clear();
-						player.reset();
-						acknowledge();
-					}catch(IndexOutOfBoundsException e){
-						error("unacceptable size");
-					}
-				}else{
+				} else{
 					error("unacceptable size");
 				}
 			} else {
@@ -437,14 +428,16 @@ public class Orego {
 				if (boardWidth.countTokens() == 1) {
 					int width = parseInt(boardWidth.nextToken());
 					if (width == getBoardWidth()) {
-						player.reset();
-						acknowledge();
+						if(player != null) {							
+							player.reset();
+						}
 					} else if(width > 0){
 						try{
 							setBoardWidth(width);
-							player.getBoard().clear();
-							player.reset();
-							acknowledge();
+							if(player != null) {								
+								player.getBoard().clear();
+								player.reset();
+							}
 						}catch(IndexOutOfBoundsException e){
 							error("unacceptable size");
 						}

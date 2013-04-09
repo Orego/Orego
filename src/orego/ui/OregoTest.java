@@ -43,32 +43,16 @@ public class OregoTest {
 	/** A test of the to verify the "boardsize" command. */
 	@Test
 	public void testBoardSize() throws IOException {
-		// 0 or fewer is an invalid size, check for an error
-		// message.
-		orego.handleCommand("boardsize " + 0);
+		// Any value not boardsize is invalid
+		orego.handleCommand("boardsize " + (getBoardWidth() - 1));
 		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		orego.handleCommand("boardsize " + -9);
-		output = oregoOut.readLine();
-		assertEquals('?', output.charAt(0));
-		oregoOut.readLine(); // read out the extra return
-		// Check with a valid BOARD_WIDTH parameter
+		// Check with the valid BOARD_WIDTH parameter
 		orego.handleCommand("boardsize " + getBoardWidth());
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		// Check with other valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + 9);
-		output = oregoOut.readLine();
-		assertEquals ('=', output.charAt(0));
-		assertEquals(9, getBoardWidth());
-		assertEquals(81, Coordinates.getBoardArea());
-		oregoOut.readLine();
-		//set back to 19 so other tests will work
-		orego.handleCommand("boardsize " + 19);
-		output = oregoOut.readLine();
-		oregoOut.readLine();
 		// Check without a parameter. Check for error message.
 		orego.handleCommand("boardsize");
 		output = oregoOut.readLine();
@@ -522,11 +506,12 @@ public class OregoTest {
 
 	@Test
 	public void testCommandLineArguments() {
-		orego = new Orego(new String[] { "player=MctsPlayer", "msec=100",
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=9", "msec=100",
 				"ponder" });
 		McPlayer player = (McPlayer) orego.getPlayer();
 		assertEquals(100, player.getMillisecondsPerMove());
 		assertTrue(((ThreadedPlayer) orego.getPlayer()).isPondering());
+		assertEquals(9, getBoardWidth());
 		orego = new Orego(new String[] { "player=Mcts", "playouts=500" });
 		player = (McPlayer) orego.getPlayer();
 		assertEquals(-1, player.getMillisecondsPerMove());
