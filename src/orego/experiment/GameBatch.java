@@ -17,6 +17,7 @@ public class GameBatch implements Runnable {
 	 */
 	public static void main(String[] args) {
 		try {
+			System.out.println("Starting game batch");
 			System.out.println(java.util.Arrays.toString(args));
 			assert args.length == 1;
 			for (int i = 0; i < GAMES_PER_HOST; i++) {

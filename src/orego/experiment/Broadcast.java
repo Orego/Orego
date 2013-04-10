@@ -7,9 +7,11 @@ import java.util.*;
 public class Broadcast {
 
 	public static void main(String[] args) throws Exception {
+		System.out.println("Broadcasting...");
 		Process[] processes = new Process[HOSTS.length];
 		for (int i = 0; i < HOSTS.length; i++) {
 			String host = HOSTS[i];
+			System.out.println("Attempting to start game batch on " + host);
 			ProcessBuilder builder = new ProcessBuilder("nohup", "ssh", host,
 					JAVA_WITH_OREGO_CLASSPATH + " orego.experiment.GameBatch "
 							+ host + "&>" + RESULTS_DIRECTORY + host + ".batch", "&");
@@ -32,11 +34,15 @@ public class Broadcast {
 					}
 				}
 			};
+			System.out.println("Starting process");
 			new Thread(listener).start();
+			System.out.println("Process started");
 		}
+		System.out.println("Waiting for processes");
 		for (int i = 0; i < HOSTS.length; i++) {
 			processes[i].waitFor();
 		}
+		System.out.println("Done waiting");
 	}
 
 }
