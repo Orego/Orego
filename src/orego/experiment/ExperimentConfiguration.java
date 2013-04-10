@@ -49,9 +49,9 @@ public class ExperimentConfiguration {
 		 
 	static {
 		int i = 0;
-		for (int msec = 2000; msec <= 8000; msec *= 2) {
-			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook";
-			i++;
+		for (int maxVacancies = 100; maxVacancies <= 300; maxVacancies += 50) {
+		    CONDITIONS[i] = "threads=2 maxVacancies=" + maxVacancies + " book=FusekiBook";
+		    i++;
 		}
 	}
 	
