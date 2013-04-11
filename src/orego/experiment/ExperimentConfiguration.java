@@ -45,12 +45,12 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[3];
+	public static final String[] CONDITIONS = new String[4];
 		 
 	static {
 		int i = 0;
-		for (int bias = 100; bias <= 400; bias *= 2) {
-			CONDITIONS[i] = "threads=2 msec=2000 book=FusekiBook player=LadderPlayer ladderBias=" + bias;
+		for (int bias : new int[] {5, 10, 15, 20}) {
+			CONDITIONS[i] = "threads=2 msec=2000 book=FusekiBook player=LadderPlayer ladderMult ladderBias=" + bias;
 			i++;
 		}
 	}
