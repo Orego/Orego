@@ -266,7 +266,8 @@ public class Orego {
 			} else {
 				color = (command.equals("genmove_black") ? BLACK : WHITE);
 			}
-			assert color == player.getBoard().getColorToPlay();
+			//commented out this assertion to deal with CGTC
+//			assert color == player.getBoard().getColorToPlay();
 			point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
@@ -301,9 +302,11 @@ public class Orego {
 			acknowledge(response);
 		} else if (command.equals("loadsgf")) {
 			if (arguments.countTokens() > 1) {
+				System.err.println(arguments.countTokens()+"!!");
 				player.setUpSgf(arguments.nextToken(),
 						Integer.parseInt(arguments.nextToken()));
 			} else {
+				System.err.println(arguments.countTokens()+"???");
 				player.setUpSgf(arguments.nextToken(), 0);
 			}
 			acknowledge();

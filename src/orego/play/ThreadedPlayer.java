@@ -6,7 +6,7 @@ import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
 
 /** A player that runs multiple threads. NOW EXTENDS CGTC*/
-public abstract class ThreadedPlayer extends CGTCPlayer {
+public abstract class ThreadedPlayer extends Player {
 
 	/** Milliseconds allocated per move. A value <= 0 indicates no time limit. */
 	private int millisecondsPerMove;

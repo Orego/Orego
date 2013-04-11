@@ -30,7 +30,7 @@ import ec.util.MersenneTwisterFast;
 
 /** Chooses moves to play. The default implementation is a pure random player. */
 public class Player implements Playable {
-
+	
 	/** The Board this player plays on. */
 	private Board board;
 
@@ -231,7 +231,9 @@ public class Player implements Playable {
 				e.printStackTrace();
 				System.exit(1);
 			}
-		} else {
+		}
+
+		else {
 			getHeuristics().setProperty(property, value); // toss off to the heuristics list
 			// remove any heuristics which now have a weight of zero
 			getHeuristics().removeZeroWeightedHeuristics();
@@ -251,6 +253,7 @@ public class Player implements Playable {
 	}
 
 	public void setUpSgf(String filepath, int colorToPlay) {
+		System.err.println("filepath: "+filepath+" colorToPlay:"+colorToPlay);
 		reset();
 		board.setColorToPlay(colorToPlay);
 		try {
@@ -267,16 +270,19 @@ public class Player implements Playable {
 			while ((current = bf.readLine()) != null) {
 				input += current;
 			}
+			bf.close();
 			StringTokenizer stoken = new StringTokenizer(input, ";");
-			stoken.nextToken();
-			stoken.nextToken();
+
+				stoken.nextToken();
+				stoken.nextToken();
+
 			String boardSetup = stoken.nextToken();
 			stoken = new StringTokenizer(boardSetup, "[]()");
 			int state = 0;
 			String currentToken = "";
 			while (stoken.hasMoreTokens()) {
 				currentToken = stoken.nextToken();
-				assert currentToken.length() == 2;
+				assert currentToken.length() == 2 : "The token " + currentToken + " is not exactly two characters long";
 				if (currentToken.equals("AB")) {
 					// Add black stones (handicap)
 					state = 0;
@@ -311,6 +317,7 @@ public class Player implements Playable {
 			e.printStackTrace();
 			System.exit(1);
 		}
+
 	}
 
 	@Override
