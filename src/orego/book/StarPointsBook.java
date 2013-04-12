@@ -14,7 +14,7 @@ public class StarPointsBook implements OpeningBook {
 	 * The star points (hoshi). On the 19x19 board, corner points are first, the
 	 * center last.
 	 */
-	public static final int[] STAR_POINTS = 
+	private int[] STAR_POINTS = 
 			BOARD_WIDTH == 9 ? new int[] {
 			at("e5"), 
 			at("c3"), 
