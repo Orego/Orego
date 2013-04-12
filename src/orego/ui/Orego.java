@@ -121,6 +121,10 @@ public class Orego {
 	
 	/** The komi given on the command line. */
 	private double komiArgument = -1;
+	
+	/** set to true with command line option if running with compter go test collection.
+	 * This disables an assertion that the color from loadsgf command matched getColortoPlay. */
+	private boolean cgtc=false;
 
 	/**
 	 * @param inStream
@@ -277,8 +281,11 @@ public class Orego {
 			} else {
 				color = (command.equals("genmove_black") ? BLACK : WHITE);
 			}
-			//commented out this assertion to deal with CGTC
-//			assert color == player.getBoard().getColorToPlay();
+			//this assertion to fails when running with CGTC, so skip it if command line option set to true
+			if(!cgtc){
+				assert color == player.getBoard().getColorToPlay();
+			}
+
 			point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
@@ -454,7 +461,10 @@ public class Orego {
 					
 			} else if(left.equals("komi")) {
 				komiArgument = Double.parseDouble(right);
-			} else if (left.equals("player")) {
+			} else if(left.equals("cgtc")){//set to true if running with computer go test collection
+				cgtc=Boolean.parseBoolean(right);
+			}
+			else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
 				properties.add(left);
