@@ -474,7 +474,7 @@ public class MctsPlayer extends McPlayer {
 	/*
 	 * this method should return true if there are enemy dead stones on the board.
 	 */
-	private boolean cleanup() {
+	protected boolean cleanup() {
 		IntList alreadyDeadStones = deadStones();
 		for(int i = 0; i < alreadyDeadStones.size(); i++) {
 			// if there are enemy dead stones
