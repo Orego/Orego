@@ -30,7 +30,7 @@ import ec.util.MersenneTwisterFast;
 
 /** Chooses moves to play. The default implementation is a pure random player. */
 public class Player implements Playable {
-
+	
 	/** The Board this player plays on. */
 	private Board board;
 
@@ -98,6 +98,10 @@ public class Player implements Playable {
 			return move;
 		}
 		return PASS;
+	}
+	
+	public int bestMove(boolean x) { // TODO there's probably a better way to do this
+		return bestMove();
 	}
 
 	public int finalScore() {

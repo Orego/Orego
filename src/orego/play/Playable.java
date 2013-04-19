@@ -17,7 +17,10 @@ public interface Playable {
 	 */
 	public int acceptMove(int p);
 
-	/** Returns the best move for the color to play. */
+	/** Returns the best move for the color to play. 
+	 * @param b */
+	public int bestMove(boolean b);
+	
 	public int bestMove();
 
 	/**

@@ -132,7 +132,7 @@ public class RavePlayer extends MctsPlayer {
 			}
 		}
 		// Highlight best move
-		int best = bestStoredMove();
+		int best = bestStoredMove(false);
 		if (ON_BOARD[best]) {
 			result += "\nCOLOR green " + pointToString(best);
 		}

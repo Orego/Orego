@@ -53,11 +53,11 @@ public class MctsPlayer extends McPlayer {
 	 * safely pass) when it is very confident of winning.
 	 */
 	private boolean grace;
-
-	private boolean kgsCleanup = false;
 	
 	/** The transposition table. */
 	private TranspositionTable table;
+
+	private boolean kgsCleanupMode = false;;
 
 	@Override
 	public void beforeStartingThreads() {
@@ -95,7 +95,7 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
-			if (kgsCleanup && cleanup()) { //if kgsCleanup is true and there are enemy dead stones, do not consider PASS
+			if (kgsCleanupMode && cleanup()) { //if kgsCleanup is true and there are enemy dead stones, do not consider PASS
 				result = vacantPoints.get(0);
 			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
@@ -109,6 +109,7 @@ public class MctsPlayer extends McPlayer {
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
 		// Consider entering coup de grace mode
+		kgsCleanupMode = false;
 		if (grace
 				&& (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
 			debug("Initiating coup de grace");
@@ -153,18 +154,19 @@ public class MctsPlayer extends McPlayer {
 		} while (i != start);
 		return result;
 	}
-
+	
 	@Override
-	public int bestStoredMove() {
+	public int bestStoredMove(boolean kgsCleanup) {
 		SearchNode root = getRoot();
 		// Can we win outright by passing?
 		if (getBoard().getPasses() >= 1) {
-			if (secondPassWouldWinGame()) {
+			if (secondPassWouldWinGame() && (!kgsCleanup && !cleanup())) { // if we're in kgs cleanup mode and there are still dead stones it won't pass.
 				return PASS;
 			}
 			// If not, don't pass if there's a legal move!
 			root.exclude(PASS);
 		}
+		kgsCleanupMode  = kgsCleanup;
 		return bestPlayMove(root);
 	}
 
@@ -459,9 +461,6 @@ public class MctsPlayer extends McPlayer {
 			result = goguiOnePlayout();
 		} else if (command.equals("gogui-total-wins")) {
 			result = goguiTotalWins();
-		} else if (command.equals("kgs-genmove_cleanup")){
-			kgsCleanup = !(kgsCleanup); // this toggles it
-			result = "kgs-genmove_cleanup: " + kgsCleanup;
 		} else {
 			result = super.handleCommand(command, arguments);
 		}
