@@ -82,6 +82,10 @@ public class Player implements Playable {
 		return heuristics.selectAndPlayOneMove(random, board);
 	}
 
+	public int bestCleanupMove(){
+		return bestMove();
+	}
+	
 	public int bestMove() {
 		int move;
 		if (getOpeningBook() != null) { // play from opening book

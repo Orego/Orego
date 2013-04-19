@@ -95,7 +95,7 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
-			if (kgsCleanupMode && cleanup()) { //if kgsCleanup is true and there are enemy dead stones, do not consider PASS
+			if (kgsCleanupMode && cleanup()) { //if kgsCleanupMode is true and there are enemy dead stones, do not consider PASS
 				result = vacantPoints.get(0);
 			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
@@ -156,17 +156,23 @@ public class MctsPlayer extends McPlayer {
 	}
 	
 	@Override
-	public int bestStoredMove(boolean kgsCleanup) {
+	public int bestCleanupMove(){
+		kgsCleanupMode = true;
+		return bestStoredMove();
+	}
+	
+	@Override
+	public int bestStoredMove() {
 		SearchNode root = getRoot();
 		// Can we win outright by passing?
+		boolean canIPass = !(kgsCleanupMode && cleanup()); // can't pass if kgsCleanupMode and cleanup() are both true
 		if (getBoard().getPasses() >= 1) {
-			if (secondPassWouldWinGame() && (!kgsCleanup && !cleanup())) { // if we're in kgs cleanup mode and there are still dead stones it won't pass.
+			if (secondPassWouldWinGame() && canIPass) { // if second pass would win and I can pass, then pass
 				return PASS;
 			}
 			// If not, don't pass if there's a legal move!
 			root.exclude(PASS);
 		}
-		kgsCleanupMode  = kgsCleanup;
 		return bestPlayMove(root);
 	}
 

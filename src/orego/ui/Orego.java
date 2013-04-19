@@ -260,7 +260,7 @@ public class Orego {
 			}
 			assert color == player.getBoard().getColorToPlay();
 			if (command.equals("kgs-genmove_cleanup")) {
-				point = player.bestMove(true);
+				point = player.bestCleanupMove();
 			} else {
 				point = player.bestMove();
 			}

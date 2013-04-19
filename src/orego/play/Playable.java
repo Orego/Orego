@@ -83,4 +83,6 @@ public interface Playable {
 	 */
 	public boolean undo();
 
+	public int bestCleanupMove();
+
 }

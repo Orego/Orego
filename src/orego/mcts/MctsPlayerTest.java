@@ -232,7 +232,7 @@ public class MctsPlayerTest {
 		fakeRun(BLACK, "c4", "c5", "c6", "c7");
 		fakeRun(BLACK, "c4", "c5", "c6", "c7");
 		fakeRun(WHITE, "c5", "c4", "c6", "c7");
-		assertEquals(at("c4"), player.bestStoredMove(false));
+		assertEquals(at("c4"), player.bestStoredMove());
 	}
 
 	@Test
@@ -469,7 +469,7 @@ public class MctsPlayerTest {
 		// to end the game appears to win
 		player.getRoot().addWins(PASS, 100);
 		// System.out.println(pointToString(player.bestStoredMove()));
-		assertFalse(PASS == player.bestStoredMove(false));
+		assertFalse(PASS == player.bestStoredMove());
 	}
 
 	@Test

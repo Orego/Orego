@@ -51,7 +51,7 @@ public abstract class ThreadedPlayer extends Player {
 	public abstract void beforeStartingThreads();
 
 	@Override
-	public int bestMove(boolean kgsCleanup) {
+	public int bestMove() {
 		try {
 			stopThreads();
 			if (getOpeningBook() != null) {
@@ -66,19 +66,14 @@ public abstract class ThreadedPlayer extends Player {
 			System.exit(1);
 		}
 		
-		return bestStoredMove(kgsCleanup);
-	}
-	
-	@Override
-	public int bestMove() {
-		return bestMove(false);
+		return bestStoredMove();
 	}
 
 	/**
 	 * Returns the best stored move. Called after threads are stopped by
 	 * bestMove().
 	 */
-	public abstract int bestStoredMove(boolean kgsCleanup);
+	public abstract int bestStoredMove();
 
 	@Override
 	public int getMillisecondsPerMove() {
