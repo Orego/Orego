@@ -1,6 +1,8 @@
 #java specific
 *.class
 
+lib/junit-4.10.jar
+
 #netbeans ignore personal stuff 
 nbproject/private/
 
