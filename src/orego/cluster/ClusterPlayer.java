@@ -84,6 +84,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	private Condition searchDone;
 	
+	private Object searcherLockObject = new Object();
+	
 	// The RegistryFactory used to get remote registries and for testing
 	protected static RegistryFactory factory = new RegistryFactory();
 
@@ -172,34 +174,38 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			System.exit(1);
 		}
 	}
+	
 	/**
 	 * Called by the TreeSearcher to add a new remote searcher
 	 * @throws RemoteException 
 	 */
-	public synchronized void addSearcher(TreeSearcher s) throws RemoteException {
-		try {
-			getLogWriter().println("Adding searcher. ID will be " + nextSearcherId);
-			s.setSearcherId(nextSearcherId);
-			s.setKomi(getBoard().getKomi());
-			s.setPlayer(remotePlayerClass);
-			s.reset();
-			for(String property : remoteProperties.keySet()) {
-				s.setProperty(property, remoteProperties.get(property));
-			}
-			// If moves have already been played, sync up the new searcher
-			int turn = getBoard().getTurn();
-			int player = BLACK;
-			if(turn > 0) {
-				for(int moveIdx = 0; moveIdx < turn; moveIdx++) {
-					s.acceptMove(player, getBoard().getMove(moveIdx));
-					player = opposite(player);
+	public void addSearcher(TreeSearcher s) throws RemoteException {
+		synchronized (searcherLockObject) {
+			try {
+				getLogWriter().println("Adding searcher. ID will be " + nextSearcherId);
+				s.setSearcherId(nextSearcherId);
+				s.setKomi(getBoard().getKomi());
+				s.setPlayer(remotePlayerClass);
+				s.reset();
+				for(String property : remoteProperties.keySet()) {
+					s.setProperty(property, remoteProperties.get(property));
 				}
+				// If moves have already been played, sync up the new searcher
+				int turn = getBoard().getTurn();
+				int player = BLACK;
+				if(turn > 0) {
+					for(int moveIdx = 0; moveIdx < turn; moveIdx++) {
+						s.acceptMove(player, getBoard().getMove(moveIdx));
+						player = opposite(player);
+					}
+				}
+				remoteSearchers.add(s);
+				nextSearcherId++;
+				getLogWriter().println("Done adding searcher with ID " + nextSearcherId);
+			} catch (RemoteException e) {
+				System.err.println("Error configuring new remote searcher: " + s);
+				e.printStackTrace();
 			}
-			remoteSearchers.add(s);
-			nextSearcherId++;
-		} catch (RemoteException e) {
-			System.err.println("Error configuring new remote searcher: " + s);
-			e.printStackTrace();
 		}
 	}
 	
@@ -354,54 +360,56 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 */
 	@Override
 	public int bestMove() {
-		getLogWriter().println("ClusterPlayer bestMove called.");
-
-		// First check the opening book for a move
-		if (getOpeningBook() != null) {
-			
-			int move = getOpeningBook().nextMove(getBoard());
-			
-			if (move != NO_POINT) {
-				getLogWriter().println("Returning opening book move.");
-				return move;
+		synchronized (searcherLockObject) {
+			getLogWriter().println("ClusterPlayer bestMove called.");
+	
+			// First check the opening book for a move
+			if (getOpeningBook() != null) {
+				
+				int move = getOpeningBook().nextMove(getBoard());
+				
+				if (move != NO_POINT) {
+					getLogWriter().println("Returning opening book move.");
+					return move;
+				}
 			}
-		}
-		
-		// Check to see if we have searchers, if not, play a random move
-		// Since searchers may come online at any time, a couple bad moves
-		// is better than just resigning
-		if(remoteSearchers.size() == 0) {
-			getLogWriter().println("No searchers connected. Falling back to heuristic move.");
-			return fallbackMove();
-		}
-		
-		// If we're here, we need to start searching, call up the searchers
-		beginAcceptingResults();
-		for (TreeSearcher searcher : remoteSearchers) {
+			
+			// Check to see if we have searchers, if not, play a random move
+			// Since searchers may come online at any time, a couple bad moves
+			// is better than just resigning
+			if(remoteSearchers.size() == 0) {
+				getLogWriter().println("No searchers connected. Falling back to heuristic move.");
+				return fallbackMove();
+			}
+			
+			// If we're here, we need to start searching, call up the searchers
+			beginAcceptingResults();
+			for (TreeSearcher searcher : remoteSearchers) {
+				try {
+					searcher.beginSearch();
+				} catch (RemoteException e) {
+					getLogWriter().println("Searcher: " + searcher + " failed to begin search.");
+					e.printStackTrace(getLogWriter());
+				}
+			}
+			
+			// Wait for as long as we can
+			long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
 			try {
-				searcher.beginSearch();
-			} catch (RemoteException e) {
-				getLogWriter().println("Searcher: " + searcher + " failed to begin search.");
-				e.printStackTrace(getLogWriter());
+				searchLock.lock();
+				searchDone.await(waitTime, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				getLogWriter().println("Search timed out or was interrupted.");
+			} finally {
+				searchLock.unlock();
 			}
+			// Determine the best move from the search results
+			stopAcceptingResults();
+			int move = bestSearchMove();
+			Arrays.fill(totalRuns, 0);
+			Arrays.fill(totalWins, 0);
+			return move;
 		}
-		
-		// Wait for as long as we can
-		long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
-		try {
-			searchLock.lock();
-			searchDone.await(waitTime, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			getLogWriter().println("Search timed out or was interrupted.");
-		} finally {
-			searchLock.unlock();
-		}
-		// Determine the best move from the search results
-		stopAcceptingResults();
-		int move = bestSearchMove();
-		Arrays.fill(totalRuns, 0);
-		Arrays.fill(totalWins, 0);
-		return move;
 	}
 
 	/** Decides on a move to play from the data received from searchers. */
