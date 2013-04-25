@@ -186,10 +186,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				s.setSearcherId(nextSearcherId);
 				s.setKomi(getBoard().getKomi());
 				s.setPlayer(remotePlayerClass);
-				s.reset();
 				for(String property : remoteProperties.keySet()) {
 					s.setProperty(property, remoteProperties.get(property));
 				}
+				s.reset();
 				// If moves have already been played, sync up the new searcher
 				int turn = getBoard().getTurn();
 				int player = BLACK;
