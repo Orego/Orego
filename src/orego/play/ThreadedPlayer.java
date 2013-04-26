@@ -5,6 +5,10 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 /** A player that runs multiple threads. */
 public abstract class ThreadedPlayer extends Player {
 
@@ -139,8 +143,47 @@ public abstract class ThreadedPlayer extends Player {
 
 	@Override
 	public void setRemainingTime(int seconds) {
+		
+		/*
+		 * Here we implement time management (see Aja's thesis) by deciding how
+		 * much time to spend on each move given the amount of time left
+		 * (seconds) and based on our estimate of the number of moves remaining.
+		 * Note that this goal will only be fully achieved if we receive a
+		 * time_left command at every move of the game.
+		 */
+
 		int movesLeft = max(10, getBoard().getVacantPoints().size() / 2);
-		setMillisecondsPerMove(max(1, (seconds * 1000) / movesLeft));
+		
+		/*
+		 * For uniformity, use:
+		 *     int msPerMove = max(1, (seconds * 1000) / movesLeft);
+		 * to gradually decrease the time per move, use:
+		 *     int msPerMove = (seconds * 1000) / C;
+		 * to spend more time in the middle game and less at the beginning and end, use:
+		 *     int msPerMove = (seconds * 1000) / (movesLeft + C);
+		 * where C is some constant.
+		 */
+		
+		int msPerMove = (seconds * 1000) / 100;
+
+		setMillisecondsPerMove(msPerMove);
+
+		/*
+		 * To ensure we are setting reasonable values, we output a debug
+		 * statement, but not to stderr, since this will be redirected to stdout
+		 * during experiments and be interpreted as (malformed) GTP responses.
+		 */		
+		File file = new File("err.txt");
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, true);
+		} catch (Exception e) {
+
+		}
+		PrintStream ps = new PrintStream(fos);
+		ps.println("I was told I have " + seconds
+				+ "s left and I set the time per move to " + msPerMove
+				/ 1000.0 + "s.");
 	}
 
 	/** Sets the ith runnable. */
