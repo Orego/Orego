@@ -18,11 +18,12 @@ public class ExperimentConfiguration {
 	 * The host from which commands are given must be listed first for
 	 * KillExperiment to work.
 	 */
-	/*public static final String[] HOSTS = { "fido.bw01.lclark.edu",
+	public static final String[] HOSTS = { 
+			"fido.bw01.lclark.edu",
 			"n001.bw01.lclark.edu",
 			"n002.bw01.lclark.edu",
-			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };*/
-	public static final String[] HOSTS = { "fido.bw01.lclark.edu" };
+			"n003.bw01.lclark.edu", 
+			"n004.bw01.lclark.edu" };
 
 	/**
 	 * Number of games to run simultaneously on each host. This should be no
@@ -32,7 +33,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 180;
+	public static final int GAMES_PER_CONDITION =600;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
