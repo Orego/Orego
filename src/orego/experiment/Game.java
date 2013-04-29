@@ -7,6 +7,7 @@ import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import orego.core.*;
 import orego.ui.Orego;
+import static orego.experiment.ExperimentConfiguration.*;
 
 /** Allows two independent GTP programs to play a game. */
 public class Game {
@@ -30,10 +31,7 @@ public class Game {
 	public static final int SENDING_TIME_LEFT = 3;
 
 	/** The amount of time each player has used so far. */
-	private int[] timeUsedInSeconds;
-
-	/** The amount of time each player is allocated for this game. */
-	public static final int GAME_TIME_IN_SECONDS = 600;
+	private int[] timeUsedInMilliseconds;
 
 	/**
 	 * The system time (in milliseconds) the player was asked for a move. This
@@ -85,8 +83,8 @@ public class Game {
 			this.filename = filename;
 			out = new PrintWriter(filename);
 			contestants = new String[] { black, white };
-			timeUsedInSeconds = new int[] { 0, 0 }; // neither player has used
-													// any time yet
+			timeUsedInMilliseconds = new int[] { 0, 0 }; // neither player has used
+                                                         // any time yet
 			out.println("(;FF[4]CA[UTF-8]AP[Orego" + Orego.VERSION_STRING
 					+ "]KM[7.5]GM[1]SZ[" + Coordinates.BOARD_WIDTH + "]");
 			out.println("PB[" + black + "]");
@@ -147,8 +145,8 @@ public class Game {
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// accumulate the time the player spent their total
-				timeUsedInSeconds[getColorToPlay()] += (System
-						.currentTimeMillis() - timeLastMoveWasRequested) / 1000;
+				timeUsedInMilliseconds[getColorToPlay()] += System
+						.currentTimeMillis() - timeLastMoveWasRequested;
 				String coordinates = line.substring(line.indexOf(' ') + 1);
 				// sgf output
 				if (coordinates.equals("PASS")) {
@@ -196,7 +194,8 @@ public class Game {
 				} else {
 					mode = SENDING_TIME_LEFT;
 					// tell the player how much time they have left in the game
-					int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInSeconds[getColorToPlay()];
+					int timeLeftInSeconds = GAME_TIME_IN_SECONDS
+							- timeUsedInMilliseconds[getColorToPlay()] / 1000;
 					toPrograms[getColorToPlay()].println("time_left "
 							+ spellOutColorName(getColorToPlay()) + " "
 							+ timeLeftInSeconds + " 0");
@@ -255,7 +254,7 @@ public class Game {
 			// start by telling the first player how much time they have left,
 			// which gets the game started (see the handleResponse() method).
 			mode = SENDING_TIME_LEFT;
-			int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInSeconds[getColorToPlay()];
+			int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInMilliseconds[getColorToPlay()] / 1000;
 			toPrograms[getColorToPlay()].println("time_left "
 					+ spellOutColorName(getColorToPlay()) + " "
 					+ timeLeftInSeconds + " 0");
@@ -287,5 +286,4 @@ public class Game {
 		}
 		return winner;
 	}
-
 }

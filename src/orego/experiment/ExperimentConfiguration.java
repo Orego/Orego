@@ -9,7 +9,7 @@ public class ExperimentConfiguration {
 	public static final String RESULTS_DIRECTORY = "/home/drake/results/";
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
-	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin";
+	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin/";
 
 	/**
 	 * The host from which commands are given must be listed first for
@@ -28,7 +28,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 600;
+	public static final int GAMES_PER_CONDITION = 150;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -37,6 +37,9 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_COLOR = GAMES_PER_CONDITION
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
+	/** The amount of time each player is allocated for each game. */
+	public static final int GAME_TIME_IN_SECONDS = 500;
+	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
 	}
@@ -45,17 +48,15 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[3];
-		 
+	public static final String[] CONDITIONS = new String[4];
+
 	static {
-		int i = 0;
-		for (int msec = 2000; msec <= 8000; msec *= 2) {
-			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook";
-			i++;
-		}
+		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.5"; // baseline
+		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=0.3"; // more aggressive
+		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=basic c=80.0";  // Aja's basic formula
+		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=enhanced c=30.0 maxply=40"; // Aja's enhanced formula
 	}
 	
 	/** Path to run gnugo on your machine */
 	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
-
 }
