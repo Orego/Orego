@@ -545,6 +545,11 @@ public class MctsPlayer extends McPlayer {
 			System.exit(1);
 		}
 	}
+	
+	@Override
+	public void terminateSearch() {
+		this.stopThreads();
+	}
 
 	/**
 	 * Returns the UCT upper bound for node. This is the UCB1-TUNED policy,

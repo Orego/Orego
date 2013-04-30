@@ -631,4 +631,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			searcher.setProperty(key, value);
 		}
 	}
+
+	@Override
+	public void terminateSearch() {
+		// Unimplemented
+	}
 }

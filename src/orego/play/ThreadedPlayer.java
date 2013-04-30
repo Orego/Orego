@@ -61,9 +61,8 @@ public abstract class ThreadedPlayer extends Player {
 				}
 			}
 			runThreads();
-		} catch (InterruptedException shouldNotHappen) {
-			shouldNotHappen.printStackTrace();
-			System.exit(1);
+		} catch (InterruptedException e) {
+			return NO_POINT;
 		}
 		return bestStoredMove();
 	}
@@ -207,10 +206,7 @@ public abstract class ThreadedPlayer extends Player {
 				}
 				threadsRunning = false;
 			}
-		} catch (InterruptedException shouldNotHappen) {
-			shouldNotHappen.printStackTrace();
-			System.exit(1);
-		}
+		} catch (InterruptedException e) {}
 	}
 
 }

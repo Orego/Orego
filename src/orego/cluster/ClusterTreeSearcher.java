@@ -9,6 +9,7 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.mcts.MctsPlayer;
@@ -51,6 +52,11 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	
 	/** a flag that lets the application exit after an unsuccessful connection attempt */
 	private boolean shouldExit = false;
+	
+	/** a counter that is used to ignore results that come in late */
+	private AtomicInteger searchCount = new AtomicInteger(0);
+	
+	private Thread searchThread = null;
 	
 	/** the factory used for creating registries and for testing. We make it static for primitive dependency injection. */
 	protected static RegistryFactory factory = new RegistryFactory();
@@ -288,22 +294,35 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			throw new RemoteException("No player or controller set. Cannot return results.");
 		}
 		
-		
+		// stop searching if we are somehow still going
+		final int startingSearchCount = searchCount.incrementAndGet();
+		if(searchThread != null) {
+			searchThread.interrupt();
+			player.terminateSearch();
+		}
+
 		// run the search on a separate thread so this doesn't block the server
-		new Thread(new Runnable() {
+		searchThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				System.out.println("Beginning to search.");
+				System.out.println(String.format("[%d] Beginning to search.", startingSearchCount));
 				
 				// search for the best move to force the wins/runs tables to be filled
 				int localBest = ClusterTreeSearcher.this.player.bestMove();
 				long[] boardWins = player.getBoardWins();
 				
-				System.out.println("Playouts completed: " + player.getTotalPlayoutCount());
-				System.out.println("Found best move: " + pointToString(localBest) + " with wins: " + boardWins[localBest]);
+				System.out.println(String.format("[%d] Playouts completed: %d", startingSearchCount, player.getTotalPlayoutCount()));
+				System.out.println(String.format("[%d] Found best move: %s with wins: %d", startingSearchCount, pointToString(localBest), boardWins[localBest]));
 				
-				System.out.println("Done searching.");
+				System.out.println(String.format("[%d] Done searching.", startingSearchCount));
+				
+				// startingSearchCount is captured when the thread is created
+				if(searchCount.get() != startingSearchCount) {
+					System.out.println(String.format("[%d] Finished late - not reporting results.", startingSearchCount));
+					return;
+				}
+				
 				// ping right back to the server
 				try {
 					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), boardWins);
@@ -311,8 +330,11 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 					System.err.println("Failed to report search results to controller.");
 					e.printStackTrace();
 				}
+				
+				searchThread = null;
 			}
-		}).start();
+		});
+		searchThread.start();
 		
 	}
 	
