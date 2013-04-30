@@ -33,7 +33,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION =600;
+	public static final int GAMES_PER_CONDITION = 400;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -57,7 +57,7 @@ public class ExperimentConfiguration {
 		 
 	static {
 		CONDITIONS[0] = "threads=2 msec=2000 book=FusekiBook player=ClusterPlayer";
-		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook player=VotingClusterPlayer";
+		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook player=BalancedClusterPlayer";
 		CONDITIONS[2] = "threads=2 msec=2000 book=FusekiBook player=MaxClusterPlayer";
 	}
 	/*static {
