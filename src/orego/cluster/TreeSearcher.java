@@ -50,4 +50,9 @@ public interface TreeSearcher extends Remote {
 	 * Gets the total number of playouts completed by this searcher during the current game.
 	 */
 	long getTotalPlayoutCount() throws RemoteException;
+	
+	/**
+	 * Gets the searcher's recommendation of whether Orego should pass.
+	 */
+	boolean shouldPassToWin() throws RemoteException;
 }

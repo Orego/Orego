@@ -356,6 +356,17 @@ public class ClusterPlayerTest {
 	}
 	
 	@Test
+	public void testShouldPassToWin() throws RemoteException {
+		// black plays one move
+		player.acceptMove(at("b4"));
+		// white passes
+		player.acceptMove(PASS);
+		// we should pass if the searcher says we should
+		when(searcher.shouldPassToWin()).thenReturn(true);
+		assertEquals(PASS, player.bestMove());
+	}
+	
+	@Test
 	public void testShouldClearResults() throws RemoteException {
 		player.setOpeningBook(null);
 		int bestA = at("d3");

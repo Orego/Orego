@@ -363,7 +363,12 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		synchronized (searcherLockObject) {
 			getLogWriter().println("ClusterPlayer bestMove called.");
 	
-			// First check the opening book for a move
+			// First check if the last move was a pass and we should pass to win
+			if(getBoard().getPasses() > 0 && this.secondPassWouldWinGame()) {
+				return PASS;
+			}
+			
+			// Now check the opening book for a move
 			if (getOpeningBook() != null) {
 				
 				int move = getOpeningBook().nextMove(getBoard());
@@ -457,6 +462,26 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			return move;
 		}
 		return PASS;
+	}
+	
+	@Override
+	public boolean secondPassWouldWinGame() {
+		getLogWriter().println("Going to query searchers whether to pass.");
+		int totalQueried = 0;
+		int totalYea = 0;
+		for(TreeSearcher searcher : remoteSearchers) {
+			try {
+				if(searcher.shouldPassToWin()) {
+					totalYea++;
+				}
+				totalQueried++;
+			} catch (RemoteException e) {
+				getLogWriter().println("Searcher: " + searcher + " failed to respond to pass query.");
+				e.printStackTrace(getLogWriter());
+			}
+		}
+		getLogWriter().println("Searchers queried: " + totalQueried + ", total yea: " + totalYea);
+		return totalYea >= Math.ceil(totalQueried / 2.0);
 	}
 
 	/** Utility method to prepare to accept results */

@@ -320,6 +320,11 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public long getTotalPlayoutCount() {
 		return player.getTotalPlayoutCount();
 	}
+	
+	@Override
+	public boolean shouldPassToWin() {
+		return player.secondPassWouldWinGame();
+	}
 
 	/** Mostly used for unit testing dependency injection*/
 	protected void setPlayer(StatisticalPlayer player) {

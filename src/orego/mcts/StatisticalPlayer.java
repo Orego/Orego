@@ -17,4 +17,7 @@ public interface StatisticalPlayer extends Playable {
 	
 	/** Get the total number of playouts that were run during this game */
 	public long getTotalPlayoutCount();
+	
+	/** Tests whether we would win after removing our dead stones */
+	public boolean secondPassWouldWinGame();
 }

@@ -318,7 +318,7 @@ public abstract class McPlayer extends ThreadedPlayer implements StatisticalPlay
 	/**
 	 * Returns true if we would win after removing OUR dead stones.
 	 */
-	protected boolean secondPassWouldWinGame() {
+	public boolean secondPassWouldWinGame() {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
 		IntList dead = deadStones();
