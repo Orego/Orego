@@ -1,11 +1,18 @@
 package orego.cluster;
 
-import static orego.core.Coordinates.at;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-
-import static org.junit.Assert.*;
+import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.PASS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -82,6 +89,14 @@ public class ClusterTreeSearcherTest {
 				eq(ClusterPlayer.SEARCH_CONTROLLER_NAME + "4"));
 	}
 
+	@Test
+	public void testShouldPassIfCouldWin() throws Exception {
+		when(player.secondPassWouldWinGame()).thenReturn(true);
+		
+		// if the underlying player thinks we should win, we should pass
+		assertEquals(player.bestMove(), PASS);
+	}
+	
 	@Test
 	public void testShouldResetOnPlayer() throws Exception {
 		searcher.reset();
