@@ -47,6 +47,12 @@ public interface TreeSearcher extends Remote {
 	void beginSearch() throws RemoteException;
 	
 	/**
+	 * Forces the searcher to stop searching, must be called before any more interaction
+	 * if the search did not end normally (with a callback)
+	 */
+	void terminateSearch() throws RemoteException;
+	
+	/**
 	 * Gets the total number of playouts completed by this searcher during the current game.
 	 */
 	long getTotalPlayoutCount() throws RemoteException;

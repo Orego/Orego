@@ -294,12 +294,8 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			throw new RemoteException("No player or controller set. Cannot return results.");
 		}
 		
-		// stop searching if we are somehow still going
+		// increment the search count
 		final int startingSearchCount = searchCount.incrementAndGet();
-		if(searchThread != null) {
-			searchThread.interrupt();
-			player.terminateSearch();
-		}
 
 		// run the search on a separate thread so this doesn't block the server
 		searchThread = new Thread(new Runnable() {
@@ -336,6 +332,16 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		});
 		searchThread.start();
 		
+	}
+	
+	@Override
+	public void terminateSearch() {
+		System.out.println(String.format("[%d] Received stopSearch.", searchCount.get()));
+		if(searchThread != null) {
+			searchCount.incrementAndGet();
+			searchThread.interrupt();
+			player.terminateSearch();
+		}
 	}
 	
 	@Override

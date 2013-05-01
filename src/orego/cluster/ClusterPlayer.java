@@ -409,6 +409,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				searchLock.unlock();
 			}
 			// Determine the best move from the search results
+			if(resultsRemaining > 0) {
+				this.terminateSearch();
+			}
 			stopAcceptingResults();
 			int move = bestSearchMove();
 			Arrays.fill(totalRuns, 0);
@@ -631,9 +634,15 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			searcher.setProperty(key, value);
 		}
 	}
-
+	
 	@Override
 	public void terminateSearch() {
-		// Unimplemented
+		for (TreeSearcher searcher : remoteSearchers) {
+			try {
+				searcher.terminateSearch();
+			} catch (RemoteException e) {
+				getLogWriter().println("Got error when trying to stop search on searcher: " + searcher);
+			}
+		}
 	}
 }
