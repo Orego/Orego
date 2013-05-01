@@ -48,7 +48,7 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[9];
 
 	static {
 		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.25";
