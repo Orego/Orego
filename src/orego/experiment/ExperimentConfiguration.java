@@ -28,7 +28,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 150;
+	public static final int GAMES_PER_CONDITION = 600;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -51,10 +51,15 @@ public class ExperimentConfiguration {
 	public static final String[] CONDITIONS = new String[4];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.5"; // baseline
-		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=0.3"; // more aggressive
-		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=basic c=80.0";  // Aja's basic formula
-		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=enhanced c=30.0 maxply=40"; // Aja's enhanced formula
+		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.25";
+		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=0.35";
+		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=uniform c=0.4";
+		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=basic c=60";
+		CONDITIONS[4] = "threads=2 book=FusekiBook timeformula=basic c=70";
+		CONDITIONS[5] = "threads=2 book=FusekiBook timeformula=basic c=90";
+		CONDITIONS[6] = "threads=2 book=FusekiBook timeformula=enhanced c=30.0 maxply=80";
+		CONDITIONS[7] = "threads=2 book=FusekiBook timeformula=enhanced c=40.0 maxply=80";
+		CONDITIONS[8] = "threads=2 book=FusekiBook timeformula=enhanced c=50.0 maxply=80";
 	}
 	
 	/** Path to run gnugo on your machine */
