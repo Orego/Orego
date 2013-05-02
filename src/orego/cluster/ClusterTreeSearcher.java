@@ -205,6 +205,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		// clear out our controller
 		this.controller = null;
 		
+		// clear settings specific to the controller
+		this.consideredPoints = null;
+		
 		// we need to do this asynchronously to avoid blocking the server
 		new Thread() {
 			@Override
