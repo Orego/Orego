@@ -1,6 +1,9 @@
 package orego.cluster;
 
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -14,6 +17,8 @@ import orego.util.IntSet;
 public class BalancedClusterPlayer extends ClusterPlayer {
 
 	private Map<Integer, IntSet> searchersToPoints;
+	
+	private static double _95_Z_VALUE = 1.96;
 	
 	public BalancedClusterPlayer() {
 		super();
@@ -53,6 +58,47 @@ public class BalancedClusterPlayer extends ClusterPlayer {
 		}
 	}
 	
+	private int[] bestPointsPerSearcher() {
+		int[] bestPoints = new int[searchersToPoints.size()];
+		for(Map.Entry<Integer, IntSet> entry : searchersToPoints.entrySet()) {
+			long maxVisits = 0;
+			int bestPoint = PASS;
+			IntSet points = entry.getValue();
+			for(int idx = 0; idx < points.size(); idx++) {
+				int p = points.get(idx);
+				long visits = totalRuns[p];
+				if(visits > maxVisits) {
+					maxVisits = visits;
+					bestPoint = p;
+				}
+			}
+			bestPoints[entry.getKey()] = bestPoint;
+		}
+		return bestPoints;
+	}
+	
+	@Override
+	protected int bestSearchMove() {
+		double maxLowerBound = Double.NEGATIVE_INFINITY;
+		int bestPoint = PASS;
+		for(int point : bestPointsPerSearcher()) {
+			long wins = totalWins[point];
+			if(wins < 0) continue;
+			double lowerConfidenceBound = lowerConfidenceBound(wins, totalRuns[point]);
+			if(lowerConfidenceBound > maxLowerBound) {
+				maxLowerBound = lowerConfidenceBound;
+				bestPoint = point;
+			}
+			getLogWriter().println(String.format("%s: %d/%d => %f", pointToString(point), totalWins[point], totalRuns[point], lowerConfidenceBound));
+		}
+		if(bestPoint != PASS) {
+			return bestPoint;
+		}
+		else {
+			return super.bestSearchMove();
+		}
+	}
+	
 	private void redistributePointAllocation() throws RemoteException {
 		searchersToPoints.clear();
 		
@@ -83,6 +129,14 @@ public class BalancedClusterPlayer extends ClusterPlayer {
 			IntSet points = searchersToPoints.get(id);
 			remoteSearchers.get(idx).setPointsToConsider(points);
 		}
+	}
+	
+	private static double lowerConfidenceBound(long x, long n) {
+		double zsq = Math.pow(_95_Z_VALUE, 2);
+		double nhat = n + zsq;
+		double phat = 1/nhat * (x + 0.5 * zsq);
+		
+		return phat - _95_Z_VALUE * Math.sqrt(1/nhat * phat * (1 - phat)); 
 	}
 	
 }
