@@ -78,7 +78,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	// By default, wait 100ms more than the time allotted to search
 	// We stop waiting when all the players respond, so it doesn't matter
 	// if this is longer than necessary
-	private long latencyFudge = 500;
+	private long latencyFudge = 1000;
 	
 	private ReentrantLock searchLock;
 	
