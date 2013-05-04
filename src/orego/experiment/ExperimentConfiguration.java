@@ -48,18 +48,16 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[9];
+	public static final String[] CONDITIONS = new String[7];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.25";
-		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=0.35";
-		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=uniform c=0.4";
-		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=basic c=60";
-		CONDITIONS[4] = "threads=2 book=FusekiBook timeformula=basic c=70";
-		CONDITIONS[5] = "threads=2 book=FusekiBook timeformula=basic c=90";
-		CONDITIONS[6] = "threads=2 book=FusekiBook timeformula=enhanced c=30.0 maxply=80";
-		CONDITIONS[7] = "threads=2 book=FusekiBook timeformula=enhanced c=40.0 maxply=80";
-		CONDITIONS[8] = "threads=2 book=FusekiBook timeformula=enhanced c=50.0 maxply=80";
+		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.10";
+		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=0.15";
+		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=uniform c=0.20";
+		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=basic c=40";
+		CONDITIONS[4] = "threads=2 book=FusekiBook timeformula=basic c=50";
+		CONDITIONS[5] = "threads=2 book=FusekiBook timeformula=enhanced c=10.0 maxply=80";
+		CONDITIONS[6] = "threads=2 book=FusekiBook timeformula=enhanced c=20.0 maxply=80";
 	}
 	
 	/** Path to run gnugo on your machine */
