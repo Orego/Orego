@@ -308,12 +308,10 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				System.out.println(String.format("[%d] Beginning to search.", startingSearchCount));
 				
 				// search for the best move to force the wins/runs tables to be filled
-				int localBest = ClusterTreeSearcher.this.player.bestMove();
-				long[] boardWins = player.getBoardWins();
+				ClusterTreeSearcher.this.player.runSearch();
 				
 				System.out.println(String.format("[%d] Playouts completed: %d", startingSearchCount, player.getTotalPlayoutCount()));
-				System.out.println(String.format("[%d] Found best move: %s with wins: %d", startingSearchCount, pointToString(localBest), boardWins[localBest]));
-				
+
 				System.out.println(String.format("[%d] Done searching.", startingSearchCount));
 				
 				// startingSearchCount is captured when the thread is created
@@ -324,7 +322,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				
 				// ping right back to the server
 				try {
-					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), boardWins);
+					controller.acceptResults(ClusterTreeSearcher.this, player.getBoardPlayouts(), player.getBoardWins());
 				} catch (RemoteException e) {
 					System.err.println("Failed to report search results to controller.");
 					e.printStackTrace();
@@ -339,12 +337,14 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	
 	@Override
 	public void terminateSearch() {
-		System.out.println(String.format("[%d] Received stopSearch.", searchCount.get()));
+		int currentCount = searchCount.get();
+		System.out.println(String.format("[%d] Received terminateSearch.", currentCount));
 		if(searchThread != null) {
 			searchCount.incrementAndGet();
 			searchThread.interrupt();
 			player.terminateSearch();
 		}
+		System.out.println(String.format("[%d] terminateSearch finished.", currentCount));
 	}
 	
 	@Override

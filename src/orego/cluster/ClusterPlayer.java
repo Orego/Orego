@@ -353,6 +353,35 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		return true;
 	}
 
+	@Override
+	public void runSearch() {
+		beginAcceptingResults();
+		for (TreeSearcher searcher : remoteSearchers) {
+			try {
+				searcher.beginSearch();
+			} catch (RemoteException e) {
+				getLogWriter().println("Searcher: " + searcher + " failed to begin search.");
+				e.printStackTrace(getLogWriter());
+			}
+		}
+		
+		// Wait for as long as we can
+		long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
+		try {
+			searchLock.lock();
+			searchDone.await(waitTime, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			getLogWriter().println("Search timed out or was interrupted.");
+		} finally {
+			searchLock.unlock();
+		}
+		// Determine the best move from the search results
+		if(resultsRemaining > 0) {
+			this.terminateSearch();
+		}
+		stopAcceptingResults();
+	}	
+	
 	/**
 	 * Generates moves using the searchers. First, checks the local book to see
 	 * if there is a move to play. Then, calls each searcher with the current
@@ -388,31 +417,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			}
 			
 			// If we're here, we need to start searching, call up the searchers
-			beginAcceptingResults();
-			for (TreeSearcher searcher : remoteSearchers) {
-				try {
-					searcher.beginSearch();
-				} catch (RemoteException e) {
-					getLogWriter().println("Searcher: " + searcher + " failed to begin search.");
-					e.printStackTrace(getLogWriter());
-				}
-			}
-			
-			// Wait for as long as we can
-			long waitTime = msecToMove > 0 ? msecToMove + latencyFudge : msecToTimeout;
-			try {
-				searchLock.lock();
-				searchDone.await(waitTime, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				getLogWriter().println("Search timed out or was interrupted.");
-			} finally {
-				searchLock.unlock();
-			}
-			// Determine the best move from the search results
-			if(resultsRemaining > 0) {
-				this.terminateSearch();
-			}
-			stopAcceptingResults();
+			runSearch();
+
 			int move = bestSearchMove();
 			Arrays.fill(totalRuns, 0);
 			Arrays.fill(totalWins, 0);

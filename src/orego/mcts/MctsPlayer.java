@@ -547,6 +547,14 @@ public class MctsPlayer extends McPlayer {
 	}
 	
 	@Override
+	public void runSearch() {
+		try {
+			stopThreads();
+			runThreads();
+		} catch (InterruptedException e) {}
+	}
+	
+	@Override
 	public void terminateSearch() {
 		this.stopThreads();
 	}

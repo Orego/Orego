@@ -3,6 +3,9 @@ package orego.mcts;
 import orego.play.Playable;
 
 public interface StatisticalPlayer extends Playable {
+	/** Performs playouts in the manner of bestMove, but does not try to determine the move to play */
+	public void runSearch();
+	
 	/** Get the number of wins through the point p */
 	public int getWins(int p);
 	
