@@ -4,6 +4,8 @@ import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import static org.junit.Assert.*;
 import static orego.core.Board.*;
+
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import org.junit.Before;
 import org.junit.Test;
@@ -500,6 +502,40 @@ public class MctsPlayerTest {
 			player.bestMove();
 	}
 
+	
+	@Test
+	public void runSearchShouldBehaveExactlyTheSameAsBestMoveIgnoringPassHandling() throws Exception {
+		player.reset();
+		String[] diagram = { 
+				"#######..##########",// 19
+				"###################",// 18
+				"###################",// 17
+				"###################",// 16
+				"###################",// 15
+				"###################",// 14
+				"###################",// 13
+				"###################",// 12
+				"###################",// 11
+				".##################",// 10
+				"###################",// 9
+				"###################",// 8
+				"OOOOOOOOOOOOOOOOOOO",// 7
+				"OOOOOOOOOOOOOOOOOOO",// 6
+				"OOOOOOOOOOOOOOOOOOO",// 5
+				"OOOOOOOOOOOOOOOOOOO",// 4
+				"OOOOOOOOOOOOOOOOOOO",// 3
+				"OOOOOOOOOOOOOOOOOOO",// 2
+				".OOOOOOOOOOOOOOOOO." // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		player.setProperty("heuristics", "Pattern:Capture");
+		player.setUpProblem(BLACK, diagram);
+		player.setProperty("msec", "2000");
+		player.runSearch();
+		int bestMove = player.bestPlayMove(player.getRoot());
+		assertTrue(at("j19") == bestMove || at("h19") == bestMove);
+	}
+	
 	@Test
 	public void testDebug2() {
 			String[] problem = { "#########OOOOOOOOOO",// 19
