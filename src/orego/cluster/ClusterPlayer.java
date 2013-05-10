@@ -144,9 +144,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			e.printStackTrace();
 			System.exit(1);
 		} catch (NotBoundException e) {
-			System.err.println("Fatal error. Could not unbind ClusterPlayer because it was not bound.");
-			e.printStackTrace();
-			System.exit(1);
+			getLogWriter().println("Error: Could not unbind ClusterPlayer because it was not bound. Continuing.");
+			e.printStackTrace(getLogWriter());
 		}
 	}
 	
