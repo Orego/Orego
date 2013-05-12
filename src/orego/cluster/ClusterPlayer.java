@@ -1,5 +1,6 @@
 package orego.cluster;
 
+import static java.lang.Math.max;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.opposite;
 import static orego.core.Colors.BLACK;
@@ -583,6 +584,18 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				System.err.println("Could not set komi on remote searcher: " + searcher);
 				remoteSearchers.remove(searcher);
 			}
+		}
+	}
+	
+	@Override
+	public void setRemainingTime(int seconds) {
+		int movesLeft = max(10, getBoard().getVacantPoints().size() / 2);
+		long msec = max(1, (seconds * 1000) / movesLeft);
+		try {
+			this.setProperty("msec", Long.toString(msec));
+		} catch (UnknownPropertyException e) {
+			System.err.println("Could not set msec property.");
+			e.printStackTrace();
 		}
 	}
 	

@@ -223,6 +223,12 @@ public class ClusterPlayerTest {
 		verify(searcher).setSearcherId(anyInt());
 	}
 	
+	@Test
+	public void testShouldSetTime() throws RemoteException {
+		player.setRemainingTime(30 * 60);
+		verify(searcher).setProperty("msec", "10000");
+	}
+	
 	/* Tests relating to properties */
 	@Test
 	public void testShouldForwardProperties() throws UnknownPropertyException, RemoteException {
