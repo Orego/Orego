@@ -15,6 +15,7 @@ public class ClusterOrego {
 		
 		String localhost = null;
 		String output = null;
+		String player = "ClusterPlayer";
 		
 		for (int i = 0; i < args.length; i++) {
 			String argument = args[i];
@@ -29,6 +30,7 @@ public class ClusterOrego {
 				right = "true";
 			}
 			if(left.equals("player")) {
+				player = right;
 			}
 			else if(left.equals("localhost")) {
 				localhost = right;
@@ -46,7 +48,7 @@ public class ClusterOrego {
 			System.exit(1);
 		}
 		
-		modifiedArgs.add("player=ClusterPlayer");
+		modifiedArgs.add("player=" + player);
 		modifiedArgs.add("cluster_player_log=" + new File(output, "player.log").getPath());
 		
 		List<Process> searchers = spinUpRemoteSearchers(localhost, output);
