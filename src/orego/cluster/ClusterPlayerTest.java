@@ -11,6 +11,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.play.UnknownPropertyException;
@@ -227,6 +228,15 @@ public class ClusterPlayerTest {
 	public void testShouldSetTime() throws RemoteException {
 		player.setRemainingTime(30 * 60);
 		verify(searcher).setProperty("msec", "10000");
+	}
+	
+	@Test
+	public void testShouldQueryFinalStatusList() throws RemoteException {
+		StringTokenizer arguments = new StringTokenizer("dead");
+		String response = "A1";
+		when(searcher.finalStatusList("dead")).thenReturn(response);
+		assertEquals(response, player.handleCommand("final_status_list", arguments));
+		verify(searcher).finalStatusList("dead");
 	}
 	
 	/* Tests relating to properties */

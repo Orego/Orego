@@ -24,6 +24,9 @@ public interface StatisticalPlayer extends Playable {
 	/** Tests whether we would win after removing our dead stones */
 	public boolean secondPassWouldWinGame();
 	
+	/** Gets the player's opinion on final status of stones on the board */
+	public String finalStatusList(String status);
+	
 	/** 
 	 * Terminates any ongoing search activity, it should be safe to begin a new
 	 * search after this has been called

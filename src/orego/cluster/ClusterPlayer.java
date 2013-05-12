@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -596,6 +598,40 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		} catch (UnknownPropertyException e) {
 			System.err.println("Could not set msec property.");
 			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public Set<String> getCommands() {
+		Set<String> result = super.getCommands();
+		result.add("final_status_list");
+		return result;
+	}
+	
+	@Override
+	public String handleCommand(String command, StringTokenizer arguments) {
+		if(command.equals("final_status_list")) {
+			return finalStatusList(arguments.nextToken());
+		}
+		return super.handleCommand(command, arguments);
+	}
+	
+	@Override
+	public String finalStatusList(String status) {
+		if(remoteSearchers.size() == 0) return "";
+		
+		if(resultsRemaining > 0) {
+			stopAcceptingResults();
+			terminateSearch();
+		}
+		
+		TreeSearcher toQuery = remoteSearchers.get(0);
+		try {
+			return toQuery.finalStatusList(status);
+		} catch (RemoteException e) {
+			getLogWriter().println("Searcher 0 failed to respond to finalStatusList.");
+			e.printStackTrace(getLogWriter());
+			return "";
 		}
 	}
 	

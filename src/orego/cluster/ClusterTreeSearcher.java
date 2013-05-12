@@ -356,6 +356,12 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	public boolean shouldPassToWin() {
 		return player.secondPassWouldWinGame();
 	}
+	
+	@Override
+	public String finalStatusList(String status) {
+		System.out.println("Received finalStatusList.");
+		return player.finalStatusList(status);
+	}
 
 	/** Mostly used for unit testing dependency injection*/
 	protected void setPlayer(StatisticalPlayer player) {

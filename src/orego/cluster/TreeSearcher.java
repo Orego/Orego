@@ -61,4 +61,9 @@ public interface TreeSearcher extends Remote {
 	 * Gets the searcher's recommendation of whether Orego should pass.
 	 */
 	boolean shouldPassToWin() throws RemoteException;
+	
+	/**
+	 * Gets the searchers view of the final status list for the game.
+	 */
+	String finalStatusList(String status) throws RemoteException;
 }

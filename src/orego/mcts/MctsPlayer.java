@@ -207,7 +207,8 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	/** Used by handleCommand. */
-	protected String finalStatusList(String status) {
+	@Override
+	public String finalStatusList(String status) {
 		if (status.equals("seki")) {
 			return "";
 		}
