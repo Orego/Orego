@@ -1,24 +1,25 @@
-Classes for running and analyzing experiments.
+<p>Classes for running and analyzing experiments.</p>
 
 <p>To run an experiment:</p>
 
 <ol>
-<li><p>Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
+<li> Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
 (or whatever standard opponent you're using), the command-line options to Orego for each
-condition, and other options.</p></li>
-<li><p>Make and clear the results directory specified in ExperimentConfiguration.java.</p></li>
-<li><p>If you are running on a cluster, run Broadcast using the command</p>
+  condition, and other options. </li>
 
-<pre><code>nohup java -cp /path/to/Orego/binaries/ orego.experiment.Broadcast &amp;
-</code></pre>
+<li> Make and clear the results directory specified in ExperimentConfiguration.java. </li>
 
-<p>If you are only running on a single machine, instead run GameBatch with the command</p>
+<li> If you are running on a cluster, run Broadcast using the command
 
-<pre><code>nohup java -cp /path/to/Orego/binaries/ orego.experiment.GameBatch &lt;HOST&gt; &amp;
-</code></pre>
+        <pre><code>nohup java -cp /path/to/Orego/binaries/ orego.experiment.Broadcast &amp;</code></pre>
 
-<p>where &lt;HOST> is one of the hosts listed in orego.experiment.ExperimentConfiguration (note that if you are running an experiment locally, the host will probably have the form <em>hostname</em>.localhost, with <em>hostname</em> being the name of your computer.</p></li>
-<li><p>Periodically run Collate to display the results.</p></li>
+    If you are only running on a single machine, instead run GameBatch with the command
+   
+        <pre><code>nohup java -cp /path/to/Orego/binaries/ orego.experiment.GameBatch &lt;HOST> &amp;</pre></code>
+   		
+    where <code>&lt;HOST></code> is one of the hosts listed in orego.experiment.ExperimentConfiguration (note that if you are running an experiment locally, the host will probably have the form <em>hostname</em>.localhost, with <em>hostname</em> being the name of your computer. </li>
+
+<li> Periodically run Collate to display the results. </li>
 </ol>
 
 <p>If you want to kill an ongoing experiment, run KillExperiment. Note that this is running
