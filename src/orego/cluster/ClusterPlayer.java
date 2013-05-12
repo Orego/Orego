@@ -318,7 +318,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				} catch (RemoteException e) {
 					// If a searcher fails to accept a move, drop it from the list
 					getLogWriter().println("Searcher: " + searcher + " failed to accept move.");
-					remoteSearchers.remove(searcher);
+					it.remove();
 				}
 			}
 		}
