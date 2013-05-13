@@ -57,8 +57,8 @@ public class ExperimentConfiguration {
 		 
 	static {
 		CONDITIONS[0] = "threads=2 msec=2000 book=FusekiBook player=ClusterPlayer";
-		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook player=BalancedClusterPlayer";
 		CONDITIONS[2] = "threads=2 msec=2000 book=FusekiBook player=MaxClusterPlayer";
+		CONDITIONS[3] = "threads=2 msec=2000 book=FusekiBook player=VotingClusterPlayer";
 	}
 	/*static {
 		int i = 0;
