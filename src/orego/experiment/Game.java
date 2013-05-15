@@ -193,7 +193,7 @@ public class Game {
 					sgfGameLogBetweenPlayers.println(s.nextLine());
 				}
 				sgfGameLogBetweenPlayers.flush();
-				System.exit(1);
+				//System.exit(1);
 			}
 		}
 	}
