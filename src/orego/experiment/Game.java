@@ -53,6 +53,8 @@ public class Game {
 	
 	/** long that has the start of the game. */
 	private long starttime;
+
+	private Process[] programs;
 	
 	/**
 	 * @param black
@@ -193,7 +195,11 @@ public class Game {
 					sgfGameLogBetweenPlayers.println(s.nextLine());
 				}
 				sgfGameLogBetweenPlayers.flush();
-				//System.exit(1);
+
+				// Forcibly kill processes if they are still alive
+				for(Process p : programs) {
+					p.destroy();
+				}
 			}
 		}
 	}
@@ -208,7 +214,7 @@ public class Game {
 		try {
 			winner = -1;
 			
-			Process[] programs 	= new Process[NUMBER_OF_PLAYER_COLORS];
+			programs = new Process[NUMBER_OF_PLAYER_COLORS];
 			
 			playerProgramsSTDIN = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
 			

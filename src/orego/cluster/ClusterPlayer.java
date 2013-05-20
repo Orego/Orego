@@ -268,7 +268,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			} catch (RemoteException e) {
 				getLogWriter().println("Searcher: " + searcher + " failed to reset.");
 				e.printStackTrace(getLogWriter());
-				remoteSearchers.remove(it);
+				remoteSearchers.remove(searcher);
 			}
 		}
 	}
@@ -318,7 +318,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				} catch (RemoteException e) {
 					// If a searcher fails to accept a move, drop it from the list
 					getLogWriter().println("Searcher: " + searcher + " failed to accept move.");
-					it.remove();
+					e.printStackTrace(getLogWriter());
+					remoteSearchers.remove(searcher);
 				}
 			}
 		}
