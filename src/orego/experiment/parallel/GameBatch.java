@@ -94,7 +94,13 @@ public class GameBatch implements Runnable {
 			game = new Game(fileStem + ".sgf", black, white);
 			
 			// increment the win counter for the proper player
-			wins[game.play()]++;
+			int winner = game.play();
+			if(winner >= 0) {
+				wins[winner]++;
+			}
+			else {
+				i--;
+			}
 		}
 	}
 	
