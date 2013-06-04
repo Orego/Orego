@@ -5,9 +5,9 @@ import static java.lang.Integer.parseInt;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.core.Coordinates.setBoardWidth;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
@@ -234,19 +234,10 @@ public class Orego {
 		if (command.equals("boardsize")) {
 			if (arguments.countTokens() == 1) {
 				int width = parseInt(arguments.nextToken());
-				if (width == BOARD_WIDTH) {
+				if (width == getBoardWidth()) {
 					player.reset();
 					acknowledge();
-				} else if(width > 0){
-					try{
-						setBoardWidth(width);
-						player.getBoard().clear();
-						player.reset();
-						acknowledge();
-					}catch(IndexOutOfBoundsException e){
-						error("unacceptable size");
-					}
-				}else{
+				} else{
 					error("unacceptable size");
 				}
 			} else {
@@ -442,11 +433,28 @@ public class Orego {
 			} else if (left.equals("debugfile")) {
 				setDebugFile(right);
 			} else if(left.equals("boardsize")){
-				int width = Integer.parseInt(right);
-				setBoardWidth(width);
-				if (player != null) {
-					player.getBoard().clear();
-					player.reset();
+				StringTokenizer boardWidth = new StringTokenizer(right);
+				if (boardWidth.countTokens() == 1) {
+					int width = parseInt(boardWidth.nextToken());
+					if (width == getBoardWidth()) {
+						if(player != null) {							
+							player.reset();
+						}
+					} else if(width > 0){
+						try{
+							setBoardWidth(width);
+							if(player != null) {								
+								player.getBoard().clear();
+								player.reset();
+							}
+						}catch(IndexOutOfBoundsException e){
+							error("unacceptable size");
+						}
+					}else{
+						error("unacceptable size");
+					}
+				} else {
+					error("unacceptable size");
 				}
 					
 			} else if(left.equals("komi")) {

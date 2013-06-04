@@ -44,32 +44,16 @@ public class OregoTest {
 	/** A test of the to verify the "boardsize" command. */
 	@Test
 	public void testBoardSize() throws IOException {
-		// 0 or fewer is an invalid size, check for an error
-		// message.
-		orego.handleCommand("boardsize " + 0);
+		// Any value not boardsize is invalid
+		orego.handleCommand("boardsize " + (getBoardWidth() - 1));
 		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		orego.handleCommand("boardsize " + -9);
-		output = oregoOut.readLine();
-		assertEquals('?', output.charAt(0));
-		oregoOut.readLine(); // read out the extra return
-		// Check with a valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + BOARD_WIDTH);
+		// Check with the valid BOARD_WIDTH parameter
+		orego.handleCommand("boardsize " + getBoardWidth());
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		// Check with other valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + 9);
-		output = oregoOut.readLine();
-		assertEquals ('=', output.charAt(0));
-		assertEquals(9, BOARD_WIDTH);
-		assertEquals(81, Coordinates.BOARD_AREA);
-		oregoOut.readLine();
-		//set back to 19 so other tests will work
-		orego.handleCommand("boardsize " + 19);
-		output = oregoOut.readLine();
-		oregoOut.readLine();
 		// Check without a parameter. Check for error message.
 		orego.handleCommand("boardsize");
 		output = oregoOut.readLine();
@@ -96,7 +80,7 @@ public class OregoTest {
 		orego.handleCommand("showboard");
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
-		for (int i = 0; i < BOARD_WIDTH + 2; i++) {
+		for (int i = 0; i < getBoardWidth() + 2; i++) {
 			output = oregoOut.readLine();
 			assertFalse(output.contains("#"));
 		}
@@ -127,7 +111,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("B")); // Black wins
-		double blackScore = BOARD_AREA - komi; // With max territory
+		double blackScore = getBoardArea() - komi; // With max territory
 		assertEquals(outcome[1], "" + blackScore);
 	}
 
@@ -136,7 +120,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		// This converts the text output internal numerical format and verifies
 		// the move is valid.
-		assertTrue(at(output.substring(2)) < FIRST_POINT_BEYOND_BOARD);
+		assertTrue(at(output.substring(2)) < getFirstPointBeyondBoard());
 	}
 
 	@Test
@@ -523,15 +507,19 @@ public class OregoTest {
 
 	@Test
 	public void testCommandLineArguments() {
-		orego = new Orego(new String[] { "player=MctsPlayer", "msec=100",
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=9", "msec=100",
 				"ponder" });
 		McPlayer player = (McPlayer) orego.getPlayer();
 		assertEquals(100, player.getMillisecondsPerMove());
 		assertTrue(((ThreadedPlayer) orego.getPlayer()).isPondering());
+		assertEquals(9, getBoardWidth());
 		orego = new Orego(new String[] { "player=Mcts", "playouts=500" });
 		player = (McPlayer) orego.getPlayer();
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=19", "msec=100",
+		"ponder" });
+		//sets boardsize back to 19 so tests will work?
 	}
 	
 	@Test

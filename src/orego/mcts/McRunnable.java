@@ -40,7 +40,7 @@ public class McRunnable implements Runnable {
 		this.player = player;
 		random = new MersenneTwisterFast();
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
-		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		playedPoints = new IntSet(getFirstPointBeyondBoard());
 		this.heuristics = heuristics;
 	}
 
@@ -157,7 +157,7 @@ public class McRunnable implements Runnable {
 				return board.playoutWinner();
 			}
 			/** BOARD_AREA/2 is the mercy threshold*/
-			if (Math.abs(board.approximateScore()) > BOARD_AREA / 2) {
+			if (Math.abs(board.approximateScore()) > getBoardArea() / 2) {
 				// One player has far more stones on the board
 				return board.approximateWinner();
 			}

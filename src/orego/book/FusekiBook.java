@@ -29,9 +29,9 @@ public class FusekiBook implements OpeningBook, Serializable {
 	public FusekiBook(String directory) {
 		try {
 			directory = OREGO_ROOT_DIRECTORY + directory + File.separator
-					+ BOARD_WIDTH;
+					+ getBoardWidth();
 			File file = new File(directory + File.separator + "Fuseki"
-					+ BOARD_WIDTH + ".data");
+					+ getBoardWidth() + ".data");
 			ObjectInputStream in = new ObjectInputStream(
 					new FileInputStream(file));
 			book = (HashMap<Long, Integer>) (in.readObject());

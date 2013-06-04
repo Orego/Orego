@@ -212,7 +212,7 @@ public class MctsPlayer extends McPlayer {
 		}
 		String result = "";
 		IntList dead = deadStones();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) != VACANT) {
 				if (status.equals("alive") != dead.contains(p)) {
 					result += pointToString(p) + " ";
@@ -363,7 +363,7 @@ public class MctsPlayer extends McPlayer {
 		// the various gogui methods
 		double min = 1.0;
 		double max = 0.0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -374,7 +374,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -394,7 +394,7 @@ public class MctsPlayer extends McPlayer {
 	protected String goguiTotalWins() {
 		double max = 0, min = 1;
 		double maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double wins = getWins(p);
 				// Excluded moves have negative win rates
@@ -406,7 +406,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			double wins = 0;
 			if (getBoard().getColor(p) == VACANT) {
 				wins = getWins(p);
@@ -417,7 +417,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double wins = getWins(p);
 				if (wins > 0) {
@@ -599,7 +599,7 @@ public class MctsPlayer extends McPlayer {
 		String result = indent + "Hash: " + node.getHash() + " Total runs: "
 				+ node.getTotalRuns() + "\n";
 		Board childBoard = new Board();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (node.getRuns(p) > 2) {
 				result += indent + node.toString(p);
 				childBoard.copyDataFrom(board);

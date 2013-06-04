@@ -8,7 +8,7 @@ import ec.util.MersenneTwisterFast;
 
 import orego.patternanalyze.*;
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.NEIGHBORS;
+import static orego.core.Coordinates.getNeighbors;
 import static orego.experiment.Debug.*;
 
 import orego.core.Board;
@@ -82,7 +82,7 @@ public class DynamicPatternHeuristic extends Heuristic {
 	
 	public void prepare(Board board) {
 		super.prepare(board);
-		for (int p : NEIGHBORS[board.getMove(board.getTurn() - 1)]) {
+		for (int p : getNeighbors()[board.getMove(board.getTurn() - 1)]) {
 			if (board.getColor(p) == VACANT) {
 				int playValue = evaluate(p, board);
 				if(playValue > 0) {
