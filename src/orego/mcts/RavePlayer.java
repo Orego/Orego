@@ -85,7 +85,7 @@ public class RavePlayer extends MctsPlayer {
 		// Label all moves with coefficients
 		String result = "";
 		RaveNode raveNode = (RaveNode) getRoot();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -108,7 +108,7 @@ public class RavePlayer extends MctsPlayer {
 	protected String goguiRavePlayouts() {
 		// Find the max playouts of any move
 		int max = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			int playouts = ((RaveNode) getRoot()).getRaveRuns(p);
 			if (playouts > max) {
 				max = playouts;
@@ -116,12 +116,12 @@ public class RavePlayer extends MctsPlayer {
 		}
 		// Display proportional playouts through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			result += format(" %s %.3f", pointToString(p), getRavePlayouts(p)
 					/ (double) max);
 		}
 		// Label all moves with win rates
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = ((RaveNode) getRoot()).getRaveWinRate(p);
 				int playouts = ((RaveNode) getRoot()).getRaveRuns(p);
@@ -133,7 +133,7 @@ public class RavePlayer extends MctsPlayer {
 		}
 		// Highlight best move
 		int best = bestStoredMove();
-		if (ON_BOARD[best]) {
+		if (getOnBoard()[best]) {
 			result += "\nCOLOR green " + pointToString(best);
 		}
 		return result;
@@ -145,7 +145,7 @@ public class RavePlayer extends MctsPlayer {
 		// occupied points
 		double max = 0, min = 1;
 		double maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getRaveWinRate(p);
 				// Excluded moves have negative win rates
@@ -158,14 +158,14 @@ public class RavePlayer extends MctsPlayer {
 		}
 		// Display proportional wins through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getWinRate(p) > 0) {
 				result += format(" %s %.3f", pointToString(p), getRaveWins(p)
 						/ (double) maxWins);
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getRaveWinRate(p);
 				if (winRate > 0) {

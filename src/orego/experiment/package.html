@@ -1,33 +1,29 @@
-<body>
-Classes for running and analyzing experiments.
-<p>
-To run an experiment:
+<p>Classes for running and analyzing experiments.</p>
+
+<p>To run an experiment:</p>
+
 <ol>
-<li>Clear out the results directory. If doing this from the command line makes you nervous
-(it should!), use a script like this:
-<p>
-<code>
-#!/bin/bash<br>
-rm -f results/*
-</code>
-<p>
-<li>Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
+<li> Edit (and recompile) ExperimentConfiguration.java. Here you can set the path to GNU Go
 (or whatever standard opponent you're using), the command-line options to Orego for each
-condition, and other options.
-<p>
-<li>If you are running on a cluster, run Broadcast. You may find it useful to put this in a script:
-<p>
-<code>
-#!/bin/bash<br>
-nohup java -cp <i>/path/to/Orego/binaries/</i> orego.experiment.Broadcast &
-</code>
-<p>
-If you are only running on a single machine, instead run GameBatch.
-<li>Periodically run Collate to display the results.
+  condition, and other options. </li>
+
+<li> Make and clear the results directory specified in ExperimentConfiguration.java. </li>
+
+<li> If you are running on a cluster, run Broadcast using the command
+
+        <pre><code>nohup java -cp /path/to/Orego/binaries/ orego.experiment.Broadcast &amp;</code></pre>
+
+    If you are only running on a single machine, instead run GameBatch with the command
+   
+        <pre><code>nohup java -cp /path/to/Orego/binaries/ orego.experiment.GameBatch &lt;HOST> &amp;</pre></code>
+   		
+    where <code>&lt;HOST></code> is one of the hosts listed in orego.experiment.ExperimentConfiguration (note that if you are running an experiment locally, the host will probably have the form <em>hostname</em>.localhost, with <em>hostname</em> being the name of your computer. </li>
+
+<li> Periodically run Collate to display the results. </li>
 </ol>
-If you want to kill an ongoing experiment, run KillExperiment. Note that this is running
+
+<p>If you want to kill an ongoing experiment, run KillExperiment. Note that this is running
 <code>kill -9 -1</code> on all of the machines listed in ExperimentConfiguration.java, so it
-will kill all of your processes and log you out.
-<p>
-To check for statistical significance (whether one condition is better than another), run Significance.
-</body>
+will kill all of your processes and log you out.</p>
+
+<p>To check for statistical significance (whether one condition is better than another), run Significance.</p>

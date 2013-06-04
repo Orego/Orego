@@ -1,6 +1,7 @@
 package orego.experiment;
 
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.getBoardWidth;
+
 
 /** Defines some system-dependent constants for experiments. */
 public class ExperimentConfiguration {
@@ -53,6 +54,6 @@ public class ExperimentConfiguration {
 	}
 	
 	/** Path to run gnugo on your machine */
-	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 
 }
