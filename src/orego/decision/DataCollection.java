@@ -83,7 +83,7 @@ public class DataCollection extends ArrayList<Datum> {
 			minRemain = remain;
 			move = p;
 		}
-		for (int q : ALL_POINTS_ON_BOARD) {
+		for (int q : getAllPointsOnBoard()) {
 			remain = remainder(q, depth);
 			if (remain < minRemain) {
 				minRemain = remain;
