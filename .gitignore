@@ -12,6 +12,13 @@ scripts/cgtc/cgtc-2.0.1/sgf/
 
 bin
 
+<<<<<<< HEAD
+# but we want *some* sgf files
+!SgfTestFiles/9/*
+!SgfTestFiles/19/*
+!testFiles/*
+=======
+>>>>>>> master
 
 ## generic files to ignore
 *~

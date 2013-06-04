@@ -65,6 +65,7 @@ public abstract class ThreadedPlayer extends Player {
 			shouldNotHappen.printStackTrace();
 			System.exit(1);
 		}
+		
 		return bestStoredMove();
 	}
 

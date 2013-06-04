@@ -81,6 +81,10 @@ public class Player implements Playable {
 		return heuristics.selectAndPlayOneMove(random, board);
 	}
 
+	public int bestCleanupMove(){
+		return bestMove();
+	}
+	
 	public int bestMove() {
 		int move;
 		if (getOpeningBook() != null) { // play from opening book
@@ -97,6 +101,10 @@ public class Player implements Playable {
 			return move;
 		}
 		return PASS;
+	}
+	
+	public int bestMove(boolean x) { // TODO there's probably a better way to do this
+		return bestMove();
 	}
 
 	public double finalScore() {
