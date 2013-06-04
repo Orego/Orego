@@ -5,9 +5,10 @@ import static java.lang.Integer.parseInt;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getBoardWidth;
+import static orego.core.Coordinates.setBoardWidth;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
 import static orego.experiment.Debug.*;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
 import orego.play.Playable;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
@@ -232,10 +234,10 @@ public class Orego {
 		if (command.equals("boardsize")) {
 			if (arguments.countTokens() == 1) {
 				int width = parseInt(arguments.nextToken());
-				if (width == BOARD_WIDTH) {
+				if (width == getBoardWidth()) {
 					player.reset();
 					acknowledge();
-				} else {
+				} else{
 					error("unacceptable size");
 				}
 			} else {
@@ -404,10 +406,11 @@ public class Orego {
 
 	@SuppressWarnings("unchecked")
 	protected void handleCommandLineArguments(String[] args) {
-		HashMap<String, String> propertyMap = new HashMap<String, String>();
-		// default settings
+		ArrayList<String> properties = new ArrayList<String>();
+		ArrayList<String> values = new ArrayList<String>();
+		// Default settings
 		String playerClass = "Lgrf2";
-		propertyMap.put("heuristics", "Escape@20:Pattern@20:Capture@20");
+		boolean heuristicsSet = false;
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
 			String argument = args[i];
@@ -429,12 +432,38 @@ public class Orego {
 				setDebugToStderr(true);
 			} else if (left.equals("debugfile")) {
 				setDebugFile(right);
+			} else if(left.equals("boardsize")){
+				StringTokenizer boardWidth = new StringTokenizer(right);
+				if (boardWidth.countTokens() == 1) {
+					int width = parseInt(boardWidth.nextToken());
+					if (width == getBoardWidth()) {
+						if(player != null) {							
+							player.reset();
+						}
+					} else if(width > 0){
+						try{
+							setBoardWidth(width);
+							if(player != null) {								
+								player.getBoard().clear();
+								player.reset();
+							}
+						}catch(IndexOutOfBoundsException e){
+							error("unacceptable size");
+						}
+					}else{
+						error("unacceptable size");
+					}
+				} else {
+					error("unacceptable size");
+				}
+					
 			} else if(left.equals("komi")) {
 				komiArgument = Double.parseDouble(right);
 			} else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
-				propertyMap.put(left, right);
+				properties.add(left);
+				values.add(right);
 			}
 		}
 		try { // Create player from string
@@ -470,13 +499,18 @@ public class Orego {
 					"Could not create a player for class %s.", playerClass));
 		}
 		// Let the player set all other properties
-		for (String property : propertyMap.keySet()) {
-			try {
-				player.setProperty(property, propertyMap.get(property));
-			} catch (UnknownPropertyException e) {
-				e.printStackTrace();
-				System.exit(1);
+		try {
+			for (int i = 0; i < properties.size(); i++) {
+				player.setProperty(properties.get(i), values.get(i));
 			}
+			// If the heuristics weren't set, use default values
+			if (!heuristicsSet) {
+				player.setProperty("heuristics",
+						"Escape@20:Pattern@20:Capture@20");
+			}
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 

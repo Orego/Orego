@@ -1,7 +1,6 @@
 package orego.heuristic;
 
 import static orego.core.Colors.BLACK;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
 
