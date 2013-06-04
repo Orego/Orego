@@ -83,7 +83,7 @@ public class MctsPlayer extends McPlayer {
 	 * to during a playout). We choose the move with the most wins.
 	 */
 	protected int bestPlayMove(SearchNode node) {
-		int best = 1;
+		double best = 1;
 		int result = PASS;
 		IntSet vacantPoints = getBoard().getVacantPoints();
 		do {
@@ -147,7 +147,8 @@ public class MctsPlayer extends McPlayer {
 					node.exclude(move);
 				}
 			}
-			// The magic number 457 is prime and larger than vacantPoints.size().
+			// The magic number 457 is prime and larger than
+			// vacantPoints.size().
 			// Advancing by 457 therefore skips "randomly" through the array,
 			// in a manner analogous to double hashing.
 			i = (i + 457) % vacantPoints.size();
@@ -206,8 +207,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.updatePriors(child,
-								runnable.getBoard());
+						runnable.updatePriors(child, runnable.getBoard());
 					}
 					return;
 				}
@@ -226,7 +226,7 @@ public class MctsPlayer extends McPlayer {
 		}
 		String result = "";
 		IntList dead = deadStones();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) != VACANT) {
 				if (status.equals("alive") != dead.contains(p)) {
 					result += pointToString(p) + " ";
@@ -246,7 +246,8 @@ public class MctsPlayer extends McPlayer {
 			SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getHash());
 			synchronized (table) {
-				// a child will only be created if we expect the node to be visited again
+				// a child will only be created if we expect the node to be
+				// visited again
 				if (!node.hasChild(p) && (node.getWins(p) >= 2)) {
 					child = table.findOrAllocate(runnable.getBoard().getHash());
 					if (child == null) {
@@ -317,7 +318,7 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
-	public int getWins(int p) {
+	public double getWins(int p) {
 		return getRoot().getWins(p);
 	}
 
@@ -376,7 +377,7 @@ public class MctsPlayer extends McPlayer {
 		// the various gogui methods
 		double min = 1.0;
 		double max = 0.0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -387,7 +388,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -406,10 +407,10 @@ public class MctsPlayer extends McPlayer {
 
 	protected String goguiTotalWins() {
 		double max = 0, min = 1;
-		int maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		double maxWins = 0;
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
-				int wins = getWins(p);
+				double wins = getWins(p);
 				// Excluded moves have negative win rates
 				if (wins > 0) {
 					max = Math.max(max, wins);
@@ -419,8 +420,8 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
-			int wins = 0;
+		for (int p : getAllPointsOnBoard()) {
+			double wins = 0;
 			if (getBoard().getColor(p) == VACANT) {
 				wins = getWins(p);
 				if (wins > 0) {
@@ -430,9 +431,9 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
-				int wins = getWins(p);
+				double wins = getWins(p);
 				if (wins > 0) {
 					if (result.length() > 0) {
 						result += "\n";
@@ -492,22 +493,23 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		if (winner != VACANT) {
-			int turn = runnable.getTurn();
-			SearchNode node = getRoot();
-			int[] moves = runnable.getMoves();
-			long[] hashes = runnable.getHashes();
-			boolean win = winner == getBoard().getColorToPlay();
-			for (int t = getBoard().getTurn(); t < turn; t++) {
-				node.recordPlayout(win, moves, t, turn,
-						runnable.getPlayedPoints());
-				long hash = hashes[t + 1];
-				node = table.findIfPresent(hash);
-				if (node == null) {
-					return;
-				}
-				win = !win;
+		int turn = runnable.getTurn();
+		SearchNode node = getRoot();
+		int[] moves = runnable.getMoves();
+		long[] hashes = runnable.getHashes();
+		float winProportion = winner == getBoard().getColorToPlay() ? 1 : 0;
+		if (winner == VACANT) {
+			winProportion = 0.5f;
+		}
+		for (int t = getBoard().getTurn(); t < turn; t++) {
+			node.recordPlayout(winProportion, moves, t, turn,
+					runnable.getPlayedPoints());
+			long hash = hashes[t + 1];
+			node = table.findIfPresent(hash);
+			if (node == null) {
+				return;
 			}
+			winProportion = 1 - winProportion;
 		}
 	}
 
@@ -596,7 +598,7 @@ public class MctsPlayer extends McPlayer {
 			super.setProperty(property, value);
 		}
 	}
-	
+
 	protected void setTable(TranspositionTable table) {
 		this.table = table;
 	}
@@ -625,7 +627,7 @@ public class MctsPlayer extends McPlayer {
 		String result = indent + "Hash: " + node.getHash() + " Total runs: "
 				+ node.getTotalRuns() + "\n";
 		Board childBoard = new Board();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (node.getRuns(p) > 2) {
 				result += indent + node.toString(p);
 				childBoard.copyDataFrom(board);
@@ -663,8 +665,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 		}
 		if (isPondering()) {
 			startThreads();
@@ -683,8 +684,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 		}
 		debug(winRateReport());
 	}

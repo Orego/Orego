@@ -76,7 +76,7 @@ public class RavePlayer extends MctsPlayer {
 	}
 
 	/** Returns the number of RAVE wins through the root via p. */
-	protected int getRaveWins(int p) {
+	protected double getRaveWins(int p) {
 		return ((RaveNode) getRoot()).getRaveWins(p);
 	}
 
@@ -85,7 +85,7 @@ public class RavePlayer extends MctsPlayer {
 		// Label all moves with coefficients
 		String result = "";
 		RaveNode raveNode = (RaveNode) getRoot();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -108,7 +108,7 @@ public class RavePlayer extends MctsPlayer {
 	protected String goguiRavePlayouts() {
 		// Find the max playouts of any move
 		int max = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			int playouts = ((RaveNode) getRoot()).getRaveRuns(p);
 			if (playouts > max) {
 				max = playouts;
@@ -116,12 +116,12 @@ public class RavePlayer extends MctsPlayer {
 		}
 		// Display proportional playouts through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			result += format(" %s %.3f", pointToString(p), getRavePlayouts(p)
 					/ (double) max);
 		}
 		// Label all moves with win rates
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = ((RaveNode) getRoot()).getRaveWinRate(p);
 				int playouts = ((RaveNode) getRoot()).getRaveRuns(p);
@@ -133,7 +133,7 @@ public class RavePlayer extends MctsPlayer {
 		}
 		// Highlight best move
 		int best = bestStoredMove();
-		if (ON_BOARD[best]) {
+		if (getOnBoard()[best]) {
 			result += "\nCOLOR green " + pointToString(best);
 		}
 		return result;
@@ -144,8 +144,8 @@ public class RavePlayer extends MctsPlayer {
 		// Find the maximum and minimum win rates on the board, ignoring
 		// occupied points
 		double max = 0, min = 1;
-		int maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		double maxWins = 0;
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getRaveWinRate(p);
 				// Excluded moves have negative win rates
@@ -158,14 +158,14 @@ public class RavePlayer extends MctsPlayer {
 		}
 		// Display proportional wins through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getWinRate(p) > 0) {
 				result += format(" %s %.3f", pointToString(p), getRaveWins(p)
 						/ (double) maxWins);
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getRaveWinRate(p);
 				if (winRate > 0) {
@@ -240,15 +240,15 @@ public class RavePlayer extends MctsPlayer {
 			return NEGATIVE_INFINITY;
 		}
 		if (move == PASS) {
-			return ((double) node.getWins(move)) / node.getRuns(move);
+			return node.getWinRate(move);
 		}
 		RaveNode raveNode = (RaveNode) node;
 		double c = raveNode.getRuns(move);
-		double w = raveNode.getWins(move);
+		double r = raveNode.getWinRate(move);
 		double rc = raveNode.getRaveRuns(move);
-		double rw = raveNode.getRaveWins(move);
+		double rr = raveNode.getRaveWinRate(move);
 		double coef = raveCoefficient(c, rc);
-		return (w / c) * (1 - coef) + (rw / rc) * coef;
+		return r * (1 - coef) + rr * coef;
 	}
 
 	@Override

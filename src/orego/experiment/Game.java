@@ -64,7 +64,7 @@ public class Game {
 			this.filename = filename;
 			out = new PrintWriter(filename);
 			contestants = new String[] { black, white };
-			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+Coordinates.BOARD_WIDTH+"]");
+			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+getBoardWidth()+"]");
 			out.println("PB["+black+"]");
 			out.println("PW["+white+"]");
 			if (black.contains("Orego")) {
@@ -91,9 +91,9 @@ public class Game {
 	 * end.
 	 */
 	protected void endPrograms() {
-		out.println("C[starttime:"+starttime+"]");
+		out.println(";C[starttime:"+starttime+"]");
 		out.flush();
-		out.println("C[endtime:"+System.currentTimeMillis()+"]");
+		out.println(";C[endtime:"+System.currentTimeMillis()+"]");
 		out.flush();
 		out.println(")");
 		out.flush();
@@ -116,7 +116,7 @@ public class Game {
 	 */
 	protected synchronized void handleResponse(int color, String line, Scanner s) {
 		if (color == oregoColor && line.contains("playout")){
-			out.println("C["+line.substring(line.indexOf(' ') + 1)+"]");
+			out.println(";C["+line.substring(line.indexOf(' ') + 1)+"]");
 			out.flush();
 			endPrograms();
 			return;
@@ -139,9 +139,9 @@ public class Game {
 				//end sgf output
 				if (coordinates.toLowerCase().equals("resign")) {
 					winner = opposite(getColorToPlay());
-					out.println("RE["+ (winner == BLACK ? "B" : "W") + "+R]");
+					out.println(";RE["+ (winner == BLACK ? "B" : "W") + "+R]");
 					out.flush();
-					out.println("C[moves:"+board.getTurn()+"]");
+					out.println(";C[moves:"+board.getTurn()+"]");
 					out.flush();
 					toPrograms[oregoColor].println("playout_count");
 					toPrograms[oregoColor].flush();
@@ -157,9 +157,9 @@ public class Game {
 				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
 				if (board.getPasses() == 2) {
-					out.println("RE[" + (board.finalWinner() == BLACK ? "B" : "W") +"+"+Math.abs(board.finalScore())+"]");
+					out.println(";RE[" + (board.finalWinner() == BLACK ? "B" : "W") +"+"+Math.abs(board.finalScore())+"]");
 					out.flush();
-					out.println("C[moves:"+board.getTurn()+"]");
+					out.println(";C[moves:"+board.getTurn()+"]");
 					out.flush();
 					toPrograms[oregoColor].println("playout_count");
 					toPrograms[oregoColor].flush();

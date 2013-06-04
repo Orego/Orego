@@ -1,6 +1,6 @@
 package orego.mcts;
 
-import static orego.core.Coordinates.BOARD_AREA;
+import static orego.core.Coordinates.getBoardArea;
 import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import static orego.experiment.Debug.debug;
 import orego.util.ListNode;
@@ -9,9 +9,6 @@ import orego.util.Pool;
 // TODO Why are we using chaining instead of open addressing here?
 /** A hash table of nodes representing board configurations. */
 public class TranspositionTable {
-
-	/** Number of nodes to allocate in general. */
-	public static final int DEFAULT_NODE_POOL_SIZE = 1024 * 1024 * 20 / BOARD_AREA;
 
 	/** ListNodes used to build child lists for SearchNodes. */
 	protected Pool<ListNode<SearchNode>> listNodes;
@@ -45,7 +42,8 @@ public class TranspositionTable {
 	}
 
 	public TranspositionTable(SearchNode prototype) {
-		this(DEFAULT_NODE_POOL_SIZE, prototype);
+		/** The calculation here is for the number of nodes to allocate in general */
+		this(1024 * 1024 * 20 / getBoardArea(), prototype);
 	}
 
 	/** Adds child as a child of parent. */

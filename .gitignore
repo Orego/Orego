@@ -4,14 +4,21 @@
 #netbeans ignore personal stuff 
 nbproject/private/
 
-*.sgf
+# we don't want all the sample data for the data mining
+SgfFiles/9/GoBase
+
+# we also don't want the SGF files from the scripts folder
+scripts/cgtc/cgtc-2.0.1/sgf/
 
 bin
 
+<<<<<<< HEAD
 # but we want *some* sgf files
 !SgfTestFiles/9/*
 !SgfTestFiles/19/*
 !testFiles/*
+=======
+>>>>>>> master
 
 ## generic files to ignore
 *~

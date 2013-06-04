@@ -2,11 +2,10 @@ package orego.play;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.core.Coordinates.pointToString;
 
 import java.io.BufferedReader;
@@ -108,7 +107,7 @@ public class Player implements Playable {
 		return bestMove();
 	}
 
-	public int finalScore() {
+	public double finalScore() {
 		return board.finalScore();
 	}
 
@@ -239,7 +238,9 @@ public class Player implements Playable {
 				e.printStackTrace();
 				System.exit(1);
 			}
-		} else {
+		}
+
+		else {
 			getHeuristics().setProperty(property, value); // toss off to the heuristics list
 			// remove any heuristics which now have a weight of zero
 			getHeuristics().removeZeroWeightedHeuristics();
@@ -259,6 +260,7 @@ public class Player implements Playable {
 	}
 
 	public void setUpSgf(String filepath, int colorToPlay) {
+		System.err.println("filepath: "+filepath+" colorToPlay:"+colorToPlay);
 		reset();
 		board.setColorToPlay(colorToPlay);
 		try {
@@ -266,25 +268,28 @@ public class Player implements Playable {
 			BufferedReader bf = new BufferedReader(new FileReader(file));
 			String input = "";
 			String current = "";
-			char[][] ourBoard = new char[BOARD_WIDTH][BOARD_WIDTH];
-			for (int i = 0; i < BOARD_WIDTH; i++) {
-				for (int j = 0; j < BOARD_WIDTH; j++) {
+			char[][] ourBoard = new char[getBoardWidth()][getBoardWidth()];
+			for (int i = 0; i < getBoardWidth(); i++) {
+				for (int j = 0; j < getBoardWidth(); j++) {
 					ourBoard[i][j] = '.';
 				}
 			}
 			while ((current = bf.readLine()) != null) {
 				input += current;
 			}
+			bf.close();
 			StringTokenizer stoken = new StringTokenizer(input, ";");
-			stoken.nextToken();
-			stoken.nextToken();
+
+				stoken.nextToken();
+				stoken.nextToken();
+
 			String boardSetup = stoken.nextToken();
 			stoken = new StringTokenizer(boardSetup, "[]()");
 			int state = 0;
 			String currentToken = "";
 			while (stoken.hasMoreTokens()) {
 				currentToken = stoken.nextToken();
-				assert currentToken.length() == 2;
+				assert currentToken.length() == 2 : "The token " + currentToken + " is not exactly two characters long";
 				if (currentToken.equals("AB")) {
 					// Add black stones (handicap)
 					state = 0;
@@ -310,7 +315,7 @@ public class Player implements Playable {
 					}
 				}
 			}
-			String[] arrayOfStrings = new String[BOARD_WIDTH];
+			String[] arrayOfStrings = new String[getBoardWidth()];
 			for (int i = 0; i < arrayOfStrings.length; i++) {
 				arrayOfStrings[i] = new String(ourBoard[i]);
 			}
@@ -319,6 +324,7 @@ public class Player implements Playable {
 			e.printStackTrace();
 			System.exit(1);
 		}
+
 	}
 
 	@Override

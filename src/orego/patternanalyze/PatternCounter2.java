@@ -223,7 +223,7 @@ public class PatternCounter2 {
 			while (currentTurn <= turn) {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
-				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
+				if (getOnBoard()[lastPlay] && getOnBoard()[currentPlay]) {
 					DynamicPattern pattern = new DynamicPattern(lastPlay, patternBoard, PATTERN_LENGTH);
 					boolean foundPattern = false;
 					for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {

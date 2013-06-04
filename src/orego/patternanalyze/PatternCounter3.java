@@ -239,8 +239,8 @@ public class PatternCounter3 {
 			while (currentTurn <= turn) {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
-				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-					for (int p : ALL_POINTS_ON_BOARD) {
+				if (getOnBoard()[lastPlay] && getOnBoard()[currentPlay]) {
+					for (int p : getAllPointsOnBoard()) {
 						if (patternBoard.getColor(p) == VACANT) {
 							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
 							boolean foundPattern = false;

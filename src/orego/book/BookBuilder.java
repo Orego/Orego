@@ -84,16 +84,16 @@ public abstract class BookBuilder {
 	public void buildFinalBook(String folder) throws IOException,
 			ClassNotFoundException {
 		String directory = OREGO_ROOT_DIRECTORY + folder + File.separator
-				+ BOARD_WIDTH;
+				+ getBoardWidth();
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-				directory + File.separator + getRawBookName() + BOARD_WIDTH
+				directory + File.separator + getRawBookName() + getBoardWidth()
 						+ ".data"));
 		debug("Reading raw book...");
 		// The next line would cause a warning
 		setBigMap((BigHashMap<short[]>) in.readObject());
 		in.close();
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
-				directory + File.separator + getFinalBookName() + BOARD_WIDTH
+				directory + File.separator + getFinalBookName() + getBoardWidth()
 						+ ".data"));
 		out.writeObject(computeFinalEntries());
 		out.close();
@@ -102,10 +102,10 @@ public abstract class BookBuilder {
 	/** Produces a raw opening book using games from SGF files. */
 	public void buildRawBook(String folder) throws IOException {
 		String directory = OREGO_ROOT_DIRECTORY + folder + File.separator
-				+ BOARD_WIDTH;
+				+ getBoardWidth();
 		setUp(directory);
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
-				directory + File.separator + getRawBookName() + BOARD_WIDTH
+				directory + File.separator + getRawBookName() + getBoardWidth()
 						+ ".data"));
 		out.writeObject(getBigMap());
 		out.close();
@@ -126,7 +126,7 @@ public abstract class BookBuilder {
 		short winner = NO_POINT;
 		if (counts.length <= SHORT_ARRAY_LIMIT) {
 			sort(counts);
-			short[] frequency = new short[FIRST_POINT_BEYOND_BOARD];
+			short[] frequency = new short[getFirstPointBeyondBoard()];
 			short mostFrequent = 0;
 			for (int p = 0; p < counts.length; p++) {
 				frequency[counts[p]]++;
@@ -138,7 +138,7 @@ public abstract class BookBuilder {
 				}
 			}
 		} else {
-			for (int p : ALL_POINTS_ON_BOARD) {
+			for (int p : getAllPointsOnBoard()) {
 				if (counts[p] >= manyTimes && counts[p] >= counts[winner]) {
 					winner = (short) p;
 				}
@@ -225,7 +225,7 @@ public abstract class BookBuilder {
 					debug("Ignoring handicap game");
 					return null;
 				} else if (identifier.equals("SZ")) {
-					if (!property.equals("SZ[" + BOARD_WIDTH + "]")) {
+					if (!property.equals("SZ[" + getBoardWidth() + "]")) {
 						System.out
 								.println("Ignoring game with strange board size");
 						return null;
@@ -384,7 +384,7 @@ public abstract class BookBuilder {
 		int row = row(move);
 		int col = column(move);
 		int r2 = row;
-		int c2 = BOARD_WIDTH - 1 - col;
+		int c2 = getBoardWidth() - 1 - col;
 		int p = at(r2, c2);
 		return p;
 	}
@@ -393,8 +393,8 @@ public abstract class BookBuilder {
 	public int reflectC(int move) {
 		int row = row(move);
 		int col = column(move);
-		int r2 = BOARD_WIDTH - 1 - col;
-		int c2 = BOARD_WIDTH - 1 - row;
+		int r2 = getBoardWidth() - 1 - col;
+		int c2 = getBoardWidth() - 1 - row;
 		int p = at(r2, c2);
 		return p;
 	}
@@ -403,7 +403,7 @@ public abstract class BookBuilder {
 	public int reflectD(int move) {
 		int row = row(move);
 		int col = column(move);
-		int r2 = BOARD_WIDTH - 1 - row;
+		int r2 = getBoardWidth() - 1 - row;
 		int c2 = col;
 		int p = at(r2, c2);
 		return p;
@@ -413,8 +413,8 @@ public abstract class BookBuilder {
 	public int rotate180(int move) {
 		int row = row(move);
 		int col = column(move);
-		int r2 = BOARD_WIDTH - 1 - row;
-		int c2 = BOARD_WIDTH - 1 - col;
+		int r2 = getBoardWidth() - 1 - row;
+		int c2 = getBoardWidth() - 1 - col;
 		int p = at(r2, c2);
 		return p;
 	}
@@ -424,7 +424,7 @@ public abstract class BookBuilder {
 		int row = row(move);
 		int col = column(move);
 		int r2 = col;
-		int c2 = BOARD_WIDTH - 1 - row;
+		int c2 = getBoardWidth() - 1 - row;
 		int p = at(r2, c2);
 		return p;
 	}
@@ -433,7 +433,7 @@ public abstract class BookBuilder {
 	public int rotate90(int move) {
 		int row = row(move);
 		int col = column(move);
-		int r2 = BOARD_WIDTH - 1 - col;
+		int r2 = getBoardWidth() - 1 - col;
 		int c2 = row;
 		int p = at(r2, c2);
 		return p;
@@ -547,7 +547,7 @@ public abstract class BookBuilder {
 				bigMap.put(hash, temp);
 			} else if (array.length == SHORT_ARRAY_LIMIT) {
 				// Converting medium map to big map
-				short[] temp = new short[FIRST_POINT_BEYOND_BOARD];
+				short[] temp = new short[getFirstPointBeyondBoard()];
 				for (int i = 0; i < array.length; i++) {
 					temp[array[i]]++;
 				}

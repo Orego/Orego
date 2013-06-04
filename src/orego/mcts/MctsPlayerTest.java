@@ -247,7 +247,7 @@ public class MctsPlayerTest {
 		for (int i = 0; i < runs; i++) {
 			runnable.performMcRun();
 		}
-		assertEquals(runs + (2 * BOARD_AREA + 10), player.getRoot()
+		assertEquals(runs + (2 * getBoardArea() + 10), player.getRoot()
 				.getTotalRuns());
 	}
 
@@ -311,7 +311,7 @@ public class MctsPlayerTest {
 	public void testReclaimOldNodes() {
 		SearchNode node = player.getTable().findIfPresent(0L);
 		node.incrementTotalRuns();
-		assertEquals(BOARD_AREA * 2 + 10 + 1, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 10 + 1, node.getTotalRuns());
 		player.acceptMove(at("a1"));
 		long hash = indexOfBoard(player.getBoard());
 		player.acceptMove(at("a2"));
@@ -588,7 +588,7 @@ public class MctsPlayerTest {
 		// Add some wins so the move looks good
 		player.getRoot().addWins(at("d1"), 1000);
 		player.bestMove();
-		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")));
+		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")), 0.001);
 	}
 
 	@Test
@@ -603,14 +603,14 @@ public class MctsPlayerTest {
 		board.play(at("c5"));
 		long greatGrandchild = indexOfBoard(board);
 		SearchNode node = player.getTable().findIfPresent(greatGrandchild);
-		assertEquals(BOARD_AREA * 2 + 11, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 11, node.getTotalRuns());
 		board.copyDataFrom(player.getBoard()); // Create other child
 		board.play(at("c5"));
 		fakeRun(BLACK, "c5");
 		fakeRun(BLACK, "c5", "c4", "c3", "c6");
 		board.play(at("c4"));
 		fakeRun(BLACK, "c5", "c4", "c3", "c6");
-		assertEquals(BOARD_AREA * 2 + 12, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 12, node.getTotalRuns());
 	}
 
 	@Test
@@ -659,20 +659,20 @@ public class MctsPlayerTest {
 		player.reset();
 		player.acceptMove(at("b1"));
 		SearchNode root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")), 0.001);
+		assertEquals(3, root.getRuns(at("c5")), 0.001);
 		player.acceptMove(at("b2"));
 		player.acceptMove(at("b3"));
 		player.acceptMove(at("b4"));
 		root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")), 0.001);
+		assertEquals(3, root.getRuns(at("c5")), 0.001);
 	}
 
 	@Test
 	public void testResign() {
 		SearchNode root = player.getRoot();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			root.addLosses(p, 100);
 		}
 		root.addWins(PASS, 1);

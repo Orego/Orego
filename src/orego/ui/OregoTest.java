@@ -2,6 +2,7 @@ package orego.ui;
 
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import orego.core.Coordinates;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
@@ -21,6 +22,7 @@ public class OregoTest {
 		PipedOutputStream out = new PipedOutputStream();
 		oregoOut = new BufferedReader(new InputStreamReader(
 				new PipedInputStream(out)));
+		// TODO Is this expensive to do before every test?
 		orego = new Orego(System.in, out, new String[] {"playouts=100", "threads=1"});
 	}
 
@@ -42,14 +44,13 @@ public class OregoTest {
 	/** A test of the to verify the "boardsize" command. */
 	@Test
 	public void testBoardSize() throws IOException {
-		// BOARD_WIDTH + 1 is an invalid size, check for an error
-		// message.
-		orego.handleCommand("boardsize " + (BOARD_WIDTH + 1));
+		// Any value not boardsize is invalid
+		orego.handleCommand("boardsize " + (getBoardWidth() - 1));
 		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		// Check with a valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + BOARD_WIDTH);
+		// Check with the valid BOARD_WIDTH parameter
+		orego.handleCommand("boardsize " + getBoardWidth());
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
@@ -59,6 +60,7 @@ public class OregoTest {
 		assertEquals('?', output.charAt(0));
 		assertTrue(output.substring(2).equals("unacceptable size"));
 		oregoOut.readLine(); // read out the extra return
+		orego.handleCommand("boardsize " + 19);
 	}
 
 	/** Test the "clear_board" command. */
@@ -78,7 +80,7 @@ public class OregoTest {
 		orego.handleCommand("showboard");
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
-		for (int i = 0; i < BOARD_WIDTH + 2; i++) {
+		for (int i = 0; i < getBoardWidth() + 2; i++) {
 			output = oregoOut.readLine();
 			assertFalse(output.contains("#"));
 		}
@@ -96,7 +98,7 @@ public class OregoTest {
 		String[] outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("W")); // White wins
 		double komi = orego.getPlayer().getBoard().getKomi();
-		assertEquals(outcome[1], "" + komi); // by points = komi
+		assertEquals("" + komi, outcome[1]); // by points = komi
 		oregoOut.readLine(); // read out the extra return
 		// Test the score when black wins. Play a single piece and black should
 		// win by the max possible point minus komi.
@@ -109,7 +111,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("B")); // Black wins
-		double blackScore = BOARD_AREA - komi; // With max territory
+		double blackScore = getBoardArea() - komi; // With max territory
 		assertEquals(outcome[1], "" + blackScore);
 	}
 
@@ -118,7 +120,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		// This converts the text output internal numerical format and verifies
 		// the move is valid.
-		assertTrue(at(output.substring(2)) < FIRST_POINT_BEYOND_BOARD);
+		assertTrue(at(output.substring(2)) < getFirstPointBeyondBoard());
 	}
 
 	@Test
@@ -172,6 +174,7 @@ public class OregoTest {
 	/** Tests the that genmove code resigns when appropriate. */
 	@Test
 	public void testResign() throws IOException {
+		
 			String[] problem = {
 					"OOOOOOOOOOOOOOOOOOO",// 19
 					"OOOOOOOOOOOOOOO.O.O",// 18
@@ -504,14 +507,29 @@ public class OregoTest {
 
 	@Test
 	public void testCommandLineArguments() {
-		orego = new Orego(new String[] { "player=MctsPlayer", "msec=100",
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=9", "msec=100",
 				"ponder" });
 		McPlayer player = (McPlayer) orego.getPlayer();
 		assertEquals(100, player.getMillisecondsPerMove());
 		assertTrue(((ThreadedPlayer) orego.getPlayer()).isPondering());
+		assertEquals(9, getBoardWidth());
 		orego = new Orego(new String[] { "player=Mcts", "playouts=500" });
 		player = (McPlayer) orego.getPlayer();
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=19", "msec=100",
+		"ponder" });
+		//sets boardsize back to 19 so tests will work?
 	}
+	
+	@Test
+	public void testCommandLineArgumentsOrder() {
+		orego = new Orego(new String[] { "player=Mcts", "msec=100", "playouts=100"});
+		assertEquals(-1, orego.getPlayer().getMillisecondsPerMove());
+		assertEquals(100, ((McPlayer)(orego.getPlayer())).getPlayoutLimit());
+		orego = new Orego(new String[] { "player=Mcts", "playouts=100", "msec=100"});
+		assertEquals(100, orego.getPlayer().getMillisecondsPerMove());
+		assertEquals(-1, ((McPlayer)(orego.getPlayer())).getPlayoutLimit());
+	}
+
 }

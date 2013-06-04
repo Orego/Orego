@@ -250,7 +250,7 @@ public class PlayerTest {
 		while (player.getBoard().getPasses() < 2) {
 			player.acceptMove(player.bestMove());
 		}
-		assertEquals(player.getBoard().finalScore(), player.finalScore());
+		assertEquals(player.getBoard().finalScore(), player.finalScore(), 0.001);
 	}
 
 	@Test
