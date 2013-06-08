@@ -31,8 +31,8 @@ public interface TreeSearcher extends Remote {
 	/** Undoes the last move. */
 	boolean undo() throws RemoteException;
 	
-	/** Restarts this searcher and idles for restart */
-	void kill() throws RemoteException;
+	/** Tells the searcher we are terminating. The searcher should die nicely. */
+	void shouldTerminate() throws RemoteException;
 	
 	/** Sets the player to the Tree Searcher should use.
 	 * @param player the fully qualified player class name.

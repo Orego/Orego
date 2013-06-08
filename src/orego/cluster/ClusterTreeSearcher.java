@@ -53,6 +53,9 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	/** a flag that lets the application exit after an unsuccessful connection attempt */
 	private boolean shouldExit = false;
 	
+	/** The command line command to die*/
+	public static final String KILL_COMMAND = "quit";
+	
 	/** a counter that is used to ignore results that come in late */
 	private AtomicInteger searchCount = new AtomicInteger(0);
 	
@@ -66,12 +69,12 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		String controllerHost;
 		int controllerIndex = -1;
 		if(args.length < 2) {
-			System.out.println("Usage: java orego.cluster.ClusterTreeSearcher host machine_index");
+			System.out.println("Usage: java orego.cluster.ClusterTreeSearcher remote_controller_index host");
 			return;
 		}
 		else {
-			controllerHost = args[0];
-			controllerIndex = Integer.parseInt(args[1]);
+			controllerIndex = Integer.parseInt(args[0]);
+			controllerHost = args[1];
 			System.out.println("Trying to connect to host: " + controllerHost + " with machine index: " + controllerIndex);
 		}
 		
@@ -86,15 +89,18 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		// now wait around until someone kills us (or the searcher says we can exit)
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		
-		// RMI calls will happen on the background thread
-		while(!searcher.shouldExit) {
-			if(reader.ready() && reader.readLine().equals("die")) {
+		// RMI calls will happen on the background thread so we just sit here waiting.
+		while ( ! searcher.shouldExit) {
+			if(reader.ready() && reader.readLine().equals(KILL_COMMAND)) {
 				break;
 			}
-			Thread.sleep(100);
+			// we don't need to be checking all the time so let's wait awhile
+			Thread.sleep(500);
 		}
 		
-		// forcibly unregister ourselves so RMI will let us exit
+		// forcibly unregister ourselves so RMI will let us exit.
+		// if we have been terminated by the main controller itself, this method
+		// will do nothing.
 		searcher.removeFromController();
 	
 	}
@@ -141,20 +147,21 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	 * @parma host the host we wish to connect to.
 	 */
 	protected SearchController tryToConnectToController(Registry registry, int playerIndex, int timeout) {
+		if (playerIndex < 0) throw new UnsupportedOperationException("Tried to connect to search controller with invalid index " + playerIndex);
+		
 		int totalTime = 0;
 		
 		while (totalTime < timeout) {
 			try {
-				// if player index < 0, go with default
-				String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME);
+				String name = SearchController.SEARCH_CONTROLLER_NAME + playerIndex;
 				
 				SearchController controller = (SearchController) registry.lookup(name);
 				
 				return controller;
+				
 			} catch (Exception e) { // we have to swallow any exception because java doesn't allow multiple
 									// exception handling (we need Java 7)
-				System.out.println("Failed to connect, waiting 1s then trying again...");
-				System.out.println(e.toString());
+				System.out.println("Failed to connect to controller " + playerIndex + ", waiting 1s then trying again...");
 				try {
 					Thread.sleep(1000); // wait a second; literally
 				} catch (InterruptedException e1) {
@@ -164,7 +171,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 				totalTime += 1000;
 			}
 		}
-		System.out.println("Connection attempts timed out");
+		System.out.println("Error: connection attempts to " + playerIndex + " timed out");
 		return null;
 	}
 	public ClusterTreeSearcher(String hostname, int controllerIndex) throws RemoteException {
@@ -178,6 +185,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	
 	/** Removes ourselves from our controller and un-publishes ourselves from the RMI registry*/
 	public void removeFromController() {
+		// if we've already unregistered ourselves, skip it (happens when we call should terminate)
 		if (this.controller == null) return;
 		
 		try {
@@ -201,30 +209,21 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	}
 
 	@Override
-	public void kill() throws RemoteException {
+	public void shouldTerminate() throws RemoteException {
 		// clear out our controller
 		this.controller = null;
 		
 		// clear settings specific to the controller
 		this.consideredPoints = null;
 		
-		// we need to do this asynchronously to avoid blocking the server
-		new Thread() {
-			@Override
-			public void run() {
-				// try to reconnect, this will wait until a new server starts
-				try {
-					ClusterTreeSearcher.this.connectToRMI();
-				} catch (Exception e) {
-					try {
-						UnicastRemoteObject.unexportObject(ClusterTreeSearcher.this, true);
-						ClusterTreeSearcher.this.shouldExit = true;
-					} catch (NoSuchObjectException ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		}.start();
+		try {
+			UnicastRemoteObject.unexportObject(ClusterTreeSearcher.this, true);
+		} catch (NoSuchObjectException e) {
+			System.err.println("Error cleaning searcher up");
+			e.printStackTrace();
+		}
+		
+		this.shouldExit = true; // tell ourselves we should terminate gracefully and the main loop will stop
 	}
 	
 	@Override
@@ -305,18 +304,27 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 			
 			@Override
 			public void run() {
-				System.out.println(String.format("[%d] Beginning to search.", startingSearchCount));
+				System.out.println(String.format("[%d: %d] Beginning to search.", 
+						(System.currentTimeMillis() / 1000L), 
+						startingSearchCount));
 				
 				// search for the best move to force the wins/runs tables to be filled
 				ClusterTreeSearcher.this.player.runSearch();
 				
-				System.out.println(String.format("[%d] Playouts completed: %d", startingSearchCount, player.getTotalPlayoutCount()));
+				System.out.println(String.format("[%d: %d] Playouts completed: %d",
+						(System.currentTimeMillis() / 1000L),
+						startingSearchCount, 
+						player.getTotalPlayoutCount()));
 
-				System.out.println(String.format("[%d] Done searching.", startingSearchCount));
+				System.out.println(String.format("[%d: %d] Done searching.", 
+						(System.currentTimeMillis() / 1000L),
+						startingSearchCount));
 				
 				// startingSearchCount is captured when the thread is created
 				if(searchCount.get() != startingSearchCount) {
-					System.out.println(String.format("[%d] Finished late - not reporting results.", startingSearchCount));
+					System.out.println(String.format("[%d: %d] Finished late - not reporting results.", 
+							(System.currentTimeMillis() / 1000L),
+							startingSearchCount));
 					return;
 				}
 				
@@ -338,13 +346,13 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	@Override
 	public void terminateSearch() {
 		int currentCount = searchCount.get();
-		System.out.println(String.format("[%d] Received terminateSearch.", currentCount));
+		System.out.println(String.format("[%d: %d] Received terminateSearch.", (System.currentTimeMillis() / 1000L), currentCount));
 		if(searchThread != null) {
 			searchCount.incrementAndGet();
 			searchThread.interrupt();
 			player.terminateSearch();
 		}
-		System.out.println(String.format("[%d] terminateSearch finished.", currentCount));
+		System.out.println(String.format("[%d: %d] terminateSearch finished.", (System.currentTimeMillis() / 1000L),currentCount));
 	}
 	
 	@Override

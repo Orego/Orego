@@ -24,17 +24,15 @@ public class GameBatch implements Runnable {
 	private int batchNumber;
 	
 	/**
-	 * @param args
-	 *            element 0 is the host name.
+	 * Game batch launches a series of threads which then run the individual games per host
+	 * so game batch is recursive in this sense.
 	 */
 	public static void main(String[] args) {
 		assert args.length == 1;
 		
 		launchGameBatches(args[0]);
 	}
-	
-	
-	
+
 	public static void launchGameBatches(String hostname) {
 		try {
 			
@@ -42,7 +40,6 @@ public class GameBatch implements Runnable {
 			for (int i = 0; i < GAMES_PER_HOST; i++) {
 				new Thread(new orego.experiment.parallel.GameBatch(i, hostname)).start();
 			}
-			
 		} catch (Throwable e) {
 			e.printStackTrace(System.out);
 			System.exit(1);
@@ -57,10 +54,7 @@ public class GameBatch implements Runnable {
 
 	@Override
 	public void run() {
-		// spin up some clients who will start waiting
-		// do this outside of the following loop because we reuse searchers
-		spinUpRemoteSearchers(this.batchNumber);  
-		
+		  
 		// we run a series of games for each of the conditions (synchronously)
 		for (String condition : CONDITIONS) {
 			String logFile = RESULTS_DIRECTORY + "game_batch_" + this.batchNumber + ".log";
@@ -88,6 +82,10 @@ public class GameBatch implements Runnable {
 		
 		// no we run all the number of games per color
 		for (int i = 0; i < PARALLEL_GAMES_PER_COLOR; i++) {
+			// spin up some clients who will start waiting
+			// do this outside of the following loop because we reuse searchers
+			spinUpRemoteSearchers();
+			
 			String fileStem = RESULTS_DIRECTORY +  dirPrefix + "-b" + batchNumber + "-" + System.currentTimeMillis();
 			Game game;
 
@@ -101,18 +99,47 @@ public class GameBatch implements Runnable {
 			else {
 				i--;
 			}
+			
+			// now tear down the remote searchers
+			tearDownRemoteSearchers();
 		}
 	}
 	
-	/** Sets up a series of remote searchers with the given player index*/
-	private void spinUpRemoteSearchers(int playerIndex){
+	/** Tears down the remote searchers*/
+	private void tearDownRemoteSearchers() {
 		
 		ArrayList<Process> processes = new ArrayList<Process>();
 		
 		for (String remoteHost : ExperimentConfiguration.HOSTS) {
 			
-			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M orego.cluster.ClusterTreeSearcher " + this.hostname + " " + playerIndex + "&> " +
-								 RESULTS_DIRECTORY  + remoteHost + "_" + playerIndex + ".log";
+			String teardown_command = "kill -9 `ps -ef | grep 'ClusterTreeSearcher " + batchNumber + "' | grep -v grep | awk '{print $2}'`";
+						
+			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, teardown_command, "&");
+			
+			Process process;
+			
+			try {
+				process = pBuilder.start();
+				
+				processes.add(process);
+			} catch (IOException e) {
+				System.out.println("Could not start a remote searcher");
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			
+		}
+	}
+	
+	/** Sets up a series of remote searchers with the given player index*/
+	private void spinUpRemoteSearchers() {
+		ArrayList<Process> processes = new ArrayList<Process>();
+		
+		for (String remoteHost : ExperimentConfiguration.HOSTS) {
+			
+			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M orego.cluster.ClusterTreeSearcher " + batchNumber + " "+ this.hostname + "&> " +
+								 RESULTS_DIRECTORY  + remoteHost + "_" + batchNumber + ".log";
 						
 			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
 			
@@ -130,7 +157,6 @@ public class GameBatch implements Runnable {
 			
 			
 		}
-		
 		
 	}
 }

@@ -130,11 +130,11 @@ public class ClusterPlayerTest {
 				return null;
 			}
 			
-		}).when(searcher).kill();
+		}).when(searcher).shouldTerminate();
 		
 		player.terminate();
 		
-		verify(searcher).kill();
+		verify(searcher).shouldTerminate();
 		
 		// make sure we unregistered from RMI
 		verify(mockRegistry).unbind(SearchController.SEARCH_CONTROLLER_NAME);

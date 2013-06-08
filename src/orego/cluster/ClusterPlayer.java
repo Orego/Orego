@@ -61,7 +61,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	protected int resultsRemaining;
 	
-	/** the player index of this machine */
+	/** the player index of this machine. This must be a non-negative value
+	 * for us to bind properly and can only be set via .setProperty().
+	 * @see #setProperty(String, String).
+	 */
 	protected int playerIndex = -1;
 	
 	private int nextSearcherId = 0;
@@ -116,15 +119,16 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		// Reset to avoid null pointer issues when cluster searchers connect
 		reset();
 		
-		// we don't use a player index by default
-		bindRMI();
+		// Note: we only actually bind to the RMI registry once someone calls .setProperty('cluster_player_index', [index value])
+		// along with the index since we don't want to unbind and then rebind every time.
 	}
 	
 	/**
-	 * Unbinds an existing version of ourselves from the rmi registry.
-	 * @param playerIndex an optional index parameter to allow multiple players. if it is < 0 we don't use it.
+	 * Un-binds an existing version of ourselves from the rmi registry.
 	 */
 	protected void unbindRMI() {
+		if (this.playerIndex < 0) return; // never bound
+		
 		// check to see if we are in the local registry
 		Registry reg;
 		try {
@@ -132,7 +136,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			
 			reg = factory.getRegistry();
 			
-			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME);
+			String name = SearchController.SEARCH_CONTROLLER_NAME + playerIndex;
 			
 			for (String boundName : reg.list()) {
 				if (boundName.equals(name)) {
@@ -157,6 +161,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	 * @param int playerIndex an optional player index parameter to allow multiple players. If it is < 0 we don't use it.
 	 */
 	protected void bindRMI() {
+		if (this.playerIndex < 0) return; // if we don't have a valid player index, just return
 		// Configure RMI to allow serving the ClusterPlayer class
 		RMIStartup.configureRmi(ClusterPlayer.class, RMIStartup.SECURITY_POLICY_FILE);
 		
@@ -166,7 +171,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			reg = factory.getRegistry();
 			SearchController stub = (SearchController) UnicastRemoteObject.exportObject(this, 0);
 			
-			String name = (playerIndex >= 0 ? SearchController.SEARCH_CONTROLLER_NAME + playerIndex : SearchController.SEARCH_CONTROLLER_NAME);
+			String name = SearchController.SEARCH_CONTROLLER_NAME + playerIndex;
 			
 			reg.rebind(name, stub);
 			
@@ -275,7 +280,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	/**
 	 * Tells the searchers that we are going to die.
-	 * It blocks until all players are unregistered then removes itself from RMI.
+	 * This cluster player does a "fire and forget" and does not actually care if the searchers
+	 * respond to the kill message.
+	 * 
 	 */
 	@Override
 	public void terminate() {		
@@ -288,14 +295,15 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		// Send the kill message to each tree searcher in turn.
 		for(TreeSearcher searcher : remoteSearchers) {
 			try {
-				searcher.kill();
+				searcher.shouldTerminate();
 			} catch (RemoteException e) {
-				// Nothing we can recover from, just print out the trace.
-				e.printStackTrace();
+				getLogWriter().println("Failed to kill searcher: " + searcher);
+				e.printStackTrace(getLogWriter());
 			}
 		}
 		
 	}
+	
 	/** 
 	 * Forwards the played move to the remote searchers.
 	 * Searchers that respond with an exception will be disconnected.
@@ -347,6 +355,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				success = searcher.undo();
 			} catch (RemoteException e) {
 				getLogWriter().println("Searcher: " + searcher + " failed to undo.");
+				e.printStackTrace(getLogWriter());
 			}
 			if(!success) {
 				remoteSearchers.remove(searcher);
@@ -375,6 +384,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			searchDone.await(waitTime, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			getLogWriter().println("Search timed out or was interrupted.");
+			e.printStackTrace(getLogWriter());
 		} finally {
 			searchLock.unlock();
 		}
@@ -544,9 +554,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			msecToTimeout = Long.parseLong(value);
 		}
 		if (key.equals(CLUSTER_PLAYER_INDEX)) {
-
-			// rename ourselves
-			unbindRMI();
+			if (this.playerIndex >= 0)
+				throw new UnsupportedOperationException(String.format("Cannot change already bound cluster player index from %d to %d", 
+														this.playerIndex,
+														Integer.parseInt(value)));
 			
 			this.playerIndex = Integer.parseInt(value);
 			
@@ -697,6 +708,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 				searcher.terminateSearch();
 			} catch (RemoteException e) {
 				getLogWriter().println("Got error when trying to stop search on searcher: " + searcher);
+				e.printStackTrace(getLogWriter());
 			}
 		}
 	}

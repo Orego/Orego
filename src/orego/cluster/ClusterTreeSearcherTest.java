@@ -115,11 +115,10 @@ public class ClusterTreeSearcherTest {
 
 		// the reconnection phase will throw an exception
 		try {
-			searcher.kill();
+			searcher.shouldTerminate();
 		} catch (RemoteException e) {
 			// we want to absorb it quietly
 		}
-
 		assertNull(searcher.controller);
 	}
 
