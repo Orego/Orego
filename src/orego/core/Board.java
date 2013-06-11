@@ -101,9 +101,6 @@ public class Board {
 	/** The color to play next, BLACK or WHITE. */
 	private int colorToPlay;
 
-	/** Used by isEyelike(). */
-	private int[] diagonalColorCount;
-
 	/**
 	 * Ids of enemy chains adjacent to the move just played. Used by
 	 * isSuicidal() and isSelfAtari().
@@ -301,7 +298,6 @@ public class Board {
 		liberties = new IntSet[getFirstPointBeyondBoard()];
 		adjacentChains = new BitVector(getFirstPointBeyondBoard());
 		superKoTable = new SuperKoTable();
-		diagonalColorCount = new int[NUMBER_OF_COLORS];
 		for (int p = 0; p < getExtendedBoardArea(); p++) {
 			neighborCounts[p] = FOUR_VACANT_NEIGHBORS;
 			chainIds[p] = p;
@@ -688,14 +684,14 @@ public class Board {
 		if (!hasMaxNeighborsForColor(neighborCounts[p], colorToPlay)) {
 			return false;
 		}
-		for (int c = 0; c <= OFF_BOARD_COLOR; c++) {
-			diagonalColorCount[c] = 0;
-		}
+		int count = 0;
+		int opposite = opposite(colorToPlay);
 		for (int i = 4; i < 8; i++) {
-			int n = getNeighbors()[p][i];
-			diagonalColorCount[colors[n]]++;
+			if (colors[getNeighbors()[p][i]] == opposite) {
+				count++;
+			}
 		}
-		return diagonalColorCount[opposite(colorToPlay)] < getEyelikeThreshold()[p];
+		return count < getEyelikeThreshold()[p];
 	}
 
 	/**

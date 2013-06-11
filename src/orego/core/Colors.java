@@ -6,9 +6,6 @@ public class Colors {
 	/** Black, equal to 0. */
 	public static final int BLACK = 0;
 
-	/** Number of colors, including VACANT and OFF_BOARD. Equal to 4. */
-	public static final int NUMBER_OF_COLORS = 4;
-
 	/** Number of player colors, equal to 2. */
 	public static final int NUMBER_OF_PLAYER_COLORS = 2;
 
