@@ -152,7 +152,7 @@ public class Game {
 				// Note the color reversal here, because the color to play has
 				// already been switched
 				toPrograms[getColorToPlay()]
-				.println(spellOutColorName(opposite(getColorToPlay()))
+				.println(COLOR_NAMES[opposite(getColorToPlay())]
 						 + " " + coordinates);
 				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
@@ -167,7 +167,7 @@ public class Game {
 				} else {
 					mode = REQUESTING_MOVE;
 					toPrograms[getColorToPlay()].println("genmove "
-														 + spellOutColorName(getColorToPlay()));
+														 + COLOR_NAMES[getColorToPlay()]);
 					toPrograms[getColorToPlay()].flush();
 				}
 			} else { // Mode is QUITTING

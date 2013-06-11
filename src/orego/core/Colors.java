@@ -6,6 +6,9 @@ public class Colors {
 	/** Black, equal to 0. */
 	public static final int BLACK = 0;
 
+	/** Names of colors. */
+	public static final String[] COLOR_NAMES = {"black", "white", "vacant", "off-board"};
+	
 	/** Number of player colors, equal to 2. */
 	public static final int NUMBER_OF_PLAYER_COLORS = 2;
 
@@ -46,25 +49,11 @@ public class Colors {
 	public static final boolean isAPlayerColor(int color) {
 		return color <= WHITE;
 	}
-
+	
 	/** Returns the opposite of color. Undefined if color is not BLACK or WHITE. */
 	public static final int opposite(int color) {
 		assert isAPlayerColor(color);
 		return color ^ 1;
-	}
-	
-	/**
-	 * Takes an int and returns the corresponding color as a string.
-	 */
-	public static String spellOutColorName(int color) {
-		if (color == BLACK) {
-			return "black";
-		} else if (color == WHITE) {
-			return "white";
-		} else if (color == VACANT){
-			return "vacant";
-		}
-		return "unknown";
 	}
 
 }

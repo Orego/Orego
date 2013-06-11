@@ -51,13 +51,4 @@ public class ColorsTest {
 		assertEquals("*", colorToString(OFF_BOARD_COLOR));
 	}
 
-	@Test
-	public void testSpellOutColorName() {
-		// Convert colors to verbose Strings
-		assertEquals("black", spellOutColorName(BLACK));
-		assertEquals("white", spellOutColorName(WHITE));
-		assertEquals("vacant", spellOutColorName(VACANT));
-		assertEquals("unknown", spellOutColorName(OFF_BOARD_COLOR));
-	}
-
 }
