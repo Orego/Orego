@@ -1,5 +1,7 @@
 package tictactoe;
 
+import java.util.LinkedList;
+
 public class Board {
 	private int[][] board = new int[3][3];
 	private int currentPlayer;
@@ -118,5 +120,12 @@ public class Board {
 		// TODO Auto-generated method stub
 		return winner;
 	}
+	public LinkedList<Integer> legalMoves(){
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				
+			}
+	}
+		return null;
 
-}
+}}
