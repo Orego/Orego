@@ -47,16 +47,16 @@ public class CoordinatesTest {
 	@Test
 	public void testIs3or4() {
 			// Test whether various points are on line 3 or 4 from both edges
-			assertFalse(getThirdOrFourthLine()[at("a1")]);
-			assertTrue(getThirdOrFourthLine()[at("e4")]);
-			assertFalse(getThirdOrFourthLine()[at("b2")]);
-			assertFalse(getThirdOrFourthLine()[at("j9")]);
-			assertTrue(getThirdOrFourthLine()[at("c4")]);
-			assertFalse(getThirdOrFourthLine()[at("a7")]);
-			assertTrue(getThirdOrFourthLine()[at("q4")]);
-			assertTrue(getThirdOrFourthLine()[at("q17")]);
-			assertTrue(getThirdOrFourthLine()[at("r16")]);
-			assertFalse(getThirdOrFourthLine()[at("t7")]);
+			assertFalse(isOnThirdOrFourthLine(at("a1")));
+			assertTrue(isOnThirdOrFourthLine(at("e4")));
+			assertFalse(isOnThirdOrFourthLine(at("b2")));
+			assertFalse(isOnThirdOrFourthLine(at("j9")));
+			assertTrue(isOnThirdOrFourthLine(at("c4")));
+			assertFalse(isOnThirdOrFourthLine(at("a7")));
+			assertTrue(isOnThirdOrFourthLine(at("q4")));
+			assertTrue(isOnThirdOrFourthLine(at("q17")));
+			assertTrue(isOnThirdOrFourthLine(at("r16")));
+			assertFalse(isOnThirdOrFourthLine(at("t7")));
 	}
 
 	@Test
@@ -98,22 +98,6 @@ public class CoordinatesTest {
 		// points in the center
 		assertEquals(36, getLargeKnightNeighborhood(at("e5")).length);
 		assertEquals(12, getLargeKnightNeighborhood(at("a1")).length);
-	}
-
-	@Test
-	public void testThirdFourthLineArray() {
-		// Confirm the size of the array
-		int count = 0;
-		for (int i = 0; i < getExtendedBoardArea(); i++) {
-			if (getThirdOrFourthLine()[i]) {
-				count++;
-			}
-		}
-		assertEquals(count, getThirdAndFourthLinePoints().length);
-		// Confirm the contents of the array
-		for (int i = 0; i < getThirdAndFourthLinePoints().length; i++) {
-			assertTrue(getThirdOrFourthLine()[getThirdAndFourthLinePoints()[i]]);
-		}
 	}
 	
 	@Test

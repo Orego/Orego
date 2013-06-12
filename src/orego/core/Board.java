@@ -701,7 +701,7 @@ public class Board {
 	 */
 	public boolean isFeasible(int p) {
 		return !isEyelike(p)
-				&& (Coordinates.getThirdOrFourthLine()[p] || isWithinALargeKnightsMoveOfAnotherStone(p));
+				&& (Coordinates.isOnThirdOrFourthLine(p) || isWithinALargeKnightsMoveOfAnotherStone(p));
 	}
 
 	/** Returns true if chain is in atari. */

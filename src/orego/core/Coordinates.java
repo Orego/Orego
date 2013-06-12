@@ -109,12 +109,8 @@ public final class Coordinates {
 	private static int south;
 
 	/**
-	 * An array of all the points on the third or fourth line, for iterating
-	 * through.
+	 * @see #isOnThirdOrFourthLine(int)
 	 */
-	private static int[] thirdAndFourthLinePoints;
-
-	/** True for 3rd or 4th line points, false for others. */
 	private static boolean[] thirdOrFourthLine;
 
 	// Initialize the fields for the default board size
@@ -284,16 +280,14 @@ public final class Coordinates {
 		return onBoard[p];
 	}
 
+	/** Returns the number to be added to a point to move south one row. */
 	public static int getSouth() {
 		return south;
 	}
 
-	public static int[] getThirdAndFourthLinePoints() {
-		return thirdAndFourthLinePoints;
-	}
-
-	public static boolean[] getThirdOrFourthLine() {
-		return thirdOrFourthLine;
+	/** Returns true if p is on the third or fourth line. */
+	public static boolean isOnThirdOrFourthLine(int p) {
+		return thirdOrFourthLine[p];
 	}
 
 	/** Verifies that a row or column index is valid. */
@@ -339,7 +333,6 @@ public final class Coordinates {
 	public static void reset() {
 		boardArea = boardWidth * boardWidth;
 		allPointsOnBoard = new int[boardArea];
-		thirdAndFourthLinePoints = new int[(boardWidth - 6) * 8];
 		extendedBoardArea = (boardWidth + 1) * (boardWidth + 2) + 1;
 		south = boardWidth + 1;
 		eyelikeThreshold = new int[extendedBoardArea];
@@ -384,7 +377,6 @@ public final class Coordinates {
 			int line = line(p);
 			if ((line >= 3) && (line <= 4)) {
 				thirdOrFourthLine[p] = true;
-				thirdAndFourthLinePoints[thirdFourthLineCount] = p;
 				thirdFourthLineCount++;
 			}
 			knightNeighborhood[p] = findNeighborhood(p, new int[][] {
