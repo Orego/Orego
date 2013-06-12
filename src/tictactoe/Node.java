@@ -1,5 +1,7 @@
 package tictactoe;
 
+import java.util.LinkedList;
+import java.util.Random;
 import java.util.TreeMap;
 
 import java.util.List;
@@ -33,6 +35,7 @@ public class Node {
 				bestValue = getChild(move).wins;
 			}
 		}
+		
 		return bestMove;
 	}
 
@@ -52,17 +55,26 @@ public class Node {
 	 * UCB1-TUNED formula is used.
 	 */
 	public int playoutMove(Board board) {
+		Random generator = new Random();
+		LinkedList<Integer> legal = new LinkedList<Integer>();
 		for (int r = 0; r < 3; r++) {
 			for (int c = 0; c < 3; c++) {
-				if (board.isVacant(r, c) && getChild(r * 3 + c) == null) {
-					return r * 3 + c;
+				if (board.isVacant(r, c)) {
+					legal.add(r * 3 + c);
 				}
 			}
+		}
+		while(legal.size()!=0){
+			int temp = generator.nextInt(legal.size());
+			if(getChild(legal.get(temp))==null){
+				return legal.get(temp);
+			}
+			legal.remove(temp);
 		}
 
 		// No untried moves; use UCB1-TUNED
 		double bestValue = Double.NEGATIVE_INFINITY;
-		int bestMove = board.legalMoves().getFirst();
+		int bestMove = -1;
 		for (int move : children.keySet()) {
 			// Is the child associated with this move better than the best we've
 			// seen so far?
@@ -133,6 +145,24 @@ public class Node {
 		} else {
 			return 1;
 		}
+	}
+	@Override
+	public String toString() {
+		String result = "<root>\t(" + runs + " playouts)\n";
+		for (Integer move : children.keySet()) {
+			result += children.get(move).toString("\t" + move + ": ");
+		}
+		return result;
+	}
+
+	/** Recursive helper method. */
+	protected String toString(String indent) {
+		String result = indent + String.format("%1.3f", wins / runs) + "\t("
+				+ runs + " playouts)\n";
+		for (Integer move : children.keySet()) {
+			result += children.get(move).toString(indent + "\t" + move + ": ");
+		}
+		return result;
 	}
 
 }

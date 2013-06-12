@@ -22,6 +22,8 @@ public class MctsPlayer {
 		for (int i = 0; i < playoutLimit; i++) {
 			playout(board.copy());
 		}
+//		System.out.println(root.toString());
+		
 		return root.actualMove();
 	}
 	
@@ -34,14 +36,16 @@ public class MctsPlayer {
 			
 			move=node.playoutMove(board);
 			board.play(move/3, move%3, colorToPlay);
-			colorToPlay=opposite(colorToPlay);
 			moves.add(move);
 			node=node.getChild(move);
+			colorToPlay=opposite(colorToPlay);
+			
 			// TODO Find the best move to make using playoutMove()
 			// TODO Play it
 			// TODO Add it to the list of moves
 			// TODO Advance to the next node down the tree
 		}
+		colorToPlay=board.getCurrentPlayer();
 		double result = finishPlayout(board, moves);
 		root.recordPlayout(moves, result, colorToPlay);
 	}
@@ -61,12 +65,12 @@ public class MctsPlayer {
 			legal=copy.legalMoves();
 			
 			
-			int randomIndex = generator.nextInt( legal.size() );
 			
 			
-			move=randomIndex;
-			copy.play(legal.get(move)/3, legal.get(move)%3, currentPlayer);
-			moves.add(legal.get(move));	
+			
+			move=legal.get(generator.nextInt( legal.size() ));
+			copy.play(move/3, move%3, currentPlayer);
+			moves.add(move);	
 			currentPlayer=opposite(currentPlayer);
 		}
 		int winner = copy.getWinner();
