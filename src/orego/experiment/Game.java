@@ -133,7 +133,7 @@ public class Game {
 					//do nothing.
 				}
 				else {
-					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]");
+					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToChar(row(at(coordinates))) + columnToSgfChar(column(at(coordinates))) + "]");
 					out.flush();
 				}
 				//end sgf output

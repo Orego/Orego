@@ -133,7 +133,7 @@ public class PatternCounter5 {
 	}
 	
 	protected int[] getPointsToAnalyze(int p) {
-		return getNeighbors()[p];
+		return getNeighbors(p);
 	}
 
 	public void analyze(Board board) {

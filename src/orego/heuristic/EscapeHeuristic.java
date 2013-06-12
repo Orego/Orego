@@ -46,7 +46,7 @@ public class EscapeHeuristic extends Heuristic {
 		int p = chain;
 		do {
 			for (int i = 0; i < 4; i++) {
-				int neighbor = getNeighbors()[p][i];
+				int neighbor = getNeighbors(p)[i];
 				if (board.getColor(neighbor) == enemyColor) {
 					int target = board.getChainId(neighbor);
 					if (!targets.contains(target)) {
@@ -73,7 +73,7 @@ public class EscapeHeuristic extends Heuristic {
 		friends.clear();
 		targets.clear();
 		for (int i = 0; i < 4; i++) {
-			int neighbor = getNeighbors()[lastMove][i];
+			int neighbor = getNeighbors(lastMove)[i];
 			if (board.getColor(neighbor) == color) {
 				int chain = board.getChainId(neighbor);
 				if (!friends.contains(chain)) {

@@ -82,7 +82,7 @@ public class DynamicPatternHeuristic extends Heuristic {
 	
 	public void prepare(Board board) {
 		super.prepare(board);
-		for (int p : getNeighbors()[board.getMove(board.getTurn() - 1)]) {
+		for (int p : getNeighbors(board.getMove(board.getTurn() - 1))) {
 			if (board.getColor(p) == VACANT) {
 				int playValue = evaluate(p, board);
 				if(playValue > 0) {

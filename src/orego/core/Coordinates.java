@@ -10,7 +10,7 @@ package orego.core;
  * The standard idiom for accessing all points on the board is:
  * 
  * <pre>
- * for (int p : ALL_POINTS_ON_BOARD) {
+ * for (int p : getAllPointsOnBoard()) {
  * 	// Do something with p
  * }
  * </pre>
@@ -19,7 +19,7 @@ package orego.core;
  * 
  * <pre>
  * for (int i = 0; i &lt; 4; i++) {
- * 	int n = NEIGHBORS[p][i];
+ * 	int n = getNeighbors()[p][i];
  * 	// Do something with n, which might be an off-board point with the color
  * 	// OFF_BOARD_COLOR
  * }
@@ -38,66 +38,56 @@ package orego.core;
  */
 public final class Coordinates {
 
-	/** An array of all the points on the board, for iterating through. */
+	/**
+	 * @see #getAllPointsOnBoard()
+	 */
 	private static int[] allPointsOnBoard;
 
-	/** Number of points on the board. */
+	/**
+	 * @see #getBoardArea()
+	 */
 	private static int boardArea;
 
 	/**
-	 * Width of the board. Defaults to 19, but can be set with the boardsize
-	 * command-line option to orego.ui.Orego.
+	 * @see #getBoardWidth()
 	 */
 	private static int boardWidth;
 
 	/** Add this amount to move east one column, or subtract to move west. */
 	public static final int EAST = 1;
 
-	/** True for edge and corner points, false for others. */
-	private static boolean[] edgeOrCorner;
-
 	/**
-	 * Number of points on the board including the buffer of sentinels around
-	 * the outside.
+	 * @see #getExtendedBoardArea()
 	 */
 	private static int extendedBoardArea;
 
 	/**
-	 * If there are this many enemy stones on diagonal neighbors, a point is not
-	 * eyelike.
+	 * @see #getEyelikeThreshold(int)
 	 */
 	private static int[] eyelikeThreshold;
 
-	/** Highest index of any point on the board. */
+	/**
+	 * @see #getFirstPointBeyondBoard()
+	 */
 	private static int firstPointBeyondBoard;
 
-	/** Useful in loops over board points. */
+	/**
+	 * @see #getFirstPointOnBoard() 
+	 */
 	private static int firstPointOnBoard;
 
 	/**
-	 * knightNeighborhood[p] is an array of points within a knight's move of p.
+	 * @see #getKnightNeighborhood(int)
 	 */
 	private static int[][] knightNeighborhood;
 
 	/**
-	 * largeKnightNeighborhood[p] is an array of points within a large
-	 * knight's move of p.
+	 * @see #getLargeKnightNeighborhood(int)
 	 */
 	private static int[][] largeKnightNeighborhood;
 
 	/**
-	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
-	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the
-	 * board, one (two) of its neighbors are off-board points. The neighbors of
-	 * an off-board point are not defined.
-	 * 
-	 * The neighbors are ordered like this:
-	 * 
-	 * <pre>
-	 * 405
-	 * 1 2
-	 * 637
-	 * </pre>
+	 * @see #getNeighbors(int)
 	 */
 	private static int[][] neighbors;
 
@@ -125,7 +115,7 @@ public final class Coordinates {
 	/** True for 3rd or 4th line points, false for others. */
 	private static boolean[] thirdOrFourthLine;
 
-	// Initialize various arrays
+	// Initialize the fields for the default board size
 	static {
 		setBoardWidth(19);
 	}
@@ -167,10 +157,9 @@ public final class Coordinates {
 	}
 
 	/**
-	 * Returns the column c as a lower case letter. This is used for the sgf
-	 * format.
+	 * Returns the column c as a lower case letter. This is used for sgf.
 	 */
-	public static char columnToChar(int c) {
+	public static char columnToSgfChar(int c) {
 		return (char) (c + 'a');
 	}
 
@@ -187,13 +176,8 @@ public final class Coordinates {
 		return Math.sqrt(rowd * rowd + cold * cold);
 	}
 
-	/** Returns the point east of p (which may be off the board). */
-	protected static int east(int p) {
-		return p + EAST;
-	}
-
 	/**
-	 * Used in the static block that initializes KNIGHT_NEIGHBORHOOD.
+	 * Used in reset().
 	 */
 	protected static int[] findKnightNeighborhood(int p) {
 		int r = row(p), c = column(p);
@@ -223,7 +207,7 @@ public final class Coordinates {
 	}
 
 	/**
-	 * Used in the static block that initializes LARGE_KNIGHT_NEIGHBORHOOD.
+	 * Used in reset().
 	 */
 	protected static int[] findLargeKnightNeighborhood(int p) {
 		int r = row(p), c = column(p);
@@ -255,48 +239,80 @@ public final class Coordinates {
 		return valid;
 	}
 
+	/** Returns an array of all the points on the board, for iterating through. */
 	public static int[] getAllPointsOnBoard() {
 		return allPointsOnBoard;
 	}
 
+	/** Returns the number of points on the board. */
 	public static int getBoardArea() {
 		return boardArea;
 	}
 
+	/**
+	 * Returns the width of the board.
+	 */
 	public static int getBoardWidth() {
 		return boardWidth;
 	}
 
-	public static boolean[] getEdgeOrCorner() {
-		return edgeOrCorner;
-	}
-
+	/**
+	 * Returns the number of points on the board including the buffer of
+	 * sentinels around the outside.
+	 */
 	public static int getExtendedBoardArea() {
 		return extendedBoardArea;
 	}
 
-	public static int[] getEyelikeThreshold() {
-		return eyelikeThreshold;
+	/**
+	 * If there are this many enemy stones on diagonal neighbors of p, it is not
+	 * eyelike.
+	 */
+	public static int getEyelikeThreshold(int p) {
+		return eyelikeThreshold[p];
 	}
 
+	/** Returns one more than the highest index of any point on the board. */
 	public static int getFirstPointBeyondBoard() {
 		return firstPointBeyondBoard;
 	}
 
+	/** Returns the lowest index of any point on the board. */
 	public static int getFirstPointOnBoard() {
 		return firstPointOnBoard;
 	}
 
-	public static int[][] getKnightNeighborhood() {
-		return knightNeighborhood;
+	/**
+	 * Returns an array of points within a knight's move of p.
+	 */
+	public static int[] getKnightNeighborhood(int p) {
+		return knightNeighborhood[p];
 	}
 
-	public static int[][] getLargeKnightNeighborhood() {
-		return largeKnightNeighborhood;
+	/**
+	 * Returns an array of points within a large knight's
+	 * move of p.
+	 */
+	public static int[] getLargeKnightNeighborhood(int p) {
+		return largeKnightNeighborhood[p];
 	}
 
-	public static int[][] getNeighbors() {
-		return neighbors;
+	/**
+	 * Returns an array of p's four orthogonal neighbors (indices 0-3) and four
+	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the
+	 * board, one (two) of its neighbors are off-board points. The neighbors of
+	 * an off-board point are not defined.
+	 * <p>
+	 * The neighbors are ordered like this:
+	 * 
+	 * <pre>
+	 * 405
+	 * 1 2
+	 * 637
+	 * </pre>
+	 */
+	public static int[] getNeighbors(int p) {
+		return neighbors[p];
 	}
 
 	public static boolean[] getOnBoard() {
@@ -337,21 +353,6 @@ public final class Coordinates {
 		return rowd + cold;
 	}
 
-	/** Returns the point north of p (which may be off the board). */
-	protected static int north(int p) {
-		return p - south;
-	}
-
-	/** Returns the point northeast of p (which may be off the board). */
-	protected static int northeast(int p) {
-		return north(east(p));
-	}
-
-	/** Returns the point northwest of p (which may be off the board). */
-	protected static int northwest(int p) {
-		return north(west(p));
-	}
-
 	/** Returns a String representation of point. */
 	public static String pointToString(int p) {
 		if (p == PASS) {
@@ -376,7 +377,6 @@ public final class Coordinates {
 		thirdAndFourthLinePoints = new int[(boardWidth - 6) * 8];
 		extendedBoardArea = (boardWidth + 1) * (boardWidth + 2) + 1;
 		south = boardWidth + 1;
-		edgeOrCorner = new boolean[extendedBoardArea];
 		eyelikeThreshold = new int[extendedBoardArea];
 		firstPointBeyondBoard = boardWidth * (south + EAST) + 1;
 		firstPointOnBoard = south + EAST;
@@ -402,18 +402,17 @@ public final class Coordinates {
 		int thirdFourthLineCount = 0;
 		for (int p : allPointsOnBoard) {
 			eyelikeThreshold[p] = 2;
-			neighbors[p][0] = north(p);
-			neighbors[p][1] = west(p);
-			neighbors[p][2] = east(p);
-			neighbors[p][3] = south(p);
-			neighbors[p][4] = northwest(p);
-			neighbors[p][5] = northeast(p);
-			neighbors[p][6] = southwest(p);
-			neighbors[p][7] = southeast(p);
+			neighbors[p][0] = p - south;
+			neighbors[p][1] = p - EAST;
+			neighbors[p][2] = p + EAST;
+			neighbors[p][3] = p + south;
+			neighbors[p][4] = p - south - EAST;
+			neighbors[p][5] = p - south + EAST;
+			neighbors[p][6] = p + south - EAST;
+			neighbors[p][7] = p + south + EAST;
 			for (i = 4; i < 8; i++) {
 				int n = neighbors[p][i];
 				if (!onBoard[n]) {
-					edgeOrCorner[p] = true;
 					eyelikeThreshold[p] = 1;
 				}
 			}
@@ -464,26 +463,6 @@ public final class Coordinates {
 		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
 		return (r + 1) * south + (c + 1) * EAST;
-	}
-
-	/** Returns the point south of p (which may be off the board). */
-	protected static int south(int p) {
-		return p + south;
-	}
-
-	/** Returns the point southeast of p (which may be off the board). */
-	protected static int southeast(int p) {
-		return south(east(p));
-	}
-
-	/** Returns the point southwest of p (which may be off the board). */
-	protected static int southwest(int p) {
-		return south(west(p));
-	}
-
-	/** Returns the point west of p (which may be off the board). */
-	protected static int west(int p) {
-		return p - EAST;
 	}
 
 }

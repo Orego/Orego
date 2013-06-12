@@ -139,7 +139,7 @@ public class PatternHeuristic extends Heuristic {
 		if (!getOnBoard()[lastMove]) {
 			return;
 		}
-		for (int p : getNeighbors()[lastMove]) {
+		for (int p : getNeighbors(lastMove)) {
 			if (board.getColor(p) == VACANT) {
 				char neighborhood = board.getNeighborhood(p);
 				if(goodNeighborhoods[board.getColorToPlay()].get(neighborhood)) {
