@@ -7,8 +7,9 @@ public class Colors {
 	public static final int BLACK = 0;
 
 	/** Names of colors. */
-	public static final String[] COLOR_NAMES = {"black", "white", "vacant", "off-board"};
-	
+	public static final String[] COLOR_NAMES = { "black", "white", "vacant",
+			"off-board" };
+
 	/** Number of player colors, equal to 2. */
 	public static final int NUMBER_OF_PLAYER_COLORS = 2;
 
@@ -40,6 +41,9 @@ public class Colors {
 	/**
 	 * Returns a String representation of color. The result is the same as that
 	 * from colorToChar, but it's been converted to a String.
+	 * <p>
+	 * If a spelled-out color name like "black" is needed, use the color as an
+	 * index into the array COLOR_NAMES.
 	 */
 	public static final String colorToString(int color) {
 		return "" + colorToChar(color);
@@ -49,7 +53,7 @@ public class Colors {
 	public static final boolean isAPlayerColor(int color) {
 		return color <= WHITE;
 	}
-	
+
 	/** Returns the opposite of color. Undefined if color is not BLACK or WHITE. */
 	public static final int opposite(int color) {
 		assert isAPlayerColor(color);
