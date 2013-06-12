@@ -253,8 +253,8 @@ public class PatternCounter4 {
 			while (currentTurn < turn) {
 				int currentPlay = board.getMove(currentTurn);
 				int lastPlay = board.getMove(currentTurn - 1);
-				if (getOnBoard()[lastPlay] && getOnBoard()[currentPlay]) {
-					for (int p : getNeighbors()[lastPlay]) {
+				if (isOnBoard(lastPlay) && isOnBoard(currentPlay)) {
+					for (int p : getNeighbors(lastPlay)) {
 						if (patternBoard.getColor(p) == VACANT) {
 							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
 							if (pattern.getColorToPlay() == WHITE) {

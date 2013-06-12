@@ -1,30 +1,6 @@
 package orego.core;
 
-import static orego.core.Coordinates.getLargeKnightNeighborhood;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.getOnBoard;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.RESIGN;
-import static orego.core.Coordinates.getThirdOrFourthLine;
-import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.column;
-import static orego.core.Coordinates.columnToChar;
-import static orego.core.Coordinates.columnToString;
-import static orego.core.Coordinates.distance;
-import static orego.core.Coordinates.east;
-import static orego.core.Coordinates.getBoardWidth;
-import static orego.core.Coordinates.getExtendedBoardArea;
-import static orego.core.Coordinates.manhattanDistance;
-import static orego.core.Coordinates.north;
-import static orego.core.Coordinates.pointToString;
-import static orego.core.Coordinates.row;
-import static orego.core.Coordinates.rowToChar;
-import static orego.core.Coordinates.rowToString;
-import static orego.core.Coordinates.setBoardWidth;
-import static orego.core.Coordinates.sgfToPoint;
-import static orego.core.Coordinates.south;
-import static orego.core.Coordinates.west;
-import static orego.core.Coordinates.getThirdAndFourthLinePoints;
+import static orego.core.Coordinates.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -58,46 +34,47 @@ public class CoordinatesTest {
 	public void testRowAndColumnToChar() {
 			// These methods are for sgf
 			int p = at("p14");
-			assertEquals('n', rowToChar(row(p)));
-			assertEquals('o', columnToChar(column(p)));
+			assertEquals('n', rowToSgfChar(row(p)));
+			assertEquals('o', columnToSgfChar(column(p)));
 			p = at("a1");
-			assertEquals('a', rowToChar(row(p)));
-			assertEquals('a', columnToChar(column(p)));
+			assertEquals('a', rowToSgfChar(row(p)));
+			assertEquals('a', columnToSgfChar(column(p)));
 			p = at("t19");
-			assertEquals('s', rowToChar(row(p)));
-			assertEquals('s', columnToChar(column(p)));
+			assertEquals('s', rowToSgfChar(row(p)));
+			assertEquals('s', columnToSgfChar(column(p)));
 	}
 
 	@Test
 	public void testIs3or4() {
 			// Test whether various points are on line 3 or 4 from both edges
-			assertFalse(getThirdOrFourthLine()[at("a1")]);
-			assertTrue(getThirdOrFourthLine()[at("e4")]);
-			assertFalse(getThirdOrFourthLine()[at("b2")]);
-			assertFalse(getThirdOrFourthLine()[at("j9")]);
-			assertTrue(getThirdOrFourthLine()[at("c4")]);
-			assertFalse(getThirdOrFourthLine()[at("a7")]);
-			assertTrue(getThirdOrFourthLine()[at("q4")]);
-			assertTrue(getThirdOrFourthLine()[at("q17")]);
-			assertTrue(getThirdOrFourthLine()[at("r16")]);
-			assertFalse(getThirdOrFourthLine()[at("t7")]);
+			assertFalse(isOnThirdOrFourthLine(at("a1")));
+			assertTrue(isOnThirdOrFourthLine(at("e4")));
+			assertFalse(isOnThirdOrFourthLine(at("b2")));
+			assertFalse(isOnThirdOrFourthLine(at("j9")));
+			assertTrue(isOnThirdOrFourthLine(at("c4")));
+			assertFalse(isOnThirdOrFourthLine(at("a7")));
+			assertTrue(isOnThirdOrFourthLine(at("q4")));
+			assertTrue(isOnThirdOrFourthLine(at("q17")));
+			assertTrue(isOnThirdOrFourthLine(at("r16")));
+			assertFalse(isOnThirdOrFourthLine(at("t7")));
 	}
 
 	@Test
 	public void testIsOnBoard() {
 			// a1 has two neighbors on the board
 			int p = at("a1");
-			assertTrue(getOnBoard()[p]);
-			assertTrue(getOnBoard()[north(p)]);
-			assertTrue(getOnBoard()[east(p)]);
-			assertFalse(getOnBoard()[south(p)]);
-			assertFalse(getOnBoard()[west(p)]);
+			assertTrue(isOnBoard(p));
+			assertTrue(isOnBoard(getNeighbors(p)[0]));
+			assertFalse(isOnBoard(getNeighbors(p)[1]));
+			assertTrue(isOnBoard(getNeighbors(p)[2]));
+			assertFalse(isOnBoard(getNeighbors(p)[3]));
 			// t19 has a different two neighbors on the board
 			int p2 = at("t19");
-			assertTrue(getOnBoard()[p2]);
-			assertFalse(getOnBoard()[north(p2)]);
-			assertFalse(getOnBoard()[east(p2)]);
-			assertTrue(getOnBoard()[south(p2)]);
+			assertTrue(isOnBoard(p2));
+			assertFalse(isOnBoard(getNeighbors(p2)[0]));
+			assertTrue(isOnBoard(getNeighbors(p2)[1]));
+			assertFalse(isOnBoard(getNeighbors(p2)[2]));
+			assertTrue(isOnBoard(getNeighbors(p2)[3]));
 	}
 
 	@Test
@@ -119,24 +96,8 @@ public class CoordinatesTest {
 	public void testLargeKnightsMoveNeighbors() {
 		// Point on the edge have fewer large knight neighbors than
 		// points in the center
-		assertEquals(36, getLargeKnightNeighborhood()[at("e5")].length);
-		assertEquals(12, getLargeKnightNeighborhood()[at("a1")].length);
-	}
-
-	@Test
-	public void testThirdFourthLineArray() {
-		// Confirm the size of the array
-		int count = 0;
-		for (int i = 0; i < getExtendedBoardArea(); i++) {
-			if (getThirdOrFourthLine()[i]) {
-				count++;
-			}
-		}
-		assertEquals(count, getThirdAndFourthLinePoints().length);
-		// Confirm the contents of the array
-		for (int i = 0; i < getThirdAndFourthLinePoints().length; i++) {
-			assertTrue(getThirdOrFourthLine()[getThirdAndFourthLinePoints()[i]]);
-		}
+		assertEquals(36, getLargeKnightNeighborhood(at("e5")).length);
+		assertEquals(12, getLargeKnightNeighborhood(at("a1")).length);
 	}
 	
 	@Test

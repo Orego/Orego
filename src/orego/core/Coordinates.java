@@ -10,7 +10,7 @@ package orego.core;
  * The standard idiom for accessing all points on the board is:
  * 
  * <pre>
- * for (int p : ALL_POINTS_ON_BOARD) {
+ * for (int p : getAllPointsOnBoard()) {
  * 	// Do something with p
  * }
  * </pre>
@@ -19,7 +19,7 @@ package orego.core;
  * 
  * <pre>
  * for (int i = 0; i &lt; 4; i++) {
- * 	int n = NEIGHBORS[p][i];
+ * 	int n = getNeighbors()[p][i];
  * 	// Do something with n, which might be an off-board point with the color
  * 	// OFF_BOARD_COLOR
  * }
@@ -30,90 +30,74 @@ package orego.core;
  * <p>
  * On those rare occasions where rows and columns are used, rows are always
  * zero-based from the top, columns from the left.
+ * <p>
+ * This class makes extensive use of mutable static fields, which are accessed
+ * using static methods. This is usually bad style, but since these fields are
+ * accessed so often from so many places, we presume that the singleton pattern
+ * would result in more complicated code and possibly a slowdown.
  */
 public final class Coordinates {
 
-	// These constants are not in alphabetical order because some are defined in
-	// terms of others.
-
-	/** Width of the board
-	 * Defaults to 19, can be set to 9 with boardsize command
+	/**
+	 * @see #getAllPointsOnBoard()
 	 */
-	private static int BOARD_WIDTH = 19;
-
-	/** Number of points on the board. */
-	private static int BOARD_AREA = BOARD_WIDTH * BOARD_WIDTH;
-
-	/** An array of all the points on the board, for iterating through. */
-	private static int[] ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
+	private static int[] allPointsOnBoard;
 
 	/**
-	 * An array of all the points on the third or fourth line, for iterating
-	 * through.
+	 * @see #getBoardArea()
 	 */
-	private static int[] THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
+	private static int boardArea;
+
+	/**
+	 * @see #getBoardWidth()
+	 */
+	private static int boardWidth;
 
 	/** Add this amount to move east one column, or subtract to move west. */
 	public static final int EAST = 1;
 
 	/**
-	 * Number of points on the board including the buffer of sentinels around
-	 * the outside.
+	 * @see #getExtendedBoardArea()
 	 */
-	private static int EXTENDED_BOARD_AREA = (BOARD_WIDTH + 1)
-			* (BOARD_WIDTH + 2) + 1;
-
-	/** Add this amount to move south one row, or subtract to move north. */
-	private static int SOUTH = BOARD_WIDTH + 1;
-
-	/** True for edge and corner points, false for others. */
-	private static boolean[] EDGE_OR_CORNER = new boolean[EXTENDED_BOARD_AREA];
+	private static int extendedBoardArea;
 
 	/**
-	 * If there are this many enemy stones on diagonal neighbors, a point is not
-	 * eyelike.
+	 * @see #getEyelikeThreshold(int)
 	 */
-	private static int[] EYELIKE_THRESHOLD = new int[EXTENDED_BOARD_AREA];
-
-	/** Highest index of any point on the board. */
-	private static int FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH
-			* (SOUTH + EAST) + 1;
-
-	/** Useful in loops over board points. */
-	private static int FIRST_POINT_ON_BOARD = SOUTH + EAST;
+	private static int[] eyelikeThreshold;
 
 	/**
-	 * KNIGHT_NEIGHBORHOOD[p] is an array of points within a knight's move of p.
+	 * @see #getFirstPointBeyondBoard()
 	 */
-	private static int[][] KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
+	private static int firstPointBeyondBoard;
 
 	/**
-	 * LARGE_KNIGHT_NEIGHBORHOOD[p] is an array of points within a large
-	 * knight's move of p.
+	 * @see #getFirstPointOnBoard()
 	 */
-	private static int[][] LARGE_KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
+	private static int firstPointOnBoard;
 
 	/**
-	 * For each point, the four orthogonal neighbors (indices 0-3) and the four
-	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the
-	 * board, one (two) of its neighbors are off-board points. The neighbors of
-	 * an off-board point are not defined.
-	 * 
-	 * The neighbors are ordered like this:
-	 * 
-	 * <pre>
-	 * 405
-	 * 1 2
-	 * 637
-	 * </pre>
+	 * @see #getKnightNeighborhood(int)
 	 */
-	private static int[][] NEIGHBORS = new int[EXTENDED_BOARD_AREA][8];
+	private static int[][] knightNeighborhood;
+
+	/**
+	 * @see #getLargeKnightNeighborhood(int)
+	 */
+	private static int[][] largeKnightNeighborhood;
+
+	/**
+	 * @see #getNeighbors(int)
+	 */
+	private static int[][] neighbors;
 
 	/** Special coordinate for no point. */
 	public static final int NO_POINT = 1;
 
-	/** True for points on the board. */
-	private static boolean[] ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
+	/**
+	 * @see #isOnBoard(int)
+	 */
+	private static boolean[] onBoard;
 
 	/** Special coordinate for passing. */
 	public static final int PASS = 0;
@@ -121,62 +105,24 @@ public final class Coordinates {
 	/** Special coordinate for a resignation move. */
 	public static final int RESIGN = 2;
 
-	/** True for 3rd or 4th line points, false for others. */
-	private static boolean[] THIRD_OR_FOURTH_LINE = new boolean[EXTENDED_BOARD_AREA];
+	/** Add this amount to move south one row, or subtract to move north. */
+	private static int south;
 
-	// Initialize various arrays
+	/**
+	 * @see #isOnThirdOrFourthLine(int)
+	 */
+	private static boolean[] thirdOrFourthLine;
+
+	// Initialize the fields for the default board size
 	static {
-		for (int p = 0; p < EXTENDED_BOARD_AREA; p++) {
-			int r = row(p);
-			int c = column(p);
-			// Avoid branch with non-short-circuited &
-			ON_BOARD[p] = isValidOneDimensionalCoordinate(r)
-					& isValidOneDimensionalCoordinate(c);
-		}
-		int i = 0;
-		for (int p = FIRST_POINT_ON_BOARD; p < FIRST_POINT_BEYOND_BOARD; p++) {
-			if (ON_BOARD[p]) {
-				ALL_POINTS_ON_BOARD[i] = p;
-				i++;
-			}
-		}
-		int thirdFourthLineCount = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
-			EYELIKE_THRESHOLD[p] = 2;
-			NEIGHBORS[p][0] = north(p);
-			NEIGHBORS[p][1] = west(p);
-			NEIGHBORS[p][2] = east(p);
-			NEIGHBORS[p][3] = south(p);
-			NEIGHBORS[p][4] = northwest(p);
-			NEIGHBORS[p][5] = northeast(p);
-			NEIGHBORS[p][6] = southwest(p);
-			NEIGHBORS[p][7] = southeast(p);
-			for (i = 4; i < 8; i++) {
-				int n = NEIGHBORS[p][i];
-				if (!ON_BOARD[n]) {
-					EDGE_OR_CORNER[p] = true;
-					EYELIKE_THRESHOLD[p] = 1;
-				}
-			}
-			int line = line(p);
-			if ((line >= 3) && (line <= 4)) {
-				THIRD_OR_FOURTH_LINE[p] = true;
-				THIRD_AND_FOURTH_LINE_POINTS[thirdFourthLineCount] = p;
-				thirdFourthLineCount++;
-			}
-			KNIGHT_NEIGHBORHOOD[p] = findKnightNeighborhood(p);
-			LARGE_KNIGHT_NEIGHBORHOOD[p] = findLargeKnightNeighborhood(p);
-		}
-		
+		setBoardWidth(19);
 	}
-	
-	
 
 	/** Returns the int representation of the point at row r, column c. */
 	public static int at(int r, int c) {
 		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
-		return (r + 1) * SOUTH + (c + 1) * EAST;
+		return (r + 1) * south + (c + 1) * EAST;
 	}
 
 	/**
@@ -192,7 +138,7 @@ public final class Coordinates {
 			return RESIGN;
 		}
 		int r = Integer.parseInt(label.substring(1));
-		r = BOARD_WIDTH - r;
+		r = boardWidth - r;
 		int c;
 		char letter = label.charAt(0);
 		if (letter <= 'H') {
@@ -205,21 +151,20 @@ public final class Coordinates {
 
 	/** Returns the column of point p. */
 	public static int column(int p) {
-		return p % SOUTH - 1;
+		return p % south - 1;
+	}
+
+	/**
+	 * Returns the column c as a lower case letter. This is used for sgf.
+	 */
+	public static char columnToSgfChar(int c) {
+		return (char) (c + 'a');
 	}
 
 	/** Returns a String representation of column c. */
 	public static String columnToString(int c) {
 		// Note that, as per convention, I is missing
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(c);
-	}
-
-	/**
-	 * Returns the column c as a lower case letter. This is used for the sgf
-	 * format.
-	 */
-	public static char columnToChar(int c) {
-		return (char) (c + 'a');
 	}
 
 	/** Returns the Euclidean distance from p1 to p2. */
@@ -229,136 +174,125 @@ public final class Coordinates {
 		return Math.sqrt(rowd * rowd + cold * cold);
 	}
 
-	/** Returns the point east of p (which may be off the board). */
-	protected static int east(int p) {
-		return p + EAST;
-	}
-
 	/**
-	 * Used in the static block that initializes KNIGHT_NEIGHBORHOOD.
+	 * Returns an array of points near p, with "near" defined by the array of
+	 * {row, column} offsets. Used by reset().
 	 */
-	protected static int[] findKnightNeighborhood(int p) {
+	protected static int[] findNeighborhood(int p, int[][] offsets) {
 		int r = row(p), c = column(p);
-		int offset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
-				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } };
-
-		int large[] = new int[offset.length];
+		int large[] = new int[offsets.length];
 		int count = 0;
-		for (int i = 0; i < offset.length; i++) {
-			if (isValidOneDimensionalCoordinate(r + offset[i][0])
-					&& (isValidOneDimensionalCoordinate(c + offset[i][1]))) {
-				large[i] = at(r + offset[i][0], c + offset[i][1]);
+		for (int i = 0; i < offsets.length; i++) {
+			if (isValidOneDimensionalCoordinate(r + offsets[i][0])
+					&& (isValidOneDimensionalCoordinate(c + offsets[i][1]))) {
+				large[i] = at(r + offsets[i][0], c + offsets[i][1]);
 				count++;
 			}
 		}
-		// Create a small array and copy the elements
-		int valid[] = new int[count];
+		// Create a small array and copy the elements into it
+		int result[] = new int[count];
 		int v = 0;
-		for (int i = 0; i < offset.length; i++)
+		for (int i = 0; i < offsets.length; i++)
 			if (large[i] > 0) {
-				valid[v] = large[i];
+				result[v] = large[i];
 				v++;
 			}
-		return valid;
+		return result;
+	}
+
+	/** Returns an array of all the points on the board, for iterating through. */
+	public static int[] getAllPointsOnBoard() {
+		return allPointsOnBoard;
+	}
+
+	/** Returns the number of points on the board. */
+	public static int getBoardArea() {
+		return boardArea;
 	}
 
 	/**
-	 * Used in the static block that initializes LARGE_KNIGHT_NEIGHBORHOOD.
+	 * Returns the width of the board.
 	 */
-	protected static int[] findLargeKnightNeighborhood(int p) {
-		int r = row(p), c = column(p);
-		int offset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
-				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
-				{ 1, 2 }, { 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
-				{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
-				{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
-				{ 1, 3 } };
-		int large[] = new int[offset.length];
-		int count = 0;
-		for (int i = 0; i < offset.length; i++) {
-			if (isValidOneDimensionalCoordinate(r + offset[i][0])
-					&& (isValidOneDimensionalCoordinate(c + offset[i][1]))) {
-				large[i] = at(r + offset[i][0], c + offset[i][1]);
-				count++;
-			}
-		}
-		// Create a small array and copy the elements
-		int valid[] = new int[count];
-		int v = 0;
-		for (int i = 0; i < offset.length; i++)
-			if (large[i] > 0) {
-				valid[v] = large[i];
-				v++;
-			}
-		return valid;
+	public static int getBoardWidth() {
+		return boardWidth;
 	}
 
-	public static int getBoardWidth(){
-		return BOARD_WIDTH;
+	/**
+	 * Returns the number of points on the board including the buffer of
+	 * sentinels around the outside.
+	 */
+	public static int getExtendedBoardArea() {
+		return extendedBoardArea;
 	}
-	
-	public static int getBoardArea(){
-		return BOARD_AREA;
+
+	/**
+	 * Returns the eyelike threshold for p (1 or 2). If there are this many
+	 * enemy stones on diagonal neighbors of p, it is not eyelike.
+	 */
+	public static int getEyelikeThreshold(int p) {
+		return eyelikeThreshold[p];
 	}
-	
-	public static int[] getAllPointsOnBoard(){
-		return ALL_POINTS_ON_BOARD;
+
+	/** Returns one more than the highest index of any point on the board. */
+	public static int getFirstPointBeyondBoard() {
+		return firstPointBeyondBoard;
 	}
-	
-	public static int[] getThirdAndFourthLinePoints(){
-		return THIRD_AND_FOURTH_LINE_POINTS;
+
+	/** Returns the lowest index of any point on the board. */
+	public static int getFirstPointOnBoard() {
+		return firstPointOnBoard;
 	}
-	
-	public static int getExtendedBoardArea(){
-		return EXTENDED_BOARD_AREA;
+
+	/**
+	 * Returns an array of points within a knight's move of p.
+	 */
+	public static int[] getKnightNeighborhood(int p) {
+		return knightNeighborhood[p];
 	}
-	
-	public static int getSouth(){
-		return SOUTH;
+
+	/**
+	 * Returns an array of points within a large knight's move of p.
+	 */
+	public static int[] getLargeKnightNeighborhood(int p) {
+		return largeKnightNeighborhood[p];
 	}
-	
-	public static boolean[] getEdgeOrCorner(){
-		return EDGE_OR_CORNER;
+
+	/**
+	 * Returns an array of p's four orthogonal neighbors (indices 0-3) and four
+	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the
+	 * board, one (two) of its neighbors are off-board points. The neighbors of
+	 * an off-board point are not defined.
+	 * <p>
+	 * The neighbors are ordered like this:
+	 * 
+	 * <pre>
+	 * 405
+	 * 1 2
+	 * 637
+	 * </pre>
+	 */
+	public static int[] getNeighbors(int p) {
+		return neighbors[p];
 	}
-	
-	public static int[] getEyelikeThreshold(){
-		return EYELIKE_THRESHOLD;
+
+	/** Returns the number to be added to a point to move south one row. */
+	public static int getSouth() {
+		return south;
 	}
-	
-	public static int getFirstPointBeyondBoard(){
-		return FIRST_POINT_BEYOND_BOARD;
+
+	/** Returns true if p is on the board. */
+	public static boolean isOnBoard(int p) {
+		return onBoard[p];
 	}
-	
-	public static int getFirstPointOnBoard(){
-		return FIRST_POINT_ON_BOARD;
+
+	/** Returns true if p is on the third or fourth line. */
+	public static boolean isOnThirdOrFourthLine(int p) {
+		return thirdOrFourthLine[p];
 	}
-	
-	public static int[][] getKnightNeighborhood(){
-		return KNIGHT_NEIGHBORHOOD;
-	}
-	
-	public static int[][] getLargeKnightNeighborhood(){
-		return LARGE_KNIGHT_NEIGHBORHOOD;
-	}
-	
-	public static int[][] getNeighbors(){
-		return NEIGHBORS;
-	}
-	
-	public static boolean[] getOnBoard(){
-		return ON_BOARD;
-	}
-	
-	public static boolean[] getThirdOrFourthLine(){
-		return THIRD_OR_FOURTH_LINE;
-	}
+
 	/** Verifies that a row or column index is valid. */
 	protected static boolean isValidOneDimensionalCoordinate(int c) {
-		return (c >= 0) & (c < BOARD_WIDTH);
+		return (c >= 0) & (c < boardWidth);
 	}
 
 	/**
@@ -366,8 +300,8 @@ public final class Coordinates {
 	 */
 	public static int line(int p) {
 		// Find the closest distance to wall
-		int r = Math.min(row(p), BOARD_WIDTH - row(p) - 1);
-		int c = Math.min(column(p), BOARD_WIDTH - column(p) - 1);
+		int r = Math.min(row(p), boardWidth - row(p) - 1);
+		int c = Math.min(column(p), boardWidth - column(p) - 1);
 		return 1 + Math.min(r, c);
 	}
 
@@ -376,21 +310,6 @@ public final class Coordinates {
 		int rowd = Math.abs(row(p1) - row(p2));
 		int cold = Math.abs(column(p1) - column(p2));
 		return rowd + cold;
-	}
-
-	/** Returns the point north of p (which may be off the board). */
-	protected static int north(int p) {
-		return p - SOUTH;
-	}
-
-	/** Returns the point northeast of p (which may be off the board). */
-	protected static int northeast(int p) {
-		return north(east(p));
-	}
-
-	/** Returns the point northwest of p (which may be off the board). */
-	protected static int northwest(int p) {
-		return north(west(p));
 	}
 
 	/** Returns a String representation of point. */
@@ -408,95 +327,91 @@ public final class Coordinates {
 
 	/** Returns the row of point p. */
 	public static int row(int p) {
-		return p / SOUTH - 1;
+		return p / south - 1;
+	}
+
+	/**
+	 * Returns the row r as a lower case letter. This is used for sgf format.
+	 */
+	public static char rowToSgfChar(int r) {
+		return (char) ((boardWidth - r) + 'a' - 1);
 	}
 
 	/** Returns a String representation of row r. */
 	public static String rowToString(int r) {
-		return "" + (BOARD_WIDTH - r);
+		return "" + (boardWidth - r);
 	}
 
 	/**
-	 * Returns the row r as a lower case letter. This is used for the sgf
-	 * format.
+	 * Sets the board width. This must be called before other classes (e.g.,
+	 * Players) are loaded, because they may build data structures that depend
+	 * on the state of this class (which is initialized by this method). This is
+	 * done by orego.ui.Orego.handleCommandLineArguments().
 	 */
-	public static char rowToChar(int r) {
-		return (char) ((BOARD_WIDTH - r) + 'a' - 1);
-	}
-	
-	/**
-	 * Sets BOARD_WIDTH to given width
-	 * Default width is 19, can be set to 9 or 19
-	 */
-	
-	public static void reset(){
-		BOARD_AREA = BOARD_WIDTH * BOARD_WIDTH;
-		ALL_POINTS_ON_BOARD = new int[BOARD_AREA];
-		THIRD_AND_FOURTH_LINE_POINTS = new int[(BOARD_WIDTH - 6) * 8];
-		EXTENDED_BOARD_AREA = (BOARD_WIDTH + 1)
-				* (BOARD_WIDTH + 2) + 1;
-		SOUTH = BOARD_WIDTH + 1;
-		EDGE_OR_CORNER = new boolean[EXTENDED_BOARD_AREA];
-		EYELIKE_THRESHOLD = new int[EXTENDED_BOARD_AREA];
-		FIRST_POINT_BEYOND_BOARD = BOARD_WIDTH
-				* (SOUTH + EAST) + 1;
-		FIRST_POINT_ON_BOARD = SOUTH + EAST;
-		KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
-		LARGE_KNIGHT_NEIGHBORHOOD = new int[FIRST_POINT_BEYOND_BOARD][];
-		NEIGHBORS = new int[EXTENDED_BOARD_AREA][8];
-		ON_BOARD = new boolean[EXTENDED_BOARD_AREA];
-		THIRD_OR_FOURTH_LINE = new boolean[EXTENDED_BOARD_AREA];
-		for (int p = 0; p < EXTENDED_BOARD_AREA; p++) {
+	public static void setBoardWidth(int width) {
+		boardWidth = width;
+		boardArea = boardWidth * boardWidth;
+		allPointsOnBoard = new int[boardArea];
+		extendedBoardArea = (boardWidth + 1) * (boardWidth + 2) + 1;
+		south = boardWidth + 1;
+		eyelikeThreshold = new int[extendedBoardArea];
+		firstPointBeyondBoard = boardWidth * (south + EAST) + 1;
+		firstPointOnBoard = south + EAST;
+		knightNeighborhood = new int[firstPointBeyondBoard][];
+		largeKnightNeighborhood = new int[firstPointBeyondBoard][];
+		neighbors = new int[extendedBoardArea][8];
+		onBoard = new boolean[extendedBoardArea];
+		thirdOrFourthLine = new boolean[extendedBoardArea];
+		for (int p = 0; p < extendedBoardArea; p++) {
 			int r = row(p);
 			int c = column(p);
 			// Avoid branch with non-short-circuited &
-			ON_BOARD[p] = isValidOneDimensionalCoordinate(r)
+			onBoard[p] = isValidOneDimensionalCoordinate(r)
 					& isValidOneDimensionalCoordinate(c);
 		}
 		int i = 0;
-		for (int p = FIRST_POINT_ON_BOARD; p < FIRST_POINT_BEYOND_BOARD; p++) {
-			if (ON_BOARD[p]) {
-				ALL_POINTS_ON_BOARD[i] = p;
+		for (int p = firstPointOnBoard; p < firstPointBeyondBoard; p++) {
+			if (onBoard[p]) {
+				allPointsOnBoard[i] = p;
 				i++;
 			}
 		}
-		int thirdFourthLineCount = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
-			EYELIKE_THRESHOLD[p] = 2;
-			NEIGHBORS[p][0] = north(p);
-			NEIGHBORS[p][1] = west(p);
-			NEIGHBORS[p][2] = east(p);
-			NEIGHBORS[p][3] = south(p);
-			NEIGHBORS[p][4] = northwest(p);
-			NEIGHBORS[p][5] = northeast(p);
-			NEIGHBORS[p][6] = southwest(p);
-			NEIGHBORS[p][7] = southeast(p);
+		for (int p : allPointsOnBoard) {
+			eyelikeThreshold[p] = 2;
+			neighbors[p][0] = p - south;
+			neighbors[p][1] = p - EAST;
+			neighbors[p][2] = p + EAST;
+			neighbors[p][3] = p + south;
+			neighbors[p][4] = p - south - EAST;
+			neighbors[p][5] = p - south + EAST;
+			neighbors[p][6] = p + south - EAST;
+			neighbors[p][7] = p + south + EAST;
 			for (i = 4; i < 8; i++) {
-				int n = NEIGHBORS[p][i];
-				if (!ON_BOARD[n]) {
-					EDGE_OR_CORNER[p] = true;
-					EYELIKE_THRESHOLD[p] = 1;
+				int n = neighbors[p][i];
+				if (!onBoard[n]) {
+					eyelikeThreshold[p] = 1;
 				}
 			}
 			int line = line(p);
 			if ((line >= 3) && (line <= 4)) {
-				THIRD_OR_FOURTH_LINE[p] = true;
-				THIRD_AND_FOURTH_LINE_POINTS[thirdFourthLineCount] = p;
-				thirdFourthLineCount++;
+				thirdOrFourthLine[p] = true;
 			}
-			KNIGHT_NEIGHBORHOOD[p] = findKnightNeighborhood(p);
-			LARGE_KNIGHT_NEIGHBORHOOD[p] = findLargeKnightNeighborhood(p);
+			knightNeighborhood[p] = findNeighborhood(p, new int[][] {
+					{ 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 },
+					{ -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 }, { 2, 0 },
+					{ 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
+					{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } });
+			largeKnightNeighborhood[p] = findNeighborhood(p, new int[][] {
+					{ 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 },
+					{ -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 }, { 2, 0 },
+					{ 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
+					{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 },
+					{ 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
+					{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
+					{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
+					{ 1, 3 } });
 		}
-			
-	}
-	public static void setBoardWidth(int width){
-		if(width > 0){
-			BOARD_WIDTH = width;
-			reset();
-		}else{
-			throw new IndexOutOfBoundsException();
-		}
-		
+
 	}
 
 	/** Returns the point represented by an sgf String. */
@@ -505,27 +420,7 @@ public final class Coordinates {
 		int r = label.charAt(1) - 'a';
 		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
-		return (r + 1) * SOUTH + (c + 1) * EAST;
-	}
-
-	/** Returns the point south of p (which may be off the board). */
-	protected static int south(int p) {
-		return p + SOUTH;
-	}
-
-	/** Returns the point southeast of p (which may be off the board). */
-	protected static int southeast(int p) {
-		return south(east(p));
-	}
-
-	/** Returns the point southwest of p (which may be off the board). */
-	protected static int southwest(int p) {
-		return south(west(p));
-	}
-
-	/** Returns the point west of p (which may be off the board). */
-	protected static int west(int p) {
-		return p - EAST;
+		return (r + 1) * south + (c + 1) * EAST;
 	}
 
 }

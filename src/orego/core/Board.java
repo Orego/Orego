@@ -101,9 +101,6 @@ public class Board {
 	/** The color to play next, BLACK or WHITE. */
 	private int colorToPlay;
 
-	/** Used by isEyelike(). */
-	private int[] diagonalColorCount;
-
 	/**
 	 * Ids of enemy chains adjacent to the move just played. Used by
 	 * isSuicidal() and isSelfAtari().
@@ -301,19 +298,18 @@ public class Board {
 		liberties = new IntSet[getFirstPointBeyondBoard()];
 		adjacentChains = new BitVector(getFirstPointBeyondBoard());
 		superKoTable = new SuperKoTable();
-		diagonalColorCount = new int[NUMBER_OF_COLORS];
 		for (int p = 0; p < getExtendedBoardArea(); p++) {
 			neighborCounts[p] = FOUR_VACANT_NEIGHBORS;
 			chainIds[p] = p;
 			colors[p] = OFF_BOARD_COLOR;
-			if (getOnBoard()[p]) {
+			if (isOnBoard(p)) {
 				liberties[p] = new IntSet(getFirstPointBeyondBoard());
 				colors[p] = VACANT;
 				vacantPoints.addKnownAbsent(p);
 				int edgeCount = 0;
 				for (int i = 0; i < 4; i++) {
-					int n = getNeighbors()[p][i];
-					if (!getOnBoard()[n]) {
+					int n = getNeighbors(p)[i];
+					if (!isOnBoard(n)) {
 						edgeCount++;
 					}
 				}
@@ -422,8 +418,8 @@ public class Board {
 		visited[p] = true;
 		block.add(p);
 		for (int i = 0; i < 4; i++) {
-			int n = getNeighbors()[p][i];
-			if (getOnBoard()[n]) {
+			int n = getNeighbors(p)[i];
+			if (isOnBoard(n)) {
 				if (colors[n] == VACANT) { // Vacant neighbor
 					if (!visited[n]) {
 						findTerritory(n, visited, hasNeighbor, block);
@@ -523,7 +519,7 @@ public class Board {
 		do {
 			if (getVacantNeighborCount(stone) > 0) {
 				for (int i = 0; i < 4; i++) {
-					int neighbor = getNeighbors()[stone][i];
+					int neighbor = getNeighbors(stone)[i];
 					if (getColor(neighbor) == VACANT) {
 						liberties.addIfNotPresent(neighbor);
 					}
@@ -584,10 +580,10 @@ public class Board {
 	 * @see orego.patterns
 	 */
 	public final char getNeighborhood(int p) {
-		assert getOnBoard()[p];
+		assert isOnBoard(p);
 		char result = 0;
 		for (int i = 0; i < 8; i++) {
-			result = (char) ((result >>> 2) | (colors[getNeighbors()[p][i]] << 14));
+			result = (char) ((result >>> 2) | (colors[getNeighbors(p)[i]] << 14));
 		}
 		assert colors[p] == VACANT;
 		return result;
@@ -597,13 +593,13 @@ public class Board {
 	 * Gets the local 3x3 neighborhood around point p with colors reversed.
 	 */
 	public final char getNeighborhoodColorsReversed(int p){
-		assert getOnBoard()[p];
+		assert isOnBoard(p);
 		char result = 0;
 		for(int i = 0; i < 8; i++){
-			if(colors[getNeighbors()[p][i]] == WHITE || colors[getNeighbors()[p][i]] == BLACK){
-				result = (char) ((result >>> 2) | (opposite(colors[getNeighbors()[p][i]]) << 14));
+			if(colors[getNeighbors(p)[i]] == WHITE || colors[getNeighbors(p)[i]] == BLACK){
+				result = (char) ((result >>> 2) | (opposite(colors[getNeighbors(p)[i]]) << 14));
 			} else {
-				result = (char) ((result >>> 2) | (colors[getNeighbors()[p][i]] << 14));
+				result = (char) ((result >>> 2) | (colors[getNeighbors(p)[i]] << 14));
 			}
 		}
 		assert colors[p] == VACANT;
@@ -650,8 +646,8 @@ public class Board {
 		adjacentChains.clear(); // Chains to be captured
 		int enemy = opposite(colorToPlay);
 		for (int i = 0; i < 4; i++) {
-			if (colors[getNeighbors()[p][i]] == enemy) {
-				int c = chainIds[getNeighbors()[p][i]];
+			if (colors[getNeighbors(p)[i]] == enemy) {
+				int c = chainIds[getNeighbors(p)[i]];
 				if ((liberties[c].size() == 1) & !adjacentChains.get(c)) {
 					adjacentChains.set(c, true);
 					int active = c;
@@ -688,14 +684,14 @@ public class Board {
 		if (!hasMaxNeighborsForColor(neighborCounts[p], colorToPlay)) {
 			return false;
 		}
-		for (int c = 0; c <= OFF_BOARD_COLOR; c++) {
-			diagonalColorCount[c] = 0;
-		}
+		int count = 0;
+		int opposite = opposite(colorToPlay);
 		for (int i = 4; i < 8; i++) {
-			int n = getNeighbors()[p][i];
-			diagonalColorCount[colors[n]]++;
+			if (colors[getNeighbors(p)[i]] == opposite) {
+				count++;
+			}
 		}
-		return diagonalColorCount[opposite(colorToPlay)] < getEyelikeThreshold()[p];
+		return count < getEyelikeThreshold(p);
 	}
 
 	/**
@@ -705,7 +701,7 @@ public class Board {
 	 */
 	public boolean isFeasible(int p) {
 		return !isEyelike(p)
-				&& (Coordinates.getThirdOrFourthLine()[p] || isWithinALargeKnightsMoveOfAnotherStone(p));
+				&& (Coordinates.isOnThirdOrFourthLine(p) || isWithinALargeKnightsMoveOfAnotherStone(p));
 	}
 
 	/** Returns true if chain is in atari. */
@@ -726,7 +722,7 @@ public class Board {
 		if (turn >= MAX_MOVES_PER_GAME - 2) {
 			return false;
 		}
-		assert getOnBoard()[p] : "Move not on board: " + p + "(" + pointToString(p)
+		assert isOnBoard(p) : "Move not on board: " + p + "(" + pointToString(p)
 				+ ")";
 		// Check for occupied point
 		if (colors[p] != VACANT) {
@@ -763,7 +759,7 @@ public class Board {
 		adjacentChains.clear(); // Allies
 		final int enemyColor = opposite(color);
 		for (int i = 0; i < 4; i++) {
-			int n = getNeighbors()[p][i];
+			int n = getNeighbors(p)[i];
 			int c = colors[n];
 			int chain = chainIds[n];
 			if (c == VACANT) {
@@ -787,7 +783,7 @@ public class Board {
 			int stone = chain;
 			do {
 				for (int j = 0; j < 4; j++) {
-					int neighbor = getNeighbors()[stone][j];
+					int neighbor = getNeighbors(stone)[j];
 					if (adjacentChains.get(chainIds[neighbor])) {
 						// neighbor is in a chain p will join, so stone will be
 						// a liberty
@@ -816,7 +812,7 @@ public class Board {
 		lastPlayLiberties.clear();
 		boolean suicide = true;
 		for (int i = 0; i < 4; i++) {
-			int n = getNeighbors()[p][i];
+			int n = getNeighbors(p)[i];
 			int neighborColor = colors[n];
 			if (neighborColor == VACANT) { // Vacant point
 				lastPlayLiberties.add(n);
@@ -839,7 +835,7 @@ public class Board {
 	 * stone.
 	 */
 	public boolean isWithinAKnightsMoveOfAnotherStone(int p) {
-		int validPoints[] = Coordinates.getKnightNeighborhood()[p];
+		int validPoints[] = Coordinates.getKnightNeighborhood(p);
 		for (int i = 0; i < validPoints.length; i++) {
 			if (colors[validPoints[i]] != VACANT) {
 				return true;
@@ -853,7 +849,7 @@ public class Board {
 	 * another stone.
 	 */
 	public boolean isWithinALargeKnightsMoveOfAnotherStone(int p) {
-		int validPoints[] = Coordinates.getLargeKnightNeighborhood()[p];
+		int validPoints[] = Coordinates.getLargeKnightNeighborhood(p);
 		for (int i = 0; i < validPoints.length; i++) {
 			if (colors[validPoints[i]] != VACANT) {
 				return true;
@@ -902,7 +898,7 @@ public class Board {
 		hash ^= ZOBRIST_HASHES[colors[p]][p];
 		vacantPoints.remove(p);
 		for (int i = 0; i < 4; i++) {
-			int n = getNeighbors()[p][i];
+			int n = getNeighbors(p)[i];
 			neighborCounts[n] += NEIGHBOR_INCREMENT[color];
 		}
 	}
@@ -927,7 +923,7 @@ public class Board {
 		if (turn >= MAX_MOVES_PER_GAME - 2) {
 			return PLAY_GAME_TOO_LONG;
 		}
-		assert getOnBoard()[p] : pointToString(p);
+		assert isOnBoard(p) : pointToString(p);
 		// Check for occupied point
 		if (colors[p] != VACANT) {
 			return PLAY_OCCUPIED;
@@ -978,7 +974,7 @@ public class Board {
 	 */
 	public int playFast(int p) {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
-		assert getOnBoard()[p] : pointToString(p);
+		assert isOnBoard(p) : pointToString(p);
 		assert colors[p] == VACANT : pointToString(p) + "\n" + this;
 		// Check for simple ko violation
 		if (p == koPoint) {
@@ -1028,7 +1024,7 @@ public class Board {
 		vacantPoints.addKnownAbsent(s);
 		neighborsOfCapturedStone.clear();
 		for (int k = 0; k < 4; k++) {
-			int n = getNeighbors()[s][k];
+			int n = getNeighbors(s)[k];
 			neighborCounts[n] -= NEIGHBOR_INCREMENT[color];
 			if (isAPlayerColor(colors[n])) {
 				neighborsOfCapturedStone.addIfNotPresent(chainIds[n]);

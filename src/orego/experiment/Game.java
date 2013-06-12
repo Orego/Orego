@@ -133,7 +133,7 @@ public class Game {
 					//do nothing.
 				}
 				else {
-					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToChar(row(at(coordinates))) + columnToChar(column(at(coordinates))) + "]");
+					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToSgfChar(row(at(coordinates))) + columnToSgfChar(column(at(coordinates))) + "]");
 					out.flush();
 				}
 				//end sgf output
@@ -152,7 +152,7 @@ public class Game {
 				// Note the color reversal here, because the color to play has
 				// already been switched
 				toPrograms[getColorToPlay()]
-				.println(spellOutColorName(opposite(getColorToPlay()))
+				.println(COLOR_NAMES[opposite(getColorToPlay())]
 						 + " " + coordinates);
 				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
@@ -167,7 +167,7 @@ public class Game {
 				} else {
 					mode = REQUESTING_MOVE;
 					toPrograms[getColorToPlay()].println("genmove "
-														 + spellOutColorName(getColorToPlay()));
+														 + COLOR_NAMES[getColorToPlay()]);
 					toPrograms[getColorToPlay()].flush();
 				}
 			} else { // Mode is QUITTING

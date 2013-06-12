@@ -213,7 +213,7 @@ public class LearnedPatternHeuristic extends Heuristic {
 	@Override
 	public void prepare(Board board) {
 		super.prepare(board);
-		for (int p : getNeighbors()[board.getMove(board.getTurn() - 1)]) {
+		for (int p : getNeighbors(board.getMove(board.getTurn() - 1))) {
 			if (board.getColor(p) == VACANT) {
 				char neighborhood = board.getNeighborhood(p);
 				if(GOOD_NEIGHBORHOODS[board.getColorToPlay()].get(neighborhood)) {
