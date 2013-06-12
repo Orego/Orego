@@ -63,18 +63,18 @@ public class CoordinatesTest {
 	public void testIsOnBoard() {
 			// a1 has two neighbors on the board
 			int p = at("a1");
-			assertTrue(getOnBoard()[p]);
-			assertTrue(getOnBoard()[getNeighbors(p)[0]]);
-			assertFalse(getOnBoard()[getNeighbors(p)[1]]);
-			assertTrue(getOnBoard()[getNeighbors(p)[2]]);
-			assertFalse(getOnBoard()[getNeighbors(p)[3]]);
+			assertTrue(isOnBoard(p));
+			assertTrue(isOnBoard(getNeighbors(p)[0]));
+			assertFalse(isOnBoard(getNeighbors(p)[1]));
+			assertTrue(isOnBoard(getNeighbors(p)[2]));
+			assertFalse(isOnBoard(getNeighbors(p)[3]));
 			// t19 has a different two neighbors on the board
 			int p2 = at("t19");
-			assertTrue(getOnBoard()[p2]);
-			assertFalse(getOnBoard()[getNeighbors(p2)[0]]);
-			assertTrue(getOnBoard()[getNeighbors(p2)[1]]);
-			assertFalse(getOnBoard()[getNeighbors(p2)[2]]);
-			assertTrue(getOnBoard()[getNeighbors(p2)[3]]);
+			assertTrue(isOnBoard(p2));
+			assertFalse(isOnBoard(getNeighbors(p2)[0]));
+			assertTrue(isOnBoard(getNeighbors(p2)[1]));
+			assertFalse(isOnBoard(getNeighbors(p2)[2]));
+			assertTrue(isOnBoard(getNeighbors(p2)[3]));
 	}
 
 	@Test

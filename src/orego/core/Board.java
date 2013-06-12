@@ -302,14 +302,14 @@ public class Board {
 			neighborCounts[p] = FOUR_VACANT_NEIGHBORS;
 			chainIds[p] = p;
 			colors[p] = OFF_BOARD_COLOR;
-			if (getOnBoard()[p]) {
+			if (isOnBoard(p)) {
 				liberties[p] = new IntSet(getFirstPointBeyondBoard());
 				colors[p] = VACANT;
 				vacantPoints.addKnownAbsent(p);
 				int edgeCount = 0;
 				for (int i = 0; i < 4; i++) {
 					int n = getNeighbors(p)[i];
-					if (!getOnBoard()[n]) {
+					if (!isOnBoard(n)) {
 						edgeCount++;
 					}
 				}
@@ -419,7 +419,7 @@ public class Board {
 		block.add(p);
 		for (int i = 0; i < 4; i++) {
 			int n = getNeighbors(p)[i];
-			if (getOnBoard()[n]) {
+			if (isOnBoard(n)) {
 				if (colors[n] == VACANT) { // Vacant neighbor
 					if (!visited[n]) {
 						findTerritory(n, visited, hasNeighbor, block);
@@ -580,7 +580,7 @@ public class Board {
 	 * @see orego.patterns
 	 */
 	public final char getNeighborhood(int p) {
-		assert getOnBoard()[p];
+		assert isOnBoard(p);
 		char result = 0;
 		for (int i = 0; i < 8; i++) {
 			result = (char) ((result >>> 2) | (colors[getNeighbors(p)[i]] << 14));
@@ -593,7 +593,7 @@ public class Board {
 	 * Gets the local 3x3 neighborhood around point p with colors reversed.
 	 */
 	public final char getNeighborhoodColorsReversed(int p){
-		assert getOnBoard()[p];
+		assert isOnBoard(p);
 		char result = 0;
 		for(int i = 0; i < 8; i++){
 			if(colors[getNeighbors(p)[i]] == WHITE || colors[getNeighbors(p)[i]] == BLACK){
@@ -722,7 +722,7 @@ public class Board {
 		if (turn >= MAX_MOVES_PER_GAME - 2) {
 			return false;
 		}
-		assert getOnBoard()[p] : "Move not on board: " + p + "(" + pointToString(p)
+		assert isOnBoard(p) : "Move not on board: " + p + "(" + pointToString(p)
 				+ ")";
 		// Check for occupied point
 		if (colors[p] != VACANT) {
@@ -923,7 +923,7 @@ public class Board {
 		if (turn >= MAX_MOVES_PER_GAME - 2) {
 			return PLAY_GAME_TOO_LONG;
 		}
-		assert getOnBoard()[p] : pointToString(p);
+		assert isOnBoard(p) : pointToString(p);
 		// Check for occupied point
 		if (colors[p] != VACANT) {
 			return PLAY_OCCUPIED;
@@ -974,7 +974,7 @@ public class Board {
 	 */
 	public int playFast(int p) {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
-		assert getOnBoard()[p] : pointToString(p);
+		assert isOnBoard(p) : pointToString(p);
 		assert colors[p] == VACANT : pointToString(p) + "\n" + this;
 		// Check for simple ko violation
 		if (p == koPoint) {

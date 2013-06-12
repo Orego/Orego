@@ -146,7 +146,7 @@ public class PatternCounter5 {
 		for (int t = 1; t < turn; t++) {
 			int currentPlay = board.getMove(t);
 			int lastPlay = board.getMove(t - 1);
-			if (getOnBoard()[lastPlay] && getOnBoard()[currentPlay]) {
+			if (isOnBoard(lastPlay) && isOnBoard(currentPlay)) {
 				for (int p : getPointsToAnalyze(lastPlay)) {
 					if (patternBoard.getColor(p) == VACANT) {
 						char neighborhood;

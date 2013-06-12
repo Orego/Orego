@@ -72,7 +72,7 @@ public final class Coordinates {
 	private static int firstPointBeyondBoard;
 
 	/**
-	 * @see #getFirstPointOnBoard() 
+	 * @see #getFirstPointOnBoard()
 	 */
 	private static int firstPointOnBoard;
 
@@ -94,7 +94,9 @@ public final class Coordinates {
 	/** Special coordinate for no point. */
 	public static final int NO_POINT = 1;
 
-	/** True for points on the board. */
+	/**
+	 * @see #isOnBoard(int) 
+	 */
 	private static boolean[] onBoard;
 
 	/** Special coordinate for passing. */
@@ -177,66 +179,29 @@ public final class Coordinates {
 	}
 
 	/**
-	 * Used in reset().
+	 * Returns an array of points near p, with "near" defined by the array of
+	 * {row, column} offsets. Used by reset().
 	 */
-	protected static int[] findKnightNeighborhood(int p) {
+	protected static int[] findNeighborhood(int p, int[][] offsets) {
 		int r = row(p), c = column(p);
-		int offset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
-				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } };
-
-		int large[] = new int[offset.length];
+		int large[] = new int[offsets.length];
 		int count = 0;
-		for (int i = 0; i < offset.length; i++) {
-			if (isValidOneDimensionalCoordinate(r + offset[i][0])
-					&& (isValidOneDimensionalCoordinate(c + offset[i][1]))) {
-				large[i] = at(r + offset[i][0], c + offset[i][1]);
+		for (int i = 0; i < offsets.length; i++) {
+			if (isValidOneDimensionalCoordinate(r + offsets[i][0])
+					&& (isValidOneDimensionalCoordinate(c + offsets[i][1]))) {
+				large[i] = at(r + offsets[i][0], c + offsets[i][1]);
 				count++;
 			}
 		}
-		// Create a small array and copy the elements
-		int valid[] = new int[count];
+		// Create a small array and copy the elements into it
+		int result[] = new int[count];
 		int v = 0;
-		for (int i = 0; i < offset.length; i++)
+		for (int i = 0; i < offsets.length; i++)
 			if (large[i] > 0) {
-				valid[v] = large[i];
+				result[v] = large[i];
 				v++;
 			}
-		return valid;
-	}
-
-	/**
-	 * Used in reset().
-	 */
-	protected static int[] findLargeKnightNeighborhood(int p) {
-		int r = row(p), c = column(p);
-		int offset[][] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },
-				{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-				{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-				{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
-				{ 1, 2 }, { 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
-				{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
-				{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
-				{ 1, 3 } };
-		int large[] = new int[offset.length];
-		int count = 0;
-		for (int i = 0; i < offset.length; i++) {
-			if (isValidOneDimensionalCoordinate(r + offset[i][0])
-					&& (isValidOneDimensionalCoordinate(c + offset[i][1]))) {
-				large[i] = at(r + offset[i][0], c + offset[i][1]);
-				count++;
-			}
-		}
-		// Create a small array and copy the elements
-		int valid[] = new int[count];
-		int v = 0;
-		for (int i = 0; i < offset.length; i++)
-			if (large[i] > 0) {
-				valid[v] = large[i];
-				v++;
-			}
-		return valid;
+		return result;
 	}
 
 	/** Returns an array of all the points on the board, for iterating through. */
@@ -265,8 +230,8 @@ public final class Coordinates {
 	}
 
 	/**
-	 * If there are this many enemy stones on diagonal neighbors of p, it is not
-	 * eyelike.
+	 * Returns the eyelike threshold for p (1 or 2). If there are this many
+	 * enemy stones on diagonal neighbors of p, it is not eyelike.
 	 */
 	public static int getEyelikeThreshold(int p) {
 		return eyelikeThreshold[p];
@@ -290,8 +255,7 @@ public final class Coordinates {
 	}
 
 	/**
-	 * Returns an array of points within a large knight's
-	 * move of p.
+	 * Returns an array of points within a large knight's move of p.
 	 */
 	public static int[] getLargeKnightNeighborhood(int p) {
 		return largeKnightNeighborhood[p];
@@ -315,8 +279,9 @@ public final class Coordinates {
 		return neighbors[p];
 	}
 
-	public static boolean[] getOnBoard() {
-		return onBoard;
+	/** Returns true if p is on the board. */
+	public static boolean isOnBoard(int p) {
+		return onBoard[p];
 	}
 
 	public static int getSouth() {
@@ -422,8 +387,20 @@ public final class Coordinates {
 				thirdAndFourthLinePoints[thirdFourthLineCount] = p;
 				thirdFourthLineCount++;
 			}
-			knightNeighborhood[p] = findKnightNeighborhood(p);
-			largeKnightNeighborhood[p] = findLargeKnightNeighborhood(p);
+			knightNeighborhood[p] = findNeighborhood(p, new int[][] {
+					{ 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 },
+					{ -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 }, { 2, 0 },
+					{ 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
+					{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 } });
+			largeKnightNeighborhood[p] = findNeighborhood(p, new int[][] {
+					{ 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 },
+					{ -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 }, { 2, 0 },
+					{ 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
+					{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 },
+					{ 2, 2 }, { 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 },
+					{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
+					{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
+					{ 1, 3 } });
 		}
 
 	}

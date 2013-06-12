@@ -229,7 +229,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// TODO This causes some (but not all) infeasible moves to be excluded
 		// -- why?
 		int best = bestStoredMove();
-		if (getOnBoard()[best]) {
+		if (isOnBoard(best)) {
 			result += "\nCOLOR green " + pointToString(best);
 		}
 		return result;

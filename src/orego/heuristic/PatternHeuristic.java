@@ -5,7 +5,7 @@ import static orego.core.Colors.OFF_BOARD_COLOR;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.getNeighbors;
-import static orego.core.Coordinates.getOnBoard;
+import static orego.core.Coordinates.isOnBoard;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
 import orego.patterns.ColorSpecificPattern;
@@ -136,7 +136,7 @@ public class PatternHeuristic extends Heuristic {
 	public void prepare(Board board) {
 		super.prepare(board);
 		int lastMove = board.getMove(board.getTurn() - 1);
-		if (!getOnBoard()[lastMove]) {
+		if (!isOnBoard(lastMove)) {
 			return;
 		}
 		for (int p : getNeighbors(lastMove)) {
