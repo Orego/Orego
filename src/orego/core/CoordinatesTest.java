@@ -34,13 +34,13 @@ public class CoordinatesTest {
 	public void testRowAndColumnToChar() {
 			// These methods are for sgf
 			int p = at("p14");
-			assertEquals('n', rowToChar(row(p)));
+			assertEquals('n', rowToSgfChar(row(p)));
 			assertEquals('o', columnToSgfChar(column(p)));
 			p = at("a1");
-			assertEquals('a', rowToChar(row(p)));
+			assertEquals('a', rowToSgfChar(row(p)));
 			assertEquals('a', columnToSgfChar(column(p)));
 			p = at("t19");
-			assertEquals('s', rowToChar(row(p)));
+			assertEquals('s', rowToSgfChar(row(p)));
 			assertEquals('s', columnToSgfChar(column(p)));
 	}
 

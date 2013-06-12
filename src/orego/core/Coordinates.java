@@ -95,7 +95,7 @@ public final class Coordinates {
 	public static final int NO_POINT = 1;
 
 	/**
-	 * @see #isOnBoard(int) 
+	 * @see #isOnBoard(int)
 	 */
 	private static boolean[] onBoard;
 
@@ -275,14 +275,14 @@ public final class Coordinates {
 		return neighbors[p];
 	}
 
-	/** Returns true if p is on the board. */
-	public static boolean isOnBoard(int p) {
-		return onBoard[p];
-	}
-
 	/** Returns the number to be added to a point to move south one row. */
 	public static int getSouth() {
 		return south;
+	}
+
+	/** Returns true if p is on the board. */
+	public static boolean isOnBoard(int p) {
+		return onBoard[p];
 	}
 
 	/** Returns true if p is on the third or fourth line. */
@@ -325,12 +325,31 @@ public final class Coordinates {
 		}
 	}
 
-	/**
-	 * Sets BOARD_WIDTH to given width Default width is 19, can be set to 9 or
-	 * 19
-	 */
+	/** Returns the row of point p. */
+	public static int row(int p) {
+		return p / south - 1;
+	}
 
-	public static void reset() {
+	/**
+	 * Returns the row r as a lower case letter. This is used for sgf format.
+	 */
+	public static char rowToSgfChar(int r) {
+		return (char) ((boardWidth - r) + 'a' - 1);
+	}
+
+	/** Returns a String representation of row r. */
+	public static String rowToString(int r) {
+		return "" + (boardWidth - r);
+	}
+
+	/**
+	 * Sets the board width. This must be called before other classes (e.g.,
+	 * Players) are loaded, because they may build data structures that depend
+	 * on the state of this class (which is initialized by this method). This is
+	 * done by orego.ui.Orego.handleCommandLineArguments().
+	 */
+	public static void setBoardWidth(int width) {
+		boardWidth = width;
 		boardArea = boardWidth * boardWidth;
 		allPointsOnBoard = new int[boardArea];
 		extendedBoardArea = (boardWidth + 1) * (boardWidth + 2) + 1;
@@ -357,7 +376,6 @@ public final class Coordinates {
 				i++;
 			}
 		}
-		int thirdFourthLineCount = 0;
 		for (int p : allPointsOnBoard) {
 			eyelikeThreshold[p] = 2;
 			neighbors[p][0] = p - south;
@@ -377,7 +395,6 @@ public final class Coordinates {
 			int line = line(p);
 			if ((line >= 3) && (line <= 4)) {
 				thirdOrFourthLine[p] = true;
-				thirdFourthLineCount++;
 			}
 			knightNeighborhood[p] = findNeighborhood(p, new int[][] {
 					{ 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 },
@@ -393,34 +410,6 @@ public final class Coordinates {
 					{ -3, 0 }, { 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
 					{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 }, { -1, 3 },
 					{ 1, 3 } });
-		}
-
-	}
-
-	/** Returns the row of point p. */
-	public static int row(int p) {
-		return p / south - 1;
-	}
-
-	/**
-	 * Returns the row r as a lower case letter. This is used for the sgf
-	 * format.
-	 */
-	public static char rowToChar(int r) {
-		return (char) ((boardWidth - r) + 'a' - 1);
-	}
-
-	/** Returns a String representation of row r. */
-	public static String rowToString(int r) {
-		return "" + (boardWidth - r);
-	}
-
-	public static void setBoardWidth(int width) {
-		if (width > 0) {
-			boardWidth = width;
-			reset();
-		} else {
-			throw new IndexOutOfBoundsException();
 		}
 
 	}
