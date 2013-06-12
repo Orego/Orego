@@ -96,7 +96,6 @@ public class MctsPlayerTest {
 			player.setUpProblem(BLACK, problem1);
 			int move1 = player.bestCleanupMove();
 			assertTrue(move1 != PASS);
-			System.err.print(pointToString(move1) + " ");
 			if (move1 == at("a3")) {
 				successes1++;
 			}
@@ -133,7 +132,6 @@ public class MctsPlayerTest {
 			player.setUpProblem(BLACK, problem2);
 			int move2 = player.bestCleanupMove();
 			assertTrue(move2 != PASS);
-			System.err.print(pointToString(move2) + " ");
 			if (move2 == at("C12") || move2 == at("D11") || move2 == at("D13") || move2 == at("E12")) {
 				successes2++;
 			}

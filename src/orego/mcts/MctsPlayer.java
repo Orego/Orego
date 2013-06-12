@@ -73,7 +73,7 @@ public class MctsPlayer extends McPlayer {
 			}
 
 			for (int i = 0; i < pointsToRecommend.size(); i++) {
-				getRoot().addWins(pointsToRecommend.get(i), 40);
+				getRoot().addWins(pointsToRecommend.get(i), 200);
 			}
 		}
 	}
