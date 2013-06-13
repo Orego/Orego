@@ -127,8 +127,8 @@ public class HeuristicList implements Cloneable {
 							.newInstance(weight);
 					list.add(heur);
 				} catch (Exception e) {
-					System.err.println("Cannot construct heuristic "
-							+ genClass);
+					System.err
+							.println("Cannot construct heuristic " + genClass);
 					e.printStackTrace();
 					System.exit(1);
 				}
@@ -169,8 +169,8 @@ public class HeuristicList implements Cloneable {
 							&& (board.playFast(p) == PLAY_OK)) {
 						return p;
 					}
-					// Advancing by 457 skips "randomly" through the array,
-					// in a manner analogous to double hashing.
+					// Advancing by 457 skips "randomly" through the set of
+					// suggested moves, in a manner analogous to double hashing.
 					i = (i + 457) % good.size();
 				} while (i != start);
 			}
@@ -179,19 +179,22 @@ public class HeuristicList implements Cloneable {
 		return selectAndPlayUniformlyRandomMove(random, board);
 	}
 
-	public void setProperty(String name, String value)
+	/**
+	 * @see orego.play.Playable#setProperty(String, String)
+	 */
+	public void setProperty(String property, String value)
 			throws UnknownPropertyException {
-		if (name.equals("heuristics")) {
+		if (property.equals("heuristics")) {
 			loadHeuristics(value);
-		} else if (name.startsWith("heuristic.") && !value.isEmpty()) {
+		} else if (property.startsWith("heuristic.") && !value.isEmpty()) {
 			// Command format: gogui-set-param heuristic.Escape.threshold 21
 			if (heuristics.length == 0) {
 				throw new UnsupportedOperationException(
-						"No heuristics exists when setting parameter '" + name
+						"No heuristics exists when setting parameter '" + property
 								+ "'");
 			}
 			// parse the full property name out into its component parts
-			StringTokenizer parser = new StringTokenizer(name);
+			StringTokenizer parser = new StringTokenizer(property);
 			// skip the 'heuristic.' prefix
 			parser.nextToken(".");
 			String heuristicName = parser.nextToken(".");
@@ -208,10 +211,12 @@ public class HeuristicList implements Cloneable {
 					return;
 				}
 			}
-			throw new UnknownPropertyException("Cannot set " + heuristicProperty + " because there is no " + heuristicName);
+			throw new UnknownPropertyException("Cannot set "
+					+ heuristicProperty + " because there is no "
+					+ heuristicName);
 		} else {
 			throw new UnknownPropertyException("No property exists for '"
-					+ name + "'");
+					+ property + "'");
 		}
 	}
 
