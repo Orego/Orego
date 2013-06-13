@@ -1,26 +1,38 @@
 package orego.heuristic;
 
 import static orego.core.Coordinates.at;
-import orego.core.Board;
 import orego.play.UnknownPropertyException;
 
-/** Recommands a given point. For unit testing. */
+/** Recommends a given point. For unit testing. */
 public class SpecificPointHeuristic extends Heuristic {
 
-	private int specificPoint = at("c5");
-	
+	/** The point suggested by this heuristic. */
+	private int specificPoint;
+
+	/**
+	 * By default, the specific point is c5. This can be changed using {@link #setProperty(String, String)}.
+	 */
 	public SpecificPointHeuristic(int weight) {
 		super(weight);
+		specificPoint = at("c5");
 		recommend(specificPoint);
 	}
 
 	@Override
-	public void prepare(Board board) {
-		// Force do nothing
+	public SpecificPointHeuristic clone() {
+		SpecificPointHeuristic result = (SpecificPointHeuristic) super.clone();
+		result.specificPoint = specificPoint;
+		return result;
 	}
-	
+
+	/** Returns the specific point suggested by this heuristic. */
+	public int getSpecificPoint() {
+		return specificPoint;
+	}
+
 	@Override
-	public void setProperty(String name, String value) throws UnknownPropertyException {
+	public void setProperty(String name, String value)
+			throws UnknownPropertyException {
 		if (name.equals("specificPoint")) {
 			specificPoint = Integer.parseInt(value);
 			recommend(specificPoint);
@@ -28,25 +40,5 @@ public class SpecificPointHeuristic extends Heuristic {
 			super.setProperty(name, value);
 		}
 	}
-	
-	public int getSpecificPoint() {
-		return specificPoint;
-	}
-	
-	@Override
-	public SpecificPointHeuristic clone() {
-		SpecificPointHeuristic sph = (SpecificPointHeuristic) super.clone();
-		
-		try {
-			sph.setProperty("specificPoint", String.valueOf(specificPoint));
-		} catch (UnknownPropertyException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		return sph;
-	}
-	
-	
-	
+
 }

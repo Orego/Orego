@@ -30,7 +30,7 @@ public abstract class Heuristic implements Cloneable {
 			clone = (Heuristic) super.clone();
 			clone.weight = weight;
 			clone.goodMoves = new IntSet(getFirstPointBeyondBoard());
-		} catch (Exception e) {
+		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
