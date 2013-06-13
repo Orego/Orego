@@ -12,14 +12,12 @@ public class Collate {
 	public static void main(String[] args) throws FileNotFoundException {
 		File dir = new File(RESULTS_DIRECTORY);
 		// Maps conditions to results; each result contains the number of wins and the number of games
-		Map<String, int[]> results = new TreeMap<String, int[]>();
+		Map<String, long[]> results = new TreeMap<String, long[]>();
 		// total playouts and moves
 		// Gather the data
 		for (String name : dir.list()) {
 			if (name.endsWith(".sgf")) {
-				// TODO This should be an array of longs; ints overflow
-				// Also check where the numbers are being generated; the same problem may occur there.
-				int[] stats = null;
+				long[] stats = null;
 				char oregoColor = ' ';
 				String input = "";
 				String condition = null;
@@ -48,7 +46,7 @@ public class Collate {
 						if (results.containsKey(condition)) {
 							stats = results.get(condition);
 						} else {
-							stats = new int[NUMBER_OF_PLAYER_COLORS+2];
+							stats = new long[NUMBER_OF_PLAYER_COLORS+2];
 							results.put(condition, stats);
 						}
 					}
@@ -74,7 +72,7 @@ public class Collate {
 		}
 		// Print the results
 		for (String condition : results.keySet()) {
-			int[] stats = results.get(condition);
+			long[] stats = results.get(condition);
 			System.out.printf(condition + ": %d/%d = %1.3f\n", stats[0],
 					stats[1], (((double) (stats[0])) / (stats[1])));
 			System.out.printf("Total playouts:%d, Total moves:%d, average playouts per move:%1.3f\n", stats[2], stats[3], (stats[2]/(stats[3]*1.0)));
