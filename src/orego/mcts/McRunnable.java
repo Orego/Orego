@@ -188,16 +188,17 @@ public class McRunnable implements Runnable {
 	// places; could it be consolidated into the few places where fresh nodes
 	// are produced?
 	public void updatePriors(SearchNode node, Board board) {
-		for (Heuristic h : heuristics.getHeuristics()) {
+		for (int i = 0; i < heuristics.size(); i++) {
+			Heuristic h = heuristics.get(i);
 			h.prepare(board);
 			IntSet good = h.getGoodMoves();
-			for (int i = 0; i < good.size(); i++) {
-				int p = good.get(i);
+			for (int j = 0; j < good.size(); j++) {
+				int p = good.get(j);
 				node.addWins(p, h.getWeight());
 			}
 			// TODO The remaining code doesn't seem to do anything. Why is it here? Left over from when we had negative heuristics?
 			IntSet vacant = board.getVacantPoints();
-			for (int i = 0; i < vacant.size(); i++) {
+			for (int j = 0; j < vacant.size(); j++) {
 				int p = vacant.get(i);
 			}
 		}

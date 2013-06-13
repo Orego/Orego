@@ -81,7 +81,7 @@ public class McRunnableTest {
 		player.setHeuristics(new HeuristicList("Pattern@5"));
 		player.reset();
 		runnable = (McRunnable)(player.getRunnable(0));
-		assertTrue(runnable.getHeuristics().getHeuristics()[0] instanceof PatternHeuristic);
+		assertTrue(runnable.getHeuristics().get(0) instanceof PatternHeuristic);
 		String[] problem = { 
 				"...................",// 19
 				"...................",// 18

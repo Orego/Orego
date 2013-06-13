@@ -12,57 +12,62 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.*;
 
 /**
- * Note: we do not override ArrayList since we need the raw speed of a native
- * array.
- * 
- * @author sstewart
- * 
+ * A list of heuristics.
  */
 public class HeuristicList implements Cloneable {
 
-	private Heuristic[] heuristics;
-	
-	public HeuristicList(String heuristicList) {
-		loadHeuristicList(heuristicList);
+	/**
+	 * Plays and returns a random feasible move.
+	 */
+	public static int selectAndPlayUniformlyRandomMove(
+			MersenneTwisterFast random, Board board) {
+		IntSet vacantPoints = board.getVacantPoints();
+		int start = random.nextInt(vacantPoints.size());
+		int i = start;
+		do {
+			int p = vacantPoints.get(i);
+			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
+				if (board.playFast(p) == PLAY_OK) {
+					return p;
+				}
+			}
+			// Advancing by 457 skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
+		// Nothing left -- pass!
+		board.pass();
+		return PASS;
 	}
 
+	/** The individual heuristics in this list. */
+	private Heuristic[] heuristics;
+
+	/** Creates an empty list (which suggests random feasible moves). */
 	public HeuristicList() {
 		this(0);
 	}
 
-	public HeuristicList(int size) {
+	/** Creates a list with room for the specified number of heuristics. */
+	protected HeuristicList(int size) {
 		heuristics = new Heuristic[size];
 	}
 
 	/**
-	 * Returns the weighted sum of recommendations of all of the heuristics.
-	 * (weight for heuristics that recommend move, -weight for heuristics that discourage it)
+	 * @see #loadHeuristics(String)
 	 */
-	public int moveRating(int move, Board board) {
-		int value = 0;
-		for (Heuristic h : heuristics) {
-			h.prepare(board);
-			if (h.getGoodMoves().contains(move)) {
-				value += h.getWeight();
-			}
-		}
-		return value;
-	}
-
-	public int size() {
-		return heuristics.length;
+	public HeuristicList(String heuristicList) {
+		loadHeuristics(heuristicList);
 	}
 
 	@Override
 	public HeuristicList clone() {
-		// TODO: we could achieve the same goal by building a string then
-		// calling loadHeuristicList()
 		HeuristicList copied = new HeuristicList(heuristics.length);
 		try {
 			// loop through heuristics and create *new* instances of each
 			// underlying subclass
 			for (int i = 0; i < heuristics.length; i++) {
-				copied.getHeuristics()[i] = heuristics[i].clone();
+				copied.heuristics[i] = heuristics[i].clone();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -71,16 +76,32 @@ public class HeuristicList implements Cloneable {
 		return copied;
 	}
 
-	public Heuristic[] getHeuristics() {
-		return heuristics;
+	/**
+	 * Returns the ith heuristic in this list.
+	 */
+	public Heuristic get(int i) {
+		return heuristics[i];
 	}
 
-	public void loadHeuristicList(String heuristicList) {
-		if (heuristicList.isEmpty()) {
+	/**
+	 * Loads a specified list of heuristics. Example argument:
+	 * <p>
+	 * "EscapeHeuristics@20:orego.heuristic.Pattern@10:Capture"
+	 * <p>
+	 * This would produce a list with orego.heuristic.EscapeHeuristic at weight
+	 * 20, orego.heuristic.PatternHeuristic at 10, and
+	 * orego.heuristic.CaptureHeuristic at 1. Note that the prefix
+	 * "orego.heuristic." and the suffix "Heuristic" can be omitted. If no
+	 * weight is specified, 1 is used.
+	 * <p>
+	 * If specification is the empty String, this list is set to have no heuristics.
+	 */
+	public void loadHeuristics(String specification) {
+		if (specification.isEmpty()) {
 			heuristics = new Heuristic[0];
 		} else {
 			List<Heuristic> list = new ArrayList<Heuristic>();
-			String[] heuristicClasses = heuristicList.split(":");
+			String[] heuristicClasses = specification.split(":");
 			for (int i = 0; i < heuristicClasses.length; i++) {
 				String[] heuristicAndWeight = heuristicClasses[i].split("@");
 				// if no weight was specified, default to 1
@@ -107,7 +128,7 @@ public class HeuristicList implements Cloneable {
 						list.add(heur);
 					} catch (Exception e) {
 						System.err.println("Cannot construct heuristic: "
-								+ heuristicList);
+								+ specification);
 						e.printStackTrace();
 						System.exit(1);
 					}
@@ -117,53 +138,37 @@ public class HeuristicList implements Cloneable {
 		}
 	}
 
+	/**
+	 * Returns the weighted sum of recommendations of all of the heuristics.
+	 * (weight for heuristics that recommend move, -weight for heuristics that
+	 * discourage it)
+	 */
+	public int moveRating(int move, Board board) {
+		int value = 0;
+		for (Heuristic h : heuristics) {
+			h.prepare(board);
+			if (h.getGoodMoves().contains(move)) {
+				value += h.getWeight();
+			}
+		}
+		return value;
+	}
+
 	public void removeZeroWeightedHeuristics() {
 		ArrayList<Heuristic> copied = new ArrayList<Heuristic>();
-		
+
 		for (Heuristic heur : heuristics) {
 			if (heur.getWeight() != 0) {
 				copied.add(heur);
 			}
 		}
-		
+
 		heuristics = copied.toArray(new Heuristic[0]);
-	}
-	
-	public Heuristic appendNewHeuristic(String heuristicName) {
-		Heuristic heuristic = null;
-		
-		try {
-			if (!heuristicName.contains(".")) {
-				// set default path to heuristic if it isn't given
-				heuristicName = "orego.heuristic." + heuristicName;
-			}
-			if (!heuristicName.endsWith("Heuristic")) {
-				// complete the class name if a shortened version is used
-				heuristicName = heuristicName + "Heuristic";
-			}
-			
-			Constructor<?> constructor = Class.forName(heuristicName).getConstructor(Integer.TYPE);
-			heuristic = (Heuristic) constructor.newInstance(1);
-			
-			// copy into new array
-			Heuristic[] cloned = Arrays.copyOf(heuristics, heuristics.length + 1);
-			
-			// copy into last index
-			cloned[heuristics.length] = heuristic;
-			
-			heuristics = cloned;
-			return heuristic;
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		return null;
 	}
 
 	/**
-	 * Goes through the heuristics until one suggests a legal, feasible move; plays
-	 * one of those moves randomly and returns it.
+	 * Goes through the heuristics until one suggests a legal, feasible move;
+	 * plays one of those moves randomly and returns it.
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Try to get good moves from heuristics
@@ -175,7 +180,8 @@ public class HeuristicList implements Cloneable {
 				int i = start;
 				do {
 					int p = good.get(i);
-					if ((board.getColor(p) == VACANT) && (board.isFeasible(p)) && (board.playFast(p) == PLAY_OK)) {
+					if ((board.getColor(p) == VACANT) && (board.isFeasible(p))
+							&& (board.playFast(p) == PLAY_OK)) {
 						return p;
 					}
 					// Advancing by 457 skips "randomly" through the array,
@@ -188,34 +194,10 @@ public class HeuristicList implements Cloneable {
 		return selectAndPlayUniformlyRandomMove(random, board);
 	}
 
-	/**
-	 * Plays and returns a random feasible move.
-	 */
-	public static int selectAndPlayUniformlyRandomMove(MersenneTwisterFast random,
-			Board board) {
-		IntSet vacantPoints = board.getVacantPoints();
-		int start = random.nextInt(vacantPoints.size());
-		int i = start;
-		do {
-			int p = vacantPoints.get(i);
-			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
-				if (board.playFast(p) == PLAY_OK) {
-					return p;
-				}
-			}
-			// Advancing by 457 skips "randomly" through the array,
-			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
-		} while (i != start);
-		// Nothing left -- pass!
-		board.pass();
-		return PASS;
-	}
-
 	public void setProperty(String name, String value)
 			throws UnknownPropertyException {
 		if (name.equals("heuristics")) {
-			loadHeuristicList(value);
+			loadHeuristics(value);
 		} else if (name.startsWith("heuristic.") && !value.isEmpty()) {
 			// Command format: gogui-set-param heuristic.Escape.threshold 21
 			if (heuristics.length == 0) {
@@ -235,18 +217,22 @@ public class HeuristicList implements Cloneable {
 			// through all our heuristics)
 			for (Heuristic heuristic : heuristics) {
 				// strip off class suffix of Heuristic and do compare
-				if (heuristic.getClass().getSimpleName().replace("Heuristic", "").equals(heuristicName)) {
+				if (heuristic.getClass().getSimpleName()
+						.replace("Heuristic", "").equals(heuristicName)) {
 					heuristic.setProperty(heuristicProperty, value);
 					return;
 				}
 			}
-			// create heuristic if it doesn't exist
-			Heuristic newHeuristic = appendNewHeuristic(heuristicName + "Heuristic");
-			newHeuristic.setProperty(heuristicProperty, value);
+			throw new UnknownPropertyException("Cannot set " + heuristicProperty + " because there is no " + heuristicName);
 		} else {
 			throw new UnknownPropertyException("No property exists for '"
 					+ name + "'");
 		}
+	}
+
+	/** Returns the number of heuristics in this list. */
+	public int size() {
+		return heuristics.length;
 	}
 
 }
