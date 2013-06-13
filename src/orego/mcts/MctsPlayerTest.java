@@ -94,13 +94,15 @@ public class MctsPlayerTest {
 		for (int i = 0; i < 10; i++) {
 			player.reset();
 			player.setUpProblem(BLACK, problem1);
+			player.bestMove();
 			int move1 = player.bestCleanupMove();
+			System.err.print(pointToString(move1) + " ");
 			assertTrue(move1 != PASS);
 			if (move1 == at("a3")) {
 				successes1++;
 			}
 		}
-		System.out.println();
+		System.err.println();
 		assertTrue(successes1 >= 5);
 
 		// another test
@@ -130,13 +132,59 @@ public class MctsPlayerTest {
 		for (int i = 0; i < 10; i++) {
 			player.reset();
 			player.setUpProblem(BLACK, problem2);
+			player.bestMove();
 			int move2 = player.bestCleanupMove();
+			System.err.print(pointToString(move2) + " ");
 			assertTrue(move2 != PASS);
 			if (move2 == at("C12") || move2 == at("D11") || move2 == at("D13") || move2 == at("E12")) {
 				successes2++;
 			}
 		}
+		System.err.println();
 		assertTrue(successes2 >= 5);
+	}
+	
+	@Test
+	public void testCoupDeGrace() {
+		String[] problem = new String[] {
+				"OOOOOOOOOOO#.......",// 19
+				"OOOOOOOOOOO#.......",// 18
+				"OOOOOOOOOOO#.......",// 17
+				"OOOOOOOOOOO#.......",// 16
+				"OOOOOOOOOOO#.......",// 15
+				"OOOOOOOOOOO#.......",// 14
+				"OOOOOOOOOOO#.......",// 13
+				"OOOOOOOOOOO#.......",// 12
+				"OOOOOOOOOOO#.......",// 11
+				"OOOOOOOOOOO#.......",// 10
+				"OOOOOOOOOOO#.......",// 9
+				"OOOOOOOOOOO#.......",// 8
+				"OOOOOOOOOOO#.......",// 7
+				"OOOOOOOOO######....",// 6
+				"OOOOOOOOO#OOOO##...",// 5
+				"OOOOOOOO.#O.O.O#...",// 4
+				"OOOOOOOO##OOOOO#...",// 3
+				"OOOOOOOOOO##O######",// 2
+				"OOOOOOOOO.#.##.#..." // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes = 0;
+		int failures = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(BLACK, problem);
+			player.bestMove();
+			int move = player.bestMove();
+			System.err.print(pointToString(move) + " ");
+			if(move == at("J4")) {
+				successes++;
+			} else if(move == at("K1")) {
+				failures ++;
+			}
+		}
+		System.err.println();
+		assertTrue(failures == 0);
+		assertTrue(successes >= 5);
 	}
 
 	@Test
