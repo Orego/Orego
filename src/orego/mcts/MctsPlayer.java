@@ -57,11 +57,25 @@ public class MctsPlayer extends McPlayer {
 	/** The transposition table. */
 	private TranspositionTable table;
 
-	private boolean kgsCleanupMode = false;;
+	private boolean kgsCleanupMode = false;
 
 	@Override
 	public void beforeStartingThreads() {
-		// Nothing special has to be done here
+		boolean shouldWeClean = kgsCleanupMode && thereAreDeadEnemyStones();
+		if (shouldWeClean) {
+			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
+			IntList deadStones = deadStones();
+			IntSet pointsToRecommend = new IntSet(Coordinates.getFirstPointBeyondBoard());
+
+			for (int i = 0; i < deadStones.size(); i++) {
+				IntSet libs = getBoard().getLiberties(deadStones.get(i));
+				pointsToRecommend.addAll(libs);
+			}
+
+			for (int i = 0; i < pointsToRecommend.size(); i++) {
+				getRoot().addWins(pointsToRecommend.get(i), 200);
+			}
+		}
 	}
 
 	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
@@ -95,7 +109,7 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
-			if (kgsCleanupMode && cleanup()) { //if kgsCleanupMode is true and there are enemy dead stones, do not consider PASS
+			if (kgsCleanupMode && thereAreDeadEnemyStones()) { //if kgsCleanupMode is true and there are enemy dead stones, do not consider PASS
 				result = vacantPoints.get(0);
 			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
@@ -157,21 +171,23 @@ public class MctsPlayer extends McPlayer {
 	}
 	
 	@Override
-	public int bestCleanupMove(){
+	public int bestCleanupMove() {
 		kgsCleanupMode = true;
-		return bestStoredMove();
+		int bestMove = bestMove();
+		kgsCleanupMode = false;
+		return bestMove;
 	}
 	
 	@Override
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
-		// Can we win outright by passing?
-		boolean canIPass = !(kgsCleanupMode && cleanup()); // can't pass if kgsCleanupMode and cleanup() are both true
 		if (getBoard().getPasses() >= 1) {
-			if (secondPassWouldWinGame() && canIPass) { // if second pass would win and I can pass, then pass
+			boolean shouldWeClean = kgsCleanupMode && thereAreDeadEnemyStones();
+			if (secondPassWouldWinGame() && !shouldWeClean) {
+				// Pass if we can win outright by doing so
 				return PASS;
 			}
-			// If not, don't pass if there's a legal move!
+			// Don't pass (if there's another legal move -- see exclude()).
 			root.exclude(PASS);
 		}
 		return bestPlayMove(root);
@@ -477,10 +493,8 @@ public class MctsPlayer extends McPlayer {
 		return result;
 	}
 
-	/*
-	 * this method should return true if there are enemy dead stones on the board.
-	 */
-	protected boolean cleanup() {
+	/** Returns true if there are enemy dead stones on the board. */
+	protected boolean thereAreDeadEnemyStones() {
 		IntList alreadyDeadStones = deadStones();
 		for(int i = 0; i < alreadyDeadStones.size(); i++) {
 			// if there are enemy dead stones

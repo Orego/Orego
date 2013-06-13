@@ -67,6 +67,79 @@ public class MctsPlayerTest {
 	}
 
 	@Test
+	public void testBestCleanupMove() {
+		String[] problem1 = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				".##................",// 3
+				"OO#................",// 2
+				".O#................" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes1 = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(BLACK, problem1);
+			int move1 = player.bestCleanupMove();
+			assertTrue(move1 != PASS);
+			if (move1 == at("a3")) {
+				successes1++;
+			}
+		}
+		System.out.println();
+		assertTrue(successes1 >= 5);
+
+		// another test
+		String[] problem2 = new String[] {
+				".........#O........",// 19
+				".........#O........",// 18
+				".........#O........",// 17
+				".........#O........",// 16
+				"#######..#O........",// 15
+				"#.....#..#O........",// 14
+				"#.....#..#O........",// 13
+				"#..O..#..#O........",// 12
+				"#.....#..#O........",// 11
+				"#.....#..#O........",// 10
+				"#######..#O........",// 9
+				".........#O........",// 8
+				".........#O........",// 7
+				".........#O........",// 6
+				".........#O........",// 5
+				".........#O........",// 4
+				".........#O........",// 3
+				".........#O........",// 2
+				".........#O........" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes2 = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(BLACK, problem2);
+			int move2 = player.bestCleanupMove();
+			assertTrue(move2 != PASS);
+			if (move2 == at("C12") || move2 == at("D11") || move2 == at("D13") || move2 == at("E12")) {
+				successes2++;
+			}
+		}
+		assertTrue(successes2 >= 5);
+	}
+
+	@Test
 	public void testIncorporateRun() {
 		SearchNode root = player.getRoot();
 		board.play(at("a1"));
