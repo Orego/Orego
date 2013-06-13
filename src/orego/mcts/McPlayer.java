@@ -19,7 +19,7 @@ import orego.util.IntList;
 public abstract class McPlayer extends ThreadedPlayer {
 
 	/** The maximum playouts a thread will run, if no time limit is set. */
-	private int playoutLimit;
+	private long playoutLimit;
 
 	/** Returns the result of benchmark(true). */
 	public double[] benchmark() {
@@ -43,7 +43,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 			long before = System.currentTimeMillis();
 			bestMove();
 			long time = System.currentTimeMillis() - before;
-			int playouts = 0;
+			long playouts = 0;
 			for (int i = 0; i < getNumberOfThreads(); i++) {
 				playouts += ((McRunnable) getRunnable(i))
 						.getPlayoutsCompleted();
@@ -71,7 +71,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		return x;
 	}
 
-	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
+	public void printAdditionalBenchmarkInfo(double kpps, long playouts,
 			long time) {
 		// does nothing
 	}
@@ -155,12 +155,12 @@ public abstract class McPlayer extends ThreadedPlayer {
 	 * Returns the max number of playouts each thread will run. A playoutLimit
 	 * <= 0 indicates no limit.
 	 */
-	public int getPlayoutLimit() {
+	public long getPlayoutLimit() {
 		return playoutLimit;
 	}
 
 	/** Returns the top level number of playouts through point p. */
-	public abstract int getPlayouts(int p);
+	public abstract long getPlayouts(int p);
 
 	/** Returns the win rate for the current color to play at point p. */
 	public abstract double getWinRate(int p);
@@ -203,9 +203,9 @@ public abstract class McPlayer extends ThreadedPlayer {
 	/** Returns GoGui information showing playout distribution and win rates. */
 	protected String goguiPlayouts() {
 		// Find the max playouts of any move
-		int max = 0;
+		long max = 0;
 		for (int p : getAllPointsOnBoard()) {
-			int playouts = getPlayouts(p);
+			long playouts = getPlayouts(p);
 			if (playouts > max) {
 				max = playouts;
 			}
@@ -289,7 +289,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		} else if (command.equals("gogui-mc-playouts")) {
 			result = goguiPlayouts();
 		} else if (command.equals("gogui-live-mc-playouts")) {
-			int oldValue;
+			long oldValue;
 			boolean isMilliseconds = (getMillisecondsPerMove() != -1);
 			if (isMilliseconds) {
 				oldValue = getMillisecondsPerMove();
@@ -302,7 +302,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 				System.err.println("gogui-gfx: \n" + goguiPlayouts() + "\n");
 			}
 			if (isMilliseconds) {
-				setMillisecondsPerMove(oldValue);
+				setMillisecondsPerMove((int) oldValue);
 			} else {
 				setPlayoutLimit(oldValue);
 			}
@@ -346,11 +346,11 @@ public abstract class McPlayer extends ThreadedPlayer {
 	}
 
 	/** Set the max number of playouts a thread will run. */
-	public void setPlayoutLimit(int playoutLimit) {
-		assert playoutLimit >= 0 : "Cannot allocate less than 0 playouts per move.";
+	public void setPlayoutLimit(long oldValue) {
+		assert oldValue >= 0 : "Cannot allocate less than 0 playouts per move.";
 		super.setMillisecondsPerMove(-1);
-		this.playoutLimit = playoutLimit;
-		debug("playout limit set to " + playoutLimit + " playouts per thread");
+		this.playoutLimit = oldValue;
+		debug("playout limit set to " + oldValue + " playouts per thread");
 	}
 
 	@Override
