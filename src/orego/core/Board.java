@@ -1,6 +1,5 @@
 package orego.core;
 
-import static java.lang.String.format;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static orego.core.NeighborCounts.*;
@@ -45,14 +44,6 @@ public class Board {
 	 * The result returned by play() when the move is suicide.
 	 */
 	public static final int PLAY_SUICIDE = 1;
-
-	/**
-	 * Maps to the bits which need updating in the ith neighbors' pattern. (If
-	 * point n is my ith neighbor, I am the opposite neighbor, and each color
-	 * takes up two bits.)
-	 */
-	public static final int[] UPDATE_NBR_MAP = new int[] { 6, 4, 2, 0, 14, 12,
-			10, 8 };
 
 	/**
 	 * Random numbers for Zobrist hashes, indexed by color and point. The last
@@ -506,11 +497,11 @@ public class Board {
 	/**
 	 * NOTE: Outside of testing, getLiberties() is much faster. This method
 	 * exists only to test that one.
-	 * 
+	 * <p>
 	 * Fills a list with the liberties of the chain containing point p. If
 	 * liberties has too much room, size is set appropriately. It is assumed
-	 * that liberties does not have too little room; in that case, this method
-	 * would crash when trying to add more.
+	 * that liberties has enough room; if it didn't, this method would crash
+	 * when trying to add more.
 	 */
 	protected void getLibertiesByTraversal(int p, IntList liberties) {
 		assert isAPlayerColor(colors[p]);
@@ -696,8 +687,8 @@ public class Board {
 
 	/**
 	 * Returns true if p is a feasible choice to play. The point must not be
-	 * played on an eyelike point, and must either be on the 3rd or 4th row from
-	 * the edge or be within a large knight's move of another stone.
+	 * eyelike and be either on the 3rd or 4th row from the edge or within a
+	 * large knight's move of another stone.
 	 */
 	public boolean isFeasible(int p) {
 		return !isEyelike(p)
@@ -753,7 +744,7 @@ public class Board {
 			return false;
 		}
 		selfAtariLiberties.clear();
-		// We set p so we don't count it as a liberty.
+		// Remember p so we don't count it as a liberty.
 		selfAtariLiberties.addKnownAbsent(p);
 		enemyNeighboringChainIds.clear();
 		adjacentChains.clear(); // Allies
@@ -772,12 +763,12 @@ public class Board {
 				adjacentChains.set(chain, true);
 			}
 			if (selfAtariLiberties.size() >= 3) {
+				// If we only had p and one other liberty, p would be self-atari
 				return false;
 			}
 		}
 		// We didn't avoid self-atari directly, but maybe a capture bought us a
 		// distant liberty.
-		// Check for that.
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			int chain = enemyNeighboringChainIds.get(i);
 			int stone = chain;
@@ -831,8 +822,7 @@ public class Board {
 	}
 
 	/**
-	 * Returns whether a point is within a knight's move or less of another
-	 * stone.
+	 * Returns whether a point is within a knight's move of another stone.
 	 */
 	public boolean isWithinAKnightsMoveOfAnotherStone(int p) {
 		int validPoints[] = Coordinates.getKnightNeighborhood(p);
@@ -845,8 +835,7 @@ public class Board {
 	}
 
 	/**
-	 * Returns whether a point is within a large knight's move or less of
-	 * another stone.
+	 * Returns whether a point is within a large knight's move of another stone.
 	 */
 	public boolean isWithinALargeKnightsMoveOfAnotherStone(int p) {
 		int validPoints[] = Coordinates.getLargeKnightNeighborhood(p);
@@ -1099,9 +1088,7 @@ public class Board {
 				}
 			}
 		}
-		if (this.colorToPlay != colorToPlay) {
-			play(PASS);
-		}
+		this.colorToPlay = colorToPlay;
 	}
 
 	/**
@@ -1162,4 +1149,5 @@ public class Board {
 			return BLACK;
 		}
 	}
+
 }

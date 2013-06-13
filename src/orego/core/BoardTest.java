@@ -8,8 +8,6 @@ import static orego.patterns.Pattern.*;
 import static orego.heuristic.PatternHeuristic.*;
 import static orego.heuristic.HeuristicList.selectAndPlayUniformlyRandomMove;
 import static org.junit.Assert.*;
-import orego.heuristic.*;
-import orego.play.Player;
 import orego.util.IntList;
 import orego.util.IntSet;
 import org.junit.Before;
