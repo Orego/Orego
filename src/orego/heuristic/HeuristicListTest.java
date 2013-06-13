@@ -66,23 +66,6 @@ public class HeuristicListTest {
 	}
 	
 	@Test
-	public void testRemoveZeroWeightedHeuristics() throws Exception {
-		heuristics.loadHeuristics("Escape@2:Capture@3");
-		assertEquals(2, heuristics.size());
-		assertEquals(EscapeHeuristic.class,  heuristics.get(0).getClass());
-		assertEquals(CaptureHeuristic.class, heuristics.get(1).getClass());
-		heuristics.setProperty("heuristic.Escape.weight", "0");
-		heuristics.removeZeroWeightedHeuristics();
-		// make sure the escape property is gone
-		assertEquals(1, heuristics.size());
-		assertEquals(CaptureHeuristic.class,  heuristics.get(0).getClass());
-		heuristics.setProperty("heuristic.Capture.weight", "0");
-		heuristics.removeZeroWeightedHeuristics();
-		// make sure the capture property is gone
-		assertEquals(0, heuristics.size());
-	}
-	
-	@Test
 	public void testZeroWeightHeuristic() {
 		heuristics.loadHeuristics("Escape@2:Capture@0:Pattern@10");
 		assertEquals(2, heuristics.size());

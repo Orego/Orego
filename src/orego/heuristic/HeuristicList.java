@@ -94,7 +94,8 @@ public class HeuristicList implements Cloneable {
 	 * "orego.heuristic." and the suffix "Heuristic" can be omitted. If no
 	 * weight is specified, 1 is used.
 	 * <p>
-	 * If specification is the empty String, this list is set to have no heuristics.
+	 * If specification is the empty String, this list is set to have no
+	 * heuristics.
 	 */
 	public void loadHeuristics(String specification) {
 		if (specification.isEmpty()) {
@@ -109,29 +110,27 @@ public class HeuristicList implements Cloneable {
 				if (heuristicAndWeight.length == 2) {
 					weight = (int) (round(Double.valueOf(heuristicAndWeight[1])));
 				}
-				if (weight != 0) {
-					String genClass = heuristicAndWeight[0];
-					if (!genClass.contains(".")) {
-						// set default path to heuristic if it isn't given
-						genClass = "orego.heuristic." + genClass;
-					}
-					if (!genClass.endsWith("Heuristic")) {
-						// complete the class name if a shortened version is
-						// used
-						genClass = genClass + "Heuristic";
-					}
-					try {
-						Constructor<?> constructor = Class.forName(genClass)
-								.getConstructor(Integer.TYPE);
-						Heuristic heur = (Heuristic) constructor
-								.newInstance(weight);
-						list.add(heur);
-					} catch (Exception e) {
-						System.err.println("Cannot construct heuristic: "
-								+ specification);
-						e.printStackTrace();
-						System.exit(1);
-					}
+				String genClass = heuristicAndWeight[0];
+				if (!genClass.contains(".")) {
+					// set default path to heuristic if it isn't given
+					genClass = "orego.heuristic." + genClass;
+				}
+				if (!genClass.endsWith("Heuristic")) {
+					// complete the class name if a shortened version is
+					// used
+					genClass = genClass + "Heuristic";
+				}
+				try {
+					Constructor<?> constructor = Class.forName(genClass)
+							.getConstructor(Integer.TYPE);
+					Heuristic heur = (Heuristic) constructor
+							.newInstance(weight);
+					list.add(heur);
+				} catch (Exception e) {
+					System.err.println("Cannot construct heuristic "
+							+ genClass);
+					e.printStackTrace();
+					System.exit(1);
 				}
 			}
 			heuristics = list.toArray(new Heuristic[0]);
@@ -140,8 +139,6 @@ public class HeuristicList implements Cloneable {
 
 	/**
 	 * Returns the weighted sum of recommendations of all of the heuristics.
-	 * (weight for heuristics that recommend move, -weight for heuristics that
-	 * discourage it)
 	 */
 	public int moveRating(int move, Board board) {
 		int value = 0;
@@ -152,18 +149,6 @@ public class HeuristicList implements Cloneable {
 			}
 		}
 		return value;
-	}
-
-	public void removeZeroWeightedHeuristics() {
-		ArrayList<Heuristic> copied = new ArrayList<Heuristic>();
-
-		for (Heuristic heur : heuristics) {
-			if (heur.getWeight() != 0) {
-				copied.add(heur);
-			}
-		}
-
-		heuristics = copied.toArray(new Heuristic[0]);
 	}
 
 	/**
