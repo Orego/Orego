@@ -1088,9 +1088,7 @@ public class Board {
 				}
 			}
 		}
-		if (this.colorToPlay != colorToPlay) {
-			play(PASS);
-		}
+		this.colorToPlay = colorToPlay;
 	}
 
 	/**
