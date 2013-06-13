@@ -22,7 +22,7 @@ public class MctsPlayer {
 		for (int i = 0; i < playoutLimit; i++) {
 			playout(board.copy());
 		}
-//		System.out.println(root.toString());
+		System.out.println(root.toString());
 		
 		return root.actualMove();
 	}

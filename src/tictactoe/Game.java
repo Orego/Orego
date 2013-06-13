@@ -6,11 +6,13 @@ public class Game {
 
 	public static void main(String[] args) {
 		int ties=0;
-		Board board = new Board();
+		
 		Scanner in = new Scanner(System.in);
-		MctsPlayer cpu = new MctsPlayer(10000);
+		MctsPlayer cpu = new MctsPlayer(20);
 		MinmaxPlayer cpu2 = new MinmaxPlayer();
-	for(int i=0; i<100; i++){
+	for(int i=0; i<1; i++){
+		Board board = new Board();
+	
 		while (!board.isOver()) {
 //			if (board.getCurrentPlayer() == 1) {
 //				System.out.println(board);
