@@ -61,7 +61,7 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void beforeStartingThreads() {
-		boolean shouldWeClean = kgsCleanupMode && thereAreDeadEnemyStones();
+		boolean shouldWeClean = (kgsCleanupMode || (getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER)) && thereAreDeadEnemyStones();
 		if (shouldWeClean) {
 			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
 			IntList deadStones = deadStones();
@@ -73,7 +73,9 @@ public class MctsPlayer extends McPlayer {
 			}
 
 			for (int i = 0; i < pointsToRecommend.size(); i++) {
-				getRoot().addWins(pointsToRecommend.get(i), 200);
+				int recommendedMove = pointsToRecommend.get(i);
+				int bias = (int) (getRoot().getWins(getRoot().getMoveWithMostWins()));
+				getRoot().addWins(recommendedMove, bias);
 			}
 		}
 	}
@@ -82,7 +84,7 @@ public class MctsPlayer extends McPlayer {
 			long time) {
 		System.out.println(this);
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+			long pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
 			System.out.println("Thread " + i + ": " + pp + " playouts");
 		}
 		System.out.println("(" + getRoot().getTotalRuns()
@@ -124,11 +126,6 @@ public class MctsPlayer extends McPlayer {
 						.isLegal(result))));
 		// Consider entering coup de grace mode
 		kgsCleanupMode = false;
-		if (grace
-				&& (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
-			debug("Initiating coup de grace");
-			// TODO Implement coup de grace here; it used to be a policy
-		}
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
 			return RESIGN;
@@ -309,7 +306,7 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
-	public int getPlayouts(int p) {
+	public long getPlayouts(int p) {
 		return getRoot().getRuns(p);
 	}
 
