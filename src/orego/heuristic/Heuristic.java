@@ -1,6 +1,5 @@
 package orego.heuristic;
 
-
 import orego.core.Board;
 import orego.play.UnknownPropertyException;
 import orego.util.*;
@@ -9,10 +8,13 @@ import static orego.core.Coordinates.*;
 /** Adjusts the probability of playing a move using domain-specific knowledge. */
 public abstract class Heuristic implements Cloneable {
 
-	private IntSet goodMoves;
-	
 	/**
-	 * The weight given to the heuristic
+	 * @see #getGoodMoves()
+	 */
+	private IntSet goodMoves;
+
+	/**
+	 * @see #getWeight()
 	 */
 	private int weight;
 
@@ -21,30 +23,45 @@ public abstract class Heuristic implements Cloneable {
 		goodMoves = new IntSet(getFirstPointBeyondBoard());
 	}
 
+	@Override
+	public Heuristic clone() {
+		Heuristic clone = null;
+		try {
+			clone = (Heuristic) super.clone();
+			clone.weight = weight;
+			clone.goodMoves = new IntSet(getFirstPointBeyondBoard());
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return clone;
+	}
 
+	/** Returns the set of moves recommended by this heuristic. */
 	public IntSet getGoodMoves() {
 		return goodMoves;
 	}
 
-	protected void setGoodMoves(IntSet goodMoves) {
-		this.goodMoves = goodMoves;
-	}
-
-	protected void recommend(int p) {
-		goodMoves.add(p);
-	}
-	
+	/**
+	 * Returns the weight of this heuristic (a non-negative integer, with higher
+	 * weights making the heuristic more important).
+	 */
 	public int getWeight() {
 		return weight;
 	}
 
 	/**
 	 * Called before any calls to evaluate on a given board state. For some
-	 * heuristics, this avoids redundant computation. Overriding versions
-	 * should usually call this version first, as it clears out goodMoves.
+	 * heuristics, this avoids redundant computation. Overriding versions should
+	 * usually call this version first, as it clears out goodMoves.
 	 */
 	public void prepare(Board board) {
 		goodMoves.clear();
+	}
+
+	/** Adds p to the set of moves recommended by this heuristic. */
+	protected void recommend(int p) {
+		goodMoves.add(p);
 	}
 
 	/**
@@ -56,7 +73,8 @@ public abstract class Heuristic implements Cloneable {
 	 * @param value
 	 *            The value of the property
 	 */
-	public void setProperty(String property, String value) throws UnknownPropertyException {
+	public void setProperty(String property, String value)
+			throws UnknownPropertyException {
 		if (property.equals("weight")) {
 			this.weight = Integer.valueOf(value);
 		} else {
@@ -65,24 +83,4 @@ public abstract class Heuristic implements Cloneable {
 		}
 	}
 
-	public void setWeight(int weight) {
-		this.weight = weight;
-	}
-	
-	@Override
-	public Heuristic clone() {
-		Heuristic clone = null;
-		try {
-			clone = (Heuristic)super.clone();
-			clone.setWeight(this.weight);
-			clone.setGoodMoves(new IntSet(getFirstPointBeyondBoard()));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-			System.exit(1);
-		}
-		
-		return clone;
-	}
 }
