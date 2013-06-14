@@ -34,22 +34,16 @@ public class HeuristicListTest {
 	public void testClone() {
 		heuristics.loadHeuristics("Escape@2:Capture@3");
 		HeuristicList cloned = heuristics.clone();
-		
 		// make sure not the same object (different copies)
 		assertTrue(cloned != heuristics);
-		
 		assertEquals(2, cloned.size());
-		
 		// make sure not the same object (different copies)
 		assertFalse(cloned.get(0) == heuristics.get(0));
 		assertFalse(cloned.get(1) == heuristics.get(1));
-		
 		assertEquals(2, cloned.get(0).getWeight(), .000001);
 		assertEquals(3, cloned.get(1).getWeight(), .000001);
-		
 		assertEquals(EscapeHeuristic.class, heuristics.get(0).getClass());
 		assertEquals(CaptureHeuristic.class,   heuristics.get(1).getClass());
-		
 	}
 		
 	@Test
@@ -64,12 +58,6 @@ public class HeuristicListTest {
 		assertEquals(5.0, heuristics.get(1).getWeight(), .000001);
 	}
 	
-	@Test
-	public void testZeroWeightHeuristic() {
-		heuristics.loadHeuristics("Escape@2:Capture@0:Pattern@10");
-		assertEquals(2, heuristics.size());
-	}
-
 	@Test
 	public void testSelectAndPlayOneMove() {
 		heuristics.loadHeuristics("Capture@1:Pattern@1000");

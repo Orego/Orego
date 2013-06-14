@@ -62,19 +62,20 @@ public class HeuristicList implements Cloneable {
 
 	@Override
 	public HeuristicList clone() {
-		HeuristicList copied = null;
+		HeuristicList copy = null;
 		try {
-			copied = (HeuristicList) super.clone();
+			copy = (HeuristicList) super.clone();
+			copy.heuristics = new Heuristic[heuristics.length];
 			// loop through heuristics and create *new* instances of each
 			// underlying subclass
 			for (int i = 0; i < heuristics.length; i++) {
-				copied.heuristics[i] = heuristics[i].clone();
+				copy.heuristics[i] = heuristics[i].clone();
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		return copied;
+		return copy;
 	}
 
 	/**
