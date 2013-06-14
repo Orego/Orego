@@ -6,7 +6,6 @@ package orego.heuristic;
  */
 public class PatternHeuristicPatterns {
 	
-	// TODO This seems like a bad idea
 	/** Note: this field is not final so that it can be modified during testing. */
 	public static String[] ALL_GOOD_PATTERNS = {
 		"####O###", // 0/971 = 0.0

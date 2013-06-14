@@ -1,11 +1,7 @@
 package orego.heuristic;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-
-import ec.util.MersenneTwisterFast;
-
 import orego.patternanalyze.*;
 import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.getNeighbors;
@@ -16,8 +12,6 @@ import orego.core.Board;
 public class DynamicPatternHeuristic extends Heuristic {
 
 	private static HashMap<Long, DynamicPattern> patternList;
-	
-	private static boolean test;
 	
 	private static int PATTERNS_TO_LOAD = 100;
 	
@@ -92,12 +86,9 @@ public class DynamicPatternHeuristic extends Heuristic {
 		}
 	}
 
-	public static void setTestMode(boolean value) {
-		test = value;
-	}
-	
 	@Override
 	public DynamicPatternHeuristic clone() {
 		return (DynamicPatternHeuristic) super.clone();
 	}
+
 }

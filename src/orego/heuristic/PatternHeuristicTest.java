@@ -2,7 +2,6 @@ package orego.heuristic;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.at;
 import static orego.patterns.Pattern.arrayToNeighborhood;
 import static orego.patterns.Pattern.colorSpecificDiagramToArray;
 import static org.junit.Assert.assertEquals;
@@ -10,16 +9,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import orego.core.Board;
-import orego.patterns.Pattern;
-
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class PatternHeuristicTest {
-
-	private Board board;
 	
 	private PatternHeuristic heuristic;
 
@@ -28,7 +21,7 @@ public class PatternHeuristicTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		board = new Board();
+//		board = new Board();
 		heuristic = new PatternHeuristic(1);
 	}
 
@@ -701,7 +694,7 @@ public class PatternHeuristicTest {
 		assertNotSame(heuristic, copy);
 		assertTrue(copy instanceof PatternHeuristic);		
 		assertSame(heuristic.goodNeighborhoods, copy.goodNeighborhoods);
-		assertEquals(heuristic.numberOfBadPatterns,  copy.numberOfBadPatterns);
+//		assertEquals(heuristic.numberOfBadPatterns,  copy.numberOfBadPatterns);
 		assertEquals(heuristic.numberOfGoodPatterns, copy.numberOfGoodPatterns);
 		
 	}
