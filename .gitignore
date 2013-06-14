@@ -17,6 +17,9 @@ bin
 !SgfTestFiles/19/*
 !testFiles/*
 
+# we don't want machine specific paths
+user.config
+
 ## generic files to ignore
 *~
 *.lock
