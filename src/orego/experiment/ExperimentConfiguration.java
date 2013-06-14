@@ -24,7 +24,6 @@ public class ExperimentConfiguration {
 	
 	static {
 		Properties defaultProp = new Properties();
-		Properties userProp = new Properties(defaultProp);
 		try {
 			defaultProp.load(new FileInputStream("config.properties"));
 		} catch (FileNotFoundException e1) {
@@ -32,6 +31,7 @@ public class ExperimentConfiguration {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		Properties userProp = new Properties(defaultProp);
 		try {
 			userProp.load(new FileInputStream("user.properties"));
 		} catch (FileNotFoundException e) {
