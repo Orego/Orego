@@ -411,13 +411,7 @@ public class EscapeHeuristicTest {
 	@Test
 	public void testClone() {
 		EscapeHeuristic copy = heuristic.clone();
-		
 		assertNotSame(heuristic, copy);
-		
-		assertNotSame(heuristic.getFriends(), copy.getFriends());
-		assertNotSame(heuristic.getTargets(), copy.getTargets());
-		
-		assertEquals(heuristic.getTargets().size(), copy.getTargets().size());
 	}
 
 }
