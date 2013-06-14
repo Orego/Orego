@@ -18,7 +18,7 @@ bin
 !testFiles/*
 
 # we don't want machine specific paths
-user.config
+user.properties
 
 ## generic files to ignore
 *~
