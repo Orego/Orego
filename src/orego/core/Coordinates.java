@@ -37,7 +37,7 @@ public final class Coordinates {
 	// terms of others.
 
 	/** Width of the board, e.g., 9 or 19. */
-	public static final int BOARD_WIDTH = 9;
+	public static final int BOARD_WIDTH = 19;
 
 	/** Number of points on the board. */
 	public static final int BOARD_AREA = BOARD_WIDTH * BOARD_WIDTH;
