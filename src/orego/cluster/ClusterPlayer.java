@@ -2,8 +2,8 @@ package orego.cluster;
 
 import static java.lang.Math.max;
 import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.opposite;
 import static orego.core.Colors.BLACK;
+import static orego.core.Colors.opposite;
 import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
@@ -29,15 +29,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ec.util.MersenneTwisterFast;
-
 import orego.cluster.RMIStartup.RegistryFactory;
 import orego.core.Board;
+import orego.core.Coordinates;
 import orego.mcts.Lgrf2Player;
 import orego.mcts.StatisticalPlayer;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
+import ec.util.MersenneTwisterFast;
 
 /**
  * ClusterPlayer delegates MCTS to searchers on remote nodes via Java RMI
@@ -60,6 +60,9 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	private PrintWriter logWriter;
 	
 	protected int resultsRemaining;
+	
+	/** The total number of times we attempt to force a client to accept a move before giving up*/
+	private int MAX_ACCEPT_MOVE_ATTEMPTS = 5;
 	
 	/** the player index of this machine. This must be a non-negative value
 	 * for us to bind properly and can only be set via .setProperty().
@@ -95,6 +98,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	// The RegistryFactory used to get remote registries and for testing
 	protected static RegistryFactory factory = new RegistryFactory();
 
+	/** Simple closure that represents an action that should be performed multiple times on the searcher*/
+	private abstract static class ResiliantSearcherAction{
+		public abstract void run() throws RemoteException;
+		public abstract void failed();
+	}
 	
 	public ClusterPlayer() {
 		super();
@@ -147,11 +155,11 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			
 		
 		} catch (RemoteException e) {
-			System.err.println("Fatal error. Could not publish ClusterPlayer to local registry.");
+			System.err.println("Fatal error. Could not publish " + getName() + " to local registry with ID: " + playerIndex);
 			e.printStackTrace();
 			System.exit(1);
 		} catch (NotBoundException e) {
-			getLogWriter().println("Error: Could not unbind ClusterPlayer because it was not bound. Continuing.");
+			getLogWriter().println("Error: Could not unbind " + getName() + " because it was not bound. Continuing.");
 			e.printStackTrace(getLogWriter());
 		}
 	}
@@ -222,8 +230,16 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	/** Called by TreeSearcher to remove itself from consideration */
 	public void removeSearcher(TreeSearcher searcher) throws RemoteException {
+		unregisterSearcher(searcher);
+	}
+	
+	private void unregisterSearcher(TreeSearcher searcher) {
+		getLogWriter().println("Removing remote tree searcher because someone complained or it asked for it: " + searcher);
+		
 		remoteSearchers.remove(searcher);
 		
+		if (remoteSearchers.isEmpty())
+			getLogWriter().println("Error: we have no more tree searchers. Birth was the death of me.");
 		
 		decrementResultsRemaining();
 	}
@@ -263,18 +279,25 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	public void reset() {
 		super.reset();
 		
-		TreeSearcher searcher = null;
+		
 		
 		for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
-			searcher = it.next();
+			final TreeSearcher searcher = it.next();
 			
-			try {
-				searcher.reset();
-			} catch (RemoteException e) {
-				getLogWriter().println("Searcher: " + searcher + " failed to reset.");
-				e.printStackTrace(getLogWriter());
-				remoteSearchers.remove(searcher);
-			}
+			tellSearcherToDoSomething(new ResiliantSearcherAction() {
+
+				@Override
+				public void run() throws RemoteException {
+					searcher.reset();
+
+				}
+
+				@Override
+				public void failed() {
+					unregisterSearcher(searcher);
+
+				}
+			});
 		}
 	}
 	
@@ -287,7 +310,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public void terminate() {		
 		
-		getLogWriter().println("ClusterPlayer is terminating.");
+		getLogWriter().println(getName() + " is terminating.");
 		
 		// Remove ourselves from RMI first so the searchers don't reconnect to us.
 		this.unbindRMI();
@@ -304,6 +327,50 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		
 	}
 	
+	/** Tries to convince the searcher to perform the action in the runnable. Trys again if fails
+	 * with linear backoff. If it fails, it unregisters the searchers.
+	 * @return true if the searcher eventually responds.
+	 */
+	private boolean tellSearcherToDoSomething(ResiliantSearcherAction action) {
+		getLogWriter().println("Attempting to get searcher to do action");
+		
+		int attempts = 0;
+		boolean accepted = false;
+		
+		while ( ! accepted && attempts < MAX_ACCEPT_MOVE_ATTEMPTS) {
+			try {
+				
+				action.run();
+				
+				getLogWriter().println("Searcher accepted move");
+				
+				return true;
+			} catch (RemoteException e) {
+				// If a searcher fails to accept a move, drop it from the list
+				getLogWriter().println(
+						"Searcher failed to do action"
+								+ attempts + " attempt. Waiting a second then trying again");
+				
+				e.printStackTrace(getLogWriter());
+				
+				// Ever tried. Ever failed. No matter. Try again. Fail again. Fail better.
+				attempts++;
+				accepted = false;
+				
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e1) {
+					getLogWriter().println("Problem sleeping while waiting to try another tellSearcherToDoSomething call");
+					e1.printStackTrace(getLogWriter());
+				}
+			}
+		}
+
+		action.failed();
+		
+		return false;
+	}
+	
 	/** 
 	 * Forwards the played move to the remote searchers.
 	 * Searchers that respond with an exception will be disconnected.
@@ -311,24 +378,31 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public int acceptMove(int p) {
 		
-		getLogWriter().println("ClusterPlayer acceptMove: " + pointToString(p));
+		getLogWriter().println(getName() + " acceptMove: " + pointToString(p));
 		
 		int result = super.acceptMove(p);
 		
 		if (result == PLAY_OK) {
 			
-			TreeSearcher searcher = null;
 			
 			for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
-				searcher = it.next();
-				try {
-					searcher.acceptMove(opposite(getBoard().getColorToPlay()), p);
-				} catch (RemoteException e) {
-					// If a searcher fails to accept a move, drop it from the list
-					getLogWriter().println("Searcher: " + searcher + " failed to accept move.");
-					e.printStackTrace(getLogWriter());
-					remoteSearchers.remove(searcher);
-				}
+				final TreeSearcher searcher = it.next();
+				final int pF = p;
+				
+				getLogWriter().println("Trying to get searcher to acceptMove: " + pointToString(p));
+				
+				// tell the tree searcher to accept the move
+				tellSearcherToDoSomething(new ResiliantSearcherAction() {
+					public void run() throws RemoteException {
+						searcher.acceptMove(opposite(getBoard().getColorToPlay()), pF);
+					}
+					
+					public void failed() {
+						unregisterSearcher(searcher);
+					}
+				});
+				
+				
 			}
 		}
 		return result;
@@ -346,20 +420,27 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 		
 		// try to undo on each searcher, removing those that fail
-		TreeSearcher searcher = null;
 		
 		for (Iterator<TreeSearcher> it = remoteSearchers.iterator(); it.hasNext();) {
-			searcher = it.next();
-			boolean success = false;
-			try {
-				success = searcher.undo();
-			} catch (RemoteException e) {
-				getLogWriter().println("Searcher: " + searcher + " failed to undo.");
-				e.printStackTrace(getLogWriter());
-			}
-			if(!success) {
-				remoteSearchers.remove(searcher);
-			}
+			final TreeSearcher searcher = it.next();
+
+			tellSearcherToDoSomething(new ResiliantSearcherAction() {
+
+				@Override
+				public void run() throws RemoteException {
+					if (!searcher.undo()) {
+						throw new RemoteException("Failed to undo!");
+					}
+
+				}
+
+				@Override
+				public void failed() {
+					unregisterSearcher(searcher);
+
+				}
+			});
+				
 		}
 
 		return true;
@@ -369,12 +450,23 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	public void runSearch() {
 		beginAcceptingResults();
 		for (TreeSearcher searcher : remoteSearchers) {
-			try {
-				searcher.beginSearch();
-			} catch (RemoteException e) {
-				getLogWriter().println("Searcher: " + searcher + " failed to begin search.");
-				e.printStackTrace(getLogWriter());
-			}
+			
+			final TreeSearcher searcherF = searcher;
+			
+			getLogWriter().println("Telling searcher to run search");
+			tellSearcherToDoSomething(new ResiliantSearcherAction() {
+				
+				@Override
+				public void run() throws RemoteException {
+					searcherF.beginSearch();
+				}
+				
+				@Override
+				public void failed() {
+					unregisterSearcher(searcherF);
+					
+				}
+			});
 		}
 		
 		// Wait for as long as we can
@@ -403,7 +495,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	@Override
 	public int bestMove() {
 		synchronized (searcherLockObject) {
-			getLogWriter().println("ClusterPlayer bestMove called.");
+			getLogWriter().println(getName() + " bestMove called.");
 	
 			// First check if the last move was a pass and we should pass to win
 			if(getBoard().getPasses() > 0 && this.secondPassWouldWinGame()) {
@@ -425,8 +517,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			// Since searchers may come online at any time, a couple bad moves
 			// is better than just resigning
 			if(remoteSearchers.size() == 0) {
-				getLogWriter().println("No searchers connected. Falling back to heuristic move.");
-				return fallbackMove();
+				getLogWriter().println("No searchers connected. Resigning the game.");
+				return Coordinates.RESIGN;
 			}
 			
 			// If we're here, we need to start searching, call up the searchers
@@ -439,6 +531,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		}
 	}
 
+	private String getName() {
+		return this.getClass().getSimpleName() + this.playerIndex;
+	}
+	
 	/** Decides on a move to play from the data received from searchers. */
 	protected int bestSearchMove() {
 		IntSet vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
@@ -544,7 +640,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		if (key.equals(LOG_FILE_PROPERTY)) {
 			try {
 				setLogWriter(new PrintWriter(new FileWriter(value, true), true));
-				getLogWriter().println("Now logging ClusterPlayer debug information to: " + value);
+				getLogWriter().println("Now logging " + getName() + " debug information to: " + value);
 			} catch (Exception e) {
 				getLogWriter().println("File " + value + " could not be opened for writing.");
 			}
@@ -592,12 +688,22 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	public void setKomi(double komi) {
 		super.setKomi(komi);
 		for(TreeSearcher searcher : remoteSearchers) {
-			try {
-				searcher.setKomi(komi);
-			} catch (RemoteException e) {
-				System.err.println("Could not set komi on remote searcher: " + searcher);
-				remoteSearchers.remove(searcher);
-			}
+			final double komiF 			 = komi;
+			final TreeSearcher searcherF = searcher;
+			
+			tellSearcherToDoSomething(new ResiliantSearcherAction() {
+
+				@Override
+				public void run() throws RemoteException {
+					searcherF.setKomi(komiF);
+
+				}
+
+				@Override
+				public void failed() {
+					unregisterSearcher(searcherF);
+				}
+			});
 		}
 	}
 	

@@ -91,7 +91,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 		// RMI calls will happen on the background thread so we just sit here waiting.
 		while ( ! searcher.shouldExit) {
-			if(reader.ready() && reader.readLine().equals(KILL_COMMAND)) {
+			if (reader.ready() && reader.readLine().equals(KILL_COMMAND)) {
 				break;
 			}
 			// we don't need to be checking all the time so let's wait awhile

@@ -12,11 +12,13 @@ public class GameBatch implements Runnable {
 	private int batchNumber;
 	
 	/**
-	 * @param args
-	 *            element 0 is the host name.
+	 * 
 	 */
 	public static void main(String[] args) {
-		assert args.length == 1;
+		if (args.length < 1) {
+			System.out.println("Usage: orego.experiment.GameBatch [machine name]");
+			System.exit(1);
+		}
 		
 		launchGameBatches(args[0]);
 	}
