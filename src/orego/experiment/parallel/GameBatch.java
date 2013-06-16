@@ -197,7 +197,7 @@ public class GameBatch implements Runnable {
 	private static void startRMIRegistry() {
 		System.out.println("Starting RMI registry");
 		
-		ProcessBuilder pBuilder = new ProcessBuilder("rmiregistry");
+		ProcessBuilder pBuilder = new ProcessBuilder("nohup", "rmiregistry");
 		pBuilder.redirectErrorStream();
 		
 		Process process;
