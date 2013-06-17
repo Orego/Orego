@@ -48,17 +48,13 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[8];
+	public static final String[] CONDITIONS = new String[4];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.175";
-		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=0.225";
-		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=basic c=55";
-		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=basic c=65";
-		CONDITIONS[4] = "threads=2 book=FusekiBook timeformula=enhanced c=25.0 maxply=80";
-		CONDITIONS[5] = "threads=2 book=FusekiBook timeformula=enhanced c=35.0 maxply=80";
-		CONDITIONS[6] = "threads=2 book=FusekiBook timeformula=enhanced c=45.0 maxply=80";
-		CONDITIONS[7] = "threads=2 book=FusekiBook timeformula=enhanced c=55.0 maxply=80";
+		CONDITIONS[0] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=uniform c=0.50";
+		CONDITIONS[1] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=uniform c=0.20";
+		CONDITIONS[2] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=basic c=60";
+		CONDITIONS[3] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=enhanced c=25.0 maxply=80";
 	}
 	
 	/** Path to run gnugo on your machine */
