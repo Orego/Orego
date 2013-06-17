@@ -61,7 +61,6 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void beforeStartingThreads() {
-		System.out.println(getRoot().bestWinRate());
 		boolean shouldWeClean = (kgsCleanupMode || (getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER)) && thereAreDeadEnemyStones();
 		if (shouldWeClean) {
 			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
@@ -76,7 +75,6 @@ public class MctsPlayer extends McPlayer {
 			for (int i = 0; i < pointsToRecommend.size(); i++) {
 				int recommendedMove = pointsToRecommend.get(i);
 				int bias = (int) (getRoot().getWins(getRoot().getMoveWithMostWins()));
-				System.out.println("Bias: " + bias);
 				getRoot().addWins(recommendedMove, bias);
 			}
 		}

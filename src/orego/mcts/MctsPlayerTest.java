@@ -174,17 +174,14 @@ public class MctsPlayerTest {
 		for (int i = 0; i < 10; i++) {
 			player.reset();
 			player.setUpProblem(BLACK, problem);
-			System.out.println(player.getBoard().finalWinner());
 			player.bestMove();
 			int move = player.bestMove();
-			System.err.print(pointToString(move) + " ");
 			if(move == at("J4")) {
 				successes++;
 			} else if(move == at("K1")) {
 				failures ++;
 			}
 		}
-		System.err.println();
 		assertTrue(failures == 0);
 		assertTrue(successes >= 5);
 	}
