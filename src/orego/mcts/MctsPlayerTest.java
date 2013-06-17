@@ -92,6 +92,7 @@ public class MctsPlayerTest {
 		};
 		int successes1 = 0;
 		for (int i = 0; i < 10; i++) {
+			player.setPlayoutLimit(10000);
 			player.reset();
 			player.setUpProblem(BLACK, problem1);
 			player.bestMove();
@@ -147,25 +148,25 @@ public class MctsPlayerTest {
 	@Test
 	public void testCoupDeGrace() {
 		String[] problem = new String[] {
-				"OOOOOOOOOOO#.......",// 19
-				"OOOOOOOOOOO#.......",// 18
-				"OOOOOOOOOOO#.......",// 17
-				"OOOOOOOOOOO#.......",// 16
-				"OOOOOOOOOOO#.......",// 15
-				"OOOOOOOOOOO#.......",// 14
-				"OOOOOOOOOOO#.......",// 13
-				"OOOOOOOOOOO#.......",// 12
-				"OOOOOOOOOOO#.......",// 11
-				"OOOOOOOOOOO#.......",// 10
-				"OOOOOOOOOOO#.......",// 9
-				"OOOOOOOOOOO#.......",// 8
-				"OOOOOOOOOOO#.......",// 7
-				"OOOOOOOOO######....",// 6
-				"OOOOOOOOO#OOOO##...",// 5
-				"OOOOOOOO.#O.O.O#...",// 4
-				"OOOOOOOO##OOOOO#...",// 3
-				"OOOOOOOOOO##O######",// 2
-				"OOOOOOOOO.#.##.#..." // 1
+				"..O#..#..#O#######.",// 19
+				".OO#####.#O#######.",// 18
+				"O.O#.#.#.#O########",// 17
+				".OO#####.#O##.###.#",// 16
+				"OOOOOOOO##O#######.",// 15
+				".O.....OOOO####....",// 14
+				".OOOOOOO..O#####.#.",// 13
+				"OO.O..O.OOO##.#.#..",// 12
+				".OOO.O..O.O#.#.#.#.",// 11
+				"..O.OOOOOOO#..##...",// 10
+				".OOOO.O..#O#####.#.",// 9
+				"...O.OO######.#.#..",// 8
+				"OOOO.O.#OOO##....#.",// 7
+				"..O.OO##O########..",// 6
+				"..O.O.#OO#OOOO##.#.",// 5
+				"..O.O.#O.#O.O.O#.#.",// 4
+				".OO.O.#O##OOOOO##..",// 3
+				"O.O.O.#OOO##O######",// 2
+				".OO.O.##O.#.######." // 1
 			  // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
@@ -173,6 +174,7 @@ public class MctsPlayerTest {
 		for (int i = 0; i < 10; i++) {
 			player.reset();
 			player.setUpProblem(BLACK, problem);
+			System.out.println(player.getBoard().finalWinner());
 			player.bestMove();
 			int move = player.bestMove();
 			System.err.print(pointToString(move) + " ");

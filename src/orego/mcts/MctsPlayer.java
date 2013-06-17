@@ -25,7 +25,7 @@ import ec.util.MersenneTwisterFast;
 public class MctsPlayer extends McPlayer {
 	
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
-	public static final double COUP_DE_GRACE_PARAMETER = 0.9;
+	public static final double COUP_DE_GRACE_PARAMETER = 0.85;
 
 	/**
 	 * This player will resign if the win percentage is less than
@@ -61,6 +61,7 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void beforeStartingThreads() {
+		System.out.println(getRoot().bestWinRate());
 		boolean shouldWeClean = (kgsCleanupMode || (getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER)) && thereAreDeadEnemyStones();
 		if (shouldWeClean) {
 			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
@@ -75,6 +76,7 @@ public class MctsPlayer extends McPlayer {
 			for (int i = 0; i < pointsToRecommend.size(); i++) {
 				int recommendedMove = pointsToRecommend.get(i);
 				int bias = (int) (getRoot().getWins(getRoot().getMoveWithMostWins()));
+				System.out.println("Bias: " + bias);
 				getRoot().addWins(recommendedMove, bias);
 			}
 		}
