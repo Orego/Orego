@@ -51,6 +51,7 @@ public class ExperimentConfiguration {
 	public static final String[] CONDITIONS = new String[4];
 
 	static {
+//		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=0.20";
 		CONDITIONS[0] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=uniform c=0.50";
 		CONDITIONS[1] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=uniform c=0.20";
 		CONDITIONS[2] = "threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=2.0 timeformula=basic c=60";

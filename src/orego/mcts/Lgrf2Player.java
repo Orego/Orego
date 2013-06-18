@@ -170,10 +170,12 @@ public class Lgrf2Player extends RavePlayer {
 		}
 		PrintStream ps = new PrintStream(fos);
 
-		ps.println(seconds + "s left, " + msPerMove / 1000.0
-				+ "s per move, fmla " + timeFormula + ", c=" + timeC
-				+ ", maxply=" + timeMaxPly + ", best move="
-				+ getRoot().bestWinCountReport());
+		ps.println("Move#: " + getTurn() + " Secs-Left: " + seconds
+				+ " Secs-Allocated: " + (msPerMove / 1000.0) + " Fmla: "
+				+ timeFormula + " C: " + timeC + " MaxPly: " + timeMaxPly
+				+ " ThinkLonger: " + thinkLongerWhenBehind
+				+ " BehindThreshold: " + behindThreshold + " LongerMultiple: "
+				+ longerMultiple);
 	}
 
 	/** Indices are color, antepenultimate move, previous move. */
