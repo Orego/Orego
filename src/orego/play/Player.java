@@ -41,6 +41,9 @@ public class Player implements Playable {
 
 	/** Random number generator. */
 	private MersenneTwisterFast random;
+	
+	/** Is the player still in the opening? Will be set to true to check opening book. */
+	private boolean inOpeningBook;
 
 	/** A default player with a random policy. */
 	public Player() {
@@ -160,7 +163,7 @@ public class Player implements Playable {
 	public OpeningBook getOpeningBook() {
 		return openingBook;
 	}
-
+	
 	/** Returns the current turn number. */
 	public int getTurn() {
 		return board.getTurn();
@@ -180,6 +183,12 @@ public class Player implements Playable {
 			}
 		}
 		return null;
+	}
+	
+
+	/** Returns if the player is using an opening book. */
+	public boolean isInOpeningBook() {
+		return inOpeningBook;
 	}
 
 	public void reset() {
@@ -209,6 +218,11 @@ public class Player implements Playable {
 	public void setHeuristics(HeuristicList list) {
 		this.heuristics = list;
 	}
+	
+	/** Sets whether or not this player is using its opening book. */
+	public void setInOpeningBook(boolean b) {
+		inOpeningBook = b;
+	}
 
 	/** Sets the komi or handicap for the current game. */
 	public void setKomi(double komi) {
@@ -234,6 +248,7 @@ public class Player implements Playable {
 				openingBook = (OpeningBook) Class.forName(genClass)
 						.newInstance();
 				orego.experiment.Debug.debug("Opening book: " + openingBook);
+				inOpeningBook = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -345,6 +360,9 @@ public class Player implements Playable {
 		clearBoardWhilePreservingKomi();
 		for (int p : moves) {
 			board.play(p);
+		}
+		if(openingBook != null) {			
+			inOpeningBook = true;
 		}
 		return true;
 	}
