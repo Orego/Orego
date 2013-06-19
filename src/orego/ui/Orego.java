@@ -76,7 +76,7 @@ public class Orego {
 			"orego.play", "orego.response", "" };
 
 	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "7.13";
+	public static final String VERSION_STRING = "7.14";
 
 	/**
 	 * @param args
@@ -418,7 +418,7 @@ public class Orego {
 		ArrayList<String> properties = new ArrayList<String>();
 		ArrayList<String> values = new ArrayList<String>();
 		// Default settings
-		String playerClass = "Lgrf2";
+		String playerClass = "Time";
 		boolean heuristicsSet = false;
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
