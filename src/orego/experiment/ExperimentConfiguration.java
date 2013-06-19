@@ -77,7 +77,7 @@ public class ExperimentConfiguration {
 
 	static {
 		CONDITIONS[0] = "player=Lgrf2 threads=2 book=FusekiBook";
-		CONDITIONS[0] = "threads=2 book=FusekiBook";
+		CONDITIONS[1] = "threads=2 book=FusekiBook";
 	}
 	
 	/** Path to run gnugo on your machine */
