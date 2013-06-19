@@ -83,6 +83,7 @@ public class Game {
 			this.filename = filename;
 			out = new PrintWriter(filename);
 			contestants = new String[] { black, white };
+			timeUsedInMilliseconds = new int[] { 0, 0 };
 			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+getBoardWidth()+"]");
 			out.println("PB["+black+"]");
 			out.println("PW["+white+"]");
