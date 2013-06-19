@@ -27,7 +27,7 @@ public class Lgrf2Player extends RavePlayer {
 	protected int[][] getReplies1() {
 		return replies1;
 	}
-
+	
 	/** Indices are color, antepenultimate move, previous move. */
 	private int[][][] replies2;
 
