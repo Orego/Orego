@@ -8,6 +8,9 @@ import static java.lang.Math.*;
 import static java.lang.String.format;
 import static java.lang.Double.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
