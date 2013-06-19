@@ -67,6 +67,126 @@ public class MctsPlayerTest {
 	}
 
 	@Test
+	public void testBestCleanupMove() {
+		String[] problem1 = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				".##................",// 3
+				"OO#................",// 2
+				".O#................" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes1 = 0;
+		for (int i = 0; i < 10; i++) {
+			player.setPlayoutLimit(10000);
+			player.reset();
+			player.setUpProblem(BLACK, problem1);
+			player.bestMove();
+			int move1 = player.bestCleanupMove();
+			System.err.print(pointToString(move1) + " ");
+			assertTrue(move1 != PASS);
+			if (move1 == at("a3")) {
+				successes1++;
+			}
+		}
+		System.err.println();
+		assertTrue(successes1 >= 5);
+
+		// another test
+		String[] problem2 = new String[] {
+				".........#O........",// 19
+				".........#O........",// 18
+				".........#O........",// 17
+				".........#O........",// 16
+				"#######..#O........",// 15
+				"#.....#..#O........",// 14
+				"#.....#..#O........",// 13
+				"#..O..#..#O........",// 12
+				"#.....#..#O........",// 11
+				"#.....#..#O........",// 10
+				"#######..#O........",// 9
+				".........#O........",// 8
+				".........#O........",// 7
+				".........#O........",// 6
+				".........#O........",// 5
+				".........#O........",// 4
+				".........#O........",// 3
+				".........#O........",// 2
+				".........#O........" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes2 = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(BLACK, problem2);
+			player.bestMove();
+			int move2 = player.bestCleanupMove();
+			System.err.print(pointToString(move2) + " ");
+			assertTrue(move2 != PASS);
+			if (move2 == at("C12") || move2 == at("D11") || move2 == at("D13") || move2 == at("E12")) {
+				successes2++;
+			}
+		}
+		System.err.println();
+		assertTrue(successes2 >= 5);
+	}
+	
+	@Test
+	public void testCoupDeGrace() {
+		String[] problem = new String[] {
+				"..O#..#..#O#######.",// 19
+				".OO#####.#O#######.",// 18
+				"O.O#.#.#.#O########",// 17
+				".OO#####.#O##.###.#",// 16
+				"OOOOOOOO##O#######.",// 15
+				".O.....OOOO####....",// 14
+				".OOOOOOO..O#####.#.",// 13
+				"OO.O..O.OOO##.#.#..",// 12
+				".OOO.O..O.O#.#.#.#.",// 11
+				"..O.OOOOOOO#..##...",// 10
+				".OOOO.O..#O#####.#.",// 9
+				"...O.OO######.#.#..",// 8
+				"OOOO.O.#OOO##....#.",// 7
+				"..O.OO##O########..",// 6
+				"..O.O.#OO#OOOO##.#.",// 5
+				"..O.O.#O.#O.O.O#.#.",// 4
+				".OO.O.#O##OOOOO##..",// 3
+				"O.O.O.#OOO##O######",// 2
+				".OO.O.##O.#.######." // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes = 0;
+		int failures = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(BLACK, problem);
+			player.bestMove();
+			int move = player.bestMove();
+			if(move == at("J4")) {
+				successes++;
+			} else if(move == at("K1")) {
+				failures ++;
+			}
+		}
+		assertTrue(failures == 0);
+		assertTrue(successes >= 5);
+	}
+
+	@Test
 	public void testIncorporateRun() {
 		SearchNode root = player.getRoot();
 		board.play(at("a1"));
@@ -247,7 +367,7 @@ public class MctsPlayerTest {
 		for (int i = 0; i < runs; i++) {
 			runnable.performMcRun();
 		}
-		assertEquals(runs + (2 * BOARD_AREA + 10), player.getRoot()
+		assertEquals(runs + (2 * getBoardArea() + 10), player.getRoot()
 				.getTotalRuns());
 	}
 
@@ -311,7 +431,7 @@ public class MctsPlayerTest {
 	public void testReclaimOldNodes() {
 		SearchNode node = player.getTable().findIfPresent(0L);
 		node.incrementTotalRuns();
-		assertEquals(BOARD_AREA * 2 + 10 + 1, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 10 + 1, node.getTotalRuns());
 		player.acceptMove(at("a1"));
 		long hash = indexOfBoard(player.getBoard());
 		player.acceptMove(at("a2"));
@@ -603,14 +723,14 @@ public class MctsPlayerTest {
 		board.play(at("c5"));
 		long greatGrandchild = indexOfBoard(board);
 		SearchNode node = player.getTable().findIfPresent(greatGrandchild);
-		assertEquals(BOARD_AREA * 2 + 11, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 11, node.getTotalRuns());
 		board.copyDataFrom(player.getBoard()); // Create other child
 		board.play(at("c5"));
 		fakeRun(BLACK, "c5");
 		fakeRun(BLACK, "c5", "c4", "c3", "c6");
 		board.play(at("c4"));
 		fakeRun(BLACK, "c5", "c4", "c3", "c6");
-		assertEquals(BOARD_AREA * 2 + 12, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 12, node.getTotalRuns());
 	}
 
 	@Test
@@ -672,7 +792,7 @@ public class MctsPlayerTest {
 	@Test
 	public void testResign() {
 		SearchNode root = player.getRoot();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			root.addLosses(p, 100);
 		}
 		root.addWins(PASS, 1);

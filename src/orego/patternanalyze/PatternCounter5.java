@@ -133,7 +133,7 @@ public class PatternCounter5 {
 	}
 	
 	protected int[] getPointsToAnalyze(int p) {
-		return NEIGHBORS[p];
+		return getNeighbors(p);
 	}
 
 	public void analyze(Board board) {
@@ -146,7 +146,7 @@ public class PatternCounter5 {
 		for (int t = 1; t < turn; t++) {
 			int currentPlay = board.getMove(t);
 			int lastPlay = board.getMove(t - 1);
-			if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
+			if (isOnBoard(lastPlay) && isOnBoard(currentPlay)) {
 				for (int p : getPointsToAnalyze(lastPlay)) {
 					if (patternBoard.getColor(p) == VACANT) {
 						char neighborhood;

@@ -1,6 +1,6 @@
 package orego.book;
 
-import static orego.core.Coordinates.ON_BOARD;
+import static orego.core.Coordinates.isOnBoard;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.column;
 import static orego.core.Coordinates.row;
@@ -27,7 +27,7 @@ public abstract class JosekiBuilder extends BookBuilder {
 		if (move == PASS) {
 			return false;
 		}
-		assert ON_BOARD[move];
+		assert isOnBoard(move);
 		if (column(move) < 9) { // Left side
 			if (row(move) < 9) { // Upper side
 				return corner == 0;

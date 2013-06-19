@@ -83,12 +83,9 @@ public class Game {
 			this.filename = filename;
 			out = new PrintWriter(filename);
 			contestants = new String[] { black, white };
-			timeUsedInMilliseconds = new int[] { 0, 0 }; // neither player has used
-                                                         // any time yet
-			out.println("(;FF[4]CA[UTF-8]AP[Orego" + Orego.VERSION_STRING
-					+ "]KM[7.5]GM[1]SZ[" + Coordinates.BOARD_WIDTH + "]");
-			out.println("PB[" + black + "]");
-			out.println("PW[" + white + "]");
+			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+getBoardWidth()+"]");
+			out.println("PB["+black+"]");
+			out.println("PW["+white+"]");
 			if (black.contains("Orego")) {
 				oregoColor = orego.core.Colors.BLACK;
 			} else {
@@ -153,12 +150,12 @@ public class Game {
 					out.println((getColorToPlay() == BLACK ? ";B" : ";W")
 							+ "[]");
 					out.flush();
-				} else if (coordinates.toLowerCase().equals("resign")) {
-					// do nothing.
-				} else {
-					out.println((getColorToPlay() == BLACK ? ";B" : ";W") + "["
-							+ rowToChar(row(at(coordinates)))
-							+ columnToChar(column(at(coordinates))) + "]");
+				}
+				else if (coordinates.toLowerCase().equals("resign")) {
+					//do nothing.
+				}
+				else {
+					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToSgfChar(row(at(coordinates))) + columnToSgfChar(column(at(coordinates))) + "]");
 					out.flush();
 				}
 				// end sgf output
@@ -177,8 +174,8 @@ public class Game {
 				// Note the color reversal here, because the color to play has
 				// already been switched
 				toPrograms[getColorToPlay()]
-						.println(spellOutColorName(opposite(getColorToPlay()))
-								+ " " + coordinates);
+				.println(COLOR_NAMES[opposite(getColorToPlay())]
+						 + " " + coordinates);
 				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
 				if (board.getPasses() == 2) {
@@ -197,7 +194,7 @@ public class Game {
 					int timeLeftInSeconds = GAME_TIME_IN_SECONDS
 							- timeUsedInMilliseconds[getColorToPlay()] / 1000;
 					toPrograms[getColorToPlay()].println("time_left "
-							+ spellOutColorName(getColorToPlay()) + " "
+							+ COLOR_NAMES[getColorToPlay()] + " "
 							+ timeLeftInSeconds + " 0");
 					toPrograms[getColorToPlay()].flush();
 				}
@@ -206,7 +203,7 @@ public class Game {
 				// request a move.
 				mode = REQUESTING_MOVE;
 				toPrograms[getColorToPlay()].println("genmove "
-						+ spellOutColorName(getColorToPlay()));
+						+ COLOR_NAMES[getColorToPlay()]);
 				toPrograms[getColorToPlay()].flush();
 				timeLastMoveWasRequested = System.currentTimeMillis();
 			} else { // Mode is QUITTING
@@ -256,7 +253,7 @@ public class Game {
 			mode = SENDING_TIME_LEFT;
 			int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInMilliseconds[getColorToPlay()] / 1000;
 			toPrograms[getColorToPlay()].println("time_left "
-					+ spellOutColorName(getColorToPlay()) + " "
+					+ COLOR_NAMES[getColorToPlay()] + " "
 					+ timeLeftInSeconds + " 0");
 			toPrograms[getColorToPlay()].flush();
 			// Wait for programs to finish

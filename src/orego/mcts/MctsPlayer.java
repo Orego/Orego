@@ -26,9 +26,9 @@ import ec.util.MersenneTwisterFast;
  * @see #searchValue(SearchNode, Board, int)
  */
 public class MctsPlayer extends McPlayer {
-
+	
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
-	public static final double COUP_DE_GRACE_PARAMETER = 0.9;
+	public static final double COUP_DE_GRACE_PARAMETER = 0.85;
 
 	/**
 	 * This player will resign if the win percentage is less than
@@ -56,20 +56,38 @@ public class MctsPlayer extends McPlayer {
 	 * safely pass) when it is very confident of winning.
 	 */
 	private boolean grace;
-
+	
 	/** The transposition table. */
 	private TranspositionTable table;
 
+	private boolean kgsCleanupMode = false;
+
 	@Override
 	public void beforeStartingThreads() {
-		// Nothing special has to be done here
+		boolean shouldWeClean = (kgsCleanupMode || (getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER)) && thereAreDeadEnemyStones();
+		if (shouldWeClean) {
+			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
+			IntList deadStones = deadStones();
+			IntSet pointsToRecommend = new IntSet(Coordinates.getFirstPointBeyondBoard());
+
+			for (int i = 0; i < deadStones.size(); i++) {
+				IntSet libs = getBoard().getLiberties(deadStones.get(i));
+				pointsToRecommend.addAll(libs);
+			}
+
+			for (int i = 0; i < pointsToRecommend.size(); i++) {
+				int recommendedMove = pointsToRecommend.get(i);
+				int bias = (int) (getRoot().getWins(getRoot().getMoveWithMostWins()));
+				getRoot().addWins(recommendedMove, bias);
+			}
+		}
 	}
 
 	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
 			long time) {
 		System.out.println(this);
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+			long pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
 			System.out.println("Thread " + i + ": " + pp + " playouts");
 		}
 		System.out.println("(" + getRoot().getTotalRuns()
@@ -96,6 +114,9 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
+			if (kgsCleanupMode && thereAreDeadEnemyStones()) { //if kgsCleanupMode is true and there are enemy dead stones, do not consider PASS
+				result = vacantPoints.get(0);
+			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int move = vacantPoints.get(i);
 				if (node.getWins(move) > best) {
@@ -107,10 +128,7 @@ public class MctsPlayer extends McPlayer {
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
 		// Consider entering coup de grace mode
-		if (grace && (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
-			debug("Initiating coup de grace");
-			// TODO Implement coup de grace here; it used to be a policy
-		}
+		kgsCleanupMode = false;
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
 			return RESIGN;
@@ -151,16 +169,25 @@ public class MctsPlayer extends McPlayer {
 		} while (i != start);
 		return result;
 	}
-
+	
+	@Override
+	public int bestCleanupMove() {
+		kgsCleanupMode = true;
+		int bestMove = bestMove();
+		kgsCleanupMode = false;
+		return bestMove;
+	}
+	
 	@Override
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
-		// Can we win outright by passing?
 		if (getBoard().getPasses() >= 1) {
-			if (secondPassWouldWinGame()) {
+			boolean shouldWeClean = kgsCleanupMode && thereAreDeadEnemyStones();
+			if (secondPassWouldWinGame() && !shouldWeClean) {
+				// Pass if we can win outright by doing so
 				return PASS;
 			}
-			// If not, don't pass if there's a legal move!
+			// Don't pass (if there's another legal move -- see exclude()).
 			root.exclude(PASS);
 		}
 		return bestPlayMove(root);
@@ -215,7 +242,7 @@ public class MctsPlayer extends McPlayer {
 		}
 		String result = "";
 		IntList dead = deadStones();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) != VACANT) {
 				if (status.equals("alive") != dead.contains(p)) {
 					result += pointToString(p) + " ";
@@ -282,7 +309,7 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
-	public int getPlayouts(int p) {
+	public long getPlayouts(int p) {
 		return getRoot().getRuns(p);
 	}
 
@@ -366,7 +393,7 @@ public class MctsPlayer extends McPlayer {
 		// the various gogui methods
 		double min = 1.0;
 		double max = 0.0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -377,7 +404,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -397,7 +424,7 @@ public class MctsPlayer extends McPlayer {
 	protected String goguiTotalWins() {
 		double max = 0, min = 1;
 		double maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double wins = getWins(p);
 				// Excluded moves have negative win rates
@@ -409,7 +436,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			double wins = 0;
 			if (getBoard().getColor(p) == VACANT) {
 				wins = getWins(p);
@@ -420,7 +447,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double wins = getWins(p);
 				if (wins > 0) {
@@ -464,6 +491,18 @@ public class MctsPlayer extends McPlayer {
 			startThreads();
 		}
 		return result;
+	}
+
+	/** Returns true if there are enemy dead stones on the board. */
+	protected boolean thereAreDeadEnemyStones() {
+		IntList alreadyDeadStones = deadStones();
+		for(int i = 0; i < alreadyDeadStones.size(); i++) {
+			// if there are enemy dead stones
+			if(getBoard().getColor(alreadyDeadStones.get(i)) != getBoard().getColorToPlay()) { // I'm assuming colorToPlay is orego's color
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -602,7 +641,7 @@ public class MctsPlayer extends McPlayer {
 		String result = indent + "Hash: " + node.getHash() + " Total runs: "
 				+ node.getTotalRuns() + "\n";
 		Board childBoard = new Board();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (node.getRuns(p) > 2) {
 				result += indent + node.toString(p);
 				childBoard.copyDataFrom(board);

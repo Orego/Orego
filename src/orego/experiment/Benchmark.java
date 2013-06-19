@@ -2,8 +2,8 @@ package orego.experiment;
 
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.BOARD_AREA;
+import static orego.core.Coordinates.getBoardArea;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.core.Board.MAX_MOVES_PER_GAME;
 import static orego.heuristic.HeuristicList.selectAndPlayUniformlyRandomMove;
 import orego.core.Board;
@@ -49,7 +49,7 @@ public class Benchmark {
 		}
 		after = System.currentTimeMillis();
 		// Print the results
-		System.out.println("Board size: " + BOARD_WIDTH + "x" + BOARD_WIDTH);
+		System.out.println("Board size: " + getBoardWidth() + "x" + getBoardWidth());
 		System.out.println("Komi: " + original.getKomi());
 		long total = after - before;
 		System.out.println("Performance:");
@@ -75,7 +75,7 @@ public class Benchmark {
 				return PLAYOUT_OK;
 			}
 			/** BOARD_AREA / 2 (below) is mercy threshold */
-			if (Math.abs(board.approximateScore()) > BOARD_AREA / 2) {
+			if (Math.abs(board.approximateScore()) > getBoardArea() / 2) {
 				return PLAYOUT_MERCY;
 			}
 		} while (true);

@@ -48,9 +48,9 @@ public class SearchNode implements Poolable<SearchNode> {
 	private float[] winRates;
 
 	public SearchNode() {
-		runs = new int[FIRST_POINT_BEYOND_BOARD];
-		winRates = new float[FIRST_POINT_BEYOND_BOARD];
-		hasChild = new BitVector(FIRST_POINT_BEYOND_BOARD);
+		runs = new int[getFirstPointBeyondBoard()];
+		winRates = new float[getFirstPointBeyondBoard()];
+		hasChild = new BitVector(getFirstPointBeyondBoard());
 	}
 	
 	/** Update the win rate for p, by adding 'wins' for n runs. 
@@ -119,7 +119,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	/** Returns the move with the most wins from this node. */
 	public int getMoveWithMostWins() {
 		int best = PASS;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getWins(p) >= getWins(best)) {
 				best = p;
 			}
@@ -178,7 +178,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	 * than initial bias playouts).
 	 */
 	public boolean isFresh() {
-		return totalRuns == 2 * BOARD_AREA + 10;
+		return totalRuns == 2 * getBoardArea() + 10;
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	public float overallWinRate() {
 		int runs = 0;
 		int wins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getWins(p) > 0) {
 				wins += getWins(p);
 				runs += getRuns(p);
@@ -245,7 +245,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	 */
 	public void reset(long hash) {
 		this.hash = hash;
-		totalRuns = 2 * BOARD_AREA + 10;
+		totalRuns = 2 * getBoardArea() + 10;
 		fill(runs, (char) 2);
 		fill(winRates, 0.5f);
 		hasChild.clear();
@@ -289,7 +289,7 @@ public class SearchNode implements Poolable<SearchNode> {
 	@Override
 	public String toString() {
 		String result = "Total runs: " + totalRuns + "\n";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (runs[p] > 2) {
 				result += toString(p);
 			}

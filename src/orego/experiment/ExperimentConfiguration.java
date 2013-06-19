@@ -1,25 +1,50 @@
 package orego.experiment;
 
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.getBoardWidth;
+import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 
 /** Defines some system-dependent constants for experiments. */
 public class ExperimentConfiguration {
 
 	/** Directory where game files are stored. */
-	public static final String RESULTS_DIRECTORY = "/home/drake/results/";
+	public static final String RESULTS_DIRECTORY;
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
-	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin/";
+	public static final String JAVA_WITH_OREGO_CLASSPATH;
 
 	/**
 	 * The host from which commands are given must be listed first for
 	 * KillExperiment to work.
 	 */
-	public static final String[] HOSTS = { "fido.bw01.lclark.edu",
-			"n001.bw01.lclark.edu",
-			"n002.bw01.lclark.edu",
-			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };
-
+	public static final String[] HOSTS;
+	
+	static {
+		Properties defaultProp = new Properties();
+		try {
+			defaultProp.load(new FileInputStream("config.properties"));
+		} catch (FileNotFoundException e1) {
+			System.err.println("config.properties not found.");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		Properties userProp = new Properties(defaultProp);
+		try {
+			userProp.load(new FileInputStream("user.properties"));
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		RESULTS_DIRECTORY = userProp.getProperty("resultsdirectory");
+		JAVA_WITH_OREGO_CLASSPATH = userProp.getProperty("oregoclasspath");
+		GNUGO = userProp.getProperty("gnugoclasspath") + " --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+		String s = userProp.getProperty("hosts");
+		HOSTS = s.trim().split("\\s+");
+	}
+	
 	/**
 	 * Number of games to run simultaneously on each host. This should be no
 	 * more than the number of processor cores on each host. If Orego is being
@@ -59,5 +84,6 @@ public class ExperimentConfiguration {
 	}
 	
 	/** Path to run gnugo on your machine */
-	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+	public static final String GNUGO;
+
 }

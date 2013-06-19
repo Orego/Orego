@@ -5,11 +5,7 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
-/** A player that runs multiple threads. */
+/** A player that runs multiple threads. NOW EXTENDS CGTC*/
 public abstract class ThreadedPlayer extends Player {
 
 	/** Milliseconds allocated per move. A value <= 0 indicates no time limit. */
@@ -69,6 +65,7 @@ public abstract class ThreadedPlayer extends Player {
 			shouldNotHappen.printStackTrace();
 			System.exit(1);
 		}
+		
 		return bestStoredMove();
 	}
 

@@ -19,7 +19,7 @@ import orego.util.IntList;
 public abstract class McPlayer extends ThreadedPlayer {
 
 	/** The maximum playouts a thread will run, if no time limit is set. */
-	private int playoutLimit;
+	private long playoutLimit;
 
 	/** Returns the result of benchmark(true). */
 	public double[] benchmark() {
@@ -43,7 +43,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 			long before = System.currentTimeMillis();
 			bestMove();
 			long time = System.currentTimeMillis() - before;
-			int playouts = 0;
+			long playouts = 0;
 			for (int i = 0; i < getNumberOfThreads(); i++) {
 				playouts += ((McRunnable) getRunnable(i))
 						.getPlayoutsCompleted();
@@ -71,7 +71,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		return x;
 	}
 
-	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
+	public void printAdditionalBenchmarkInfo(double kpps, long playouts,
 			long time) {
 		// does nothing
 	}
@@ -96,20 +96,20 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// Perform runs to see which points survive
 		int runs = 1000;
 		McRunnable r = (McRunnable) getRunnable(0);
-		int[] survivals = new int[EXTENDED_BOARD_AREA];
+		int[] survivals = new int[getExtendedBoardArea()];
 		for (int i = 0; i < runs; i++) {
 			r.getBoard().copyDataFrom(getBoard());
 			r.getBoard().setPasses(0);
 			r.playout();
-			for (int p : ALL_POINTS_ON_BOARD) {
+			for (int p : getAllPointsOnBoard()) {
 				if (r.getBoard().getColor(p) == getBoard().getColor(p)) {
 					survivals[p]++;
 				}
 			}
 		}
 		// Clean up data by chain
-		IntList result = new IntList(BOARD_AREA);
-		for (int p : ALL_POINTS_ON_BOARD) {
+		IntList result = new IntList(getBoardArea());
+		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
 				if (survivals[p] < runs / 2) {
@@ -155,12 +155,12 @@ public abstract class McPlayer extends ThreadedPlayer {
 	 * Returns the max number of playouts each thread will run. A playoutLimit
 	 * <= 0 indicates no limit.
 	 */
-	public int getPlayoutLimit() {
+	public long getPlayoutLimit() {
 		return playoutLimit;
 	}
 
 	/** Returns the top level number of playouts through point p. */
-	public abstract int getPlayouts(int p);
+	public abstract long getPlayouts(int p);
 
 	/** Returns the win rate for the current color to play at point p. */
 	public abstract double getWinRate(int p);
@@ -173,13 +173,13 @@ public abstract class McPlayer extends ThreadedPlayer {
 	 */
 	protected String goguiHeuristicsValues(){
 		String result = "INFLUENCE";
-		int[] heuristicsValues = new int[FIRST_POINT_BEYOND_BOARD];
+		int[] heuristicsValues = new int[getFirstPointBeyondBoard()];
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
-		for (Heuristic h : getHeuristics().getHeuristics()) {
-			h.prepare(getBoard());
+		for (int i = 0; i < getHeuristics().size(); i++) {
+			getHeuristics().get(i).prepare(getBoard());
 		}
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				heuristicsValues[p] = getHeuristics().moveRating(p, getBoard());
 			}
@@ -187,7 +187,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 			max = Math.max(max, heuristicsValues[p]);
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0) {
 					result += "\n";
@@ -203,21 +203,21 @@ public abstract class McPlayer extends ThreadedPlayer {
 	/** Returns GoGui information showing playout distribution and win rates. */
 	protected String goguiPlayouts() {
 		// Find the max playouts of any move
-		int max = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
-			int playouts = getPlayouts(p);
+		long max = 0;
+		for (int p : getAllPointsOnBoard()) {
+			long playouts = getPlayouts(p);
 			if (playouts > max) {
 				max = playouts;
 			}
 		}
 		// Display proportional playouts through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			result += format(" %s %.3f", pointToString(p), getPlayouts(p)
 					/ (double) max);
 		}
 		// Label all moves with number of playouts
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				if (getWinRate(p) > 0) {
 					result += format("\nLABEL %s %d", pointToString(p),
@@ -229,7 +229,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// TODO This causes some (but not all) infeasible moves to be excluded
 		// -- why?
 		int best = bestStoredMove();
-		if (ON_BOARD[best]) {
+		if (isOnBoard(best)) {
 			result += "\nCOLOR green " + pointToString(best);
 		}
 		return result;
@@ -241,7 +241,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// occupied points
 		double max = 0, min = 1;
 		double maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				// Excluded moves have negative win rates
@@ -254,14 +254,14 @@ public abstract class McPlayer extends ThreadedPlayer {
 		}
 		// Display proportional wins through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getWinRate(p) > 0) {
 				result += format(" %s %.3f", pointToString(p), getWins(p)
 						/ (double) maxWins);
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -289,7 +289,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		} else if (command.equals("gogui-mc-playouts")) {
 			result = goguiPlayouts();
 		} else if (command.equals("gogui-live-mc-playouts")) {
-			int oldValue;
+			long oldValue;
 			boolean isMilliseconds = (getMillisecondsPerMove() != -1);
 			if (isMilliseconds) {
 				oldValue = getMillisecondsPerMove();
@@ -302,7 +302,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 				System.err.println("gogui-gfx: \n" + goguiPlayouts() + "\n");
 			}
 			if (isMilliseconds) {
-				setMillisecondsPerMove(oldValue);
+				setMillisecondsPerMove((int) oldValue);
 			} else {
 				setPlayoutLimit(oldValue);
 			}
@@ -329,7 +329,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
 		IntList dead = deadStones();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) == getBoard().getColorToPlay())
 					&& dead.contains(p)) {
 				after.removeStone(p);
@@ -346,11 +346,11 @@ public abstract class McPlayer extends ThreadedPlayer {
 	}
 
 	/** Set the max number of playouts a thread will run. */
-	public void setPlayoutLimit(int playoutLimit) {
-		assert playoutLimit >= 0 : "Cannot allocate less than 0 playouts per move.";
+	public void setPlayoutLimit(long oldValue) {
+		assert oldValue >= 0 : "Cannot allocate less than 0 playouts per move.";
 		super.setMillisecondsPerMove(-1);
-		this.playoutLimit = playoutLimit;
-		debug("playout limit set to " + playoutLimit + " playouts per thread");
+		this.playoutLimit = oldValue;
+		debug("playout limit set to " + oldValue + " playouts per thread");
 	}
 
 	@Override
