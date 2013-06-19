@@ -176,8 +176,8 @@ public class Board {
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
 	 */
-	protected void adjustEnemyNeighbors(int p) {
-		int enemyColor = opposite(colorToPlay);
+	protected void adjustEnemyNeighbors(int color, int p) {
+		int enemyColor = opposite(color);
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			int enemy = enemyNeighboringChainIds.get(i);
 			if (liberties[enemy].size() == 1) {
@@ -200,13 +200,13 @@ public class Board {
 	 * Deals with friendly neighbors of the move p just played, merging chains
 	 * as necessary.
 	 */
-	protected void adjustFriendlyNeighbors(int p) {
+	protected void adjustFriendlyNeighbors(int color, int p) {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			chainNextPoints[p] = p;
 			liberties[p].copyDataFrom(lastPlayLiberties);
 			if (liberties[p].size() == 1) {
-				chainsInAtari[colorToPlay].addKnownAbsent(p);
+				chainsInAtari[color].addKnownAbsent(p);
 			}
 		} else if (friendlyNeighboringChainIds.size() == 1) {
 			// If there is only one friendly neighbor, add this stone to that
@@ -216,9 +216,9 @@ public class Board {
 			liberties[c].removeKnownPresent(p);
 			addStone(p, c);
 			if (liberties[c].size() == 1) {
-				chainsInAtari[colorToPlay].add(c);
+				chainsInAtari[color].add(c);
 			} else {
-				chainsInAtari[colorToPlay].remove(c);
+				chainsInAtari[color].remove(c);
 			}
 		} else {
 			// If there are several friendly neighbors, merge them
@@ -237,9 +237,9 @@ public class Board {
 			assert liberties[c].contains(p);
 			liberties[c].removeKnownPresent(p);
 			if (liberties[c].size() == 1) {
-				chainsInAtari[colorToPlay].add(c);
+				chainsInAtari[color].add(c);
 			} else {
-				chainsInAtari[colorToPlay].remove(c);
+				chainsInAtari[color].remove(c);
 			}
 		}
 	}
@@ -344,14 +344,29 @@ public class Board {
 	 * playFast().
 	 */
 	protected void finalizePlay(int p) {
+		finalizePlay(colorToPlay, p, true);
+	}
+	
+	/**
+	 * Updates data structures at the end of a play, except for move and turn.
+	 * Used by placeInitialStone()
+	 */
+	protected void finalizePlay(int color, int p) {
+		finalizePlay(color, p, false);
+	}
+	
+	/**
+	 * Updates data structures at the end of a play.
+	 */
+	protected void finalizePlay(int color, int p, boolean updateTurn) {
 		int lastVacantPointCount = vacantPoints.size();
-		placeStone(colorToPlay, p);
+		placeStone(color, p);
 		boolean surrounded = hasMaxNeighborsForColor(neighborCounts[p],
-				opposite(colorToPlay));
-		adjustFriendlyNeighbors(p);
-		adjustEnemyNeighbors(p);
+				opposite(color));
+		adjustFriendlyNeighbors(color, p);
+		adjustEnemyNeighbors(color, p);
 		if (liberties[chainIds[p]].size() == 1) {
-			chainsInAtari[colorToPlay].add(chainIds[p]);
+			chainsInAtari[color].add(chainIds[p]);
 		}
 		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
@@ -360,10 +375,12 @@ public class Board {
 			koPoint = NO_POINT;
 		}
 		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
-		colorToPlay = opposite(colorToPlay);
-		passes = 0;
-		moves[turn] = p;
-		turn++;
+		if(updateTurn) {			
+			colorToPlay = opposite(color);
+			passes = 0;
+			moves[turn] = p;
+			turn++;
+		}
 	}
 
 	/**
@@ -602,6 +619,35 @@ public class Board {
 	 */
 	public int getPasses() {
 		return passes;
+	}
+	
+	/**
+	 * Returns the PLAY_... constant for play and placeInitialStone.
+	 */
+	protected int getPlayConstant(int p) {
+		// Runaway playouts are cut off by making non-passes illegal
+				if (turn >= MAX_MOVES_PER_GAME - 2) {
+					return PLAY_GAME_TOO_LONG;
+				}
+				assert isOnBoard(p) : pointToString(p);
+				// Check for occupied point
+				if (colors[p] != VACANT) {
+					return PLAY_OCCUPIED;
+				}
+				// Check for simple ko violation
+				if (p == koPoint) {
+					return PLAY_KO_VIOLATION;
+				}
+				// Process neighbors, checking for suicide
+				if (isSuicidal(p)) {
+					return PLAY_SUICIDE;
+				}
+				// Check for superko violation
+				long proposed = hashAfterRemovingCapturedStones(p);
+				if (superKoTable.contains(proposed) || superKoTable.contains(~proposed)) {
+					return PLAY_KO_VIOLATION;
+				}
+				return PLAY_OK;
 	}
 
 	/**
@@ -891,6 +937,49 @@ public class Board {
 			neighborCounts[n] += NEIGHBOR_INCREMENT[color];
 		}
 	}
+	
+	/**
+	 * Places a stone at p, without incrementing the turn or changing the color to play.
+	 * If the move is illegal, there is no effect on Board data structures.
+	 * 
+	 * @param color
+	 *			  the color of the stone to play.
+	 * @param p
+	 *            the location at which to play, or PASS.
+	 * @return One of the PLAY_... constants defined in this class.
+	 */
+	public int placeInitialStone(int color, int p) {
+		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
+		// Passing is always legal
+		if (p == PASS) {
+			pass();
+			return PLAY_OK;
+		}
+		// Check if move is legal
+		int playLegality = getPlayConstant(p);
+		if(playLegality != PLAY_OK) {
+			return playLegality;
+		}
+		// Hooray, it's legal!
+		finalizePlay(color, p);
+		// The hash to store for superko checking does not include the simple ko
+		// point
+		long hashToStore = hash ^ ZOBRIST_HASHES[VACANT][koPoint];
+		if (color == WHITE) {
+			hashToStore = ~hashToStore;
+		}
+		superKoTable.add(hashToStore);
+		return PLAY_OK;
+	}
+	
+	/**
+	 * Convenience method for writing tests.
+	 * 
+	 * @see Board#placeInitialStone(int, int)
+	 */
+	public int placeInitialStone(int color, String string) {
+		return placeInitialStone(color, at(string));
+	}
 
 	/**
 	 * Plays at p. If the move is illegal, there is no effect on Board data
@@ -908,27 +997,10 @@ public class Board {
 			pass();
 			return PLAY_OK;
 		}
-		// Runaway playouts are cut off by making non-passes illegal
-		if (turn >= MAX_MOVES_PER_GAME - 2) {
-			return PLAY_GAME_TOO_LONG;
-		}
-		assert isOnBoard(p) : pointToString(p);
-		// Check for occupied point
-		if (colors[p] != VACANT) {
-			return PLAY_OCCUPIED;
-		}
-		// Check for simple ko violation
-		if (p == koPoint) {
-			return PLAY_KO_VIOLATION;
-		}
-		// Process neighbors, checking for suicide
-		if (isSuicidal(p)) {
-			return PLAY_SUICIDE;
-		}
-		// Check for superko violation
-		long proposed = hashAfterRemovingCapturedStones(p);
-		if (superKoTable.contains(proposed) || superKoTable.contains(~proposed)) {
-			return PLAY_KO_VIOLATION;
+		// Check if move is legal
+		int playLegality = getPlayConstant(p);
+		if(playLegality != PLAY_OK) {
+			return playLegality;
 		}
 		// Hooray, it's legal!
 		finalizePlay(p);
@@ -1050,10 +1122,9 @@ public class Board {
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16" },
 				{ "D4", "Q16", "D16", "Q4", ",D10", "Q10", "K4", "K16", "K10" } };
 		for (int i = 0; i < handicapSize - 1; i++) {
-			play(handicaps[handicapSize - 2][i]);
-			play(Coordinates.PASS);
+			placeInitialStone(BLACK, handicaps[handicapSize - 2][i]);
 		}
-		play(handicaps[handicapSize - 2][handicapSize - 1]);	
+		placeInitialStone(BLACK, handicaps[handicapSize - 2][handicapSize - 1]);	
 		if(handicapSize > 0){
 			komi = 0;
 		}
@@ -1081,10 +1152,7 @@ public class Board {
 			for (int c = 0; c < getBoardWidth(); c++) {
 				int color = charToColor(diagram[r].charAt(c));
 				if (isAPlayerColor(color)) {
-					if (this.colorToPlay != color) {
-						play(PASS);
-					}
-					play(at(r, c));
+					placeInitialStone(color, at(r, c));
 				}
 			}
 		}
