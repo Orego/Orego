@@ -1,6 +1,7 @@
 package orego.heuristic;
 
 import orego.core.*;
+import orego.play.UnknownPropertyException;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import static org.junit.Assert.*;

@@ -1,5 +1,7 @@
 package orego.experiment;
 
+import static orego.experiment.Debug.OREGO_ROOT_DIRECTORY;
+import static java.io.File.separator;
 import static orego.core.Coordinates.getBoardWidth;
 import java.util.Properties;
 import java.io.FileInputStream;
@@ -25,7 +27,7 @@ public class ExperimentConfiguration {
 	static {
 		Properties defaultProp = new Properties();
 		try {
-			defaultProp.load(new FileInputStream("config.properties"));
+			defaultProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "config.properties"));
 		} catch (FileNotFoundException e1) {
 			System.err.println("config.properties not found.");
 		} catch (IOException e1) {
@@ -33,7 +35,7 @@ public class ExperimentConfiguration {
 		}
 		Properties userProp = new Properties(defaultProp);
 		try {
-			userProp.load(new FileInputStream("user.properties"));
+			userProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "user.properties"));
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -62,6 +64,9 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_COLOR = GAMES_PER_CONDITION
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
+	/** The amount of time each player is allocated for each game. */
+	public static final int GAME_TIME_IN_SECONDS = 500;
+	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
 	}
@@ -71,7 +76,7 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 	public static final String[] CONDITIONS = new String[2];
-		 
+
 	static {
 		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
 		CONDITIONS[1] = "threads=2 book=FusekiBook";

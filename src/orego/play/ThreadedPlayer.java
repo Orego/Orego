@@ -25,7 +25,7 @@ public abstract class ThreadedPlayer extends Player {
 
 	/** True when threads are running. */
 	private boolean threadsRunning;
-
+		
 	/** A threaded player with n threads and no pondering. */
 	public ThreadedPlayer() {
 		threadsRunning = false;
