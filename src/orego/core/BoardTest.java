@@ -155,9 +155,7 @@ public class BoardTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		// Capture and set up a ko
-		System.out.println(board);
 		board.play("a1");
-		System.out.println(board);
 		assertEquals(5, board.getLibertyCount(at("b2")));
 		assertLiberties(board, "b2", "b1", "b3", "c3", "d2", "d1");
 		assertLiberties(board, "a2", "a4", "b3");

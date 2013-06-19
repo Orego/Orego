@@ -6,6 +6,7 @@ import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
 import static orego.core.Coordinates.getBoardWidth;
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.core.Coordinates.pointToString;
 
 import java.io.BufferedReader;
@@ -191,9 +192,15 @@ public class Player implements Playable {
 	}
 
 	protected void clearBoardWhilePreservingKomi() {
+		IntSet blackStones = new IntSet(getFirstPointBeyondBoard());
+		blackStones.addAll(board.getInitialBlackStones());
+		IntSet whiteStones = new IntSet(getFirstPointBeyondBoard());
+		whiteStones.addAll(board.getInitialWhiteStones());
 		double komi = board.getKomi();
 		board.clear();
 		board.setKomi(komi);
+		board.setAndPlaceInitialBlackStones(blackStones);
+		board.setAndPlaceInitialWhiteStones(whiteStones);
 	}
 
 	protected void setBoard(Board board) {
@@ -334,9 +341,6 @@ public class Player implements Playable {
 	public boolean undo() {
 		if (getTurn() == 0) { // Beginning of game, can't undo
 			return false;
-		} else if (getTurn() == 1) { // Don't want to replay any moves
-			clearBoardWhilePreservingKomi();
-			return true;
 		}
 		int[] moves = new int[getTurn() - 1];
 		for (int t = 0; t < getTurn() - 1; t++) {

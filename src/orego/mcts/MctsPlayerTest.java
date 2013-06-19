@@ -92,7 +92,7 @@ public class MctsPlayerTest {
 		};
 		int successes1 = 0;
 		for (int i = 0; i < 10; i++) {
-			player.setPlayoutLimit(10000);
+			player.setPlayoutLimit(1000);
 			player.reset();
 			player.setUpProblem(BLACK, problem1);
 			player.bestMove();
