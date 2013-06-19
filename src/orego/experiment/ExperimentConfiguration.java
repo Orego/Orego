@@ -1,6 +1,7 @@
 package orego.experiment;
 
 import static orego.experiment.Debug.OREGO_ROOT_DIRECTORY;
+import static java.io.File.separator;
 import static orego.core.Coordinates.getBoardWidth;
 import java.util.Properties;
 import java.io.FileInputStream;
@@ -26,7 +27,7 @@ public class ExperimentConfiguration {
 	static {
 		Properties defaultProp = new Properties();
 		try {
-			defaultProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + "config.properties"));
+			defaultProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "config.properties"));
 		} catch (FileNotFoundException e1) {
 			System.err.println("config.properties not found.");
 		} catch (IOException e1) {
@@ -34,7 +35,7 @@ public class ExperimentConfiguration {
 		}
 		Properties userProp = new Properties(defaultProp);
 		try {
-			userProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + "user.properties"));
+			userProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "user.properties"));
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 			e.printStackTrace();
