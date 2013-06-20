@@ -1,5 +1,7 @@
 package orego.experiment;
 
+import static orego.experiment.Debug.OREGO_ROOT_DIRECTORY;
+import static java.io.File.separator;
 import static orego.core.Coordinates.getBoardWidth;
 import java.util.Properties;
 import java.io.FileInputStream;
@@ -25,7 +27,7 @@ public class ExperimentConfiguration {
 	static {
 		Properties defaultProp = new Properties();
 		try {
-			defaultProp.load(new FileInputStream("config.properties"));
+			defaultProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "config.properties"));
 		} catch (FileNotFoundException e1) {
 			System.err.println("config.properties not found.");
 		} catch (IOException e1) {
@@ -33,7 +35,7 @@ public class ExperimentConfiguration {
 		}
 		Properties userProp = new Properties(defaultProp);
 		try {
-			userProp.load(new FileInputStream("user.properties"));
+			userProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "user.properties"));
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,14 +75,10 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[5];
+	public static final String[] CONDITIONS = new String[1];
 
 	static {
-		CONDITIONS[0] = "player=TimePlayer threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=1.0 timeformula=uniform c=0.50";
-		CONDITIONS[1] = "player=TimePlayer threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=1.0 timeformula=uniform c=0.20";
-		CONDITIONS[2] = "player=TimePlayer threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=1.0 timeformula=basic c=60";
-		CONDITIONS[3] = "player=TimePlayer threads=2 book=FusekiBook thinklonger behindthreshold=0.40 longermultiple=1.0 timeformula=enhanced c=25.0 maxply=80";
-		CONDITIONS[4] = "player=TimePlayer threads=2 book=FusekiBook timeformula=uniform c=0.20";
+		CONDITIONS[0] = "player=TimePlayer threads=2 book=FusekiBook timeformula=uniform c=0.20";
 	}
 	
 	/** Path to run gnugo on your machine */

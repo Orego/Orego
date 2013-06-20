@@ -80,6 +80,7 @@ public class Game {
 	 */
 	public Game(String filename, String black, String white) {
 		try {
+			timeUsedInMilliseconds = new int[2];
 			this.filename = filename;
 			out = new PrintWriter(filename);
 			contestants = new String[] { black, white };
