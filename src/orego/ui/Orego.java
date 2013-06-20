@@ -358,7 +358,7 @@ public class Orego {
 			try {
 				Scanner scanner;
 				acknowledge();
-				player.reset(); // to stop threaded players
+				player.endGame(); // to stop threaded players
 				scanner = new Scanner(new File("QuitAfterGameOver.txt"));
 				if (scanner.nextLine().equals("true")) {
 					scanner.close();

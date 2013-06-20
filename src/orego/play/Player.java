@@ -100,6 +100,10 @@ public class Player implements Playable {
 		return PASS;
 	}
 
+	public void endGame() {
+		// Do nothing special
+	}
+
 	public double finalScore() {
 		return board.finalScore();
 	}
