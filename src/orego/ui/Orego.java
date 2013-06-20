@@ -365,11 +365,9 @@ public class Orego {
 					return false;
 				} else {
 					scanner.close();
-					acknowledge();
 				}
 			} catch (FileNotFoundException e) {
 				// The file was not found, so we continue to play.
-				acknowledge();
 			}
 		} else if (command.equals("time_settings")) {
 			int secondsLeft = parseInt(arguments.nextToken());
