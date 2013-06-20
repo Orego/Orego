@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import orego.core.Board;
+import orego.core.SgfParser;
 
 
 /**
@@ -194,68 +195,45 @@ public class PatternCounter2 {
 	 * @param SGF file of a particular game.
 	 */
 	public void checkPatterns(File dir) {
-		try {
-			Board board = new Board();
-			String input = "";
-			Scanner s = new Scanner(dir);
-			while (s.hasNextLine()) {
-				input += s.nextLine();
-			}
-			input = input.replace("W[]", "W[tt]");
-			input = input.replace("B[]", "B[tt]");
-			StringTokenizer stoken = new StringTokenizer(input, "()[];");
-			while (stoken.hasMoreTokens()) {
-				String token = stoken.nextToken();
-				if (token.equals("W") || token.equals("B")) {
-					token = stoken.nextToken();
-					if (token.equals("tt")) {
-						board.play(PASS);
-					} else {
-						board.play(sgfToPoint(token));
-					}
-				}
-			}
-			s.close();
-			int turn = board.getTurn();
-			int currentTurn = 0;
-			Board patternBoard = new Board();
-			patternBoard.play(board.getMove(0));
-			while (currentTurn <= turn) {
-				int currentPlay = board.getMove(currentTurn);
-				int lastPlay = board.getMove(currentTurn - 1);
-				if (isOnBoard(lastPlay) && isOnBoard(currentPlay)) {
-					DynamicPattern pattern = new DynamicPattern(lastPlay, patternBoard, PATTERN_LENGTH);
-					boolean foundPattern = false;
-					for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
-						if (patternSeen.containsKey(pattern.getPattern()[i])) {
-							foundPattern = true;
-							Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-							patternData[PATTERN_PLAYED] += 1;
-							if (currentTurn < patternData[MIN_TURN]) {
-								patternData[MIN_TURN] = (long)currentTurn;
-							}
-							if (currentTurn > patternData[MAX_TURN]) {
-								patternData[MAX_TURN] = (long)currentTurn;
-							}
-							patternData[TOTAL_TURN] += currentTurn;
-							patternSeen.put(pattern.getPattern()[i], patternData);
+		System.out.println("Starting file "+dir.getName());
+		Board board = SgfParser.sgfToBoard(dir);
+		int turn = board.getTurn();
+		int currentTurn = 0;
+		Board patternBoard = new Board();
+		patternBoard.play(board.getMove(0));
+		while (currentTurn <= turn) {
+			int currentPlay = board.getMove(currentTurn);
+			int lastPlay = board.getMove(currentTurn - 1);
+			if (isOnBoard(lastPlay) && isOnBoard(currentPlay)) {
+				DynamicPattern pattern = new DynamicPattern(lastPlay, patternBoard, PATTERN_LENGTH);
+				boolean foundPattern = false;
+				for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
+					if (patternSeen.containsKey(pattern.getPattern()[i])) {
+						foundPattern = true;
+						Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
+						patternData[PATTERN_PLAYED] += 1;
+						if (currentTurn < patternData[MIN_TURN]) {
+							patternData[MIN_TURN] = (long)currentTurn;
 						}
-					}
-					if (!foundPattern) {
-						Long[] patternData = new Long[5];
-						patternData[PATTERN_PLAYED] = (long)1;
-						patternData[MIN_TURN] = (long)currentTurn;
-						patternData[MAX_TURN] = (long)currentTurn;
-						patternData[TOTAL_TURN] = (long)currentTurn;
-						patternSeen.put(pattern.getPattern()[0], patternData);
+						if (currentTurn > patternData[MAX_TURN]) {
+							patternData[MAX_TURN] = (long)currentTurn;
+						}
+						patternData[TOTAL_TURN] += currentTurn;
+						patternSeen.put(pattern.getPattern()[i], patternData);
 					}
 				}
-				currentTurn++;
-				patternBoard.play(lastPlay);
+				if (!foundPattern) {
+					Long[] patternData = new Long[5];
+					patternData[PATTERN_PLAYED] = (long)1;
+					patternData[MIN_TURN] = (long)currentTurn;
+					patternData[MAX_TURN] = (long)currentTurn;
+					patternData[TOTAL_TURN] = (long)currentTurn;
+					patternSeen.put(pattern.getPattern()[0], patternData);
+				}
 			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
+			currentTurn++;
+			patternBoard.play(lastPlay);
 		}
+		System.out.println("Finished file "+dir.getName());
 	}
-
 }

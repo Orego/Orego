@@ -414,13 +414,4 @@ public final class Coordinates {
 
 	}
 
-	/** Returns the point represented by an sgf String. */
-	public static int sgfToPoint(String label) {
-		int c = label.charAt(0) - 'a';
-		int r = label.charAt(1) - 'a';
-		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
-		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
-		return (r + 1) * south + (c + 1) * EAST;
-	}
-
 }

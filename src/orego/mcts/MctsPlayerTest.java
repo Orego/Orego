@@ -148,10 +148,10 @@ public class MctsPlayerTest {
 	@Test
 	public void testCoupDeGrace() {
 		String[] problem = new String[] {
-				"..O#..#..#O#######.",// 19
-				".OO#####.#O#######.",// 18
-				"O.O#.#.#.#O########",// 17
-				".OO#####.#O##.###.#",// 16
+				"..O.O.#..#O#######.",// 19
+				".OO.O#####O#######.",// 18
+				"O.O.O#.#.#O########",// 17
+				".OOOO#####O##.###.#",// 16
 				"OOOOOOOO##O#######.",// 15
 				".O.....OOOO####....",// 14
 				".OOOOOOO..O#####.#.",// 13
@@ -166,14 +166,15 @@ public class MctsPlayerTest {
 				"..O.O.#O.#O.O.O#.#.",// 4
 				".OO.O.#O##OOOOO##..",// 3
 				"O.O.O.#OOO##O######",// 2
-				".OO.O.##O.#.######." // 1
+				"..O.O.##O.#.######." // 1
 			  // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
 		for (int i = 0; i < 10; i++) {
 			player.reset();
-			player.setUpProblem(BLACK, problem);
+			player.setUpProblem(WHITE, problem);
+			player.getBoard().play(at("b1"));
 			player.bestMove();
 			int move = player.bestMove();
 			if(move == at("J4")) {
@@ -182,7 +183,7 @@ public class MctsPlayerTest {
 				failures ++;
 			}
 		}
-		assertTrue(failures == 0);
+		assertEquals(0, failures);
 		assertTrue(successes >= 5);
 	}
 
