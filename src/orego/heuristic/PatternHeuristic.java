@@ -16,15 +16,27 @@ import static orego.heuristic.PatternHeuristicPatterns.*;
 
 public class PatternHeuristic extends Heuristic {
 	
-	protected int numberOfBadPatterns;
+	private int numberOfBadPatterns;
 	
-	protected int numberOfGoodPatterns;
+	private int numberOfGoodPatterns;
 	
 	private static int DEFAULT_NUMBER_OF_GOOD_PATTERNS = 400;
 		
-	protected BitVector[] goodNeighborhoods = {
+	private BitVector[] goodNeighborhoods = {
 											new BitVector(NUMBER_OF_NEIGHBORHOODS),
 											new BitVector(NUMBER_OF_NEIGHBORHOODS) };
+	
+	protected BitVector getGoodNeighborhoods(int color){
+		return goodNeighborhoods[color];
+	}
+	
+	protected int getNumberOfBadPatterns(){
+		return numberOfBadPatterns;
+	}
+	
+	protected int getNumberOfGoodPatterns(){
+		return numberOfGoodPatterns;
+	}
 		
 	/**
 	 * The number of total patterns, including impossible ones.
