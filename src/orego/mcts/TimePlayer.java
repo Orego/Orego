@@ -136,26 +136,5 @@ public class TimePlayer extends Lgrf2Player {
 		}
 
 		setMillisecondsPerMove(msPerMove);
-
-		/*
-		 * To ensure we are setting reasonable values, we output a debug
-		 * statement, but not to stderr, since this will be redirected to stdout
-		 * during experiments and be interpreted as (malformed) GTP responses.
-		 */
-		File file = new File("timeinfo.txt");
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(file, true);
-		} catch (Exception e) {
-
-		}
-		PrintStream ps = new PrintStream(fos);
-
-		ps.println("Move#: " + getTurn() + " Secs-Left: " + seconds
-				+ " Secs-Allocated: " + (msPerMove / 1000.0) + " Fmla: "
-				+ timeFormula + " C: " + timeC + " MaxPly: " + timeMaxPly
-				+ " ThinkLonger: " + thinkLongerWhenBehind
-				+ " BehindThreshold: " + behindThreshold + " LongerMultiple: "
-				+ longerMultiple);
 	}
 }
