@@ -8,34 +8,34 @@ import orego.play.UnknownPropertyException;
 import static orego.core.Coordinates.*;
 
 public class TimePlayer extends Lgrf2Player {
-	
+
 	/**
 	 * The value of timeFormula when we are uniformly distributing our remaining
 	 * time.
 	 */
 	public static final int TIME_FORMULA_UNIFORM = 0;
-	
+
 	/**
 	 * The value of timeFormula when we are using Aja's basic formula
 	 * (allocating more time to earlier moves).
 	 */
 	public static final int TIME_FORMULA_BASIC = 1;
-	
+
 	/**
 	 * The value of timeFormula when we are using Aja's enhanced formula
 	 * (allocating more time to middle-game moves).
 	 */
 	public static final int TIME_FORMULA_ENHANCED = 2;
-	
+
 	/**
 	 * The formula we use for time management: to allocate our time for each
 	 * move.
 	 */
-	private int timeFormula = TIME_FORMULA_UNIFORM;
-	
+	private int timeFormula = 0;
+
 	/** The constant C to use in the time management formula. */
-	private double timeC = 0.20;
-	
+	private double timeC = 80.0;
+
 	/**
 	 * The constant MaxPly to use in the time management formula, where
 	 * applicable.
@@ -46,31 +46,63 @@ public class TimePlayer extends Lgrf2Player {
 	 * This is true if we should think for longer when the highest winrate <
 	 * behindThreshold.
 	 */
-	private boolean thinkLongerWhenBehind = false;
-	
+	private boolean thinkLongerWhenBehind;
+
 	/**
 	 * This is what we should multiply the time by if we are going to think
 	 * longer for a particular move. A reasonable value is 1.0 (think for twice
 	 * as long).
 	 */
-	private double longerMultiple = 1.0;
-	
+	private double longerMultiple;
+
 	/**
 	 * We are considered "behind" if the maximum winrate of any node is less
 	 * than this value. A reasonable value is 0.4.
 	 */
-	private double behindThreshold = 0.4;
-	
+	private double behindThreshold;
+
+	/**
+	 * This is true if we should think for longer when the move with the most
+	 * wins and the move with the highest win rate are not the same.
+	 */
+	private boolean unstableEvaluation;
+
+	/**
+	 * This is what we should multiply the time by if we are going to think
+	 * longer due to the unstable-evaluation heuristic. A reasonable value is
+	 * 0.5 (think for 50% longer).
+	 */
+	private double unstableMultiple;
+
 	@Override
 	public int bestMove() {
 		int m = super.bestMove();
-		if (thinkLongerWhenBehind && ((getRoot().getWinRate(m) < behindThreshold) || (m == RESIGN))) {
+		if (unstableEvaluation) {
+			// Find the move with the highest win rate
+			int moveWithMostRuns = 0;
+			int mostRuns = 0;
+			for (int i = 0; i < 400; i++) {
+				int thisMovesRuns = getRoot().getRuns(i);
+				if (thisMovesRuns > mostRuns) {
+					moveWithMostRuns = i;
+					mostRuns = thisMovesRuns;
+				}
+			}
+			// If it's not the move with the most wins, think a bit longer
+			if (moveWithMostRuns != getRoot().getMoveWithMostWins()) {
+				setMillisecondsPerMove((int) (getMillisecondsPerMove() * unstableMultiple));
+				return super.bestMove();
+			}
+		}
+
+		if (thinkLongerWhenBehind
+				&& ((getRoot().getWinRate(m) < behindThreshold) || (m == RESIGN))) {
 			setMillisecondsPerMove((int) (getMillisecondsPerMove() * longerMultiple));
 			return super.bestMove();
 		}
 		return m;
 	}
-	
+
 	@Override
 	public void setProperty(String property, String value)
 			throws UnknownPropertyException {
@@ -94,12 +126,15 @@ public class TimePlayer extends Lgrf2Player {
 			behindThreshold = Double.parseDouble(value);
 		} else if (property.equals("longermultiple")) {
 			longerMultiple = Double.parseDouble(value);
-		}
-		else {
+		} else if (property.equals("unstableeval")) {
+			unstableEvaluation = true;
+		} else if (property.equals("unstablemult")) {
+			unstableMultiple = Double.parseDouble(value);
+		} else {
 			super.setProperty(property, value);
 		}
 	}
-	
+
 	@Override
 	public void setRemainingTime(int seconds) {
 		/*
@@ -156,6 +191,7 @@ public class TimePlayer extends Lgrf2Player {
 				+ timeFormula + " C: " + timeC + " MaxPly: " + timeMaxPly
 				+ " ThinkLonger: " + thinkLongerWhenBehind
 				+ " BehindThreshold: " + behindThreshold + " LongerMultiple: "
-				+ longerMultiple);
+				+ longerMultiple + " UnstableEvaluation: " + unstableEvaluation
+				+ " UnstableMultiple: " + unstableMultiple);
 	}
 }
