@@ -3,6 +3,7 @@ package orego.book;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -44,11 +45,11 @@ public class FusekiBookBuilder extends BookBuilder {
 		return "RawFuseki";
 	}
 
-	protected void processFile(BufferedReader reader)
+	protected void processFile(File file)
 			throws FileNotFoundException, IOException {
 		Board board = new Board();
 		int[][] moveset = new int[8][MAX_BOOK_DEPTH];
-		List<List<Integer>> games = getGames(reader);
+		List<List<Integer>> games = getGames(file);
 		for (List<Integer> moves : games) {
 			// Store moves
 			for (int t = 0; (t < MAX_BOOK_DEPTH) && (t < moves.size()); t++) {

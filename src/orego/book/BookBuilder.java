@@ -3,7 +3,6 @@ package orego.book;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.OREGO_ROOT_DIRECTORY;
 import static java.util.Arrays.sort;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,11 +11,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import orego.core.SgfParser;
 import static orego.experiment.Debug.*;
 
 /**
@@ -190,65 +190,6 @@ public abstract class BookBuilder {
 	}
 
 	/**
-	 * Reads one game from the specified BufferedReader (e.g., a file) and
-	 * returns a list of moves from the game. Assumes that the opening ( has
-	 * already been consumed. May or may not consume the closing ). Returns null
-	 * if the game is invalid for some reason (e.g., it has the wrong board
-	 * size) and does not consume the rest of the game.
-	 */
-	protected List<Integer> getGame(PushbackReader in) throws IOException {
-		List<Integer> result = new ArrayList<Integer>();
-		int c;
-		while (true) {
-			c = in.read();
-			if (c == ')') {
-				return result;
-			}
-			assert c != -1;
-			List<String> properties = getNode(in);
-			for (String property : properties) {
-				String identifier = property
-						.substring(0, property.indexOf('['));
-				if (identifier.equals("B") || identifier.equals("W")) {
-					int move = sgfToOregoCoordinate(property);
-					if (move > NO_POINT) { // Also excludes pass
-						result.add(move);
-					} else {
-						System.out
-								.println("Ignoring game with early pass or bogus move");
-						return null;
-					}
-					if (result.size() == MAX_BOOK_DEPTH) {
-						return result;
-					}
-				} else if (identifier.equals("HA")) {
-					debug("Ignoring handicap game");
-					return null;
-				} else if (identifier.equals("SZ")) {
-					if (!property.equals("SZ[" + getBoardWidth() + "]")) {
-						System.out
-								.println("Ignoring game with strange board size");
-						return null;
-					}
-				} else if (identifier.equals("AB") || identifier.equals("AW")) {
-					debug("Ignoring game with added stones");
-					return null;
-				} else if (identifier.equals("AE")) {
-					debug("Ignoring game with removed stones");
-					return null;
-				} else if (identifier.equals("PL")) {
-					System.out
-							.println("Ignoring game where color to play was altered");
-					return null;
-				} else if (identifier.equals("TB") || identifier.equals("TW")) {
-					debug("Ignoring game with marked territory");
-					return null;
-				}
-			}
-		}
-	}
-
-	/**
 	 * Returns the number of games read.
 	 */
 	protected int getGameCount() {
@@ -259,30 +200,10 @@ public abstract class BookBuilder {
 	 * Reads games from the specified BufferedReader (e.g., a file) and returns
 	 * a list, each element of which is the list of moves from one game.
 	 */
-	protected List<List<Integer>> getGames(BufferedReader reader)
+	protected List<List<Integer>> getGames(File file)
 			throws IOException {
-		List<List<Integer>> result = new ArrayList<List<Integer>>();
-		PushbackReader in = new PushbackReader(reader);
-		while (true) {
-			// Find the beginning of the next game
-			int c;
-			do {
-				c = in.read();
-				if (c == -1) {
-					return result;
-				}
-			} while (c != '(');
-			List<Integer> game = getGame(in);
-			if (game != null) {
-				if (game.size() >= MAX_BOOK_DEPTH) {
-					result.add(game);
-					gameCount++;
-				} else {
-					debug("Ignoring game because it was only "
-							+ game.size() + " moves long");
-				}
-			}
-		}
+		List<List<Integer>> result = SgfParser.sgfToBookGames(file, MAX_BOOK_DEPTH);
+		return result;
 	}
 
 	/**
@@ -291,63 +212,6 @@ public abstract class BookBuilder {
 	 */
 	protected int getManyTimes() {
 		return manyTimes;
-	}
-
-	/**
-	 * Reads one node from an SGF file. Assumes that the opening ; has already
-	 * been consumed, but does NOT consume the next ;.
-	 */
-	protected List<String> getNode(PushbackReader in) throws IOException {
-		List<String> result = new ArrayList<String>();
-		int c;
-		while (true) {
-			String property = getProperty(in);
-			if (property != null) {
-				result.add(property);
-			}
-			c = in.read();
-			assert c != -1;
-			if (c == ';') {
-				in.unread(c);
-				return result;
-			} else if (c == ')') {
-				in.unread(c);
-				return result;
-			}
-			in.unread(c);
-		}
-	}
-
-	/**
-	 * Returns the next SGF property, or null if there are no more properties in
-	 * this node.
-	 */
-	protected String getProperty(PushbackReader in) throws IOException {
-		String result = "";
-		int c;
-		while (true) {
-			c = in.read();
-			assert c != -1;
-			if ((c == ';') || (c == ')')) {
-				in.unread(c);
-				return null;
-			} else if (c == '[') {
-				result += (char) c;
-				break;
-			}
-			if (!Character.isWhitespace(c)) {
-				result += (char) c;
-			}
-		}
-		do {
-			c = in.read();
-			if (c == -1) {
-				in.unread(')');
-				return null;
-			}
-			result += (char) c;
-		} while (c != ']');
-		return result;
 	}
 
 	/**
@@ -362,7 +226,7 @@ public abstract class BookBuilder {
 	}
 
 	/** Reads SGF game data from a file and stores them in smallMap and bigMap. */
-	protected abstract void processFile(BufferedReader reader)
+	protected abstract void processFile(File file)
 			throws FileNotFoundException, IOException;
 
 	/**
@@ -468,25 +332,22 @@ public abstract class BookBuilder {
 	 * MAX_BOOK_DEPTH moves of each of the files.
 	 */
 	public void setUp(String filepath) {
-		try {
-			File directory = new File(filepath);
-			String[] dirList = directory.list();
-			for (int i = 0; i < dirList.length; i++) {
-				String filename = filepath + File.separator + dirList[i];
-				File file = new File(filename);
-				if (file.isDirectory()) {
-					setUp(filename);
-				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
-					debug("Processing " + dirList[i]);
-					FileReader reader = new FileReader(file);
-					BufferedReader bf = new BufferedReader(reader);
-					processFile(bf);
-					reader.close();
+		File directory = new File(filepath);
+		String[] dirList = directory.list();
+		for (int i = 0; i < dirList.length; i++) {
+			String filename = filepath + File.separator + dirList[i];
+			File file = new File(filename);
+			if (file.isDirectory()) {
+				setUp(filename);
+			} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
+				debug("Processing " + dirList[i]);
+				try {
+					processFile(file);
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(1);
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 

@@ -1,12 +1,12 @@
 package orego.core;
 
 import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.getBoardWidth;
+import static orego.core.Coordinates.NO_POINT;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -31,6 +31,15 @@ public class SgfParser {
 		return null;
 	}
 	
+	/**
+	 * Builds board from the given sgf file. AB and AW commands are handled using
+	 * placeInitialStone(), while B and W commands are handled using play().
+	 * 
+	 * @param file
+	 * 				the sgf file.
+	 * @param board
+	 * 				the board which the sgf file will be converted to.
+	 */
 	public static Board sgfToBoard(File file) {
 		Board board = new Board();
 		String input = "";
@@ -80,8 +89,76 @@ public class SgfParser {
 		return board;
 	}
 	
+	public static List<List<Integer>> sgfToBookGames(File file, int maxBookDepth) {
+		List<List<Integer>> games = new ArrayList<List<Integer>>();
+		String input = "";
+		try{
+			Scanner s = new Scanner(file);
+			while (s.hasNextLine()) {
+				input += s.nextLine();
+			}
+			input = input.replace("W[]", "W[tt]");
+			input = input.replace("B[]", "B[tt]");
+			StringTokenizer stoken = new StringTokenizer(input, ")[];");
+			while(stoken.hasMoreTokens()) {
+				String token = stoken.nextToken();
+				if (token.equals("(")) {
+					List<Integer> game = sgfToBookGame(stoken, maxBookDepth);
+					if(game != null) {
+						games.add(game);
+					}
+				}
+			}
+			return games;
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found!");
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	protected static List<Integer> sgfToBookGame(StringTokenizer stoken, int maxBookDepth) {
+		List<Integer> game = new ArrayList<Integer>();
+		int turn = 0;
+		while (turn <= maxBookDepth) {
+			String token = stoken.nextToken();
+			if (token.equals("HA")) {
+				// Handicap game, ignore.
+				return null;
+			} else if (token.equals("SZ")) {
+				token = stoken.nextToken();
+				if (!token.equals("19")) {
+					// Game is not 19x19, ignore.
+					return null;
+				}
+			} else if (token.equals("AB") || token.equals("AW")) {
+				// Game has added stones, ignore.
+				return null;
+			} else if (token.equals("PL")) {
+				// Game changes color to play, ignore.
+				return null;
+			} else if (token.equals("B") || token.equals("W")) {
+				token = stoken.nextToken();
+				int move = sgfToPoint(token);
+				if(move > NO_POINT) { // Also excludes PASS.
+					game.add(move);
+					turn++;
+				} else {
+					// Game has an early pass or bogus move, ignore.
+					return null;
+				}
+			} else if (token.equals(")")) {
+				return game;
+			}
+		}
+		return game;
+	}
+	
 	/** Returns the point represented by an sgf String. */
 	public static int sgfToPoint(String label) {
+		if(label.equals("tt")) {
+			return PASS;
+		}
 		int c = label.charAt(0) - 'a';
 		int r = label.charAt(1) - 'a';
 		return Coordinates.at(r, c);
