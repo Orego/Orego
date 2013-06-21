@@ -31,10 +31,10 @@ public class TimePlayer extends Lgrf2Player {
 	 * The formula we use for time management: to allocate our time for each
 	 * move.
 	 */
-	private int timeFormula = 0;
+	private int timeFormula = TIME_FORMULA_UNIFORM;
 
 	/** The constant C to use in the time management formula. */
-	private double timeC = 80.0;
+	private double timeC = 0.20;
 
 	/**
 	 * The constant MaxPly to use in the time management formula, where
@@ -46,42 +46,42 @@ public class TimePlayer extends Lgrf2Player {
 	 * This is true if we should think for longer when the highest winrate <
 	 * behindThreshold.
 	 */
-	private boolean thinkLongerWhenBehind;
+	private boolean thinkLongerWhenBehind = false;
 
 	/**
 	 * This is what we should multiply the time by if we are going to think
 	 * longer for a particular move. A reasonable value is 1.0 (think for twice
 	 * as long).
 	 */
-	private double longerMultiple;
+	private double longerMultiple = 1.0;
 
 	/**
 	 * We are considered "behind" if the maximum winrate of any node is less
 	 * than this value. A reasonable value is 0.4.
 	 */
-	private double behindThreshold;
+	private double behindThreshold = 0.4;
 
 	/**
 	 * This is true if we should think for longer when the move with the most
 	 * wins and the move with the highest win rate are not the same.
 	 */
-	private boolean unstableEvaluation;
+	private boolean unstableEvaluation = false;
 
 	/**
 	 * This is what we should multiply the time by if we are going to think
 	 * longer due to the unstable-evaluation heuristic. A reasonable value is
 	 * 0.5 (think for 50% longer).
 	 */
-	private double unstableMultiple;
+	private double unstableMultiple = 0.5;
 
 	@Override
 	public int bestMove() {
 		int m = super.bestMove();
 		if (unstableEvaluation) {
-			// Find the move with the highest win rate
+			// Find the move with the most runs
 			int moveWithMostRuns = 0;
 			int mostRuns = 0;
-			for (int i = 0; i < 400; i++) {
+			for (int i = 0; i < orego.core.Coordinates.getFirstPointBeyondBoard(); i++) {
 				int thisMovesRuns = getRoot().getRuns(i);
 				if (thisMovesRuns > mostRuns) {
 					moveWithMostRuns = i;
