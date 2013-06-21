@@ -97,6 +97,7 @@ public class SgfParser {
 			while (s.hasNextLine()) {
 				input += s.nextLine();
 			}
+			s.close();
 			input = input.replace("W[]", "W[tt]");
 			input = input.replace("B[]", "B[tt]");
 			StringTokenizer stoken = new StringTokenizer(input, ")[];");
