@@ -127,8 +127,8 @@ public class SgfParser {
 				return null;
 			} else if (token.equals("SZ")) {
 				token = stoken.nextToken();
-				if (!token.equals("19")) {
-					// Game is not 19x19, ignore.
+				if (!token.equals(Coordinates.getBoardWidth())) {
+					// Game is not the proper size, ignore.
 					return null;
 				}
 			} else if (token.equals("AB") || token.equals("AW")) {
