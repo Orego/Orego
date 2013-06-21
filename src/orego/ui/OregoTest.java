@@ -391,9 +391,62 @@ public class OregoTest {
 	/** Test the "kgs-game_over" command. */
 	@Test
 	public void testKgsGameOver() throws IOException {
-		// This won't work if the QuitAfterGameOver.txt file contains true
+		// (This won't work if the QuitAfterGameOver.txt file contains true.)
+
+		// Make it so only A1 is a valid move.
+		String[] problem = {
+				"OOOOOOOOOOOOOOOOOOO",// 19
+				"OOOOOOOOOOOOOOOOOOO",// 18
+				"OOOOOOOOOOOOOOOOOOO",// 17
+				"OOOOOOOOOOOOOOOOOOO",// 16
+				"OOOOOOOOOOOOOOOOOOO",// 15
+				"OOOOOOOOOOOOOOOOOOO",// 14
+				"OOOOOOOOOOOOOOOOOOO",// 13
+				"OOOOOOOOOOOOOOOOOOO",// 12
+				"OOOOOOOOOOOOOOOOOOO",// 11
+				"OOOOOOOOOOOOOOOOOOO",// 10
+				"OOOOOOOOOOOOOOOOOOO",// 9
+				"OOOOOOOOOOOOOOOOOOO",// 8
+				"OOOOOOOOOOOOOOOOOOO",// 7
+				"OOOOOOOOOOOOOOOOOOO",// 6
+				"OOOOOOOOOOOOOOOOOOO",// 5
+				"OOOOOOOOOOOOOOOOOOO",// 4
+				"OOOOOOOOOOOOOOOOOOO",// 3
+				"OOOOOOOOOOOOOOOOOOO",// 2
+				"..OOOOOOOOOOOOOOOOO" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		orego.getPlayer().getBoard().setUpProblem(WHITE, problem);
+
+		// Send Orego the "kgs-game_over" command and gets its response.
 		orego.handleCommand("kgs-game_over");
 		assertEquals("= ", oregoOut.readLine());
+		oregoOut.readLine();
+
+		// Verify that the board is not empty.
+		orego.handleCommand("showboard");
+		String output = oregoOut.readLine();
+		assertEquals('=', output.charAt(0));
+		for (int i = 0; i < getBoardWidth(); i++) { // all but the last row
+			assertFalse(oregoOut.readLine().contains("."));
+		}
+		oregoOut.readLine(); oregoOut.readLine(); oregoOut.readLine(); // read out the last lines and the extra return
+
+		// Pick the game back up, verifying that Orego does not accept a move at C1.
+		orego.handleCommand("play white c1");
+		assertEquals('?', oregoOut.readLine().charAt(0));
+		oregoOut.readLine();
+
+		// Verify that Orego does accept a move at B1.
+		orego.handleCommand("play white b1");
+		output = oregoOut.readLine();
+		assertEquals('=', output.charAt(0));
+		oregoOut.readLine();
+
+		// Verify the Orego generates a move at A1, the only legal move.
+		orego.handleCommand("genmove black");
+		output = oregoOut.readLine();
+		assertEquals(at(output.substring(2)), at("A1"));
 	}
 
 	/** Test the fixed_handicap command. */
