@@ -145,28 +145,30 @@ public class MctsPlayerTest {
 	}
 	
 	@Test
-	public void testCoupDeGrace() {
+	public void testCoupDeGrace() throws UnknownPropertyException {
+		player.setProperty("grace", "true");
+		assertTrue(player.isGrace());
 		String[] problem = new String[] {
-				"OOOOOOOOOOO#.......",// 19
-				"OOOOOOOOOOO#.......",// 18
-				"OOOOOOOOOOO#.......",// 17
-				"OOOOOOOOOOO#.......",// 16
-				"OOOOOOOOOOO#.......",// 15
-				"OOOOOOOOOOO#.......",// 14
-				"OOOOOOOOOOO#.......",// 13
-				"OOOOOOOOOOO#.......",// 12
-				"OOOOOOOOOOO#.......",// 11
-				"OOOOOOOOOOO#.......",// 10
-				"OOOOOOOOOOO#.......",// 9
-				"OOOOOOOOOOO#.......",// 8
-				"OOOOOOOOOOO#.......",// 7
-				"OOOOOOOOO######....",// 6
-				"OOOOOOOOO#OOOO##...",// 5
-				"OOOOOOOO.#O.O.O#...",// 4
-				"OOOOOOOO##OOOOO#...",// 3
-				"OOOOOOOOOO##O######",// 2
-				"OOOOOOOOO.#.##.#..." // 1
-			  // ABCDEFGHJKLMNOPQRST
+				"..O.O.#..#O#######.",// 19
+				".OO.O#####O#######.",// 18
+				"O.O.O#.#.#O########",// 17
+				".OOOO#####O##.###.#",// 16
+				"OOOOOOOO##O#######.",// 15
+				".O.....OOOO####....",// 14
+				".OOOOOOO..O#####.#.",// 13
+				"OO.O..O.OOO##.#.#..",// 12
+				".OOO.O..O.O#.#.#.#.",// 11
+				"..O.OOOOOOO#..##...",// 10
+				".OOOO.O..#O#####.#.",// 9
+				"...O.OO######.#.#..",// 8
+				"OOOO.O.#OOO##....#.",// 7
+				"..O.OO##O########..",// 6
+				"..O.O.#OO#OOOO##.#.",// 5
+				"..O.O.#O.#O.O.O#.#.",// 4
+				".OO.O.#O##OOOOO##..",// 3
+				"O.O.O.#OOO##O######",// 2
+				"..O.O.##O.#.######." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
@@ -174,11 +176,12 @@ public class MctsPlayerTest {
 			player.reset();
 			player.setUpProblem(BLACK, problem);
 			player.bestMove();
+			assertTrue(player.isCoupDeGraceActive());
 			int move = player.bestMove();
 			System.err.print(pointToString(move) + " ");
-			if(move == at("J4")) {
+			if (move == at("J4")) {
 				successes++;
-			} else if(move == at("K1")) {
+			} else if (move == at("K1")) {
 				failures ++;
 			}
 		}

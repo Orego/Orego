@@ -54,6 +54,13 @@ public class MctsPlayer extends McPlayer {
 	 */
 	private boolean grace;
 	
+	/**
+	 * True if coup de grace mode is active, i.e., the coup de grace property
+	 * has been set and we have determined that we should emphasize capturing
+	 * enemy stones on the next move. (This gets reset to false after each move.)
+	 */
+	private boolean isCoupDeGraceActive;
+	
 	/** The transposition table. */
 	private TranspositionTable table;
 
@@ -61,7 +68,7 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void beforeStartingThreads() {
-		boolean shouldWeClean = (kgsCleanupMode || (getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER)) && thereAreDeadEnemyStones();
+		boolean shouldWeClean = (kgsCleanupMode || isCoupDeGraceActive) && thereAreDeadEnemyStones();
 		if (shouldWeClean) {
 			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
 			IntList deadStones = deadStones();
@@ -78,6 +85,8 @@ public class MctsPlayer extends McPlayer {
 				getRoot().addWins(recommendedMove, bias);
 			}
 		}
+		// Don't emphasize capturing dead stones anymore (unless this gets reset to true by bestStoredMove())
+		isCoupDeGraceActive = false;
 	}
 
 	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
@@ -125,6 +134,10 @@ public class MctsPlayer extends McPlayer {
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
 		// Consider entering coup de grace mode
+		if (grace && getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER) {
+			isCoupDeGraceActive = true;
+		}
+		
 		kgsCleanupMode = false;
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
@@ -522,6 +535,13 @@ public class MctsPlayer extends McPlayer {
 			}
 			winProportion = 1 - winProportion;
 		}
+	}
+
+	/**
+	 * True if coup de grace mode is active for the next move. For testing.
+	 */
+	public boolean isCoupDeGraceActive() {
+		return isCoupDeGraceActive;
 	}
 
 	/**
