@@ -47,14 +47,11 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[3];
+	public static final String[] CONDITIONS = new String[2];
 		 
 	static {
-		int i = 0;
-		for (int msec = 2000; msec <= 8000; msec *= 2) {
-			CONDITIONS[i] = "threads=2 msec=" + msec + " book=FusekiBook";
-			i++;
-		}
+		CONDITIONS[0] = "threads=2 msec=2000 book=FusekiBook";
+		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook grace";
 	}
 	
 	/** Path to run gnugo on your machine */
