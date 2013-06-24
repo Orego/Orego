@@ -75,13 +75,38 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[24];
 
 	static {
-		CONDITIONS[0] = "player=Lgrf2 threads=2 book=FusekiBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		// First test on uniform time formula. c=.5 is our baseline
+		CONDITIONS[0] = "threads=2 book=FusekiBook timeformula=uniform c=.50";
+		CONDITIONS[1] = "threads=2 book=FusekiBook timeformula=uniform c=.10";
+		CONDITIONS[2] = "threads=2 book=FusekiBook timeformula=uniform c=.15";
+		CONDITIONS[3] = "threads=2 book=FusekiBook timeformula=uniform c=.20";
+		CONDITIONS[4] = "threads=2 book=FusekiBook timeformula=uniform c=.25";
+		CONDITIONS[5] = "threads=2 book=FusekiBook timeformula=uniform c=.30";
+		CONDITIONS[6] = "threads=2 book=FusekiBook timeformula=uniform c=.35";
+		CONDITIONS[7] = "threads=2 book=FusekiBook timeformula=uniform c=.40";
+		
+		// Second test on basic time formula
+		CONDITIONS[8] = "threads=2 book=FusekiBook timeformula=basic c=40";
+		CONDITIONS[9] = "threads=2 book=FusekiBook timeformula=basic c=50";
+		CONDITIONS[10] = "threads=2 book=FusekiBook timeformula=basic c=60";
+		CONDITIONS[11] = "threads=2 book=FusekiBook timeformula=basic c=70";
+		CONDITIONS[12] = "threads=2 book=FusekiBook timeformula=basic c=80";
+		CONDITIONS[13] = "threads=2 book=FusekiBook timeformula=basic c=90";
+		
+		// Third time formula, enhanced.
+		CONDITIONS[14] = "threads=2 book=FusekiBook timeformula=enhanced c=10 maxply=80";
+		CONDITIONS[15] = "threads=2 book=FusekiBook timeformula=enhanced c=20 maxply=80";
+		CONDITIONS[16] = "threads=2 book=FusekiBook timeformula=enhanced c=25 maxply=80";
+		CONDITIONS[17] = "threads=2 book=FusekiBook timeformula=enhanced c=30 maxply=80";
+		CONDITIONS[18] = "threads=2 book=FusekiBook timeformula=enhanced c=35 maxply=80";
+		CONDITIONS[19] = "threads=2 book=FusekiBook timeformula=enhanced c=40 maxply=80";
+		CONDITIONS[20] = "threads=2 book=FusekiBook timeformula=enhanced c=45 maxply=80";
+		CONDITIONS[21] = "threads=2 book=FusekiBook timeformula=enhanced c=50 maxply=80";
+		CONDITIONS[22] = "threads=2 book=FusekiBook timeformula=enhanced c=55 maxply=80";
+		CONDITIONS[23] = "threads=2 book=FusekiBook timeformula=enhanced c=30 maxply=40";
 	}
 	
 	/** Path to run gnugo on your machine */
