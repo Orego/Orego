@@ -30,14 +30,16 @@ public class Collate {
 					String token = stoken.nextToken();
 					if (token.equals("PB")) { //If the player is black
 						token = stoken.nextToken();
-						if (token.contains("orego.ui.Orego")) {
+						// Changed for self-play experiment
+						if (!token.contains("workspace2")) {
 							oregoColor = 'B';
 							condition = token.substring(token.indexOf("orego.ui.Orego") + 15);
 						}
 					}
 					if (token.equals("PW")) { //If the player is white
 						token = stoken.nextToken();
-						if (token.contains("orego.ui.Orego")) {
+						// Changed for self-play experiment
+						if (!token.contains("workspace2")) {
 							oregoColor = 'W';
 							condition = token.substring(token.indexOf("orego.ui.Orego") + 15);
 						}

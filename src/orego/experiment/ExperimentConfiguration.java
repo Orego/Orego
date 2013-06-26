@@ -42,7 +42,8 @@ public class ExperimentConfiguration {
 		}
 		RESULTS_DIRECTORY = userProp.getProperty("resultsdirectory");
 		JAVA_WITH_OREGO_CLASSPATH = userProp.getProperty("oregoclasspath");
-		GNUGO = userProp.getProperty("gnugoclasspath") + " --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+		GNUGO = "java -ea -server -Xmx1024M -cp /home/drake/workspace2/Orego/bin/ orego.ui.Orego threads=2 book=FusekiBook";
+//		GNUGO = userProp.getProperty("gnugoclasspath") + " --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 		String s = userProp.getProperty("hosts");
 		HOSTS = s.trim().split("\\s+");
 	}
@@ -75,13 +76,10 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[1];
 
 	static {
-		CONDITIONS[0] = "player=Lgrf2 threads=2 book=FusekiBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		CONDITIONS[0] = "threads=2 book=FusekiBook";
 	}
 	
 	/** Path to run gnugo on your machine */
