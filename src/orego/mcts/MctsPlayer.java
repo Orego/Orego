@@ -1,23 +1,28 @@
 package orego.mcts;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.*;
-import static orego.experiment.Debug.debug;
-import static java.lang.Math.*;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 import static java.lang.String.format;
-import static java.lang.Double.*;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.opposite;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.getAllPointsOnBoard;
+import static orego.core.Coordinates.pointToString;
+import static orego.experiment.Debug.debug;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import orego.core.Board;
+import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
-import orego.util.*;
-import orego.core.*;
-import orego.heuristic.Heuristic;
+import orego.util.IntList;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -249,12 +254,9 @@ public class MctsPlayer extends McPlayer {
 			return "";
 		}
 		String result = "";
-		//IntList dead = stonesNotUnconditionallyAlive();
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) != VACANT) {
-				//if (status.equals("alive") != dead.contains(p)) {
 				result += pointToString(p) + " ";
-				//}
 			}
 		}
 		return result;
