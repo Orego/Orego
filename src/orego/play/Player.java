@@ -81,10 +81,6 @@ public class Player implements Playable {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		return heuristics.selectAndPlayOneMove(random, board);
 	}
-
-	public int bestCleanupMove(){
-		return bestMove();
-	}
 	
 	public int bestMove() {
 		int move;

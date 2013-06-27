@@ -68,12 +68,10 @@ public class MctsPlayer extends McPlayer {
 	/** The transposition table. */
 	private TranspositionTable table;
 
-	private boolean kgsCleanupMode = false;
+	//private boolean kgsCleanupMode = false;
 
 	@Override
 	public void beforeStartingThreads() {
-		boolean shouldWeClean = (kgsCleanupMode || isCoupDeGraceActive)
-				&& thereAreDeadEnemyStones();
 		if (getBoard().getMove(getBoard().getTurn()) == PASS) {
 			// Add wins to the moves that are liberties of dead stones (to
 			// emphasize killing them).
@@ -132,16 +130,7 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
-			if (kgsCleanupMode && thereAreDeadEnemyStones()) { // if
-																// kgsCleanupMode
-																// is true and
-																// there are
-																// enemy dead
-																// stones, do
-																// not consider
-																// PASS
-				result = vacantPoints.get(0);
-			}
+			
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int move = vacantPoints.get(i);
 				if (node.getWins(move) > best) {
@@ -157,7 +146,6 @@ public class MctsPlayer extends McPlayer {
 			isCoupDeGraceActive = true;
 		}
 
-		kgsCleanupMode = false;
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
 			return RESIGN;
@@ -200,19 +188,10 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
-	public int bestCleanupMove() {
-		kgsCleanupMode = true;
-		int bestMove = bestMove();
-		kgsCleanupMode = false;
-		return bestMove;
-	}
-
-	@Override
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
 		if (getBoard().getPasses() >= 1) {
-			boolean shouldWeClean = kgsCleanupMode && thereAreDeadEnemyStones();
-			if (secondPassWouldWinGame() && !shouldWeClean) {
+			if (secondPassWouldWinGame()){// && !shouldWeClean) {
 				// Pass if we can win outright by doing so
 				return PASS;
 			}
@@ -270,12 +249,12 @@ public class MctsPlayer extends McPlayer {
 			return "";
 		}
 		String result = "";
-		IntList dead = stonesNotUnconditionallyAlive();
+		//IntList dead = stonesNotUnconditionallyAlive();
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) != VACANT) {
-				if (status.equals("alive") != dead.contains(p)) {
-					result += pointToString(p) + " ";
-				}
+				//if (status.equals("alive") != dead.contains(p)) {
+				result += pointToString(p) + " ";
+				//}
 			}
 		}
 		return result;
