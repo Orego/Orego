@@ -245,7 +245,7 @@ public class MctsPlayer extends McPlayer {
 
 	/** Used by handleCommand. */
 	protected String finalStatusList(String status) {
-		if (status.equals("seki")) {
+		if (status.equals("seki") || status.equals("dead")) {
 			return "";
 		}
 		String result = "";
