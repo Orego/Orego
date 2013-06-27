@@ -110,7 +110,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
-				//System.out.println(pointToString(p)+" "+survivals[p]);
+//				System.out.println(pointToString(p)+" "+survivals[p]);
 				if (survivals[p] < runs) {
 					// This chain is not always alive
 					int q = p;

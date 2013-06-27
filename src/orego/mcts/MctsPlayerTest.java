@@ -11,6 +11,7 @@ import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import orego.heuristic.HeuristicList;
 import orego.play.UnknownPropertyException;
+import orego.util.IntSet;
 
 public class MctsPlayerTest {
 
@@ -684,7 +685,8 @@ public class MctsPlayerTest {
 
 	@Test
 	public void testConnect() throws UnknownPropertyException {
-			String[] problem = { "##########OOOOOOOOO",// 19
+			String[] problem = {
+					"##########OOOOOOOOO",// 19
 					"##.#######OOOOOO.OO",// 18
 					"#...######OOOOO...O",// 17
 					"##.#######OOOOOO.OO",// 16
@@ -711,6 +713,71 @@ public class MctsPlayerTest {
 			assertEquals(at("k10"), move);
 	}
 
+	@Test
+	public void testDefendBeforeExecutingDeadStones() throws UnknownPropertyException {
+			String[] problem = {
+					"##########OOOOOOOOO",// 19
+					"#OO.######OOOOO...O",// 18
+					"#OO.######OOOOO...O",// 17
+					"#OO.######OOOOO...O",// 16
+					"##########OOOOOOOOO",// 15
+					"##########OOOOOOOOO",// 14
+					"###.######OOOOOOOOO",// 13
+					"##########OOOOOOOOO",// 12
+					"##########OOOO#####",// 11
+					"OOOOOOOOOOOOOO#####",// 10
+					"OOOOOOOOO##########",// 9
+					"OOOOOOOOO##########",// 8
+					"OOOOOOOOO##########",// 7
+					"OOOOOOOOO##########",// 6
+					"OOO...OOO##########",// 5
+					"OOO...OOO######.###",// 4
+					"OOO...OOO#####...##",// 3
+					"OOOOOOOOO######.###",// 2
+					"OOOOOOOOO##########" // 1
+			      // ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(WHITE, problem);
+			player.acceptMove(PASS);
+			player.setProperty("playouts", "10000");
+			int move = player.bestMove();
+			assertEquals(at("Q3"), move);
+	}
+
+	@Test
+	public void testKillDeadStonesAfterPassWhenSafe() throws UnknownPropertyException {
+			String[] problem = {
+					"##########OOOOOOOOO",// 19
+					"#OO.######OOOOO...O",// 18
+					"#OO.######OOOOO.OOO",// 17
+					"#OO.######OOOOO...O",// 16
+					"##########OOOOOOOOO",// 15
+					"##########OOOOOOOOO",// 14
+					"###.######OOOOOOOOO",// 13
+					"##########OOOOOOOOO",// 12
+					"##########OOOO#####",// 11
+					"OOOOOOOOOOOOOO#####",// 10
+					"OOOOOOOOO##########",// 9
+					"OOOOOOOOO##########",// 8
+					"OOOOOOOOO##########",// 7
+					"OOOOOOOOO##########",// 6
+					"OOO...OOO##########",// 5
+					"OOO.OOOOO######.###",// 4
+					"OOO...OOO#####.#.##",// 3
+					"OOOOOOOOO######.###",// 2
+					"OOOOOOOOO##########" // 1
+			      // ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(WHITE, problem);
+			player.acceptMove(PASS);
+			player.setProperty("playouts", "10000");
+			int move = player.bestMove();
+//			System.out.println(pointToString(move));
+			IntSet correct = player.getBoard().getLiberties(at("b18"));
+//			assertEquals(at("Q3"), move);
+			assertTrue(correct.contains(move));
+	}
+	
 	@Test
 	public void testSuperko() {
 		String[] problem;
