@@ -145,18 +145,20 @@ public class Game {
 				// accumulate the time the player spent their total
 				timeUsedInMilliseconds[getColorToPlay()] += System
 						.currentTimeMillis() - timeLastMoveWasRequested;
+				double timeLeftForThisPlayer = GAME_TIME_IN_SECONDS	- timeUsedInMilliseconds[getColorToPlay()] / 1000.0;
+				String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL" : "WL") + "[" + timeLeftForThisPlayer + "]";
 				String coordinates = line.substring(line.indexOf(' ') + 1);
 				// sgf output
 				if (coordinates.equals("PASS")) {
 					out.println((getColorToPlay() == BLACK ? ";B" : ";W")
-							+ "[]");
+							+ "[]" + timeLeftIndicator);
 					out.flush();
-				}
-				else if (coordinates.toLowerCase().equals("resign")) {
-					//do nothing.
-				}
-				else {
-					out.println((getColorToPlay() == BLACK ? ";B" : ";W")+"[" + rowToSgfChar(row(at(coordinates))) + columnToSgfChar(column(at(coordinates))) + "]");
+				} else if (coordinates.toLowerCase().equals("resign")) {
+					// do nothing.
+				} else {
+					out.println((getColorToPlay() == BLACK ? ";B" : ";W") + "["
+							+ rowToSgfChar(row(at(coordinates)))
+							+ columnToSgfChar(column(at(coordinates))) + "]" + timeLeftIndicator);
 					out.flush();
 				}
 				// end sgf output

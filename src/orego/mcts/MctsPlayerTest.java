@@ -92,7 +92,7 @@ public class MctsPlayerTest {
 		};
 		int successes1 = 0;
 		for (int i = 0; i < 10; i++) {
-			player.setPlayoutLimit(10000);
+			player.setPlayoutLimit(1000);
 			player.reset();
 			player.setUpProblem(BLACK, problem1);
 			player.bestMove();
@@ -146,12 +146,14 @@ public class MctsPlayerTest {
 	}
 	
 	@Test
-	public void testCoupDeGrace() {
+	public void testCoupDeGrace() throws UnknownPropertyException {
+		player.setProperty("grace", "true");
+		assertTrue(player.isGrace());
 		String[] problem = new String[] {
-				"..O#..#..#O#######.",// 19
-				".OO#####.#O#######.",// 18
-				"O.O#.#.#.#O########",// 17
-				".OO#####.#O##.###.#",// 16
+				"..O.O.#..#O#######.",// 19
+				".OO.O#####O#######.",// 18
+				"O.O.O#.#.#O########",// 17
+				".OOOO#####O##.###.#",// 16
 				"OOOOOOOO##O#######.",// 15
 				".O.....OOOO####....",// 14
 				".OOOOOOO..O#####.#.",// 13
@@ -166,8 +168,8 @@ public class MctsPlayerTest {
 				"..O.O.#O.#O.O.O#.#.",// 4
 				".OO.O.#O##OOOOO##..",// 3
 				"O.O.O.#OOO##O######",// 2
-				".OO.O.##O.#.######." // 1
-			  // ABCDEFGHJKLMNOPQRST
+				"..O.O.##O.#.######." // 1
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
@@ -175,10 +177,11 @@ public class MctsPlayerTest {
 			player.reset();
 			player.setUpProblem(BLACK, problem);
 			player.bestMove();
+			assertTrue(player.isCoupDeGraceActive());
 			int move = player.bestMove();
-			if(move == at("J4")) {
+			if (move == at("J4")) {
 				successes++;
-			} else if(move == at("K1")) {
+			} else if (move == at("K1")) {
 				failures ++;
 			}
 		}

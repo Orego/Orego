@@ -24,6 +24,14 @@ public interface Playable {
 	public int bestMove();
 
 	/**
+	 * Ends the game, possibly temporarily: it may be picked up again.
+	 * Subclasses should override this to, for instance, stop threads from
+	 * running, but not clear the board or clear data structures it may need in
+	 * case the game continues later.
+	 */
+	public void endGame();
+
+	/**
 	 * @see orego.core.Board#finalScore()
 	 */
 	public double finalScore();
