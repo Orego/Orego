@@ -554,7 +554,7 @@ public class MctsPlayer extends McPlayer {
 	public boolean isGrace() {
 		return grace;
 	}
-
+	
 	@Override
 	public void reset() {
 		try {

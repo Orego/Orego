@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import ec.util.MersenneTwisterFast;
 
 import orego.core.Board;
+import orego.core.Colors;
 import orego.heuristic.Heuristic;
 import orego.play.ThreadedPlayer;
 import orego.play.UnknownPropertyException;
@@ -96,23 +97,32 @@ public abstract class McPlayer extends ThreadedPlayer {
 		// Perform runs to see which points survive
 		int runs = 1000;
 		McRunnable r = (McRunnable) getRunnable(0);
+		((MctsPlayer)r.getPlayer()).getRoot().addLosses(PASS, 500);
 		int[] survivals = new int[getExtendedBoardArea()];
 		for (int i = 0; i < runs; i++) {
+			
+//			r.performMcRun();
 			r.getBoard().copyDataFrom(getBoard());
 			r.getBoard().setPasses(0);
+			//r.getBoard().setColorToPlay(Colors.opposite(r.getBoard().getColorToPlay()));
 			r.playout();
+			
 			for (int p : getAllPointsOnBoard()) {
 				if (r.getBoard().getColor(p) == getBoard().getColor(p)) {
 					survivals[p]++;
 				}
 			}
 		}
+
+		((MctsPlayer)r.getPlayer()).getRoot().addLosses(PASS, -500);
+		System.out.println(((MctsPlayer)r.getPlayer()).getRoot());
 		// Clean up data by chain
 		IntList result = new IntList(getBoardArea());
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
-				if (survivals[p] < runs / 2) {
+				System.out.println(pointToString(p)+" "+((double)survivals[p])/runs);
+				if (survivals[p] < runs * .35) {
 					// This chain is dead
 					int q = p;
 					do {
@@ -323,15 +333,14 @@ public abstract class McPlayer extends ThreadedPlayer {
 	public abstract void incorporateRun(int winner, McRunnable runnable);
 
 	/**
-	 * Returns true if we would win after removing OUR dead stones.
+	 * Returns true if we would win after removing ALL dead stones.
 	 */
 	protected boolean secondPassWouldWinGame() {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
 		IntList dead = deadStones();
 		for (int p : getAllPointsOnBoard()) {
-			if ((getBoard().getColor(p) == getBoard().getColorToPlay())
-					&& dead.contains(p)) {
+			if (dead.contains(p)) {
 				after.removeStone(p);
 			}
 		}

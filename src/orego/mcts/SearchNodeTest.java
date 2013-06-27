@@ -16,6 +16,23 @@ public class SearchNodeTest {
 		node = new SearchNode();
 		node.reset(0L);
 	}
+	
+	@Test
+	public void testAddLoseWinsLosses(){
+		node.addWins(PASS, 250);
+		double winrate = node.getWinRate(PASS);
+		int totalruns = node.getTotalRuns();
+		int passruns = node.getRuns(PASS);
+		node.addLosses(PASS, 500);
+		assertEquals(totalruns + 500, node.getTotalRuns());
+		assertEquals(passruns + 500, node.getRuns(PASS));
+		assertEquals(winrate * passruns/(passruns + 500),node.getWinRate(PASS),0.0000001);
+		node.addLosses(PASS, -500);
+		assertEquals(totalruns , node.getTotalRuns());
+		assertEquals(passruns , node.getRuns(PASS));
+		assertEquals(winrate ,node.getWinRate(PASS),0.0000001);
+	
+	}
 
 	@Test
 	public void testInitialValues() {

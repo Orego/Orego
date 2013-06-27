@@ -149,7 +149,8 @@ public class McRunnable implements Runnable {
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				selectAndPlayOneMove(random, board);
+				//System.out.print(pointToString(
+				selectAndPlayOneMove(random, board);//)+" ");
 				hashes[board.getTurn()] = board.getHash();
 			}
 			if (board.getPasses() >= 2) {
