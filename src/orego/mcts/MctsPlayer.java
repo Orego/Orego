@@ -195,13 +195,9 @@ public class MctsPlayer extends McPlayer {
 	@Override
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
-		if (getBoard().getPasses() >= 1) {
-			if (secondPassWouldWinGame()){
-				// Pass if we can win outright by doing so
-				return PASS;
-			}
-			// Don't pass (if there's another legal move -- see exclude()).
-			root.exclude(PASS);
+		if ((getBoard().getPasses() >= 1) && secondPassWouldWinGame()) {
+			// Pass if we can win outright by doing so
+			return PASS;
 		}
 		return bestPlayMove(root);
 	}

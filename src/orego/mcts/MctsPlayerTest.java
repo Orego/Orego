@@ -401,7 +401,8 @@ public class MctsPlayerTest {
 
 	@Test
 	public void testPassInSeki() {
-			String[] problem = { "#.#########OOOOOOOO",// 19
+			String[] problem = {
+					"#.#########OOOOOOOO",// 19
 					".##########OOOOOOO.",// 18
 					"###########OOOOOOOO",// 17
 					"###########OOOOOOO.",// 16
@@ -562,7 +563,8 @@ public class MctsPlayerTest {
 	@Test
 	public void testSecondPassWouldLoseGame() {
 		String[] problem;
-			problem = new String[] { "OOOOOOOOOOOOOOOOOOO",// 19
+			problem = new String[] {
+					"OOOOOOOOOOOOOOOOOOO",// 19
 					"O..OOOOOOO#OOOOOOOO",// 18
 					"O...OO############O",// 17
 					"OO.OOOOOOO#OOOOOOOO",// 16
@@ -581,15 +583,11 @@ public class MctsPlayerTest {
 					"#####O#####OO.OOO.O",// 3
 					"#####O#..##OOOOOOOO",// 2
 					"#######..##########" // 1
-			// ABCDEFGHJKLMNOPQRST
+			      // ABCDEFGHJKLMNOPQRST
 			};
 		player.getBoard().setUpProblem(WHITE, problem);
 		player.acceptMove(PASS);
-		// Black has to kill the top white group to win, but passing
-		// to end the game appears to win
-		player.getRoot().addWins(PASS, 100);
-		// System.out.println(pointToString(player.bestStoredMove()));
-		assertFalse(PASS == player.bestStoredMove());
+		assertFalse(PASS == player.bestMove());
 	}
 	
 	@Test
