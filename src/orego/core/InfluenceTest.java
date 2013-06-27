@@ -7,9 +7,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TerritoryEstimatorTest {
+public class InfluenceTest {
 
-	@Test
+//	@Test
 	public void testSimpleDilation() {
 		Board board = new Board();
 		String[] problem = {
@@ -35,13 +35,13 @@ public class TerritoryEstimatorTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		TerritoryEstimator inf = new TerritoryEstimator(board);
+		Influence inf = new Influence(board);
 		System.out.println(inf);
-		inf.dilateMultipleTimes(3);
+		inf.bouzyDilate(3);
 		System.out.println(inf);
-		inf.erodeMultipleTimes(1);
+		inf.bouzyErode(1);
 		System.out.println(inf);
-		inf.erodeMultipleTimes(6);
+		inf.bouzyErode(6);
 		System.out.println(inf);
 	}
 	
@@ -71,10 +71,15 @@ public class TerritoryEstimatorTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(WHITE, problem);
-		TerritoryEstimator inf = new TerritoryEstimator(board);
+		Influence inf = new Influence(board);
 		System.out.println(inf);
-		inf.dilateMultipleTimes(5);
-		inf.erodeMultipleTimes(13);
+
+		inf.bouzyDilate(4);
+		inf.bouzyErode(13);
 		System.out.println(inf);
+		
+		Influence inf2 = new Influence(board);
+		inf2.zobristDilate(4);
+		System.out.println(inf2);
 	}
 }
