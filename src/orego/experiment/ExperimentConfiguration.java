@@ -75,10 +75,11 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[1];
+	public static final String[] CONDITIONS = new String[2];
 
 	static {
 		CONDITIONS[0] = "player=InfluencePlayer threads=2 book=FusekiBook";
+		CONDITIONS[1] = "threads=2 book=FusekiBook";
 	}
 	
 	/** Path to run gnugo on your machine */

@@ -39,7 +39,7 @@ public class InfluencePlayer extends TimePlayer {
 
 		for (int p : getAllPointsOnBoard()) {
 			if (Math.abs(inf.getValue(p)) <= maxInfluenceToBias) {
-				System.err.println(pointToString(p) + " has influence " + inf.getValue(p) + ", so we are adding " + winsToAdd + " wins.");
+//				System.err.println(pointToString(p) + " has influence " + inf.getValue(p) + ", so we are adding " + winsToAdd + " wins.");
 				getRoot().addWins(p, winsToAdd);
 			}
 		}
