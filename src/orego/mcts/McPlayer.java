@@ -86,11 +86,9 @@ public abstract class McPlayer extends ThreadedPlayer {
 	}
 
 	/**
-	 * Returns a list of dead stones on the board. A chain is considered dead
-	 * if, in many Monte Carlo runs, the root point of the chain usually belongs
-	 * to the opponent.
+	 * Returns a list of stones on the board that are not unconditionally alive, that is, with two eyes. 
 	 */
-	protected IntList deadStones() {
+	protected IntList stonesNotUnconditionallyAlive() {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		// Perform runs to see which points survive
@@ -112,8 +110,9 @@ public abstract class McPlayer extends ThreadedPlayer {
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
-				if (survivals[p] < runs / 2) {
-					// This chain is dead
+				//System.out.println(pointToString(p)+" "+survivals[p]);
+				if (survivals[p] < runs) {
+					// This chain is not always alive
 					int q = p;
 					do {
 						result.add(q);
@@ -328,7 +327,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 	protected boolean secondPassWouldWinGame() {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
-		IntList dead = deadStones();
+		IntList dead = stonesNotUnconditionallyAlive();
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) == getBoard().getColorToPlay())
 					&& dead.contains(p)) {
