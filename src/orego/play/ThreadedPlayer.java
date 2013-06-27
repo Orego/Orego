@@ -78,6 +78,11 @@ public abstract class ThreadedPlayer extends Player {
 	public abstract int bestStoredMove();
 
 	@Override
+	public void endGame() {
+		stopThreads();
+	}
+
+	@Override
 	public int getMillisecondsPerMove() {
 		return millisecondsPerMove;
 	}

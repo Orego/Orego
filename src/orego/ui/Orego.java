@@ -362,18 +362,16 @@ public class Orego {
 			try {
 				Scanner scanner;
 				acknowledge();
-				player.reset(); // to stop threaded players
+				player.endGame(); // to stop threaded players
 				scanner = new Scanner(new File("QuitAfterGameOver.txt"));
 				if (scanner.nextLine().equals("true")) {
 					scanner.close();
 					return false;
 				} else {
 					scanner.close();
-					acknowledge();
 				}
 			} catch (FileNotFoundException e) {
 				// The file was not found, so we continue to play.
-				acknowledge();
 			}
 		} else if (command.equals("time_settings")) {
 			int secondsLeft = parseInt(arguments.nextToken());

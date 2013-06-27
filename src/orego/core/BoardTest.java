@@ -932,6 +932,17 @@ public class BoardTest {
 		assertEquals(diagramToNeighborhood(".O#\nO .\n***"),
 				board.getNeighborhoodColorsReversed(at("b1")));
 	}
+	
+	@Test
+	public void testPlaceInitialStone() {
+		int initialColor = board.getColorToPlay();
+		board.placeInitialStone(WHITE, "a2");
+		board.placeInitialStone(WHITE, "c3");
+		assertEquals(WHITE, board.getColor(at("a2")));
+		assertEquals(WHITE, board.getColor(at("c3")));
+		assertEquals(initialColor, board.getColorToPlay());
+		assertEquals(0, board.getTurn());
+	}
 
 	@Test
 	public void testPlayFast() {
