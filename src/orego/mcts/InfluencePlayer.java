@@ -19,7 +19,7 @@ public class InfluencePlayer extends TimePlayer {
 
 	private int erosions = 13;
 
-	private int influenceType = 0;
+	private int influenceType = BOUZY;
 
 	private int maxInfluenceToBias = 1;
 
@@ -38,7 +38,7 @@ public class InfluencePlayer extends TimePlayer {
 		}
 
 		for (int p : getAllPointsOnBoard()) {
-			if (Math.abs(inf.getValue(p)) < maxInfluenceToBias) {
+			if (Math.abs(inf.getValue(p)) <= maxInfluenceToBias) {
 				System.err.println(pointToString(p) + " has influence " + inf.getValue(p) + ", so we are adding " + winsToAdd + " wins.");
 				getRoot().addWins(p, winsToAdd);
 			}
@@ -135,6 +135,8 @@ public class InfluencePlayer extends TimePlayer {
 			dilations = Integer.parseInt(value);
 		} else if (property.equals("erosions")) {
 			erosions = Integer.parseInt(value);
+		} else if (property.equals("maxinfluencetobias")) {
+			maxInfluenceToBias = Integer.parseInt(value);
 		} else {
 			super.setProperty(property, value);
 		}
