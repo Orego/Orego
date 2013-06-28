@@ -55,21 +55,6 @@ public class MctsPlayer extends McPlayer {
 				+ benchMarkInfo[1]);
 	}
 
-	/**
-	 * True if the "coup de grace" property has been set. This causes the player
-	 * to try to end the game (by capturing enough enemy stones that it can
-	 * safely pass) when it is very confident of winning.
-	 */
-	private boolean grace;
-
-	/**
-	 * True if coup de grace mode is active, i.e., the coup de grace property
-	 * has been set and we have determined that we should emphasize capturing
-	 * enemy stones on the next move. (This gets reset to false after each
-	 * move.)
-	 */
-	private boolean isCoupDeGraceActive;
-
 	/** The transposition table. */
 	private TranspositionTable table;
 
@@ -99,9 +84,6 @@ public class MctsPlayer extends McPlayer {
 				getRoot().addWins(recommendedMove, bias);
 			}
 		}
-		// Don't emphasize capturing dead stones anymore (unless this gets reset
-		// to true by bestStoredMove())
-		isCoupDeGraceActive = false;
 	}
 
 	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
@@ -146,11 +128,6 @@ public class MctsPlayer extends McPlayer {
 		} while ((result != PASS)
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
-		// Consider entering coup de grace mode
-		if (grace && getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER) {
-			isCoupDeGraceActive = true;
-		}
-
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
 			return RESIGN;
@@ -535,21 +512,6 @@ public class MctsPlayer extends McPlayer {
 		}
 	}
 
-	/**
-	 * True if coup de grace mode is active for the next move. For testing.
-	 */
-	public boolean isCoupDeGraceActive() {
-		return isCoupDeGraceActive;
-	}
-
-	/**
-	 * Returns true if the coup de grace property (which encourages capturing
-	 * enemy stones when the game is clearly won) is true.
-	 */
-	public boolean isGrace() {
-		return grace;
-	}
-
 	@Override
 	public void reset() {
 		try {
@@ -620,9 +582,6 @@ public class MctsPlayer extends McPlayer {
 		if (property.equals("pool")) {
 			table = new TranspositionTable(Integer.parseInt(value),
 					getPrototypeNode());
-		} else if (property.equals("grace")) {
-			assert value.equals("true");
-			grace = true;
 		} else {
 			super.setProperty(property, value);
 		}

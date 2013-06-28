@@ -97,7 +97,7 @@ public class MctsPlayerTest {
 			player.reset();
 			player.setCleanUpMode(true);
 			player.setUpProblem(BLACK, problem1);
-			player.bestMove();
+			player.bestMove(); // To generate some playouts
 			int move1 = player.bestMove();
 			assertTrue(move1 != PASS);
 			if (move1 == at("a3")) {
@@ -134,7 +134,7 @@ public class MctsPlayerTest {
 			player.reset();
 			player.setCleanUpMode(true);
 			player.setUpProblem(BLACK, problem2);
-			player.bestMove();
+			player.bestMove(); // To generate some playouts
 			int move2 = player.bestMove();
 			assertTrue(move2 != PASS);
 			if (move2 == at("C12") || move2 == at("D11") || move2 == at("D13") || move2 == at("E12")) {
@@ -173,7 +173,7 @@ public class MctsPlayerTest {
 		for (int i = 0; i < 10; i++) {
 			player.reset();
 			player.setUpProblem(BLACK, problem);
-			player.bestMove();
+			player.bestMove(); // To generate some playouts
 			player.setCleanUpMode(true);
 			int move = player.bestMove();
 			if (move == at("J4")) {
@@ -216,7 +216,7 @@ public class MctsPlayerTest {
 			player.reset();
 			player.setUpProblem(WHITE, problem);
 			player.acceptMove(at("a1"));
-			player.bestMove();
+			player.bestMove(); // To generate some playouts
 			int move = player.bestMove();
 			if (move == at("a2") || move == at("b1")) {
 				failures++;
@@ -998,13 +998,6 @@ public class MctsPlayerTest {
 		runnable.copyDataFrom(player.getBoard());
 		int move = player.selectAndPlayMove(player.getRoot(), runnable);
 		assertEquals(PASS, move);
-	}
-
-	@Test
-	public void testSetPropertyGrace() throws UnknownPropertyException {
-		assertEquals(false, player.isGrace());
-		player.setProperty("grace", "true");
-		assertEquals(true, player.isGrace());
 	}
 
 	@Test
