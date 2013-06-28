@@ -75,21 +75,22 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[12];
+	public static final String[] CONDITIONS = new String[13];
 
 	static {
-		CONDITIONS[0] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=5 maxinfluencetobias=0";
-		CONDITIONS[1] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=10 maxinfluencetobias=0";
-		CONDITIONS[2] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=15 maxinfluencetobias=0";
-		CONDITIONS[3] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=20 maxinfluencetobias=0";
-		CONDITIONS[4] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=5 maxinfluencetobias=1";
-		CONDITIONS[5] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=10 maxinfluencetobias=1";
-		CONDITIONS[6] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=15 maxinfluencetobias=1";
-		CONDITIONS[7] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=20 maxinfluencetobias=1";
-		CONDITIONS[8] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=5 maxinfluencetobias=2";
-		CONDITIONS[9] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=10 maxinfluencetobias=2";
-		CONDITIONS[10] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=15 maxinfluencetobias=2";
-		CONDITIONS[11] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=20 maxinfluencetobias=2";
+		CONDITIONS[0] = "threads=2 book=FusekiBook";
+		CONDITIONS[1] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=5 maxinfluencetobias=0";
+		CONDITIONS[2] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=10 maxinfluencetobias=0";
+		CONDITIONS[3] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=15 maxinfluencetobias=0";
+		CONDITIONS[4] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=20 maxinfluencetobias=0";
+		CONDITIONS[5] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=5 maxinfluencetobias=1";
+		CONDITIONS[6] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=10 maxinfluencetobias=1";
+		CONDITIONS[7] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=15 maxinfluencetobias=1";
+		CONDITIONS[8] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=20 maxinfluencetobias=1";
+		CONDITIONS[9] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=5 maxinfluencetobias=2";
+		CONDITIONS[10] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=10 maxinfluencetobias=2";
+		CONDITIONS[11] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=15 maxinfluencetobias=2";
+		CONDITIONS[12] = "player=InfluencePlayer threads=2 book=FusekiBook influencetype=bouzy influencebias=20 maxinfluencetobias=2";
 	}
 	
 	/** Path to run gnugo on your machine */
