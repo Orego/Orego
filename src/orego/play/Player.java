@@ -208,6 +208,7 @@ public class Player implements Playable {
 
 	public void reset() {
 		cleanUpMode = false;
+		inOpeningBook = true;
 		if (board == null) {
 			board = new Board();
 		} else { // The new board must have the same komi as the old one
