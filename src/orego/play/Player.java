@@ -109,6 +109,10 @@ public class Player implements Playable {
 		return bestMove();
 	}
 
+	public void endGame() {
+		// Do nothing special
+	}
+
 	public double finalScore() {
 		return board.finalScore();
 	}

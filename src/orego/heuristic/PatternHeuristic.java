@@ -17,9 +17,32 @@ import static orego.heuristic.PatternHeuristicPatterns.*;
 /** Suggests moves near the last move that match patterns. */
 public class PatternHeuristic extends Heuristic {
 	
+
+	private int numberOfBadPatterns;
+	
+	/** Number of good patterns. */
+	private int numberOfGoodPatterns;
 	/** Empirically, we've determined that this many top patterns should be considered "good". */
 	private static int DEFAULT_NUMBER_OF_GOOD_PATTERNS = 400;
+		
+	/** Good neighborhoods patterns, indexed by color. */
+	private BitVector[] goodNeighborhoods = {
+											new BitVector(NUMBER_OF_NEIGHBORHOODS),
+											new BitVector(NUMBER_OF_NEIGHBORHOODS) };
 	
+	protected BitVector getGoodNeighborhoods(int color){
+		return goodNeighborhoods[color];
+	}
+	
+	protected int getNumberOfBadPatterns(){
+		return numberOfBadPatterns;
+	}
+	
+	protected int getNumberOfGoodPatterns(){
+		return numberOfGoodPatterns;
+	}
+		
+
 	/**
 	 * The number of total patterns, including impossible ones.
 	 */
@@ -64,14 +87,6 @@ public class PatternHeuristic extends Heuristic {
 		}
 		return false;
 	}
-
-	/** Good neighborhoods patterns, indexed by color. */
-	protected BitVector[] goodNeighborhoods = {
-											new BitVector(NUMBER_OF_NEIGHBORHOODS),
-											new BitVector(NUMBER_OF_NEIGHBORHOODS) };
-
-	/** Number of good patterns. */
-	protected int numberOfGoodPatterns;
 	
 	public PatternHeuristic(int weight) {
 		super(weight);

@@ -146,7 +146,9 @@ public class MctsPlayerTest {
 	}
 	
 	@Test
-	public void testCoupDeGrace() {
+	public void testCoupDeGrace() throws UnknownPropertyException {
+		player.setProperty("grace", "true");
+		assertTrue(player.isGrace());
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -167,7 +169,7 @@ public class MctsPlayerTest {
 				".OO.O.#O##OOOOO##..",// 3
 				"O.O.O.#OOO##O######",// 2
 				"..O.O.##O.#.######." // 1
-			  // ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
@@ -176,10 +178,11 @@ public class MctsPlayerTest {
 			player.setUpProblem(WHITE, problem);
 			player.getBoard().play(at("b1"));
 			player.bestMove();
+			assertTrue(player.isCoupDeGraceActive());
 			int move = player.bestMove();
-			if(move == at("J4")) {
+			if (move == at("J4")) {
 				successes++;
-			} else if(move == at("K1")) {
+			} else if (move == at("K1")) {
 				failures ++;
 			}
 		}
