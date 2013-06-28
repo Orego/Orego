@@ -95,6 +95,7 @@ public class MctsPlayerTest {
 		for (int i = 0; i < 10; i++) {
 			player.setPlayoutLimit(1000);
 			player.reset();
+			player.setCleanUpMode(true);
 			player.setUpProblem(BLACK, problem1);
 			player.bestMove();
 			int move1 = player.bestMove();
@@ -131,6 +132,7 @@ public class MctsPlayerTest {
 		int successes2 = 0;
 		for (int i = 0; i < 10; i++) {
 			player.reset();
+			player.setCleanUpMode(true);
 			player.setUpProblem(BLACK, problem2);
 			player.bestMove();
 			int move2 = player.bestMove();
@@ -144,8 +146,6 @@ public class MctsPlayerTest {
 	
 	@Test
 	public void testCoupDeGrace() throws UnknownPropertyException {
-		player.setProperty("grace", "true");
-		assertTrue(player.isGrace());
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -174,12 +174,54 @@ public class MctsPlayerTest {
 			player.reset();
 			player.setUpProblem(BLACK, problem);
 			player.bestMove();
-			assertTrue(player.isCoupDeGraceActive());
+			player.setCleanUpMode(true);
 			int move = player.bestMove();
 			if (move == at("J4")) {
 				successes++;
 			} else if (move == at("K1")) {
 				failures ++;
+			}
+		}
+		assertTrue(failures == 0);
+		assertTrue(successes >= 5);
+	}
+
+	@Test
+	public void testDoNotCoupDeGraceTooEarly() throws UnknownPropertyException {
+		String[] problem = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...#...........#...",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...#...........#...",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		int successes = 0;
+		int failures = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(WHITE, problem);
+			player.acceptMove(at("a1"));
+			player.bestMove();
+			int move = player.bestMove();
+			if (move == at("a2") || move == at("b1")) {
+				failures++;
+			} else {
+				successes++;
 			}
 		}
 		assertTrue(failures == 0);

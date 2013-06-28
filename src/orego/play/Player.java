@@ -34,6 +34,20 @@ public class Player implements Playable {
 	/** The Board this player plays on. */
 	private Board board;
 
+	/** If true, this player should prefer moves that kill dead stones (for kgs-genmove_cleanup). */
+	private boolean cleanUpMode;
+	
+	/**
+	 * Returns whether the player is in cleanup mode (for kgs-genmove_cleanup).
+	 */
+	public boolean isCleanUpMode() {
+		return cleanUpMode;
+	}
+
+	public void setCleanUpMode(boolean cleanupMode) {
+		this.cleanUpMode = cleanupMode;
+	}
+
 	/** Used to generate moves in bestMove(). */
 	private HeuristicList heuristics;
 	
@@ -193,6 +207,7 @@ public class Player implements Playable {
 	}
 
 	public void reset() {
+		cleanUpMode = false;
 		if (board == null) {
 			board = new Board();
 		} else { // The new board must have the same komi as the old one

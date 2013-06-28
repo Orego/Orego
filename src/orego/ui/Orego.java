@@ -276,6 +276,9 @@ public class Orego {
 			if(!cgtc){
 				assert color == player.getBoard().getColorToPlay();
 			}
+			if (command.equals("kgs-genmove_cleanup")) {
+				player.setCleanUpMode(true);
+			}
 			point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");

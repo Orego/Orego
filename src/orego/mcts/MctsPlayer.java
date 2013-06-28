@@ -77,7 +77,7 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void beforeStartingThreads() {
-		if (getBoard().getMove(getBoard().getTurn()) == PASS) {
+		if (isCleanUpMode() || getBoard().getMove(getBoard().getTurn() - 1) == PASS) {
 			// Add wins to the moves that are liberties of dead stones (to
 			// emphasize killing them).
 			IntList deadStones = stonesNotUnconditionallyAlive();
