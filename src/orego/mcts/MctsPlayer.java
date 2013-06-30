@@ -476,20 +476,6 @@ public class MctsPlayer extends McPlayer {
 		return result;
 	}
 
-	/** Returns true if there are enemy dead stones on the board. */
-	protected boolean thereAreDeadEnemyStones() {
-		IntList alreadyDeadStones = stonesNotUnconditionallyAlive();
-		for (int i = 0; i < alreadyDeadStones.size(); i++) {
-			// if there are enemy dead stones
-			if (getBoard().getColor(alreadyDeadStones.get(i)) != getBoard()
-					.getColorToPlay()) { // I'm assuming colorToPlay is orego's
-											// color
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		int turn = runnable.getTurn();
