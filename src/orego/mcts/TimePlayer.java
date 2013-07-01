@@ -161,7 +161,7 @@ public class TimePlayer extends Lgrf2Player {
 		default:
 			msPerMove = 0;
 		}
-
+		
 		// never allocate < 1 ms to a move
 		if (msPerMove < 1) {
 			msPerMove = 1;
