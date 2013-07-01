@@ -75,13 +75,22 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[13];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.50"; // our baseline
+		CONDITIONS[1] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.10"; 
+		CONDITIONS[2] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20"; // we think this is best
+		CONDITIONS[3] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.30";
+		CONDITIONS[4] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.40";
+		CONDITIONS[5] = "threads=2 book=LateOpeningBook timeformula=basic c=40";
+		CONDITIONS[6] = "threads=2 book=LateOpeningBook timeformula=basic c=50";
+		CONDITIONS[7] = "threads=2 book=LateOpeningBook timeformula=basic c=60"; // we think this is good, too
+		CONDITIONS[8] = "threads=2 book=LateOpeningBook timeformula=basic c=70";
+		CONDITIONS[9] = "threads=2 book=LateOpeningBook timeformula=basic c=80";
+		CONDITIONS[10] = "threads=2 book=LateOpeningBook timeformula=basic c=90";
+		CONDITIONS[11] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 unstableeval"; // try it with unstable eval
+		CONDITIONS[12] = "threads=2 book=LateOpeningBook timeformula=basic c=60 unstableeval"; // try it with unstable eval
 	}
 	
 	/** Path to run gnugo on your machine */
