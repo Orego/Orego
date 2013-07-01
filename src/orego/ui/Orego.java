@@ -76,7 +76,7 @@ public class Orego {
 			"orego.play", "orego.response", "" };
 
 	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "7.14";
+	public static final String VERSION_STRING = "7.15";
 
 	/**
 	 * @param args
