@@ -65,7 +65,7 @@ public class MctsPlayer extends McPlayer {
 		if (isCleanUpMode() || getBoard().getMove(getBoard().getTurn() - 1) == PASS) {
 			// Add wins to the moves that are liberties of dead stones (to
 			// emphasize killing them).
-			IntList deadStones = stonesNotUnconditionallyAlive();
+			IntList deadStones = getDeadStones(1.0);
 			IntSet pointsToRecommend = new IntSet(
 					Coordinates.getFirstPointBeyondBoard());
 
@@ -223,13 +223,20 @@ public class MctsPlayer extends McPlayer {
 
 	/** Used by handleCommand. */
 	protected String finalStatusList(String status) {
-		if (status.equals("seki") || status.equals("dead")) {
+		if (status.equals("seki")) {
 			return "";
 		}
 		String result = "";
-		for (int p : getAllPointsOnBoard()) {
-			if (getBoard().getColor(p) != VACANT) {
-				result += pointToString(p) + " ";
+		IntList dead = getDeadStones(0.25);
+		if (status.equals("alive")) {
+			for (int p : getAllPointsOnBoard()) {
+				if ((getBoard().getColor(p) != VACANT) && (!dead.contains(p))) {
+					result += pointToString(p) + " ";
+				}
+			}			
+		} else { // Dead stones
+			for (int i = 0; i < dead.size(); i++) {
+				result += pointToString(dead.get(i)) + " ";
 			}
 		}
 		return result;

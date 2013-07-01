@@ -86,9 +86,11 @@ public abstract class McPlayer extends ThreadedPlayer {
 	}
 
 	/**
-	 * Returns a list of stones on the board that are not unconditionally alive, that is, with two eyes. 
+	 * Returns a list of stones that survive less than a certain proportion of purely random playouts.
+	 * 
+	 *  @param threshold 1.0 to find stones that might possibly die, 0.25 to find stones that almost always live.
 	 */
-	protected IntList stonesNotUnconditionallyAlive() {
+	protected IntList getDeadStones(double threshold) {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		// Perform runs to see which points survive
@@ -111,7 +113,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
 //				System.out.println(pointToString(p)+" "+survivals[p]);
-				if (survivals[p] < runs) {
+				if (survivals[p] < runs * threshold) {
 					// This chain is not always alive
 					int q = p;
 					do {
@@ -327,7 +329,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 	protected boolean secondPassWouldWinGame() {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
-		IntList dead = stonesNotUnconditionallyAlive();
+		IntList dead = getDeadStones(1.0);
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) == getBoard().getColorToPlay())
 					&& dead.contains(p)) {
