@@ -94,7 +94,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		// Perform runs to see which points survive
-		int runs = 1000;
+		int runs = 100;
 		McRunnable r = (McRunnable) getRunnable(0);
 		int[] survivals = new int[getExtendedBoardArea()];
 		for (int i = 0; i < runs; i++) {
