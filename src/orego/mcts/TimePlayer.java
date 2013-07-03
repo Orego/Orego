@@ -87,14 +87,14 @@ public class TimePlayer extends Lgrf2Player {
 			}
 			// If it's not the move with the most wins, think a bit longer
 			if (moveWithMostRuns != getRoot().getMoveWithMostWins()) {
-				setMillisecondsPerMove((int) (getMillisecondsPerMove() * unstableMultiple));
+				setMillisecondsPerMove(max(1, (int) (getMillisecondsPerMove() * unstableMultiple)));
 				return super.bestMove();
 			}
 		}
 
 		if (thinkLongerWhenBehind
 				&& ((getRoot().getWinRate(m) < behindThreshold) || (m == RESIGN))) {
-			setMillisecondsPerMove((int) (getMillisecondsPerMove() * longerMultiple));
+			setMillisecondsPerMove(max(1, (int) (getMillisecondsPerMove() * longerMultiple)));
 			return super.bestMove();
 		}
 		return m;
