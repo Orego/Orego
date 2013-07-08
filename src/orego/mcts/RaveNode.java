@@ -81,7 +81,7 @@ public class RaveNode extends SearchNode {
 	@Override
 	public String toString(int p) {
 		return format("%s: %7d/%7d (%1.4f), RAVE %7d/%7d (%1.4f)\n",
-				pointToString(p), getWins(p), getRuns(p), getWinRate(p), 
+				pointToString(p), (int) getWins(p), getRuns(p), getWinRate(p), 
 				(int) getRaveWins(p), (int) raveRuns[p],
 				raveWinRates[p]);
 	}
