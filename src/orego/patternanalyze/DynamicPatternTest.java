@@ -44,7 +44,7 @@ public class DynamicPatternTest implements Serializable{
 					"...O#O#O...........",//5
 					"....##O............",//4
 					".....O.............",//3
-					"...................",//2
+					"...................",//2 100737
 					"..................."//1
 				  // ABCDEFGHJKLMNOPQRST
 				};
