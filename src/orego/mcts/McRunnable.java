@@ -190,7 +190,7 @@ public class McRunnable implements Runnable {
 	public void updatePriors(SearchNode node, Board board) {
 		for (int i = 0; i < heuristics.size(); i++) {
 			Heuristic h = heuristics.get(i);
-			h.prepare(board);
+			h.prepare(board,true); // this passes true because it's a local search, TODO: global heuristics
 			IntSet good = h.getGoodMoves();
 			for (int j = 0; j < good.size(); j++) {
 				int p = good.get(j);
