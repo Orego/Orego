@@ -148,7 +148,7 @@ public class PatternPlayer extends MctsPlayer {
 		return result;
 	}
 
-	private String goguiPatternRuns(int patternType) {
+/*	private String goguiPatternRuns(int patternType) {
 		String result = "";
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
@@ -166,5 +166,5 @@ public class PatternPlayer extends MctsPlayer {
 			}
 		}
 		return result;
-	}
+	}*/
 }
