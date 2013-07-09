@@ -1,6 +1,6 @@
 package orego.mcts;
 
-import static orego.core.Board.*;
+import static orego.core.Board.NINE_PATTERN;
 import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.pointToString;
@@ -12,9 +12,10 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import orego.core.Board;
 import orego.core.Colors;
+import orego.core.Coordinates;
 import orego.patternanalyze.PatternInformation;
+import orego.util.IntSet;
 
 public class PatternPlayer extends MctsPlayer {
 
@@ -50,7 +51,8 @@ public class PatternPlayer extends MctsPlayer {
 	}
 
 	public PatternInformation getInformation(int patternType, char hash) {
-		PatternInformation toReturn = patterns[patternType][getBoard().getColorToPlay()].get(hash);
+		PatternInformation toReturn = patterns[patternType][getBoard()
+				.getColorToPlay()].get(hash);
 		if (toReturn != null) {
 			return toReturn;
 		} else {
@@ -136,10 +138,10 @@ public class PatternPlayer extends MctsPlayer {
 				for (int i = 0; i < NINE_PATTERN + 1; i++) {
 					PatternInformation info = getInformation(i, getBoard()
 							.getPatternHash(i, p));
-					totalRate += info.getRate() * ((i + 1) * (i + 2) / 2);
+					totalRate += info.getRate() * ((i + 1) * (i + 2) / 2) * ((i + 1) * (i + 2) / 2);
 					totalRuns += info.getRuns();
 				}
-				totalRate /= 20.0f;
+				totalRate /= 146.0f;
 				result += String.format("COLOR %s %s\nLABEL %s %d",
 						colorCode(totalRate), pointToString(p),
 						pointToString(p), totalRuns);
@@ -148,23 +150,73 @@ public class PatternPlayer extends MctsPlayer {
 		return result;
 	}
 
-/*	private String goguiPatternRuns(int patternType) {
-		String result = "";
-		for (int p : getAllPointsOnBoard()) {
-			if (getBoard().getColor(p) == VACANT) {
-				double winRate = getWinRate(p);
-				if (winRate > 0) {
-					if (result.length() > 0)
-						result += '\n';
-					result += String.format(
-							"LABEL %s %.0f%%",
-							pointToString(p),
-							getInformation(patternType,
-									getBoard().getPatternHash(patternType, p))
-									.getRuns());
+	@Override
+	public int bestStoredMove() {
+		int result = 0;
+		float rate = 0;
+		IntSet moves = getBoard().getVacantPoints();
+		for (int i = 0; i < moves.size(); i++) {
+			if ((getBoard().isFeasible(moves.get(i)) && getBoard().isLegal(moves.get(i)))) {
+				float tempRate = 0;
+				for (int pattern = 0; pattern < NINE_PATTERN + 1; pattern++) {
+					PatternInformation info = getInformation(pattern,
+							getBoard().getPatternHash(pattern, moves.get(i)));
+					tempRate+=info.getRate()* ((i + 1) * (i + 2) / 2)* ((i + 1) * (i + 2) / 2);
+				}
+				if (tempRate>rate){
+					rate = tempRate;
+					result = moves.get(i);
 				}
 			}
 		}
 		return result;
-	}*/
+	}
+
+//	@Override
+//	public void generateMovesToFrontier(McRunnable runnable) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public long getPlayouts(int p) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public double getWinRate(int p) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public double getWins(int p) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public void incorporateRun(int winner, McRunnable runnable) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	protected String winRateReport() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public void beforeStartingThreads() {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public void updateForAcceptMove(int p) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 }
