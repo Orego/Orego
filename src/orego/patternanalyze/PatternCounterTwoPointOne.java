@@ -52,7 +52,7 @@ public class PatternCounterTwoPointOne {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Character, PatternInformation>[] patternSeen;
-	private static String TEST_DIRECTORY = "../../Test Games/kgs-19-2001/";
+	private static String TEST_DIRECTORY = "../../../Desktop/Test Games/";
 	//private static String TEST_DIRECTORY = "../../Test Games/";
 
 	public static void main(String[] args) {
