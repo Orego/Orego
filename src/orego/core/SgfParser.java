@@ -123,6 +123,9 @@ public class SgfParser {
 		List<Integer> game = new ArrayList<Integer>();
 		int turn = 0;
 		while (turn <= maxBookDepth) {
+			if(!stoken.hasMoreTokens()){
+				return null;
+			}
 			String token = stoken.nextToken();
 			if (token.equals("HA")) {
 				// Handicap game, ignore.
