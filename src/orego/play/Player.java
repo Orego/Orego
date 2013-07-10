@@ -35,6 +35,20 @@ public class Player implements Playable {
 	/** The Board this player plays on. */
 	private Board board;
 
+	/** If true, this player should prefer moves that kill dead stones (for kgs-genmove_cleanup). */
+	private boolean cleanUpMode;
+	
+	/**
+	 * Returns whether the player is in cleanup mode (for kgs-genmove_cleanup).
+	 */
+	public boolean isCleanUpMode() {
+		return cleanUpMode;
+	}
+
+	public void setCleanUpMode(boolean cleanupMode) {
+		this.cleanUpMode = cleanupMode;
+	}
+
 	/** Used to generate moves in bestMove(). */
 	private HeuristicList heuristics;
 	
@@ -43,6 +57,9 @@ public class Player implements Playable {
 
 	/** Random number generator. */
 	private MersenneTwisterFast random;
+	
+	/** Is the player still in the opening? Will be set to true to check opening book. */
+	private boolean inOpeningBook;
 
 	/** A default player with a random policy. */
 	public Player() {
@@ -81,10 +98,6 @@ public class Player implements Playable {
 	/** Selects and plays a random moves, choosing the heuristically best move, with ties broken randomly. */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		return heuristics.selectAndPlayOneMove(random, board);
-	}
-
-	public int bestCleanupMove(){
-		return bestMove();
 	}
 	
 	public int bestMove() {
@@ -166,7 +179,7 @@ public class Player implements Playable {
 	public OpeningBook getOpeningBook() {
 		return openingBook;
 	}
-
+	
 	/** Returns the current turn number. */
 	public int getTurn() {
 		return board.getTurn();
@@ -187,8 +200,16 @@ public class Player implements Playable {
 		}
 		return null;
 	}
+	
+
+	/** Returns if the player is using an opening book. */
+	public boolean isInOpeningBook() {
+		return inOpeningBook;
+	}
 
 	public void reset() {
+		cleanUpMode = false;
+		inOpeningBook = true;
 		if (board == null) {
 			board = new Board();
 		} else { // The new board must have the same komi as the old one
@@ -221,6 +242,11 @@ public class Player implements Playable {
 	public void setHeuristics(HeuristicList list) {
 		this.heuristics = list;
 	}
+	
+	/** Sets whether or not this player is using its opening book. */
+	public void setInOpeningBook(boolean b) {
+		inOpeningBook = b;
+	}
 
 	/** Sets the komi or handicap for the current game. */
 	public void setKomi(double komi) {
@@ -246,6 +272,7 @@ public class Player implements Playable {
 				openingBook = (OpeningBook) Class.forName(genClass)
 						.newInstance();
 				orego.experiment.Debug.debug("Opening book: " + openingBook);
+				inOpeningBook = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -293,6 +320,9 @@ public class Player implements Playable {
 		clearBoardWhilePreservingKomi();
 		for (int p : moves) {
 			board.play(p);
+		}
+		if(openingBook != null) {			
+			inOpeningBook = true;
 		}
 		return true;
 	}

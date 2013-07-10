@@ -54,10 +54,12 @@ public abstract class ThreadedPlayer extends Player {
 	public int bestMove() {
 		try {
 			stopThreads();
-			if (getOpeningBook() != null) {
+			if ((getOpeningBook() != null) && (isInOpeningBook())) {
 				int move = getOpeningBook().nextMove(getBoard());
 				if (move != NO_POINT) {
 					return move;
+				} else {
+					setInOpeningBook(false);
 				}
 			}
 			runThreads();

@@ -76,7 +76,7 @@ public class Orego {
 			"orego.play", "orego.response", "" };
 
 	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "7.14";
+	public static final String VERSION_STRING = "7.15";
 
 	/**
 	 * @param args
@@ -277,10 +277,9 @@ public class Orego {
 				assert color == player.getBoard().getColorToPlay();
 			}
 			if (command.equals("kgs-genmove_cleanup")) {
-				point = player.bestCleanupMove();
-			} else {
-				point = player.bestMove();
+				player.setCleanUpMode(true);
 			}
+			point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
 			} else {

@@ -1,23 +1,28 @@
 package orego.mcts;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.*;
-import static orego.experiment.Debug.debug;
-import static java.lang.Math.*;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 import static java.lang.String.format;
-import static java.lang.Double.*;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.opposite;
+import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.getAllPointsOnBoard;
+import static orego.core.Coordinates.pointToString;
+import static orego.experiment.Debug.debug;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import orego.core.Board;
+import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
-import orego.util.*;
-import orego.core.*;
-import orego.heuristic.Heuristic;
+import orego.util.IntList;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -26,7 +31,7 @@ import ec.util.MersenneTwisterFast;
  * @see #searchValue(SearchNode, Board, int)
  */
 public class MctsPlayer extends McPlayer {
-	
+
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
 	public static final double COUP_DE_GRACE_PARAMETER = 0.85;
 
@@ -50,46 +55,35 @@ public class MctsPlayer extends McPlayer {
 				+ benchMarkInfo[1]);
 	}
 
-	/**
-	 * True if the "coup de grace" property has been set. This causes the player
-	 * to try to end the game (by capturing enough enemy stones that it can
-	 * safely pass) when it is very confident of winning.
-	 */
-	private boolean grace;
-	
-	/**
-	 * True if coup de grace mode is active, i.e., the coup de grace property
-	 * has been set and we have determined that we should emphasize capturing
-	 * enemy stones on the next move. (This gets reset to false after each move.)
-	 */
-	private boolean isCoupDeGraceActive;
-	
 	/** The transposition table. */
 	private TranspositionTable table;
 
-	private boolean kgsCleanupMode = false;
+	//private boolean kgsCleanupMode = false;
 
 	@Override
 	public void beforeStartingThreads() {
-		boolean shouldWeClean = (kgsCleanupMode || isCoupDeGraceActive) && thereAreDeadEnemyStones();
-		if (shouldWeClean) {
-			// And add wins to the moves that are liberties of dead stones (to emphasize killing them).
-			IntList deadStones = deadStones();
-			IntSet pointsToRecommend = new IntSet(Coordinates.getFirstPointBeyondBoard());
+		if (isCleanUpMode() || getBoard().getMove(getBoard().getTurn() - 1) == PASS) {
+			// Add wins to the moves that are liberties of dead stones (to
+			// emphasize killing them).
+			IntList deadStones = getDeadStones(1.0);
+			IntSet pointsToRecommend = new IntSet(
+					Coordinates.getFirstPointBeyondBoard());
 
 			for (int i = 0; i < deadStones.size(); i++) {
-				IntSet libs = getBoard().getLiberties(deadStones.get(i));
-				pointsToRecommend.addAll(libs);
+				if (getBoard().getColor(deadStones.get(i)) != getBoard()
+						.getColorToPlay()) {
+					IntSet libs = getBoard().getLiberties(deadStones.get(i));
+					pointsToRecommend.addAll(libs);
+				}
 			}
 
 			for (int i = 0; i < pointsToRecommend.size(); i++) {
 				int recommendedMove = pointsToRecommend.get(i);
-				int bias = (int) (getRoot().getWins(getRoot().getMoveWithMostWins()));
+				int bias = (int) (getRoot().getWins(getRoot()
+						.getMoveWithMostWins()));
 				getRoot().addWins(recommendedMove, bias);
 			}
 		}
-		// Don't emphasize capturing dead stones anymore (unless this gets reset to true by bestStoredMove())
-		isCoupDeGraceActive = false;
 	}
 
 	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
@@ -123,9 +117,7 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
-			if (kgsCleanupMode && thereAreDeadEnemyStones()) { //if kgsCleanupMode is true and there are enemy dead stones, do not consider PASS
-				result = vacantPoints.get(0);
-			}
+			
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int move = vacantPoints.get(i);
 				if (node.getWins(move) > best) {
@@ -136,12 +128,6 @@ public class MctsPlayer extends McPlayer {
 		} while ((result != PASS)
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
-		// Consider entering coup de grace mode
-		if (grace && getRoot().bestWinRate() > COUP_DE_GRACE_PARAMETER) {
-			isCoupDeGraceActive = true;
-		}
-		
-		kgsCleanupMode = false;
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
 			return RESIGN;
@@ -182,26 +168,13 @@ public class MctsPlayer extends McPlayer {
 		} while (i != start);
 		return result;
 	}
-	
-	@Override
-	public int bestCleanupMove() {
-		kgsCleanupMode = true;
-		int bestMove = bestMove();
-		kgsCleanupMode = false;
-		return bestMove;
-	}
-	
+
 	@Override
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
-		if (getBoard().getPasses() >= 1) {
-			boolean shouldWeClean = kgsCleanupMode && thereAreDeadEnemyStones();
-			if (secondPassWouldWinGame() && !shouldWeClean) {
-				// Pass if we can win outright by doing so
-				return PASS;
-			}
-			// Don't pass (if there's another legal move -- see exclude()).
-			root.exclude(PASS);
+		if ((getBoard().getPasses() >= 1) && secondPassWouldWinGame()) {
+			// Pass if we can win outright by doing so
+			return PASS;
 		}
 		return bestPlayMove(root);
 	}
@@ -254,12 +227,16 @@ public class MctsPlayer extends McPlayer {
 			return "";
 		}
 		String result = "";
-		IntList dead = deadStones();
-		for (int p : getAllPointsOnBoard()) {
-			if (getBoard().getColor(p) != VACANT) {
-				if (status.equals("alive") != dead.contains(p)) {
+		IntList dead = getDeadStones(0.25);
+		if (status.equals("alive")) {
+			for (int p : getAllPointsOnBoard()) {
+				if ((getBoard().getColor(p) != VACANT) && (!dead.contains(p))) {
 					result += pointToString(p) + " ";
 				}
+			}			
+		} else { // Dead stones
+			for (int i = 0; i < dead.size(); i++) {
+				result += pointToString(dead.get(i)) + " ";
 			}
 		}
 		return result;
@@ -506,18 +483,6 @@ public class MctsPlayer extends McPlayer {
 		return result;
 	}
 
-	/** Returns true if there are enemy dead stones on the board. */
-	protected boolean thereAreDeadEnemyStones() {
-		IntList alreadyDeadStones = deadStones();
-		for(int i = 0; i < alreadyDeadStones.size(); i++) {
-			// if there are enemy dead stones
-			if(getBoard().getColor(alreadyDeadStones.get(i)) != getBoard().getColorToPlay()) { // I'm assuming colorToPlay is orego's color
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		int turn = runnable.getTurn();
@@ -538,21 +503,6 @@ public class MctsPlayer extends McPlayer {
 			}
 			winProportion = 1 - winProportion;
 		}
-	}
-
-	/**
-	 * True if coup de grace mode is active for the next move. For testing.
-	 */
-	public boolean isCoupDeGraceActive() {
-		return isCoupDeGraceActive;
-	}
-
-	/**
-	 * Returns true if the coup de grace property (which encourages capturing
-	 * enemy stones when the game is clearly won) is true.
-	 */
-	public boolean isGrace() {
-		return grace;
 	}
 
 	@Override
@@ -625,9 +575,6 @@ public class MctsPlayer extends McPlayer {
 		if (property.equals("pool")) {
 			table = new TranspositionTable(Integer.parseInt(value),
 					getPrototypeNode());
-		} else if (property.equals("grace")) {
-			assert value.equals("true");
-			grace = true;
 		} else {
 			super.setProperty(property, value);
 		}

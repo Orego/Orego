@@ -86,15 +86,15 @@ public abstract class McPlayer extends ThreadedPlayer {
 	}
 
 	/**
-	 * Returns a list of dead stones on the board. A chain is considered dead
-	 * if, in many Monte Carlo runs, the root point of the chain usually belongs
-	 * to the opponent.
+	 * Returns a list of stones that survive less than a certain proportion of purely random playouts.
+	 * 
+	 *  @param threshold 1.0 to find stones that might possibly die, 0.25 to find stones that almost always live.
 	 */
-	protected IntList deadStones() {
+	protected IntList getDeadStones(double threshold) {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		// Perform runs to see which points survive
-		int runs = 1000;
+		int runs = 100;
 		McRunnable r = (McRunnable) getRunnable(0);
 		int[] survivals = new int[getExtendedBoardArea()];
 		for (int i = 0; i < runs; i++) {
@@ -112,8 +112,9 @@ public abstract class McPlayer extends ThreadedPlayer {
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) != VACANT)
 					&& (getBoard().getChainId(p) == p)) {
-				if (survivals[p] < runs / 2) {
-					// This chain is dead
+//				System.out.println(pointToString(p)+" "+survivals[p]);
+				if (survivals[p] < runs * threshold) {
+					// This chain is not always alive
 					int q = p;
 					do {
 						result.add(q);
@@ -328,7 +329,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 	protected boolean secondPassWouldWinGame() {
 		Board after = new Board();
 		after.copyDataFrom(getBoard());
-		IntList dead = deadStones();
+		IntList dead = getDeadStones(1.0);
 		for (int p : getAllPointsOnBoard()) {
 			if ((getBoard().getColor(p) == getBoard().getColorToPlay())
 					&& dead.contains(p)) {

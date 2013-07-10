@@ -65,6 +65,11 @@ public interface Playable {
 	public void reset();
 
 	/**
+	 * Sets whether the player should make post-game "cleanup" moves to kill dead stones.
+	 */
+	public void setCleanUpMode(boolean value);
+	
+	/**
 	 * @see orego.core.Board#setKomi(double)
 	 */
 	public void setKomi(double komi);
@@ -90,7 +95,5 @@ public interface Playable {
 	 * @return true if the undo succeeded.
 	 */
 	public boolean undo();
-
-	public int bestCleanupMove();
 
 }
