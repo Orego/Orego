@@ -25,6 +25,8 @@ public class FusekiBook implements OpeningBook, Serializable {
 		this("SgfFiles");
 	}
 
+	
+	/** Gets the Fuseki Book from a data file */
 	@SuppressWarnings("unchecked")
 	public FusekiBook(String directory) {
 		try {

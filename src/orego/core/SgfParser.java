@@ -51,7 +51,7 @@ public class SgfParser {
 			}
 			input = input.replace("W[]", "W[tt]");
 			input = input.replace("B[]", "B[tt]");
-			StringTokenizer stoken = new StringTokenizer(input, "()[];");
+			StringTokenizer stoken = new StringTokenizer(input, ")[];");
 			int addStoneState = 0;
 			// Ignores AE
 			while (stoken.hasMoreTokens()) {
@@ -107,6 +107,7 @@ public class SgfParser {
 					List<Integer> game = sgfToBookGame(stoken, maxBookDepth);
 					if(game != null) {
 						games.add(game);
+					}else{
 					}
 				}
 			}
@@ -128,7 +129,8 @@ public class SgfParser {
 				return null;
 			} else if (token.equals("SZ")) {
 				token = stoken.nextToken();
-				if (!token.equals(Coordinates.getBoardWidth())) {
+				int intToken = Integer.parseInt(token);
+				if (intToken!=Coordinates.getBoardWidth()) {
 					// Game is not the proper size, ignore.
 					return null;
 				}
