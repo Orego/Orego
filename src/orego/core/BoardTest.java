@@ -1463,7 +1463,7 @@ public class BoardTest {
 		int newPlay = 0;
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
-			if (board.isLegal(newPlay) && Coordinates.isOnBoard(newPlay)) {
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
 				char createHash = 0;
 				int[] currentMoves = {newPlay-getSouth()-EAST, 
 						newPlay-getSouth(),
@@ -1514,7 +1514,7 @@ public class BoardTest {
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
 			//Cannot use 1, that's the first digit of two digit number!
-			if (board.isLegal(newPlay) && Coordinates.isOnBoard(newPlay) && 
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
 					!pointToString(newPlay).contains("A") &&
 					!pointToString(newPlay).contains("B") &&
 					!pointToString(newPlay).contains("S") &&
@@ -1549,7 +1549,7 @@ public class BoardTest {
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
 			//Cannot use 1, that's the first digit of two digit number!
-			if (board.isLegal(newPlay) && Coordinates.isOnBoard(newPlay) && 
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
 					!pointToString(newPlay).contains("A")&&
 					!pointToString(newPlay).contains("B")&&
 					!pointToString(newPlay).contains("C")&&
@@ -1584,7 +1584,7 @@ public class BoardTest {
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
 			//Cannot use 1, that's the first digit of two digit number!
-			if (board.isLegal(newPlay) && Coordinates.isOnBoard(newPlay) && (!pointToString(newPlay).contains("A")&&
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && (!pointToString(newPlay).contains("A")&&
 					!pointToString(newPlay).contains("B")&&
 					!pointToString(newPlay).contains("C")&&
 					!pointToString(newPlay).contains("D")&&
