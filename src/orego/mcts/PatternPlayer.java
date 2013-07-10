@@ -26,6 +26,7 @@ public class PatternPlayer extends McPlayer {
 	public PatternPlayer() {
 		loadPatternHashMaps();
 		numPlayouts = 0;
+		this.setInOpeningBook(false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,6 +106,26 @@ public class PatternPlayer extends McPlayer {
 			// } else if (command.contains("gogui-pattern-win-rates")) {
 			// result =
 			// goguiPatternWinRates((command.charAt(command.length()-1)-'0')/2-1);
+		} else if (command.equals("gogui-live-mc-playouts")) {
+			long oldValue;
+			boolean isMilliseconds = (getMillisecondsPerMove() != -1);
+			if (isMilliseconds) {
+				oldValue = getMillisecondsPerMove();
+			} else {
+				oldValue = getPlayoutLimit();
+			}
+			setMillisecondsPerMove(1000);
+			for (int i = 0; i < 10; i++) {
+				bestMove();
+				System.err.println("gogui-gfx: \n" + goguiCombinedPatternInfo() + "\n");
+			}
+			if (isMilliseconds) {
+				setMillisecondsPerMove((int) oldValue);
+			} else {
+				setPlayoutLimit(oldValue);
+			}
+			//System.err.println("gogui-gfx: CLEAR");
+			result = "";
 		} else {
 			result = super.handleCommand(command, arguments);
 		}
@@ -136,16 +157,24 @@ public class PatternPlayer extends McPlayer {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0)
 					result += '\n';
+
 				float totalRate = (float) getWinRate(p);
-				// int totalRuns = 0;
-				// for (int i = 0; i < NINE_PATTERN + 1; i++) {
-				// PatternInformation info = getInformation(i, getBoard()
-				// .getPatternHash(i, p));
-				// totalRuns += info.getRuns();
-				// }
+				
+				// RATE
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
 						pointToString(p), totalRate * 100);
+				
+				// RUNS
+//				 int totalRuns = 0;
+//				 for (int i = 0; i < NINE_PATTERN + 1; i++) {
+//					 PatternInformation info = getInformation(i, getBoard()
+//							 .getPatternHash(i, p));
+//					 totalRuns += info.getRuns();
+//				 }
+//				result += String.format("COLOR %s %s\nLABEL %s %d",
+//						colorCode(totalRate), pointToString(p),
+//						pointToString(p), totalRuns%1000);
 			}
 		}
 		return result;
@@ -159,9 +188,9 @@ public class PatternPlayer extends McPlayer {
 	private int bestMove(Board b) {
 		int result = 0;
 		float rate = 0;
-		IntSet moves = getBoard().getVacantPoints();
+		IntSet moves = b.getVacantPoints();
 		for (int i = 0; i < moves.size(); i++) {
-			if (getBoard().isLegal(moves.get(i))) {
+			if (b.isLegal(moves.get(i))) {
 				float tempRate = (float) getWinRate(moves.get(i));
 				if (tempRate > rate) {
 					rate = tempRate;
@@ -241,6 +270,14 @@ public class PatternPlayer extends McPlayer {
 				}
 			}
 			b.play(moves[t]);
+		}
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		for (int i = 0; i < getNumberOfThreads(); i++) {
+			setRunnable(i, new McRunnable(this, getHeuristics().clone()));
 		}
 	}
 
