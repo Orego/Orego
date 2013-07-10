@@ -119,9 +119,9 @@ public class PatternPlayer extends MctsPlayer {
 					result += '\n';
 				PatternInformation info = getInformation(patternType,
 						getBoard().getPatternHash(patternType, p));
-				result += String.format("COLOR %s %s\nLABEL %s %d",
+				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(info.getRate()), pointToString(p),
-						pointToString(p), info.getRuns());
+						pointToString(p), info.getRate()*100);
 			}
 		}
 		return result;
@@ -133,18 +133,16 @@ public class PatternPlayer extends MctsPlayer {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0)
 					result += '\n';
-				float totalRate = 0;
-				int totalRuns = 0;
-				for (int i = 0; i < NINE_PATTERN + 1; i++) {
-					PatternInformation info = getInformation(i, getBoard()
-							.getPatternHash(i, p));
-					totalRate += info.getRate() * ((i + 1) * (i + 2) / 2) * ((i + 1) * (i + 2) / 2);
-					totalRuns += info.getRuns();
-				}
-				totalRate /= 146.0f;
-				result += String.format("COLOR %s %s\nLABEL %s %d",
+				float totalRate = getCombinedRate(p);
+//				int totalRuns = 0;
+//				for (int i = 0; i < NINE_PATTERN + 1; i++) {
+//					PatternInformation info = getInformation(i, getBoard()
+//							.getPatternHash(i, p));
+//					totalRuns += info.getRuns();
+//				}
+				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
-						pointToString(p), totalRuns);
+						pointToString(p), totalRate*100);
 			}
 		}
 		return result;
@@ -156,20 +154,29 @@ public class PatternPlayer extends MctsPlayer {
 		float rate = 0;
 		IntSet moves = getBoard().getVacantPoints();
 		for (int i = 0; i < moves.size(); i++) {
-			if ((getBoard().isFeasible(moves.get(i)) && getBoard().isLegal(moves.get(i)))) {
-				float tempRate = 0;
-				for (int pattern = 0; pattern < NINE_PATTERN + 1; pattern++) {
-					PatternInformation info = getInformation(pattern,
-							getBoard().getPatternHash(pattern, moves.get(i)));
-					tempRate+=info.getRate()* ((i + 1) * (i + 2) / 2)* ((i + 1) * (i + 2) / 2);
-				}
+			if (//(getBoard().isFeasible(moves.get(i)) &&
+					getBoard().isLegal(moves.get(i))) {
+				float tempRate = getCombinedRate(moves.get(i));
 				if (tempRate>rate){
 					rate = tempRate;
 					result = moves.get(i);
+					//System.out.println("Current best: "+pointToString(result)+":"+rate);
 				}
 			}
 		}
+		//System.out.println("Best stored move: "+pointToString(result));
 		return result;
+	}
+	
+	private float getCombinedRate(int point){
+		float tempRate = 0;
+		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+			PatternInformation info = getInformation(pattern,
+					getBoard().getPatternHash(pattern, point));
+			tempRate+=info.getRate()* ((pattern + 1) * (pattern + 2) / 2)* ((pattern + 1) * (pattern + 2) / 2);
+		}
+		tempRate /= 146.0f;
+		return tempRate;
 	}
 
 //	@Override
