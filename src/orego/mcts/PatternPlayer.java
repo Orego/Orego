@@ -1,9 +1,8 @@
 package orego.mcts;
 
-import static orego.core.Board.NINE_PATTERN;
-import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.getAllPointsOnBoard;
-import static orego.core.Coordinates.pointToString;
+import static orego.core.Board.*;
+import static orego.core.Colors.*;
+import static orego.core.Coordinates.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,22 +11,25 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import orego.core.Board;
 import orego.core.Colors;
-import orego.core.Coordinates;
 import orego.patternanalyze.PatternInformation;
 import orego.util.IntSet;
 
 public class PatternPlayer extends McPlayer {
 
-	HashMap<Character, PatternInformation> threePatterns;
-	HashMap<Character, PatternInformation> fivePatterns;
-	HashMap<Character, PatternInformation> sevenPatterns;
-	HashMap<Character, PatternInformation> ninePatterns;
 	@SuppressWarnings("unchecked")
-	HashMap<Character, PatternInformation>[][] patterns = new HashMap[4][2];
+	private HashMap<Character, PatternInformation>[][] patterns = new HashMap[4][2];
+
+	private long numPlayouts;
+
+	public PatternPlayer() {
+		loadPatternHashMaps();
+		numPlayouts = 0;
+	}
 
 	@SuppressWarnings("unchecked")
-	public PatternPlayer() {
+	private void loadPatternHashMaps() {
 		for (int c = 0; c < 2; c++) {
 			for (int i = 0; i < NINE_PATTERN + 1; i++) {
 				// load from files
@@ -122,7 +124,7 @@ public class PatternPlayer extends McPlayer {
 						getBoard().getPatternHash(patternType, p));
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(info.getRate()), pointToString(p),
-						pointToString(p), info.getRate()*100);
+						pointToString(p), info.getRate() * 100);
 			}
 		}
 		return result;
@@ -134,16 +136,16 @@ public class PatternPlayer extends McPlayer {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0)
 					result += '\n';
-				float totalRate = getCombinedRate(p);
-//				int totalRuns = 0;
-//				for (int i = 0; i < NINE_PATTERN + 1; i++) {
-//					PatternInformation info = getInformation(i, getBoard()
-//							.getPatternHash(i, p));
-//					totalRuns += info.getRuns();
-//				}
+				float totalRate = (float) getWinRate(p);
+				// int totalRuns = 0;
+				// for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				// PatternInformation info = getInformation(i, getBoard()
+				// .getPatternHash(i, p));
+				// totalRuns += info.getRuns();
+				// }
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
-						pointToString(p), totalRate*100);
+						pointToString(p), totalRate * 100);
 			}
 		}
 		return result;
@@ -151,85 +153,107 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public int bestStoredMove() {
+		return bestMove(getBoard());
+	}
+
+	private int bestMove(Board b) {
 		int result = 0;
 		float rate = 0;
 		IntSet moves = getBoard().getVacantPoints();
 		for (int i = 0; i < moves.size(); i++) {
-			if (//(getBoard().isFeasible(moves.get(i)) &&
-					getBoard().isLegal(moves.get(i))) {
-				float tempRate = getCombinedRate(moves.get(i));
-				if (tempRate>rate){
+			if (getBoard().isLegal(moves.get(i))) {
+				float tempRate = (float) getWinRate(moves.get(i));
+				if (tempRate > rate) {
 					rate = tempRate;
 					result = moves.get(i);
-					//System.out.println("Current best: "+pointToString(result)+":"+rate);
+					// System.out.println("Current best: "+pointToString(result)+":"+rate);
 				}
 			}
 		}
-		//System.out.println("Best stored move: "+pointToString(result));
+		// System.out.println("Best stored move: "+pointToString(result));
+		if (rate < .25)
+			result = PASS;
 		return result;
-	}
-	
-	private float getCombinedRate(int point){
-		float tempRate = 0;
-		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
-			PatternInformation info = getInformation(pattern,
-					getBoard().getPatternHash(pattern, point));
-			tempRate+=info.getRate()* ((pattern + 1) * (pattern + 2) / 2)* ((pattern + 1) * (pattern + 2) / 2);
-		}
-		tempRate /= 146.0f;
-		return tempRate;
 	}
 
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
-		// TODO Auto-generated method stub
+		runnable.getBoard().copyDataFrom(getBoard());
+		while (runnable.getBoard().getPasses() < 2) {
+			runnable.acceptMove(bestMove(runnable.getBoard()));
+		}
+		numPlayouts++;
 	}
 
 	@Override
 	public long getPlayouts(int p) {
-		// TODO Auto-generated method stub
-		return 0;
+		return numPlayouts;
 	}
 
 	@Override
 	public double getWinRate(int point) {
 		float tempRate = 0;
 		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
-			PatternInformation info = getInformation(pattern,
-					getBoard().getPatternHash(pattern, point));
-			tempRate+=info.getRate()* ((pattern + 1) * (pattern + 2) / 2)* ((pattern + 1) * (pattern + 2) / 2);
+			PatternInformation info = getInformation(pattern, getBoard()
+					.getPatternHash(pattern, point));
+			tempRate += info.getRate() * patternWeight(pattern);
 		}
-		tempRate /= 146.0f;
 		return tempRate;
+	}
+
+	private double patternWeight(int pattern) {
+		return ((pattern + 1) * (pattern + 2) / 2)
+				* ((pattern + 1) * (pattern + 2) / 2) / 146.0f;
 	}
 
 	@Override
 	public double getWins(int p) {
-		// TODO Auto-generated method stub
-		return 0;
+		float winRate = 0;
+		double runs = 0;
+		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+			PatternInformation info = getInformation(pattern, getBoard()
+					.getPatternHash(pattern, p));
+			winRate += info.getRate() * patternWeight(pattern);
+			runs += info.getRuns() * patternWeight(pattern);
+		}
+		return winRate * runs;
 	}
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		// TODO Auto-generated method stub
-		
+		if (winner == VACANT) {
+			System.out
+					.println("Incorporate run was given VACANT winner--should not happen");
+			return;
+		}
+		int turn = runnable.getTurn();
+		int[] moves = runnable.getMoves();
+		Board b = new Board();
+		for (int t = 0; t < turn; t++) {
+			if (t >= getBoard().getTurn()) {
+				for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+					PatternInformation info = getInformation(pattern,
+							getBoard().getPatternHash(pattern, moves[t]));
+					if (t % 2 == winner)
+						info.addWin();
+					else
+						info.addLoss();
+				}
+			}
+			b.play(moves[t]);
+		}
 	}
 
 	@Override
 	protected String winRateReport() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
 	public void beforeStartingThreads() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void updateForAcceptMove(int p) {
-		// TODO Auto-generated method stub
-		
 	}
 }
