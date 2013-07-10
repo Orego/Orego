@@ -8,27 +8,24 @@ public class PatternInformation implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	int runs;
+	long runs;
 	float rate;
-	String stringVersion;
 	
 	public PatternInformation() {
 		runs = 0;
 		rate = 0.0f;
-		stringVersion = "";
 	}
 	
-	public PatternInformation(float newrate, int newruns, String newStringVersion) {
+	public PatternInformation(float newrate, long newruns) {
 		runs = newruns;
 		rate = newrate;
-		stringVersion = newStringVersion;
 	}
 
-	public int getRuns() {
+	public long getRuns() {
 		return runs;
 	}
 	
-	public void setRuns(int runs) {
+	public void setRuns(long runs) {
 		this.runs = runs;
 	}
 	
@@ -40,9 +37,14 @@ public class PatternInformation implements Serializable {
 		this.rate = rate;
 	}
 	
+	public void addWin() {
+		rate = ((rate * runs) + 1) / (runs + 1);
+		runs++;
+	}
 	
-	public String toString() {
-		return stringVersion;
+	public void addLoss() {
+		rate = (rate * runs) / (runs + 1);
+		runs++;
 	}
 
 }

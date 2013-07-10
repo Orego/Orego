@@ -257,9 +257,7 @@ public class PatternCounterTwoPointOne {
 						} else {
 							patternSeen[patternType][patternBoard.getColorToPlay()].put(
 									lastPlayHash,
-									new PatternInformation(1.0f, 1,
-											patternBoard.printPattern(
-													patternType, nextPlay)));
+									new PatternInformation(1.0f, 1));
 						}
 						char moveHash = patternBoard.getPatternHash(
 								patternType, randomMove);
@@ -274,9 +272,7 @@ public class PatternCounterTwoPointOne {
 						} else {
 							patternSeen[patternType][patternBoard.getColorToPlay()].put(
 									moveHash,
-									new PatternInformation(0.0f, 1,
-											patternBoard.printPattern(
-													patternType, randomMove)));
+									new PatternInformation(0.0f, 1));
 						}
 					}
 				}

@@ -50,9 +50,9 @@ public class PatternPlayerTest {
 		};
 		player.setUpProblem(BLACK, problem);
 		float d5rate = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("D5"))).getRate();
-		int d5runs = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("D5"))).getRuns();
+		long d5runs = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("D5"))).getRuns();
 		float k1rate = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("K1"))).getRate();
-		int k1runs = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("K1"))).getRuns();
+		long k1runs = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("K1"))).getRuns();
 		assertTrue(d5rate > k1rate);
 		assertTrue(d5runs > k1runs);
 	}
