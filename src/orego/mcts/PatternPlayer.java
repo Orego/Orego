@@ -34,7 +34,7 @@ public class PatternPlayer extends McPlayer {
 				try {
 					ObjectInputStream ir = new ObjectInputStream(
 							new FileInputStream(new File(
-									"../testFiles/patternPlayed" + (i * 2 + 3)
+									"./testFiles/patternPlayed" + (i * 2 + 3)
 											+ Colors.colorToString(c) + ".dat")));
 					patterns[i][c] = (HashMap<Character, PatternInformation>) (ir
 							.readObject());
@@ -53,6 +53,7 @@ public class PatternPlayer extends McPlayer {
 	public PatternInformation getInformation(int patternType, char hash) {
 		PatternInformation toReturn = patterns[patternType][getBoard()
 				.getColorToPlay()].get(hash);
+
 		if (toReturn != null) {
 			return toReturn;
 		} else {
@@ -182,7 +183,6 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
