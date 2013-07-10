@@ -12,11 +12,10 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import orego.core.Board;
 import orego.core.Colors;
 import orego.patternanalyze.PatternInformation;
 
-public class PatternPlayer extends MctsPlayer {
+public class PatternPlayer extends McPlayer {
 
 	HashMap<Character, PatternInformation> threePatterns;
 	HashMap<Character, PatternInformation> fivePatterns;
@@ -33,7 +32,7 @@ public class PatternPlayer extends MctsPlayer {
 				try {
 					ObjectInputStream ir = new ObjectInputStream(
 							new FileInputStream(new File(
-									"../testFiles/patternPlayed" + (i * 2 + 3)
+									"./testFiles/patternPlayed" + (i * 2 + 3)
 											+ Colors.colorToString(c) + ".dat")));
 					patterns[i][c] = (HashMap<Character, PatternInformation>) (ir
 							.readObject());
@@ -50,6 +49,7 @@ public class PatternPlayer extends MctsPlayer {
 	}
 
 	public PatternInformation getInformation(int patternType, char hash) {
+		//System.out.println(getBoard().toString());
 		PatternInformation toReturn = patterns[patternType][getBoard().getColorToPlay()].get(hash);
 		if (toReturn != null) {
 			return toReturn;
@@ -117,9 +117,9 @@ public class PatternPlayer extends MctsPlayer {
 					result += '\n';
 				PatternInformation info = getInformation(patternType,
 						getBoard().getPatternHash(patternType, p));
-				result += String.format("COLOR %s %s\nLABEL %s %d",
+				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(info.getRate()), pointToString(p),
-						pointToString(p), info.getRuns());
+						pointToString(p), info.getRate()*100);
 			}
 		}
 		return result;
@@ -140,31 +140,65 @@ public class PatternPlayer extends MctsPlayer {
 					totalRuns += info.getRuns();
 				}
 				totalRate /= 20.0f;
-				result += String.format("COLOR %s %s\nLABEL %s %d",
+				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
-						pointToString(p), totalRuns);
+						pointToString(p), totalRate * 100);
 			}
 		}
 		return result;
 	}
 
-/*	private String goguiPatternRuns(int patternType) {
-		String result = "";
-		for (int p : getAllPointsOnBoard()) {
-			if (getBoard().getColor(p) == VACANT) {
-				double winRate = getWinRate(p);
-				if (winRate > 0) {
-					if (result.length() > 0)
-						result += '\n';
-					result += String.format(
-							"LABEL %s %.0f%%",
-							pointToString(p),
-							getInformation(patternType,
-									getBoard().getPatternHash(patternType, p))
-									.getRuns());
-				}
-			}
-		}
-		return result;
-	}*/
+	@Override
+	public void generateMovesToFrontier(McRunnable runnable) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public long getPlayouts(int p) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getWinRate(int p) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getWins(int p) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void incorporateRun(int winner, McRunnable runnable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected String winRateReport() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void beforeStartingThreads() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int bestStoredMove() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void updateForAcceptMove(int p) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

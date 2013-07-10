@@ -20,6 +20,7 @@ public class PatternPlayerTest {
 	@Before
 	public void setUp() throws Exception {
 		player = new PatternPlayer();
+		player.reset();
 		board = new Board();
 	}
 
@@ -47,13 +48,13 @@ public class PatternPlayerTest {
 				".O#....O#.........." // 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(BLACK, problem);
-		float d5rate = player.getInformation(THREE_PATTERN,board.getPatternHash(THREE_PATTERN, at("D5"))).getRate();
-		int d5runs = player.getInformation(THREE_PATTERN,board.getPatternHash(THREE_PATTERN, at("D5"))).getRuns();
-		float a1rate = player.getInformation(THREE_PATTERN,board.getPatternHash(THREE_PATTERN, at("A1"))).getRate();
-		int a1runs = player.getInformation(THREE_PATTERN,board.getPatternHash(THREE_PATTERN, at("A1"))).getRuns();
-		assertTrue(d5rate > a1rate);
-		assertTrue(d5runs > a1runs);
+		player.setUpProblem(BLACK, problem);
+		float d5rate = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("D5"))).getRate();
+		int d5runs = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("D5"))).getRuns();
+		float k1rate = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("K1"))).getRate();
+		int k1runs = player.getInformation(THREE_PATTERN,player.getBoard().getPatternHash(THREE_PATTERN, at("K1"))).getRuns();
+		assertTrue(d5rate > k1rate);
+		assertTrue(d5runs > k1runs);
 	}
 
 }
