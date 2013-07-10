@@ -17,7 +17,7 @@ import orego.core.Coordinates;
 import orego.patternanalyze.PatternInformation;
 import orego.util.IntSet;
 
-public class PatternPlayer extends MctsPlayer {
+public class PatternPlayer extends McPlayer {
 
 	HashMap<Character, PatternInformation> threePatterns;
 	HashMap<Character, PatternInformation> fivePatterns;
@@ -179,51 +179,57 @@ public class PatternPlayer extends MctsPlayer {
 		return tempRate;
 	}
 
-//	@Override
-//	public void generateMovesToFrontier(McRunnable runnable) {
-//		// TODO Auto-generated method stub
-//		
-//	}
-//
-//	@Override
-//	public long getPlayouts(int p) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-//
-//	@Override
-//	public double getWinRate(int p) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-//
-//	@Override
-//	public double getWins(int p) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-//
-//	@Override
-//	public void incorporateRun(int winner, McRunnable runnable) {
-//		// TODO Auto-generated method stub
-//		
-//	}
-//
-//	@Override
-//	protected String winRateReport() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public void beforeStartingThreads() {
-//		// TODO Auto-generated method stub
-//		
-//	}
-//
-//	@Override
-//	public void updateForAcceptMove(int p) {
-//		// TODO Auto-generated method stub
-//		
-//	}
+	@Override
+	public void generateMovesToFrontier(McRunnable runnable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public long getPlayouts(int p) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getWinRate(int point) {
+		float tempRate = 0;
+		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+			PatternInformation info = getInformation(pattern,
+					getBoard().getPatternHash(pattern, point));
+			tempRate+=info.getRate()* ((pattern + 1) * (pattern + 2) / 2)* ((pattern + 1) * (pattern + 2) / 2);
+		}
+		tempRate /= 146.0f;
+		return tempRate;
+	}
+
+	@Override
+	public double getWins(int p) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void incorporateRun(int winner, McRunnable runnable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected String winRateReport() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void beforeStartingThreads() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateForAcceptMove(int p) {
+		// TODO Auto-generated method stub
+		
+	}
 }
