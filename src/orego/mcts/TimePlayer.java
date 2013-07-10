@@ -109,20 +109,22 @@ public class TimePlayer extends Lgrf2Player {
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
 
-		// split it into slices
-		int timePerIteration = totalTimeInMs / 4;
-		setMillisecondsPerMove(timePerIteration);
+		if (confidenceLess) {
+			// split it into slices
+			int timePerIteration = max(1, totalTimeInMs / 4);
+			setMillisecondsPerMove(timePerIteration);
 
-		// execute each slice and stop early if applicable
-		for (int i = 0; i < THINKING_SLICES - 1; i++) {
-			int best = super.bestMove();
+			// execute each slice and stop early if applicable
+			for (int i = 0; i < THINKING_SLICES - 1; i++) {
+				int best = super.bestMove();
 
-			if (confidenceLess && weAreVeryConfident()) {
-				// consider leaving early:
-				// only if TLWB and UE don't prohibit us
-				if ((!thinkLongerWhenBehind || !weAreBehind())
-						&& (!unstableEvaluation || !isEvaluationUnstable())) {
-					return best;
+				if (confidenceLess && weAreVeryConfident()) {
+					// consider leaving early:
+					// only if TLWB and UE don't prohibit us
+					if ((!thinkLongerWhenBehind || !weAreBehind())
+							&& (!unstableEvaluation || !isEvaluationUnstable())) {
+						return best;
+					}
 				}
 			}
 		}
@@ -160,8 +162,8 @@ public class TimePlayer extends Lgrf2Player {
 	}
 
 	/**
-	 * Returns true we are very confident that the best move is better than the
-	 * 2nd best.
+	 * Returns true if we are very confident that the best move is better than
+	 * the 2nd best.
 	 **/
 	protected boolean weAreVeryConfident() {
 		return confidence() > confidenceLowerThreshold;
@@ -212,13 +214,7 @@ public class TimePlayer extends Lgrf2Player {
 	// System.err.println(confidence(m, moveWithSecondMostWins)
 	// + "% confident.");
 
-	/**
-	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
-	 * higher winrate than the second best move.
-	 * 
-	 * By "best" we mean the move with the most wins.
-	 */
-	protected double confidence() {
+	protected int moveWithSecondMostWins() {
 		int bestMove = super.bestStoredMove();
 		int secondBestMove = 0;
 		int secondMostWins = 0;
@@ -233,6 +229,19 @@ public class TimePlayer extends Lgrf2Player {
 				secondMostWins = winsForThisMove;
 			}
 		}
+
+		return secondBestMove;
+	}
+
+	/**
+	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
+	 * higher winrate than the second best move.
+	 * 
+	 * By "best" we mean the move with the most wins.
+	 */
+	protected double confidence() {
+		int bestMove = super.bestStoredMove();
+		int secondBestMove = moveWithSecondMostWins();
 
 		float probA = getRoot().getWinRate(bestMove);
 		float probB = getRoot().getWinRate(secondBestMove);
