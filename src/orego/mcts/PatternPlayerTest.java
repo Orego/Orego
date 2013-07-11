@@ -19,13 +19,10 @@ public class PatternPlayerTest {
 
 	private PatternPlayer player;
 
-	private Board board;
-
 	@Before
 	public void setUp() throws Exception {
-		player = new PatternPlayer();
+		player = new PatternPlayer(true);
 		player.reset();
-		board = new Board();
 	}
 
 	@Test
@@ -183,12 +180,57 @@ public class PatternPlayerTest {
 		player.bestMove();
 		
 		System.out.println(player.topPlayoutCount());
+		System.out.println(player.getTotalNumPlayouts());
 		
 		player.acceptMove(player.bestStoredMove());
 		
 		player.bestMove();
 		
 		System.out.println(player.topPlayoutCount());
+		System.out.println(player.getTotalNumPlayouts());
+	}
+	
+	@Test
+	public void testMaintainBoardViability(){
+		PatternPlayer playerTrue = new PatternPlayer (true);
+		PatternPlayer playerFalse = new PatternPlayer (false);
+		playerTrue.reset();
+		playerFalse.reset();
+		
+		String[] problem = { "...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".OOO...............",// 9
+				"O#.#O#.#...........",// 8
+				"OO.OOO.O...........",// 7
+				"...................",// 6
+				"..#...O.O..........",// 5
+				"...O...O...........",// 4
+				"##....#............",// 3
+				"OO#..#O#...........",// 2
+				".O#....O#.........." // 1
+		// ABCDEFGHJKLMNOPQRST
+		};
+		playerTrue.setUpProblem(BLACK, problem);
+		playerFalse.setUpProblem(BLACK, problem);
+		
+		playerTrue.setMillisecondsPerMove(2000);
+		playerFalse.setMillisecondsPerMove(2000);
+		
+		playerTrue.setUpRunnables();
+		playerFalse.setUpRunnables();
+
+		playerTrue.bestMove();
+		playerFalse.bestMove();
+		
+		assertTrue(playerTrue.getTotalNumPlayouts()>playerFalse.getTotalNumPlayouts());
 	}
 
 }
