@@ -1482,6 +1482,32 @@ public class BoardTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testPatternThreeWithMaintainingHashes() {
+		board = new Board(true);
+		int newPlay = 0;
+		for (int i = 0; i < 100; i++) {
+			newPlay = random.nextInt(Coordinates.getBoardArea());
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
+				char createHash = 0;
+				int[] currentMoves = {newPlay-getSouth()-EAST, 
+						newPlay-getSouth(),
+						newPlay-getSouth()+EAST,
+						newPlay-EAST,
+						newPlay,
+						newPlay+EAST,
+						newPlay+getSouth()-EAST,
+						newPlay+getSouth(),
+						newPlay+getSouth()+EAST};
+				for (int j = 0; j < currentMoves.length; j++) {
+					createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]), j);
+				}
+				assertEquals(board.getPatternHash(THREE_PATTERN, newPlay), createHash);
+				board.play(newPlay);
+			}
+		}
+	}
 
 	@Test
 	public void testCornerThreePatternHash() {
@@ -1510,6 +1536,42 @@ public class BoardTest {
 	
 	@Test
 	public void testPatternFive() {
+		int newPlay = 0;
+		for (int i = 0; i < 100; i++) {
+			newPlay = random.nextInt(Coordinates.getBoardArea());
+			//Cannot use 1, that's the first digit of two digit number!
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
+					!pointToString(newPlay).contains("A") &&
+					!pointToString(newPlay).contains("B") &&
+					!pointToString(newPlay).contains("S") &&
+					!pointToString(newPlay).contains("T") &&
+					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2")) && 
+							pointToString(newPlay).length()==2) &&
+					!pointToString(newPlay).contains("18") &&
+					!pointToString(newPlay).contains("19")
+					) {
+				char createHash = 0;
+				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
+						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
+						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
+						newPlay-getSouth(),	newPlay-getSouth()+EAST, newPlay-getSouth()+EAST+EAST,
+						newPlay-EAST-EAST,newPlay-EAST,	newPlay, newPlay+EAST, newPlay+EAST+EAST,
+						newPlay+getSouth()-EAST-EAST, newPlay+getSouth()-EAST, newPlay+getSouth(),
+						newPlay+getSouth()+EAST, newPlay+getSouth()+EAST+EAST,
+						newPlay+getSouth()+getSouth()-EAST-EAST, newPlay+getSouth()+getSouth()-EAST, newPlay+getSouth()+getSouth(),
+						newPlay+getSouth()+getSouth()+EAST, newPlay+getSouth()+getSouth()+EAST+EAST};
+				for (int j = 0; j < currentMoves.length; j++) {
+					createHash ^= board.getZobristPatternHash(FIVE_PATTERN, board.getColor(currentMoves[j]), j);
+				}
+				assertEquals(board.getPatternHash(FIVE_PATTERN, newPlay), createHash);
+				board.play(newPlay);
+			}
+		}
+	}
+	
+	@Test
+	public void testPatternFiveWithMaintainingHashes() {
+		board = new Board(true);
 		int newPlay = 0;
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
@@ -1579,7 +1641,82 @@ public class BoardTest {
 	}	
 	
 	@Test
+	public void testPatternSevenWithMaintainingHashes() {
+		board = new Board(true);
+		int newPlay = 0;
+		for (int i = 0; i < 100; i++) {
+			newPlay = random.nextInt(Coordinates.getBoardArea());
+			//Cannot use 1, that's the first digit of two digit number!
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
+					!pointToString(newPlay).contains("A")&&
+					!pointToString(newPlay).contains("B")&&
+					!pointToString(newPlay).contains("C")&&
+					!pointToString(newPlay).contains("R")&&
+					!pointToString(newPlay).contains("S")&&
+					!pointToString(newPlay).contains("T")&&
+					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
+							pointToString(newPlay).contains("3")) && 
+							pointToString(newPlay).length()==2) &&
+					!pointToString(newPlay).contains("17")&&
+					!pointToString(newPlay).contains("18")&&
+					!pointToString(newPlay).contains("19")) {
+				char createHash = 0;
+				int[] currentMoves = new int[7*7];
+				for (int j = 0; j < 7; j++) {
+					for (int k = 0; k < 7; k++) {
+						currentMoves[k+j*7] = newPlay-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
+					}
+				}
+				for (int j = 0; j < currentMoves.length; j++) {
+					createHash ^= board.getZobristPatternHash(SEVEN_PATTERN, board.getColor(currentMoves[j]), j);
+				}
+				assertEquals(board.getPatternHash(SEVEN_PATTERN, newPlay), createHash);
+				board.play(newPlay);
+			}
+		}
+	}	
+	
+	@Test
 	public void testPatternNine() {
+		int newPlay = 0;
+		for (int i = 0; i < 100; i++) {
+			newPlay = random.nextInt(Coordinates.getBoardArea());
+			//Cannot use 1, that's the first digit of two digit number!
+			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && (!pointToString(newPlay).contains("A")&&
+					!pointToString(newPlay).contains("B")&&
+					!pointToString(newPlay).contains("C")&&
+					!pointToString(newPlay).contains("D")&&
+					!pointToString(newPlay).contains("Q")&&
+					!pointToString(newPlay).contains("R")&&
+					!pointToString(newPlay).contains("S")&&
+					!pointToString(newPlay).contains("T")&&
+					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
+							pointToString(newPlay).contains("3") || pointToString(newPlay).contains("4")) && 
+							pointToString(newPlay).length()==2) &&
+					!pointToString(newPlay).contains("16")&&
+					!pointToString(newPlay).contains("17")&&
+					!pointToString(newPlay).contains("18")&&
+					!pointToString(newPlay).contains("19")&&
+					pointToString(newPlay).length()==2)) {
+				char createHash = 0;
+				int[] currentMoves = new int[9*9];
+				for (int j = 0; j < 9; j++) {
+					for (int k = 0; k < 9; k++) {
+						currentMoves[k+j*9] = newPlay-getSouth()-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
+					}
+				}
+				for (int j = 0; j < currentMoves.length; j++) {
+					createHash ^= board.getZobristPatternHash(NINE_PATTERN, board.getColor(currentMoves[j]), j);
+				}
+				assertEquals(board.getPatternHash(NINE_PATTERN, newPlay), createHash);
+				board.play(newPlay);
+			}
+		}
+	}	
+	
+	@Test
+	public void testPatternNineWithMaintainingHashes() {
+		board = new Board(true);
 		int newPlay = 0;
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());

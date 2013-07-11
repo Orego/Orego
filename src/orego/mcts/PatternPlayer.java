@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
 
 import orego.core.Board;
 import orego.core.Colors;
+import orego.core.Coordinates;
 import orego.patternanalyze.PatternInformation;
 import orego.util.IntSet;
 
@@ -23,7 +24,11 @@ public class PatternPlayer extends McPlayer {
 
 	private long numPlayouts;
 
+	private int[] playoutCount;
+
 	public PatternPlayer() {
+		setBoard(new Board(true));
+		playoutCount = new int[getFirstPointBeyondBoard()];
 		loadPatternHashMaps();
 		numPlayouts = 0;
 		this.setInOpeningBook(false);
@@ -53,9 +58,9 @@ public class PatternPlayer extends McPlayer {
 		new PatternPlayer();
 	}
 
-	public PatternInformation getInformation(int patternType, char hash) {
-		PatternInformation toReturn = patterns[patternType][getBoard()
-				.getColorToPlay()].get(hash);
+	public PatternInformation getInformation(int patternType, char hash,
+			int color) {
+		PatternInformation toReturn = patterns[patternType][color].get(hash);
 
 		if (toReturn != null) {
 			return toReturn;
@@ -72,10 +77,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gogui-pattern-info-7");
 		result.add("gogui-pattern-info-9");
 		result.add("gogui-combined-pattern-info");
-		// result.add("gogui-pattern-win-rates-3");
-		// result.add("gogui-pattern-win-rates-5");
-		// result.add("gogui-pattern-win-rates-7");
-		// result.add("gogui-pattern-win-rates-9");
+		result.add("gogui-pattern-first-playout-move");
 		return result;
 	}
 
@@ -87,10 +89,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gfx/7x7 pattern info/gogui-pattern-info-7");
 		result.add("gfx/9x9 pattern info/gogui-pattern-info-9");
 		result.add("gfx/Combined pattern info/gogui-combined-pattern-info");
-		// result.add("gfx/Pattern win rates/gogui-pattern-win-rates-3");
-		// result.add("gfx/Pattern win rates/gogui-pattern-win-rates-5");
-		// result.add("gfx/Pattern win rates/gogui-pattern-win-rates-7");
-		// result.add("gfx/Pattern win rates/gogui-pattern-win-rates-9");
+		result.add("gfx/Top playout move chosen/gogui-pattern-first-playout-move");
 		return result;
 	}
 
@@ -103,9 +102,6 @@ public class PatternPlayer extends McPlayer {
 			result = goguiPatternInfo((command.charAt(command.length() - 1) - '0') / 2 - 1);
 		} else if (command.contains("gogui-combined-pattern-info")) {
 			result = goguiCombinedPatternInfo();
-			// } else if (command.contains("gogui-pattern-win-rates")) {
-			// result =
-			// goguiPatternWinRates((command.charAt(command.length()-1)-'0')/2-1);
 		} else if (command.equals("gogui-live-mc-playouts")) {
 			long oldValue;
 			boolean isMilliseconds = (getMillisecondsPerMove() != -1);
@@ -117,20 +113,36 @@ public class PatternPlayer extends McPlayer {
 			setMillisecondsPerMove(1000);
 			for (int i = 0; i < 10; i++) {
 				bestMove();
-				System.err.println("gogui-gfx: \n" + goguiCombinedPatternInfo() + "\n");
+				System.err.println("gogui-gfx: \n" + goguiCombinedPatternInfo()
+						+ "\n");
 			}
 			if (isMilliseconds) {
 				setMillisecondsPerMove((int) oldValue);
 			} else {
 				setPlayoutLimit(oldValue);
 			}
-			//System.err.println("gogui-gfx: CLEAR");
 			result = "";
+		} else if (command.equals("gogui-pattern-first-playout-move")) {
+			result = goguiPatternFirstPlayoutMove();
 		} else {
 			result = super.handleCommand(command, arguments);
 		}
 		if (threadsWereRunning) {
 			startThreads();
+		}
+		return result;
+	}
+
+	private String goguiPatternFirstPlayoutMove() {
+		String result = "";
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+				result += String.format("COLOR %s %s\nLABEL %s %d",
+						colorCode(getWinRate(p)), pointToString(p),
+						pointToString(p), playoutCount[p]);
+			}
 		}
 		return result;
 	}
@@ -142,7 +154,8 @@ public class PatternPlayer extends McPlayer {
 				if (result.length() > 0)
 					result += '\n';
 				PatternInformation info = getInformation(patternType,
-						getBoard().getPatternHash(patternType, p));
+						getBoard().getPatternHash(patternType, p), getBoard()
+								.getColorToPlay());
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(info.getRate()), pointToString(p),
 						pointToString(p), info.getRate() * 100);
@@ -159,22 +172,22 @@ public class PatternPlayer extends McPlayer {
 					result += '\n';
 
 				float totalRate = (float) getWinRate(p);
-				
+
 				// RATE
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
 						pointToString(p), totalRate * 100);
-				
+
 				// RUNS
-//				 int totalRuns = 0;
-//				 for (int i = 0; i < NINE_PATTERN + 1; i++) {
-//					 PatternInformation info = getInformation(i, getBoard()
-//							 .getPatternHash(i, p));
-//					 totalRuns += info.getRuns();
-//				 }
-//				result += String.format("COLOR %s %s\nLABEL %s %d",
-//						colorCode(totalRate), pointToString(p),
-//						pointToString(p), totalRuns%1000);
+				// int totalRuns = 0;
+				// for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				// PatternInformation info = getInformation(i, getBoard()
+				// .getPatternHash(i, p));
+				// totalRuns += info.getRuns();
+				// }
+				// result += String.format("COLOR %s %s\nLABEL %s %d",
+				// colorCode(totalRate), pointToString(p),
+				// pointToString(p), totalRuns%1000);
 			}
 		}
 		return result;
@@ -190,26 +203,38 @@ public class PatternPlayer extends McPlayer {
 		float rate = 0;
 		IntSet moves = b.getVacantPoints();
 		for (int i = 0; i < moves.size(); i++) {
-			if (b.isLegal(moves.get(i))) {
-				float tempRate = (float) getWinRate(moves.get(i));
+			if (b.isLegal(moves.get(i)) && b.isFeasible(moves.get(i))) {
+				float tempRate = (float) getWinRate(b, moves.get(i));
 				if (tempRate > rate) {
 					rate = tempRate;
 					result = moves.get(i);
-					// System.out.println("Current best: "+pointToString(result)+":"+rate);
 				}
 			}
 		}
-		// System.out.println("Best stored move: "+pointToString(result));
 		if (rate < .25)
 			result = PASS;
+		if (b.getHash() == getBoard().getHash()) {
+			playoutCount[result]++;
+		}
 		return result;
+	}
+
+	private float getWinRate(Board b, int point) {
+		float tempRate = 0;
+		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+			PatternInformation info = getInformation(pattern,
+					b.getPatternHash(pattern, point), b.getColorToPlay());
+			tempRate += info.getRate() * patternWeight(pattern);
+		}
+		return tempRate;
 	}
 
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
-			runnable.acceptMove(bestMove(runnable.getBoard()));
+			int move = bestMove(runnable.getBoard());
+			runnable.acceptMove(move);
 		}
 		numPlayouts++;
 	}
@@ -221,13 +246,7 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public double getWinRate(int point) {
-		float tempRate = 0;
-		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
-			PatternInformation info = getInformation(pattern, getBoard()
-					.getPatternHash(pattern, point));
-			tempRate += info.getRate() * patternWeight(pattern);
-		}
-		return tempRate;
+		return getWinRate(getBoard(), point);
 	}
 
 	private double patternWeight(int pattern) {
@@ -241,7 +260,7 @@ public class PatternPlayer extends McPlayer {
 		double runs = 0;
 		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
 			PatternInformation info = getInformation(pattern, getBoard()
-					.getPatternHash(pattern, p));
+					.getPatternHash(pattern, p), getBoard().getColorToPlay());
 			winRate += info.getRate() * patternWeight(pattern);
 			runs += info.getRuns() * patternWeight(pattern);
 		}
@@ -257,25 +276,28 @@ public class PatternPlayer extends McPlayer {
 		}
 		int turn = runnable.getTurn();
 		int[] moves = runnable.getMoves();
-		Board b = new Board();
-		for (int t = 0; t < turn; t++) {
-			if (t >= getBoard().getTurn()) {
-				for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
-					PatternInformation info = getInformation(pattern,
-							getBoard().getPatternHash(pattern, moves[t]));
-					if (t % 2 == winner)
-						info.addWin();
-					else
-						info.addLoss();
-				}
+		Board b = new Board(true);
+		b.copyDataFrom(getBoard());
+		for (int t = getBoard().getTurn(); t < turn; t++) {
+			for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+				PatternInformation info = getInformation(pattern,
+						b.getPatternHash(pattern, moves[t]), b.getColorToPlay());
+				if (b.getColorToPlay() == winner)
+					info.addWin();
+				else
+					info.addLoss();
 			}
 			b.play(moves[t]);
 		}
 	}
-	
+
 	@Override
 	public void reset() {
 		super.reset();
+		setUpRunnables();
+	}
+
+	protected void setUpRunnables() {
 		for (int i = 0; i < getNumberOfThreads(); i++) {
 			setRunnable(i, new McRunnable(this, getHeuristics().clone()));
 		}
@@ -288,6 +310,7 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public void beforeStartingThreads() {
+		playoutCount = new int[getFirstPointBeyondBoard()];
 	}
 
 	@Override
