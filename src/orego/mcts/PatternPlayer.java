@@ -136,13 +136,24 @@ public class PatternPlayer extends McPlayer {
 	private String goguiPatternFirstPlayoutMove() {
 		String result = "";
 		for (int p : getAllPointsOnBoard()) {
-			if (getBoard().getColor(p) == VACANT) {
+			//if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0)
 					result += '\n';
 				result += String.format("COLOR %s %s\nLABEL %s %d",
 						colorCode(getWinRate(p)), pointToString(p),
 						pointToString(p), playoutCount[p]);
+			//}
+		}
+		return result;
+	}
+	
+	protected String topPlayoutCount(){
+		String result = "";
+		for (int row = 0; row<19; row ++) {
+			for (int col = 0; col<19; col ++){
+				result += playoutCount[at(row,col)];
 			}
+			result += '\n';
 		}
 		return result;
 	}
