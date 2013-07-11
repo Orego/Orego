@@ -318,8 +318,8 @@ public abstract class BookBuilder {
 	/**
 	 * Sets the game count to gameCount.
 	 */
-	protected void setGameCount(int gameCount) {
-		this.gameCount = gameCount;
+	protected void incrementGameCount() {
+		gameCount++;
 	}
 
 	/** Sets the small map to smallMap. */
@@ -340,6 +340,7 @@ public abstract class BookBuilder {
 			if (file.isDirectory()) {
 				setUp(filename);
 			} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
+				incrementGameCount();
 				debug("Processing " + dirList[i]);
 				try {
 					processFile(file);

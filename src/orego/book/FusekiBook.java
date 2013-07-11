@@ -37,6 +37,7 @@ public class FusekiBook implements OpeningBook, Serializable {
 			ObjectInputStream in = new ObjectInputStream(
 					new FileInputStream(file));
 			book = (HashMap<Long, Integer>) (in.readObject());
+			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
