@@ -127,6 +127,16 @@ public class BoardTest {
 		assertEquals(PLAY_OK, board.play("q1"));
 		assertEquals(VACANT, board.getColor(at("a1")));
 	}
+	
+	@Test
+	public void testCopyDataFromWithPatternMaintenance(){
+		board = new Board(true);
+		Board b2 = new Board(false);
+		assertTrue(board.isMaintainingPatternHashes());
+		assertFalse(b2.isMaintainingPatternHashes());
+		b2.copyDataFrom(board);
+		assertTrue(board.isMaintainingPatternHashes());
+	}
 
 	@Test
 	public void testCopyDataFrom() {

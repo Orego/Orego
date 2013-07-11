@@ -395,8 +395,9 @@ public class Board {
 		turn = that.turn;
 		maintainPatternHashes = that.maintainPatternHashes;
 		if (maintainPatternHashes){
+			patternHashAtPoint = new char[NINE_PATTERN+1][getFirstPointBeyondBoard()];
 			for (int pat = 0; pat<=NINE_PATTERN; pat++){
-				System.arraycopy(that.patternHashAtPoint[pat], 0, patternHashAtPoint[pat], 0, patternHashAtPoint[pat].length);
+				System.arraycopy(that.patternHashAtPoint[pat], 0, patternHashAtPoint[pat], 0, that.patternHashAtPoint[pat].length);
 			}
 		}
 	}
@@ -914,6 +915,10 @@ public class Board {
 		}
 		// Hooray, it's legal!
 		return true;
+	}
+	
+	protected boolean isMaintainingPatternHashes()	{
+		return maintainPatternHashes;
 	}
 
 	/** Returns true if the play at move p would be a self-atari for color. */
