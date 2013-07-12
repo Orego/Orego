@@ -194,6 +194,9 @@ public class PatternPlayerTest {
 	public void testMaintainBoardViability(){
 		PatternPlayer playerTrue = new PatternPlayer (true);
 		PatternPlayer playerFalse = new PatternPlayer (false);
+		
+		playerTrue.setMillisecondsPerMove(2000);
+		playerFalse.setMillisecondsPerMove(2000);
 		playerTrue.reset();
 		playerFalse.reset();
 		
@@ -221,16 +224,15 @@ public class PatternPlayerTest {
 		playerTrue.setUpProblem(BLACK, problem);
 		playerFalse.setUpProblem(BLACK, problem);
 		
-		playerTrue.setMillisecondsPerMove(2000);
-		playerFalse.setMillisecondsPerMove(2000);
-		
-		playerTrue.setUpRunnables();
-		playerFalse.setUpRunnables();
+//		playerTrue.setUpRunnables();
+//		playerFalse.setUpRunnables();
 
 		playerTrue.bestMove();
 		playerFalse.bestMove();
 		
+		//System.out.println("With maintenance: "+playerTrue.getTotalNumPlayouts()+"; without: "+playerFalse.getTotalNumPlayouts());
 		assertTrue(playerTrue.getTotalNumPlayouts()>playerFalse.getTotalNumPlayouts());
+		
 	}
 
 }
