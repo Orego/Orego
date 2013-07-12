@@ -7,9 +7,12 @@ public class Table {
 	
 	private long[] runCounts;
 	
-	public Table() {
-		winRates = new double[1 << 16];
-		runCounts = new long[1 << 16];
+	private int mask;
+	
+	public Table(int bits) {
+		winRates = new double[1 << bits];
+		runCounts = new long[1 << bits];
+		mask = (1 << bits) - 1;
 	}
 
 	/**
@@ -18,29 +21,32 @@ public class Table {
 	 * @param win True for a win, false for a loss.
 	 */
 	public void store(int hash, boolean win) {
+		int h = hash & mask;
 		if (win) {
-			winRates[hash] = (winRates[hash] * runCounts[hash] + 1) / (runCounts[hash] + 1);
+			winRates[h] = (winRates[h] * runCounts[h] + 1) / (runCounts[h] + 1);
 		} else {
-			winRates[hash] = (winRates[hash] * runCounts[hash]) / (runCounts[hash] + 1);
+			winRates[h] = (winRates[h] * runCounts[h]) / (runCounts[h] + 1);
 		}
-		runCounts[hash]++;
+		runCounts[h]++;
 	}
 	
 	/**
 	 * Returns the win rate at the specified hash.
 	 */
 	public double getWinRate(int hash) {
-		if (runCounts[hash] == 0) {
+		int h = hash & mask;
+		if (runCounts[h] == 0) {
 			return 0.5;
 		}
-		return winRates[hash];
+		return winRates[h];
 	}
 
 	/**
 	 * Returns the run count at the specified hash.
 	 */
 	public long getRunCount(int hash) {
-		return runCounts[hash];
+		int h = hash & mask;
+		return runCounts[h];
 	}
 
 }
