@@ -43,6 +43,14 @@ public class Table {
 		return winRates[h];
 	}
 
+	protected double[] getWinRates() {
+		return winRates;
+	}
+
+	protected long[] getRunCounts() {
+		return runCounts;
+	}
+
 	/**
 	 * Returns the run count at the specified hash.
 	 */
@@ -52,7 +60,7 @@ public class Table {
 	}
 
 	public static void main(String[] args) {
-		Table t = new Table(8);
+		Table t = new Table(17);
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		int entry = 23;
 		for (int i = 0; i < 100; i++) {
