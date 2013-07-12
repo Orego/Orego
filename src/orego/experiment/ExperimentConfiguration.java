@@ -65,7 +65,7 @@ public class ExperimentConfiguration {
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
 	/** The amount of time each player is allocated for each game. */
-	public static final int GAME_TIME_IN_SECONDS = 500;
+	public static final int GAME_TIME_IN_SECONDS = 60;
 	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
@@ -75,25 +75,13 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[16];
+	public static final String[] CONDITIONS = new String[4];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 unstableeval"; // finish this
-		CONDITIONS[1] = "threads=2 book=LateOpeningBook timeformula=basic c=60 unstableeval"; // and this
-		CONDITIONS[2] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.15";
-		CONDITIONS[3] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.25";
-		CONDITIONS[4] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.35";
-		CONDITIONS[5] = "threads=2 book=LateOpeningBook timeformula=basic c=45";
-		CONDITIONS[6] = "threads=2 book=LateOpeningBook timeformula=basic c=55";
-		CONDITIONS[7] = "threads=2 book=LateOpeningBook timeformula=basic c=65";
-		CONDITIONS[8] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.10 unstableeval";
-		CONDITIONS[9] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.30 unstableeval";
-		CONDITIONS[10] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.40 unstableeval";
-		CONDITIONS[11] = "threads=2 book=LateOpeningBook timeformula=basic c=40 unstableeval";
-		CONDITIONS[12] = "threads=2 book=LateOpeningBook timeformula=basic c=50 unstableeval";
-		CONDITIONS[13] = "threads=2 book=LateOpeningBook timeformula=basic c=70 unstableeval";
-		CONDITIONS[14] = "threads=2 book=LateOpeningBook timeformula=basic c=80 unstableeval";
-		CONDITIONS[15] = "threads=2 book=LateOpeningBook timeformula=basic c=90 unstableeval";
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20";
+		CONDITIONS[1] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 confidenceless";
+		CONDITIONS[2] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 confidencemore";
+		CONDITIONS[3] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 confidenceless confidencemore";
 	}
 	
 	/** Path to run gnugo on your machine */

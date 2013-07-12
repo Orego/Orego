@@ -3,6 +3,7 @@ package orego.mcts;
 import static java.lang.Math.max;
 import orego.play.UnknownPropertyException;
 import static orego.core.Coordinates.*;
+import static orego.util.Gaussian.*;
 
 public class TimePlayer extends Lgrf2Player {
 
@@ -71,33 +72,184 @@ public class TimePlayer extends Lgrf2Player {
 	 */
 	private double unstableMultiple = 0.5;
 
+	/**
+	 * This is true if we should stop thinking early when our confidence is
+	 * above confidenceLowerThreshold.
+	 */
+	private boolean confidenceLess = false;
+
+	/**
+	 * We should stop thinking early if our confidence that A's winrate is
+	 * greater than B's winrate is above this value.
+	 */
+	private double confidenceLowerThreshold = 0.6;
+
+	/**
+	 * This is true if we should think for confidenceMoreMultiple times longer
+	 * if our confidence is below confidenceUpperThreshold.
+	 */
+	private boolean confidenceMore = false;
+
+	/**
+	 * This is how much longer we should think when we aren't very confident in
+	 * the best move.
+	 */
+	private double confidenceMoreMultiple = 0.25;
+
+	/**
+	 * We should think longer if our confidence that A's winrate is greater than
+	 * B's winrate is below this value.
+	 */
+	private double confidenceUpperThreshold = 0.5;
+
+	private static final int THINKING_SLICES = 4;
+
 	@Override
 	public int bestMove() {
-		int m = super.bestMove();
-		if (unstableEvaluation) {
-			// Find the move with the most runs
-			int moveWithMostRuns = 0;
-			int mostRuns = 0;
-			for (int i = 0; i < getFirstPointBeyondBoard(); i++) {
-				int thisMovesRuns = getRoot().getRuns(i);
-				if (thisMovesRuns > mostRuns) {
-					moveWithMostRuns = i;
-					mostRuns = thisMovesRuns;
+		// get the total time allocated to this move
+		int totalTimeInMs = getMillisecondsPerMove();
+
+		if (confidenceLess) {
+			// split it into slices
+			int timePerIteration = max(1, totalTimeInMs / 4);
+			setMillisecondsPerMove(timePerIteration);
+
+			// execute each slice and stop early if applicable
+			for (int i = 0; i < THINKING_SLICES - 1; i++) {
+				int best = super.bestMove();
+
+				if (confidenceLess && weAreVeryConfident()) {
+					// consider leaving early:
+					// only if TLWB and UE don't prohibit us
+					if ((!thinkLongerWhenBehind || !weAreBehind())
+							&& (!unstableEvaluation || !isEvaluationUnstable())) {
+						return best;
+					}
 				}
-			}
-			// If it's not the move with the most wins, think a bit longer
-			if (moveWithMostRuns != getRoot().getMoveWithMostWins()) {
-				setMillisecondsPerMove(max(1, (int) (getMillisecondsPerMove() * unstableMultiple)));
-				return super.bestMove();
 			}
 		}
 
-		if (thinkLongerWhenBehind
-				&& ((getRoot().getWinRate(m) < behindThreshold) || (m == RESIGN))) {
-			setMillisecondsPerMove(max(1, (int) (getMillisecondsPerMove() * longerMultiple)));
-			return super.bestMove();
+		int best = super.bestMove();
+
+		// now our time is up. think longer if applicable.
+		double maxMultiple = 0.0;
+
+		// check for TLWB
+		if (thinkLongerWhenBehind && longerMultiple > maxMultiple
+				&& weAreBehind()) {
+			maxMultiple = longerMultiple;
 		}
-		return m;
+
+		// check for UE
+		if (unstableEvaluation && unstableMultiple > maxMultiple
+				&& isEvaluationUnstable()) {
+			maxMultiple = unstableMultiple;
+		}
+
+		// check for CONF
+		if (confidenceMore && confidenceMoreMultiple > maxMultiple
+				&& weArentConfident()) {
+			maxMultiple = confidenceMoreMultiple;
+		}
+
+		if (maxMultiple > 0) {
+			setMillisecondsPerMove(max(1,
+					(int) Math.round(totalTimeInMs * maxMultiple)));
+			return super.bestMove();
+		} else {
+			return best;
+		}
+	}
+
+	/**
+	 * Returns true if we are very confident that the best move is better than
+	 * the 2nd best.
+	 **/
+	protected boolean weAreVeryConfident() {
+		return confidence() > confidenceLowerThreshold;
+	}
+
+	/**
+	 * Returns true if we aren't confident that the best move is better than the
+	 * 2nd best.
+	 */
+	protected boolean weArentConfident() {
+		return confidence() < confidenceUpperThreshold;
+	}
+
+	/** Returns true if the winrate of the best move is below behindThreshold. */
+	protected boolean weAreBehind() {
+		int bestMove = bestStoredMove();
+		return getRoot().getWinRate(bestMove) < behindThreshold
+				|| bestMove == RESIGN;
+	}
+
+	/**
+	 * Returns true if the move with the most wins is not the move with the most
+	 * runs.
+	 */
+	protected boolean isEvaluationUnstable() {
+		// Find the move with the most runs
+		int moveWithMostRuns = 0;
+		int mostRuns = 0;
+		for (int i = 0; i < getFirstPointBeyondBoard(); i++) {
+			int thisMovesRuns = getRoot().getRuns(i);
+			if (thisMovesRuns > mostRuns) {
+				moveWithMostRuns = i;
+				mostRuns = thisMovesRuns;
+			}
+		}
+		return moveWithMostRuns != getRoot().getMoveWithMostWins();
+	}
+
+	// System.err.println(pointToString(m) + ": " + getRoot().getWins(m) + "/"
+	// + getRoot().getRuns(m) + " = " + getRoot().getWins(m)
+	// / getRoot().getRuns(m));
+	// System.err.println(pointToString(moveWithSecondMostWins) + ": "
+	// + getRoot().getWins(moveWithSecondMostWins) + "/"
+	// + getRoot().getRuns(moveWithSecondMostWins) + " = "
+	// + getRoot().getWins(moveWithSecondMostWins)
+	// / getRoot().getRuns(moveWithSecondMostWins));
+	// System.err.println("Total runs: " + getRoot().getTotalRuns());
+	// System.err.println(confidence(m, moveWithSecondMostWins)
+	// + "% confident.");
+
+	protected int moveWithSecondMostWins() {
+		int bestMove = super.bestStoredMove();
+		int secondBestMove = 0;
+		int secondMostWins = 0;
+
+		for (int p = 0; p < getFirstPointBeyondBoard(); p++) {
+			if (p == bestMove) {
+				continue;
+			}
+			int winsForThisMove = (int) Math.round(getRoot().getWins(p));
+			if (winsForThisMove > secondMostWins) {
+				secondBestMove = p;
+				secondMostWins = winsForThisMove;
+			}
+		}
+
+		return secondBestMove;
+	}
+
+	/**
+	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
+	 * higher winrate than the second best move.
+	 * 
+	 * By "best" we mean the move with the most wins.
+	 */
+	protected double confidence() {
+		int bestMove = super.bestStoredMove();
+		int secondBestMove = moveWithSecondMostWins();
+
+		float probA = getRoot().getWinRate(bestMove);
+		float probB = getRoot().getWinRate(secondBestMove);
+		int na = getRoot().getRuns(bestMove);
+		int nb = getRoot().getRuns(secondBestMove);
+		double z = (probA - probB)
+				/ Math.sqrt(probA * (1 - probA) / na + probB * (1 - probB) / nb);
+		return Phi(z);
 	}
 
 	@Override
@@ -127,6 +279,16 @@ public class TimePlayer extends Lgrf2Player {
 			unstableEvaluation = true;
 		} else if (property.equals("unstablemult")) {
 			unstableMultiple = Double.parseDouble(value);
+		} else if (property.equals("confidenceless")) {
+			confidenceLess = true;
+		} else if (property.equals("confidencelow")) {
+			confidenceLowerThreshold = Double.parseDouble(value);
+		} else if (property.equals("confidencemore")) {
+			confidenceMore = true;
+		} else if (property.equals("confidenceupper")) {
+			confidenceUpperThreshold = Double.parseDouble(value);
+		} else if (property.equals("confidencemoremult")) {
+			confidenceMoreMultiple = Double.parseDouble(value);
 		} else {
 			super.setProperty(property, value);
 		}
@@ -161,7 +323,7 @@ public class TimePlayer extends Lgrf2Player {
 		default:
 			msPerMove = 0;
 		}
-		
+
 		// never allocate < 1 ms to a move
 		if (msPerMove < 1) {
 			msPerMove = 1;
