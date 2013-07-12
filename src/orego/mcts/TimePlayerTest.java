@@ -48,8 +48,8 @@ public class TimePlayerTest {
 	
 	@Test
 	public void testThinkLonger() throws UnknownPropertyException {
-		player.setProperty("thinklonger", "true");
-		player.setProperty("longermultiple", "1.0");
+		player.setProperty("behind", "true");
+		player.setProperty("behind-mult", "1.0");
 		String[] problemWhiteIsBehind = new String[] {
 				"###################",// 19
 				"###################",// 18
@@ -91,8 +91,8 @@ public class TimePlayerTest {
 	
 	@Test
 	public void testIsEvaluationUnstable() throws UnknownPropertyException {
-		player.setProperty("unstableeval", "true");
-		player.setProperty("unstablemult", "1.0");
+		player.setProperty("unstable-eval", "true");
+		player.setProperty("unstable-mult", "1.0");
 		player.setUpProblem(BLACK, randomProblem);
 		player.bestMove();
 		assertFalse(player.isEvaluationUnstable());
@@ -121,14 +121,14 @@ public class TimePlayerTest {
 	}
 	
 	@Test
-	public void testConfidenceMore() throws UnknownPropertyException {
-		player.setProperty("confidencemore", "true");
-		player.setProperty("confidencemoremult", "5.0");
-		player.setProperty("confidenceupper", "0.2");
+	public void testCompareSecondUnconf() throws UnknownPropertyException {
+		player.setProperty("compare-second", "true");
+		player.setProperty("compare-second-unconf-mult", "2.0");
+		player.setProperty("compare-second-unconf", "0.2");
 		player.setUpProblem(BLACK, randomProblem);
 		player.bestMove();
 		
-		assertFalse(player.weArentConfident());
+		assertFalse(player.confidenceBestVsSecondBest() < 0.2);
 
 		player.setRemainingTime(10);
 		long start = System.currentTimeMillis();
@@ -144,21 +144,21 @@ public class TimePlayerTest {
 		player.getRoot().addLosses(at("E16"), 1);
 		// now T1 is 9999/10000: 2nd most wins and much higher win rate = not confident that A16 better than E16
 		
-		assertTrue(player.weArentConfident());
+		assertTrue(player.confidenceBestVsSecondBest() < 0.2);
 
 		player.setRemainingTime(10);
 		start = System.currentTimeMillis();
 		player.bestMove();
 		long usedNotConfidentEnough = System.currentTimeMillis() - start;
-		assertEquals(6.0, (usedNotConfidentEnough + 0.0) / usedConfidentEnough, 0.2);
+		assertEquals(3.0, (usedNotConfidentEnough + 0.0) / usedConfidentEnough, 0.5);
 	}
 	
 	@Test
-	public void testConfidenceLess() throws UnknownPropertyException {
-		player.setProperty("confidenceless", "true");
-		player.setProperty("confidencelow", "0.9");
+	public void testCompareSecondConf() throws UnknownPropertyException {
+		player.setProperty("compare-second", "true");
+		player.setProperty("compare-second-conf", "0.9");
 		player.setUpProblem(BLACK, randomProblem);
-		assertFalse(player.weAreVeryConfident());
+		assertFalse(player.confidenceBestVsSecondBest() > 0.9);
 		
 		player.setRemainingTime(10);
 		long start = System.currentTimeMillis();
@@ -171,7 +171,7 @@ public class TimePlayerTest {
 		player.getRoot().addWins(at("E16"), 5000);
 		player.getRoot().addLosses(at("E16"), 20000);
 		player.bestMove();
-		assertTrue(player.weAreVeryConfident());
+		assertTrue(player.confidenceBestVsSecondBest() > 0.9);
 		
 		player.setRemainingTime(10);
 		start = System.currentTimeMillis();

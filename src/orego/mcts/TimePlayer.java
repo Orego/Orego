@@ -44,14 +44,14 @@ public class TimePlayer extends Lgrf2Player {
 	 * This is true if we should think for longer when the highest winrate <
 	 * behindThreshold.
 	 */
-	private boolean thinkLongerWhenBehind = false;
+	private boolean behind = false;
 
 	/**
 	 * This is what we should multiply the time by if we are going to think
 	 * longer for a particular move. A reasonable value is 1.0 (think for twice
 	 * as long).
 	 */
-	private double longerMultiple = 1.0;
+	private double behindMult = 1.0;
 
 	/**
 	 * We are considered "behind" if the maximum winrate of any node is less
@@ -63,44 +63,68 @@ public class TimePlayer extends Lgrf2Player {
 	 * This is true if we should think for longer when the move with the most
 	 * wins and the move with the highest win rate are not the same.
 	 */
-	private boolean unstableEvaluation = false;
+	private boolean unstableEval = false;
 
 	/**
 	 * This is what we should multiply the time by if we are going to think
 	 * longer due to the unstable-evaluation heuristic. A reasonable value is
 	 * 0.5 (think for 50% longer).
 	 */
-	private double unstableMultiple = 0.5;
+	private double unstableMult = 0.5;
 
 	/**
-	 * This is true if we should stop thinking early when our confidence is
-	 * above confidenceLowerThreshold.
+	 * This is true if we should consider how confident we are that the best
+	 * move (A) is better than the second best (B).
 	 */
-	private boolean confidenceLess = false;
+	private boolean compareSecond = false;
 
 	/**
 	 * We should stop thinking early if our confidence that A's winrate is
 	 * greater than B's winrate is above this value.
 	 */
-	private double confidenceLowerThreshold = 0.6;
-
-	/**
-	 * This is true if we should think for confidenceMoreMultiple times longer
-	 * if our confidence is below confidenceUpperThreshold.
-	 */
-	private boolean confidenceMore = false;
+	private double compareSecondConf = 1.0;
 
 	/**
 	 * This is how much longer we should think when we aren't very confident in
-	 * the best move.
+	 * the best move vs. the second best.
 	 */
-	private double confidenceMoreMultiple = 0.25;
+	private double compareSecondUnconfMult = 0.25;
 
 	/**
 	 * We should think longer if our confidence that A's winrate is greater than
 	 * B's winrate is below this value.
 	 */
-	private double confidenceUpperThreshold = 0.5;
+	private double compareSecondUnconf = 0.0;
+
+	/**
+	 * This is true if we should consider how confident we are that the best
+	 * move (A) is better than the rest of the moves.
+	 */
+	private boolean compareRest = false;
+
+	/**
+	 * We will stop thinking early if our confidence in the best move vs. the
+	 * rest is greater than this value.
+	 */
+	private double compareRestConf = 1.0;
+
+	/**
+	 * We will think longer if our confidence in the best move vs. the rest is
+	 * less than this value.
+	 */
+	private double compareRestUnconf = 0.0;
+
+	/**
+	 * We will think for this many times longer if we are not confident in the
+	 * best move vs. the rest of the moves.
+	 */
+	private double compareRestUnconfMult = 0.5;
+	
+	/**
+	 * If we are configured to stop searching early, we will multiply the time
+	 * allocated to each move by the formula by this number.
+	 */
+	private double earlyExitMult = 2.0;
 
 	private static final int THINKING_SLICES = 4;
 
@@ -108,73 +132,70 @@ public class TimePlayer extends Lgrf2Player {
 	public int bestMove() {
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
-
-		if (confidenceLess) {
+				
+		if ((compareSecond && compareSecondConf < 1.0)
+				|| (compareRest && compareRestConf < 1.0)) {
+			// increased the allocated time
+			totalTimeInMs *= earlyExitMult;
 			// split it into slices
-			int timePerIteration = max(1, totalTimeInMs / 4);
+			int timePerIteration = max(1, totalTimeInMs / THINKING_SLICES);
 			setMillisecondsPerMove(timePerIteration);
 
 			// execute each slice and stop early if applicable
 			for (int i = 0; i < THINKING_SLICES - 1; i++) {
 				int best = super.bestMove();
-
-				if (confidenceLess && weAreVeryConfident()) {
+				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
+						|| (compareRest && confidenceBestVsRest() > compareRestConf)) {
 					// consider leaving early:
-					// only if TLWB and UE don't prohibit us
-					if ((!thinkLongerWhenBehind || !weAreBehind())
-							&& (!unstableEvaluation || !isEvaluationUnstable())) {
+					// only if BEHIND and UNSTABLE-EVAL don't prohibit us
+					if ((!behind || !weAreBehind())
+							&& (!unstableEval || !isEvaluationUnstable())) {
+//						System.err.println("RETURNING EARLY (after " + (i+1) + " iterations) because I am " + confidenceBestVsRest() + " confident.");
 						return best;
 					}
 				}
 			}
+//			System.err.println("DIDN'T RETURN EARLY because I am only " + confidenceBestVsRest() + " confident!");
 		}
-
+//		System.err.println(getMillisecondsPerMove());
 		int best = super.bestMove();
-
+		
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
 
-		// check for TLWB
-		if (thinkLongerWhenBehind && longerMultiple > maxMultiple
-				&& weAreBehind()) {
-			maxMultiple = longerMultiple;
+		// check for BEHIND
+		if (behind && behindMult > maxMultiple && weAreBehind()) {
+			maxMultiple = behindMult;
 		}
 
-		// check for UE
-		if (unstableEvaluation && unstableMultiple > maxMultiple
+		// check for UNSTABLE-EVAL
+		if (unstableEval && unstableMult > maxMultiple
 				&& isEvaluationUnstable()) {
-			maxMultiple = unstableMultiple;
+			maxMultiple = unstableMult;
 		}
 
-		// check for CONF
-		if (confidenceMore && confidenceMoreMultiple > maxMultiple
-				&& weArentConfident()) {
-			maxMultiple = confidenceMoreMultiple;
+		// check for COMPARE-SECOND
+		if (compareSecond && compareSecondUnconfMult > maxMultiple
+				&& confidenceBestVsSecondBest() < compareSecondUnconf) {
+			maxMultiple = compareSecondUnconfMult;
+		}
+		
+		// check for COMPARE-REST
+		if (compareRest && compareRestUnconfMult > maxMultiple
+				&& confidenceBestVsRest() < compareRestUnconf) {
+//			System.err.println("Thinking longer since we're only " + confidenceBestVsRest() + " confident in our move: " + pointToString(best));
+			maxMultiple = compareRestUnconfMult;
 		}
 
 		if (maxMultiple > 0) {
 			setMillisecondsPerMove(max(1,
 					(int) Math.round(totalTimeInMs * maxMultiple)));
-			return super.bestMove();
+			int newMove = super.bestMove();
+//			System.err.println("The new move is: " + pointToString(newMove));
+			return newMove;
 		} else {
 			return best;
 		}
-	}
-
-	/**
-	 * Returns true if we are very confident that the best move is better than
-	 * the 2nd best.
-	 **/
-	protected boolean weAreVeryConfident() {
-		return confidence() > confidenceLowerThreshold;
-	}
-
-	/**
-	 * Returns true if we aren't confident that the best move is better than the
-	 * 2nd best.
-	 */
-	protected boolean weArentConfident() {
-		return confidence() < confidenceUpperThreshold;
 	}
 
 	/** Returns true if the winrate of the best move is below behindThreshold. */
@@ -239,16 +260,53 @@ public class TimePlayer extends Lgrf2Player {
 	 * 
 	 * By "best" we mean the move with the most wins.
 	 */
-	protected double confidence() {
-		int bestMove = super.bestStoredMove();
-		int secondBestMove = moveWithSecondMostWins();
+	protected double confidenceBestVsSecondBest() {
+		return confidence(getRoot().bestWinRate(),
+				getRoot().getRuns(getRoot().getMoveWithMostWins()), getRoot()
+						.getWinRate(moveWithSecondMostWins()), getRoot()
+						.getRuns(moveWithSecondMostWins()));
+	}
 
-		float probA = getRoot().getWinRate(bestMove);
-		float probB = getRoot().getWinRate(secondBestMove);
-		int na = getRoot().getRuns(bestMove);
-		int nb = getRoot().getRuns(secondBestMove);
-		double z = (probA - probB)
-				/ Math.sqrt(probA * (1 - probA) / na + probB * (1 - probB) / nb);
+	/**
+	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
+	 * higher winrate than the rest of the legal moves.
+	 */
+	protected double confidenceBestVsRest() {
+		// win rate and runs of the best move
+		int bestMove = getRoot().getMoveWithMostWins();
+		float bestWinRate = getRoot().bestWinRate();
+		int bestRuns = getRoot().getRuns(bestMove);
+
+		// runs of the rest of the moves
+		int restRuns = getRoot().getTotalRuns() - bestRuns;
+
+		// wins of the rest of the moves
+		int restWins = 0;
+		for (int p : getAllPointsOnBoard()) {
+			if (p != bestMove && getRoot().getWinRate(p) > 0.0) {
+				restWins += getRoot().getWins(p);
+			}
+		}
+
+		float restWinRate = restWins / (float) (restRuns);
+		
+//		System.err.println("RestWinRate = " + restWinRate + ", RestWins = " + restWins + ", RestRuns = " + restRuns + " w/ avg = " + restRunsAverage);
+//		System.err.println("BestWinRate = " + bestWinRate + ", BestWins = " + getRoot().getWins(bestMove) + ", BestRuns = " + bestRuns);
+		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
+//		System.err.println("Conf = " + c);
+		return c;
+	}
+
+	protected double confidence(float winrateA, double runsA, float winrateB,
+			double runsB) {
+		
+//		System.err.println("winrateA = " + winrateA);
+//		System.err.println("runsA = " + runsA);
+//		System.err.println("winrateB = " + winrateB);
+//		System.err.println("runsB = " + runsB);
+		double z = (winrateA - winrateB)
+				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
+						* (1 - winrateB) / runsB);
 		return Phi(z);
 	}
 
@@ -269,26 +327,34 @@ public class TimePlayer extends Lgrf2Player {
 			timeC = Double.parseDouble(value);
 		} else if (property.equals("maxply")) {
 			timeMaxPly = Integer.parseInt(value);
-		} else if (property.equals("thinklonger")) {
-			thinkLongerWhenBehind = true;
-		} else if (property.equals("behindthreshold")) {
+		} else if (property.equals("behind")) {
+			behind = true;
+		} else if (property.equals("behind-threshold")) {
 			behindThreshold = Double.parseDouble(value);
-		} else if (property.equals("longermultiple")) {
-			longerMultiple = Double.parseDouble(value);
-		} else if (property.equals("unstableeval")) {
-			unstableEvaluation = true;
-		} else if (property.equals("unstablemult")) {
-			unstableMultiple = Double.parseDouble(value);
-		} else if (property.equals("confidenceless")) {
-			confidenceLess = true;
-		} else if (property.equals("confidencelow")) {
-			confidenceLowerThreshold = Double.parseDouble(value);
-		} else if (property.equals("confidencemore")) {
-			confidenceMore = true;
-		} else if (property.equals("confidenceupper")) {
-			confidenceUpperThreshold = Double.parseDouble(value);
-		} else if (property.equals("confidencemoremult")) {
-			confidenceMoreMultiple = Double.parseDouble(value);
+		} else if (property.equals("behind-mult")) {
+			behindMult = Double.parseDouble(value);
+		} else if (property.equals("unstable-eval")) {
+			unstableEval = true;
+		} else if (property.equals("unstable-mult")) {
+			unstableMult = Double.parseDouble(value);
+		} else if (property.equals("compare-second")) {
+			compareSecond = true;
+		} else if (property.equals("compare-second-conf")) {
+			compareSecondConf = Double.parseDouble(value);
+		} else if (property.equals("compare-second-unconf")) {
+			compareSecondUnconf = Double.parseDouble(value);
+		} else if (property.equals("compare-second-unconf-mult")) {
+			compareSecondUnconfMult = Double.parseDouble(value);
+		} else if (property.equals("compare-rest")) {
+			compareRest = true;
+		} else if (property.equals("compare-rest-conf")) {
+			compareRestConf = Double.parseDouble(value);
+		} else if (property.equals("compare-rest-unconf")) {
+			compareRestUnconf = Double.parseDouble(value);
+		} else if (property.equals("compare-rest-unconf-mult")) {
+			compareRestUnconfMult = Double.parseDouble(value);
+		} else if (property.equals("early-exit-mult")) {
+			earlyExitMult = Double.parseDouble(value);
 		} else {
 			super.setProperty(property, value);
 		}
