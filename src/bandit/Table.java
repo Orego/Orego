@@ -1,5 +1,7 @@
 package bandit;
 
+import ec.util.MersenneTwisterFast;
+
 /** Stores, at each position, a win rate in [0.0, 1.0] and a number of runs. */
 public class Table {
 
@@ -47,6 +49,23 @@ public class Table {
 	public long getRunCount(int hash) {
 		int h = hash & mask;
 		return runCounts[h];
+	}
+
+	public static void main(String[] args) {
+		Table t = new Table(8);
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		int entry = 23;
+		for (int i = 0; i < 100; i++) {
+			t.store(entry, true);
+		}
+		for (int i = 0; i < 1000000; i++) {
+			t.store(random.nextInt(), true);
+			t.store(random.nextInt(), false);
+		}
+//		System.out.println(t.getWinRate(23));
+		for (int i = 0; i < t.winRates.length; i++) {
+			System.out.println(i + "\t" + t.getWinRate(i));
+		}
 	}
 
 }
