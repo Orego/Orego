@@ -52,10 +52,10 @@ public class ExperimentConfiguration {
 	 * more than the number of processor cores on each host. If Orego is being
 	 * run with multiple threads, it might be even smaller.
 	 */
-	public static final int GAMES_PER_HOST = 2;
+	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 100;
+	public static final int GAMES_PER_CONDITION = 480;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -65,7 +65,7 @@ public class ExperimentConfiguration {
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
 	/** The amount of time each player is allocated for each game. */
-	public static final int GAME_TIME_IN_SECONDS = 60;
+	public static final int GAME_TIME_IN_SECONDS = 500;
 	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
@@ -75,13 +75,15 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[6];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20";
-		CONDITIONS[1] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 confidenceless";
-		CONDITIONS[2] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 confidencemore";
-		CONDITIONS[3] = "threads=2 book=LateOpeningBook timeformula=uniform c=0.20 confidenceless confidencemore";
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99";
+		CONDITIONS[1] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99 early-exit-mult=2.0";
+		CONDITIONS[2] = "threads=2 book=LateOpeningBook compare-second compare-second-conf=0.60";
+		CONDITIONS[3] = "threads=2 book=LateOpeningBook compare-second compare-second-conf=0.60 early-exit-mult=2.0";
+		CONDITIONS[4] = "threads=2 book=LateOpeningBook compare-rest compare-rest-unconf=0.40";
+		CONDITIONS[5] = "threads=2 book=LateOpeningBook compare-second compare-second-unconf=0.40";
 	}
 	
 	/** Path to run gnugo on your machine */
