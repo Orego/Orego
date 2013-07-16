@@ -16,6 +16,7 @@ import java.util.StringTokenizer;
 
 import orego.core.Board;
 import orego.core.Colors;
+import orego.sgf.SgfParser;
 import orego.util.IntSet;
 
 /**
@@ -206,81 +207,56 @@ public class PatternCounterTwoPointOne {
 	 *            file of a particular game.
 	 */
 	public void checkPatterns(File dir) {
-		try {
-			System.out.println(dir.getAbsolutePath());
-			Board board = new Board();
-			String input = "";
-			Scanner s = new Scanner(dir);
-			while (s.hasNextLine()) {
-				input += s.nextLine();
-			}
-			input = input.replace("W[]", "W[tt]");
-			input = input.replace("B[]", "B[tt]");
-			StringTokenizer stoken = new StringTokenizer(input, "()[];");
-			while (stoken.hasMoreTokens()) {
-				String token = stoken.nextToken();
-				if (token.equals("W") || token.equals("B")) {
-					token = stoken.nextToken();
-					if (token.equals("tt")) {
-						board.play(PASS);
+		Board board = SgfParser.sgfToBoard(dir);
+		int turn = board.getTurn();
+		int currentTurn = 0;
+		IntSet possibleMoves;
+		int randomMove;
+		Board patternBoard = new Board();
+		while (currentTurn <= turn) {
+			int nextPlay = board.getMove(currentTurn);
+			do {
+				possibleMoves = patternBoard.getVacantPoints();
+				randomMove = possibleMoves
+						.get((int) (Math.random() * possibleMoves.size()));
+			} while (!patternBoard.isLegal(randomMove)
+					|| randomMove == nextPlay);
+			if (isOnBoard(nextPlay)) {
+				for (int patternType = 0; patternType < NINE_PATTERN + 1; patternType++) {
+					char lastPlayHash = patternBoard.getPatternHash(
+							patternType, nextPlay);
+					if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(lastPlayHash)) {
+						PatternInformation patternData = patternSeen[patternType][patternBoard.getColorToPlay()]
+								.get(lastPlayHash);
+						float totalWins = (patternData.getRate() * patternData
+								.getRuns());
+						patternData.setRuns(patternData.getRuns() + 1);
+						patternData.setRate((totalWins + 1)
+								/ patternData.getRuns());
 					} else {
-						board.play(sgfToPoint(token));
+						patternSeen[patternType][patternBoard.getColorToPlay()].put(
+								lastPlayHash,
+								new PatternInformation(1.0f, 1));
+					}
+					char moveHash = patternBoard.getPatternHash(
+							patternType, randomMove);
+					if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(moveHash)) {
+						PatternInformation patternData = patternSeen[patternType][patternBoard.getColorToPlay()]
+								.get(moveHash);
+						float totalWins = (patternData.getRate() * patternData
+								.getRuns());
+						patternData.setRuns(patternData.getRuns() + 1);
+						patternData.setRate((totalWins)
+								/ patternData.getRuns());
+					} else {
+						patternSeen[patternType][patternBoard.getColorToPlay()].put(
+								moveHash,
+								new PatternInformation(0.0f, 1));
 					}
 				}
 			}
-			s.close();
-			int turn = board.getTurn();
-			int currentTurn = 0;
-			IntSet possibleMoves;
-			int randomMove;
-			Board patternBoard = new Board();
-			while (currentTurn <= turn) {
-				int nextPlay = board.getMove(currentTurn);
-				do {
-					possibleMoves = patternBoard.getVacantPoints();
-					randomMove = possibleMoves
-							.get((int) (Math.random() * possibleMoves.size()));
-				} while (!patternBoard.isLegal(randomMove)
-						|| randomMove == nextPlay);
-				if (isOnBoard(nextPlay)) {
-					for (int patternType = 0; patternType < NINE_PATTERN + 1; patternType++) {
-						char lastPlayHash = patternBoard.getPatternHash(
-								patternType, nextPlay);
-						if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(lastPlayHash)) {
-							PatternInformation patternData = patternSeen[patternType][patternBoard.getColorToPlay()]
-									.get(lastPlayHash);
-							float totalWins = (patternData.getRate() * patternData
-									.getRuns());
-							patternData.setRuns(patternData.getRuns() + 1);
-							patternData.setRate((totalWins + 1)
-									/ patternData.getRuns());
-						} else {
-							patternSeen[patternType][patternBoard.getColorToPlay()].put(
-									lastPlayHash,
-									new PatternInformation(1.0f, 1));
-						}
-						char moveHash = patternBoard.getPatternHash(
-								patternType, randomMove);
-						if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(moveHash)) {
-							PatternInformation patternData = patternSeen[patternType][patternBoard.getColorToPlay()]
-									.get(moveHash);
-							float totalWins = (patternData.getRate() * patternData
-									.getRuns());
-							patternData.setRuns(patternData.getRuns() + 1);
-							patternData.setRate((totalWins)
-									/ patternData.getRuns());
-						} else {
-							patternSeen[patternType][patternBoard.getColorToPlay()].put(
-									moveHash,
-									new PatternInformation(0.0f, 1));
-						}
-					}
-				}
-				currentTurn++;
-				patternBoard.play(nextPlay);
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
+			currentTurn++;
+			patternBoard.play(nextPlay);
 		}
 	}
 
