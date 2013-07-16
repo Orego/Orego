@@ -127,6 +127,11 @@ public class TimePlayer extends Lgrf2Player {
 	private double earlyExitMult = 2.0;
 
 	private static final int THINKING_SLICES = 4;
+	
+	/**
+	 * This keeps track of the playouts per second 
+	 */
+	private long playoutsPerMS; 
 
 	@Override
 	public int bestMove() {
@@ -158,8 +163,25 @@ public class TimePlayer extends Lgrf2Player {
 //			System.err.println("DIDN'T RETURN EARLY because I am only " + confidenceBestVsRest() + " confident!");
 		}
 //		System.err.println(getMillisecondsPerMove());
+
+		// Get the start time before we run best move
+		long startTime = System.currentTimeMillis();
+
+		// Get the initial playouts in the tree
+		int initialPlayouts = getRoot().getTotalRuns();
+
 		int best = super.bestMove();
-		
+
+		// Get the final number of playouts
+		int finalPlayouts = getRoot().getTotalRuns();
+
+		// Get the end time after we run our playouts
+		long endTime = System.currentTimeMillis();
+
+		// Determine the playouts per Milli-second
+		playoutsPerMS = (finalPlayouts - initialPlayouts)
+				/ ((endTime - startTime));
+
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
 
@@ -389,12 +411,21 @@ public class TimePlayer extends Lgrf2Player {
 		default:
 			msPerMove = 0;
 		}
+		
+		// get the playouts at start of turn
+		int initialPlayouts = getRoot().getTotalRuns();
+		
+		// Determine the time we saved 
+		long timeSaved = (initialPlayouts / playoutsPerMS);
+		
+		// Subtract the time we saved 
+		msPerMove -= timeSaved;
 
 		// never allocate < 1 ms to a move
 		if (msPerMove < 1) {
 			msPerMove = 1;
 		}
-
+		
 		setMillisecondsPerMove(msPerMove);
 	}
 }
