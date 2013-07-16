@@ -7,13 +7,15 @@ import static orego.core.Coordinates.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 import orego.core.Board;
 import orego.core.Colors;
-import orego.core.Coordinates;
 import orego.patternanalyze.PatternInformation;
 import orego.util.IntSet;
 
@@ -24,7 +26,7 @@ public class PatternPlayer extends McPlayer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private HashMap<Character, PatternInformation>[][][] patterns = new HashMap[NUM_HASH_TABLES][NINE_PATTERN+1][2];
+	private HashMap<Character, PatternInformation>[][][] patterns = new HashMap[NUM_HASH_TABLES][NINE_PATTERN + 1][2];
 
 	private long numPlayouts;
 
@@ -35,20 +37,20 @@ public class PatternPlayer extends McPlayer {
 	private double[] patternWeights;
 
 	public static final int NUM_HASH_TABLES = 4;
-	
+
 	public PatternPlayer() {
 		initializePlayer(true);
 	}
-	
+
 	public PatternPlayer(boolean maintainBoardHashes) {
 		initializePlayer(maintainBoardHashes);
 	}
-	
+
 	@Override
 	public void beforeStartingThreads() {
 		playoutCount = new int[getFirstPointBeyondBoard()];
 	}
-	
+
 	private int bestMove(Board b) {
 		int result = 0;
 		float rate = 0;
@@ -69,12 +71,12 @@ public class PatternPlayer extends McPlayer {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public int bestStoredMove() {
 		return bestMove(getBoard());
 	}
-	
+
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		runnable.getBoard().copyDataFrom(getBoard());
@@ -96,7 +98,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gogui-pattern-first-playout-move");
 		return result;
 	}
-	
+
 	@Override
 	public Set<String> getGoguiCommands() {
 		Set<String> result = super.getGoguiCommands();
@@ -109,25 +111,128 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 
+	private static class PatternInfo implements Comparable<PatternInfo> {
+		private String pattern;
+		private double winRate;
+		private int colorToPlay;
+
+		public PatternInfo(String pattern, double winRate, int colorToPlay) {
+			this.pattern = pattern;
+			this.winRate = winRate;
+		}
+
+		public int compareTo(PatternInfo other) {
+			double value = other.winRate - winRate;
+			if (value > 0)
+				return (int) Math.ceil(value);
+			else
+				return (int) Math.floor(value);
+		}
+	}
+
+	protected List<PatternInfo> getHighestAndLowest3x3s(double threshold) {
+		LinkedList<PatternInfo> pats = new LinkedList<PatternInfo>();
+
+		Collections.sort(pats);
+		return pats;
+	}
+
+	private void recursiveGetHighestAndLowest3x3s(List<PatternInfo> list,
+			String curPat, boolean[] possibleEdges, long hash, double threshold) {
+		if (curPat.length() == 9) {
+			double rate;
+			for (int color = 0; color < 2; color++) {
+				rate = 0;
+				for (PatternInformation info : getInformation(THREE_PATTERN,
+						hash, color)) {
+					rate += info.getRate();
+				}
+				rate /= 4.0;
+				if (rate>threshold)
+					list.add(new PatternInfo(curPat, rate, color));
+			}
+			return;
+		}
+		if (curPat.length() == 4) {
+			curPat += Colors.colorToChar(VACANT);
+		}
+		
+		
+		
+	}
+
+	private boolean isValid3x3Pattern(String pattern) {
+		int numEdges = 0, stoneCount = 0;
+		boolean validNW = true, validNE = true, validSW = true, validSE = true;
+		for (int i = 0; i < pattern.length(); i++) {
+			if (Colors.OFF_BOARD_COLOR == Colors.charToColor(pattern.charAt(i))) {
+				numEdges++;
+				switch (stoneCount) {
+				case 4:
+					validNW = false;
+					validNE = false;
+				case 1:
+					validSW = false;
+				case 0:
+					validSE = false;
+					break;
+				case 5:
+					validNW = false;
+				case 2:
+					validSW = false;
+					break;
+				case 3:
+					validNE = false;
+					validSE = false;
+					break;
+				case 7:
+					validNW = false;
+				case 6:
+					validNE = false;
+					break;
+				case 8:
+					validNW = false;
+				}
+			}
+			if ("#O.*".indexOf(pattern.charAt(stoneCount)) >= 0) {
+				stoneCount++;
+			}
+		}
+
+		if (numEdges == 0) {
+			return true;
+		} else if (numEdges != 5) {
+			return false;
+		} else {
+			return validNE || validNW || validSW || validSE;
+		}
+	}
+
 	public PatternInformation[] getInformation(int patternType, long hash,
 			int color) {
 		PatternInformation[] toReturn = new PatternInformation[NUM_HASH_TABLES];
-		for (int table = 0; table < NUM_HASH_TABLES; table++){
-			toReturn[table] = patterns[table][patternType][color].get(hashLongToChar(hash,table));
+		for (int table = 0; table < NUM_HASH_TABLES; table++) {
+			toReturn[table] = patterns[table][patternType][color]
+					.get(hashLongToChar(hash, table));
 			if (toReturn[table] == null)
 				toReturn[table] = new PatternInformation();
 		}
 		return toReturn;
 	}
-	
+
 	/**
-	 * Given a long hash, returns the (64/NUM_HASH_TABLES)-bit (max is 16 bits) hash associated with table 0 - NUM_HASH_TABLES.
-	 * @param hash The sixteen bits of the long associated with the given hash table
-	 * @param table Which hash table to extract the bits for
+	 * Given a long hash, returns the (64/NUM_HASH_TABLES)-bit (max is 16 bits)
+	 * hash associated with table 0 - NUM_HASH_TABLES.
+	 * 
+	 * @param hash
+	 *            The sixteen bits of the long associated with the given hash
+	 *            table
+	 * @param table
+	 *            Which hash table to extract the bits for
 	 * @return
 	 */
-	public static char hashLongToChar(long hash, int table){
-		return (char)((hash >>> ((table%NUM_HASH_TABLES)*(64/NUM_HASH_TABLES))) & 0xffff);
+	public static char hashLongToChar(long hash, int table) {
+		return (char) ((hash >>> ((table % NUM_HASH_TABLES) * (64 / NUM_HASH_TABLES))) & 0xffff);
 	}
 
 	@Override
@@ -144,8 +249,9 @@ public class PatternPlayer extends McPlayer {
 		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
 			PatternInformation[] info = getInformation(pattern,
 					b.getPatternHash(pattern, point), b.getColorToPlay());
-			for (PatternInformation i:info){
-				tempRate += i.getRate() * patternWeight(pattern)/((double)NUM_HASH_TABLES);
+			for (PatternInformation i : info) {
+				tempRate += i.getRate() * patternWeight(pattern)
+						/ ((double) NUM_HASH_TABLES);
 			}
 		}
 		return tempRate;
@@ -163,9 +269,11 @@ public class PatternPlayer extends McPlayer {
 		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
 			PatternInformation[] info = getInformation(pattern, getBoard()
 					.getPatternHash(pattern, p), getBoard().getColorToPlay());
-			for (PatternInformation i:info){
-				winRate += i.getRate() * patternWeight(pattern)/((double)NUM_HASH_TABLES);
-				runs += i.getRuns() * patternWeight(pattern)/((double)NUM_HASH_TABLES);
+			for (PatternInformation i : info) {
+				winRate += i.getRate() * patternWeight(pattern)
+						/ ((double) NUM_HASH_TABLES);
+				runs += i.getRuns() * patternWeight(pattern)
+						/ ((double) NUM_HASH_TABLES);
 			}
 		}
 		return winRate * runs;
@@ -214,10 +322,6 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 
-	
-
-	
-
 	private String goguiPatternInfo(int patternType) {
 		String result = "";
 		for (int p : getAllPointsOnBoard()) {
@@ -227,20 +331,18 @@ public class PatternPlayer extends McPlayer {
 				PatternInformation info[] = getInformation(patternType,
 						getBoard().getPatternHash(patternType, p), getBoard()
 								.getColorToPlay());
-				float rate= 0;
-				for (PatternInformation i: info){
-					rate+= i.getRate();
+				float rate = 0;
+				for (PatternInformation i : info) {
+					rate += i.getRate();
 				}
 				rate /= (double) NUM_HASH_TABLES;
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
-						colorCode(rate), pointToString(p),
-						pointToString(p), rate * 100);
+						colorCode(rate), pointToString(p), pointToString(p),
+						rate * 100);
 			}
 		}
 		return result;
 	}
-
-	
 
 	@Override
 	public String handleCommand(String command, StringTokenizer arguments) {
@@ -298,7 +400,7 @@ public class PatternPlayer extends McPlayer {
 				PatternInformation[] info = getInformation(pattern,
 						b.getPatternHash(pattern, moves[t]), b.getColorToPlay());
 				for (int i = 0; i < patternWeight(pattern) * 20; i++) {
-					for (PatternInformation pi : info){
+					for (PatternInformation pi : info) {
 						if (b.getColorToPlay() == winner)
 							pi.addWin();
 						else
@@ -325,13 +427,15 @@ public class PatternPlayer extends McPlayer {
 	private void loadPatternHashMaps() {
 		for (int c = 0; c < 2; c++) {
 			for (int i = 0; i < NINE_PATTERN + 1; i++) {
-				for (int table = 0; table < NUM_HASH_TABLES; table ++){
+				for (int table = 0; table < NUM_HASH_TABLES; table++) {
 					// load from files
 					try {
 						ObjectInputStream ir = new ObjectInputStream(
 								new FileInputStream(new File(
-										"./testFiles/patternPlayed" + (i * 2 + 3)
-												+ Colors.colorToString(c) + table+".dat")));
+										"./testFiles/patternPlayed"
+												+ (i * 2 + 3)
+												+ Colors.colorToString(c)
+												+ table + ".dat")));
 						patterns[table][i][c] = (HashMap<Character, PatternInformation>) (ir
 								.readObject());
 						ir.close();
@@ -379,10 +483,10 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public void updateForAcceptMove(int p) {
-		setWeights(9 * getBoard().getTurn() / 220.0 + 1, 
-				3 * getBoard().getTurn() / 220.0 + 3,
-				3 * (1 - getBoard().getTurn() / 220.0) + 3, 
-				9 * (1 - getBoard().getTurn() / 220.0) + 1);
+		setWeights(9 * getBoard().getTurn() / 220.0 + 1, 3 * getBoard()
+				.getTurn() / 220.0 + 3,
+				3 * (1 - getBoard().getTurn() / 220.0) + 3, 9 * (1 - getBoard()
+						.getTurn() / 220.0) + 1);
 	}
 
 	@Override

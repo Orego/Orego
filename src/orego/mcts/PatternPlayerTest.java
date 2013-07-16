@@ -234,5 +234,10 @@ public class PatternPlayerTest {
 		assertTrue(playerTrue.getTotalNumPlayouts()>playerFalse.getTotalNumPlayouts());
 		
 	}
+	
+	@Test
+	public void testGoodBad3x3Hashes(){
+		
+	}
 
 }
