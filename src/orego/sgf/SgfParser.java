@@ -1,4 +1,4 @@
-package orego.core;
+package orego.sgf;
 
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.NO_POINT;
@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
+import orego.core.Board;
+import orego.core.Colors;
+import orego.core.Coordinates;
 
 public class SgfParser {
 

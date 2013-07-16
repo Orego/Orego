@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import orego.core.Board;
-import orego.core.SgfParser;
+import orego.sgf.SgfParser;
 
 
 /**

@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import orego.core.SgfParser;
+import orego.sgf.SgfParser;
 import static orego.experiment.Debug.*;
 
 /**

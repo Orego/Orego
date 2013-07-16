@@ -19,9 +19,9 @@ import java.util.TreeSet;
 
 import orego.book.OpeningBook;
 import orego.core.Board;
-import orego.core.SgfParser;
 import orego.heuristic.Heuristic;
 import orego.heuristic.HeuristicList;
+import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 

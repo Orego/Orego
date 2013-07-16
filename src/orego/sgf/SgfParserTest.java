@@ -1,8 +1,10 @@
-package orego.core;
+package orego.sgf;
 
 import static orego.core.Coordinates.at;
 import static org.junit.Assert.*;
-import static orego.core.SgfParser.*;
+import static orego.sgf.SgfParser.*;
+
+import orego.core.Board;
 
 import org.junit.Before;
 import org.junit.Test;
