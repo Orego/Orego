@@ -31,7 +31,7 @@ public class PatternCounterTwoPointOne {
 	 * total of all turns
 	 * */
 	private static HashMap<Character, PatternInformation>[][][] patternSeen;
-	private static String TEST_DIRECTORY = ".."+File.separator+".."+File.separator+".."+File.separator+"Desktop"+File.separator+"Test Games"+File.separator+"kgs-19-2001"+File.separator;
+	private static String TEST_DIRECTORY = ".."+File.separator+".."+File.separator+".."+File.separator+"Desktop"+File.separator+"Test Games"+File.separator;//+"kgs-19-2001"+File.separator;
 	
 	// private static String TEST_DIRECTORY = "../../Test Games/";
 
