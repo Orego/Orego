@@ -1,9 +1,18 @@
 package orego.mcts;
 
 import static java.lang.Math.max;
+import static orego.core.Coordinates.RESIGN;
+import static orego.core.Coordinates.getAllPointsOnBoard;
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
+import static orego.util.Gaussian.Phi;
+
+//import java.io.BufferedWriter;
+//import java.io.FileNotFoundException;
+//import java.io.FileWriter;
+//import java.io.IOException;
+//import java.io.PrintWriter;
+
 import orego.play.UnknownPropertyException;
-import static orego.core.Coordinates.*;
-import static orego.util.Gaussian.*;
 
 public class TimePlayer extends Lgrf2Player {
 
@@ -131,13 +140,15 @@ public class TimePlayer extends Lgrf2Player {
 	/**
 	 * This keeps track of the playouts per second 
 	 */
-	private long playoutsPerMS; 
+//	private long playoutsPerMS; 
 	
 	@Override
 	public int bestMove() {
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
-				
+
+//		int earlyMove = -1;
+		
 		if ((compareSecond && compareSecondConf < 1.0)
 				|| (compareRest && compareRestConf < 1.0)) {
 			// increased the allocated time
@@ -149,19 +160,23 @@ public class TimePlayer extends Lgrf2Player {
 			// execute each slice and stop early if applicable
 			for (int i = 0; i < THINKING_SLICES - 1; i++) {
 				int best = super.bestMove();
+//				System.err.println("I am " + confidenceBestVsRest() + " confident in " + pointToString(best));
 				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
 						|| (compareRest && confidenceBestVsRest() > compareRestConf)) {
 					// consider leaving early:
 					// only if BEHIND and UNSTABLE-EVAL don't prohibit us
 					if ((!behind || !weAreBehind())
 							&& (!unstableEval || !isEvaluationUnstable())) {
-//						System.err.println("RETURNING EARLY (after " + (i+1) + " iterations) because I am " + confidenceBestVsRest() + " confident.");
+//						System.err.println("Would return early (confidence = " + confidenceBestVsRest() + " in " + pointToString(best) + ").");
 						return best;
+//						if (earlyMove == -1) {
+//							earlyMove = best;
+//						}
 					}
 				}
 			}
-//			System.err.println("DIDN'T RETURN EARLY because I am only " + confidenceBestVsRest() + " confident!");
 		}
+		
 //		System.err.println(getMillisecondsPerMove());
 
 		// Get the start time before we run best move
@@ -170,8 +185,30 @@ public class TimePlayer extends Lgrf2Player {
 //		// Get the initial playouts in the tree
 //		int initialPlayouts = getRoot().getTotalRuns();
 
-		int best = super.bestMove();
+//		PrintWriter debugFile = null;
+//		try {
+//			debugFile = new PrintWriter(new BufferedWriter(new FileWriter("leaveearly.txt", true)));
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
+		int best = super.bestMove();
+		
+//		if (earlyMove != -1) {
+//			if (earlyMove == best) {
+//				debugFile.println("Same on move#" + getTurn());
+//				debugFile.flush();
+//			}
+//			else {
+//				debugFile.println("Different on move# " + getTurn());
+//				debugFile.flush();
+//			}
+//		}
+//		
+//		debugFile.close();
+		
 //		// Get the final number of playouts
 //		int finalPlayouts = getRoot().getTotalRuns();
 //
