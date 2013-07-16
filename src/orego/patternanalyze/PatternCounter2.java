@@ -56,7 +56,7 @@ public class PatternCounter2 {
 	 * 3: total of all turns
 	 * */
 	private static HashMap<Long, Long[]> patternSeen = new HashMap<Long, Long[]>();
-	private static String TEST_DIRECTORY = "../../../Test Games/";
+	private static String TEST_DIRECTORY = "../../Test Games/";
 
 	public static void main(String[] args) {
 		new PatternCounter2();

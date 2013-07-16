@@ -51,6 +51,19 @@ public class Board {
 	 */
 	public static final long[][] ZOBRIST_HASHES = new long[3][getFirstPointBeyondBoard()];
 
+	/**
+	 * Random numbers for Zobrist hashes for patterns, indexed by color and point.
+	 */
+	public static final int THREE_PATTERN = 0;
+	public static final int FIVE_PATTERN = 1;
+	public static final int SEVEN_PATTERN = 2;
+	public static final int NINE_PATTERN = 3;
+	public static final char[][] ZOBRIST_HASHES_3 = new char[OFF_BOARD_COLOR+1][3 * 3];
+	public static final char[][] ZOBRIST_HASHES_5 = new char[OFF_BOARD_COLOR+1][5 * 5];
+	public static final char[][] ZOBRIST_HASHES_7 = new char[OFF_BOARD_COLOR+1][7 * 7];
+	public static final char[][] ZOBRIST_HASHES_9 = new char[OFF_BOARD_COLOR+1][9 * 9];
+	public static final char[][][] ZOBRIST_PATTERNS = {ZOBRIST_HASHES_3,ZOBRIST_HASHES_5,ZOBRIST_HASHES_7,ZOBRIST_HASHES_9};
+
 	static { // Initialize ZOBRIST_HASHES
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (int color = 0; color < ZOBRIST_HASHES.length; color++) {
@@ -61,8 +74,24 @@ public class Board {
 		// Set the element below to zero, so that xoring in the ko point when
 		// there isn't one has no effect.
 		ZOBRIST_HASHES[VACANT][NO_POINT] = 0L;
+		
+		//Start pattern initialization
+		for (int table = 0; table < ZOBRIST_PATTERNS.length; table++) {
+			for (int color = 0; color < ZOBRIST_PATTERNS[table].length; color++) {
+				for (int p = 0; p < ZOBRIST_PATTERNS[table][color].length; p++) {
+					ZOBRIST_PATTERNS[table][color][p] = random.nextChar();
+				}
+			}
+		}
 	}
-
+	
+	/**
+	 * Records whether or not we should keep track of current pattern in all points on board (probably computation intensive).
+	 */
+	private boolean maintainPatternHashes = false;
+	
+	private char[][] patternHashAtPoint;
+	
 	/**
 	 * Used (for different purposes) by hashAfterRemovingCapturedStones() and
 	 * isSelfAtari().
@@ -168,6 +197,12 @@ public class Board {
 	private IntSet vacantPoints;
 
 	public Board() {
+		maintainPatternHashes = false;
+		clear();
+	}
+	
+	public Board(boolean maintainPatternHashes){
+		this.maintainPatternHashes = maintainPatternHashes;
 		clear();
 	}
 
@@ -315,6 +350,19 @@ public class Board {
 				neighborCounts[p] += edgeCount * EDGE_INCREMENT;
 			}
 		}
+		
+		if (maintainPatternHashes){
+			maintainPatternHashes = false;
+			patternHashAtPoint = new char[NINE_PATTERN+1][getFirstPointBeyondBoard()];
+			for (int p=0; p<getFirstPointBeyondBoard(); p++){
+				if (getColor(p)==VACANT){
+					for (int pattern = 0; pattern<=NINE_PATTERN; pattern++){
+						patternHashAtPoint[pattern][p] = getPatternHash(pattern, p);
+					}
+				}
+			}
+			maintainPatternHashes = true;
+		}
 	}
 
 	/**
@@ -345,6 +393,13 @@ public class Board {
 		passes = that.passes;
 		colorToPlay = that.colorToPlay;
 		turn = that.turn;
+		maintainPatternHashes = that.maintainPatternHashes;
+		if (maintainPatternHashes){
+			patternHashAtPoint = new char[NINE_PATTERN+1][getFirstPointBeyondBoard()];
+			for (int pat = 0; pat<=NINE_PATTERN; pat++){
+				System.arraycopy(that.patternHashAtPoint[pat], 0, patternHashAtPoint[pat], 0, that.patternHashAtPoint[pat].length);
+			}
+		}
 	}
 
 	/**
@@ -639,6 +694,61 @@ public class Board {
 		return passes;
 	}
 	
+	/** Returns the hash for a pattern around a point.
+	 *  Pattern type is either THREE_PATTERN, FIVE_PATTERN, SEVEN_PATTERN, or NINE_PATTERN, refering to the number
+	 *  of points examined with move p at the center.
+	 */
+	public char getPatternHash(int patternType, int p) {
+		if (maintainPatternHashes){
+			return patternHashAtPoint[patternType][p];
+		}
+		return getPatternHash(patternType + 1, 0, 0, false, patternType, p);
+	}	
+	
+	/**
+	 * Recursive call that searches all the parts of the pattern and returns the combined hash. 
+	 * @param distanceFromCenter Maximum distance from center to current position in pattern.
+	 * @param xOffset x offset from the center of the pattern
+	 * @param yOffset y offset from the center of the pattern
+	 * @param foundEdge Have any previous recursive steps found an edge yet?
+	 * @param patternType Constant pattern THREE_PATTERN, FIVE_PATTERN, SEVEN_PATTERN, NINE_PATTERN
+	 * @param p Current move on the board
+	 * @return Combined hash of this part of the pattern (and other recursive calls beyond this)
+	 */
+	private char getPatternHash(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int patternType, int p) {
+		char patternHash = 0;
+		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
+		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
+			foundEdge = true;
+		}
+		//Follow the x-axis first, then explore the y-axis.
+		if (yOffset == 0 && Math.abs(xOffset) < distanceFromCenter) {
+			if (xOffset <= 0) {
+				patternHash ^= getPatternHash(distanceFromCenter, xOffset - 1, yOffset, foundEdge, patternType, p - EAST);
+			}
+			if (xOffset >= 0) {
+				patternHash ^= getPatternHash(distanceFromCenter, xOffset + 1, yOffset, foundEdge, patternType, p + EAST);
+			}
+		}
+		if (Math.abs(yOffset) < distanceFromCenter) {
+			if (yOffset <= 0) {
+				patternHash ^= getPatternHash(distanceFromCenter, xOffset, yOffset - 1, foundEdge, patternType, p - getSouth());
+			}
+			if (yOffset >= 0) {
+				patternHash ^= getPatternHash(distanceFromCenter, xOffset, yOffset + 1, foundEdge, patternType, p + getSouth());
+			}
+		}
+		//Combine a hash if it is not off the board
+		if (!foundEdge) {
+			patternHash ^= ZOBRIST_PATTERNS[patternType][getColor(p)][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
+		}
+		//Otherwise, combine an off board hash into the current one.
+		else {
+			patternHash ^= ZOBRIST_PATTERNS[patternType][OFF_BOARD_COLOR][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
+		}
+		return patternHash;
+	}
+	
 	/**
 	 * Returns the PLAY_... constant for play and placeInitialStone.
 	 */
@@ -689,6 +799,13 @@ public class Board {
 	/** Returns a list of vacant points. */
 	public IntSet getVacantPoints() {
 		return vacantPoints;
+	}
+	
+	/** 
+	 * Get Zobrist hash for a particular color and position.
+	 */
+	public char getZobristPatternHash(int patternType, int color, int position) {
+		return ZOBRIST_PATTERNS[patternType][color][position];
 	}
 
 	/**
@@ -798,6 +915,10 @@ public class Board {
 		}
 		// Hooray, it's legal!
 		return true;
+	}
+	
+	protected boolean isMaintainingPatternHashes()	{
+		return maintainPatternHashes;
 	}
 
 	/** Returns true if the play at move p would be a self-atari for color. */
@@ -952,6 +1073,11 @@ public class Board {
 	protected void placeStone(int color, int p) {
 		stoneCounts[color]++;
 		colors[p] = color;
+		
+		if (maintainPatternHashes){
+			updatePatternHashes(p, color);
+		}
+		
 		hash ^= ZOBRIST_HASHES[colors[p]][p];
 		vacantPoints.remove(p);
 		for (int i = 0; i < 4; i++) {
@@ -1103,10 +1229,65 @@ public class Board {
 	public int playoutWinner() {
 		return winnerFromScore(playoutScore());
 	}
+	
+	private int pointToPatternOffset(int pattern, int xOffset, int yOffset){
+		return pattern+1+xOffset+((yOffset+pattern+1)*((pattern)*2+3));
+	}
+	
+	public String printPattern(int patternType, int p) {
+		return printRecursivePattern(patternType + 1, 0, 0, false, patternType, p);
+	}
+	
+	private String printRecursivePattern(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int patternType, int p) {
+		String patternHash = "";
+		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
+		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
+			foundEdge = true;
+		}
+		//Follow the y-axis first, then explore the x-axis.
+		if (xOffset == 0 && Math.abs(yOffset) < distanceFromCenter) {
+			if (yOffset <= 0) {
+				patternHash += printRecursivePattern(distanceFromCenter, xOffset, yOffset - 1, foundEdge, patternType, p - getSouth());
+			}
+		}
+		if (Math.abs(xOffset) < distanceFromCenter) {
+			if (xOffset <= 0) {
+				patternHash += printRecursivePattern(distanceFromCenter, xOffset - 1, yOffset, foundEdge, patternType, p - EAST);
+			}
+		}
+		//Combine a hash if it is not off the board
+		if (!foundEdge) {
+			patternHash += Colors.colorToChar(getColor(p))/*+":"+xOffset+","+yOffset+" "*/;
+		}
+		//Otherwise, combine an off board hash into the current one.
+		else {
+			patternHash += Colors.colorToChar(OFF_BOARD_COLOR)/*+":"+xOffset+","+yOffset+" "*/;
+		}
+		if (xOffset == distanceFromCenter) {
+			patternHash += "\n";
+		}
+		//Follow the y-axis first, then explore the x-axis.
+		if (Math.abs(xOffset) < distanceFromCenter) {
+			if (xOffset >= 0) {
+				patternHash += printRecursivePattern(distanceFromCenter, xOffset + 1, yOffset, foundEdge, patternType, p + EAST);
+			}
+		}
+		if (xOffset == 0 && Math.abs(yOffset) < distanceFromCenter) {
+			if (yOffset >= 0) {
+				patternHash += printRecursivePattern(distanceFromCenter, xOffset, yOffset + 1, foundEdge, patternType, p + getSouth());
+			}
+		}
+		return patternHash;
+	}
 
 	/** Removes stones. */
 	public void removeStone(int s) {
 		int color = colors[s];
+		
+		if (maintainPatternHashes){
+			updatePatternHashes(s, color);
+		}
+		
 		stoneCounts[color]--;
 		hash ^= ZOBRIST_HASHES[color][s];
 		colors[s] = VACANT;
@@ -1244,6 +1425,24 @@ public class Board {
 		}
 		result += "\n";
 		return result;
+	}
+	
+	/**
+	 * Updates pattern hashes changed by placement (or removal) of point p
+	 * @param p The point changed
+	 * @param color The non-vacant color that was (or now is) at p
+	 */
+	private void updatePatternHashes(int p, int color){
+		for (int i = Math.max(at(0,0),p-4*getSouth()-4*EAST); i<Math.min(at(18,18),p+4*getSouth()+4*EAST);i++){
+			if (colors[i]==VACANT){
+				for (int pat=NINE_PATTERN; pat>=0; pat--){
+					if (Math.max(Math.abs(column(p)-column(i)),Math.abs(row(p)-row(i))) <= pat + 1 )
+						patternHashAtPoint[pat][i] ^= ZOBRIST_PATTERNS[pat][color][pointToPatternOffset(pat,column(p)-column(i),row(p)-row(i))]^ZOBRIST_PATTERNS[pat][VACANT][pointToPatternOffset(pat,column(p)-column(i),row(p)-row(i))];
+					else
+						break;
+				}
+			}
+		}
 	}
 
 	// Utility: Calculate a winner from a score
