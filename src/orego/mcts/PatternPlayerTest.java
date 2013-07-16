@@ -50,16 +50,16 @@ public class PatternPlayerTest {
 		};
 		player.setUpProblem(BLACK, problem);
 		float d5rate = player.getInformation(THREE_PATTERN,
-				player.getBoard().getPatternHash(THREE_PATTERN, at("D5")),BLACK)
+				player.getBoard().getPatternHash(THREE_PATTERN, at("D5")),BLACK)[0]
 				.getRate();
 		long d5runs = player.getInformation(THREE_PATTERN,
-				player.getBoard().getPatternHash(THREE_PATTERN, at("D5")),BLACK)
+				player.getBoard().getPatternHash(THREE_PATTERN, at("D5")),BLACK)[0]
 				.getRuns();
 		float k1rate = player.getInformation(THREE_PATTERN,
-				player.getBoard().getPatternHash(THREE_PATTERN, at("K1")),BLACK)
+				player.getBoard().getPatternHash(THREE_PATTERN, at("K1")),BLACK)[0]
 				.getRate();
 		long k1runs = player.getInformation(THREE_PATTERN,
-				player.getBoard().getPatternHash(THREE_PATTERN, at("K1")),BLACK)
+				player.getBoard().getPatternHash(THREE_PATTERN, at("K1")),BLACK)[0]
 				.getRuns();
 		assertTrue(d5rate > k1rate);
 		assertTrue(d5runs > k1runs);
@@ -98,7 +98,7 @@ public class PatternPlayerTest {
 			for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
 				PatternInformation info = player.getInformation(pattern, player
 						.getBoard()
-						.getPatternHash(pattern, vacantPoints.get(i)),player.getBoard().getColorToPlay());
+						.getPatternHash(pattern, vacantPoints.get(i)),player.getBoard().getColorToPlay())[0];
 				if (vacantPoints.get(i) == at("A1")) {
 					info.setRate(.49f);
 					info.setRuns(100);
@@ -161,7 +161,7 @@ public class PatternPlayerTest {
 			for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
 				PatternInformation info = player.getInformation(pattern, player
 						.getBoard()
-						.getPatternHash(pattern, vacantPoints.get(i)),player.getBoard().getColorToPlay());
+						.getPatternHash(pattern, vacantPoints.get(i)),player.getBoard().getColorToPlay())[0];
 				if (vacantPoints.get(i) == at("A1")) {
 					info.setRate(.49f);
 					info.setRuns(100);

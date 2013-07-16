@@ -58,11 +58,11 @@ public class Board {
 	public static final int FIVE_PATTERN = 1;
 	public static final int SEVEN_PATTERN = 2;
 	public static final int NINE_PATTERN = 3;
-	public static final char[][] ZOBRIST_HASHES_3 = new char[OFF_BOARD_COLOR+1][3 * 3];
-	public static final char[][] ZOBRIST_HASHES_5 = new char[OFF_BOARD_COLOR+1][5 * 5];
-	public static final char[][] ZOBRIST_HASHES_7 = new char[OFF_BOARD_COLOR+1][7 * 7];
-	public static final char[][] ZOBRIST_HASHES_9 = new char[OFF_BOARD_COLOR+1][9 * 9];
-	public static final char[][][] ZOBRIST_PATTERNS = {ZOBRIST_HASHES_3,ZOBRIST_HASHES_5,ZOBRIST_HASHES_7,ZOBRIST_HASHES_9};
+	public static final long[][] ZOBRIST_HASHES_3 = new long[OFF_BOARD_COLOR+1][3 * 3];
+	public static final long[][] ZOBRIST_HASHES_5 = new long[OFF_BOARD_COLOR+1][5 * 5];
+	public static final long[][] ZOBRIST_HASHES_7 = new long[OFF_BOARD_COLOR+1][7 * 7];
+	public static final long[][] ZOBRIST_HASHES_9 = new long[OFF_BOARD_COLOR+1][9 * 9];
+	public static final long[][][] ZOBRIST_PATTERNS = {ZOBRIST_HASHES_3,ZOBRIST_HASHES_5,ZOBRIST_HASHES_7,ZOBRIST_HASHES_9};
 
 	static { // Initialize ZOBRIST_HASHES
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
@@ -79,7 +79,7 @@ public class Board {
 		for (int table = 0; table < ZOBRIST_PATTERNS.length; table++) {
 			for (int color = 0; color < ZOBRIST_PATTERNS[table].length; color++) {
 				for (int p = 0; p < ZOBRIST_PATTERNS[table][color].length; p++) {
-					ZOBRIST_PATTERNS[table][color][p] = random.nextChar();
+					ZOBRIST_PATTERNS[table][color][p] = random.nextLong();
 				}
 			}
 		}
@@ -90,7 +90,7 @@ public class Board {
 	 */
 	private boolean maintainPatternHashes = false;
 	
-	private char[][] patternHashAtPoint;
+	private long[][] patternHashAtPoint;
 	
 	/**
 	 * Used (for different purposes) by hashAfterRemovingCapturedStones() and
@@ -353,7 +353,7 @@ public class Board {
 		
 		if (maintainPatternHashes){
 			maintainPatternHashes = false;
-			patternHashAtPoint = new char[NINE_PATTERN+1][getFirstPointBeyondBoard()];
+			patternHashAtPoint = new long[NINE_PATTERN+1][getFirstPointBeyondBoard()];
 			for (int p=0; p<getFirstPointBeyondBoard(); p++){
 				if (getColor(p)==VACANT){
 					for (int pattern = 0; pattern<=NINE_PATTERN; pattern++){
@@ -395,7 +395,7 @@ public class Board {
 		turn = that.turn;
 		maintainPatternHashes = that.maintainPatternHashes;
 		if (maintainPatternHashes){
-			patternHashAtPoint = new char[NINE_PATTERN+1][getFirstPointBeyondBoard()];
+			patternHashAtPoint = new long[NINE_PATTERN+1][getFirstPointBeyondBoard()];
 			for (int pat = 0; pat<=NINE_PATTERN; pat++){
 				System.arraycopy(that.patternHashAtPoint[pat], 0, patternHashAtPoint[pat], 0, that.patternHashAtPoint[pat].length);
 			}
@@ -698,7 +698,7 @@ public class Board {
 	 *  Pattern type is either THREE_PATTERN, FIVE_PATTERN, SEVEN_PATTERN, or NINE_PATTERN, refering to the number
 	 *  of points examined with move p at the center.
 	 */
-	public char getPatternHash(int patternType, int p) {
+	public long getPatternHash(int patternType, int p) {
 		if (maintainPatternHashes){
 			return patternHashAtPoint[patternType][p];
 		}
@@ -715,8 +715,8 @@ public class Board {
 	 * @param p Current move on the board
 	 * @return Combined hash of this part of the pattern (and other recursive calls beyond this)
 	 */
-	private char getPatternHash(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int patternType, int p) {
-		char patternHash = 0;
+	private long getPatternHash(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int patternType, int p) {
+		long patternHash = 0;
 		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
 		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
 			foundEdge = true;
@@ -804,7 +804,7 @@ public class Board {
 	/** 
 	 * Get Zobrist hash for a particular color and position.
 	 */
-	public char getZobristPatternHash(int patternType, int color, int position) {
+	public long getZobristPatternHash(int patternType, int color, int position) {
 		return ZOBRIST_PATTERNS[patternType][color][position];
 	}
 
