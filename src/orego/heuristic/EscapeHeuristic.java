@@ -57,8 +57,8 @@ public class EscapeHeuristic extends Heuristic {
 	}
 	
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
+	public void prepare(Board board, boolean local) {
+		super.prepare(board,local);
 		int lastMove = board.getMove(board.getTurn() - 1);
 		int color = board.getColorToPlay();
 		// Find friendly groups in danger

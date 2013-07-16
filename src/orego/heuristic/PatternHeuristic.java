@@ -6,6 +6,7 @@ import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.getNeighbors;
 import static orego.core.Coordinates.isOnBoard;
+import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.patterns.Pattern.diagramToNeighborhood;
 import orego.core.Board;
 import orego.patterns.ColorSpecificPattern;
@@ -102,17 +103,28 @@ public class PatternHeuristic extends Heuristic {
 	}
 	
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
-		int lastMove = board.getMove(board.getTurn() - 1);
-		if (!isOnBoard(lastMove)) {
-			return;
-		}
-		for (int p : getNeighbors(lastMove)) {
-			if (board.getColor(p) == VACANT) {
-				char neighborhood = board.getNeighborhood(p);
-				if(goodNeighborhoods[board.getColorToPlay()].get(neighborhood)) {
-					recommend(p);
+	public void prepare(Board board, boolean local) {
+		super.prepare(board, local);
+		if (local) {
+			int lastMove = board.getMove(board.getTurn() - 1);
+			if (!isOnBoard(lastMove)) {
+				return;
+			}
+			for (int p : getNeighbors(lastMove)) {
+				if (board.getColor(p) == VACANT) {
+					char neighborhood = board.getNeighborhood(p);
+					if(goodNeighborhoods[board.getColorToPlay()].get(neighborhood)) {
+						recommend(p);
+					}
+				}
+			}
+		} else {
+			for (int p : getAllPointsOnBoard()) {
+				if (board.getColor(p) == VACANT) {
+					char neighborhood = board.getNeighborhood(p);
+					if(goodNeighborhoods[board.getColorToPlay()].get(neighborhood)) {
+						recommend(p);
+					}
 				}
 			}
 		}

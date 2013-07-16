@@ -9,6 +9,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import orego.core.Board;
+import static orego.core.Coordinates.at;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,6 +26,53 @@ public class PatternHeuristicTest {
 	public void setUp() throws Exception {
 //		board = new Board();
 		heuristic = new PatternHeuristic(1);
+	}
+	
+	@Test
+	public void testLocalOption() {
+			String[] problem = { 
+					"...................",// 19
+					"...................",// 18
+					"...............O...",// 17
+					"...............#...",// 16
+					"...................",// 15
+					"...................",// 14
+					"...................",// 13
+					"...................",// 12
+					"...................",// 11
+					"...................",// 10
+					"...................",// 9
+					"...................",// 8
+					"...................",// 7
+					"...................",// 6
+					"...................",// 5
+					"...................",// 4
+					"...................",// 3
+					"...................",// 2
+					"..................."// 1
+			// 		 ABCDEFGHJKLMNOPQRST
+			};
+			
+			//setup
+			Board board = new Board();
+			board.setUpProblem(BLACK, problem); //because setUpProblem plays row by row, black at C3 is the last move
+			board.play("c3");
+
+			//test: whether pattern (White extends from q17) isn't seen if searching locally near last move C3
+			heuristic.prepare(board,true);
+			assertFalse(heuristic.getGoodMoves().contains(at("r17")));
+			assertFalse(heuristic.getGoodMoves().contains(at("r16")));
+			assertFalse(heuristic.getGoodMoves().contains(at("p17")));
+			assertFalse(heuristic.getGoodMoves().contains(at("p16")));
+
+			//test: whether pattern is seen if searching globally
+            heuristic.prepare(board,false);
+			assertTrue(heuristic.getGoodMoves().contains(at("r17")));
+			assertTrue(heuristic.getGoodMoves().contains(at("r16")));
+			assertTrue(heuristic.getGoodMoves().contains(at("p17")));
+			assertTrue(heuristic.getGoodMoves().contains(at("p16")));
+			
+			
 	}
 
 //	@Test
