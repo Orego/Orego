@@ -5,10 +5,11 @@ import static orego.core.Board.THREE_PATTERN;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
 import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.pointToString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import orego.core.Board;
+
+import java.util.List;
+
 import orego.patternanalyze.PatternInformation;
 import orego.util.IntSet;
 
@@ -232,11 +233,6 @@ public class PatternPlayerTest {
 		
 		//System.out.println("With maintenance: "+playerTrue.getTotalNumPlayouts()+"; without: "+playerFalse.getTotalNumPlayouts());
 		assertTrue(playerTrue.getTotalNumPlayouts()>playerFalse.getTotalNumPlayouts());
-		
-	}
-	
-	@Test
-	public void testGoodBad3x3Hashes(){
 		
 	}
 

@@ -1474,7 +1474,7 @@ public class BoardTest {
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
 			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = {newPlay-getSouth()-EAST, 
 						newPlay-getSouth(),
 						newPlay-getSouth()+EAST,
@@ -1500,7 +1500,7 @@ public class BoardTest {
 		for (int i = 0; i < 100; i++) {
 			newPlay = random.nextInt(Coordinates.getBoardArea());
 			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = {newPlay-getSouth()-EAST, 
 						newPlay-getSouth(),
 						newPlay-getSouth()+EAST,
@@ -1521,7 +1521,7 @@ public class BoardTest {
 
 	@Test
 	public void testCornerThreePatternHash() {
-		char createHash = 0;
+		long createHash = 0;
 		int[] currentMoves = {-getSouth()-EAST, 
 						-getSouth(),
 						-getSouth()+EAST,
@@ -1560,7 +1560,7 @@ public class BoardTest {
 					!pointToString(newPlay).contains("18") &&
 					!pointToString(newPlay).contains("19")
 					) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
 						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
 						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
@@ -1596,7 +1596,7 @@ public class BoardTest {
 					!pointToString(newPlay).contains("18") &&
 					!pointToString(newPlay).contains("19")
 					) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
 						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
 						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
@@ -1634,7 +1634,7 @@ public class BoardTest {
 					!pointToString(newPlay).contains("17")&&
 					!pointToString(newPlay).contains("18")&&
 					!pointToString(newPlay).contains("19")) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = new int[7*7];
 				for (int j = 0; j < 7; j++) {
 					for (int k = 0; k < 7; k++) {
@@ -1670,7 +1670,7 @@ public class BoardTest {
 					!pointToString(newPlay).contains("17")&&
 					!pointToString(newPlay).contains("18")&&
 					!pointToString(newPlay).contains("19")) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = new int[7*7];
 				for (int j = 0; j < 7; j++) {
 					for (int k = 0; k < 7; k++) {
@@ -1708,7 +1708,7 @@ public class BoardTest {
 					!pointToString(newPlay).contains("18")&&
 					!pointToString(newPlay).contains("19")&&
 					pointToString(newPlay).length()==2)) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = new int[9*9];
 				for (int j = 0; j < 9; j++) {
 					for (int k = 0; k < 9; k++) {
@@ -1747,7 +1747,7 @@ public class BoardTest {
 					!pointToString(newPlay).contains("18")&&
 					!pointToString(newPlay).contains("19")&&
 					pointToString(newPlay).length()==2)) {
-				char createHash = 0;
+				long createHash = 0;
 				int[] currentMoves = new int[9*9];
 				for (int j = 0; j < 9; j++) {
 					for (int k = 0; k < 9; k++) {

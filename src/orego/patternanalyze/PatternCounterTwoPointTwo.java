@@ -288,7 +288,7 @@ public class PatternCounterTwoPointTwo {
 					|| randomMove == nextPlay);
 			if (isOnBoard(nextPlay)) {
 				for (int patternType = 0; patternType < NINE_PATTERN + 1; patternType++) {
-					char lastPlayHash = patternBoard.getPatternHash(
+					long lastPlayHash = patternBoard.getPatternHash(
 							patternType, nextPlay);
 					if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(lastPlayHash)) {
 						PatternInformation patternData = patternSeen[patternType][patternBoard.getColorToPlay()]
@@ -300,7 +300,7 @@ public class PatternCounterTwoPointTwo {
 								/ patternData.getRuns());
 					} else {
 						patternSeen[patternType][patternBoard.getColorToPlay()].put(
-								lastPlayHash,
+							(char)	lastPlayHash,
 								new PatternInformation(1.0f, 1));
 					}
 					if (hasTwoStones(patternType, patternBoard, nextPlay)) {
@@ -319,7 +319,7 @@ public class PatternCounterTwoPointTwo {
 									new PatternInformation(1.0f, 1));
 						}
 					}
-					char moveHash = patternBoard.getPatternHash(
+					long moveHash = patternBoard.getPatternHash(
 							patternType, randomMove);
 					if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(moveHash)) {
 						PatternInformation patternData = patternSeen[patternType][patternBoard.getColorToPlay()]
@@ -331,7 +331,7 @@ public class PatternCounterTwoPointTwo {
 								/ patternData.getRuns());
 					} else {
 						patternSeen[patternType][patternBoard.getColorToPlay()].put(
-								moveHash,
+							(char)	moveHash,
 								new PatternInformation(0.0f, 1));
 					}
 					if (hasTwoStones(patternType, patternBoard, randomMove)) {
