@@ -5,24 +5,30 @@ import ec.util.MersenneTwisterFast;
 public class MetaTable {
 
 	public static void main(String[] args) {
-		Table[] tables = new Table[512]; // # of tables
+		int totalNoise = 1024 * 1024;
+		int numberOfTables = 1;
+		int tableSize = 17; // In bits
+		int best = 23;
+		int secondBest = 42;
+		Table[] tables = new Table[numberOfTables];
 		for (int i = 0; i < tables.length; i++) {
-			tables[i] = new Table(8); // Size of tables
+			tables[i] = new Table(tableSize);
 		}
 		MersenneTwisterFast random = new MersenneTwisterFast();
-		int entry = 23;
 		for (int j = 0; j < tables.length; j++) {
+			// The best entry has a 100% win rate
 			for (int i = 0; i < 100; i++) {
-				tables[j].store(entry, true);
+				tables[j].store(best, true);
 			}
-			// The move next to entry has a 90% win rate
+			// The second best entry has a 90% win rate
 			for (int i = 0; i < 90; i++) {
-				tables[j].store(entry + 1, true);
+				tables[j].store(secondBest, true);
 			}
 			for (int i = 0; i < 10; i++) {
-				tables[j].store(entry + 1, false);
+				tables[j].store(secondBest, false);
 			}
-			for (int i = 0; i < (1024 * 1024) / tables.length; i++) {
+			// Many other moves have 50% win rates
+			for (int i = 0; i < totalNoise / numberOfTables; i++) {
 				tables[j].store(random.nextInt(), true);
 				tables[j].store(random.nextInt(), false);
 			}
