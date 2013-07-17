@@ -79,14 +79,14 @@ public class ExperimentConfiguration {
 
 	static {
 		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.999";
-		CONDITIONS[1] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.9999";
-		CONDITIONS[2] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99999";
-		CONDITIONS[3] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.60";
-		CONDITIONS[4] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.70";
-		CONDITIONS[5] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.80";
-		CONDITIONS[6] = "threads=2 book=LateOpeningBook compare-second comare-second-unconf=0.40";
-		CONDITIONS[7] = "threads=2 book=LateOpeningBook compare-second comare-second-unconf=0.50";
-		CONDITIONS[8] = "threads=2 book=LateOpeningBook compare-second comare-second-unconf=0.60";
+//		CONDITIONS[1] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.9999";
+//		CONDITIONS[2] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99999";
+//		CONDITIONS[3] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.60";
+//		CONDITIONS[4] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.70";
+//		CONDITIONS[5] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.80";
+//		CONDITIONS[6] = "threads=2 book=LateOpeningBook compare-second comare-second-unconf=0.40";
+//		CONDITIONS[7] = "threads=2 book=LateOpeningBook compare-second comare-second-unconf=0.50";
+//		CONDITIONS[8] = "threads=2 book=LateOpeningBook compare-second comare-second-unconf=0.60";
 	}
 	
 	/** Path to run gnugo on your machine */
