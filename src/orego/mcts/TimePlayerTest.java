@@ -47,7 +47,7 @@ public class TimePlayerTest {
 	}
 	
 	@Test
-	public void testThinkLonger() throws UnknownPropertyException {
+	public void testBehind() throws UnknownPropertyException {
 		player.setProperty("behind", "true");
 		player.setProperty("behind-mult", "1.0");
 		String[] problemWhiteIsBehind = new String[] {
@@ -90,7 +90,7 @@ public class TimePlayerTest {
 	}
 	
 	@Test
-	public void testIsEvaluationUnstable() throws UnknownPropertyException {
+	public void testUnstableEvaluation() throws UnknownPropertyException {
 		player.setProperty("unstable-eval", "true");
 		player.setProperty("unstable-mult", "1.0");
 		player.setUpProblem(BLACK, randomProblem);
@@ -179,5 +179,61 @@ public class TimePlayerTest {
 		long usedVeryConfident = System.currentTimeMillis() - start;
 		
 		assertTrue(usedVeryConfident * 2 < usedNotVeryConfident);
+	}
+	
+	@Test
+	public void testQuickMovesOutOfBook() throws UnknownPropertyException {
+		player.setProperty("quick-moves-out-of-book", "0");
+		player.setProperty("book", "LateOpeningBook");
+		player.setRemainingTime(10);
+		
+		while (true) {
+			int bestMove = player.bestMove();
+			if (player.isInOpeningBook()) {
+				player.acceptMove(bestMove);
+			}
+			else {
+				break;
+			}
+		}
+		
+		assertEquals(0, player.movesOutOfOpeningBook());
+
+		player.setRemainingTime(10);
+		long startWithout = System.currentTimeMillis();
+		player.acceptMove(player.bestMove());
+		long timePerMoveWithoutHeuristic = System.currentTimeMillis() - startWithout;
+		
+		player.reset();
+		
+		player.setProperty("quick-moves-out-of-book", "8");
+		player.setProperty("book", "LateOpeningBook");
+		player.setRemainingTime(10);
+
+		while (true) {
+			int bestMove = player.bestMove();
+			if (player.isInOpeningBook()) {
+				player.acceptMove(bestMove);
+			}
+			else {
+				break;
+			}
+		}
+		assertEquals(0, player.movesOutOfOpeningBook());
+
+		for (int i = 0; i < 16; i++) {		
+			player.setRemainingTime(10);
+			long startWith = System.currentTimeMillis();
+			player.acceptMove(player.bestMove());
+			long timePerMoveWithHeuristic = System.currentTimeMillis() - startWith;
+			assertEquals(i + 1, player.movesOutOfOpeningBook());
+			assertTrue(timePerMoveWithHeuristic * 2.5 < timePerMoveWithoutHeuristic);
+		}
+		
+		player.setRemainingTime(10);
+		long startWith = System.currentTimeMillis();
+		player.acceptMove(player.bestMove());
+		long timePerMoveWithHeuristic = System.currentTimeMillis() - startWith;
+		assertFalse(timePerMoveWithHeuristic * 2.5 < timePerMoveWithoutHeuristic);
 	}
 }

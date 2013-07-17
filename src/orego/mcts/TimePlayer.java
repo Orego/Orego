@@ -38,6 +38,12 @@ public class TimePlayer extends Lgrf2Player {
 	 */
 	private int timeFormula = TIME_FORMULA_UNIFORM;
 
+	@Override
+	public void reset() {
+		super.reset();
+		firstMoveOutOfOpeningBook = -22;
+	}
+	
 	/** The constant C to use in the time management formula. */
 	private double timeC = 0.20;
 
@@ -157,14 +163,13 @@ public class TimePlayer extends Lgrf2Player {
 	 */
 	private double earlyExitMult = 1.0;
 
-	/** The turn# of the last move obtained from the opening book. */
-	private int lastMoveInOpeningBook = 0;
-
 	/**
 	 * The number of moves out of the opening book for which we should only
 	 * think for one fourth the time.
 	 */
 	private int quickMovesOutOfBook = 0;
+
+	private int firstMoveOutOfOpeningBook = -22;
 
 	private static final int THINKING_SLICES = 3;
 
@@ -180,14 +185,9 @@ public class TimePlayer extends Lgrf2Player {
 
 		// int earlyMove = -1;
 
-		if (movesOutOfOpeningBook() < quickMovesOutOfBook) {
-			totalTimeInMs = max(1, totalTimeInMs / 4);
-			setMillisecondsPerMove(totalTimeInMs);
-			return super.bestMove();
-		}
-
 		if ((compareSecond && compareSecondConf < 1.0 && (totalTimeInMs > compareSecondConfDontApplyMax || totalTimeInMs < compareSecondConfDontApplyMin))
-				|| (compareRest && compareRestConf < 1.0 && (totalTimeInMs > compareRestConfDontApplyMax || totalTimeInMs < compareRestConfDontApplyMin))) {
+				|| (compareRest && compareRestConf < 1.0 && (totalTimeInMs > compareRestConfDontApplyMax || totalTimeInMs < compareRestConfDontApplyMin))
+				|| quickMovesOutOfBook > 0) {
 			// increased the allocated time
 			totalTimeInMs *= earlyExitMult;
 			// split it into slices
@@ -197,6 +197,11 @@ public class TimePlayer extends Lgrf2Player {
 			// execute each slice and stop early if applicable
 			for (int i = 0; i < THINKING_SLICES - 1; i++) {
 				int best = super.bestMove();
+				
+				if (movesOutOfOpeningBook() < quickMovesOutOfBook * 2) {
+					return best;
+				}
+				
 				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
 						|| (compareRest && confidenceBestVsRest() > compareRestConf)) {
 					// consider leaving early:
@@ -292,8 +297,8 @@ public class TimePlayer extends Lgrf2Player {
 
 	@Override
 	public void setInOpeningBook(boolean b) {
-		if (b == true) {
-			lastMoveInOpeningBook = getTurn();
+		if (b == false) {
+			firstMoveOutOfOpeningBook = getTurn();
 		}
 		super.setInOpeningBook(b);
 	}
@@ -303,9 +308,12 @@ public class TimePlayer extends Lgrf2Player {
 	 * book was last used.
 	 */
 	public int movesOutOfOpeningBook() {
-		return (getTurn() - lastMoveInOpeningBook) / 2;
+		if (firstMoveOutOfOpeningBook < 0)
+			return 0;
+		else
+			return getTurn() - firstMoveOutOfOpeningBook;
 	}
-
+	
 	/** Returns true if the winrate of the best move is below behindThreshold. */
 	protected boolean weAreBehind() {
 		int bestMove = bestStoredMove();
