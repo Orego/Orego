@@ -3,8 +3,8 @@ package orego.patternanalyze;
 import static orego.core.Board.NINE_PATTERN;
 import static orego.core.Board.THREE_PATTERN;
 import static orego.core.Colors.VACANT;
-import static orego.mcts.PatternPlayer.NUM_HASH_TABLES;
-import static orego.mcts.PatternPlayer.hashLongToChar;
+import static orego.shape.PatternPlayer.NUM_HASH_TABLES;
+import static orego.shape.PatternPlayer.hashLongToChar;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,4 +1,4 @@
-package orego.mcts;
+package orego.shape;
 
 import static orego.core.Board.NINE_PATTERN;
 
@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 
 import orego.core.Colors;
-import orego.shape.PatternInformation;
 
 public class PatternRunCounter {
 	

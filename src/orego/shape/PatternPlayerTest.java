@@ -1,4 +1,4 @@
-package orego.mcts;
+package orego.shape;
 
 import static orego.core.Board.NINE_PATTERN;
 import static orego.core.Board.THREE_PATTERN;
@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import orego.shape.PatternInformation;
 import orego.util.IntSet;
 
 import org.junit.Before;

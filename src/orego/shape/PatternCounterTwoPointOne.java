@@ -2,7 +2,7 @@ package orego.shape;
 
 import static orego.core.Board.*;
 import static orego.core.Coordinates.*;
-import static orego.mcts.PatternPlayer.*;
+import static orego.shape.PatternPlayer.*;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,4 +1,4 @@
-package orego.mcts;
+package orego.shape;
 
 import static orego.core.Board.*;
 import static orego.core.Colors.*;
@@ -16,7 +16,8 @@ import java.util.StringTokenizer;
 
 import orego.core.Board;
 import orego.core.Colors;
-import orego.shape.PatternInformation;
+import orego.mcts.McPlayer;
+import orego.mcts.McRunnable;
 import orego.util.IntSet;
 
 public class PatternPlayer extends McPlayer {
