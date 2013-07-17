@@ -1492,13 +1492,14 @@ public class BoardTest {
 				"O#O................" // 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
+		board = new Board(false);
 		board.setUpProblem(BLACK, problem);
 		// Empty pattern
-		assertEquals(0L, board.findPatternHash(at("p9"), 4));
+		assertEquals(0L, board.getPatternHash(at("p9"), 4));
 		// Radius 1 pattern around d2
 		long correct = 0L;
 		correct ^= PATTERN_ZOBRIST_HASHES[1][WHITE][6];
-		assertEquals(correct, board.findPatternHash(at("d2"), 1));
+		assertEquals(correct, board.getPatternHash(at("d2"), 1));
 		// Radius 2 pattern around b2
 		correct = 0L;
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][0];
@@ -1513,7 +1514,7 @@ public class BoardTest {
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][22];
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][23];
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][24];
-		assertEquals(correct, board.findPatternHash(at("b2"), 2));
+		assertEquals(correct, board.getPatternHash(at("b2"), 2));
 		// Radius 2 pattern around t1
 		correct = 0L;
 		for (int p : new int[] {3, 4, 8, 9}) {			
@@ -1522,10 +1523,69 @@ public class BoardTest {
 		for (int p = 13; p < 25; p++) {
 			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
 		}
-		assertEquals(correct, board.findPatternHash(at("t1"), 2));
+		assertEquals(correct, board.getPatternHash(at("t1"), 2));		
+	}
+
+	@Test
+	public void testMaintainPatternHash() {
+		// This is just like the previous test, but tests incremental pattern hash updating
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"O#O................" // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board = new Board(true);
+		board.setUpProblem(BLACK, problem);
+		// Empty pattern
+		assertEquals(0L, board.getPatternHash(at("p9"), 4));
+		// Radius 1 pattern around d2
+		long correct = 0L;
+		correct ^= PATTERN_ZOBRIST_HASHES[1][WHITE][6];
+		assertEquals(correct, board.getPatternHash(at("d2"), 1));
+		// Radius 2 pattern around b2
+		correct = 0L;
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][0];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][5];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][10];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][15];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][WHITE][16];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][BLACK][17];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][WHITE][18];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][20];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][21];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][22];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][23];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][24];
+		assertEquals(correct, board.getPatternHash(at("b2"), 2));
+		// Radius 2 pattern around t1
+		correct = 0L;
+		for (int p : new int[] {3, 4, 8, 9}) {			
+			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
+		}
+		for (int p = 13; p < 25; p++) {
+			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
+		}
+		assertEquals(correct, board.getPatternHash(at("t1"), 2));
 		
 	}
-	
+
 //	@Test
 //	public void testPatternThree() {
 //		int newPlay = 0;
