@@ -1,13 +1,10 @@
 package orego.heuristic;
 
 import static orego.core.Board.NINE_PATTERN;
-import static orego.core.Coordinates.getFirstPointBeyondBoard;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
-
 import orego.core.Board;
 import orego.core.Colors;
 import orego.patternanalyze.PatternInformation;
@@ -21,16 +18,19 @@ public class DeepPatternHeuristic extends Heuristic{
 	private double[] patternWeights;
 	
 	private double goodPatternThreshold = .75;
-	
-	
+		
 	public DeepPatternHeuristic(int weight) {
 		super(weight);
-		initializeHeuristic();
+		patternWeights = new double[] { 1 / 20.0, 3 / 20.0, 6 / 20.0, 10 / 20.0 };
+		loadPatternHashMaps();
 	}
 	
 	public void prepare(Board board, boolean local){
 		super.prepare(board, local);
-		updateForAcceptMove(board);
+		setWeights(9 * board.getTurn() / 220.0 + 1, 
+				3 * board.getTurn() / 220.0 + 3,
+				3 * (1 - board.getTurn() / 220.0) + 3, 
+				9 * (1 - board.getTurn() / 220.0) + 1);
 		IntSet moves = board.getVacantPoints();
 		for (int i = 0; i < moves.size(); i++) {
 			if (board.isFeasible(moves.get(i))) {
@@ -77,11 +77,6 @@ public class DeepPatternHeuristic extends Heuristic{
 		}
 	}
 	
-	private void initializeHeuristic() {
-		patternWeights = new double[] { 1 / 20.0, 3 / 20.0, 6 / 20.0, 10 / 20.0 };
-		loadPatternHashMaps();
-	}
-	
 	@SuppressWarnings("unchecked")
 	private void loadPatternHashMaps() {
 		for (int c = 0; c < 2; c++) {
@@ -100,13 +95,6 @@ public class DeepPatternHeuristic extends Heuristic{
 				}
 			}
 		}
-	}
-	
-	public void updateForAcceptMove(Board board) {
-		setWeights(9 * board.getTurn() / 220.0 + 1, 
-				3 * board.getTurn() / 220.0 + 3,
-				3 * (1 - board.getTurn() / 220.0) + 3, 
-				9 * (1 - board.getTurn() / 220.0) + 1);
 	}
 
 }
