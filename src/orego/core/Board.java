@@ -52,17 +52,14 @@ public class Board {
 	public static final long[][] ZOBRIST_HASHES = new long[3][getFirstPointBeyondBoard()];
 
 	/**
+	 * Maximum radius of a pattern.
+	 */
+	public static final int MAX_PATTERN_RADIUS = 4;
+	
+	/**
 	 * Random numbers for Zobrist hashes for patterns, indexed by color and point.
 	 */
-	public static final int THREE_PATTERN = 0;
-	public static final int FIVE_PATTERN = 1;
-	public static final int SEVEN_PATTERN = 2;
-	public static final int NINE_PATTERN = 3;
-	public static final long[][] ZOBRIST_HASHES_3 = new long[OFF_BOARD_COLOR+1][3 * 3];
-	public static final long[][] ZOBRIST_HASHES_5 = new long[OFF_BOARD_COLOR+1][5 * 5];
-	public static final long[][] ZOBRIST_HASHES_7 = new long[OFF_BOARD_COLOR+1][7 * 7];
-	public static final long[][] ZOBRIST_HASHES_9 = new long[OFF_BOARD_COLOR+1][9 * 9];
-	public static final long[][][] ZOBRIST_PATTERNS = {ZOBRIST_HASHES_3,ZOBRIST_HASHES_5,ZOBRIST_HASHES_7,ZOBRIST_HASHES_9};
+	public static final long[][][] PATTERN_ZOBRIST_HASHES = new long[MAX_PATTERN_RADIUS + 1][OFF_BOARD_COLOR + 1][];
 
 	static { // Initialize ZOBRIST_HASHES
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
@@ -73,13 +70,14 @@ public class Board {
 		}
 		// Set the element below to zero, so that xoring in the ko point when
 		// there isn't one has no effect.
-		ZOBRIST_HASHES[VACANT][NO_POINT] = 0L;
-		
-		//Start pattern initialization
-		for (int table = 0; table < ZOBRIST_PATTERNS.length; table++) {
-			for (int color = 0; color < ZOBRIST_PATTERNS[table].length; color++) {
-				for (int p = 0; p < ZOBRIST_PATTERNS[table][color].length; p++) {
-					ZOBRIST_PATTERNS[table][color][p] = random.nextLong();
+		ZOBRIST_HASHES[VACANT][NO_POINT] = 0L;		
+		// Start pattern initialization
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			for (int color : new int[] {BLACK, WHITE, OFF_BOARD_COLOR}) {
+				int size = (2 * radius + 1) * (2 * radius + 1);
+				PATTERN_ZOBRIST_HASHES[radius][color] = new long[size];
+				for (int p = 0; p < size; p++) {
+					PATTERN_ZOBRIST_HASHES[radius][color][p] = random.nextLong();
 				}
 			}
 		}
@@ -353,11 +351,11 @@ public class Board {
 		
 		if (maintainPatternHashes){
 			maintainPatternHashes = false;
-			patternHashAtPoint = new long[NINE_PATTERN+1][getFirstPointBeyondBoard()];
+			patternHashAtPoint = new long[MAX_PATTERN_RADIUS + 1][getFirstPointBeyondBoard()];
 			for (int p=0; p<getFirstPointBeyondBoard(); p++){
 				if (getColor(p)==VACANT){
-					for (int pattern = 0; pattern<=NINE_PATTERN; pattern++){
-						patternHashAtPoint[pattern][p] = getPatternHash(pattern, p);
+					for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++){
+						patternHashAtPoint[radius][p] = getPatternHash(radius, p);
 					}
 				}
 			}
@@ -395,9 +393,9 @@ public class Board {
 		turn = that.turn;
 		maintainPatternHashes = that.maintainPatternHashes;
 		if (maintainPatternHashes){
-			patternHashAtPoint = new long[NINE_PATTERN+1][getFirstPointBeyondBoard()];
-			for (int pat = 0; pat<=NINE_PATTERN; pat++){
-				System.arraycopy(that.patternHashAtPoint[pat], 0, patternHashAtPoint[pat], 0, that.patternHashAtPoint[pat].length);
+			patternHashAtPoint = new long[MAX_PATTERN_RADIUS + 1][getFirstPointBeyondBoard()];
+			for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++){
+				System.arraycopy(that.patternHashAtPoint[radius], 0, patternHashAtPoint[radius], 0, that.patternHashAtPoint[radius].length);
 			}
 		}
 	}
@@ -702,7 +700,7 @@ public class Board {
 		if (maintainPatternHashes){
 			return patternHashAtPoint[patternType][p];
 		}
-		return getPatternHash(patternType + 1, 0, 0, false, patternType, p);
+		return getPatternHash(patternType + 1, 0, 0, false, p);
 	}	
 	
 	/**
@@ -715,37 +713,37 @@ public class Board {
 	 * @param p Current move on the board
 	 * @return Combined hash of this part of the pattern (and other recursive calls beyond this)
 	 */
-	private long getPatternHash(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int patternType, int p) {
+	protected long getPatternHash(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int p) {
 		long patternHash = 0;
-		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
-		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
-			foundEdge = true;
-		}
-		//Follow the x-axis first, then explore the y-axis.
-		if (yOffset == 0 && Math.abs(xOffset) < distanceFromCenter) {
-			if (xOffset <= 0) {
-				patternHash ^= getPatternHash(distanceFromCenter, xOffset - 1, yOffset, foundEdge, patternType, p - EAST);
-			}
-			if (xOffset >= 0) {
-				patternHash ^= getPatternHash(distanceFromCenter, xOffset + 1, yOffset, foundEdge, patternType, p + EAST);
-			}
-		}
-		if (Math.abs(yOffset) < distanceFromCenter) {
-			if (yOffset <= 0) {
-				patternHash ^= getPatternHash(distanceFromCenter, xOffset, yOffset - 1, foundEdge, patternType, p - getSouth());
-			}
-			if (yOffset >= 0) {
-				patternHash ^= getPatternHash(distanceFromCenter, xOffset, yOffset + 1, foundEdge, patternType, p + getSouth());
-			}
-		}
-		//Combine a hash if it is not off the board
-		if (!foundEdge) {
-			patternHash ^= ZOBRIST_PATTERNS[patternType][getColor(p)][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
-		}
-		//Otherwise, combine an off board hash into the current one.
-		else {
-			patternHash ^= ZOBRIST_PATTERNS[patternType][OFF_BOARD_COLOR][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
-		}
+//		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
+//		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
+//			foundEdge = true;
+//		}
+//		//Follow the x-axis first, then explore the y-axis.
+//		if (yOffset == 0 && Math.abs(xOffset) < distanceFromCenter) {
+//			if (xOffset <= 0) {
+//				patternHash ^= getPatternHash(distanceFromCenter, xOffset - 1, yOffset, foundEdge, p - EAST);
+//			}
+//			if (xOffset >= 0) {
+//				patternHash ^= getPatternHash(distanceFromCenter, xOffset + 1, yOffset, foundEdge, p + EAST);
+//			}
+//		}
+//		if (Math.abs(yOffset) < distanceFromCenter) {
+//			if (yOffset <= 0) {
+//				patternHash ^= getPatternHash(distanceFromCenter, xOffset, yOffset - 1, foundEdge, p - getSouth());
+//			}
+//			if (yOffset >= 0) {
+//				patternHash ^= getPatternHash(distanceFromCenter, xOffset, yOffset + 1, foundEdge, p + getSouth());
+//			}
+//		}
+//		//Combine a hash if it is not off the board
+//		if (!foundEdge) {
+//			patternHash ^= ZOBRIST_PATTERNS[distanceFromCenter - 1][getColor(p)][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
+//		}
+//		//Otherwise, combine an off board hash into the current one.
+//		else {
+//			patternHash ^= ZOBRIST_PATTERNS[distanceFromCenter - 1][OFF_BOARD_COLOR][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
+//		}
 		return patternHash;
 	}
 	
@@ -805,7 +803,7 @@ public class Board {
 	 * Get Zobrist hash for a particular color and position.
 	 */
 	public long getZobristPatternHash(int patternType, int color, int position) {
-		return ZOBRIST_PATTERNS[patternType][color][position];
+		return PATTERN_ZOBRIST_HASHES[patternType][color][position];
 	}
 
 	/**
@@ -1433,11 +1431,11 @@ public class Board {
 	 * @param color The non-vacant color that was (or now is) at p
 	 */
 	private void updatePatternHashes(int p, int color){
-		for (int i = Math.max(at(0,0),p-4*getSouth()-4*EAST); i<Math.min(at(18,18),p+4*getSouth()+4*EAST);i++){
+		for (int i = Math.max(at(0,0),p-4*getSouth()-4*EAST); i<Math.min(at(18,18),p+4*getSouth()+4*EAST); i++){
 			if (colors[i]==VACANT){
-				for (int pat=NINE_PATTERN; pat>=0; pat--){
-					if (Math.max(Math.abs(column(p)-column(i)),Math.abs(row(p)-row(i))) <= pat + 1 )
-						patternHashAtPoint[pat][i] ^= ZOBRIST_PATTERNS[pat][color][pointToPatternOffset(pat,column(p)-column(i),row(p)-row(i))]^ZOBRIST_PATTERNS[pat][VACANT][pointToPatternOffset(pat,column(p)-column(i),row(p)-row(i))];
+				for (int radius=MAX_PATTERN_RADIUS; radius>=1; radius--){
+					if (Math.max(Math.abs(column(p)-column(i)),Math.abs(row(p)-row(i))) <= radius + 1 )
+						patternHashAtPoint[radius][i] ^= PATTERN_ZOBRIST_HASHES[radius][color][pointToPatternOffset(radius,column(p)-column(i),row(p)-row(i))]^PATTERN_ZOBRIST_HASHES[radius][VACANT][pointToPatternOffset(radius,column(p)-column(i),row(p)-row(i))];
 					else
 						break;
 				}

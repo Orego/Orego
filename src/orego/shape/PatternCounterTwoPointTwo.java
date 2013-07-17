@@ -65,7 +65,7 @@ public class PatternCounterTwoPointTwo {
 		try {
 			patternSeen = new HashMap[4][2];
 			actualPatternSeen = new HashMap[4][2];
-			for (int i = 0; i < NINE_PATTERN + 1; i++) {
+			for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 				for (int j = 0; j < 2; j++) {
 					patternSeen[i][j] = new HashMap<Character, PatternInformation>();
 					actualPatternSeen[i][j] = new HashMap<String, PatternInformation>();
@@ -109,7 +109,7 @@ public class PatternCounterTwoPointTwo {
 			String output2 = "";
 			for (int c = 0; c < 2; c++) {
 				output2 = "Color: " + Colors.colorToString(c) + " below.";
-				for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 					PrintWriter bw = new PrintWriter(new FileWriter(new File(
 							TEST_DIRECTORY + "outputTableData"+ (i * 2 + 3) +".txt")));
 					String output = "";
@@ -287,7 +287,7 @@ public class PatternCounterTwoPointTwo {
 			} while (!patternBoard.isLegal(randomMove)
 					|| randomMove == nextPlay);
 			if (isOnBoard(nextPlay)) {
-				for (int patternType = 0; patternType < NINE_PATTERN + 1; patternType++) {
+				for (int patternType = 0; patternType < MAX_PATTERN_RADIUS + 1; patternType++) {
 					long lastPlayHash = patternBoard.getPatternHash(
 							patternType, nextPlay);
 					if (patternSeen[patternType][patternBoard.getColorToPlay()].containsKey(lastPlayHash)) {
@@ -372,7 +372,7 @@ public class PatternCounterTwoPointTwo {
 		input = input.replace("\n", "");
 		char newHash = 0;
 		for (int i = 0; i < input.length(); i++) {
-			newHash ^= Board.ZOBRIST_PATTERNS[patternType][Colors.charToColor(input.charAt(i))][i];
+			newHash ^= Board.PATTERN_ZOBRIST_HASHES[patternType][Colors.charToColor(input.charAt(i))][i];
 		}
 		return newHash;
 	}

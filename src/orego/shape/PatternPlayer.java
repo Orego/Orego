@@ -27,7 +27,7 @@ public class PatternPlayer extends McPlayer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private HashMap<Character, PatternInformation>[][][] patterns = new HashMap[NUM_HASH_TABLES][NINE_PATTERN + 1][2];
+	private HashMap<Character, PatternInformation>[][][] patterns = new HashMap[NUM_HASH_TABLES][MAX_PATTERN_RADIUS + 1][2];
 
 	private long numPlayouts;
 
@@ -150,7 +150,7 @@ public class PatternPlayer extends McPlayer {
 
 	private float getWinRate(Board b, int point) {
 		float tempRate = 0;
-		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+		for (int pattern = 0; pattern <= MAX_PATTERN_RADIUS; pattern++) {
 			PatternInformation[] info = getInformation(pattern,
 					b.getPatternHash(pattern, point), b.getColorToPlay());
 			for (PatternInformation i : info) {
@@ -170,7 +170,7 @@ public class PatternPlayer extends McPlayer {
 	public double getWins(int p) {
 		float winRate = 0;
 		double runs = 0;
-		for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+		for (int pattern = 0; pattern <= MAX_PATTERN_RADIUS; pattern++) {
 			PatternInformation[] info = getInformation(pattern, getBoard()
 					.getPatternHash(pattern, p), getBoard().getColorToPlay());
 			for (PatternInformation i : info) {
@@ -300,7 +300,7 @@ public class PatternPlayer extends McPlayer {
 		Board b = new Board(maintainHashes);
 		b.copyDataFrom(getBoard());
 		for (int t = getBoard().getTurn(); t < turn; t++) {
-			for (int pattern = 0; pattern <= NINE_PATTERN; pattern++) {
+			for (int pattern = 0; pattern <= MAX_PATTERN_RADIUS; pattern++) {
 				PatternInformation[] info = getInformation(pattern,
 						b.getPatternHash(pattern, moves[t]), b.getColorToPlay());
 				for (int i = 0; i < patternWeight(pattern) * 20; i++) {
@@ -330,7 +330,7 @@ public class PatternPlayer extends McPlayer {
 	@SuppressWarnings("unchecked")
 	private void loadPatternHashMaps() {
 		for (int c = 0; c < 2; c++) {
-			for (int i = 0; i < NINE_PATTERN + 1; i++) {
+			for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 				for (int table = 0; table < NUM_HASH_TABLES; table++) {
 					// load from files
 					try {

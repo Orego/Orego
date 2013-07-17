@@ -1,6 +1,6 @@
 package orego.shape;
 
-import static orego.core.Board.NINE_PATTERN;
+import static orego.core.Board.MAX_PATTERN_RADIUS;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -20,7 +20,7 @@ public class PatternRunCounter {
 	@SuppressWarnings("unchecked")
 	private void loadPatternHashMaps() {
 		for (int c = 0; c < 2; c++) {
-			for (int i = 0; i < NINE_PATTERN + 1; i++) {
+			for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 				// load from files
 				try {
 					ObjectInputStream ir = new ObjectInputStream(
@@ -42,7 +42,7 @@ public class PatternRunCounter {
 		
 		for (int c = 0; c < 2; c++) {
 			
-			for (int i = 0; i < NINE_PATTERN + 1; i++) {
+			for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 				// load from files
 				try {
 					DataOutputStream out = 

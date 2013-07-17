@@ -1,7 +1,6 @@
 package orego.patternanalyze;
 
-import static orego.core.Board.NINE_PATTERN;
-import static orego.core.Board.THREE_PATTERN;
+import static orego.core.Board.MAX_PATTERN_RADIUS;
 import static orego.core.Colors.VACANT;
 import static orego.shape.PatternPlayer.NUM_HASH_TABLES;
 import static orego.shape.PatternPlayer.hashLongToChar;
@@ -23,11 +22,11 @@ import orego.shape.PatternInformation;
 public class PatternAnalyzer {
 
 	@SuppressWarnings("unchecked")
-	private static final HashMap<Character, PatternInformation>[][][] PATTERNS = new HashMap[NUM_HASH_TABLES][NINE_PATTERN + 1][2];
+	private static final HashMap<Character, PatternInformation>[][][] PATTERNS = new HashMap[NUM_HASH_TABLES][MAX_PATTERN_RADIUS + 1][2];
 
 	static { // load hash maps
 		for (int c = 0; c < 2; c++) {
-			for (int i = 0; i < NINE_PATTERN + 1; i++) {
+			for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 				for (int table = 0; table < NUM_HASH_TABLES; table++) {
 					// load from files
 					try {
@@ -90,7 +89,7 @@ public class PatternAnalyzer {
 		for (int pattern = 0; pattern < Character.MAX_VALUE; pattern++) {
 			if (isValid3x3Pattern((char) pattern)) {
 				for (int color = 0; color < 2; color++) {
-					PatternInformation[] infos = getInformation(THREE_PATTERN,
+					PatternInformation[] infos = getInformation(1,
 							charPatternTo3x3Hash((char) pattern), color);
 					double rate = 0;
 					long runs = 0;
@@ -129,7 +128,7 @@ public class PatternAnalyzer {
 	private static long charPatternTo3x3Hash(char pattern) {
 		long hash = 0;
 		for (int i = 0; i < 8; i++) {
-			hash ^= Board.ZOBRIST_PATTERNS[THREE_PATTERN][(pattern & 0xc000) >>> 14][i];
+			hash ^= Board.PATTERN_ZOBRIST_HASHES[1][(pattern & 0xc000) >>> 14][i];
 			pattern = (char) (pattern << 2);
 		}
 

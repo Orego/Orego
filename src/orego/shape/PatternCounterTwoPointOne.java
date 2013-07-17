@@ -42,8 +42,8 @@ public class PatternCounterTwoPointOne {
 	@SuppressWarnings("unchecked")
 	public PatternCounterTwoPointOne() {
 		try {
-			patternSeen = new HashMap[NUM_HASH_TABLES][NINE_PATTERN+1][2];
-			for (int i = 0; i < NINE_PATTERN + 1; i++) {
+			patternSeen = new HashMap[NUM_HASH_TABLES][MAX_PATTERN_RADIUS+1][2];
+			for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 				for (int j = 0; j < 2; j++) {
 					for (int k = 0; k < NUM_HASH_TABLES; k++) {
 						patternSeen[k][i][j] = new HashMap<Character, PatternInformation>();
@@ -57,7 +57,7 @@ public class PatternCounterTwoPointOne {
 			bw.write("Warning: this only has info on first of four hash tables");
 			for (int c = 0; c < 2; c++) {
 				output = "Color: " + Colors.colorToString(c) + " below.";
-				for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 					Set<Character> initialPatternSeen = patternSeen[0][i][c]
 								.keySet();
 					output = "Pattern:" + (i * 2 + 3) + " below.\n";
@@ -91,7 +91,7 @@ public class PatternCounterTwoPointOne {
 					+ "outputPlayed.txt");
 			bw.close();
 			for (int c = 0; c < 2; c++) {
-				for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				for (int i = 0; i < MAX_PATTERN_RADIUS + 1; i++) {
 					for (int t = 0; t < NUM_HASH_TABLES; t++) {
 						ObjectOutputStream ow = new ObjectOutputStream(
 								new FileOutputStream(new File(TEST_DIRECTORY
@@ -158,7 +158,7 @@ public class PatternCounterTwoPointOne {
 			} while (!patternBoard.isLegal(randomMove)
 					|| randomMove == nextPlay);
 			if (isOnBoard(nextPlay)) {
-				for (int patternType = 0; patternType < NINE_PATTERN + 1; patternType++) {
+				for (int patternType = 0; patternType < MAX_PATTERN_RADIUS + 1; patternType++) {
 					for (int table = 0; table < NUM_HASH_TABLES; table++) {
 						long lastPlayHash = patternBoard.getPatternHash(
 								patternType, nextPlay);
