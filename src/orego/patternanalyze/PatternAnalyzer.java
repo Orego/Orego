@@ -17,6 +17,7 @@ import java.util.Scanner;
 
 import orego.core.Board;
 import orego.core.Colors;
+import orego.shape.PatternInformation;
 
 @SuppressWarnings("unchecked")
 public class PatternAnalyzer {

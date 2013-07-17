@@ -1,4 +1,4 @@
-package orego.patternanalyze;
+package orego.shape;
 
 import java.io.Serializable;
 

@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import orego.patternanalyze.PatternInformation;
+import orego.shape.PatternInformation;
 import orego.util.IntSet;
 
 import org.junit.Before;

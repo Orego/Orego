@@ -1,4 +1,4 @@
-package orego.patternanalyze;
+package orego.shape;
 
 import static orego.core.Board.*;
 import static orego.core.Coordinates.*;

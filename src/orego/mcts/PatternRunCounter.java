@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 
 import orego.core.Colors;
-import orego.patternanalyze.PatternInformation;
+import orego.shape.PatternInformation;
 
 public class PatternRunCounter {
 	

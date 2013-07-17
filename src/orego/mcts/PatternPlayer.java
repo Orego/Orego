@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 
 import orego.core.Board;
 import orego.core.Colors;
-import orego.patternanalyze.PatternInformation;
+import orego.shape.PatternInformation;
 import orego.util.IntSet;
 
 public class PatternPlayer extends McPlayer {
