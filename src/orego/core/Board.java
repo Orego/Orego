@@ -700,21 +700,34 @@ public class Board {
 		if (maintainPatternHashes){
 			return patternHashAtPoint[patternType][p];
 		}
-		return getPatternHash(patternType + 1, 0, 0, false, p);
+		return findPatternHash(p, patternType + 1);
 	}	
 	
 	/**
-	 * Recursive call that searches all the parts of the pattern and returns the combined hash. 
-	 * @param distanceFromCenter Maximum distance from center to current position in pattern.
-	 * @param xOffset x offset from the center of the pattern
-	 * @param yOffset y offset from the center of the pattern
-	 * @param foundEdge Have any previous recursive steps found an edge yet?
-	 * @param patternType Constant pattern THREE_PATTERN, FIVE_PATTERN, SEVEN_PATTERN, NINE_PATTERN
-	 * @param p Current move on the board
-	 * @return Combined hash of this part of the pattern (and other recursive calls beyond this)
+	 * Returns the pattern hash around p for the given radius.
 	 */
-	protected long getPatternHash(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int p) {
-		long patternHash = 0;
+	protected long findPatternHash(int p, int radius) {
+		long result = 0L;
+		int row = row(p);
+		int column = column(p);
+		int i = 0;
+		for (int r = row - radius; r <= row + radius; r++) {
+			for (int c = column - radius; c <= column + radius; c++) {
+				if (isValidOneDimensionalCoordinate(r) && isValidOneDimensionalCoordinate(c)) {
+					int color = getColor(at(r, c));
+					if (color != VACANT) {
+						result ^= PATTERN_ZOBRIST_HASHES[radius][color][i];
+					}
+				} else {
+					result ^= PATTERN_ZOBRIST_HASHES[radius][OFF_BOARD_COLOR][i];					
+				}
+				i++;
+			}
+		}
+		
+		
+		
+		
 //		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
 //		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
 //			foundEdge = true;
@@ -744,7 +757,7 @@ public class Board {
 //		else {
 //			patternHash ^= ZOBRIST_PATTERNS[distanceFromCenter - 1][OFF_BOARD_COLOR][pointToPatternOffset(distanceFromCenter-1,xOffset,yOffset)];
 //		}
-		return patternHash;
+		return result;
 	}
 	
 	/**
