@@ -1,7 +1,11 @@
 package orego.shape;
 
+import java.io.Serializable;
+
 /** A sloppy multihash table. */
-public class Table {
+public class Table implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/** For each table and entry, the number of stored entries. */
 	private long[][] counts;
