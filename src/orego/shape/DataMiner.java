@@ -1,21 +1,27 @@
 package orego.shape;
 
-import static orego.core.Coordinates.*;
-import static orego.core.Colors.*;
-import static orego.core.Board.*;
+import static orego.core.Board.MAX_PATTERN_RADIUS;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.WHITE;
+import static orego.core.Colors.charToColor;
+import static orego.core.Coordinates.getBoardWidth;
+import static orego.core.Coordinates.isOnBoard;
+import static orego.core.Coordinates.reflect;
+import static orego.core.Coordinates.rotate;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.sgf.SgfParser;
 import orego.util.IntSet;
+import ec.util.MersenneTwisterFast;
 
 /**
  * Extracts patterns from SGF files.
@@ -54,15 +60,12 @@ public class DataMiner {
 				+ File.separator + getBoardWidth();
 		try {
 			setUp(dir);
-			loadPatternHashMaps();
-			
-			PrintWriter bw = new PrintWriter(new FileWriter(new File(
-					dir + File.separator+ "results.txt")));
-			StringBuilder output = new StringBuilder("");
+			loadCluster();
 			
 			for(int radius = 1; radius<=MAX_PATTERN_RADIUS; radius++){
-				
-				//TODO: start writing in different file
+				PrintWriter bw = new PrintWriter(new FileWriter(new File(
+						dir + File.separator+ "results_for_radius"+radius+".txt")));
+				StringBuilder output = new StringBuilder("");
 				for(String key : winRateMap[radius][BLACK].keySet()){
 					output.append(key);
 					output.append(',');
@@ -77,9 +80,9 @@ public class DataMiner {
 					output.append(patterns.getPatternCount(keyToHash(key,radius), BLACK, radius));
 					output.append("\n");
 				}
+				bw.println(output.toString());
+				bw.close();
 			}
-			bw.println(output.toString());
-			bw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -123,7 +126,7 @@ public class DataMiner {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected void loadPatternHashMaps() {
+	protected void loadCluster() {
 		try {
 			// TODO Should use SgfFiles, not SgfTestFiles
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
