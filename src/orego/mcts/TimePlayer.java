@@ -175,7 +175,7 @@ public class TimePlayer extends Lgrf2Player {
 	/**
 	 * We will think less if there are previous runs in the root node.
 	 */
-	private boolean benefitFromPreviousWork = true;
+	private boolean benefitFromPreviousWork = false;
 
 	private final int setRuns = 722;
 
