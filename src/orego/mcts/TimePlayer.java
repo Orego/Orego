@@ -38,12 +38,6 @@ public class TimePlayer extends Lgrf2Player {
 	 */
 	private int timeFormula = TIME_FORMULA_UNIFORM;
 
-	@Override
-	public void reset() {
-		super.reset();
-		firstMoveOutOfOpeningBook = -22;
-	}
-	
 	/** The constant C to use in the time management formula. */
 	private double timeC = 0.20;
 
@@ -174,12 +168,28 @@ public class TimePlayer extends Lgrf2Player {
 	private static final int THINKING_SLICES = 3;
 
 	/**
-	 * This keeps track of the playouts per second
+	 * This keeps track of the playouts per Second
 	 */
-	// private long playoutsPerMS;
+	private double playoutsPerSec=0;
+	
+	/**
+	 * We will think less if there are previous runs in the root node.
+	 */
+	private boolean benefitFromPreviousWork = true;
+
+	private final int setRuns = 722;
 
 	@Override
 	public int bestMove() {
+		
+		System.err.println("Beginning Playouts: " + getRoot().getTotalRuns());
+		
+		// Get the start time before we run best move
+		long startTime = System.currentTimeMillis();
+		
+		// Get the initial playouts in the tree
+		int initialPlayouts = getRoot().getTotalRuns();
+		
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
 
@@ -199,6 +209,7 @@ public class TimePlayer extends Lgrf2Player {
 				int best = super.bestMove();
 				
 				if (movesOutOfOpeningBook() < quickMovesOutOfBook * 2) {
+					updatePlayoutsPerSecond(startTime, initialPlayouts);
 					return best;
 				}
 				
@@ -208,54 +219,44 @@ public class TimePlayer extends Lgrf2Player {
 					// only if BEHIND and UNSTABLE-EVAL don't prohibit us
 					if ((!behind || !weAreBehind())
 							&& (!unstableEval || !isEvaluationUnstable())) {
+						updatePlayoutsPerSecond(startTime, initialPlayouts);
 						return best;
 					}
 				}
 			}
 		}
 
-		// System.err.println(getMillisecondsPerMove());
+//		System.err.println(getMillisecondsPerMove());
 
-		// Get the start time before we run best move
-		// long startTime = System.currentTimeMillis();
-		//
-		// // Get the initial playouts in the tree
-		// int initialPlayouts = getRoot().getTotalRuns();
 
-		// PrintWriter debugFile = null;
-		// try {
-		// debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
-		// "leaveearly.txt", true)));
-		// } catch (FileNotFoundException e) {
-		// e.printStackTrace();
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+
+
+//		PrintWriter debugFile = null;
+//		try {
+//			debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
+//					"leaveearly.txt", true)));
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		int best = super.bestMove();
 
-		// if (earlyMove != -1) {
-		// if (earlyMove == best) {
-		// debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
-		// debugFile.flush();
-		// } else {
-		// debugFile.println(getTurn() + "," + totalTimeInMs
-		// + ",Different");
-		// debugFile.flush();
-		// }
-		// }
+		updatePlayoutsPerSecond(startTime, initialPlayouts);
 
-		// debugFile.close();
+//		if (earlyMove != -1) {
+//			if (earlyMove == best) {
+//				debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
+//				debugFile.flush();
+//			} else {
+//				debugFile.println(getTurn() + "," + totalTimeInMs
+//						+ ",Different");
+//				debugFile.flush();
+//			}
+//		}
 
-		// // Get the final number of playouts
-		// int finalPlayouts = getRoot().getTotalRuns();
-		//
-		// // Get the end time after we run our playouts
-		// long endTime = System.currentTimeMillis();
-		//
-		// // Determine the playouts per Milli-second
-		// playoutsPerMS = (finalPlayouts - initialPlayouts)
-		// / ((endTime - startTime));
+//		 debugFile.close();
 
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
@@ -280,9 +281,9 @@ public class TimePlayer extends Lgrf2Player {
 		// check for COMPARE-REST
 		if (compareRest && compareRestUnconfMult > maxMultiple
 				&& confidenceBestVsRest() < compareRestUnconf) {
-			// System.err.println("Thinking longer since we're only " +
-			// confidenceBestVsRest() + " confident in our move: " +
-			// pointToString(best));
+//			System.err.println("Thinking longer since we're only "
+//					+ confidenceBestVsRest() + " confident in our move: "
+//					+ pointToString(best));
 			maxMultiple = compareRestUnconfMult;
 		}
 
@@ -295,92 +296,17 @@ public class TimePlayer extends Lgrf2Player {
 		}
 	}
 
-	@Override
-	public void setInOpeningBook(boolean b) {
-		if (b == false) {
-			firstMoveOutOfOpeningBook = getTurn();
-		}
-		super.setInOpeningBook(b);
-	}
+	protected double confidence(float winrateA, double runsA, float winrateB,
+			double runsB) {
 
-	/**
-	 * Return the number of moves (including the current one) since the opening
-	 * book was last used.
-	 */
-	public int movesOutOfOpeningBook() {
-		if (firstMoveOutOfOpeningBook < 0)
-			return 0;
-		else
-			return getTurn() - firstMoveOutOfOpeningBook;
-	}
-	
-	/** Returns true if the winrate of the best move is below behindThreshold. */
-	protected boolean weAreBehind() {
-		int bestMove = bestStoredMove();
-		return getRoot().getWinRate(bestMove) < behindThreshold
-				|| bestMove == RESIGN;
-	}
-
-	/**
-	 * Returns true if the move with the most wins is not the move with the most
-	 * runs.
-	 */
-	protected boolean isEvaluationUnstable() {
-		// Find the move with the most runs
-		int moveWithMostRuns = 0;
-		int mostRuns = 0;
-		for (int i = 0; i < getFirstPointBeyondBoard(); i++) {
-			int thisMovesRuns = getRoot().getRuns(i);
-			if (thisMovesRuns > mostRuns) {
-				moveWithMostRuns = i;
-				mostRuns = thisMovesRuns;
-			}
-		}
-		return moveWithMostRuns != getRoot().getMoveWithMostWins();
-	}
-
-	// System.err.println(pointToString(m) + ": " + getRoot().getWins(m) + "/"
-	// + getRoot().getRuns(m) + " = " + getRoot().getWins(m)
-	// / getRoot().getRuns(m));
-	// System.err.println(pointToString(moveWithSecondMostWins) + ": "
-	// + getRoot().getWins(moveWithSecondMostWins) + "/"
-	// + getRoot().getRuns(moveWithSecondMostWins) + " = "
-	// + getRoot().getWins(moveWithSecondMostWins)
-	// / getRoot().getRuns(moveWithSecondMostWins));
-	// System.err.println("Total runs: " + getRoot().getTotalRuns());
-	// System.err.println(confidence(m, moveWithSecondMostWins)
-	// + "% confident.");
-
-	protected int moveWithSecondMostWins() {
-		int bestMove = super.bestStoredMove();
-		int secondBestMove = 0;
-		int secondMostWins = 0;
-
-		for (int p = 0; p < getFirstPointBeyondBoard(); p++) {
-			if (p == bestMove) {
-				continue;
-			}
-			int winsForThisMove = (int) Math.round(getRoot().getWins(p));
-			if (winsForThisMove > secondMostWins) {
-				secondBestMove = p;
-				secondMostWins = winsForThisMove;
-			}
-		}
-
-		return secondBestMove;
-	}
-
-	/**
-	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
-	 * higher winrate than the second best move.
-	 * 
-	 * By "best" we mean the move with the most wins.
-	 */
-	protected double confidenceBestVsSecondBest() {
-		return confidence(getRoot().bestWinRate(),
-				getRoot().getRuns(getRoot().getMoveWithMostWins()), getRoot()
-						.getWinRate(moveWithSecondMostWins()), getRoot()
-						.getRuns(moveWithSecondMostWins()));
+//		System.err.println("winrateA = " + winrateA);
+//		System.err.println("runsA = " + runsA);
+//		System.err.println("winrateB = " + winrateB);
+//		System.err.println("runsB = " + runsB);
+		double z = (winrateA - winrateB)
+				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
+						* (1 - winrateB) / runsB);
+		return Phi(z);
 	}
 
 	/**
@@ -406,27 +332,101 @@ public class TimePlayer extends Lgrf2Player {
 
 		float restWinRate = restWins / (float) (restRuns);
 
-		// System.err.println("RestWinRate = " + restWinRate + ", RestWins = " +
-		// restWins + ", RestRuns = " + restRuns + " w/ avg = " +
-		// restRunsAverage);
-		// System.err.println("BestWinRate = " + bestWinRate + ", BestWins = " +
-		// getRoot().getWins(bestMove) + ", BestRuns = " + bestRuns);
+//		 System.err.println("RestWinRate = " + restWinRate + ", RestWins = " +
+//		 restWins + ", RestRuns = " + restRuns + " w/ avg = " +
+//		 restRunsAverage);
+//		 System.err.println("BestWinRate = " + bestWinRate + ", BestWins = " +
+//		 getRoot().getWins(bestMove) + ", BestRuns = " + bestRuns);
 		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
 		// System.err.println("Conf = " + c);
 		return c;
 	}
 
-	protected double confidence(float winrateA, double runsA, float winrateB,
-			double runsB) {
+	/**
+	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
+	 * higher winrate than the second best move.
+	 * 
+	 * By "best" we mean the move with the most wins.
+	 */
+	protected double confidenceBestVsSecondBest() {
+		return confidence(getRoot().bestWinRate(),
+				getRoot().getRuns(getRoot().getMoveWithMostWins()), getRoot()
+						.getWinRate(moveWithSecondMostWins()), getRoot()
+						.getRuns(moveWithSecondMostWins()));
+	}
 
-		// System.err.println("winrateA = " + winrateA);
-		// System.err.println("runsA = " + runsA);
-		// System.err.println("winrateB = " + winrateB);
-		// System.err.println("runsB = " + runsB);
-		double z = (winrateA - winrateB)
-				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
-						* (1 - winrateB) / runsB);
-		return Phi(z);
+	/**
+	 * Returns true if the move with the most wins is not the move with the most
+	 * runs.
+	 */
+	protected boolean isEvaluationUnstable() {
+		// Find the move with the most runs
+		int moveWithMostRuns = 0;
+		int mostRuns = 0;
+		for (int i = 0; i < getFirstPointBeyondBoard(); i++) {
+			int thisMovesRuns = getRoot().getRuns(i);
+			if (thisMovesRuns > mostRuns) {
+				moveWithMostRuns = i;
+				mostRuns = thisMovesRuns;
+			}
+		}
+		return moveWithMostRuns != getRoot().getMoveWithMostWins();
+	}
+
+	/**
+	 * Return the number of moves (including the current one) since the opening
+	 * book was last used.
+	 */
+	public int movesOutOfOpeningBook() {
+		if (firstMoveOutOfOpeningBook < 0)
+			return 0;
+		else
+			return getTurn() - firstMoveOutOfOpeningBook;
+	}
+
+	protected int moveWithSecondMostWins() {
+		int bestMove = super.bestStoredMove();
+		int secondBestMove = 0;
+		int secondMostWins = 0;
+
+		for (int p = 0; p < getFirstPointBeyondBoard(); p++) {
+			if (p == bestMove) {
+				continue;
+			}
+			int winsForThisMove = (int) Math.round(getRoot().getWins(p));
+			if (winsForThisMove > secondMostWins) {
+				secondBestMove = p;
+				secondMostWins = winsForThisMove;
+			}
+		}
+
+		return secondBestMove;
+	}
+
+	// System.err.println(pointToString(m) + ": " + getRoot().getWins(m) + "/"
+	// + getRoot().getRuns(m) + " = " + getRoot().getWins(m)
+	// / getRoot().getRuns(m));
+	// System.err.println(pointToString(moveWithSecondMostWins) + ": "
+	// + getRoot().getWins(moveWithSecondMostWins) + "/"
+	// + getRoot().getRuns(moveWithSecondMostWins) + " = "
+	// + getRoot().getWins(moveWithSecondMostWins)
+	// / getRoot().getRuns(moveWithSecondMostWins));
+	// System.err.println("Total runs: " + getRoot().getTotalRuns());
+	// System.err.println(confidence(m, moveWithSecondMostWins)
+	// + "% confident.");
+
+	@Override
+	public void reset() {
+		super.reset();
+		firstMoveOutOfOpeningBook = -22;
+	}
+
+	@Override
+	public void setInOpeningBook(boolean b) {
+		if (b == false) {
+			firstMoveOutOfOpeningBook = getTurn();
+		}
+		super.setInOpeningBook(b);
 	}
 
 	@Override
@@ -522,17 +522,45 @@ public class TimePlayer extends Lgrf2Player {
 			msPerMove = 0;
 		}
 
-		// get the playouts at start of turn
-		// int initialPlayouts = getRoot().getTotalRuns();
-
-		// Determine the time we saved
-		// long timeSaved = (initialPlayouts / playoutsPerMS);
-
-		// Subtract the time we saved
-		// msPerMove -= timeSaved;
+		int timeSaved;
+		// benefit from previous work is turned on and 
+		// playouts per ms has been set from the previous move
+		if (benefitFromPreviousWork && playoutsPerSec > 0) {
+			timeSaved = (int) (((getRoot().getTotalRuns() - setRuns) / playoutsPerSec)*1000);
+			timeSaved = max(0, timeSaved);
+			// Subtract the time we saved
+			System.err.println("Ms Per Move: " + msPerMove);
+			msPerMove -= timeSaved;
+			System.err.println("Time saved: " + timeSaved + " ms.");
+		}
 
 		// never allocate < 1 ms to a move
 		msPerMove = max(1, msPerMove);
 		setMillisecondsPerMove(msPerMove);
+	}
+
+	/**
+	 * Update the playouts per second every move. 
+	 * @param startTime
+	 * @param initialPlayouts
+	 */
+	protected void updatePlayoutsPerSecond(long startTime, int initialPlayouts) {
+		// Get the final number of playouts
+		int finalPlayouts = getRoot().getTotalRuns();
+	
+		System.err.println("Ending Playouts: " + finalPlayouts);
+		// Get the end time after we run our playouts
+		long endTime = System.currentTimeMillis();
+	
+		// Determine the playouts per second
+		playoutsPerSec =  (finalPlayouts - initialPlayouts)
+				/ ((endTime - startTime)/1000.0);
+	}
+
+	/** Returns true if the winrate of the best move is below behindThreshold. */
+	protected boolean weAreBehind() {
+		int bestMove = bestStoredMove();
+		return getRoot().getWinRate(bestMove) < behindThreshold
+				|| bestMove == RESIGN;
 	}
 }
