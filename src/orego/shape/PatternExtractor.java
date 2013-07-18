@@ -19,7 +19,7 @@ public class PatternExtractor {
 	private Cluster cluster;
 
 	public static void main(String[] args) {
-		new PatternExtractor().run("SgfFiles");
+		new PatternExtractor().run("SgfTestFiles");
 	}
 
 	public PatternExtractor() {

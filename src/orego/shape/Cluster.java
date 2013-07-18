@@ -49,5 +49,13 @@ public class Cluster implements Serializable {
 		}
 		return sum / MAX_PATTERN_RADIUS;
 	}
+	
+	public float getPatternWinRate(long hash, int color, int radius){
+		return tables[radius][color].getWinRate(hash);
+	}
+	
+	public long getPatternCount(long hash, int color, int radius){
+		return tables[radius][color].getCount(hash);
+	}
 
 }
