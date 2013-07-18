@@ -13,8 +13,10 @@ import static orego.core.Coordinates.rotate;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
@@ -56,10 +58,32 @@ public class DataMiner {
 	 * "SgfFiles" or "SgfTestFiles".
 	 */
 	public void run(String directory) {
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				+ File.separator + getBoardWidth();
+//		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
+//				+ File.separator + getBoardWidth();
+		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+ 
+				".."+File.separator+ ".."+File.separator+ "Desktop"+File.separator+ "Test Games"+File.separator;
 		try {
 			setUp(dir);
+			
+			try {
+				ObjectOutputStream ow = new ObjectOutputStream(
+						new FileOutputStream(new File(dir + File.separator + "actual-win-rate.data")));
+				ow.writeObject(winRateMap);
+				ow.flush();
+				ow.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			
+			try {
+				ObjectOutputStream ow = new ObjectOutputStream(
+						new FileOutputStream(new File(dir + File.separator + "actual-count.data")));
+				ow.writeObject(countMap);
+				ow.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			
 			loadCluster();
 			
 			for(int radius = 1; radius<=MAX_PATTERN_RADIUS; radius++){
