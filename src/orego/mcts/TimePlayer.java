@@ -496,7 +496,10 @@ public class TimePlayer extends Lgrf2Player {
 		 * of time we have left for the game.
 		 */
 
-		// don't crash if we're sent < 0 seconds
+		// to avoid going overtime, try to never have < 10 seconds left
+		seconds -= 10;
+		
+		// don't crash if time left is negative
 		if (seconds < 0) {
 			seconds = 0;
 		}
@@ -529,10 +532,7 @@ public class TimePlayer extends Lgrf2Player {
 		// msPerMove -= timeSaved;
 
 		// never allocate < 1 ms to a move
-		if (msPerMove < 1) {
-			msPerMove = 1;
-		}
-
+		msPerMove = max(1, msPerMove);
 		setMillisecondsPerMove(msPerMove);
 	}
 }
