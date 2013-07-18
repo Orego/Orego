@@ -182,7 +182,7 @@ public class TimePlayer extends Lgrf2Player {
 	@Override
 	public int bestMove() {
 		
-		System.err.println("Beginning Playouts: " + getRoot().getTotalRuns());
+//		System.err.println("Beginning Playouts: " + getRoot().getTotalRuns());
 		
 		// Get the start time before we run best move
 		long startTime = System.currentTimeMillis();
@@ -529,9 +529,9 @@ public class TimePlayer extends Lgrf2Player {
 			timeSaved = (int) (((getRoot().getTotalRuns() - setRuns) / playoutsPerSec)*1000);
 			timeSaved = max(0, timeSaved);
 			// Subtract the time we saved
-			System.err.println("Ms Per Move: " + msPerMove);
+//			System.err.println("Ms Per Move: " + msPerMove);
 			msPerMove -= timeSaved;
-			System.err.println("Time saved: " + timeSaved + " ms.");
+//			System.err.println("Time saved: " + timeSaved + " ms.");
 		}
 
 		// never allocate < 1 ms to a move
@@ -548,7 +548,7 @@ public class TimePlayer extends Lgrf2Player {
 		// Get the final number of playouts
 		int finalPlayouts = getRoot().getTotalRuns();
 	
-		System.err.println("Ending Playouts: " + finalPlayouts);
+//		System.err.println("Ending Playouts: " + finalPlayouts);
 		// Get the end time after we run our playouts
 		long endTime = System.currentTimeMillis();
 	
