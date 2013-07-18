@@ -335,7 +335,7 @@ public class PatternPlayer extends McPlayer {
 			// TODO Should use SgfFiles, not SgfTestFiles
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
-							+ "SgfTestFiles" + File.separator + getBoardWidth()
+							+ "SgfFiles" + File.separator + getBoardWidth()
 							+ File.separator + "Patterns.data")));
 			patterns = (Cluster) (in.readObject());
 			in.close();
