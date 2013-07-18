@@ -2,8 +2,6 @@ package orego.patternanalyze;
 
 import static orego.core.Board.MAX_PATTERN_RADIUS;
 import static orego.core.Colors.VACANT;
-import static orego.shape.PatternPlayer.NUM_HASH_TABLES;
-import static orego.shape.PatternPlayer.hashLongToChar;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +18,12 @@ import orego.shape.PatternInformation;
 
 @SuppressWarnings("unchecked")
 public class PatternAnalyzer {
+
+	public static final int NUM_HASH_TABLES = 4;
+	
+	public static char hashLongToChar(long x, int something) {
+		return '?';
+	}
 
 	@SuppressWarnings("unchecked")
 	private static final HashMap<Character, PatternInformation>[][][] PATTERNS = new HashMap[NUM_HASH_TABLES][MAX_PATTERN_RADIUS + 1][2];

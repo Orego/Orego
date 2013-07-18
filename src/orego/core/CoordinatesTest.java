@@ -122,4 +122,14 @@ public class CoordinatesTest {
 		assertEquals(19, getBoardWidth());
 	}
 
+	@Test
+	public void testRotate() {
+		assertEquals(at("d17"), rotate(at("r16")));
+	}
+
+	@Test
+	public void testReflect() {
+		assertEquals(at("d3"), reflect(at("r16")));		
+	}
+
 }

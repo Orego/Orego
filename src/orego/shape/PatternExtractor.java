@@ -1,8 +1,7 @@
 package orego.shape;
 
-import static orego.core.Board.*;
-import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import static orego.core.Colors.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -17,19 +16,14 @@ import orego.util.IntSet;
 public class PatternExtractor {
 
 	/** Multihash tables, indexed by radius and color to play. */
-	private static Table[][] tables;
+	private Cluster cluster;
 
 	public static void main(String[] args) {
 		new PatternExtractor().run("SgfFiles");
 	}
 
 	public PatternExtractor() {
-		tables = new Table[MAX_PATTERN_RADIUS + 1][NUMBER_OF_PLAYER_COLORS];
-		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
-			for (int color = BLACK; color <= WHITE; color++) {
-				tables[radius][color] = new Table(4, 16);
-			}
-		}
+		cluster = new Cluster(4, 16);
 	}
 	
 	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
@@ -39,12 +33,17 @@ public class PatternExtractor {
 		try {
 			setUp(dir);
 			ObjectOutputStream ow = new ObjectOutputStream(
-					new FileOutputStream(new File(dir + File.separator + "patterns.dat")));
-			ow.writeObject(tables);
+					new FileOutputStream(new File(dir + File.separator + "Patterns.data")));
+			ow.writeObject(cluster);
 			ow.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	/** Returns the cluster created by this extractor. */
+	protected Cluster getCluster() {
+		return cluster;
 	}
 
 	/**
@@ -79,27 +78,51 @@ public class PatternExtractor {
 		int turn = board.getTurn();
 		int currentTurn = 0;
 		// TODO What if the game has a handicap?
-		Board patternBoard = new Board();
+		Board[][][] patternBoard = new Board[4][2][2];
+		for (int rotation = 0; rotation < 4; rotation++) {
+			for (int reflection = 0; reflection < 2; reflection++) {
+				for (int color = 0; color < 2; color++) {
+					patternBoard[rotation][reflection][color] = new Board();					
+				}
+				patternBoard[rotation][reflection][WHITE].setColorToPlay(WHITE);					
+			}
+		}
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		while (currentTurn < turn) {
 			int goodMove = board.getMove(currentTurn);
 			if (isOnBoard(goodMove)) {
 				// Choose a random move to store as bad
-				IntSet possibleMoves = patternBoard.getVacantPoints();
+				IntSet possibleMoves = patternBoard[0][0][0].getVacantPoints();
 				int badMove;
 				do {
 					badMove = possibleMoves.get(random.nextInt(possibleMoves
 							.size()));
-				} while (!patternBoard.isLegal(badMove) || badMove == goodMove);
-				for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
-					tables[radius][patternBoard.getColorToPlay()].store(
-							patternBoard.getPatternHash(goodMove, radius), 1);
-					tables[radius][patternBoard.getColorToPlay()].store(
-							patternBoard.getPatternHash(badMove, radius), 0);
+				} while (!patternBoard[0][0][0].isLegal(badMove) || badMove == goodMove);
+				// Store in all 16 rotations, reflections, and color inversions
+				for (int rotation = 0; rotation < 4; rotation++) {
+					for (int reflection = 0; reflection < 2; reflection++) {
+						for (int color = 0; color < 2; color++) {
+							cluster.store(patternBoard[rotation][reflection][color], goodMove, 1);
+							cluster.store(patternBoard[rotation][reflection][color], badMove, 0);
+						}
+						goodMove = reflect(goodMove);
+						badMove = reflect(badMove);
+					}
+					goodMove = rotate(goodMove);
+					badMove = rotate(badMove);
 				}
 			}
 			currentTurn++;
-			patternBoard.play(goodMove);
+			// Play the move
+			for (int rotation = 0; rotation < 4; rotation++) {
+				for (int reflection = 0; reflection < 2; reflection++) {
+					for (int color = 0; color < 2; color++) {
+						patternBoard[rotation][reflection][color].play(goodMove);
+					}
+					goodMove = reflect(goodMove);
+				}
+				goodMove = rotate(goodMove);
+			}
 		}
 	}
 
