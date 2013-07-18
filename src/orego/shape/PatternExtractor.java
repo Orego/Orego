@@ -28,10 +28,8 @@ public class PatternExtractor {
 	
 	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
 	public void run(String directory) {
-//		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-//				+ File.separator + getBoardWidth();
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+".."
-		+ File.separator+ ".."+File.separator + "Desktop"+File.separator + "Test Games"+File.separator;
+		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
+				+ File.separator + getBoardWidth();
 		try {
 			setUp(dir);
 			ObjectOutputStream ow = new ObjectOutputStream(
