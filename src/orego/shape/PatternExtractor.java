@@ -28,8 +28,10 @@ public class PatternExtractor {
 	
 	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
 	public void run(String directory) {
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				+ File.separator + getBoardWidth();
+//		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
+//				+ File.separator + getBoardWidth();
+		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+".."
+		+ File.separator+ ".."+File.separator + "Desktop"+File.separator + "Test Games"+File.separator;
 		try {
 			setUp(dir);
 			ObjectOutputStream ow = new ObjectOutputStream(
@@ -112,17 +114,19 @@ public class PatternExtractor {
 					badMove = rotate(badMove);
 				}
 			}
-			currentTurn++;
 			// Play the move
 			for (int rotation = 0; rotation < 4; rotation++) {
 				for (int reflection = 0; reflection < 2; reflection++) {
 					for (int color = 0; color < 2; color++) {
 						patternBoard[rotation][reflection][color].play(goodMove);
 					}
-					goodMove = reflect(goodMove);
+					if (isOnBoard(goodMove))
+						goodMove = reflect(goodMove);
 				}
-				goodMove = rotate(goodMove);
+				if (isOnBoard(goodMove))
+					goodMove = rotate(goodMove);
 			}
+			currentTurn++;
 		}
 	}
 
