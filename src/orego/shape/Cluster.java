@@ -49,6 +49,15 @@ public class Cluster implements Serializable {
 		}
 		return sum / MAX_PATTERN_RADIUS;
 	}
+	
+	/** Returns the average of the lowest counts at each radius for playing move on board. */
+	public long getLowCount(Board board, int move) {
+		long sum = 0;
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			sum += tables[radius][board.getColorToPlay()].getLowCount(board.getPatternHash(move, radius));
+		}
+		return sum / MAX_PATTERN_RADIUS;
+	}
 
 	/** Returns the win rate for playing move on board using only patterns of a given radius. */
 	public float getWinRate(Board board, int move, int radius) {

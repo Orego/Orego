@@ -137,6 +137,7 @@ public class PatternPlayer extends McPlayer {
 		Set<String> result = super.getCommands();
 		result.add("gogui-radius-win-rates");
 		result.add("gogui-combined-pattern-win-rates");
+		result.add("gogui-combined-pattern-counts");
 		result.add("gogui-playouts");
 //		result.add("gogui-pattern-first-playout-move");
 		return result;
@@ -147,6 +148,7 @@ public class PatternPlayer extends McPlayer {
 		Set<String> result = super.getGoguiCommands();
 		result.add("gfx/Radius win rates/gogui-radius-win-rates %s");
 		result.add("gfx/Combined pattern win rates/gogui-combined-pattern-win-rates");
+		result.add("gfx/Combined pattern counts/gogui-combined-pattern-counts");
 		result.add("none/Playouts/gogui-playouts %s");
 //		result.add("gfx/Top playout move chosen/gogui-pattern-first-playout-move");
 		return result;
@@ -189,6 +191,14 @@ public class PatternPlayer extends McPlayer {
 //		return numPlayouts;
 //	}
 
+	protected long getLowCount(Board b, int point){
+		return patterns.getLowCount(b, point);
+	}
+	
+	public long getLowCount(int point){
+		return getLowCount(getBoard(), point);
+	}
+	
 	protected float getWinRate(Board b, int point) {
 		return patterns.getWinRate(b, point);
 	}
@@ -221,6 +231,35 @@ public class PatternPlayer extends McPlayer {
 //			}
 //		}
 		return winRate * runs;
+	}
+	
+	protected String goguiCombinedPatternCounts() {
+		String result = "";
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+
+				float totalRate = (float) getWinRate(p);
+				long totalCount = getLowCount(p);
+				// RATE
+				result += String.format("COLOR %s %s\nLABEL %s %d",
+						colorCode(totalRate), pointToString(p),
+						pointToString(p), totalCount/10000);
+
+				// RUNS
+				// int totalRuns = 0;
+				// for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				// PatternInformation info = getInformation(i, getBoard()
+				// .getPatternHash(i, p));
+				// totalRuns += info.getRuns();
+				// }
+				// result += String.format("COLOR %s %s\nLABEL %s %d",
+				// colorCode(totalRate), pointToString(p),
+				// pointToString(p), totalRuns%1000);
+			}
+		}
+		return result;
 	}
 
 	protected String goguiCombinedPatternWinRates() {
@@ -326,6 +365,8 @@ public class PatternPlayer extends McPlayer {
 					.parseInt(arguments.nextToken()));
 		} else if (command.contains("gogui-combined-pattern-win-rates")) {
 			result = goguiCombinedPatternWinRates();
+		} else if (command.contains("gogui-combined-pattern-counts")) {
+			result = goguiCombinedPatternCounts();
 		} else if (command.equals("gogui-playouts")) {
 			int n = Integer.parseInt(arguments.nextToken());
 			for (int i = 0; i < n; i++) {
@@ -362,6 +403,8 @@ public class PatternPlayer extends McPlayer {
 		}
 		return result;
 	}
+
+	
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {

@@ -48,6 +48,18 @@ public class Table implements Serializable {
 		}
 		return sum / winRates.length;
 	}
+	
+	/**
+	 * Return the lowest count for all entries stored at hash.
+	 */
+	public long getLowCount(long hash) {
+		long min = counts[0][getLocalIndex(hash, 0)];
+		for (int i = 1; i < counts.length; i++) {
+			if (min > counts[i][getLocalIndex(hash, i)])
+				min = counts[i][getLocalIndex(hash, i)];
+		}
+		return min;
+	}
 
 	/**
 	 * Stores a win (if win == 1) or a loss (0) at hash.
