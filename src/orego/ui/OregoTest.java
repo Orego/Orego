@@ -3,6 +3,7 @@ package orego.ui;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import orego.core.Coordinates;
+import orego.heuristic.HeuristicList;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
@@ -583,6 +584,24 @@ public class OregoTest {
 		orego = new Orego(new String[] { "player=Mcts", "playouts=100", "msec=100"});
 		assertEquals(100, orego.getPlayer().getMillisecondsPerMove());
 		assertEquals(-1, ((McPlayer)(orego.getPlayer())).getPlayoutLimit());
+	}
+
+	@Test
+	public void testDefaultHeuristics() {
+		orego = new Orego(new String[] {});
+		HeuristicList heuristics = orego.getPlayer().getHeuristics();
+		assertEquals("class orego.heuristic.EscapeHeuristic", (heuristics.get(0).getClass().toString()));
+		assertEquals(20, (heuristics.get(0).getWeight()));
+		assertEquals("class orego.heuristic.PatternHeuristic", (heuristics.get(1).getClass().toString()));
+		assertEquals(20, (heuristics.get(0).getWeight()));
+		assertEquals("class orego.heuristic.CaptureHeuristic", (heuristics.get(2).getClass().toString()));
+		assertEquals(20, (heuristics.get(0).getWeight()));
+		assertEquals(3, (heuristics.size()));
+		orego = new Orego(new String[] {"heuristics=Capture@50"});
+		heuristics = orego.getPlayer().getHeuristics();
+		assertEquals("class orego.heuristic.CaptureHeuristic", (heuristics.get(0).getClass().toString()));
+		assertEquals(50, (heuristics.get(0).getWeight()));
+		assertEquals(1, (heuristics.size()));
 	}
 
 }

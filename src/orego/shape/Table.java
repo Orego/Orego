@@ -9,19 +9,24 @@ public class Table implements Serializable {
 
 	/** For each table and entry, the number of stored entries. */
 	private long[][] counts;
-	
+
 	/** Used to keep only the relevant number of bit in an index. */
 	private int mask;
-	
+
 	/** Width, in bits, of each table's indices. */
 	private int width;
-	
-	/** For each table and entry, the proportion of stored entries that were wins. */
-	private float[][] winRates;
-	
+
 	/**
-	 * @param tables number of tables.
-	 * @param bits number of index bits in each table.
+	 * For each table and entry, the proportion of stored entries that were
+	 * wins.
+	 */
+	private float[][] winRates;
+
+	/**
+	 * @param tables
+	 *            number of tables.
+	 * @param bits
+	 *            number of index bits in each table.
 	 */
 	public Table(int tables, int bits) {
 		winRates = new float[tables][1 << bits];
@@ -37,7 +42,7 @@ public class Table implements Serializable {
 	protected int getLocalIndex(long hash, int table) {
 		return ((int) (hash >>> (width * table))) & mask;
 	}
-	
+
 	/**
 	 * Return the win rate for all entries stored at hash.
 	 */
@@ -48,7 +53,7 @@ public class Table implements Serializable {
 		}
 		return sum / winRates.length;
 	}
-	
+
 	/**
 	 * Return the lowest count for all entries stored at hash.
 	 */
@@ -61,6 +66,14 @@ public class Table implements Serializable {
 		return min;
 	}
 
+	public long getCount(long hash) {
+		long sum = 0L;
+		for (int i = 0; i < counts.length; i++) {
+			sum += counts[i][getLocalIndex(hash, i)];
+		}
+		return sum / counts.length;
+	}
+
 	/**
 	 * Stores a win (if win == 1) or a loss (0) at hash.
 	 */
@@ -68,9 +81,10 @@ public class Table implements Serializable {
 		for (int i = 0; i < winRates.length; i++) {
 			int index = getLocalIndex(hash, i);
 			long runs = counts[i][index];
-			winRates[i][index] = ((winRates[i][index] * runs) + win) / (runs + 1);
+			winRates[i][index] = ((winRates[i][index] * runs) + win)
+					/ (runs + 1);
 			counts[i][index]++;
-		}		
+		}
 	}
 
 }

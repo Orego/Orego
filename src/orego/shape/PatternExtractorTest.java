@@ -2,6 +2,9 @@ package orego.shape;
 
 import static org.junit.Assert.*;
 import static orego.core.Coordinates.*;
+
+import java.io.File;
+
 import orego.core.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +20,8 @@ public class PatternExtractorTest {
 
 	@Test
 	public void testPatternExtractor() {
-		extractor.run("SgfTestFiles");
+		extractor.run(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + "SgfTestFiles"
+				+ File.separator + getBoardWidth(), "SgfTestFiles");
 		Cluster cluster = extractor.getCluster();
 		Board b = new Board();
 		assertTrue(cluster.getWinRate(b, at("r16")) > 0.5);
