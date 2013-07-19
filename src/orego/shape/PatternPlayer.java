@@ -91,10 +91,7 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public Set<String> getCommands() {
 		Set<String> result = super.getCommands();
-//		result.add("gogui-pattern-radius-9");
-//		result.add("gogui-pattern-info-5");
-//		result.add("gogui-pattern-info-7");
-//		result.add("gogui-pattern-info-9");
+		result.add("gogui-radius-win-rates");
 		result.add("gogui-combined-pattern-win-rates");
 //		result.add("gogui-pattern-first-playout-move");
 		return result;
@@ -107,7 +104,8 @@ public class PatternPlayer extends McPlayer {
 //		result.add("gfx/5x5 pattern info/gogui-pattern-info-5");
 //		result.add("gfx/7x7 pattern info/gogui-pattern-info-7");
 //		result.add("gfx/9x9 pattern info/gogui-pattern-info-9");
-		result.add("gfx/Combined pattern info/gogui-combined-pattern-win-rates");
+		result.add("gfx/Radius win rates/gogui-radius-win-rates %s");
+		result.add("gfx/Combined pattern win rates/gogui-combined-pattern-win-rates");
 //		result.add("gfx/Top playout move chosen/gogui-pattern-first-playout-move");
 		return result;
 	}
@@ -151,21 +149,19 @@ public class PatternPlayer extends McPlayer {
 
 	protected float getWinRate(Board b, int point) {
 		return patterns.getWinRate(b, point);
-//		float tempRate = 0;
-//		for (int pattern = 0; pattern <= MAX_PATTERN_RADIUS; pattern++) {
-//			PatternInformation[] info = getInformation(pattern,
-//					b.getPatternHash(pattern, point), b.getColorToPlay());
-//			for (PatternInformation i : info) {
-//				tempRate += i.getRate() * patternWeight(pattern)
-//						/ ((double) NUM_HASH_TABLES);
-//			}
-//		}
-//		return tempRate;
+	}
+
+	protected float getWinRate(Board b, int point, int radius) {
+		return patterns.getWinRate(b, point, radius);
 	}
 
 	@Override
 	public double getWinRate(int point) {
 		return getWinRate(getBoard(), point);
+	}
+
+	public double getWinRate(int point, int radius) {
+		return getWinRate(getBoard(), point, radius);
 	}
 
 	@Override
@@ -185,7 +181,7 @@ public class PatternPlayer extends McPlayer {
 		return winRate * runs;
 	}
 
-	private String goguiCombinedPatternWinRates() {
+	protected String goguiCombinedPatternWinRates() {
 		String result = "";
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
@@ -193,7 +189,6 @@ public class PatternPlayer extends McPlayer {
 					result += '\n';
 
 				float totalRate = (float) getWinRate(p);
-
 				// RATE
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
@@ -212,6 +207,35 @@ public class PatternPlayer extends McPlayer {
 			}
 		}
 		return result;
+	}
+	
+	protected String goguiRadiusWinRates(int radius) {
+		String result = "";
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+
+				float totalRate = (float) getWinRate(p, radius);
+				// RATE
+				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
+						colorCode(totalRate), pointToString(p),
+						pointToString(p), totalRate * 100);
+
+				// RUNS
+				// int totalRuns = 0;
+				// for (int i = 0; i < NINE_PATTERN + 1; i++) {
+				// PatternInformation info = getInformation(i, getBoard()
+				// .getPatternHash(i, p));
+				// totalRuns += info.getRuns();
+				// }
+				// result += String.format("COLOR %s %s\nLABEL %s %d",
+				// colorCode(totalRate), pointToString(p),
+				// pointToString(p), totalRuns%1000);
+			}
+		}
+		return result;
+		
 	}
 
 //	private String goguiFirstPlayoutMove() {
@@ -255,9 +279,9 @@ public class PatternPlayer extends McPlayer {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		String result = null;
-//		if (command.contains("gogui-pattern-info")) {
-//			result = goguiPatternInfi((command.charAt(command.length() - 1) - '0') / 2 - 1);
-//		} else
+		if (command.contains("gogui-radius-win-rates")) {
+			result = goguiRadiusWinRates(Integer.parseInt(arguments.nextToken()));
+		} else
 			if (command.contains("gogui-combined-pattern-win-rates")) {
 			result = goguiCombinedPatternWinRates();
 		} else if (command.equals("gogui-live-mc-playouts")) {

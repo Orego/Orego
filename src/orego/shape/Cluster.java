@@ -50,4 +50,9 @@ public class Cluster implements Serializable {
 		return sum / MAX_PATTERN_RADIUS;
 	}
 
+	/** Returns the win rate for playing move on board using only patterns of a given radius. */
+	public float getWinRate(Board board, int move, int radius) {
+		return tables[radius][board.getColorToPlay()].getWinRate(board.getPatternHash(move, radius));
+	}
+	
 }
