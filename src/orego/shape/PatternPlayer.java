@@ -110,11 +110,23 @@ public class PatternPlayer extends McPlayer {
 		return bestSearchMove(getBoard(), ((McRunnable) getRunnable(0)).getRandom());
 	}
 
+	/** Hashes around move for later incorporating into pattern tables. */
+	private long[][] hashes;
+	
+	/** Store pattern hashes around move for later incorporating into pattern tables. */
+	protected void storeHashes(Board board, int move) {
+		int turn = board.getTurn();
+		for (int r = 1; r <= MAX_PATTERN_RADIUS; r++) {
+			hashes[turn][r] = board.getPatternHash(move, r);
+		}
+	}
+
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
 			int move = bestSearchMove(runnable.getBoard(), runnable.getRandom());
+			storeHashes(runnable.getBoard(), move);
 			runnable.acceptMove(move);
 		}
 //		numPlayouts++;
@@ -353,33 +365,19 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-//		if (winner == VACANT) {
-//			System.out
-//					.println("Incorporate run was given VACANT winner--should not happen");
-//			return;
-//		}
-//		int turn = runnable.getTurn();
-//		int[] moves = runnable.getMoves();
-//		Board b = new Board(maintainHashes);
-//		b.copyDataFrom(getBoard());
-//		for (int t = getBoard().getTurn(); t < turn; t++) {
-//			for (int pattern = 0; pattern <= MAX_PATTERN_RADIUS; pattern++) {
-//				PatternInformation[] info = getInformation(pattern,
-//						b.getPatternHash(pattern, moves[t]), b.getColorToPlay());
-//				for (int i = 0; i < patternWeight(pattern) * 20; i++) {
-//					for (PatternInformation pi : info) {
-//						if (b.getColorToPlay() == winner)
-//							pi.addWin();
-//						else
-//							pi.addLoss();
-//					}
-//				}
-//			}
-//			b.play(moves[t]);
-//		}
+		if (winner != VACANT) {
+			int turn = runnable.getTurn();
+			int color = getBoard().getColorToPlay();
+			if (winner != color) {
+				winner = 1 - winner;
+			}
+			for (int t = getBoard().getTurn(); t < turn; t++) {
+				patterns.store(hashes[t], color, winner);
+			}
+		}
 	}
 
-	private void initializePlayer(boolean maintain) {
+	protected void initializePlayer(boolean maintain) {
 //		maintainHashes = maintain;
 //		patternWeights = new double[] { 1 / 20.0, 3 / 20.0, 6 / 20.0, 10 / 20.0 };
 		setBoard(new Board(maintain));
@@ -411,6 +409,7 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void reset() {
 		super.reset();
+		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 1];
 		setUpRunnables();
 	}
 

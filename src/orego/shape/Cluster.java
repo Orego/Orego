@@ -54,5 +54,15 @@ public class Cluster implements Serializable {
 	public float getWinRate(Board board, int move, int radius) {
 		return tables[radius][board.getColorToPlay()].getWinRate(board.getPatternHash(move, radius));
 	}
+
+	/**
+	 * Stores a win (or loss) for a color at the indicated hashes (indexed by radius).
+	 * @param win 1 for a win, 0 for a loss.
+	 */
+	public void store(long[] hashes, int color, int win) {
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			tables[radius][color].store(hashes[radius], win);
+		}		
+	}
 	
 }
