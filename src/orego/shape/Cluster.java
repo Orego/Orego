@@ -46,6 +46,7 @@ public class Cluster implements Serializable {
 		float sum = 0.0f;
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
 			sum += tables[radius][board.getColorToPlay()].getWinRate(board.getPatternHash(move, radius));
+			//long n = tables[radius][board.getColorToPlay()].getCount(board.getPatternHash(move, radius));
 		}
 		return sum / MAX_PATTERN_RADIUS;
 	}
