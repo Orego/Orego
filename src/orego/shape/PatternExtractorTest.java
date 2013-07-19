@@ -2,6 +2,9 @@ package orego.shape;
 
 import static org.junit.Assert.*;
 import static orego.core.Coordinates.*;
+
+import java.io.File;
+
 import orego.core.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,29 +20,25 @@ public class PatternExtractorTest {
 
 	@Test
 	public void testPatternExtractor() {
-		extractor.run("SgfTestFiles", 4, 16);
+
+		extractor.run(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + "SgfTestFiles"
+				+ File.separator + getBoardWidth(), "SgfTestFiles", 4, 16);
 		Cluster cluster = extractor.getCluster();
 		Board b = new Board();
-		/*System.out.println(cluster.getWinRate(b, at("r16"))+",r16");
-		System.out.println(cluster.getWinRate(b, at("k16"))+",k16");*/
-		assertTrue(cluster.getWinRate(b, at("r16")) > 0.3);
-		assertTrue(cluster.getWinRate(b, at("k16")) < 0.3);
+		assertTrue(cluster.getWinRate(b, at("r16")) > 0.5);
+		assertTrue(cluster.getWinRate(b, at("k16")) < 0.5);
 	}
 	
 	@Test
 	public void testPatternExtractorParameters() {
-		extractor.run("SgfTestFiles", 2, 17);
+		extractor.run("SgfTestFiles", "SgfTestFiles", 2, 17);
 		Cluster cluster = extractor.getCluster();
 		Board b = new Board();
-		/*System.out.println(cluster.getWinRate(b, at("r16"))+",r16");
-		System.out.println(cluster.getWinRate(b, at("k16"))+",k16");*/
 		assertTrue(cluster.getWinRate(b, at("r16")) > 0.3);
 		assertTrue(cluster.getWinRate(b, at("k16")) < 0.3);
-		extractor.run("SgfTestFiles", 1, 18);
+		extractor.run("SgfTestFiles", "SgfTestFiles", 1, 18);
 		cluster = extractor.getCluster();
 		b = new Board();
-		/*System.out.println(cluster.getWinRate(b, at("r16"))+",r16");
-		System.out.println(cluster.getWinRate(b, at("k16"))+",k16");*/
 		assertTrue(cluster.getWinRate(b, at("r16")) > 0.3);
 		assertTrue(cluster.getWinRate(b, at("k16")) < 0.3);
 	}
