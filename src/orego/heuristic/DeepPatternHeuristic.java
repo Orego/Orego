@@ -6,9 +6,7 @@ import static orego.core.Coordinates.getBoardWidth;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.HashMap;
 import orego.core.Board;
-import orego.core.Colors;
 import orego.shape.Cluster;
 import orego.util.IntSet;
 
@@ -17,7 +15,7 @@ public class DeepPatternHeuristic extends Heuristic{
 	
 	public static Cluster patterns;
 	
-	public static final double GOOD_PATTERN_THRESHOLD = .75;
+	public static final double GOOD_PATTERN_THRESHOLD = .50;
 		
 	public DeepPatternHeuristic(int weight) {
 		super(weight);
