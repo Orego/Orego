@@ -1469,303 +1469,7 @@ public class BoardTest {
 	}
 	
 	@Test
-	public void testPatternThree() {
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
-				char createHash = 0;
-				int[] currentMoves = {newPlay-getSouth()-EAST, 
-						newPlay-getSouth(),
-						newPlay-getSouth()+EAST,
-						newPlay-EAST,
-						newPlay,
-						newPlay+EAST,
-						newPlay+getSouth()-EAST,
-						newPlay+getSouth(),
-						newPlay+getSouth()+EAST};
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(THREE_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}
-	
-	@Test
-	public void testPatternThreeWithMaintainingHashes() {
-		board = new Board(true);
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
-				char createHash = 0;
-				int[] currentMoves = {newPlay-getSouth()-EAST, 
-						newPlay-getSouth(),
-						newPlay-getSouth()+EAST,
-						newPlay-EAST,
-						newPlay,
-						newPlay+EAST,
-						newPlay+getSouth()-EAST,
-						newPlay+getSouth(),
-						newPlay+getSouth()+EAST};
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(THREE_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}
-
-	@Test
-	public void testCornerThreePatternHash() {
-		char createHash = 0;
-		int[] currentMoves = {-getSouth()-EAST, 
-						-getSouth(),
-						-getSouth()+EAST,
-						-EAST,
-						0,
-						+EAST,
-						+getSouth()-EAST,
-						+getSouth(),
-						+getSouth()+EAST};
-		
-		int[] newPlay = {at("a19"),at("t1"),at("a1"),at("t19")};//
-		for (int i=0; i<newPlay.length; i++){
-			createHash = 0;
-			assertTrue(board.isLegal(newPlay[i]));
-		
-			for (int j = 0; j < currentMoves.length; j++) {
-				createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]+newPlay[i]), j);
-			}
-			assertEquals(board.getPatternHash(THREE_PATTERN, newPlay[i]), createHash);
-		}
-	}	
-	
-	@Test
-	public void testPatternFive() {
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			//Cannot use 1, that's the first digit of two digit number!
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
-					!pointToString(newPlay).contains("A") &&
-					!pointToString(newPlay).contains("B") &&
-					!pointToString(newPlay).contains("S") &&
-					!pointToString(newPlay).contains("T") &&
-					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2")) && 
-							pointToString(newPlay).length()==2) &&
-					!pointToString(newPlay).contains("18") &&
-					!pointToString(newPlay).contains("19")
-					) {
-				char createHash = 0;
-				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
-						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
-						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
-						newPlay-getSouth(),	newPlay-getSouth()+EAST, newPlay-getSouth()+EAST+EAST,
-						newPlay-EAST-EAST,newPlay-EAST,	newPlay, newPlay+EAST, newPlay+EAST+EAST,
-						newPlay+getSouth()-EAST-EAST, newPlay+getSouth()-EAST, newPlay+getSouth(),
-						newPlay+getSouth()+EAST, newPlay+getSouth()+EAST+EAST,
-						newPlay+getSouth()+getSouth()-EAST-EAST, newPlay+getSouth()+getSouth()-EAST, newPlay+getSouth()+getSouth(),
-						newPlay+getSouth()+getSouth()+EAST, newPlay+getSouth()+getSouth()+EAST+EAST};
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(FIVE_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(FIVE_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}
-	
-	@Test
-	public void testPatternFiveWithMaintainingHashes() {
-		board = new Board(true);
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			//Cannot use 1, that's the first digit of two digit number!
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
-					!pointToString(newPlay).contains("A") &&
-					!pointToString(newPlay).contains("B") &&
-					!pointToString(newPlay).contains("S") &&
-					!pointToString(newPlay).contains("T") &&
-					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2")) && 
-							pointToString(newPlay).length()==2) &&
-					!pointToString(newPlay).contains("18") &&
-					!pointToString(newPlay).contains("19")
-					) {
-				char createHash = 0;
-				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
-						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
-						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
-						newPlay-getSouth(),	newPlay-getSouth()+EAST, newPlay-getSouth()+EAST+EAST,
-						newPlay-EAST-EAST,newPlay-EAST,	newPlay, newPlay+EAST, newPlay+EAST+EAST,
-						newPlay+getSouth()-EAST-EAST, newPlay+getSouth()-EAST, newPlay+getSouth(),
-						newPlay+getSouth()+EAST, newPlay+getSouth()+EAST+EAST,
-						newPlay+getSouth()+getSouth()-EAST-EAST, newPlay+getSouth()+getSouth()-EAST, newPlay+getSouth()+getSouth(),
-						newPlay+getSouth()+getSouth()+EAST, newPlay+getSouth()+getSouth()+EAST+EAST};
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(FIVE_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(FIVE_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}
-	
-	@Test
-	public void testPatternSeven() {
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			//Cannot use 1, that's the first digit of two digit number!
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
-					!pointToString(newPlay).contains("A")&&
-					!pointToString(newPlay).contains("B")&&
-					!pointToString(newPlay).contains("C")&&
-					!pointToString(newPlay).contains("R")&&
-					!pointToString(newPlay).contains("S")&&
-					!pointToString(newPlay).contains("T")&&
-					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
-							pointToString(newPlay).contains("3")) && 
-							pointToString(newPlay).length()==2) &&
-					!pointToString(newPlay).contains("17")&&
-					!pointToString(newPlay).contains("18")&&
-					!pointToString(newPlay).contains("19")) {
-				char createHash = 0;
-				int[] currentMoves = new int[7*7];
-				for (int j = 0; j < 7; j++) {
-					for (int k = 0; k < 7; k++) {
-						currentMoves[k+j*7] = newPlay-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
-					}
-				}
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(SEVEN_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(SEVEN_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}	
-	
-	@Test
-	public void testPatternSevenWithMaintainingHashes() {
-		board = new Board(true);
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			//Cannot use 1, that's the first digit of two digit number!
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
-					!pointToString(newPlay).contains("A")&&
-					!pointToString(newPlay).contains("B")&&
-					!pointToString(newPlay).contains("C")&&
-					!pointToString(newPlay).contains("R")&&
-					!pointToString(newPlay).contains("S")&&
-					!pointToString(newPlay).contains("T")&&
-					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
-							pointToString(newPlay).contains("3")) && 
-							pointToString(newPlay).length()==2) &&
-					!pointToString(newPlay).contains("17")&&
-					!pointToString(newPlay).contains("18")&&
-					!pointToString(newPlay).contains("19")) {
-				char createHash = 0;
-				int[] currentMoves = new int[7*7];
-				for (int j = 0; j < 7; j++) {
-					for (int k = 0; k < 7; k++) {
-						currentMoves[k+j*7] = newPlay-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
-					}
-				}
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(SEVEN_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(SEVEN_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}	
-	
-	@Test
-	public void testPatternNine() {
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			//Cannot use 1, that's the first digit of two digit number!
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && (!pointToString(newPlay).contains("A")&&
-					!pointToString(newPlay).contains("B")&&
-					!pointToString(newPlay).contains("C")&&
-					!pointToString(newPlay).contains("D")&&
-					!pointToString(newPlay).contains("Q")&&
-					!pointToString(newPlay).contains("R")&&
-					!pointToString(newPlay).contains("S")&&
-					!pointToString(newPlay).contains("T")&&
-					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
-							pointToString(newPlay).contains("3") || pointToString(newPlay).contains("4")) && 
-							pointToString(newPlay).length()==2) &&
-					!pointToString(newPlay).contains("16")&&
-					!pointToString(newPlay).contains("17")&&
-					!pointToString(newPlay).contains("18")&&
-					!pointToString(newPlay).contains("19")&&
-					pointToString(newPlay).length()==2)) {
-				char createHash = 0;
-				int[] currentMoves = new int[9*9];
-				for (int j = 0; j < 9; j++) {
-					for (int k = 0; k < 9; k++) {
-						currentMoves[k+j*9] = newPlay-getSouth()-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
-					}
-				}
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(NINE_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(NINE_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}	
-	
-	@Test
-	public void testPatternNineWithMaintainingHashes() {
-		board = new Board(true);
-		int newPlay = 0;
-		for (int i = 0; i < 100; i++) {
-			newPlay = random.nextInt(Coordinates.getBoardArea());
-			//Cannot use 1, that's the first digit of two digit number!
-			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && (!pointToString(newPlay).contains("A")&&
-					!pointToString(newPlay).contains("B")&&
-					!pointToString(newPlay).contains("C")&&
-					!pointToString(newPlay).contains("D")&&
-					!pointToString(newPlay).contains("Q")&&
-					!pointToString(newPlay).contains("R")&&
-					!pointToString(newPlay).contains("S")&&
-					!pointToString(newPlay).contains("T")&&
-					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
-							pointToString(newPlay).contains("3") || pointToString(newPlay).contains("4")) && 
-							pointToString(newPlay).length()==2) &&
-					!pointToString(newPlay).contains("16")&&
-					!pointToString(newPlay).contains("17")&&
-					!pointToString(newPlay).contains("18")&&
-					!pointToString(newPlay).contains("19")&&
-					pointToString(newPlay).length()==2)) {
-				char createHash = 0;
-				int[] currentMoves = new int[9*9];
-				for (int j = 0; j < 9; j++) {
-					for (int k = 0; k < 9; k++) {
-						currentMoves[k+j*9] = newPlay-getSouth()-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
-					}
-				}
-				for (int j = 0; j < currentMoves.length; j++) {
-					createHash ^= board.getZobristPatternHash(NINE_PATTERN, board.getColor(currentMoves[j]), j);
-				}
-				assertEquals(board.getPatternHash(NINE_PATTERN, newPlay), createHash);
-				board.play(newPlay);
-			}
-		}
-	}	
-	
-
-	@Test
-	public void testPrintPattern() {
+	public void testFindPatternHash() {
 		String[] problem = {
 				"...................",// 19
 				"...................",// 18
@@ -1777,29 +1481,443 @@ public class BoardTest {
 				"...................",// 12
 				"...................",// 11
 				"...................",// 10
-				".OOO...............",// 9
-				"O#.#O#.#...........",// 8
-				"OO.OOO.O...........",// 7
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
 				"...................",// 6
-				"..#...O.O..........",// 5
-				"...O...O...........",// 4
-				"##....#............",// 3
-				"OO#..#O#...........",// 2
-				".O#....O#.........." // 1
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"O#O................" // 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
+		board = new Board(false);
 		board.setUpProblem(BLACK, problem);
-		//test each of the sizes of patterns
-		assertEquals("...\n#..\n.O.\n", board.printPattern(THREE_PATTERN,at("D5")));
-		assertEquals("O.OOO\n.....\n.#...\n..O..\n#....\n", board.printPattern(FIVE_PATTERN,at("D5")));
-		assertEquals("O#.#O#.\nOO.OOO.\n.......\n..#...O\n...O...\n##....#\nOO#..#O\n", board.printPattern(SEVEN_PATTERN,at("D5")));
-		assertEquals("*.OOO....\n*O#.#O#.#\n*OO.OOO.O\n*........\n*..#...O.\n*...O...O\n*##....#.\n*OO#..#O#\n*.O#....O\n", board.printPattern(NINE_PATTERN,at("D5")));
-		//test corners of nine patterns to make sure there is no error going off the board
-		assertEquals("****..#..\n****...O.\n****##...\n****OO#..\n****.O#..\n*********\n*********\n*********\n*********\n", board.printPattern(NINE_PATTERN,at("A1")));
-		assertEquals("*********\n*********\n*********\n*********\n****.....\n****.....\n****.....\n****.....\n****.....\n", board.printPattern(NINE_PATTERN,at("A19")));
-		assertEquals("*********\n*********\n*********\n*********\n.....****\n.....****\n.....****\n.....****\n.....****\n", board.printPattern(NINE_PATTERN,at("T19")));
-		assertEquals(".....****\n.....****\n.....****\n.....****\n.....****\n*********\n*********\n*********\n*********\n", board.printPattern(NINE_PATTERN,at("T1")));
+		// Empty pattern
+		assertEquals(0L, board.getPatternHash(at("p9"), 4));
+		// Radius 1 pattern around d2
+		long correct = 0L;
+		correct ^= PATTERN_ZOBRIST_HASHES[1][WHITE][6];
+		assertEquals(correct, board.getPatternHash(at("d2"), 1));
+		// Radius 2 pattern around b2
+		correct = 0L;
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][0];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][5];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][10];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][15];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][WHITE][16];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][BLACK][17];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][WHITE][18];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][20];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][21];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][22];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][23];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][24];
+		assertEquals(correct, board.getPatternHash(at("b2"), 2));
+		// Radius 2 pattern around t1
+		correct = 0L;
+		for (int p : new int[] {3, 4, 8, 9}) {			
+			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
+		}
+		for (int p = 13; p < 25; p++) {
+			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
+		}
+		assertEquals(correct, board.getPatternHash(at("t1"), 2));		
 	}
+
+	@Test
+	public void testMaintainPatternHash() {
+		// This is just like the previous test, but tests incremental pattern hash updating
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"O#O................" // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board = new Board(true);
+		board.setUpProblem(BLACK, problem);
+		// Empty pattern
+		assertEquals(0L, board.getPatternHash(at("p9"), 4));
+		// Radius 1 pattern around d2
+		long correct = 0L;
+		correct ^= PATTERN_ZOBRIST_HASHES[1][WHITE][6];
+		assertEquals(correct, board.getPatternHash(at("d2"), 1));
+		// Radius 2 pattern around b2
+		correct = 0L;
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][0];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][5];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][10];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][15];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][WHITE][16];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][BLACK][17];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][WHITE][18];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][20];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][21];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][22];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][23];
+		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][24];
+		assertEquals(correct, board.getPatternHash(at("b2"), 2));
+		// Radius 2 pattern around t1
+		correct = 0L;
+		for (int p : new int[] {3, 4, 8, 9}) {			
+			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
+		}
+		for (int p = 13; p < 25; p++) {
+			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
+		}
+		assertEquals(correct, board.getPatternHash(at("t1"), 2));
+		
+	}
+
+//	@Test
+//	public void testPatternThree() {
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
+//				long createHash = 0;
+//				int[] currentMoves = {newPlay-getSouth()-EAST, 
+//						newPlay-getSouth(),
+//						newPlay-getSouth()+EAST,
+//						newPlay-EAST,
+//						newPlay,
+//						newPlay+EAST,
+//						newPlay+getSouth()-EAST,
+//						newPlay+getSouth(),
+//						newPlay+getSouth()+EAST};
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(THREE_PATTERN, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}
+//	
+//	@Test
+//	public void testPatternThreeWithMaintainingHashes() {
+//		board = new Board(true);
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay)) {
+//				long createHash = 0;
+//				int[] currentMoves = {newPlay-getSouth()-EAST, 
+//						newPlay-getSouth(),
+//						newPlay-getSouth()+EAST,
+//						newPlay-EAST,
+//						newPlay,
+//						newPlay+EAST,
+//						newPlay+getSouth()-EAST,
+//						newPlay+getSouth(),
+//						newPlay+getSouth()+EAST};
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(THREE_PATTERN, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}
+//
+//	@Test
+//	public void testCornerThreePatternHash() {
+//		long createHash = 0;
+//		int[] currentMoves = {-getSouth()-EAST, 
+//						-getSouth(),
+//						-getSouth()+EAST,
+//						-EAST,
+//						0,
+//						+EAST,
+//						+getSouth()-EAST,
+//						+getSouth(),
+//						+getSouth()+EAST};
+//		
+//		int[] newPlay = {at("a19"),at("t1"),at("a1"),at("t19")};//
+//		for (int i=0; i<newPlay.length; i++){
+//			createHash = 0;
+//			assertTrue(board.isLegal(newPlay[i]));
+//		
+//			for (int j = 0; j < currentMoves.length; j++) {
+//				createHash ^= board.getZobristPatternHash(THREE_PATTERN, board.getColor(currentMoves[j]+newPlay[i]), j);
+//			}
+//			assertEquals(board.getPatternHash(THREE_PATTERN, newPlay[i]), createHash);
+//		}
+//	}	
+//	
+//	@Test
+//	public void testPatternFive() {
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			//Cannot use 1, that's the first digit of two digit number!
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
+//					!pointToString(newPlay).contains("A") &&
+//					!pointToString(newPlay).contains("B") &&
+//					!pointToString(newPlay).contains("S") &&
+//					!pointToString(newPlay).contains("T") &&
+//					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2")) && 
+//							pointToString(newPlay).length()==2) &&
+//					!pointToString(newPlay).contains("18") &&
+//					!pointToString(newPlay).contains("19")
+//					) {
+//				long createHash = 0;
+//				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
+//						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
+//						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
+//						newPlay-getSouth(),	newPlay-getSouth()+EAST, newPlay-getSouth()+EAST+EAST,
+//						newPlay-EAST-EAST,newPlay-EAST,	newPlay, newPlay+EAST, newPlay+EAST+EAST,
+//						newPlay+getSouth()-EAST-EAST, newPlay+getSouth()-EAST, newPlay+getSouth(),
+//						newPlay+getSouth()+EAST, newPlay+getSouth()+EAST+EAST,
+//						newPlay+getSouth()+getSouth()-EAST-EAST, newPlay+getSouth()+getSouth()-EAST, newPlay+getSouth()+getSouth(),
+//						newPlay+getSouth()+getSouth()+EAST, newPlay+getSouth()+getSouth()+EAST+EAST};
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(FIVE_PATTERN, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(FIVE_PATTERN, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}
+//	
+//	@Test
+//	public void testPatternFiveWithMaintainingHashes() {
+//		board = new Board(true);
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			//Cannot use 1, that's the first digit of two digit number!
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
+//					!pointToString(newPlay).contains("A") &&
+//					!pointToString(newPlay).contains("B") &&
+//					!pointToString(newPlay).contains("S") &&
+//					!pointToString(newPlay).contains("T") &&
+//					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2")) && 
+//							pointToString(newPlay).length()==2) &&
+//					!pointToString(newPlay).contains("18") &&
+//					!pointToString(newPlay).contains("19")
+//					) {
+//				long createHash = 0;
+//				int[] currentMoves = {newPlay-getSouth()-getSouth()-EAST-EAST,newPlay-getSouth()-getSouth()-EAST, 
+//						newPlay-getSouth()-getSouth(),	newPlay-getSouth()-getSouth()+EAST,newPlay-getSouth()-getSouth()+EAST+EAST,
+//						newPlay-getSouth()-EAST-EAST,newPlay-getSouth()-EAST, 
+//						newPlay-getSouth(),	newPlay-getSouth()+EAST, newPlay-getSouth()+EAST+EAST,
+//						newPlay-EAST-EAST,newPlay-EAST,	newPlay, newPlay+EAST, newPlay+EAST+EAST,
+//						newPlay+getSouth()-EAST-EAST, newPlay+getSouth()-EAST, newPlay+getSouth(),
+//						newPlay+getSouth()+EAST, newPlay+getSouth()+EAST+EAST,
+//						newPlay+getSouth()+getSouth()-EAST-EAST, newPlay+getSouth()+getSouth()-EAST, newPlay+getSouth()+getSouth(),
+//						newPlay+getSouth()+getSouth()+EAST, newPlay+getSouth()+getSouth()+EAST+EAST};
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(FIVE_PATTERN, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(FIVE_PATTERN, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}
+//	
+//	@Test
+//	public void testPatternSeven() {
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			//Cannot use 1, that's the first digit of two digit number!
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
+//					!pointToString(newPlay).contains("A")&&
+//					!pointToString(newPlay).contains("B")&&
+//					!pointToString(newPlay).contains("C")&&
+//					!pointToString(newPlay).contains("R")&&
+//					!pointToString(newPlay).contains("S")&&
+//					!pointToString(newPlay).contains("T")&&
+//					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
+//							pointToString(newPlay).contains("3")) && 
+//							pointToString(newPlay).length()==2) &&
+//					!pointToString(newPlay).contains("17")&&
+//					!pointToString(newPlay).contains("18")&&
+//					!pointToString(newPlay).contains("19")) {
+//				long createHash = 0;
+//				int[] currentMoves = new int[7*7];
+//				for (int j = 0; j < 7; j++) {
+//					for (int k = 0; k < 7; k++) {
+//						currentMoves[k+j*7] = newPlay-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
+//					}
+//				}
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(SEVEN_PATTERN, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(SEVEN_PATTERN, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}	
+//	
+//	@Test
+//	public void testPatternSevenWithMaintainingHashes() {
+//		board = new Board(true);
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			//Cannot use 1, that's the first digit of two digit number!
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && 
+//					!pointToString(newPlay).contains("A")&&
+//					!pointToString(newPlay).contains("B")&&
+//					!pointToString(newPlay).contains("C")&&
+//					!pointToString(newPlay).contains("R")&&
+//					!pointToString(newPlay).contains("S")&&
+//					!pointToString(newPlay).contains("T")&&
+//					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
+//							pointToString(newPlay).contains("3")) && 
+//							pointToString(newPlay).length()==2) &&
+//					!pointToString(newPlay).contains("17")&&
+//					!pointToString(newPlay).contains("18")&&
+//					!pointToString(newPlay).contains("19")) {
+//				long createHash = 0;
+//				int[] currentMoves = new int[7*7];
+//				for (int j = 0; j < 7; j++) {
+//					for (int k = 0; k < 7; k++) {
+//						currentMoves[k+j*7] = newPlay-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
+//					}
+//				}
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(SEVEN_PATTERN, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(SEVEN_PATTERN, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}	
+//	
+//	@Test
+//	public void testPatternNine() {
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			//Cannot use 1, that's the first digit of two digit number!
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && (!pointToString(newPlay).contains("A")&&
+//					!pointToString(newPlay).contains("B")&&
+//					!pointToString(newPlay).contains("C")&&
+//					!pointToString(newPlay).contains("D")&&
+//					!pointToString(newPlay).contains("Q")&&
+//					!pointToString(newPlay).contains("R")&&
+//					!pointToString(newPlay).contains("S")&&
+//					!pointToString(newPlay).contains("T")&&
+//					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
+//							pointToString(newPlay).contains("3") || pointToString(newPlay).contains("4")) && 
+//							pointToString(newPlay).length()==2) &&
+//					!pointToString(newPlay).contains("16")&&
+//					!pointToString(newPlay).contains("17")&&
+//					!pointToString(newPlay).contains("18")&&
+//					!pointToString(newPlay).contains("19")&&
+//					pointToString(newPlay).length()==2)) {
+//				long createHash = 0;
+//				int[] currentMoves = new int[9*9];
+//				for (int j = 0; j < 9; j++) {
+//					for (int k = 0; k < 9; k++) {
+//						currentMoves[k+j*9] = newPlay-getSouth()-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
+//					}
+//				}
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(MAX_PATTERN_RADIUS, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(MAX_PATTERN_RADIUS, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}	
+//	
+//	@Test
+//	public void testPatternNineWithMaintainingHashes() {
+//		board = new Board(true);
+//		int newPlay = 0;
+//		for (int i = 0; i < 100; i++) {
+//			newPlay = random.nextInt(Coordinates.getBoardArea());
+//			//Cannot use 1, that's the first digit of two digit number!
+//			if (Coordinates.isOnBoard(newPlay) && board.isLegal(newPlay) && (!pointToString(newPlay).contains("A")&&
+//					!pointToString(newPlay).contains("B")&&
+//					!pointToString(newPlay).contains("C")&&
+//					!pointToString(newPlay).contains("D")&&
+//					!pointToString(newPlay).contains("Q")&&
+//					!pointToString(newPlay).contains("R")&&
+//					!pointToString(newPlay).contains("S")&&
+//					!pointToString(newPlay).contains("T")&&
+//					!((pointToString(newPlay).contains("1") || pointToString(newPlay).contains("2") || 
+//							pointToString(newPlay).contains("3") || pointToString(newPlay).contains("4")) && 
+//							pointToString(newPlay).length()==2) &&
+//					!pointToString(newPlay).contains("16")&&
+//					!pointToString(newPlay).contains("17")&&
+//					!pointToString(newPlay).contains("18")&&
+//					!pointToString(newPlay).contains("19")&&
+//					pointToString(newPlay).length()==2)) {
+//				long createHash = 0;
+//				int[] currentMoves = new int[9*9];
+//				for (int j = 0; j < 9; j++) {
+//					for (int k = 0; k < 9; k++) {
+//						currentMoves[k+j*9] = newPlay-getSouth()-getSouth()-getSouth()-getSouth()-EAST-EAST-EAST-EAST+(k*EAST)+(j*getSouth());
+//					}
+//				}
+//				for (int j = 0; j < currentMoves.length; j++) {
+//					createHash ^= board.getZobristPatternHash(MAX_PATTERN_RADIUS, board.getColor(currentMoves[j]), j);
+//				}
+//				assertEquals(board.getPatternHash(MAX_PATTERN_RADIUS, newPlay), createHash);
+//				board.play(newPlay);
+//			}
+//		}
+//	}	
+//	
+//
+//	@Test
+//	public void testPrintPattern() {
+//		String[] problem = {
+//				"...................",// 19
+//				"...................",// 18
+//				"...................",// 17
+//				"...................",// 16
+//				"...................",// 15
+//				"...................",// 14
+//				"...................",// 13
+//				"...................",// 12
+//				"...................",// 11
+//				"...................",// 10
+//				".OOO...............",// 9
+//				"O#.#O#.#...........",// 8
+//				"OO.OOO.O...........",// 7
+//				"...................",// 6
+//				"..#...O.O..........",// 5
+//				"...O...O...........",// 4
+//				"##....#............",// 3
+//				"OO#..#O#...........",// 2
+//				".O#....O#.........." // 1
+//		      // ABCDEFGHJKLMNOPQRST
+//		};
+//		board.setUpProblem(BLACK, problem);
+//		//test each of the sizes of patterns
+//		assertEquals("...\n#..\n.O.\n", board.printPattern(THREE_PATTERN,at("D5")));
+//		assertEquals("O.OOO\n.....\n.#...\n..O..\n#....\n", board.printPattern(FIVE_PATTERN,at("D5")));
+//		assertEquals("O#.#O#.\nOO.OOO.\n.......\n..#...O\n...O...\n##....#\nOO#..#O\n", board.printPattern(SEVEN_PATTERN,at("D5")));
+//		assertEquals("*.OOO....\n*O#.#O#.#\n*OO.OOO.O\n*........\n*..#...O.\n*...O...O\n*##....#.\n*OO#..#O#\n*.O#....O\n", board.printPattern(MAX_PATTERN_RADIUS,at("D5")));
+//		//test corners of nine patterns to make sure there is no error going off the board
+//		assertEquals("****..#..\n****...O.\n****##...\n****OO#..\n****.O#..\n*********\n*********\n*********\n*********\n", board.printPattern(MAX_PATTERN_RADIUS,at("A1")));
+//		assertEquals("*********\n*********\n*********\n*********\n****.....\n****.....\n****.....\n****.....\n****.....\n", board.printPattern(MAX_PATTERN_RADIUS,at("A19")));
+//		assertEquals("*********\n*********\n*********\n*********\n.....****\n.....****\n.....****\n.....****\n.....****\n", board.printPattern(MAX_PATTERN_RADIUS,at("T19")));
+//		assertEquals(".....****\n.....****\n.....****\n.....****\n.....****\n*********\n*********\n*********\n*********\n", board.printPattern(MAX_PATTERN_RADIUS,at("T1")));
+//	}
 
 	@Test
 	public void testSelfAtari() {

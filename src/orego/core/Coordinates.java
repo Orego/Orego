@@ -1,5 +1,10 @@
 package orego.core;
 
+import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.column;
+import static orego.core.Coordinates.getBoardWidth;
+import static orego.core.Coordinates.row;
+
 /**
  * This class manages coordinates on the board.
  * <p>
@@ -323,6 +328,16 @@ public final class Coordinates {
 		} else {
 			return columnToString(column(p)) + rowToString(row(p));
 		}
+	}
+
+	/** Reflects p reflected across the upper-left to lower-right diagonal. */
+	public static int reflect(int p) {
+		return at(column(p), row(p));
+	}
+
+	/** Returns p rotated 90 degrees counterclockwise. */
+	public static int rotate(int p) {
+		return at(getBoardWidth() - 1 - column(p), row(p));
 	}
 
 	/** Returns the row of point p. */
