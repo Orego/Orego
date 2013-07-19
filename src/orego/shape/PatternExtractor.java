@@ -24,23 +24,26 @@ public class PatternExtractor {
 			".."+File.separator+ ".."+File.separator+ "Desktop"+File.separator+ "Test Games"+File.separator;//+"kgs-19-2001"+File.separator;
 
 	public static void main(String[] args) {
-		new PatternExtractor().run("SgfTestFiles");
+		new PatternExtractor().run(TEST_GAMES_DIRECTORY, "SgfFiles");
 	}
 
 	public PatternExtractor() {
 		cluster = new Cluster(4, 16);
 	}
 	
-	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
-	public void run(String directory) {
-//		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-//				+ File.separator + getBoardWidth();
-		String dir = TEST_GAMES_DIRECTORY;
+	/**
+	 * Extracts patterns from all files in a directory.
+	 * 
+	 * @param in Full path to directory containing SGF files.
+	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output, usually "SgfFiles" or "SgfTestFiles".
+	 */
+	public void run(String in, String out) {
 		try {
 			random = new MersenneTwisterFast(0L);
-			setUp(dir);
+			setUp(in);
 			ObjectOutputStream ow = new ObjectOutputStream(
-					new FileOutputStream(new File(dir + File.separator + "Patterns.data")));
+					new FileOutputStream(new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out
+							+ File.separator + getBoardWidth() + File.separator + "Patterns.data")));
 			ow.writeObject(cluster);
 			ow.close();
 		} catch (Exception ex) {
@@ -136,5 +139,4 @@ public class PatternExtractor {
 			currentTurn++;
 		}
 	}
-
 }

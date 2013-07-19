@@ -1,6 +1,5 @@
 package orego.shape;
 
-import static orego.core.Board.MAX_PATTERN_RADIUS;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
 import static orego.core.Colors.VACANT;
@@ -21,7 +20,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 
 import orego.core.Board;
-import orego.core.Coordinates;
 import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
@@ -44,9 +42,10 @@ public class DataMiner {
 	private static final int MAX_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
-		new DataMiner().run("SgfTestFiles");
+		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
 	}
 
+	@SuppressWarnings("unchecked")
 	public DataMiner() {
 		winRateMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
 		countMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
@@ -59,20 +58,21 @@ public class DataMiner {
 	}
 
 	/**
-	 * Extracts patterns from all files in directory, which is usually
-	 * "SgfFiles" or "SgfTestFiles".
+	 * Extracts patterns from all files in a directory.
+	 * 
+	 * @param in Full path to directory containing SGF files.
+	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output and load Cluster from, usually "SgfFiles" or "SgfTestFiles".
 	 */
-	public void run(String directory) {
-//		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-//				+ File.separator + getBoardWidth();
-		String dir = PatternExtractor.TEST_GAMES_DIRECTORY;
+	public void run(String in, String out) {
+		out = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out
+				+ File.separator + getBoardWidth() + File.separator;
 		try {
 			random = new MersenneTwisterFast(0L);
-			setUp(dir);
+			setUp(in);
 			
 			try {
 				ObjectOutputStream ow = new ObjectOutputStream(
-						new FileOutputStream(new File(dir + File.separator + "actual-win-rate.data")));
+						new FileOutputStream(new File(out + "actual-win-rate.data")));
 				ow.writeObject(winRateMap);
 				ow.flush();
 				ow.close();
@@ -82,18 +82,18 @@ public class DataMiner {
 			
 			try {
 				ObjectOutputStream ow = new ObjectOutputStream(
-						new FileOutputStream(new File(dir + File.separator + "actual-count.data")));
+						new FileOutputStream(new File(out + "actual-count.data")));
 				ow.writeObject(countMap);
 				ow.close();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			
-			loadCluster();
+			loadCluster(out);
 			
 			for(int radius = 1; radius<=MAX_PATTERN_RADIUS; radius++){
 				PrintWriter bw = new PrintWriter(new FileWriter(new File(
-						dir + File.separator+ "results_for_radius"+radius+".txt")));
+						out+"results_for_radius"+radius+".txt")));
 				StringBuilder output = new StringBuilder("");
 				for(String key : winRateMap[radius][BLACK].keySet()){
 					output.append(key);
@@ -119,11 +119,8 @@ public class DataMiner {
 
 
 	protected static long keyToHash(String key, int radius) {
-//		int offset = 0;
 		long hash = 0L;
 		for (int i=0; i<key.length(); i++){
-//			if (i==key.length()/2)
-//				offset = 1;
 			if (charToColor(key.charAt(i))!=VACANT)
 				hash ^= Board.PATTERN_ZOBRIST_HASHES[radius][charToColor(key.charAt(i))][i];
 		}
@@ -154,14 +151,14 @@ public class DataMiner {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected void loadCluster() {
+	/**
+	 * Load Cluster from given file
+	 * @param fileName String name of file
+	 */
+	protected void loadCluster(String fileName) {
 		try {
-			// TODO Should use SgfFiles, not SgfTestFiles
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
-							+ "SgfFiles" + File.separator + getBoardWidth()
-							+ File.separator + "Patterns.data")));
+					new File(fileName + "Patterns.data")));
 			patterns = (Cluster) (in.readObject());
 			in.close();
 		} catch (Exception ex) {
@@ -206,10 +203,6 @@ public class DataMiner {
 						for (int color = 0; color < 2; color++) {
 							for(int radius = 1; radius<= MAX_PATTERN_RADIUS; radius++){
 								String key = patternBoard[rotation][reflection][color].printPattern(radius, goodMove,false);
-//								if (key.charAt(4)!='.'){
-//									System.out.println("Failed on good move: "+Coordinates.pointToString(goodMove)+"\nWith pattern: "+key+"\nIn file: "+file.getAbsolutePath()+"\nIn board:\n"+patternBoard[rotation][reflection][color]);
-//									System.exit(0);
-//								}
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
 									long tempCount = countMap[radius][color].get(key);
@@ -220,10 +213,6 @@ public class DataMiner {
 									countMap[radius][color].put(key, 1L);
 								}
 								key = patternBoard[rotation][reflection][color].printPattern(radius, badMove,false);
-//								if (key.charAt(4)!='.'){
-//									System.out.println("Failed on bad move: "+Coordinates.pointToString(badMove)+"\nWith pattern: "+key+"\nIn file: "+file.getAbsolutePath()+"\nIn board:\n"+patternBoard[rotation][reflection][color]);
-//									System.exit(0);
-//								}
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
 									long tempCount = countMap[radius][color].get(key);

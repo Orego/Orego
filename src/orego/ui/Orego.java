@@ -515,6 +515,9 @@ public class Orego {
 		try {
 			for (int i = 0; i < properties.size(); i++) {
 				player.setProperty(properties.get(i), values.get(i));
+				if (properties.get(i).equals("heuristics")) {
+					heuristicsSet = true;
+				}
 			}
 			// If the heuristics weren't set, use default values
 			if (!heuristicsSet) {
