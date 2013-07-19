@@ -14,26 +14,39 @@ import orego.util.IntSet;
  * Extracts patterns from SGF files.
  */
 public class PatternExtractor {
+	
+	private static String outputDirectory = "SgfFiles";
 
+	private static String inputDirectory = "SgfFiles";
+	
 	/** Multihash tables, indexed by radius and color to play. */
 	private Cluster cluster;
 
 	public static void main(String[] args) {
-		new PatternExtractor().run("SgfFiles");
+		System.out.println(new File(inputDirectory).getAbsolutePath());
+		for (int t = 1; t <= 4; t *= 2) {
+			for (int b = 16; b <= 18; b++) {
+				new PatternExtractor().run(inputDirectory, t, b);
+			}
+		}
 	}
 
 	public PatternExtractor() {
 		cluster = new Cluster(4, 16);
 	}
 	
+	public PatternExtractor(int t, int b) {
+		cluster = new Cluster(t, b);
+	}
+	
 	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
-	public void run(String directory) {
+	public void run(String directory, int t, int b) {
 		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				+ File.separator + getBoardWidth();
+				/*+ File.separator + getBoardWidth()*/;
 		try {
 			setUp(dir);
 			ObjectOutputStream ow = new ObjectOutputStream(
-					new FileOutputStream(new File(dir + File.separator + "Patterns.data")));
+					new FileOutputStream(new File(outputDirectory + File.separator + "Patterns"+"r"+Board.MAX_PATTERN_RADIUS+"t"+t+"b"+b+".data")));
 			ow.writeObject(cluster);
 			ow.close();
 		} catch (Exception ex) {
@@ -55,13 +68,15 @@ public class PatternExtractor {
 			File dir = new File(directory);
 			System.out.println("Directory: " + dir.getAbsolutePath());
 			String[] dirList = dir.list();
-			for (int i = 0; i < dirList.length; i++) {
-				String filename = directory + File.separator + dirList[i];
-				File file = new File(filename);
-				if (file.isDirectory()) {
-					setUp(filename);
-				} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
-					checkForPatterns(file);
+			if (dirList != null) {
+				for (int i = 0; i < dirList.length; i++) {
+					String filename = directory + File.separator + dirList[i];
+					File file = new File(filename);
+					if (file.isDirectory()) {
+						setUp(filename);
+					} else if (dirList[i].toLowerCase().endsWith(".sgf")) {
+						checkForPatterns(file);
+					}
 				}
 			}
 		} catch (Exception e) {

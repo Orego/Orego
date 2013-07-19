@@ -28,7 +28,7 @@ public class Cluster implements Serializable {
 			}
 		}
 	}
-
+	
 	/**
 	 * @param board Board on which move is made.
 	 * @param move Move to be made.
