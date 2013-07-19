@@ -96,7 +96,7 @@ public class TimePlayer extends Lgrf2Player {
 	 * Consider stopping early due to the compare-second-conf heuristic when
 	 * there are more than this many milliseconds allocated to the move.
 	 */
-	private double compareSecondConfDontApplyMax = 5000.0;
+	private double compareSecondConfDontApplyMax = 0.0;
 
 	/**
 	 * Consider stopping early due to the compare-second-conf heuristic when
@@ -132,13 +132,13 @@ public class TimePlayer extends Lgrf2Player {
 	 * Consider stopping early due to the compare-rest-conf heuristic when there
 	 * are more than this many milliseconds allocated to the move.
 	 */
-	private double compareRestConfDontApplyMax = 0.0;
+	private double compareRestConfDontApplyMax = 5000.0;
 
 	/**
 	 * Consider stopping early due to the compare-rest-conf heuristic when there
 	 * are less than this many milliseconds allocated to the move.
 	 */
-	private double compareRestConfDontApplyMin = 0.0;
+	private double compareRestConfDontApplyMin = 800.0;
 
 	/**
 	 * We will think longer if our confidence in the best move vs. the rest is
@@ -166,7 +166,7 @@ public class TimePlayer extends Lgrf2Player {
 
 	private int firstMoveOutOfOpeningBook = -22;
 
-	private static final int THINKING_SLICES = 3;
+	private static int THINKING_SLICES = 3;
 
 	/**
 	 * This keeps track of the playouts per Second
@@ -196,11 +196,18 @@ public class TimePlayer extends Lgrf2Player {
 
 		int earlyMove = -1;
 
-		if ((compareSecond && compareSecondConf < 1.0 && (totalTimeInMs > compareSecondConfDontApplyMax || totalTimeInMs < compareSecondConfDontApplyMin))
-				|| (compareRest && compareRestConf < 1.0 && (totalTimeInMs > compareRestConfDontApplyMax || totalTimeInMs < compareRestConfDontApplyMin))
-				|| quickMovesOutOfBook > 0) {
+		if ((compareSecond && compareSecondConf < 1.0) || (compareRest && compareRestConf < 1.0) || quickMovesOutOfBook > 0) {
 			// increased the allocated time
 			totalTimeInMs *= earlyExitMult;
+			
+			boolean inMiddleRange = false;
+			// if we are in the middle range, change thinkingSlices
+			if (compareSecond && totalTimeInMs < compareSecondConfDontApplyMax && totalTimeInMs > compareSecondConfDontApplyMin) {
+				inMiddleRange = true;
+			} else if (compareRest && totalTimeInMs < compareRestConfDontApplyMax && totalTimeInMs > compareRestConfDontApplyMin) {
+				inMiddleRange = true;
+			}
+			
 			// split it into slices
 			int timePerIteration = max(1, totalTimeInMs / THINKING_SLICES);
 			setMillisecondsPerMove(timePerIteration);
@@ -215,6 +222,10 @@ public class TimePlayer extends Lgrf2Player {
 				}
 //				System.err.println("After " + (i + 1) + " iterations, I'm " + confidenceBestVsRest() + " confident in " + pointToString(best) + ".");
 
+				if (inMiddleRange && i != 1) {
+					continue;
+				}
+				
 				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
 						|| (compareRest && confidenceBestVsRest() > compareRestConf)) {
 					// consider leaving early:

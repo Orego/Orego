@@ -75,10 +75,10 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[9];
+	public static final String[] CONDITIONS = new String[1];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.999";
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-second compare-second-conf=0.8";
 //		CONDITIONS[1] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.9999";
 //		CONDITIONS[2] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99999";
 //		CONDITIONS[3] = "threads=2 book=LateOpeningBook compare-rest comare-rest-unconf=0.60";
