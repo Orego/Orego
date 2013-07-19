@@ -6,11 +6,12 @@ import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.util.Gaussian.Phi;
 import orego.play.UnknownPropertyException;
-//import java.io.BufferedWriter;
-//import java.io.FileNotFoundException;
-//import java.io.FileWriter;
-//import java.io.IOException;
-//import java.io.PrintWriter;
+import static orego.core.Coordinates.pointToString;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class TimePlayer extends Lgrf2Player {
 
@@ -131,13 +132,13 @@ public class TimePlayer extends Lgrf2Player {
 	 * Consider stopping early due to the compare-rest-conf heuristic when there
 	 * are more than this many milliseconds allocated to the move.
 	 */
-	private double compareRestConfDontApplyMax = 5000.0;
+	private double compareRestConfDontApplyMax = 0.0;
 
 	/**
 	 * Consider stopping early due to the compare-rest-conf heuristic when there
 	 * are less than this many milliseconds allocated to the move.
 	 */
-	private double compareRestConfDontApplyMin = 800.0;
+	private double compareRestConfDontApplyMin = 0.0;
 
 	/**
 	 * We will think longer if our confidence in the best move vs. the rest is
@@ -170,14 +171,14 @@ public class TimePlayer extends Lgrf2Player {
 	/**
 	 * This keeps track of the playouts per Second
 	 */
-	private double playoutsPerSec=0;
+	private double playoutsPerSec = 0;
 	
 	/**
 	 * We will think less if there are previous runs in the root node.
 	 */
 	private boolean benefitFromPreviousWork = false;
 
-	private final int setRuns = 722;
+	private static final int SET_RUNS = 722;
 
 	@Override
 	public int bestMove() {
@@ -193,7 +194,7 @@ public class TimePlayer extends Lgrf2Player {
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
 
-		// int earlyMove = -1;
+		int earlyMove = -1;
 
 		if ((compareSecond && compareSecondConf < 1.0 && (totalTimeInMs > compareSecondConfDontApplyMax || totalTimeInMs < compareSecondConfDontApplyMin))
 				|| (compareRest && compareRestConf < 1.0 && (totalTimeInMs > compareRestConfDontApplyMax || totalTimeInMs < compareRestConfDontApplyMin))
@@ -212,7 +213,8 @@ public class TimePlayer extends Lgrf2Player {
 					updatePlayoutsPerSecond(startTime, initialPlayouts);
 					return best;
 				}
-				
+//				System.err.println("After " + (i + 1) + " iterations, I'm " + confidenceBestVsRest() + " confident in " + pointToString(best) + ".");
+
 				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
 						|| (compareRest && confidenceBestVsRest() > compareRestConf)) {
 					// consider leaving early:
@@ -220,7 +222,10 @@ public class TimePlayer extends Lgrf2Player {
 					if ((!behind || !weAreBehind())
 							&& (!unstableEval || !isEvaluationUnstable())) {
 						updatePlayoutsPerSecond(startTime, initialPlayouts);
-						return best;
+						if (earlyMove == -1) {
+							earlyMove = best;
+						}
+//						return best;
 					}
 				}
 			}
@@ -231,32 +236,32 @@ public class TimePlayer extends Lgrf2Player {
 
 
 
-//		PrintWriter debugFile = null;
-//		try {
-//			debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
-//					"leaveearly.txt", true)));
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		PrintWriter debugFile = null;
+		try {
+			debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
+					"leaveearly.txt", true)));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		int best = super.bestMove();
 
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
 
-//		if (earlyMove != -1) {
-//			if (earlyMove == best) {
-//				debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
-//				debugFile.flush();
-//			} else {
-//				debugFile.println(getTurn() + "," + totalTimeInMs
-//						+ ",Different");
-//				debugFile.flush();
-//			}
-//		}
+		if (earlyMove != -1) {
+			if (earlyMove == best) {
+				debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
+				debugFile.flush();
+			} else {
+				debugFile.println(getTurn() + "," + totalTimeInMs
+						+ ",Different");
+				debugFile.flush();
+			}
+		}
 
-//		 debugFile.close();
+		 debugFile.close();
 
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
@@ -319,24 +324,24 @@ public class TimePlayer extends Lgrf2Player {
 		float bestWinRate = getRoot().bestWinRate();
 		int bestRuns = getRoot().getRuns(bestMove);
 
-		// runs of the rest of the moves
-		int restRuns = getRoot().getTotalRuns() - bestRuns;
-
-		// wins of the rest of the moves
+		// runs and wins of the rest of the moves
+		int restRuns = 0;
 		int restWins = 0;
 		for (int p : getAllPointsOnBoard()) {
 			if (p != bestMove && getRoot().getWinRate(p) > 0.0) {
-				restWins += getRoot().getWins(p);
+				float w = getRoot().getWins(p);
+				restWins += w;
+				restRuns += getRoot().getRuns(p);
 			}
 		}
 
 		float restWinRate = restWins / (float) (restRuns);
-
-//		 System.err.println("RestWinRate = " + restWinRate + ", RestWins = " +
-//		 restWins + ", RestRuns = " + restRuns + " w/ avg = " +
-//		 restRunsAverage);
+		
+//		System.err.println("RestWinRate = " + restWinRate + ", RestWins = " +
+//		 restWins + ", RestRuns = " + restRuns);
 //		 System.err.println("BestWinRate = " + bestWinRate + ", BestWins = " +
 //		 getRoot().getWins(bestMove) + ", BestRuns = " + bestRuns);
+
 		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
 		// System.err.println("Conf = " + c);
 		return c;
@@ -484,6 +489,8 @@ public class TimePlayer extends Lgrf2Player {
 			earlyExitMult = Double.parseDouble(value);
 		} else if (property.equals("quick-moves-out-of-book")) {
 			quickMovesOutOfBook = Integer.parseInt(value);
+		} else if (property.equals("benefit-from-previous-work")) {
+			benefitFromPreviousWork = true;
 		} else {
 			super.setProperty(property, value);
 		}
@@ -526,7 +533,7 @@ public class TimePlayer extends Lgrf2Player {
 		// benefit from previous work is turned on and 
 		// playouts per ms has been set from the previous move
 		if (benefitFromPreviousWork && playoutsPerSec > 0) {
-			timeSaved = (int) (((getRoot().getTotalRuns() - setRuns) / playoutsPerSec)*1000);
+			timeSaved = (int) (((getRoot().getTotalRuns() - SET_RUNS) / playoutsPerSec)*1000);
 			timeSaved = max(0, timeSaved);
 			// Subtract the time we saved
 //			System.err.println("Ms Per Move: " + msPerMove);

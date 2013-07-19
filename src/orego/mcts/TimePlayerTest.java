@@ -1,20 +1,21 @@
 package orego.mcts;
 
-import orego.core.Board;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.WHITE;
+import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getAllPointsOnBoard;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import orego.play.UnknownPropertyException;
+import static orego.core.Coordinates.pointToString;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import static orego.core.Colors.*;
-import static orego.core.Coordinates.at;
 
 public class TimePlayerTest {
 
 	protected TimePlayer player;
-	
-	protected Board board;
 	
 	protected String[] randomProblem = new String[] {
 			"...................",// 19
@@ -43,7 +44,6 @@ public class TimePlayerTest {
 	public void setUp() throws Exception {
 		player = new TimePlayer();
 		player.reset();
-		board = new Board();
 	}
 	
 	@Test
@@ -235,5 +235,124 @@ public class TimePlayerTest {
 		player.acceptMove(player.bestMove());
 		long timePerMoveWithHeuristic = System.currentTimeMillis() - startWith;
 		assertFalse(timePerMoveWithHeuristic * 2.25 < timePerMoveWithoutHeuristic);
+	}
+	
+	@Test
+	public void testCompareRestConf() throws UnknownPropertyException {
+		// PART 1
+		// keep feature off
+		// make us confident that one move is better than the rest
+		player.setUpProblem(BLACK, randomProblem);
+		player.getRoot().addWins(at("D4"), 1000);
+		
+		// record the time
+		player.setRemainingTime(100);
+		long start = System.currentTimeMillis();
+		player.bestMove();
+
+		long timeWithout = System.currentTimeMillis() - start;
+		
+		// PART 2
+		player.reset();
+		// turn feature on
+		player.setProperty("compare-rest", "true");
+		player.setProperty("compare-rest-conf", "0.99");
+		// keep us not confident
+		// record the time
+		player.setRemainingTime(100);
+		start = System.currentTimeMillis();
+		player.bestMove();
+		long timeWithAndUnconfident = System.currentTimeMillis() - start;
+
+		// those times should be about the same
+		assertEquals(timeWithout, timeWithAndUnconfident, 100);
+		
+		// PART 3		
+		// keep the feature on
+		// make us confident
+		player.getRoot().addWins(at("D4"), 1000);
+		// then record the time
+		player.setRemainingTime(20);
+		start = System.currentTimeMillis();
+		player.bestMove();
+		long timeWithAndConfident = System.currentTimeMillis() - start;
+		
+		// the timeWithAndConfident should be less than the timeWithAndUnconfident
+		assertTrue(timeWithAndConfident * 2 < timeWithAndUnconfident);
+	}
+	
+	@Test
+	public void testCompareRestUnconf() throws UnknownPropertyException {
+		
+		// PART 1:
+		// keep property off
+		// make sure we aren't confident
+		assertTrue(player.confidenceBestVsRest() < 0.99999);
+		// make move and record the time
+		player.setRemainingTime(100);
+		long start = System.currentTimeMillis();
+		player.bestMove();
+		long timeWithout = System.currentTimeMillis() - start;
+
+		// PART 2
+		
+		player.reset();
+		// turn property on
+		player.setProperty("compare-rest", "true");
+		player.setProperty("compare-rest-unconf", "0.9");
+		
+		// make sure we are confident
+		player.getRoot().addWins(at("D4"), 5000);
+		assertTrue(player.confidenceBestVsRest() > 0.9);
+		// make move and record the time
+		player.setRemainingTime(100);
+		start = System.currentTimeMillis();
+		player.bestMove();
+		long timeWithAndConfident = System.currentTimeMillis() - start;
+		
+		// make sure we these times are similar
+		
+		assertEquals(timeWithout, timeWithAndConfident, 50);
+		
+		// PART 3
+		player.reset();
+
+		// keep property on
+		// make sure we aren't confident
+		for (int p: getAllPointsOnBoard()) {
+			player.getRoot().addWins(p, 500);
+		}
+		assertTrue(player.confidenceBestVsRest() < 0.9);
+		// make move and record the time
+		player.setRemainingTime(100);
+		start = System.currentTimeMillis();
+		player.bestMove();
+		long timeWithAndUnconfident = System.currentTimeMillis() - start;
+
+		// make sure we stayed longer
+		assertTrue(timeWithAndUnconfident > timeWithAndConfident * 1.2);
+		
+	}
+	
+	@Test
+	public void testBenefitFromPreviousWork() throws UnknownPropertyException {
+		// make sure that when the time to allocate is equal, the number of playouts is similar
+		
+		player.setUpProblem(BLACK, randomProblem);
+		
+		// set prop
+		player.setProperty("benefit-from-previous-work", "true");
+		
+		// generate a bunch of moves
+		for (int i = 0; i < 10; i++) {
+			player.setRemainingTime(500);
+			player.acceptMove(player.bestMove());
+			System.err.println(player.getRoot().getTotalRuns());
+		}
+		
+		
+		
+		// recording the playouts each time at the end of the turn
+		// assert that they are all with X of each other
 	}
 }
