@@ -75,25 +75,24 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[1];
+	public static final String[] CONDITIONS = new String[15];
 
 	static {
-//		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.95";
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.95 early-exit-mult=1.5";
-//		CONDITIONS[2] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.95 early-exit-mult=2.0";
-//		CONDITIONS[3] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99";
-//		CONDITIONS[4] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99 early-exit-mult=1.5";
-//		CONDITIONS[5] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99 early-exit-mult=2.0";
-//		CONDITIONS[6] = "threads=2 book=LateOpeningBook compare-second comare-second-conf=0.75";
-//		CONDITIONS[7] = "threads=2 book=LateOpeningBook compare-second comare-second-conf=0.80";
-//		CONDITIONS[8] = "threads=2 book=LateOpeningBook compare-second comare-second-conf=0.85";
-//		CONDITIONS[9] = "threads=2 book=LateOpeningBook quick-moves-out-of-book=6";
-//		CONDITIONS[10] = "threads=2 book=LateOpeningBook quick-moves-out-of-book=8";
-//		CONDITIONS[11] = "threads=2 book=LateOpeningBook quick-moves-out-of-book=10";
-//		CONDITIONS[12] = "threads=2 book=LateOpeningBook benefit-from-previous-work c=0.1";
-//		CONDITIONS[13] = "threads=2 book=LateOpeningBook benefit-from-previous-work c=0.15";
-//		CONDITIONS[14] = "threads=2 book=LateOpeningBook benefit-from-previous-work c=0.2";		
-		
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.95";
+		CONDITIONS[1] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.95 early-exit-mult=1.5";
+		CONDITIONS[2] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.95 early-exit-mult=2.0";
+		CONDITIONS[3] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99";
+		CONDITIONS[4] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99 early-exit-mult=1.5";
+		CONDITIONS[5] = "threads=2 book=LateOpeningBook compare-rest compare-rest-conf=0.99 early-exit-mult=2.0";
+		CONDITIONS[6] = "threads=2 book=LateOpeningBook compare-second comare-second-conf=0.75";
+		CONDITIONS[7] = "threads=2 book=LateOpeningBook compare-second comare-second-conf=0.80";
+		CONDITIONS[8] = "threads=2 book=LateOpeningBook compare-second comare-second-conf=0.85";
+		CONDITIONS[9] = "threads=2 book=LateOpeningBook quick-moves-out-of-book=6";
+		CONDITIONS[10] = "threads=2 book=LateOpeningBook quick-moves-out-of-book=8";
+		CONDITIONS[11] = "threads=2 book=LateOpeningBook quick-moves-out-of-book=10";
+		CONDITIONS[12] = "threads=2 book=LateOpeningBook benefit-from-previous-work c=0.1";
+		CONDITIONS[13] = "threads=2 book=LateOpeningBook benefit-from-previous-work c=0.15";
+		CONDITIONS[14] = "threads=2 book=LateOpeningBook benefit-from-previous-work c=0.2";
 	}
 	
 	/** Path to run gnugo on your machine */
