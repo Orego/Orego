@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 
 import orego.core.Board;
+import orego.core.Coordinates;
 import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
@@ -37,6 +38,10 @@ public class DataMiner {
 	private HashMap<String, Long>[][] countMap;
 	
 	private Cluster patterns;
+	
+	private MersenneTwisterFast random;
+	
+	private static final int MAX_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
 		new DataMiner().run("SgfTestFiles");
@@ -60,9 +65,9 @@ public class DataMiner {
 	public void run(String directory) {
 //		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
 //				+ File.separator + getBoardWidth();
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+ 
-				".."+File.separator+ ".."+File.separator+ "Desktop"+File.separator+ "Test Games"+File.separator;
+		String dir = PatternExtractor.TEST_GAMES_DIRECTORY;
 		try {
+			random = new MersenneTwisterFast(0L);
 			setUp(dir);
 			
 			try {
@@ -155,7 +160,7 @@ public class DataMiner {
 			// TODO Should use SgfFiles, not SgfTestFiles
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
-							+ "SgfTestFiles" + File.separator + getBoardWidth()
+							+ "SgfFiles" + File.separator + getBoardWidth()
 							+ File.separator + "Patterns.data")));
 			patterns = (Cluster) (in.readObject());
 			in.close();
@@ -169,9 +174,12 @@ public class DataMiner {
 	 */
 	public void checkForPatterns(File file) {
 		Board board = SgfParser.sgfToBoard(file);
+		if (board.getInitialBlackStones().size()!=0||board.getInitialWhiteStones().size()!=0){
+			//handicap game, so ignore it
+			return;
+		}
 		int turn = board.getTurn();
 		int currentTurn = 0;
-		// TODO What if the game has a handicap?
 		Board[][][] patternBoard = new Board[4][2][2];
 		for (int rotation = 0; rotation < 4; rotation++) {
 			for (int reflection = 0; reflection < 2; reflection++) {
@@ -181,7 +189,6 @@ public class DataMiner {
 				patternBoard[rotation][reflection][WHITE].setColorToPlay(WHITE);
 			}
 		}
-		MersenneTwisterFast random = new MersenneTwisterFast();
 		while (currentTurn < turn) {
 			int goodMove = board.getMove(currentTurn);
 			if (isOnBoard(goodMove)) {
@@ -199,6 +206,10 @@ public class DataMiner {
 						for (int color = 0; color < 2; color++) {
 							for(int radius = 1; radius<= MAX_PATTERN_RADIUS; radius++){
 								String key = patternBoard[rotation][reflection][color].printPattern(radius, goodMove,false);
+//								if (key.charAt(4)!='.'){
+//									System.out.println("Failed on good move: "+Coordinates.pointToString(goodMove)+"\nWith pattern: "+key+"\nIn file: "+file.getAbsolutePath()+"\nIn board:\n"+patternBoard[rotation][reflection][color]);
+//									System.exit(0);
+//								}
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
 									long tempCount = countMap[radius][color].get(key);
@@ -209,6 +220,10 @@ public class DataMiner {
 									countMap[radius][color].put(key, 1L);
 								}
 								key = patternBoard[rotation][reflection][color].printPattern(radius, badMove,false);
+//								if (key.charAt(4)!='.'){
+//									System.out.println("Failed on bad move: "+Coordinates.pointToString(badMove)+"\nWith pattern: "+key+"\nIn file: "+file.getAbsolutePath()+"\nIn board:\n"+patternBoard[rotation][reflection][color]);
+//									System.exit(0);
+//								}
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
 									long tempCount = countMap[radius][color].get(key);
