@@ -19,21 +19,25 @@ public class PatternExtractor {
 	private Cluster cluster;
 
 	public static void main(String[] args) {
-		new PatternExtractor().run("SgfFiles");
+		new PatternExtractor().run("/Network/Servers/maccsserver.lclark.edu/Users/drake/Documents/KGS-games/kgs-19-2013-05-new", "SgfFiles");
 	}
 
 	public PatternExtractor() {
 		cluster = new Cluster(4, 16);
 	}
 	
-	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
-	public void run(String directory) {
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				+ File.separator + getBoardWidth();
+	/**
+	 * Extracts patterns from all files in a directory.
+	 * 
+	 * @param in Full path to directory containing SGF files.
+	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output, usually "SgfFiles" or "SgfTestFiles".
+	 */
+	public void run(String in, String out) {
 		try {
-			setUp(dir);
+			setUp(in);
 			ObjectOutputStream ow = new ObjectOutputStream(
-					new FileOutputStream(new File(dir + File.separator + "Patterns.data")));
+					new FileOutputStream(new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out
+							+ File.separator + getBoardWidth() + File.separator + "Patterns.data")));
 			ow.writeObject(cluster);
 			ow.close();
 		} catch (Exception ex) {
