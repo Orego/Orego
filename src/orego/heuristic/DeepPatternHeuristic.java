@@ -15,7 +15,7 @@ public class DeepPatternHeuristic extends Heuristic{
 	
 	public static Cluster patterns;
 	
-	public static final double GOOD_PATTERN_THRESHOLD = .50;
+	public static final double GOOD_PATTERN_THRESHOLD = .55;
 		
 	public DeepPatternHeuristic(int weight) {
 		super(weight);
@@ -39,14 +39,14 @@ public class DeepPatternHeuristic extends Heuristic{
 //			}
 			IntSet moves = board.getVacantPoints();
 			for (int i = 0; i < moves.size(); i++) {
-				if (board.isFeasible(moves.get(i))) {
+				//if (board.isFeasible(moves.get(i))) {
 					float tempRate = (float) patterns.getWinRate(board, moves.get(i));
 					if (tempRate > GOOD_PATTERN_THRESHOLD) {
 						if(board.isLegal(moves.get(i))){
 							recommend(moves.get(i));
 						}
 					}
-				}
+				//}
 			}
 		}
 	}
