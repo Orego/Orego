@@ -1523,7 +1523,7 @@ public class BoardTest {
 		for (int p = 13; p < 25; p++) {
 			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
 		}
-		assertEquals(correct, board.getPatternHash(at("t1"), 2));		
+		assertEquals(correct, board.getPatternHash(at("t1"), 2));
 	}
 
 	@Test
@@ -1882,42 +1882,43 @@ public class BoardTest {
 //	}	
 //	
 //
-//	@Test
-//	public void testPrintPattern() {
-//		String[] problem = {
-//				"...................",// 19
-//				"...................",// 18
-//				"...................",// 17
-//				"...................",// 16
-//				"...................",// 15
-//				"...................",// 14
-//				"...................",// 13
-//				"...................",// 12
-//				"...................",// 11
-//				"...................",// 10
-//				".OOO...............",// 9
-//				"O#.#O#.#...........",// 8
-//				"OO.OOO.O...........",// 7
-//				"...................",// 6
-//				"..#...O.O..........",// 5
-//				"...O...O...........",// 4
-//				"##....#............",// 3
-//				"OO#..#O#...........",// 2
-//				".O#....O#.........." // 1
-//		      // ABCDEFGHJKLMNOPQRST
-//		};
-//		board.setUpProblem(BLACK, problem);
-//		//test each of the sizes of patterns
-//		assertEquals("...\n#..\n.O.\n", board.printPattern(THREE_PATTERN,at("D5")));
-//		assertEquals("O.OOO\n.....\n.#...\n..O..\n#....\n", board.printPattern(FIVE_PATTERN,at("D5")));
-//		assertEquals("O#.#O#.\nOO.OOO.\n.......\n..#...O\n...O...\n##....#\nOO#..#O\n", board.printPattern(SEVEN_PATTERN,at("D5")));
-//		assertEquals("*.OOO....\n*O#.#O#.#\n*OO.OOO.O\n*........\n*..#...O.\n*...O...O\n*##....#.\n*OO#..#O#\n*.O#....O\n", board.printPattern(MAX_PATTERN_RADIUS,at("D5")));
-//		//test corners of nine patterns to make sure there is no error going off the board
-//		assertEquals("****..#..\n****...O.\n****##...\n****OO#..\n****.O#..\n*********\n*********\n*********\n*********\n", board.printPattern(MAX_PATTERN_RADIUS,at("A1")));
-//		assertEquals("*********\n*********\n*********\n*********\n****.....\n****.....\n****.....\n****.....\n****.....\n", board.printPattern(MAX_PATTERN_RADIUS,at("A19")));
-//		assertEquals("*********\n*********\n*********\n*********\n.....****\n.....****\n.....****\n.....****\n.....****\n", board.printPattern(MAX_PATTERN_RADIUS,at("T19")));
-//		assertEquals(".....****\n.....****\n.....****\n.....****\n.....****\n*********\n*********\n*********\n*********\n", board.printPattern(MAX_PATTERN_RADIUS,at("T1")));
-//	}
+	@Test
+	public void testPrintPattern() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".OOO...............",// 9
+				"O#.#O#.#...........",// 8
+				"OO.OOO.O...........",// 7
+				"...................",// 6
+				"..#...O.O..........",// 5
+				"...O...O...........",// 4
+				"##....#............",// 3
+				"OO#..#O#...........",// 2
+				".O#....O#.........." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		//test each of the sizes of patterns
+		assertEquals("...\n#..\n.O.\n", board.printPattern(1,at("D5"),true));
+		assertEquals("...#...O.", board.printPattern(1,at("D5"),false));
+		assertEquals("O.OOO\n.....\n.#...\n..O..\n#....\n", board.printPattern(2,at("D5"),true));
+		assertEquals("O#.#O#.\nOO.OOO.\n.......\n..#...O\n...O...\n##....#\nOO#..#O\n", board.printPattern(3,at("D5"),true));
+		assertEquals("*.OOO....\n*O#.#O#.#\n*OO.OOO.O\n*........\n*..#...O.\n*...O...O\n*##....#.\n*OO#..#O#\n*.O#....O\n", board.printPattern(MAX_PATTERN_RADIUS,at("D5"),true));
+		//test corners of nine patterns to make sure there is no error going off the board
+		assertEquals("****..#..\n****...O.\n****##...\n****OO#..\n****.O#..\n*********\n*********\n*********\n*********\n", board.printPattern(MAX_PATTERN_RADIUS,at("A1"),true));
+		assertEquals("*********\n*********\n*********\n*********\n****.....\n****.....\n****.....\n****.....\n****.....\n", board.printPattern(MAX_PATTERN_RADIUS,at("A19"),true));
+		assertEquals("*********\n*********\n*********\n*********\n.....****\n.....****\n.....****\n.....****\n.....****\n", board.printPattern(MAX_PATTERN_RADIUS,at("T19"),true));
+		assertEquals(".....****\n.....****\n.....****\n.....****\n.....****\n*********\n*********\n*********\n*********\n", board.printPattern(MAX_PATTERN_RADIUS,at("T1"),true));
+	}
 
 	@Test
 	public void testSelfAtari() {

@@ -304,9 +304,9 @@ public class PatternCounterTwoPointTwo {
 								new PatternInformation(1.0f, 1));
 					}
 					if (hasTwoStones(patternType, patternBoard, nextPlay)) {
-						if (actualPatternSeen[patternType][patternBoard.getColorToPlay()].containsKey(patternBoard.printPattern(patternType, nextPlay))) {
+						if (actualPatternSeen[patternType][patternBoard.getColorToPlay()].containsKey(patternBoard.printPattern(patternType, nextPlay,true))) {
 							PatternInformation actualPatternData = actualPatternSeen[patternType][patternBoard.getColorToPlay()]
-									.get(patternBoard.printPattern(patternType, nextPlay));
+									.get(patternBoard.printPattern(patternType, nextPlay,true));
 							float totalWins2 = (actualPatternData.getRate() * actualPatternData
 									.getRuns());
 							actualPatternData.setRuns(actualPatternData.getRuns() + 1);
@@ -315,7 +315,7 @@ public class PatternCounterTwoPointTwo {
 						}
 						else {
 							actualPatternSeen[patternType][patternBoard.getColorToPlay()].put(
-									patternBoard.printPattern(patternType, nextPlay),
+									patternBoard.printPattern(patternType, nextPlay,true),
 									new PatternInformation(1.0f, 1));
 						}
 					}
@@ -335,9 +335,9 @@ public class PatternCounterTwoPointTwo {
 								new PatternInformation(0.0f, 1));
 					}
 					if (hasTwoStones(patternType, patternBoard, randomMove)) {
-						if (actualPatternSeen[patternType][patternBoard.getColorToPlay()].containsKey(patternBoard.printPattern(patternType, randomMove))) {
+						if (actualPatternSeen[patternType][patternBoard.getColorToPlay()].containsKey(patternBoard.printPattern(patternType, randomMove,true))) {
 							PatternInformation actualPatternData = actualPatternSeen[patternType][patternBoard.getColorToPlay()]
-									.get(patternBoard.printPattern(patternType, randomMove));
+									.get(patternBoard.printPattern(patternType, randomMove,true));
 							float totalWins2 = (actualPatternData.getRate() * actualPatternData
 									.getRuns());
 							actualPatternData.setRuns(actualPatternData.getRuns() + 1);
@@ -346,7 +346,7 @@ public class PatternCounterTwoPointTwo {
 						}
 						else {
 							actualPatternSeen[patternType][patternBoard.getColorToPlay()].put(
-									patternBoard.printPattern(patternType, randomMove),
+									patternBoard.printPattern(patternType, randomMove,true),
 									new PatternInformation(1.0f, 1));
 						}
 					}
@@ -358,7 +358,7 @@ public class PatternCounterTwoPointTwo {
 	}
 
 	private boolean hasTwoStones(int patternType, Board patternBoard, int randomMove) {
-		String pattern = patternBoard.printPattern(patternType, randomMove);
+		String pattern = patternBoard.printPattern(patternType, randomMove,true);
 		int stonecount = 0;
 		for (int i = 0; i < pattern.length(); i++) {
 			if (pattern.charAt(i) == '#' || pattern.charAt(i) == 'O' || pattern.charAt(i) == '*') {

@@ -48,6 +48,14 @@ public class Table implements Serializable {
 		}
 		return sum / winRates.length;
 	}
+	
+	public long getCount(long hash){
+		long sum = 0L;
+		for (int i = 0; i < counts.length; i++) {
+			sum += counts[i][getLocalIndex(hash, i)];
+		}
+		return sum / counts.length;
+	}
 
 	/**
 	 * Stores a win (if win == 1) or a loss (0) at hash.

@@ -17,23 +17,33 @@ public class PatternExtractor {
 
 	/** Multihash tables, indexed by radius and color to play. */
 	private Cluster cluster;
+	
+	private MersenneTwisterFast random;
+	
+	public static final String TEST_GAMES_DIRECTORY = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+ 
+			".."+File.separator+ ".."+File.separator+ "Desktop"+File.separator+ "Test Games"+File.separator;//+"kgs-19-2001"+File.separator;
 
 	public static void main(String[] args) {
-		new PatternExtractor().run("SgfFiles");
+		new PatternExtractor().run(TEST_GAMES_DIRECTORY, "SgfFiles");
 	}
 
 	public PatternExtractor() {
 		cluster = new Cluster(4, 16);
 	}
 	
-	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
-	public void run(String directory) {
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				+ File.separator + getBoardWidth();
+	/**
+	 * Extracts patterns from all files in a directory.
+	 * 
+	 * @param in Full path to directory containing SGF files.
+	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output, usually "SgfFiles" or "SgfTestFiles".
+	 */
+	public void run(String in, String out) {
 		try {
-			setUp(dir);
+			random = new MersenneTwisterFast(0L);
+			setUp(in);
 			ObjectOutputStream ow = new ObjectOutputStream(
-					new FileOutputStream(new File(dir + File.separator + "Patterns.data")));
+					new FileOutputStream(new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out
+							+ File.separator + getBoardWidth() + File.separator + "Patterns.data")));
 			ow.writeObject(cluster);
 			ow.close();
 		} catch (Exception ex) {
@@ -75,9 +85,12 @@ public class PatternExtractor {
 	 */
 	public void checkForPatterns(File file) {
 		Board board = SgfParser.sgfToBoard(file);
+		if (board.getInitialBlackStones().size()!=0||board.getInitialWhiteStones().size()!=0){
+			//handicap game, so ignore it
+			return;
+		}
 		int turn = board.getTurn();
 		int currentTurn = 0;
-		// TODO What if the game has a handicap?
 		Board[][][] patternBoard = new Board[4][2][2];
 		for (int rotation = 0; rotation < 4; rotation++) {
 			for (int reflection = 0; reflection < 2; reflection++) {
@@ -87,7 +100,6 @@ public class PatternExtractor {
 				patternBoard[rotation][reflection][WHITE].setColorToPlay(WHITE);					
 			}
 		}
-		MersenneTwisterFast random = new MersenneTwisterFast();
 		while (currentTurn < turn) {
 			int goodMove = board.getMove(currentTurn);
 			if (isOnBoard(goodMove)) {
@@ -127,5 +139,4 @@ public class PatternExtractor {
 			currentTurn++;
 		}
 	}
-
 }
