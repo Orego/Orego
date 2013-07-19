@@ -26,12 +26,12 @@ public class PatternExtractor {
 	public static final String TEST_GAMES_DIRECTORY = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+ 
 			".."+File.separator+ ".."+File.separator+ "Desktop"+File.separator+ "Test Games"+File.separator;//+"kgs-19-2001"+File.separator;
 
+	private static int[][] parameters = {{1,18},{2,17},{4,16},{8,8},{16,4}};
+	
 	public static void main(String[] args) {
 		//System.out.println(new File(inputDirectory).getAbsolutePath());
-		for (int t = 1; t <= 4; t *= 2) {
-			for (int b = 16; b <= 18; b++) {
-				new PatternExtractor().run(inputDirectory, outputDirectory, t, b);
-			}
+		for (int i = 0; i < parameters.length; i++) {
+			new PatternExtractor().run(inputDirectory, outputDirectory, parameters[i][0], parameters[i][1]);
 		}
 	}
 
