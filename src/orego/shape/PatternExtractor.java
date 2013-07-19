@@ -17,13 +17,13 @@ public class PatternExtractor {
 	
 	private static String outputDirectory = "SgfFiles";
 
-	private static String inputDirectory = "SgfFiles";
+	private static String inputDirectory = "../../../Test Games/";
 	
 	/** Multihash tables, indexed by radius and color to play. */
 	private Cluster cluster;
 
 	public static void main(String[] args) {
-		System.out.println(new File(inputDirectory).getAbsolutePath());
+		//System.out.println(new File(inputDirectory).getAbsolutePath());
 		for (int t = 1; t <= 4; t *= 2) {
 			for (int b = 16; b <= 18; b++) {
 				new PatternExtractor().run(inputDirectory, t, b);
@@ -41,8 +41,7 @@ public class PatternExtractor {
 	
 	/** Extracts patterns from all files in directory, which is usually "SgfFiles" or "SgfTestFiles". */
 	public void run(String directory, int t, int b) {
-		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				/*+ File.separator + getBoardWidth()*/;
+		String dir = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory;
 		try {
 			setUp(dir);
 			ObjectOutputStream ow = new ObjectOutputStream(
