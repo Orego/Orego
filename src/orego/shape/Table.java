@@ -7,8 +7,11 @@ public class Table implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/** For each table and entry, the number of stored entries. */
-	private long[][] counts;
+	/** Emphasis given to new information over old. */
+	public static final float decayRate = 0.01f;
+	
+//	/** For each table and entry, the number of stored entries. */
+//	private long[][] counts;
 	
 	/** Used to keep only the relevant number of bit in an index. */
 	private int mask;
@@ -28,7 +31,7 @@ public class Table implements Serializable {
 		for (int i = 0; i < tables; i++) {
 			java.util.Arrays.fill(winRates[i], 0.5f);
 		}
-		counts = new long[tables][1 << bits];
+//		counts = new long[tables][1 << bits];
 		width = bits;
 		mask = (1 << bits) - 1;
 	}
@@ -55,9 +58,10 @@ public class Table implements Serializable {
 	public void store(long hash, int win) {
 		for (int i = 0; i < winRates.length; i++) {
 			int index = getLocalIndex(hash, i);
-			long runs = counts[i][index];
-			winRates[i][index] = ((winRates[i][index] * runs) + win) / (runs + 1);
-			counts[i][index]++;
+			winRates[i][index] = decayRate * win + (1 - decayRate) * winRates[i][index];
+//			long runs = counts[i][index];
+//			winRates[i][index] = ((winRates[i][index] * runs) + win) / (runs + 1);
+//			counts[i][index]++;
 		}		
 	}
 

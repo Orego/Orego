@@ -77,7 +77,7 @@ public class PatternPlayer extends McPlayer {
 //	}
 
 	/** Pass only if all moves have a win rate this low. */
-	public static final float PASS_THRESHOLD = 0.25f;
+	public static final float PASS_THRESHOLD = 0.01f;
 	
 	/** Returns the best move to make from here during a playout. */
 	public int bestSearchMove(Board board, MersenneTwisterFast random) {
@@ -341,7 +341,7 @@ public class PatternPlayer extends McPlayer {
 				oldValue = getPlayoutLimit();
 			}
 			setMillisecondsPerMove(1000);
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 100; i++) {
 				bestMove();
 				System.err.println("gogui-gfx: \n"
 						+ goguiCombinedPatternWinRates() + "\n");
@@ -373,6 +373,7 @@ public class PatternPlayer extends McPlayer {
 			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
 				patterns.store(hashes[t], color, winner);
+				winner = 1 - winner;
 			}
 		}
 	}
