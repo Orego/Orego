@@ -334,7 +334,7 @@ public class TimePlayerTest {
 		
 	}
 	
-	@Test
+//	@Test
 	public void testBenefitFromPreviousWork() throws UnknownPropertyException {
 		// make sure that when the time to allocate is equal, the number of playouts is similar
 		
@@ -349,8 +349,6 @@ public class TimePlayerTest {
 			player.acceptMove(player.bestMove());
 			System.err.println(player.getRoot().getTotalRuns());
 		}
-		
-		
 		
 		// recording the playouts each time at the end of the turn
 		// assert that they are all with X of each other

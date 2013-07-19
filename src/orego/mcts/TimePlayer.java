@@ -6,12 +6,12 @@ import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.util.Gaussian.Phi;
 import orego.play.UnknownPropertyException;
-import static orego.core.Coordinates.pointToString;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+//import static orego.core.Coordinates.pointToString;
+//import java.io.BufferedWriter;
+//import java.io.FileNotFoundException;
+//import java.io.FileWriter;
+//import java.io.IOException;
+//import java.io.PrintWriter;
 
 public class TimePlayer extends Lgrf2Player {
 
@@ -194,7 +194,7 @@ public class TimePlayer extends Lgrf2Player {
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
 
-		int earlyMove = -1;
+//		int earlyMove = -1;
 
 		if ((compareSecond && compareSecondConf < 1.0) || (compareRest && compareRestConf < 1.0) || quickMovesOutOfBook > 0) {
 			// increased the allocated time
@@ -233,10 +233,10 @@ public class TimePlayer extends Lgrf2Player {
 					if ((!behind || !weAreBehind())
 							&& (!unstableEval || !isEvaluationUnstable())) {
 						updatePlayoutsPerSecond(startTime, initialPlayouts);
-						if (earlyMove == -1) {
-							earlyMove = best;
-						}
-//						return best;
+//						if (earlyMove == -1) {
+//							earlyMove = best;
+//						}
+						return best;
 					}
 				}
 			}
@@ -247,32 +247,32 @@ public class TimePlayer extends Lgrf2Player {
 
 
 
-		PrintWriter debugFile = null;
-		try {
-			debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
-					"leaveearly.txt", true)));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		PrintWriter debugFile = null;
+//		try {
+//			debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
+//					"leaveearly.txt", true)));
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		int best = super.bestMove();
 
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
 
-		if (earlyMove != -1) {
-			if (earlyMove == best) {
-				debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
-				debugFile.flush();
-			} else {
-				debugFile.println(getTurn() + "," + totalTimeInMs
-						+ ",Different");
-				debugFile.flush();
-			}
-		}
-
-		 debugFile.close();
+//		if (earlyMove != -1) {
+//			if (earlyMove == best) {
+//				debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
+//				debugFile.flush();
+//			} else {
+//				debugFile.println(getTurn() + "," + totalTimeInMs
+//						+ ",Different");
+//				debugFile.flush();
+//			}
+//		}
+//
+//		 debugFile.close();
 
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
@@ -515,7 +515,7 @@ public class TimePlayer extends Lgrf2Player {
 		 */
 
 		// to avoid going overtime, try to never have < 10 seconds left
-		seconds -= 10;
+		seconds -= 7;
 		
 		// don't crash if time left is negative
 		if (seconds < 0) {
