@@ -34,7 +34,7 @@ public class DataMiner {
 	
 	private boolean haveNotOverflowed;
 	
-	protected static final int MAX_PATTERN_RADIUS = 2, MIN_PATTERN_RADIUS = 1;
+	protected static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
 //		new DataMiner().run(orego.experiment.ExperimentConfiguration.SGF_DIRECTORY,"SgfFiles");
