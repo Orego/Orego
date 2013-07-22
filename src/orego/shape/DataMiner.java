@@ -31,10 +31,11 @@ public class DataMiner {
 	
 	private MersenneTwisterFast random;
 	
-	protected static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
+	protected static final int MAX_PATTERN_RADIUS = 2, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
-		new DataMiner().run(SGF_DIRECTORY,"SgfFiles");
+//		new DataMiner().run(SGF_DIRECTORY,"SgfFiles");
+		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -80,7 +81,7 @@ public class DataMiner {
 				ex.printStackTrace();
 			}
 			
-			(new DataToCSV()).run(in, out2);
+//			(new DataToCSV()).run(in, out2);
 			
 		} catch (Exception ex) {
 			ex.printStackTrace();

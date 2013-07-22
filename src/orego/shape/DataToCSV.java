@@ -58,7 +58,7 @@ public class DataToCSV {
 		try {
 			winRateMap = (HashMap<DensePattern, Float>[][]) loadFromFile(directory + "Actual-win-rate.data");
 			countMap = (HashMap<DensePattern, Long>[][]) loadFromFile(directory + "Actual-count.data");
-			patterns = (Cluster) loadFromFile(directory+"Patterns.data");
+			patterns = (Cluster) loadFromFile(directory+"Patternsr"+4+"t"+4+"b"+16+".data");
 			
 			for(int radius = DataMiner.MIN_PATTERN_RADIUS; radius<=DataMiner.MAX_PATTERN_RADIUS; radius++){
 				PrintWriter bw = new PrintWriter(new FileWriter(new File(

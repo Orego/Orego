@@ -1,8 +1,10 @@
 package orego.shape;
 
+import java.io.Serializable;
+
 import orego.core.Colors;
 
-public class DensePattern {
+public class DensePattern implements Serializable {
 	
 	private int[] array;
 
