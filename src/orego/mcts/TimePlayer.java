@@ -165,7 +165,7 @@ public class TimePlayer extends Lgrf2Player {
 	private int quickMovesOutOfBook = 0;
 
 	private int firstMoveOutOfOpeningBook = -22;
-
+	
 	private static int THINKING_SLICES = 3;
 
 	/**
@@ -178,17 +178,16 @@ public class TimePlayer extends Lgrf2Player {
 	 */
 	private boolean benefitFromPreviousWork = false;
 
+	/** We will think less if the 2nd move probably won't catch up to the 1st. */
+	private boolean earlyC = false;
+
 	private static final int SET_RUNS = 722;
 
 	@Override
 	public int bestMove() {
 		
-//		System.err.println("Beginning Playouts: " + getRoot().getTotalRuns());
-		
-		// Get the start time before we run best move
+		// Get the start time and initial playouts before we run best move
 		long startTime = System.currentTimeMillis();
-		
-		// Get the initial playouts in the tree
 		int initialPlayouts = getRoot().getTotalRuns();
 		
 		// get the total time allocated to this move
@@ -196,19 +195,21 @@ public class TimePlayer extends Lgrf2Player {
 
 //		int earlyMove = -1;
 
-		if ((compareSecond && compareSecondConf < 1.0) || (compareRest && compareRestConf < 1.0) || quickMovesOutOfBook > 0) {
-			// increased the allocated time
+		// if we might leave early...
+		if ((compareSecond && compareSecondConf < 1.0) || (compareRest && compareRestConf < 1.0) || quickMovesOutOfBook > 0 || earlyC) {
+
+			// increase the allocated time
 			totalTimeInMs *= earlyExitMult;
 			
+			// check for middle range (for compare-second and compare-rest) 
 			boolean inMiddleRange = false;
-			// if we are in the middle range, change thinkingSlices
 			if (compareSecond && totalTimeInMs < compareSecondConfDontApplyMax && totalTimeInMs > compareSecondConfDontApplyMin) {
 				inMiddleRange = true;
 			} else if (compareRest && totalTimeInMs < compareRestConfDontApplyMax && totalTimeInMs > compareRestConfDontApplyMin) {
 				inMiddleRange = true;
 			}
 			
-			// split it into slices
+			// split the time allocated for this move into slices
 			int timePerIteration = max(1, totalTimeInMs / THINKING_SLICES);
 			setMillisecondsPerMove(timePerIteration);
 
@@ -216,23 +217,25 @@ public class TimePlayer extends Lgrf2Player {
 			for (int i = 0; i < THINKING_SLICES - 1; i++) {
 				int best = super.bestMove();
 				
+				updatePlayoutsPerSecond(startTime, initialPlayouts);
 				if (movesOutOfOpeningBook() < quickMovesOutOfBook * 2) {
-					updatePlayoutsPerSecond(startTime, initialPlayouts);
+					setMillisecondsPerMove(totalTimeInMs); // change it back
 					return best;
 				}
-//				System.err.println("After " + (i + 1) + " iterations, I'm " + confidenceBestVsRest() + " confident in " + pointToString(best) + ".");
 
-				if (inMiddleRange && i != 1) {
+				// if we're in the middle range, only check after the 2nd to last iteration
+				if (inMiddleRange && i != THINKING_SLICES - 2) {
 					continue;
 				}
 				
+				int remainingIterations = (THINKING_SLICES - (i + 1));
+				double timeRemainingInSec = remainingIterations * timePerIteration / 1000.0;
+				
+				// consider leaving early (but only if behind and unstable-eval don't prohibit this)
 				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
-						|| (compareRest && confidenceBestVsRest() > compareRestConf)) {
-					// consider leaving early:
-					// only if BEHIND and UNSTABLE-EVAL don't prohibit us
-					if ((!behind || !weAreBehind())
-							&& (!unstableEval || !isEvaluationUnstable())) {
-						updatePlayoutsPerSecond(startTime, initialPlayouts);
+						|| (compareRest && confidenceBestVsRest() > compareRestConf)
+						|| (earlyC && expectedPlayoutsRemaining(timeRemainingInSec) * 0.4 < getWins(best) - getWins(moveWithSecondMostWins()))) {
+					if ((!behind || !weAreBehind())	&& (!unstableEval || !isEvaluationUnstable())) {
 //						if (earlyMove == -1) {
 //							earlyMove = best;
 //						}
@@ -241,11 +244,6 @@ public class TimePlayer extends Lgrf2Player {
 				}
 			}
 		}
-
-//		System.err.println(getMillisecondsPerMove());
-
-
-
 
 //		PrintWriter debugFile = null;
 //		try {
@@ -258,7 +256,6 @@ public class TimePlayer extends Lgrf2Player {
 //		}
 
 		int best = super.bestMove();
-
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
 
 //		if (earlyMove != -1) {
@@ -297,9 +294,6 @@ public class TimePlayer extends Lgrf2Player {
 		// check for COMPARE-REST
 		if (compareRest && compareRestUnconfMult > maxMultiple
 				&& confidenceBestVsRest() < compareRestUnconf) {
-//			System.err.println("Thinking longer since we're only "
-//					+ confidenceBestVsRest() + " confident in our move: "
-//					+ pointToString(best));
 			maxMultiple = compareRestUnconfMult;
 		}
 
@@ -312,13 +306,12 @@ public class TimePlayer extends Lgrf2Player {
 		}
 	}
 
+	private double expectedPlayoutsRemaining(double timeRemainingInSec) {
+		return timeRemainingInSec * playoutsPerSec;
+	}
+
 	protected double confidence(float winrateA, double runsA, float winrateB,
 			double runsB) {
-
-//		System.err.println("winrateA = " + winrateA);
-//		System.err.println("runsA = " + runsA);
-//		System.err.println("winrateB = " + winrateB);
-//		System.err.println("runsB = " + runsB);
 		double z = (winrateA - winrateB)
 				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
 						* (1 - winrateB) / runsB);
@@ -347,14 +340,7 @@ public class TimePlayer extends Lgrf2Player {
 		}
 
 		float restWinRate = restWins / (float) (restRuns);
-		
-//		System.err.println("RestWinRate = " + restWinRate + ", RestWins = " +
-//		 restWins + ", RestRuns = " + restRuns);
-//		 System.err.println("BestWinRate = " + bestWinRate + ", BestWins = " +
-//		 getRoot().getWins(bestMove) + ", BestRuns = " + bestRuns);
-
 		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
-		// System.err.println("Conf = " + c);
 		return c;
 	}
 
@@ -418,18 +404,6 @@ public class TimePlayer extends Lgrf2Player {
 
 		return secondBestMove;
 	}
-
-	// System.err.println(pointToString(m) + ": " + getRoot().getWins(m) + "/"
-	// + getRoot().getRuns(m) + " = " + getRoot().getWins(m)
-	// / getRoot().getRuns(m));
-	// System.err.println(pointToString(moveWithSecondMostWins) + ": "
-	// + getRoot().getWins(moveWithSecondMostWins) + "/"
-	// + getRoot().getRuns(moveWithSecondMostWins) + " = "
-	// + getRoot().getWins(moveWithSecondMostWins)
-	// / getRoot().getRuns(moveWithSecondMostWins));
-	// System.err.println("Total runs: " + getRoot().getTotalRuns());
-	// System.err.println(confidence(m, moveWithSecondMostWins)
-	// + "% confident.");
 
 	@Override
 	public void reset() {
@@ -502,6 +476,8 @@ public class TimePlayer extends Lgrf2Player {
 			quickMovesOutOfBook = Integer.parseInt(value);
 		} else if (property.equals("benefit-from-previous-work")) {
 			benefitFromPreviousWork = true;
+		} else if (property.equals("early-c")) {
+			earlyC = true;
 		} else {
 			super.setProperty(property, value);
 		}
@@ -547,9 +523,7 @@ public class TimePlayer extends Lgrf2Player {
 			timeSaved = (int) (((getRoot().getTotalRuns() - SET_RUNS) / playoutsPerSec)*1000);
 			timeSaved = max(0, timeSaved);
 			// Subtract the time we saved
-//			System.err.println("Ms Per Move: " + msPerMove);
 			msPerMove -= timeSaved;
-//			System.err.println("Time saved: " + timeSaved + " ms.");
 		}
 
 		// never allocate < 1 ms to a move
@@ -566,7 +540,6 @@ public class TimePlayer extends Lgrf2Player {
 		// Get the final number of playouts
 		int finalPlayouts = getRoot().getTotalRuns();
 	
-//		System.err.println("Ending Playouts: " + finalPlayouts);
 		// Get the end time after we run our playouts
 		long endTime = System.currentTimeMillis();
 	
