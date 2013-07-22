@@ -2528,4 +2528,32 @@ public class BoardTest {
 		assertEquals("A1 A2 ", board.getMoveSequence());
 	}
 
+	@Test
+	public void testIsLegal2() {
+		String[] problem = {
+				"....#.O....O####...",
+				".....#O...O.OO#.#..",
+				"..###O....OO..O#.##",
+				".##OOOO.....OOO###O",
+				".O#.##O........#OOO",
+				".O#.#OO...O.OOOOO..",
+				"..O####O...O##.....",
+				"..OOO..#OOO#..#####",
+				".O##O##OO#O#..#OO#.",
+				"O.O###.O####..##OO#",
+				".O.OO#OOO#.O##.OO#.",
+				"..O.###O#OOOO#.O.O.",
+				".#OO#.O####..#.....",
+				".##OO#..#O.OO.#.O..",
+				"...O.###OO...OO..O.",
+				"..#O.##OO#.OO#OOO#.",
+				".##O.#O#OO.O###O#.#",
+				"..#O.#O#####O#.###.",
+				".#OOOOO#...........",
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board.setUpProblem(BLACK, problem);
+		assertFalse(board.isLegal(at("c9")));		
+	}
+
 }

@@ -390,11 +390,9 @@ public class PatternPlayer extends McPlayer {
 	@SuppressWarnings("unchecked")
 	protected void loadPatternHashMaps() {
 		try {
-			// TODO Should use SgfFiles, not SgfTestFiles
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
-							+ "SgfFiles" + File.separator + getBoardWidth()
-							+ File.separator + "Patterns.data")));
+							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
 			patterns = (Cluster) (in.readObject());
 			in.close();
 		} catch (Exception ex) {

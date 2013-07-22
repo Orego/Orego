@@ -1,26 +1,19 @@
 package orego.shape;
 
-import static orego.core.Colors.BLACK;
 import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
-import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
-import static orego.core.Colors.charToColor;
 import static orego.core.Coordinates.getBoardWidth;
 import static orego.core.Coordinates.isOnBoard;
 import static orego.core.Coordinates.reflect;
 import static orego.core.Coordinates.rotate;
+import static orego.experiment.ExperimentConfiguration.SGF_DIRECTORY;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 
 import orego.core.Board;
-import orego.core.Colors;
 import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
@@ -36,14 +29,12 @@ public class DataMiner {
 	/** Hash table containing the actual count for each pattern. */
 	private HashMap<DensePattern, Long>[][] countMap;
 	
-	private Cluster patterns;
-	
 	private MersenneTwisterFast random;
 	
 	protected static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
-		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
+		new DataMiner().run(SGF_DIRECTORY,"SgfFiles");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -91,31 +82,6 @@ public class DataMiner {
 			
 			(new DataToCSV()).run(in, out2);
 			
-//			loadCluster(out);
-//			
-//			for(int radius = MIN_PATTERN_RADIUS; radius<=MAX_PATTERN_RADIUS; radius++){
-//				PrintWriter bw = new PrintWriter(new FileWriter(new File(
-//						out+"results_for_radius"+radius+".csv")));
-//				StringBuilder output = new StringBuilder("");
-//				for(DensePattern key : winRateMap[radius][BLACK].keySet()){
-//					String key2 = key.toString();
-//					long hash = keyToHash(key2,radius);
-//					output.append(key2);
-//					output.append(',');
-//					output.append(hash);
-//					output.append(',');
-//					output.append(winRateMap[radius][BLACK].get(key));
-//					output.append(',');
-//					output.append(countMap[radius][BLACK].get(key));
-//					output.append(',');
-//					output.append(patterns.getPatternWinRate(hash, BLACK, radius));
-//					output.append(',');
-//					output.append(patterns.getPatternCount(hash, BLACK, radius));
-//					output.append("\n");
-//				}
-//				bw.println(output.toString());
-//				bw.close();
-//			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -145,6 +111,8 @@ public class DataMiner {
 		}
 	}
 
+
+
 	/**
 	 * Check for the patterns in a particular file.
 	 */
@@ -168,6 +136,7 @@ public class DataMiner {
 		while (currentTurn < turn) {
 			int goodMove = board.getMove(currentTurn);
 			if (isOnBoard(goodMove)) {
+				assert patternBoard[0][0][0].isLegal(goodMove);
 				// Choose a random move to store as bad
 				IntSet possibleMoves = patternBoard[0][0][0].getVacantPoints();
 				int badMove;
@@ -180,27 +149,11 @@ public class DataMiner {
 				for (int rotation = 0; rotation < 4; rotation++) {
 					for (int reflection = 0; reflection < 2; reflection++) {
 						for (int color = 0; color < 2; color++) {
+
+							Board b = patternBoard[rotation][reflection][color];
 							for(int radius = MIN_PATTERN_RADIUS; radius<= MAX_PATTERN_RADIUS; radius++){
-								DensePattern key = new DensePattern(patternBoard[rotation][reflection][color].patternToArray(radius, goodMove));
-								if(winRateMap[radius][color].containsKey(key)){
-									float tempWinRate = winRateMap[radius][color].get(key);
-									long tempCount = countMap[radius][color].get(key);
-									winRateMap[radius][color].put(key, ((tempWinRate * tempCount) + 1) / (tempCount + 1));
-									countMap[radius][color].put(key, tempCount+1);
-								} else{
-									winRateMap[radius][color].put(key, 1.0f);
-									countMap[radius][color].put(key, 1L);
-								}
-								key = new DensePattern(patternBoard[rotation][reflection][color].patternToArray(radius, badMove));
-								if(winRateMap[radius][color].containsKey(key)){
-									float tempWinRate = winRateMap[radius][color].get(key);
-									long tempCount = countMap[radius][color].get(key);
-									winRateMap[radius][color].put(key, ((tempWinRate * tempCount) + 0) / (tempCount + 1));
-									countMap[radius][color].put(key, tempCount+1);
-								} else{
-									winRateMap[radius][color].put(key, 0.0f);
-									countMap[radius][color].put(key, 1L);
-								}
+								store(b.getColorToPlay(), radius, new DensePattern(b.patternToArray(radius, goodMove)), 1);
+								store(b.getColorToPlay(), radius, new DensePattern(b.patternToArray(radius, badMove)), 0);
 							}
 						}
 						goodMove = reflect(goodMove);
@@ -224,6 +177,18 @@ public class DataMiner {
 					goodMove = rotate(goodMove);
 			}
 			currentTurn++;
+		}
+	}
+
+	protected void store(int color, int radius, DensePattern key, int win) {
+		if(winRateMap[radius][color].containsKey(key)){
+			float winRate = winRateMap[radius][color].get(key);
+			long count = countMap[radius][color].get(key);
+			winRateMap[radius][color].put(key, ((winRate * count) + win) / (count + 1));
+			countMap[radius][color].put(key, count+1);
+		} else{
+			winRateMap[radius][color].put(key, (float)win);
+			countMap[radius][color].put(key, 1L);
 		}
 	}
 }
