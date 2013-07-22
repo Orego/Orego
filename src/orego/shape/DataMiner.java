@@ -31,16 +31,16 @@ import ec.util.MersenneTwisterFast;
 public class DataMiner {
 
 	/** Hash table containing the actual win rates for each pattern. */
-	private HashMap<String, Float>[][] winRateMap;
+	private HashMap<DensePattern, Float>[][] winRateMap;
 	
 	/** Hash table containing the actual count for each pattern. */
-	private HashMap<String, Long>[][] countMap;
+	private HashMap<DensePattern, Long>[][] countMap;
 	
 	private Cluster patterns;
 	
 	private MersenneTwisterFast random;
 	
-	private static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
+	protected static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
 		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
@@ -52,8 +52,8 @@ public class DataMiner {
 		countMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
 		for (int radius = MIN_PATTERN_RADIUS; radius <= MAX_PATTERN_RADIUS; radius ++){
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++){
-				winRateMap[radius][color]= new HashMap<String,Float>();
-				countMap[radius][color]= new HashMap<String,Long>();
+				winRateMap[radius][color]= new HashMap<DensePattern,Float>();
+				countMap[radius][color]= new HashMap<DensePattern,Long>();
 			}
 		}
 	}
@@ -64,8 +64,8 @@ public class DataMiner {
 	 * @param in Full path to directory containing SGF files.
 	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output and load Cluster from, usually "SgfFiles" or "SgfTestFiles".
 	 */
-	public void run(String in, String out) {
-		out = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out
+	public void run(String in, String out2) {
+		String out = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out2
 				+ File.separator + getBoardWidth() + File.separator;
 		try {
 			random = new MersenneTwisterFast(0L);
@@ -75,7 +75,6 @@ public class DataMiner {
 				ObjectOutputStream ow = new ObjectOutputStream(
 						new FileOutputStream(new File(out + "actual-win-rate.data")));
 				ow.writeObject(winRateMap);
-				ow.flush();
 				ow.close();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -90,42 +89,36 @@ public class DataMiner {
 				ex.printStackTrace();
 			}
 			
-			loadCluster(out);
+			(new DataToCSV()).run(in, out2);
 			
-			for(int radius = MIN_PATTERN_RADIUS; radius<=MAX_PATTERN_RADIUS; radius++){
-				PrintWriter bw = new PrintWriter(new FileWriter(new File(
-						out+"results_for_radius"+radius+".txt")));
-				StringBuilder output = new StringBuilder("");
-				for(String key : winRateMap[radius][BLACK].keySet()){
-					output.append(key);
-					output.append(',');
-					output.append(keyToHash(key,radius));
-					output.append(',');
-					output.append(winRateMap[radius][BLACK].get(key));
-					output.append(',');
-					output.append(countMap[radius][BLACK].get(key));
-					output.append(',');
-					output.append(patterns.getPatternWinRate(keyToHash(key,radius), BLACK, radius));
-					output.append(',');
-					output.append(patterns.getPatternCount(keyToHash(key,radius), BLACK, radius));
-					output.append("\n");
-				}
-				bw.println(output.toString());
-				bw.close();
-			}
+//			loadCluster(out);
+//			
+//			for(int radius = MIN_PATTERN_RADIUS; radius<=MAX_PATTERN_RADIUS; radius++){
+//				PrintWriter bw = new PrintWriter(new FileWriter(new File(
+//						out+"results_for_radius"+radius+".csv")));
+//				StringBuilder output = new StringBuilder("");
+//				for(DensePattern key : winRateMap[radius][BLACK].keySet()){
+//					String key2 = key.toString();
+//					long hash = keyToHash(key2,radius);
+//					output.append(key2);
+//					output.append(',');
+//					output.append(hash);
+//					output.append(',');
+//					output.append(winRateMap[radius][BLACK].get(key));
+//					output.append(',');
+//					output.append(countMap[radius][BLACK].get(key));
+//					output.append(',');
+//					output.append(patterns.getPatternWinRate(hash, BLACK, radius));
+//					output.append(',');
+//					output.append(patterns.getPatternCount(hash, BLACK, radius));
+//					output.append("\n");
+//				}
+//				bw.println(output.toString());
+//				bw.close();
+//			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-	}
-
-
-	protected static long keyToHash(String key, int radius) {
-		long hash = 0L;
-		for (int i=0; i<key.length(); i++){
-			if (charToColor(key.charAt(i))!=VACANT)
-				hash ^= Board.PATTERN_ZOBRIST_HASHES[radius][charToColor(key.charAt(i))][i];
-		}
-		return hash;
 	}
 
 	/**
@@ -149,21 +142,6 @@ public class DataMiner {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
-		}
-	}
-	
-	/**
-	 * Load Cluster from given file
-	 * @param fileName String name of file
-	 */
-	protected void loadCluster(String fileName) {
-		try {
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-					new File(fileName + "Patterns.data")));
-			patterns = (Cluster) (in.readObject());
-			in.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
 		}
 	}
 
@@ -203,7 +181,7 @@ public class DataMiner {
 					for (int reflection = 0; reflection < 2; reflection++) {
 						for (int color = 0; color < 2; color++) {
 							for(int radius = MIN_PATTERN_RADIUS; radius<= MAX_PATTERN_RADIUS; radius++){
-								String key = patternBoard[rotation][reflection][color].printPattern(radius, goodMove,false);
+								DensePattern key = new DensePattern(patternBoard[rotation][reflection][color].patternToArray(radius, goodMove));
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
 									long tempCount = countMap[radius][color].get(key);
@@ -213,7 +191,7 @@ public class DataMiner {
 									winRateMap[radius][color].put(key, 1.0f);
 									countMap[radius][color].put(key, 1L);
 								}
-								key = patternBoard[rotation][reflection][color].printPattern(radius, badMove,false);
+								key = new DensePattern(patternBoard[rotation][reflection][color].patternToArray(radius, badMove));
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
 									long tempCount = countMap[radius][color].get(key);

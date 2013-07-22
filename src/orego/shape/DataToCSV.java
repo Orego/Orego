@@ -27,32 +27,22 @@ import ec.util.MersenneTwisterFast;
 /**
  * Extracts patterns from SGF files.
  */
-public class DataMiner2 {
+public class DataToCSV {
 
 	/** Hash table containing the actual win rates for each pattern. */
-	private HashMap<String, Float>[][] winRateMap;
+	private HashMap<DensePattern, Float>[][] winRateMap;
 	
 	/** Hash table containing the actual count for each pattern. */
-	private HashMap<String, Long>[][] countMap;
+	private HashMap<DensePattern, Long>[][] countMap;
 	
 	private Cluster patterns;
-	
-	private static final int MAX_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
-		new DataMiner2().run(PatternExtractor.TEST_GAMES_DIRECTORY,"Patterns.data");
+		new DataToCSV().run(PatternExtractor.TEST_GAMES_DIRECTORY,"Patterns.data");
 	}
 
 	@SuppressWarnings("unchecked")
-	public DataMiner2() {
-		winRateMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
-		countMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
-		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius ++){
-			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++){
-				winRateMap[radius][color]= new HashMap<String,Float>();
-				countMap[radius][color]= new HashMap<String,Long>();
-			}
-		}
+	public DataToCSV() {
 	}
 
 	/**
@@ -61,38 +51,23 @@ public class DataMiner2 {
 	 * @param clusterName Name of cluster to load (like Patternsr4t1b18, for example)
 	 * @param directory Directory (within OREGO_ROOT_DIRECTORY) to store output and load Cluster from, usually "SgfFiles" or "SgfTestFiles".
 	 */
+	@SuppressWarnings("unchecked")
 	public void run(String directory, String clusterName) {
 		directory = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
 				+ File.separator + getBoardWidth() + File.separator;
 		try {
+			winRateMap = (HashMap<DensePattern, Float>[][]) loadFromFile(directory + "Actual-win-rate.data");
+			countMap = (HashMap<DensePattern, Long>[][]) loadFromFile(directory + "Actual-count.data");
+			patterns = (Cluster) loadFromFile(directory+"Patterns.data");
 			
-			try {
-				ObjectInputStream in = new ObjectInputStream(
-						new FileInputStream(new File(directory + "actual-win-rate.data")));
-				winRateMap = (HashMap<String, Float>[][]) in.readObject();
-				in.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			
-			try {
-				ObjectInputStream in = new ObjectInputStream(
-						new FileInputStream(new File(directory + "actual-win-rate.data")));
-				countMap = (HashMap<String, Long>[][]) in.readObject();
-				in.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			
-			loadCluster(directory+clusterName);
-			
-			for(int radius = 1; radius<=MAX_PATTERN_RADIUS; radius++){
+			for(int radius = DataMiner.MIN_PATTERN_RADIUS; radius<=DataMiner.MAX_PATTERN_RADIUS; radius++){
 				PrintWriter bw = new PrintWriter(new FileWriter(new File(
 						directory+"results_for_radius"+radius+".csv")));
 				StringBuilder output = new StringBuilder("");
-				for(String key : winRateMap[radius][BLACK].keySet()){
-					long hash = keyToHash(key,radius);
-					output.append(key);
+				for(DensePattern key : winRateMap[radius][BLACK].keySet()){
+					String key2 = key.toString();
+					long hash = keyToHash(key2,radius);
+					output.append(key2);
 					output.append(',');
 					output.append(hash);
 					output.append(',');
@@ -122,18 +97,20 @@ public class DataMiner2 {
 		return hash;
 	}
 	
-	/**
-	 * Load Cluster from given file
-	 * @param fileName String name of file
+	/** 
+	 * Load object from given file
+	 * @param filename String name of file
 	 */
-	protected void loadCluster(String fileName) {
+	protected Object loadFromFile(String filename){
+		Object object = null;
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-					new File(fileName)));
-			patterns = (Cluster) (in.readObject());
+					new File(filename)));
+			object = in.readObject();
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+		return object;
 	}
 }

@@ -11,7 +11,7 @@ import orego.core.Board;
 
 import org.junit.Test;
 
-public class DataMinerTest {
+public class DataToCSVTest {
 	
 	@Test
 	public void testFindPatternHash() {
@@ -38,11 +38,11 @@ public class DataMinerTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		// Empty pattern
-		assertEquals(0L,DataMiner.keyToHash(".................................................................................",4));
+		assertEquals(0L,DataToCSV.keyToHash(".................................................................................",4));
 		// Radius 1 pattern around d2
 		long correct = 0L;
 		correct ^= PATTERN_ZOBRIST_HASHES[1][WHITE][6];
-		assertEquals(correct, DataMiner.keyToHash("......O..", 1));
+		assertEquals(correct, DataToCSV.keyToHash("......O..", 1));
 		// Radius 2 pattern around b2
 		correct = 0L;
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][0];
@@ -57,7 +57,7 @@ public class DataMinerTest {
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][22];
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][23];
 		correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][24];
-		assertEquals(correct, DataMiner.keyToHash("*....*....*....*O#O.*****", 2));
+		assertEquals(correct, DataToCSV.keyToHash("*....*....*....*O#O.*****", 2));
 		
 		// Radius 2 pattern around t1
 		correct = 0L;
@@ -67,7 +67,7 @@ public class DataMinerTest {
 		for (int p = 13; p < 25; p++) {
 			correct ^= PATTERN_ZOBRIST_HASHES[2][OFF_BOARD_COLOR][p];
 		}
-		assertEquals(correct, DataMiner.keyToHash("...**...**...************", 2));		
+		assertEquals(correct, DataToCSV.keyToHash("...**...**...************", 2));		
 	}
 
 }
