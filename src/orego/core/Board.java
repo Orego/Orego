@@ -1138,6 +1138,7 @@ public class Board {
 	 */
 	public int placeInitialStone(int color, int p) {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
+		inTree = true;
 		// Passing is always legal
 		if (p == PASS) {
 			pass();
