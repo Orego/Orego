@@ -3,9 +3,10 @@ package orego.shape;
 import orego.core.Colors;
 
 public class DensePatternRepresentation {
+	
 	private int[] array;
 
-	protected DensePatternRepresentation(int[] array2) {
+	public DensePatternRepresentation(int[] array2) {
 		array = new int[array2.length];
 		// src, pos, dest, pos, length
 		System.arraycopy(array2, 0, array, 0, array2.length);
