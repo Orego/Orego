@@ -42,4 +42,13 @@ public class DensePatternRepresentation {
 		}
 		return str.toString();
 	}
+	
+	@Override
+	public int hashCode(){
+		int toReturn = 0;
+		for (int i:array){
+			toReturn ^= i;
+		}
+		return toReturn;
+	}
 }

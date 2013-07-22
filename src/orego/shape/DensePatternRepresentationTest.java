@@ -73,4 +73,14 @@ public class DensePatternRepresentationTest {
 		assertTrue((new DensePatternRepresentation(new int[] { 0xeaba }))
 				.equals(new DensePatternRepresentation(new int[] { 0xeaba })));
 	}
+	
+	@Test
+	public void testHashCode(){
+		assertEquals(0xeaba,(new DensePatternRepresentation(new int[] { 0xeaba})).hashCode());
+		assertEquals((new DensePatternRepresentation(new int[] { 0xeaba, 0xaead,
+				0x1bff })).hashCode(),(new DensePatternRepresentation(new int[] {
+				0xeaba, 0xaead, 0x1bff })).hashCode());
+		assertEquals((new DensePatternRepresentation(new int[] { 0xeaba }))
+				.hashCode(),(new DensePatternRepresentation(new int[] { 0xeaba })).hashCode());
+	}
 }
