@@ -8,7 +8,7 @@ import static orego.patterns.Pattern.*;
 import static orego.heuristic.PatternHeuristic.*;
 import static orego.heuristic.HeuristicList.selectAndPlayUniformlyRandomMove;
 import static org.junit.Assert.*;
-import orego.shape.DensePatternRepresentation;
+import orego.shape.DensePattern;
 import orego.util.IntList;
 import orego.util.IntSet;
 import org.junit.Before;
@@ -1909,31 +1909,31 @@ public class BoardTest {
 			board.setUpProblem(BLACK, problem);
 			
 			// Empty pattern
-			DensePatternRepresentation emptyPat = new DensePatternRepresentation(
+			DensePattern emptyPat = new DensePattern(
 					new int[] { 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa,
 							0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa });
 			assertEquals(
 					board.printPattern(4, at("m12"), false),
-					(new DensePatternRepresentation(board.patternToArray(4, at("m12")))).toString());
-			assertTrue(emptyPat.equals((new DensePatternRepresentation(board.patternToArray(4, at("m12"))))));
+					(new DensePattern(board.patternToArray(4, at("m12")))).toString());
+			assertTrue(emptyPat.equals((new DensePattern(board.patternToArray(4, at("m12"))))));
 			
 			// Radius 1 pattern around d2
-			DensePatternRepresentation aroundD2 = new DensePatternRepresentation(
+			DensePattern aroundD2 = new DensePattern(
 					new int[] { 0xaa9a });
-			assertEquals(board.printPattern(1, at("d2"), false), (new DensePatternRepresentation(board.patternToArray(1, at("d2")))).toString());
-			assertTrue(aroundD2.equals((new DensePatternRepresentation(board.patternToArray(1, at("d2"))))));
+			assertEquals(board.printPattern(1, at("d2"), false), (new DensePattern(board.patternToArray(1, at("d2")))).toString());
+			assertTrue(aroundD2.equals((new DensePattern(board.patternToArray(1, at("d2"))))));
 			
 			// Radius 2 pattern around b2
-			DensePatternRepresentation aroundB2 = new DensePatternRepresentation(
+			DensePattern aroundB2 = new DensePattern(
 					new int[] { 0xeaba, 0xaead, 0x1bff });
-			assertEquals(board.printPattern(2, at("b2"), false), (new DensePatternRepresentation(board.patternToArray(2, at("b2")))).toString());
-			assertTrue(aroundB2.equals((new DensePatternRepresentation(board.patternToArray(2, at("b2"))))));
+			assertEquals(board.printPattern(2, at("b2"), false), (new DensePattern(board.patternToArray(2, at("b2")))).toString());
+			assertTrue(aroundB2.equals((new DensePattern(board.patternToArray(2, at("b2"))))));
 
 			// Radius 2 pattern around t1
-			DensePatternRepresentation aroundT1 = new DensePatternRepresentation(
+			DensePattern aroundT1 = new DensePattern(
 					new int[] { 0xabea, 0xfaff, 0xffff });
-			assertEquals(board.printPattern(2, at("t1"), false), (new DensePatternRepresentation(board.patternToArray(2, at("t1")))).toString());
-			assertTrue(aroundT1.equals((new DensePatternRepresentation(board.patternToArray(2, at("t1"))))));
+			assertEquals(board.printPattern(2, at("t1"), false), (new DensePattern(board.patternToArray(2, at("t1")))).toString());
+			assertTrue(aroundT1.equals((new DensePattern(board.patternToArray(2, at("t1"))))));
 	}
 	
 	@Test

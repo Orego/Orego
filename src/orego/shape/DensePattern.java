@@ -2,11 +2,11 @@ package orego.shape;
 
 import orego.core.Colors;
 
-public class DensePatternRepresentation {
+public class DensePattern {
 	
 	private int[] array;
 
-	public DensePatternRepresentation(int[] array2) {
+	public DensePattern(int[] array2) {
 		array = new int[array2.length];
 		// src, pos, dest, pos, length
 		System.arraycopy(array2, 0, array, 0, array2.length);
@@ -14,9 +14,9 @@ public class DensePatternRepresentation {
 
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof DensePatternRepresentation))
+		if (!(other instanceof DensePattern))
 			return false;
-		int[] otherArray = ((DensePatternRepresentation) other).array;
+		int[] otherArray = ((DensePattern) other).array;
 		if (otherArray.length != array.length)
 			return false;
 		for (int i = 0; i < array.length; i++) {
