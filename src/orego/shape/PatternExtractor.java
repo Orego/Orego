@@ -37,11 +37,11 @@ public class PatternExtractor {
 	}
 
 	public PatternExtractor() {
-		cluster = new Cluster(4, 16);
+		cluster = new RichCluster(4, 16);
 	}
 	
 	public PatternExtractor(int t, int b) {
-		cluster = new Cluster(t, b);
+		cluster = new RichCluster(t, b);
 	}
 	
 /**
