@@ -574,6 +574,10 @@ public class TimePlayer extends Lgrf2Player {
 		playoutsPerSec =  (finalPlayouts - initialPlayouts)
 				/ ((endTime - startTime)/1000.0);
 	}
+	
+	protected void setPlayoutsPerSecond(double pps) {
+		playoutsPerSec = pps;
+	}
 
 	/** Returns true if the winrate of the best move is below behindThreshold. */
 	protected boolean weAreBehind() {

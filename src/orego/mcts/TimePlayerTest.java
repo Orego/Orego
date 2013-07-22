@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import orego.play.UnknownPropertyException;
-import static orego.core.Coordinates.pointToString;
+import static java.lang.Math.min;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -334,23 +334,36 @@ public class TimePlayerTest {
 		
 	}
 	
-//	@Test
+	@Test
 	public void testBenefitFromPreviousWork() throws UnknownPropertyException {
-		// make sure that when the time to allocate is equal, the number of playouts is similar
+		
+		double pps = 1000.0;
+		int initialPlayouts = 4000;
+		int remainingTime = 500;
 		
 		player.setUpProblem(BLACK, randomProblem);
 		
 		// set prop
 		player.setProperty("benefit-from-previous-work", "true");
 		
-		// generate a bunch of moves
-		for (int i = 0; i < 10; i++) {
-			player.setRemainingTime(500);
-			player.acceptMove(player.bestMove());
-			System.err.println(player.getRoot().getTotalRuns());
-		}
+		// update playouts per second
+		player.setPlayoutsPerSecond(pps);
 		
-		// recording the playouts each time at the end of the turn
-		// assert that they are all with X of each other
+		// set remaining time
+		player.setRemainingTime(remainingTime);
+		
+		int msPerMoveNormal = player.getMillisecondsPerMove();
+		
+		// add playouts
+		player.getRoot().addWins(at("D10"), initialPlayouts);
+		
+		// set remaining time
+		player.setRemainingTime(remainingTime);
+		
+		// check that time allocated went down enough
+		int msPerMoveBenefit = player.getMillisecondsPerMove();
+		
+		// make sure we saved the right amount of time (at most, msPerMoveNormal - 1 ms)		
+		assertEquals(msPerMoveNormal - msPerMoveBenefit, min(msPerMoveNormal - 1, initialPlayouts / pps * 1000), 10);
 	}
 }
