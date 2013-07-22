@@ -34,7 +34,7 @@ public class DataMiner {
 	protected static final int MAX_PATTERN_RADIUS = 2, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
-//		new DataMiner().run(SGF_DIRECTORY,"SgfFiles");
+//		new DataMiner().run(orego.experiment.ExperimentConfiguration.SGF_DIRECTORY,"SgfFiles");
 		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
 	}
 

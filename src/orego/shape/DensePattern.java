@@ -6,10 +6,10 @@ import orego.core.Colors;
 
 public class DensePattern implements Serializable {
 	
-	private int[] array;
+	private char[] array;
 
-	public DensePattern(int[] array2) {
-		array = new int[array2.length];
+	public DensePattern(char[] array2) {
+		array = new char[array2.length];
 		// src, pos, dest, pos, length
 		System.arraycopy(array2, 0, array, 0, array2.length);
 	}
@@ -18,7 +18,7 @@ public class DensePattern implements Serializable {
 	public boolean equals(Object other) {
 		if (!(other instanceof DensePattern))
 			return false;
-		int[] otherArray = ((DensePattern) other).array;
+		char[] otherArray = ((DensePattern) other).array;
 		if (otherArray.length != array.length)
 			return false;
 		for (int i = 0; i < array.length; i++) {

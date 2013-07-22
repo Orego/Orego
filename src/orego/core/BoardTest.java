@@ -1910,7 +1910,7 @@ public class BoardTest {
 			
 			// Empty pattern
 			DensePattern emptyPat = new DensePattern(
-					new int[] { 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa,
+					new char[] { 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa,
 							0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa });
 			assertEquals(
 					board.printPattern(4, at("m12"), false),
@@ -1919,19 +1919,19 @@ public class BoardTest {
 			
 			// Radius 1 pattern around d2
 			DensePattern aroundD2 = new DensePattern(
-					new int[] { 0xaa9a });
+					new char[] { 0xaa9a });
 			assertEquals(board.printPattern(1, at("d2"), false), (new DensePattern(board.patternToArray(1, at("d2")))).toString());
 			assertTrue(aroundD2.equals((new DensePattern(board.patternToArray(1, at("d2"))))));
 			
 			// Radius 2 pattern around b2
 			DensePattern aroundB2 = new DensePattern(
-					new int[] { 0xeaba, 0xaead, 0x1bff });
+					new char[] { 0xeaba, 0xaead, 0x1bff });
 			assertEquals(board.printPattern(2, at("b2"), false), (new DensePattern(board.patternToArray(2, at("b2")))).toString());
 			assertTrue(aroundB2.equals((new DensePattern(board.patternToArray(2, at("b2"))))));
 
 			// Radius 2 pattern around t1
 			DensePattern aroundT1 = new DensePattern(
-					new int[] { 0xabea, 0xfaff, 0xffff });
+					new char[] { 0xabea, 0xfaff, 0xffff });
 			assertEquals(board.printPattern(2, at("t1"), false), (new DensePattern(board.patternToArray(2, at("t1")))).toString());
 			assertTrue(aroundT1.equals((new DensePattern(board.patternToArray(2, at("t1"))))));
 	}

@@ -1107,18 +1107,17 @@ public class Board {
 	}
 	
 	/**
-	 * Returns an array of ints with every two bits in the array representing a point and color
+	 * Returns an array of chars with every two bits in the array representing a point and color
 	 * @param radius
 	 * @param p
 	 * @return
 	 */
-	public int[] patternToArray(int radius, int p) {
+	public char[] patternToArray(int radius, int p) {
 		int i = 0, length = radius * (radius + 1) / 2;
-		int[] output = new int[length];
+		char[] output = new char[length];
 		for (int row = row(p) - radius; row <= row(p) + radius; row++) {
 			for (int column = column(p) - radius; column <= column(p) + radius; column++) {
 				if (!(column == column(p) && row == row(p))) {//don't store anything about point itself--later, will assume vacant
-
 					output[i/16]<<=2;
 					assert (output[i/16]&0x3)==0;
 					if (Coordinates.isValidOneDimensionalCoordinate(row)

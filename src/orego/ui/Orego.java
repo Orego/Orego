@@ -313,11 +313,9 @@ public class Orego {
 			acknowledge(response);
 		} else if (command.equals("loadsgf")) {
 			if (arguments.countTokens() > 1) {
-				System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
 				player.setUpSgf(arguments.nextToken(),
 						Integer.parseInt(arguments.nextToken()));
 			} else {
-				System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
 				player.setUpSgf(arguments.nextToken(), 0);
 			}
 			acknowledge();
