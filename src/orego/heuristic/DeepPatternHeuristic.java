@@ -15,7 +15,7 @@ public class DeepPatternHeuristic extends Heuristic{
 	
 	public static Cluster patterns;
 	
-	public static final double GOOD_PATTERN_THRESHOLD = .55;
+	public static final double GOOD_PATTERN_THRESHOLD = .65;
 		
 	public DeepPatternHeuristic(int weight) {
 		super(weight);
