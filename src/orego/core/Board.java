@@ -170,6 +170,9 @@ public class Board {
 	/** The white stones on the board at the beginning of the game. */
 	private IntSet initialWhiteStones;
 
+	/** True if we are in the tree and therefore maintaining patterns. */
+	private boolean inTree;
+	
 	/** Komi, stored in a form that speeds score counting. */
 	private double komi;
 
@@ -220,7 +223,7 @@ public class Board {
 	private IntSet vacantPoints;
 
 	public Board() {
-		maintainPatternHashes = false;
+		maintainPatternHashes = true;
 		clear();
 	}
 	
@@ -1111,7 +1114,7 @@ public class Board {
 		stoneCounts[color]++;
 		colors[p] = color;
 		
-		if (maintainPatternHashes){
+		if (maintainPatternHashes && inTree){
 			updatePatternHashes(p, color);
 		}
 		
@@ -1183,6 +1186,7 @@ public class Board {
 	 */
 	public int play(int p) {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
+		inTree = true;
 		// Passing is always legal
 		if (p == PASS) {
 			pass();
@@ -1228,6 +1232,7 @@ public class Board {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
 		assert isOnBoard(p) : pointToString(p);
 		assert colors[p] == VACANT : pointToString(p) + "\n" + this;
+		inTree = false;
 		// Check for simple ko violation
 		if (p == koPoint) {
 			return PLAY_KO_VIOLATION;
@@ -1333,7 +1338,7 @@ public class Board {
 	public void removeStone(int s) {
 		int color = colors[s];
 		
-		if (maintainPatternHashes){
+		if (maintainPatternHashes && inTree){
 			updatePatternHashes(s, color);
 		}
 		

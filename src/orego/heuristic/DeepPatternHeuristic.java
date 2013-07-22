@@ -7,12 +7,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import orego.core.Board;
+import orego.mcts.Lgrf2Player;
+import orego.play.UnknownPropertyException;
 import orego.shape.Cluster;
 import orego.util.IntSet;
 
 @SuppressWarnings("unchecked")
 public class DeepPatternHeuristic extends Heuristic{
 	
+	public static void main(String[] args) {
+		try {
+			Lgrf2Player p = new Lgrf2Player();
+			p.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20:DeepPattern@20");
+			p.setProperty("heuristic.Pattern.numberOfGoodPatterns", "400");
+			p.setProperty("threads", "1");
+			double[] benchMarkInfo = p.benchmark();
+			System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+					+ benchMarkInfo[1]);
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	public static Cluster patterns;
 	
 	public static final double GOOD_PATTERN_THRESHOLD = .65;
