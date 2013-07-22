@@ -14,6 +14,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 import orego.core.Board;
+import orego.core.Colors;
 import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
@@ -30,6 +31,8 @@ public class DataMiner {
 	private HashMap<DensePattern, Long>[][] countMap;
 	
 	private MersenneTwisterFast random;
+	
+	private boolean haveNotOverflowed;
 	
 	protected static final int MAX_PATTERN_RADIUS = 2, MIN_PATTERN_RADIUS = 1;
 
@@ -57,6 +60,7 @@ public class DataMiner {
 	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output and load Cluster from, usually "SgfFiles" or "SgfTestFiles".
 	 */
 	public void run(String in, String out2) {
+		haveNotOverflowed = true;
 		String out = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out2
 				+ File.separator + getBoardWidth() + File.separator;
 		try {
@@ -182,14 +186,21 @@ public class DataMiner {
 	}
 
 	protected void store(int color, int radius, DensePattern key, int win) {
-		if(winRateMap[radius][color].containsKey(key)){
-			float winRate = winRateMap[radius][color].get(key);
-			long count = countMap[radius][color].get(key);
-			winRateMap[radius][color].put(key, ((winRate * count) + win) / (count + 1));
-			countMap[radius][color].put(key, count+1);
-		} else{
-			winRateMap[radius][color].put(key, (float)win);
-			countMap[radius][color].put(key, 1L);
+		try {
+			if (winRateMap[radius][color].containsKey(key)) {
+				float winRate = winRateMap[radius][color].get(key);
+				long count = countMap[radius][color].get(key);
+				winRateMap[radius][color].put(key, ((winRate * count) + win)
+						/ (count + 1));
+				countMap[radius][color].put(key, count + 1);
+			} else if (haveNotOverflowed) {
+				winRateMap[radius][color].put(key, (float) win);
+				countMap[radius][color].put(key, 1L);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Stopping collecting new patterns now with "+winRateMap[MAX_PATTERN_RADIUS][Colors.BLACK]+" black patterns of max radius.");
+			haveNotOverflowed = false;
 		}
 	}
 }
