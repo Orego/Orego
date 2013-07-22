@@ -23,6 +23,9 @@ public class ExperimentConfiguration {
 	 * KillExperiment to work.
 	 */
 	public static final String[] HOSTS;
+
+	/** Directory for SGF files used to create opening book, pattern library, etc. */
+	public static final String SGF_DIRECTORY;
 	
 	static {
 		Properties defaultProp = new Properties();
@@ -42,6 +45,7 @@ public class ExperimentConfiguration {
 		}
 		RESULTS_DIRECTORY = userProp.getProperty("resultsdirectory");
 		JAVA_WITH_OREGO_CLASSPATH = userProp.getProperty("oregoclasspath");
+		SGF_DIRECTORY = userProp.getProperty("sgfdirectory");
 		GNUGO = userProp.getProperty("gnugoclasspath") + " --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
 		String s = userProp.getProperty("hosts");
 		HOSTS = s.trim().split("\\s+");

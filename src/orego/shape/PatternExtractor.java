@@ -1,5 +1,6 @@
 package orego.shape;
 
+import static orego.experiment.ExperimentConfiguration.SGF_DIRECTORY;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
 import java.io.File;
@@ -15,23 +16,23 @@ import orego.util.IntSet;
  */
 public class PatternExtractor {
 
-	private static String inputDirectory = "SgfFiles";
 	private static String outputDirectory = "SgfFiles";
 	
 	/** Multihash tables, indexed by radius and color to play. */
 	private Cluster cluster;
 	
 	private MersenneTwisterFast random;
-	
-	public static final String TEST_GAMES_DIRECTORY = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + ".."+File.separator+ 
-			".."+File.separator+ ".."+File.separator+ "Desktop"+File.separator+ "Test Games"+File.separator;//+"kgs-19-2001"+File.separator;
 
-	private static int[][] parameters = {{1,18},{2,17},{4,16},{8,8},{16,4}};
+	private static int[][] parameters = {
+		//{1,18},{2,17},
+		{4,16}
+	//,{8,8},{16,4}
+	};
 	
 	public static void main(String[] args) {
 		//System.out.println(new File(inputDirectory).getAbsolutePath());
 		for (int i = 0; i < parameters.length; i++) {
-			new PatternExtractor().run(TEST_GAMES_DIRECTORY, outputDirectory, parameters[i][0], parameters[i][1]);
+			new PatternExtractor().run(SGF_DIRECTORY, outputDirectory, parameters[i][0], parameters[i][1]);
 		}
 	}
 

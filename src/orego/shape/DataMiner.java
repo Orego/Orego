@@ -1,5 +1,7 @@
 package orego.shape;
 
+import static orego.experiment.ExperimentConfiguration.SGF_DIRECTORY;
+
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
 import static orego.core.Colors.VACANT;
@@ -42,7 +44,7 @@ public class DataMiner {
 	private static final int MAX_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
-		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
+		new DataMiner().run(SGF_DIRECTORY,"SgfFiles");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -93,7 +95,7 @@ public class DataMiner {
 			
 			for(int radius = 1; radius<=MAX_PATTERN_RADIUS; radius++){
 				PrintWriter bw = new PrintWriter(new FileWriter(new File(
-						out+"results_for_radius"+radius+".txt")));
+						out+"results_for_radius"+radius+".csv")));
 				StringBuilder output = new StringBuilder("");
 				for(String key : winRateMap[radius][BLACK].keySet()){
 					output.append(key);
