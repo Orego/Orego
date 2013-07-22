@@ -7,11 +7,7 @@ import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.charToColor;
-import static orego.core.Coordinates.getBoardWidth;
-import static orego.core.Coordinates.isOnBoard;
-import static orego.core.Coordinates.reflect;
-import static orego.core.Coordinates.rotate;
-
+import static orego.core.Coordinates.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -67,7 +63,7 @@ public class DataMiner {
 	 */
 	public void run(String in, String out) {
 		out = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out
-				+ File.separator + getBoardWidth() + File.separator;
+			 + File.separator;
 		try {
 			random = new MersenneTwisterFast(0L);
 			setUp(in);
@@ -160,7 +156,7 @@ public class DataMiner {
 	protected void loadCluster(String fileName) {
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-					new File(fileName + "Patterns.data")));
+					new File(fileName + "Patternsr4t4b16.data")));
 			patterns = (Cluster) (in.readObject());
 			in.close();
 		} catch (Exception ex) {
@@ -191,6 +187,7 @@ public class DataMiner {
 		while (currentTurn < turn) {
 			int goodMove = board.getMove(currentTurn);
 			if (isOnBoard(goodMove)) {
+				assert patternBoard[0][0][0].isLegal(goodMove);
 				// Choose a random move to store as bad
 				IntSet possibleMoves = patternBoard[0][0][0].getVacantPoints();
 				int badMove;
@@ -199,31 +196,18 @@ public class DataMiner {
 							.size()));
 				} while (!patternBoard[0][0][0].isLegal(badMove)
 						|| badMove == goodMove);
+//				assert patternBoard[0][0][0].isLegal(badMove);
 				// Store in all 16 rotations, reflections, and color inversions
 				for (int rotation = 0; rotation < 4; rotation++) {
 					for (int reflection = 0; reflection < 2; reflection++) {
 						for (int color = 0; color < 2; color++) {
+							Board b = patternBoard[rotation][reflection][color];
 							for(int radius = 1; radius<= MAX_PATTERN_RADIUS; radius++){
-								String key = patternBoard[rotation][reflection][color].printPattern(radius, goodMove,false);
-								if(winRateMap[radius][color].containsKey(key)){
-									float tempWinRate = winRateMap[radius][color].get(key);
-									long tempCount = countMap[radius][color].get(key);
-									winRateMap[radius][color].put(key, ((tempWinRate * tempCount) + 1) / (tempCount + 1));
-									countMap[radius][color].put(key, tempCount+1);
-								} else{
-									winRateMap[radius][color].put(key, 1.0f);
-									countMap[radius][color].put(key, 1L);
-								}
-								key = patternBoard[rotation][reflection][color].printPattern(radius, badMove,false);
-								if(winRateMap[radius][color].containsKey(key)){
-									float tempWinRate = winRateMap[radius][color].get(key);
-									long tempCount = countMap[radius][color].get(key);
-									winRateMap[radius][color].put(key, ((tempWinRate * tempCount) + 0) / (tempCount + 1));
-									countMap[radius][color].put(key, tempCount+1);
-								} else{
-									winRateMap[radius][color].put(key, 0.0f);
-									countMap[radius][color].put(key, 1L);
-								}
+//								assert !b.printPattern(radius, goodMove, false).equals(".O#O.O.O.");
+//								assert !b.printPattern(radius, badMove, false).equals(".O#O.O.O.") : "Chose bad move " + pointToString(badMove) + " on:\n" + b + "Legal? " + b.isLegal(badMove)
+//								+ rotation + " " + reflection + " " + color;
+								store(b.getColorToPlay(), radius, b.printPattern(radius, goodMove, false), 1);
+								store(b.getColorToPlay(), radius, b.printPattern(radius, badMove, false), 0);
 							}
 						}
 						goodMove = reflect(goodMove);
@@ -247,6 +231,18 @@ public class DataMiner {
 					goodMove = rotate(goodMove);
 			}
 			currentTurn++;
+		}
+	}
+
+	protected void store(int color, int radius, String key, int win) {
+		if(winRateMap[radius][color].containsKey(key)){
+			float winRate = winRateMap[radius][color].get(key);
+			long count = countMap[radius][color].get(key);
+			winRateMap[radius][color].put(key, ((winRate * count) + win) / (count + 1));
+			countMap[radius][color].put(key, count+1);
+		} else{
+			winRateMap[radius][color].put(key, (float)win);
+			countMap[radius][color].put(key, 1L);
 		}
 	}
 
