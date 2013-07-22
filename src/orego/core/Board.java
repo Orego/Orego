@@ -1284,50 +1284,7 @@ public class Board {
 				output+='\n';
 		}
 		return output;
-//		return printRecursivePattern(patternType + 1, 0, 0, false, patternType, p,printNewLines);
 	}
-	
-//	private String printRecursivePattern(int distanceFromCenter, int xOffset, int yOffset, boolean foundEdge, int patternType, int p, boolean printNewLines) {
-//		String patternHash = "";
-//		//Check if you've run into an off board point, so that you don't wrap around to the other side of the board.
-//		if (!foundEdge && getColor(p) == OFF_BOARD_COLOR) {
-//			foundEdge = true;
-//		}
-//		//Follow the y-axis first, then explore the x-axis.
-//		if (xOffset == 0 && Math.abs(yOffset) < distanceFromCenter) {
-//			if (yOffset <= 0) {
-//				patternHash += printRecursivePattern(distanceFromCenter, xOffset, yOffset - 1, foundEdge, patternType, p - getSouth(),printNewLines);
-//			}
-//		}
-//		if (Math.abs(xOffset) < distanceFromCenter) {
-//			if (xOffset <= 0) {
-//				patternHash += printRecursivePattern(distanceFromCenter, xOffset - 1, yOffset, foundEdge, patternType, p - EAST,printNewLines);
-//			}
-//		}
-//		//Combine a hash if it is not off the board
-//		if (!foundEdge) {
-//			patternHash += Colors.colorToChar(getColor(p))/*+":"+xOffset+","+yOffset+" "*/;
-//		}
-//		//Otherwise, combine an off board hash into the current one.
-//		else {
-//			patternHash += Colors.colorToChar(OFF_BOARD_COLOR)/*+":"+xOffset+","+yOffset+" "*/;
-//		}
-//		if (xOffset == distanceFromCenter && printNewLines) {
-//			patternHash += "\n";
-//		}
-//		//Follow the y-axis first, then explore the x-axis.
-//		if (Math.abs(xOffset) < distanceFromCenter) {
-//			if (xOffset >= 0) {
-//				patternHash += printRecursivePattern(distanceFromCenter, xOffset + 1, yOffset, foundEdge, patternType, p + EAST,printNewLines);
-//			}
-//		}
-//		if (xOffset == 0 && Math.abs(yOffset) < distanceFromCenter) {
-//			if (yOffset >= 0) {
-//				patternHash += printRecursivePattern(distanceFromCenter, xOffset, yOffset + 1, foundEdge, patternType, p + getSouth(),printNewLines);
-//			}
-//		}
-//		return patternHash;
-//	}
 
 	/** Removes stones. */
 	public void removeStone(int s) {

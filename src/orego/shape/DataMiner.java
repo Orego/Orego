@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 
 import orego.core.Board;
+import orego.core.Colors;
 import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
@@ -39,7 +40,7 @@ public class DataMiner {
 	
 	private MersenneTwisterFast random;
 	
-	private static final int MAX_PATTERN_RADIUS = 1;
+	private static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
 		new DataMiner().run(PatternExtractor.TEST_GAMES_DIRECTORY,"SgfFiles");
@@ -49,7 +50,7 @@ public class DataMiner {
 	public DataMiner() {
 		winRateMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
 		countMap = new HashMap[MAX_PATTERN_RADIUS+1][NUMBER_OF_PLAYER_COLORS];
-		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius ++){
+		for (int radius = MIN_PATTERN_RADIUS; radius <= MAX_PATTERN_RADIUS; radius ++){
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++){
 				winRateMap[radius][color]= new HashMap<String,Float>();
 				countMap[radius][color]= new HashMap<String,Long>();
@@ -91,7 +92,7 @@ public class DataMiner {
 			
 			loadCluster(out);
 			
-			for(int radius = 1; radius<=MAX_PATTERN_RADIUS; radius++){
+			for(int radius = MIN_PATTERN_RADIUS; radius<=MAX_PATTERN_RADIUS; radius++){
 				PrintWriter bw = new PrintWriter(new FileWriter(new File(
 						out+"results_for_radius"+radius+".txt")));
 				StringBuilder output = new StringBuilder("");
@@ -201,7 +202,7 @@ public class DataMiner {
 				for (int rotation = 0; rotation < 4; rotation++) {
 					for (int reflection = 0; reflection < 2; reflection++) {
 						for (int color = 0; color < 2; color++) {
-							for(int radius = 1; radius<= MAX_PATTERN_RADIUS; radius++){
+							for(int radius = MIN_PATTERN_RADIUS; radius<= MAX_PATTERN_RADIUS; radius++){
 								String key = patternBoard[rotation][reflection][color].printPattern(radius, goodMove,false);
 								if(winRateMap[radius][color].containsKey(key)){
 									float tempWinRate = winRateMap[radius][color].get(key);
@@ -247,5 +248,4 @@ public class DataMiner {
 			currentTurn++;
 		}
 	}
-
 }
