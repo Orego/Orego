@@ -432,7 +432,7 @@ public class PatternPlayer extends McPlayer {
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
 			patterns = (Cluster) (in.readObject());
-			patterns.setCount(100);
+			patterns.setCount(1000);
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
