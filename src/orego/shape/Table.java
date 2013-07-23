@@ -1,5 +1,6 @@
 package orego.shape;
 
+import static java.util.Arrays.*;
 import java.io.Serializable;
 
 /** A sloppy multihash table. */
@@ -55,6 +56,13 @@ public class Table implements Serializable {
 			sum += counts[i][getLocalIndex(hash, i)];
 		}
 		return sum / counts.length;
+	}
+
+	/** Sets the count for all entries in this table. */
+	public void setCount(long count) {
+		for (int i = 0; i < counts.length; i++) {
+			fill(counts[i], count);
+		}
 	}
 
 	/**

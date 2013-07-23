@@ -29,6 +29,11 @@ public class Cluster implements Serializable {
 		}
 	}
 	
+	/** Set every table entry to have a specified number of runs. */
+	public void setRuns(long runs) {
+		
+	}
+
 	/**
 	 * @param board Board on which move is made.
 	 * @param move Move to be made.
