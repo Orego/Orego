@@ -24,9 +24,9 @@ public class PatternExtractor {
 	private MersenneTwisterFast random;
 
 	private static int[][] parameters = {
-		{1,18},{2,17},
+//		{1,18},{2,17},
 		{4,16}
-	,{8,8},{16,4}
+//	,{8,8},{16,4}
 	};
 	
 	public static void main(String[] args) {
@@ -39,11 +39,11 @@ public class PatternExtractor {
 	}
 
 	public PatternExtractor() {
-		cluster = new RichCluster(4, 16);
+		cluster = new Cluster(4, 16);
 	}
 	
 	public PatternExtractor(int t, int b) {
-		cluster = new RichCluster(t, b);
+		cluster = new Cluster(t, b);
 	}
 	
 /**

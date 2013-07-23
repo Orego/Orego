@@ -30,8 +30,12 @@ public class Cluster implements Serializable {
 	}
 	
 	/** Set every table entry to have a specified number of runs. */
-	public void setRuns(long runs) {
-		
+	public void setCount(long count) {
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			for (int color = BLACK; color <= WHITE; color++) {
+				tables[radius][color].setCount(count);
+			}
+		}
 	}
 
 	/**
