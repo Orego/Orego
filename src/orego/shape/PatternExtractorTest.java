@@ -24,7 +24,8 @@ public class PatternExtractorTest {
 		extractor.run(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + "SgfTestFiles"
 				+ File.separator + getBoardWidth(), "SgfTestFiles", 4, 16);
 		Cluster cluster = extractor.getCluster();
-		Board b = new Board();
+		Board b = new Board();		
+		System.err.println(cluster.getWinRate(b, at("k16")));
 		assertTrue(cluster.getWinRate(b, at("r16")) > 0.5);
 		assertTrue(cluster.getWinRate(b, at("k16")) < 0.5);
 	}

@@ -1,5 +1,9 @@
 package orego.shape;
 
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 import static orego.core.Board.*;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
@@ -56,9 +60,13 @@ public class PatternPlayer extends McPlayer {
 		int start;
 		start = random.nextInt(vacantPoints.size());
 		int i = start;
+		int totalRuns = 0;
+		for(int j=0; j<vacantPoints.size(); j++){
+			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
+		}
 		do {
 			int move = vacantPoints.get(i);
-			double searchValue = getWinRate(board, move);
+			double searchValue = searchValue(board, move, totalRuns);
 			if (searchValue > best) {
 				if (board.isFeasible(move) && board.isLegal(move)) {
 					best = searchValue;
@@ -403,6 +411,40 @@ public class PatternPlayer extends McPlayer {
 				runnable.getRandom());
 		runnable.acceptMove(move);
 		return move;
+	}
+	
+	/**
+	 * Returns the UCT upper bound for node. This is the UCB1-TUNED policy,
+	 * explained in the tech report by Gelly, et al, "Modification of UCT with
+	 * Patterns in Monte-Carlo Go". The formula is at the bottom of p. 5 in that
+	 * paper.
+	 */
+	public double searchValue(Board board, int move, int totalRuns) {
+		// The variable names here are chosen for consistency with the tech
+		// report
+		double barX = getWinRate(board, move);
+		if (barX < 0) { // if the move has been excluded
+			return NEGATIVE_INFINITY;
+		}
+		double logParentRunCount = log(totalRuns);
+		// In the paper, term1 is the mean of the SQUARES of the rewards; since
+		// all rewards are 0 or 1 here, this is equivalent to the mean of the
+		// rewards, i.e., the win rate.
+		double term1 = barX;
+		double term2 = -(barX * barX);
+		double term3 = sqrt(2 * logParentRunCount / patterns.getCount(board, move));
+		double v = term1 + term2 + term3; // This equation is above Eq. 1
+		assert v >= 0 : "Negative variability in UCT for move "
+				+ pointToString(move) + ":\n" + "ERROR" + "\nterm1: " + term1
+				+ "\nterm2: " + term2 + "\nterm3: " + term3
+				+ "\nPlayer's board:\n" + getBoard() + "\nVacant points: "
+				+ getBoard().getVacantPoints().toStringAsPoints()
+				+ "\nRunnable's board:\n" + board + "\nVacant points: "
+				+ board.getVacantPoints().toStringAsPoints();
+		double factor1 = logParentRunCount / patterns.getCount(board, move);
+		double factor2 = min(0.25, v);
+		double uncertainty = 0.4 * sqrt(factor1 * factor2);
+		return uncertainty + barX;
 	}
 
 	protected void setUpRunnables() {
