@@ -37,14 +37,6 @@ public class PatternExtractor {
 			new PatternExtractor().run(SGF_DIRECTORY, outputDirectory, parameters[i][0], parameters[i][1]);
 		}
 	}
-
-	public PatternExtractor() {
-		cluster = new Cluster(4, 16);
-	}
-	
-	public PatternExtractor(int t, int b) {
-		cluster = new Cluster(t, b);
-	}
 	
 /**
  * Extracts patterns from all files in a directory.
@@ -53,6 +45,7 @@ public class PatternExtractor {
  * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output, usually "SgfFiles" or "SgfTestFiles".
  */
 	public void run(String in, String out, int t, int b) {
+		cluster = new Cluster(t,b);
 		try {
 			random = new MersenneTwisterFast(0L);
 			setUp(in);
