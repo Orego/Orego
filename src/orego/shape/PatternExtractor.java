@@ -32,7 +32,9 @@ public class PatternExtractor {
 	public static void main(String[] args) {
 		//System.out.println(new File(inputDirectory).getAbsolutePath());
 		for (int i = 0; i < parameters.length; i++) {
-			new PatternExtractor().run(SGF_DIRECTORY, outputDirectory, parameters[i][0], parameters[i][1]);
+			int t = parameters[i][0];
+			int b = parameters[i][1];
+			new PatternExtractor(t, b).run(SGF_DIRECTORY, outputDirectory, t, b);
 		}
 	}
 

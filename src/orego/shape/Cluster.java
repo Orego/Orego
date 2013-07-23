@@ -50,6 +50,15 @@ public class Cluster implements Serializable {
 		return sum / MAX_PATTERN_RADIUS;
 	}
 	
+	/** Returns the run count for playing move on board. */
+	public long getCount(Board board, int move) {
+		long sum = 0L;
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			sum += tables[radius][board.getColorToPlay()].getCount(board.getPatternHash(move, radius));
+		}
+		return sum / MAX_PATTERN_RADIUS;
+	}
+	
 	/** Returns the win rate for a particular pattern hash. */
 	public float getPatternWinRate(long hash, int color, int radius){
 		return tables[radius][color].getWinRate(hash);

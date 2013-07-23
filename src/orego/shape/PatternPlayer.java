@@ -108,6 +108,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gogui-combined-pattern-win-rates");
 		result.add("gogui-playouts");
 		result.add("gogui-playouts-through");
+		result.add("gogui-run-counts");
 		return result;
 	}
 
@@ -117,7 +118,8 @@ public class PatternPlayer extends McPlayer {
 		result.add("gfx/Radius win rates/gogui-radius-win-rates %s");
 		result.add("gfx/Combined pattern win rates/gogui-combined-pattern-win-rates");
 		result.add("none/Playouts/gogui-playouts %s");
-		result.add("gfx/Playouts/gogui-playouts-through");
+		result.add("gfx/Playouts through/gogui-playouts-through");
+		result.add("gfx/Run counts/gogui-run-counts");
 		return result;
 	}
 
@@ -262,11 +264,13 @@ public class PatternPlayer extends McPlayer {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		String result = null;
-		if (command.contains("gogui-radius-win-rates")) {
+		if (command.equals("gogui-radius-win-rates")) {
 			result = goguiRadiusWinRates(Integer
 					.parseInt(arguments.nextToken()));
-		} else if (command.contains("gogui-combined-pattern-win-rates")) {
+		} else if (command.equals("gogui-combined-pattern-win-rates")) {
 			result = goguiCombinedPatternWinRates();
+		} else if (command.equals("gogui-run-counts")) {
+			result = goguiRunCounts();
 		} else if (command.equals("gogui-playouts")) {
 			int n = Integer.parseInt(arguments.nextToken());
 			for (int i = 0; i < n; i++) {
@@ -306,7 +310,7 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 
-	private String goguiPlayoutsThrough() {
+	protected String goguiPlayoutsThrough() {
 		String result="";
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
@@ -319,10 +323,31 @@ public class PatternPlayer extends McPlayer {
 						pointToString(p), playoutsThrough);
 			}
 		}
-		
 		return result;
 	}
 
+	protected String goguiRunCounts() {
+		String result="";
+		long max = -1;
+		for (int p : getAllPointsOnBoard()) {
+			long count = patterns.getCount(getBoard(), p);
+			if (count > max) {
+				max = count;
+			}
+		}		
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+				long count = patterns.getCount(getBoard(), p);
+				// Number of playouts through each point
+				result += String.format("COLOR %s %s\nLABEL %s %s",
+						colorCode(((double)count) / max), pointToString(p),
+						pointToString(p), count);
+			}
+		}
+		return result;
+	}
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		if (winner != VACANT) {
