@@ -36,4 +36,15 @@ public class TableTest {
 		assertEquals(2.0 / 3.0, table.getWinRate(hash), 0.001);
 	}
 
+	@Test
+	public void testSetCount() {
+		long hash = 23L;
+		for (int i = 0; i < 1000; i++) {
+			table.store(hash, 1);
+		}
+		assertEquals(1000L, table.getCount(hash));
+		table.setCount(20L);
+		assertEquals(20L, table.getCount(hash));		
+	}
+
 }

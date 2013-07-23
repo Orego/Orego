@@ -1,8 +1,10 @@
 package orego.shape;
 
+import static java.lang.String.format;
 import static orego.core.Board.*;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import static orego.experiment.Debug.debug;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,6 +89,9 @@ public class PatternPlayer extends McPlayer {
 		int turn = board.getTurn();
 		for (int r = 1; r <= MAX_PATTERN_RADIUS; r++) {
 			hashes[turn][r] = board.getPatternHash(move, r);
+//			if (hashes[turn][r] == 0L) {
+//				System.err.println("Move in empty pattern: " + pointToString(move) + "\n" + board);
+//			}
 		}
 	}
 
@@ -95,7 +100,9 @@ public class PatternPlayer extends McPlayer {
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
 			int move = bestSearchMove(runnable.getBoard(), runnable.getRandom());
-			storeHashes(runnable.getBoard(), move);
+			if (move != PASS) {
+				storeHashes(runnable.getBoard(), move);
+			}
 			runnable.acceptMove(move);
 		}
 //		numPlayouts++;
@@ -109,6 +116,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gogui-playouts");
 		result.add("gogui-playouts-through");
 		result.add("gogui-run-counts");
+		result.add("gogui-primary-variation");
 		return result;
 	}
 
@@ -120,6 +128,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("none/Playouts/gogui-playouts %s");
 		result.add("gfx/Playouts through/gogui-playouts-through");
 		result.add("gfx/Run counts/gogui-run-counts");
+		result.add("gfx/Primary variation/gogui-primary-variation");
 		return result;
 	}
 
@@ -194,6 +203,35 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 	
+	/**
+	 * Generates the string to be passed to GoGui representing the current best
+	 * variation of moves found by this player.
+	 */
+	protected String goguiPrimaryVariation() {
+		String result = "VAR";
+		// To show the best tree, we need to manually traverse the tree
+		Board board = new Board();
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		board.copyDataFrom(getBoard());
+		for (int depth = 0; depth < 15; depth++) {
+//		while(board.getPasses() < 2) {
+			int best = bestSearchMove(board, random);
+			int legality;
+			if (best == RESIGN) {
+				legality = -1;
+			} else {
+				legality = board.play(best);
+			}
+			if (legality != orego.core.Board.PLAY_OK) {
+				debug("Illegal move after primary variation shown: " + pointToString(best));
+				break;
+			}
+			result += format(" %s %s", board.getColorToPlay() == BLACK ? "W"
+					: "B", pointToString(best));
+		}
+		return result;
+	}
+
 	protected String goguiRadiusWinRates(int radius) {
 		String result = "";
 		for (int p : getAllPointsOnBoard()) {
@@ -271,6 +309,8 @@ public class PatternPlayer extends McPlayer {
 			result = goguiCombinedPatternWinRates();
 		} else if (command.equals("gogui-run-counts")) {
 			result = goguiRunCounts();
+		} else if (command.equals("gogui-primary-variation")) {
+			result = goguiPrimaryVariation();
 		} else if (command.equals("gogui-playouts")) {
 			int n = Integer.parseInt(arguments.nextToken());
 			for (int i = 0; i < n; i++) {
@@ -380,6 +420,7 @@ public class PatternPlayer extends McPlayer {
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
 			patterns = (Cluster) (in.readObject());
+			patterns.setCount(100);
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
