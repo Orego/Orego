@@ -401,11 +401,15 @@ public class PatternPlayer extends McPlayer {
 		if (winner != VACANT) {
 			int turn = runnable.getTurn();
 			int color = getBoard().getColorToPlay();
-			if (winner != color) {
-				winner = 1 - winner;
+			if (winner == color) {
+				winner=1;
+			} else{
+				winner=0;
 			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
 				patterns.store(hashes[t], color, winner);
+				winner=1-winner;
+				color=1-color;
 			}
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
