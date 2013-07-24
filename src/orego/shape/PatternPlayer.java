@@ -87,10 +87,30 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public int bestStoredMove() {
-		System.err.println(numPlayouts + " playouts");
-		int move = bestSearchMove(getBoard(), ((McRunnable) getRunnable(0)).getRandom());
-		assert getBoard().isFeasible(move) : "bestSearchMove chose the infeasible " + pointToString(move) + " on:\n" + getBoard();
-		return move;
+		Board board = getBoard();
+		MersenneTwisterFast random = ((McRunnable)(getRunnable(0))).getRandom();
+		double best = PASS_THRESHOLD;
+		int result = PASS;
+		IntSet vacantPoints = board.getVacantPoints();
+		int start;
+		start = random.nextInt(vacantPoints.size());
+		int i = start;
+		do {
+			int move = vacantPoints.get(i);
+			float searchValue = patterns.getWinRate(board, move);
+			if (searchValue > best) {
+				if (board.isFeasible(move) && board.isLegal(move)) {
+					best = searchValue;
+					result = move;
+				}
+			}
+			// The magic number 457 is prime and larger than
+			// vacantPoints.size().
+			// Advancing by 457 therefore skips "randomly" through the array,
+			// in a manner analogous to double hashing.
+			i = (i + 457) % vacantPoints.size();
+		} while (i != start);
+		return result;
 	}
 
 	/** Hashes around move for later incorporating into pattern tables. */
@@ -106,7 +126,6 @@ public class PatternPlayer extends McPlayer {
 			hashes[turn][r] = board.getPatternHash(move, r);
 		}
 		hashes[turn][MAX_PATTERN_RADIUS + 1] = patterns.getGlobalHash(board, move, board.getColorToPlay());
-		hashes[turn][MAX_PATTERN_RADIUS + 2] = patterns.getReply1Hash(board, move, board.getColorToPlay());
 	}
 
 	@Override
@@ -457,7 +476,7 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void reset() {
 		super.reset();
-		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 3];
+		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
 		setUpRunnables();
 	}
 
