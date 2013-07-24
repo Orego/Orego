@@ -33,7 +33,7 @@ public class SpecificPointHeuristic extends Heuristic {
 	}
 
 	@Override
-	public void prepare(Board board, boolean local) {
+	public void prepare(Board board, boolean local, int treeDepth) {
 		// Do nothing
 		// Specifically, to not clear the set of recommended moves
 	}
@@ -43,7 +43,7 @@ public class SpecificPointHeuristic extends Heuristic {
 			throws UnknownPropertyException {
 		if (name.equals("specificPoint")) {
 			specificPoint = Integer.parseInt(value);
-			super.prepare(null,true); // Discard old recommended point
+			super.prepare(null,true,0); // Discard old recommended point
 			recommend(specificPoint);
 		} else {
 			super.setProperty(name, value);

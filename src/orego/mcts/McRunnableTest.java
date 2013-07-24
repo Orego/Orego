@@ -109,7 +109,7 @@ public class McRunnableTest {
 		board.play("d14");
 		SearchNode node = new SearchNode();
 		node.reset(board.getHash());
-		runnable.updatePriors(node, board);
+		runnable.updatePriors(node, board, 0);
 		assertEquals(6, node.getWins(at("d15")), 0.001);
 		assertEquals(7, node.getRuns(at("d15")));
 	}
@@ -147,7 +147,7 @@ public class McRunnableTest {
 		board.play("d4"); //same as above test, but play at d4 instead of d14 to see if it finds pattern that is not local, given presence of additional point d16
 		SearchNode node = new SearchNode();
 		node.reset(board.getHash());
-		runnable.updatePriors(node, board);
+		runnable.updatePriors(node, board, 0);
 		assertEquals(6, node.getWins(at("d15")), 0.001); //1 win by default, so should be 6 if we add 5
 		assertEquals(7, node.getRuns(at("d15"))); //2 tries by default, so should be 7 if we add 5
 	}

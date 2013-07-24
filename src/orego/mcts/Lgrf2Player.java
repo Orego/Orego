@@ -10,9 +10,6 @@ import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 
-import java.lang.reflect.Constructor;
-
-import orego.heuristic.Heuristic;
 import orego.play.UnknownPropertyException;
 
 /**

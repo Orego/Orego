@@ -59,14 +59,14 @@ public class PatternHeuristicTest {
 			board.play("c3");
 
 			//test: whether pattern (White extends from q17) isn't seen if searching locally near last move C3
-			heuristic.prepare(board,true);
+			heuristic.prepare(board,true,0);
 			assertFalse(heuristic.getGoodMoves().contains(at("r17")));
 			assertFalse(heuristic.getGoodMoves().contains(at("r16")));
 			assertFalse(heuristic.getGoodMoves().contains(at("p17")));
 			assertFalse(heuristic.getGoodMoves().contains(at("p16")));
 
 			//test: whether pattern is seen if searching globally
-            heuristic.prepare(board,false);
+            heuristic.prepare(board,false,0);
 			assertTrue(heuristic.getGoodMoves().contains(at("r17")));
 			assertTrue(heuristic.getGoodMoves().contains(at("r16")));
 			assertTrue(heuristic.getGoodMoves().contains(at("p17")));

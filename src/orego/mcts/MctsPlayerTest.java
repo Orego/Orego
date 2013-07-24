@@ -58,7 +58,7 @@ public class MctsPlayerTest {
 		}
 		moves[i] = PASS;
 		moves[i + 1] = PASS;
-		McRunnable runnable = new McRunnable(player, new HeuristicList());
+		McRunnable runnable = new McRunnable(player, player.getHeuristics());
 		player.fakeGenerateMovesToFrontierOfTree(runnable, moves);
 		runnable.copyDataFrom(player.getBoard());
 		for (int p : moves) {
@@ -1022,6 +1022,29 @@ public class MctsPlayerTest {
 		node.addWins(at("c4"), 100);
 		assertEquals(at("c3"),
 				player.bestSearchMove(node, board, new MersenneTwisterFast()));
+	}
+
+	@Test
+	public void testMaxDepth() throws UnknownPropertyException {
+		player.setHeuristics(new HeuristicList("DeepPatternHeuristic@100"));
+		player.getHeuristics().get(0).setProperty("maxTreeDepth","3");
+		player.reset();
+		fakeRun(BLACK, "d16", "c17", "d17", "c16");
+		fakeRun(BLACK, "d16", "c17", "d17", "c16");
+		fakeRun(BLACK, "d16", "c17", "d17", "c16");
+		fakeRun(BLACK, "d16", "c17", "d17", "c16");
+//		System.out.println(player.toString(8));
+		String correct = "Hash: 0 Total runs: 736\nD16:       5/      6 (0.8333)\n  Hash: -2932471278793632464 Total runs: 735\n  C17:       1/      5 (0.2000)\n    Hash: -4227699363714857577 Total runs: 934\n    D17:     103/    104 (0.9904)\n      Hash: 6145897659432315753 Total runs: 733\n      C16:       1/      3 (0.3333)\n    C16:     101/    102 (0.9902)\n";
+		assertEquals(correct, player.toString(8));
+		player.reset();
+		player.acceptMove(at("d16"));
+		fakeRun(BLACK, "c17", "d17", "c16");
+		fakeRun(BLACK, "c17", "d17", "c16");
+		fakeRun(BLACK, "c17", "d17", "c16");
+//		System.out.println(player.toString(8));
+		String correct2 = "Hash: -2932471278793632464 Total runs: 735\nC17:       1/      5 (0.2000)\n  Hash: -4227699363714857577 Total runs: 934\n  D17:     103/    104 (0.9904)\n    Hash: 6145897659432315753 Total runs: 1033\n    C18:     101/    102 (0.9902)\n    D18:     101/    102 (0.9902)\n    C16:     101/    103 (0.9806)\n  C16:     101/    102 (0.9902)\n";
+		assertEquals(correct2,player.toString(8));
+
 	}
 
 }

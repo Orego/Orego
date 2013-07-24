@@ -34,6 +34,8 @@ public class MctsPlayer extends McPlayer {
 
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
 	public static final double COUP_DE_GRACE_PARAMETER = 0.85;
+	
+	public static int MAX_HASH_DEPTH = 5;
 
 	/**
 	 * This player will resign if the win percentage is less than
@@ -193,10 +195,19 @@ public class MctsPlayer extends McPlayer {
 		SearchNode node = getRoot();
 		assert node != null : "Hash code: " + getBoard().getHash();
 		runnable.getBoard().copyDataFrom(getBoard());
+		int treeDepth = 0;
 		for (int p : moves) {
+			
+			
+
+			if (treeDepth > MAX_HASH_DEPTH) {
+				runnable.getBoard().setMaintainingPatternHashes(false);
+			}
 			runnable.acceptMove(p);
+			runnable.getBoard().setMaintainingPatternHashes(true);
 			SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getHash());
+			treeDepth++;
 			synchronized (table) {
 				// A child will only be created on the second pass through the
 				// node
@@ -209,7 +220,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.updatePriors(child, runnable.getBoard());
+						runnable.updatePriors(child, runnable.getBoard(), treeDepth);
 					}
 					return;
 				}
@@ -244,13 +255,19 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
+		//runnable.getBoard().setMaintainingPatternHashes(true);
 		SearchNode node = getRoot();
 		assert node != null : "Hash code: " + getBoard().getHash();
 		runnable.getBoard().copyDataFrom(getBoard());
+		int treeDepth = 0;
 		while (runnable.getBoard().getPasses() < 2) {
+			if (treeDepth > MAX_HASH_DEPTH) {
+				runnable.getBoard().setMaintainingPatternHashes(false);
+			}
 			int p = selectAndPlayMove(node, runnable);
 			SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getHash());
+			treeDepth++;
 			synchronized (table) {
 				// a child will only be created if we expect the node to be
 				// visited again
@@ -263,7 +280,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.updatePriors(child, runnable.getBoard());
+						runnable.updatePriors(child, runnable.getBoard(), treeDepth);
 					}
 					return;
 				}
@@ -314,7 +331,7 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	/** Returns the transposition table. For testing. */
-	protected TranspositionTable getTable() {
+	public TranspositionTable getTable() {
 		return table;
 	}
 
@@ -519,7 +536,7 @@ public class MctsPlayer extends McPlayer {
 			}
 			SearchNode root = getRoot();
 			if (root.isFresh()) {
-				((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
+				((McRunnable) getRunnable(0)).updatePriors(root, getBoard(), 0);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -646,7 +663,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard(), 0);
 		}
 		if (isPondering()) {
 			startThreads();
@@ -665,7 +682,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard(), 0);
 		}
 		debug(winRateReport());
 	}

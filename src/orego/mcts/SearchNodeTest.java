@@ -1,7 +1,6 @@
 package orego.mcts;
 
 import static orego.core.Coordinates.*;
-import static orego.core.Colors.*;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;

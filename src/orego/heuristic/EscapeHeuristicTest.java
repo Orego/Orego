@@ -45,7 +45,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play(at("s2"));
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("r1")));
 	}
 
@@ -75,7 +75,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("m7");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
@@ -105,7 +105,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
@@ -135,7 +135,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("m7");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
@@ -165,7 +165,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("m7");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 	
@@ -195,7 +195,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 
@@ -225,7 +225,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("l3");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("k10")));
 	}
 	
@@ -255,7 +255,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("o4")));
 		assertTrue(heuristic.getGoodMoves().contains(at("r4")));
 	}
@@ -286,7 +286,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("p3");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("o6")));
 	}
 
@@ -316,9 +316,9 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
 
@@ -348,7 +348,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("n11");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 		assertTrue(heuristic.getGoodMoves().contains(at("o10")));
 	}
@@ -379,7 +379,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("h4");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertFalse(heuristic.getGoodMoves().contains(at("h2")));
 	}
 
@@ -409,7 +409,7 @@ public class EscapeHeuristicTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.play("h2");
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertFalse(heuristic.getGoodMoves().contains(at("g2")));
 	}
 	

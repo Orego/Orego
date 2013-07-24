@@ -169,9 +169,6 @@ public class Board {
 	
 	/** The white stones on the board at the beginning of the game. */
 	private IntSet initialWhiteStones;
-
-	/** True if we are in the tree and therefore maintaining patterns. */
-	private boolean inTree;
 	
 	/** Komi, stored in a form that speeds score counting. */
 	private double komi;
@@ -223,12 +220,12 @@ public class Board {
 	private IntSet vacantPoints;
 
 	public Board() {
-		maintainPatternHashes = true;
+		maintainPatternHashes = false;
 		clear();
 	}
 	
 	public Board(boolean maintainPatternHashes){
-		this.maintainPatternHashes = maintainPatternHashes;
+		this.maintainPatternHashes = false;//maintainPatternHashes;
 		clear();
 	}
 
@@ -956,10 +953,6 @@ public class Board {
 		// Hooray, it's legal!
 		return true;
 	}
-	
-	protected boolean isMaintainingPatternHashes()	{
-		return maintainPatternHashes;
-	}
 
 	/** Returns true if the play at move p would be a self-atari for color. */
 	public boolean isSelfAtari(int p, int color) {
@@ -1114,7 +1107,7 @@ public class Board {
 		stoneCounts[color]++;
 		colors[p] = color;
 		
-		if (maintainPatternHashes && inTree){
+		if (maintainPatternHashes){
 			updatePatternHashes(p, color);
 		}
 		
@@ -1138,7 +1131,6 @@ public class Board {
 	 */
 	public int placeInitialStone(int color, int p) {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
-		inTree = true;
 		// Passing is always legal
 		if (p == PASS) {
 			pass();
@@ -1187,7 +1179,6 @@ public class Board {
 	 */
 	public int play(int p) {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
-		inTree = true;
 		// Passing is always legal
 		if (p == PASS) {
 			pass();
@@ -1233,7 +1224,6 @@ public class Board {
 		assert stoneCounts[BLACK] + stoneCounts[WHITE] + vacantPoints.size() == getBoardArea();
 		assert isOnBoard(p) : pointToString(p);
 		assert colors[p] == VACANT : pointToString(p) + "\n" + this;
-		inTree = false;
 		// Check for simple ko violation
 		if (p == koPoint) {
 			return PLAY_KO_VIOLATION;
@@ -1339,7 +1329,7 @@ public class Board {
 	public void removeStone(int s) {
 		int color = colors[s];
 		
-		if (maintainPatternHashes && inTree){
+		if (maintainPatternHashes){
 			updatePatternHashes(s, color);
 		}
 		
@@ -1493,6 +1483,14 @@ public class Board {
 				patternHashAtPoint[pair[0]][radius] ^= PATTERN_ZOBRIST_HASHES[radius][color][pair[1]];
 			}
 		}
+	}
+	
+	public boolean isMaintainingPatternHashes()	{
+		return maintainPatternHashes;
+	}
+	
+	public void setMaintainingPatternHashes(boolean value) {
+		maintainPatternHashes = value;
 	}
 
 	// Utility: Calculate a winner from a score

@@ -1,10 +1,5 @@
 package orego.core;
 
-import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.column;
-import static orego.core.Coordinates.getBoardWidth;
-import static orego.core.Coordinates.row;
-
 /**
  * This class manages coordinates on the board.
  * <p>

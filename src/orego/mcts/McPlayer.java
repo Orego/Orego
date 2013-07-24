@@ -7,10 +7,7 @@ import static orego.experiment.Debug.debug;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import ec.util.MersenneTwisterFast;
-
 import orego.core.Board;
-import orego.heuristic.Heuristic;
 import orego.play.ThreadedPlayer;
 import orego.play.UnknownPropertyException;
 import orego.util.IntList;
@@ -178,7 +175,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		for (int i = 0; i < getHeuristics().size(); i++) {
-			getHeuristics().get(i).prepare(getBoard(),true);
+			getHeuristics().get(i).prepare(getBoard(),true,0);
 		}
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {

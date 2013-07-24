@@ -4,7 +4,6 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
-import orego.heuristic.Heuristic;
 import orego.heuristic.HeuristicList;
 
 /**

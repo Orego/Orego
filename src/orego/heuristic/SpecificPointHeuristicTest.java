@@ -20,7 +20,7 @@ public class SpecificPointHeuristicTest {
 
 	@Test
 	public void testEvaluate() {
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("c5")));
 		assertEquals(1, heuristic.getGoodMoves().size());
 	}

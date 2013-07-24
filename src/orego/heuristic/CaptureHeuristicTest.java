@@ -53,7 +53,7 @@ public class CaptureHeuristicTest {
 				  // ABCDEFGHJKLMNOPQRST
 				};
 		board.setUpProblem(WHITE, problem);
-		heuristic.prepare(board,true);
+		heuristic.prepare(board,true,0);
 		assertTrue(heuristic.getGoodMoves().contains(at("a2")));
 		assertTrue(heuristic.getGoodMoves().contains(at("d1")));
 		assertTrue(heuristic.getGoodMoves().contains(at("d4")));

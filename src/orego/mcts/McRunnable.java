@@ -187,20 +187,20 @@ public class McRunnable implements Runnable {
 	// TODO This is only called on "fresh" nodes. This happens in several
 	// places; could it be consolidated into the few places where fresh nodes
 	// are produced?
-	public void updatePriors(SearchNode node, Board board) {
+	public void updatePriors(SearchNode node, Board board, int treeDepth) {
 		for (int i = 0; i < heuristics.size(); i++) {
 			Heuristic h = heuristics.get(i);
-			h.prepare(board,false); // this passes false because it's global search
+			h.prepare(board,false, treeDepth); // this passes false because it's global search
 			IntSet good = h.getGoodMoves();
 			for (int j = 0; j < good.size(); j++) {
 				int p = good.get(j);
 				node.addWins(p, h.getWeight());
 			}
 			// TODO The remaining code doesn't seem to do anything. Why is it here? Left over from when we had negative heuristics?
-			IntSet vacant = board.getVacantPoints();
-			for (int j = 0; j < vacant.size(); j++) {
-				int p = vacant.get(i);
-			}
+//			IntSet vacant = board.getVacantPoints();
+//			for (int j = 0; j < vacant.size(); j++) {
+//				int p = vacant.get(i);
+//			}
 		}
 	}
 

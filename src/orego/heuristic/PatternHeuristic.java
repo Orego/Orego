@@ -103,8 +103,8 @@ public class PatternHeuristic extends Heuristic {
 	}
 	
 	@Override
-	public void prepare(Board board, boolean local) {
-		super.prepare(board, local);
+	public void prepare(Board board, boolean local, int treeDepth) {
+		super.prepare(board, local, treeDepth);
 		if (local) {
 			int lastMove = board.getMove(board.getTurn() - 1);
 			if (!isOnBoard(lastMove)) {

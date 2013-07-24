@@ -55,7 +55,7 @@ public abstract class Heuristic implements Cloneable {
 	 * heuristics, this avoids redundant computation. Overriding versions should
 	 * usually call this version first, as it clears out goodMoves.
 	 */
-	public void prepare(Board board, boolean local) {
+	public void prepare(Board board, boolean local, int treeDepth) {
 		goodMoves.clear();
 	}
 
