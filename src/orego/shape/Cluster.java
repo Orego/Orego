@@ -1,6 +1,7 @@
 package orego.shape;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import orego.core.*;
 import static orego.core.Board.MAX_PATTERN_RADIUS;
@@ -15,12 +16,16 @@ public class Cluster implements Serializable {
 	
 	/** Multihash tables, indexed by radius and color to play. */
 	private Table[][] tables;
+	
+	private double[] weights;
 
 	/**
 	 * @param tables Number of sloppy hash tables.
 	 * @param bits Number of bits for indexing into each table.
 	 */
 	public Cluster(int tables, int bits) {
+		weights = new double[MAX_PATTERN_RADIUS+1];
+		Arrays.fill(weights, 1/((double)MAX_PATTERN_RADIUS));
 		this.tables = new Table[MAX_PATTERN_RADIUS + 1][NUMBER_OF_PLAYER_COLORS];
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
 			for (int color = BLACK; color <= WHITE; color++) {
@@ -45,9 +50,9 @@ public class Cluster implements Serializable {
 	public float getWinRate(Board board, int move) {
 		float sum = 0.0f;
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
-			sum += tables[radius][board.getColorToPlay()].getWinRate(board.getPatternHash(move, radius));
+			sum += tables[radius][board.getColorToPlay()].getWinRate(board.getPatternHash(move, radius))*weights[radius];
 		}
-		return sum / MAX_PATTERN_RADIUS;
+		return sum;
 	}
 	
 	public float getPatternWinRate(long hash, int color, int radius){
@@ -71,6 +76,24 @@ public class Cluster implements Serializable {
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
 			tables[radius][color].store(hashes[radius], win);
 		}		
+	}
+
+	/** 
+	 * Assumes MAX_PATTERN_RADIUS of 4.
+	 * @param radius1
+	 * @param radius2
+	 * @param radius3
+	 * @param radius4
+	 */
+	public void setWeights(int radius1, int radius2, int radius3, int radius4) {
+		double sum = radius1+radius2+radius3+radius4;
+		if (weights == null){
+			weights = new double[MAX_PATTERN_RADIUS+1];
+		}
+		weights[1] = radius1/sum;
+		weights[2] = radius2/sum;
+		weights[3] = radius3/sum;
+		weights[4] = radius4/sum;
 	}
 	
 }
