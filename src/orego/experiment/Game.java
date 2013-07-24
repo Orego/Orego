@@ -172,6 +172,17 @@ public class Game {
 					toPrograms[oregoColor].flush();
 					return;
 				}
+				if (board.getPasses() == 2) {
+					out.println(";RE["
+							+ (board.finalWinner() == BLACK ? "B" : "W") + "+"
+							+ Math.abs(board.finalScore()) + "]");
+					out.flush();
+					out.println(";C[moves:" + board.getTurn() + "]");
+					out.flush();
+					toPrograms[oregoColor].println("playout_count");
+					toPrograms[oregoColor].flush();
+					return;
+				}
 				board.play(at(coordinates));
 				if (GAME_TIME_IN_SECONDS > 0) {
 					mode = SENDING_MOVE;
@@ -185,26 +196,14 @@ public class Game {
 						 + " " + coordinates);
 				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_MOVE) {
-				if (board.getPasses() == 2) {
-					out.println(";RE["
-							+ (board.finalWinner() == BLACK ? "B" : "W") + "+"
-							+ Math.abs(board.finalScore()) + "]");
-					out.flush();
-					out.println(";C[moves:" + board.getTurn() + "]");
-					out.flush();
-					toPrograms[oregoColor].println("playout_count");
-					toPrograms[oregoColor].flush();
-					return;
-				} else {
-					mode = SENDING_TIME_LEFT;
-					// tell the player how much time they have left in the game
-					int timeLeftInSeconds = GAME_TIME_IN_SECONDS
-							- timeUsedInMilliseconds[getColorToPlay()] / 1000;
-					toPrograms[getColorToPlay()].println("time_left "
-							+ COLOR_NAMES[getColorToPlay()] + " "
-							+ timeLeftInSeconds + " 0");
-					toPrograms[getColorToPlay()].flush();
-				}
+				mode = SENDING_TIME_LEFT;
+				// tell the player how much time they have left in the game
+				int timeLeftInSeconds = GAME_TIME_IN_SECONDS
+						- timeUsedInMilliseconds[getColorToPlay()] / 1000;
+				toPrograms[getColorToPlay()].println("time_left "
+						+ COLOR_NAMES[getColorToPlay()] + " "
+						+ timeLeftInSeconds + " 0");
+				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_TIME_LEFT) {
 				// ignore the player's response to the time_left command.
 				// request a move.
