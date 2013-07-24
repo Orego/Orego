@@ -26,9 +26,9 @@ public class PatternPlayer extends McPlayer {
 
 
 	@SuppressWarnings("unchecked")
-	private Cluster patterns;
+	private RichCluster patterns;
 
-//	private long numPlayouts;
+	private long numPlayouts;
 //
 	private int[] playoutCount; 
 //
@@ -49,6 +49,7 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void beforeStartingThreads() {
 //		playoutCount = new int[getFirstPointBeyondBoard()];
+		numPlayouts = 0;
 	}
 
 	/** Pass only if all moves have a win rate this low. */
@@ -86,7 +87,10 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public int bestStoredMove() {
-		return bestSearchMove(getBoard(), ((McRunnable) getRunnable(0)).getRandom());
+		System.err.println(numPlayouts + " playouts");
+		int move = bestSearchMove(getBoard(), ((McRunnable) getRunnable(0)).getRandom());
+		assert getBoard().isFeasible(move) : "bestSearchMove chose the infeasible " + pointToString(move) + " on:\n" + getBoard();
+		return move;
 	}
 
 	/** Hashes around move for later incorporating into pattern tables. */
@@ -94,13 +98,15 @@ public class PatternPlayer extends McPlayer {
 	
 	/** Store pattern hashes around move for later incorporating into pattern tables. */
 	protected void storeHashes(Board board, int move) {
+//		if (move == at("n1")) {
+//			System.err.println("Storing hashes for n1:\n" + board);
+//		}
 		int turn = board.getTurn();
 		for (int r = 1; r <= MAX_PATTERN_RADIUS; r++) {
 			hashes[turn][r] = board.getPatternHash(move, r);
-//			if (hashes[turn][r] == 0L) {
-//				System.err.println("Move in empty pattern: " + pointToString(move) + "\n" + board);
-//			}
 		}
+		hashes[turn][MAX_PATTERN_RADIUS + 1] = patterns.getGlobalHash(board, move, board.getColorToPlay());
+		hashes[turn][MAX_PATTERN_RADIUS + 2] = patterns.getReply1Hash(board, move, board.getColorToPlay());
 	}
 
 	@Override
@@ -113,7 +119,6 @@ public class PatternPlayer extends McPlayer {
 			}
 			runnable.acceptMove(move);
 		}
-//		numPlayouts++;
 	}
 
 	@Override
@@ -406,13 +411,19 @@ public class PatternPlayer extends McPlayer {
 			} else{
 				winner=0;
 			}
+//			System.err.println("Player's board's turn: " + getBoard().getTurn());
+//			System.err.println("Runnable's board's turn: " + turn);
 			for (int t = getBoard().getTurn(); t < turn; t++) {
+				if (t == getBoard().getTurn()) {
+//					System.err.println("Storing " + pointToString(runnable.getBoard().getMove(t)) + " at turn " + t);
+				}
 				patterns.store(hashes[t], color, winner);
 				winner=1-winner;
 				color=1-color;
 			}
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
+		numPlayouts++;
 	}
 
 	protected void initializePlayer(boolean maintain) {
@@ -431,7 +442,7 @@ public class PatternPlayer extends McPlayer {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
-			patterns = (Cluster) (in.readObject());
+			patterns = (RichCluster) (in.readObject());
 			patterns.setCount(1000);
 			in.close();
 		} catch (Exception ex) {
@@ -446,7 +457,7 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void reset() {
 		super.reset();
-		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 1];
+		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 3];
 		setUpRunnables();
 	}
 
