@@ -31,22 +31,21 @@ import ec.util.MersenneTwisterFast;
 public class DataToCSV {
 
 	/** Hash table containing the actual win rates for each pattern. */
-	private HashMap<DensePattern, Float>[][] winRateMap;
+	private HashMap<DensePattern, Float> winRateMap;
 
 	/** Hash table containing the actual count for each pattern. */
-	private HashMap<DensePattern, Long>[][] countMap;
+	private HashMap<DensePattern, Long> countMap;
 
 	private Cluster patterns;
 
-	private static int[][] parameters = { { 1, 18 }, { 2, 17 }, { 4, 16 },
-			{ 8, 8 }, { 16, 4 } };
+	
 
 	public static void main(String[] args) {
 		// System.out.println(new File(inputDirectory).getAbsolutePath());
 		DataToCSV data = new DataToCSV();
-		for (int i = 0; i < parameters.length; i++) {
-			new DataToCSV().run(
-					"SgfFiles",parameters[i][0], parameters[i][1]);
+		for (int i = 0; i < PatternExtractor.PARAMETERS.length; i++) {
+			data.run(
+					"SgfFiles",PatternExtractor.PARAMETERS[i][0], PatternExtractor.PARAMETERS[i][1]);
 		}
 	}
 
@@ -60,30 +59,31 @@ public class DataToCSV {
 	@SuppressWarnings("unchecked")
 	public void run(String directory, int tables, int bits) {
 		directory = orego.experiment.Debug.OREGO_ROOT_DIRECTORY + directory
-				+ File.separator + getBoardWidth() + File.separator;
+				+ File.separator;
 		try {
-			winRateMap = (HashMap<DensePattern, Float>[][]) loadFromFile(directory
-					+ "Actual-win-rate.data");
-			countMap = (HashMap<DensePattern, Long>[][]) loadFromFile(directory
-					+ "Actual-count.data");
 			patterns = (Cluster) loadFromFile(directory + "Patternsr" + 4 + "t"
 					+ tables + "b" + bits + ".data");
+			directory += getBoardWidth() + File.separator;
 
 			for (int radius = DataMiner.MIN_PATTERN_RADIUS; radius <= DataMiner.MAX_PATTERN_RADIUS; radius++) {
+				winRateMap = (HashMap<DensePattern, Float>) loadFromFile(directory
+						+ "Actual-win-rate"+radius+".data");
+				countMap = (HashMap<DensePattern, Long>) loadFromFile(directory
+						+ "Actual-count"+radius+".data");
 				PrintWriter bw = new PrintWriter(new FileWriter(new File(
 						directory + "results_r" + radius + "t"+tables+"b"+bits+".csv")));
 				System.out.println("writing out to "+directory + "results_r" + radius + "t"+tables+"b"+bits+".csv");
 				StringBuilder output = new StringBuilder("");
-				for (DensePattern key : winRateMap[radius][BLACK].keySet()) {
+				for (DensePattern key : winRateMap.keySet()) {
 					String key2 = key.toString();
 					long hash = keyToHash(key2, radius);
 					output.append(key2);
 					output.append(',');
 					output.append(hash);
 					output.append(',');
-					output.append(winRateMap[radius][BLACK].get(key));
+					output.append(winRateMap.get(key));
 					output.append(',');
-					output.append(countMap[radius][BLACK].get(key));
+					output.append(countMap.get(key));
 					output.append(',');
 					output.append(patterns.getPatternWinRate(hash, BLACK,
 							radius));

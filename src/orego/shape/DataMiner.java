@@ -34,7 +34,7 @@ public class DataMiner {
 	
 	private boolean haveNotOverflowed;
 	
-	protected static final int MAX_PATTERN_RADIUS = 1, MIN_PATTERN_RADIUS = 1;
+	protected static final int MAX_PATTERN_RADIUS = 4, MIN_PATTERN_RADIUS = 1;
 
 	public static void main(String[] args) {
 //		new DataMiner().run(orego.experiment.ExperimentConfiguration.SGF_DIRECTORY,"SgfFiles");
@@ -56,8 +56,11 @@ public class DataMiner {
 	/**
 	 * Extracts patterns from all files in a directory.
 	 * 
-	 * @param in Full path to directory containing SGF files.
-	 * @param out Directory (within OREGO_ROOT_DIRECTORY) to store output and load Cluster from, usually "SgfFiles" or "SgfTestFiles".
+	 * @param in
+	 *            Full path to directory containing SGF files.
+	 * @param out
+	 *            Directory (within OREGO_ROOT_DIRECTORY) to store output and
+	 *            load Cluster from, usually "SgfFiles" or "SgfTestFiles".
 	 */
 	public void run(String in, String out2) {
 		haveNotOverflowed = true;
@@ -66,27 +69,35 @@ public class DataMiner {
 		try {
 			random = new MersenneTwisterFast(0L);
 			setUp(in);
-			
-			try {
-				ObjectOutputStream ow = new ObjectOutputStream(
-						new FileOutputStream(new File(out + "actual-win-rate.data")));
-				ow.writeObject(winRateMap);
-				ow.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			System.out.println("Starting to write out hash maps.");
+
+			for (int i = MIN_PATTERN_RADIUS; i <= MAX_PATTERN_RADIUS; i++) {
+				System.out.println("Writing radius "+i);
+				try {
+					ObjectOutputStream ow = new ObjectOutputStream(
+							new FileOutputStream(new File(out
+									+ "actual-win-rate" + i + ".data")));
+					ow.writeObject(winRateMap[i][Colors.BLACK]);
+					ow.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				winRateMap[i] = null;
+
+				try {
+					ObjectOutputStream ow = new ObjectOutputStream(
+							new FileOutputStream(new File(out + "actual-count"
+									+ i + ".data")));
+					ow.writeObject(countMap[i][Colors.BLACK]);
+					ow.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				countMap[i] = null;
 			}
-			
-			try {
-				ObjectOutputStream ow = new ObjectOutputStream(
-						new FileOutputStream(new File(out + "actual-count.data")));
-				ow.writeObject(countMap);
-				ow.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			
-//			(new DataToCSV()).run(in, out2);
-			
+
+			// (new DataToCSV()).run(in, out2);
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
