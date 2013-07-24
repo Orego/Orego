@@ -34,6 +34,15 @@ public class Cluster implements Serializable {
 		}
 	}
 	
+	/** Set every table entry to have a specified number of runs. */
+	public void setCount(long count) {
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			for (int color = BLACK; color <= WHITE; color++) {
+				tables[radius][color].setCount(count);
+			}
+		}
+	}
+
 	/**
 	 * @param board Board on which move is made.
 	 * @param move Move to be made.
@@ -55,10 +64,21 @@ public class Cluster implements Serializable {
 		return sum;
 	}
 	
+	/** Returns the run count for playing move on board. */
+	public long getCount(Board board, int move) {
+		long sum = 0L;
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			sum += tables[radius][board.getColorToPlay()].getCount(board.getPatternHash(move, radius));
+		}
+		return sum / MAX_PATTERN_RADIUS;
+	}
+	
+	/** Returns the win rate for a particular pattern hash. */
 	public float getPatternWinRate(long hash, int color, int radius){
 		return tables[radius][color].getWinRate(hash);
 	}
 	
+	/** Returns the count for a particular pattern hash. */
 	public long getPatternCount(long hash, int color, int radius){
 		return tables[radius][color].getCount(hash);
 	}

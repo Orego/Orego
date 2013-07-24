@@ -1,23 +1,22 @@
 package orego.shape;
 
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
+import static java.lang.String.format;
 import static orego.core.Board.*;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
+import static orego.experiment.Debug.debug;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import ec.util.MersenneTwisterFast;
-
 import orego.core.Board;
-import orego.core.Colors;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
 import orego.mcts.SearchNode;
@@ -25,16 +24,13 @@ import orego.util.IntSet;
 
 public class PatternPlayer extends McPlayer {
 
-//	public static void main(String[] args) {
-//		new PatternPlayer(true);
-//	}
 
 	@SuppressWarnings("unchecked")
 	private Cluster patterns;
 
 //	private long numPlayouts;
 //
-//	private int[] playoutCount;
+	private int[] playoutCount; 
 //
 //	private boolean maintainHashes;
 //
@@ -55,27 +51,6 @@ public class PatternPlayer extends McPlayer {
 //		playoutCount = new int[getFirstPointBeyondBoard()];
 	}
 
-//	private int bestMove(Board b) {
-//		int result = 0;
-//		float rate = 0;
-//		IntSet moves = b.getVacantPoints();
-//		for (int i = 0; i < moves.size(); i++) {
-//			if (b.isLegal(moves.get(i)) && b.isFeasible(moves.get(i))) {
-//				float tempRate = (float) getWinRate(b, moves.get(i));
-//				if (tempRate > rate) {
-//					rate = tempRate;
-//					result = moves.get(i);
-//				}
-//			}
-//		}
-//		if (rate < .25)
-//			result = PASS;
-////		if (b.getHash() == getBoard().getHash()) {
-////			playoutCount[result]++;
-////		}
-//		return result;
-//	}
-
 	/** Pass only if all moves have a win rate this low. */
 	public static final float PASS_THRESHOLD = 0.25f;
 	
@@ -87,9 +62,13 @@ public class PatternPlayer extends McPlayer {
 		int start;
 		start = random.nextInt(vacantPoints.size());
 		int i = start;
+		int totalRuns = 0;
+		for(int j=0; j<vacantPoints.size(); j++){
+			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
+		}
 		do {
 			int move = vacantPoints.get(i);
-			double searchValue = getWinRate(board, move);
+			double searchValue = searchValue(board, move, totalRuns);
 			if (searchValue > best) {
 				if (board.isFeasible(move) && board.isLegal(move)) {
 					best = searchValue;
@@ -118,6 +97,9 @@ public class PatternPlayer extends McPlayer {
 		int turn = board.getTurn();
 		for (int r = 1; r <= MAX_PATTERN_RADIUS; r++) {
 			hashes[turn][r] = board.getPatternHash(move, r);
+//			if (hashes[turn][r] == 0L) {
+//				System.err.println("Move in empty pattern: " + pointToString(move) + "\n" + board);
+//			}
 		}
 	}
 
@@ -126,7 +108,9 @@ public class PatternPlayer extends McPlayer {
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
 			int move = bestSearchMove(runnable.getBoard(), runnable.getRandom());
-			storeHashes(runnable.getBoard(), move);
+			if (move != PASS) {
+				storeHashes(runnable.getBoard(), move);
+			}
 			runnable.acceptMove(move);
 		}
 //		numPlayouts++;
@@ -138,7 +122,9 @@ public class PatternPlayer extends McPlayer {
 		result.add("gogui-radius-win-rates");
 		result.add("gogui-combined-pattern-win-rates");
 		result.add("gogui-playouts");
-//		result.add("gogui-pattern-first-playout-move");
+		result.add("gogui-playouts-through");
+		result.add("gogui-run-counts");
+		result.add("gogui-primary-variation");
 		return result;
 	}
 
@@ -148,41 +134,15 @@ public class PatternPlayer extends McPlayer {
 		result.add("gfx/Radius win rates/gogui-radius-win-rates %s");
 		result.add("gfx/Combined pattern win rates/gogui-combined-pattern-win-rates");
 		result.add("none/Playouts/gogui-playouts %s");
-//		result.add("gfx/Top playout move chosen/gogui-pattern-first-playout-move");
+		result.add("gfx/Playouts through/gogui-playouts-through");
+		result.add("gfx/Run counts/gogui-run-counts");
+		result.add("gfx/Primary variation/gogui-primary-variation");
 		return result;
 	}
 
-//	public PatternInformation[] getInformation(int patternType, long hash,
-//			int color) {
-//		PatternInformation[] toReturn = new PatternInformation[NUM_HASH_TABLES];
-//		for (int table = 0; table < NUM_HASH_TABLES; table++) {
-//			toReturn[table] = patterns[table][patternType][color]
-//					.get(hashLongToChar(hash, table));
-//			if (toReturn[table] == null)
-//				toReturn[table] = new PatternInformation();
-//		}
-//		return toReturn;
-//	}
-
-//	/**
-//	 * Given a long hash, returns the (64/NUM_HASH_TABLES)-bit (max is 16 bits)
-//	 * hash associated with table 0 - NUM_HASH_TABLES.
-//	 * 
-//	 * @param hash
-//	 *            The sixteen bits of the long associated with the given hash
-//	 *            table
-//	 * @param table
-//	 *            Which hash table to extract the bits for
-//	 * @return
-//	 */
-//	public static char hashLongToChar(long hash, int table) {
-//		return (char) ((hash >>> ((table % NUM_HASH_TABLES) * (64 / NUM_HASH_TABLES))) & 0xffff);
-//	}
-
 	@Override
 	public long getPlayouts(int p) {
-//		return playoutCount[p];
-		return -1L;
+		return playoutCount[p];
 	}
 
 //	public long getTotalNumPlayouts() {
@@ -251,6 +211,35 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 	
+	/**
+	 * Generates the string to be passed to GoGui representing the current best
+	 * variation of moves found by this player.
+	 */
+	protected String goguiPrimaryVariation() {
+		String result = "VAR";
+		// To show the best tree, we need to manually traverse the tree
+		Board board = new Board();
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		board.copyDataFrom(getBoard());
+		for (int depth = 0; depth < 15; depth++) {
+//		while(board.getPasses() < 2) {
+			int best = bestSearchMove(board, random);
+			int legality;
+			if (best == RESIGN) {
+				legality = -1;
+			} else {
+				legality = board.play(best);
+			}
+			if (legality != orego.core.Board.PLAY_OK) {
+				debug("Illegal move after primary variation shown: " + pointToString(best));
+				break;
+			}
+			result += format(" %s %s", board.getColorToPlay() == BLACK ? "W"
+					: "B", pointToString(best));
+		}
+		return result;
+	}
+
 	protected String goguiRadiusWinRates(int radius) {
 		String result = "";
 		for (int p : getAllPointsOnBoard()) {
@@ -321,11 +310,15 @@ public class PatternPlayer extends McPlayer {
 		boolean threadsWereRunning = threadsRunning();
 		stopThreads();
 		String result = null;
-		if (command.contains("gogui-radius-win-rates")) {
+		if (command.equals("gogui-radius-win-rates")) {
 			result = goguiRadiusWinRates(Integer
 					.parseInt(arguments.nextToken()));
-		} else if (command.contains("gogui-combined-pattern-win-rates")) {
+		} else if (command.equals("gogui-combined-pattern-win-rates")) {
 			result = goguiCombinedPatternWinRates();
+		} else if (command.equals("gogui-run-counts")) {
+			result = goguiRunCounts();
+		} else if (command.equals("gogui-primary-variation")) {
+			result = goguiPrimaryVariation();
 		} else if (command.equals("gogui-playouts")) {
 			int n = Integer.parseInt(arguments.nextToken());
 			for (int i = 0; i < n; i++) {
@@ -354,6 +347,8 @@ public class PatternPlayer extends McPlayer {
 			result = "";
 			// } else if (command.equals("gogui-pattern-first-playout-move")) {
 			// result = goguiFirstPlayoutMove();
+		} else if( command.equals("gogui-playouts-through")){
+			result=goguiPlayoutsThrough();
 		} else {
 			result = super.handleCommand(command, arguments);
 		}
@@ -363,17 +358,60 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 
+	protected String goguiPlayoutsThrough() {
+		String result="";
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+
+				int playoutsThrough = playoutCount[p];
+				// Number of playouts through each point
+				result += String.format("LABEL %s %s",
+						pointToString(p), playoutsThrough);
+			}
+		}
+		return result;
+	}
+
+	protected String goguiRunCounts() {
+		String result="";
+		long max = -1;
+		for (int p : getAllPointsOnBoard()) {
+			long count = patterns.getCount(getBoard(), p);
+			if (count > max) {
+				max = count;
+			}
+		}		
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+				long count = patterns.getCount(getBoard(), p);
+				// Number of playouts through each point
+				result += String.format("COLOR %s %s\nLABEL %s %s",
+						colorCode(((double)count) / max), pointToString(p),
+						pointToString(p), count);
+			}
+		}
+		return result;
+	}
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		if (winner != VACANT) {
 			int turn = runnable.getTurn();
 			int color = getBoard().getColorToPlay();
-			if (winner != color) {
-				winner = 1 - winner;
+			if (winner == color) {
+				winner=1;
+			} else{
+				winner=0;
 			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
 				patterns.store(hashes[t], color, winner);
+				winner=1-winner;
+				color=1-color;
 			}
+			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
 	}
 
@@ -381,7 +419,7 @@ public class PatternPlayer extends McPlayer {
 //		maintainHashes = maintain;
 //		patternWeights = new double[] { 1 / 20.0, 3 / 20.0, 6 / 20.0, 10 / 20.0 };
 		setBoard(new Board(maintain));
-//		playoutCount = new int[getFirstPointBeyondBoard()];
+		playoutCount = new int[getFirstPointBeyondBoard()];
 		loadPatternHashMaps();
 //		numPlayouts = 0;
 //		this.setInOpeningBook(false);
@@ -394,6 +432,7 @@ public class PatternPlayer extends McPlayer {
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
 			patterns = (Cluster) (in.readObject());
+			patterns.setCount(100);
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -417,6 +456,40 @@ public class PatternPlayer extends McPlayer {
 				runnable.getRandom());
 		runnable.acceptMove(move);
 		return move;
+	}
+	
+	/**
+	 * Returns the UCT upper bound for node. This is the UCB1-TUNED policy,
+	 * explained in the tech report by Gelly, et al, "Modification of UCT with
+	 * Patterns in Monte-Carlo Go". The formula is at the bottom of p. 5 in that
+	 * paper.
+	 */
+	public double searchValue(Board board, int move, int totalRuns) {
+		// The variable names here are chosen for consistency with the tech
+		// report
+		double barX = getWinRate(board, move);
+		if (barX < 0) { // if the move has been excluded
+			return NEGATIVE_INFINITY;
+		}
+		double logParentRunCount = log(totalRuns);
+		// In the paper, term1 is the mean of the SQUARES of the rewards; since
+		// all rewards are 0 or 1 here, this is equivalent to the mean of the
+		// rewards, i.e., the win rate.
+		double term1 = barX;
+		double term2 = -(barX * barX);
+		double term3 = sqrt(2 * logParentRunCount / patterns.getCount(board, move));
+		double v = term1 + term2 + term3; // This equation is above Eq. 1
+		assert v >= 0 : "Negative variability in UCT for move "
+				+ pointToString(move) + ":\n" + "ERROR" + "\nterm1: " + term1
+				+ "\nterm2: " + term2 + "\nterm3: " + term3
+				+ "\nPlayer's board:\n" + getBoard() + "\nVacant points: "
+				+ getBoard().getVacantPoints().toStringAsPoints()
+				+ "\nRunnable's board:\n" + board + "\nVacant points: "
+				+ board.getVacantPoints().toStringAsPoints();
+		double factor1 = logParentRunCount / patterns.getCount(board, move);
+		double factor2 = min(0.25, v);
+		double uncertainty = 0.4 * sqrt(factor1 * factor2);
+		return uncertainty + barX;
 	}
 
 	protected void setUpRunnables() {
