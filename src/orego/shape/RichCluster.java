@@ -55,7 +55,8 @@ public class RichCluster extends Cluster {
 	public float getWinRate(Board board, int move) {
 		int color = board.getColorToPlay();
 		long globalHash = getGlobalHash(board, move, color);
-		return (super.getWinRate(board, move) + global[color].getWinRate(globalHash)) / 2.0f;
+		// TODO Properly speaking, we should divide by two, but since we're only comparing with other results of this function, who cares?
+		return (super.getWinRate(board, move) + global[color].getWinRate(globalHash));
 	}
 
 }

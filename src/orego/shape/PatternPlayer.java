@@ -76,15 +76,16 @@ public class PatternPlayer extends McPlayer {
 		int start;
 		start = random.nextInt(vacantPoints.size());
 		int i = start;
-		int totalRuns = 0;
-		for(int j=0; j<vacantPoints.size(); j++){
-			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
-		}
+//		int totalRuns = 0;
+//		for(int j=0; j<vacantPoints.size(); j++){
+//			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
+//		}
 		do {
 			int move = vacantPoints.get(i);
-			double searchValue = searchValue(board, move, totalRuns);
-			if (searchValue > best) {
-				if (board.isFeasible(move) && board.isLegal(move)) {
+//			double searchValue = searchValue(board, move, totalRuns);
+			if (board.isFeasible(move)) {
+				float searchValue = patterns.getWinRate(board, move);
+				if (searchValue > best && board.isLegal(move)) {
 					best = searchValue;
 					result = move;
 				}
