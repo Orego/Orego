@@ -20,10 +20,23 @@ import orego.core.Board;
 import orego.mcts.McPlayer;
 import orego.mcts.McRunnable;
 import orego.mcts.SearchNode;
+import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
 
 public class PatternPlayer extends McPlayer {
 
+	public static void main(String[] args) {
+		PatternPlayer p = new PatternPlayer();
+		try {
+			p.setProperty("threads", "1");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		double[] benchMarkInfo = p.benchmark();
+		System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+				+ benchMarkInfo[1]);
+	}
 
 	@SuppressWarnings("unchecked")
 	private RichCluster patterns;
@@ -460,7 +473,7 @@ public class PatternPlayer extends McPlayer {
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
-							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
+							+ "SgfFiles" + File.separator + "Patternsr4t16b4.data")));
 			patterns = (RichCluster) (in.readObject());
 			patterns.setCount(1000);
 			in.close();
@@ -507,7 +520,8 @@ public class PatternPlayer extends McPlayer {
 		// rewards, i.e., the win rate.
 		double term1 = barX;
 		double term2 = -(barX * barX);
-		double term3 = sqrt(2 * logParentRunCount / patterns.getCount(board, move));
+		double factor1 = logParentRunCount / patterns.getCount(board, move);
+		double term3 = sqrt(2 * factor1);
 		double v = term1 + term2 + term3; // This equation is above Eq. 1
 		assert v >= 0 : "Negative variability in UCT for move "
 				+ pointToString(move) + ":\n" + "ERROR" + "\nterm1: " + term1
@@ -516,7 +530,6 @@ public class PatternPlayer extends McPlayer {
 				+ getBoard().getVacantPoints().toStringAsPoints()
 				+ "\nRunnable's board:\n" + board + "\nVacant points: "
 				+ board.getVacantPoints().toStringAsPoints();
-		double factor1 = logParentRunCount / patterns.getCount(board, move);
 		double factor2 = min(0.25, v);
 		double uncertainty = 0.4 * sqrt(factor1 * factor2);
 		return uncertainty + barX;
