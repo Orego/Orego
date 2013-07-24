@@ -80,11 +80,13 @@ public class PatternPlayer extends McPlayer {
 //		for(int j=0; j<vacantPoints.size(); j++){
 //			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
 //		}
+//		float threshold = 5 * (0.45f + (0.1f * vacantPoints.size()) / getBoardArea()); // 5 * because the win rates from five tables are being added, not averaged
+		float threshold = 5 * (0.51f); // 5 * because the win rates from five tables are being added, not averaged
 		do {
 			int move = vacantPoints.get(i);
 //			double searchValue = searchValue(board, move, totalRuns);
 			if (board.isFeasible(move)) {
-				float searchValue = patterns.getWinRate(board, move);
+				double searchValue = patterns.getWinRate(board, move);
 				if (searchValue > best && board.isLegal(move)) {
 					best = searchValue;
 					result = move;
@@ -95,13 +97,16 @@ public class PatternPlayer extends McPlayer {
 			// Advancing by 457 therefore skips "randomly" through the array,
 			// in a manner analogous to double hashing.
 			i = (i + 457) % vacantPoints.size();
-		} while (i != start);
+		} while ((i != start) && best < threshold);
 		return result;
 	}
 
 	@Override
 	public int bestStoredMove() {
-		Board board = getBoard();
+		return bestStoredMove(getBoard());
+	}
+		
+	protected int bestStoredMove(Board board) {
 		MersenneTwisterFast random = ((McRunnable)(getRunnable(0))).getRandom();
 		double best = PASS_THRESHOLD;
 		int result = PASS;
@@ -228,7 +233,7 @@ public class PatternPlayer extends McPlayer {
 				if (result.length() > 0)
 					result += '\n';
 
-				float totalRate = (float) getWinRate(p);
+				float totalRate = (float) getWinRate(p) / 5.0f; // / 5.0 is a kludge
 				// RATE
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
@@ -261,7 +266,7 @@ public class PatternPlayer extends McPlayer {
 		board.copyDataFrom(getBoard());
 		for (int depth = 0; depth < 15; depth++) {
 //		while(board.getPasses() < 2) {
-			int best = bestSearchMove(board, random);
+			int best = bestStoredMove(board);
 			int legality;
 			if (best == RESIGN) {
 				legality = -1;
@@ -474,7 +479,7 @@ public class PatternPlayer extends McPlayer {
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
-							+ "SgfFiles" + File.separator + "Patternsr4t16b4.data")));
+							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
 			patterns = (RichCluster) (in.readObject());
 			patterns.setCount(1000);
 			in.close();
