@@ -173,7 +173,11 @@ public class Game {
 					return;
 				}
 				board.play(at(coordinates));
-				mode = SENDING_MOVE;
+				if (GAME_TIME_IN_SECONDS > 0) {
+					mode = SENDING_MOVE;
+				} else {
+					mode = SENDING_TIME_LEFT;
+				}
 				// Note the color reversal here, because the color to play has
 				// already been switched
 				toPrograms[getColorToPlay()]
@@ -253,12 +257,20 @@ public class Game {
 			board = new Board();
 			// start by telling the first player how much time they have left,
 			// which gets the game started (see the handleResponse() method).
-			mode = SENDING_TIME_LEFT;
-			int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInMilliseconds[getColorToPlay()] / 1000;
-			toPrograms[getColorToPlay()].println("time_left "
-					+ COLOR_NAMES[getColorToPlay()] + " "
-					+ timeLeftInSeconds + " 0");
-			toPrograms[getColorToPlay()].flush();
+			if (GAME_TIME_IN_SECONDS > 0) {
+				mode = SENDING_TIME_LEFT;
+				int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInMilliseconds[getColorToPlay()] / 1000;
+				toPrograms[getColorToPlay()].println("time_left "
+						+ COLOR_NAMES[getColorToPlay()] + " "
+						+ timeLeftInSeconds + " 0");
+				toPrograms[getColorToPlay()].flush();
+			} else {
+				mode = REQUESTING_MOVE;
+				toPrograms[getColorToPlay()].println("genmove "
+						+ COLOR_NAMES[getColorToPlay()]);
+				toPrograms[getColorToPlay()].flush();
+				timeLastMoveWasRequested = System.currentTimeMillis();
+			}
 			// Wait for programs to finish
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				programs[color].waitFor();
