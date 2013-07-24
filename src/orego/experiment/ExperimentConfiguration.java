@@ -55,7 +55,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 2;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 600;
+	public static final int GAMES_PER_CONDITION = 300;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -69,7 +69,7 @@ public class ExperimentConfiguration {
 	 * no time_left commands will be sent. This is useful if using the msec or
 	 * playouts properties.
 	 */
-	public static final int GAME_TIME_IN_SECONDS = 500;
+	public static final int GAME_TIME_IN_SECONDS = 0;
 	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
@@ -79,10 +79,11 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[1];
+	public static final String[] CONDITIONS = new String[2];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook heuristics=Escape@20:Pattern@20:Capture@20:DeepPattern@20";
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook heuristics=Escape@20:Pattern@20:Capture@20:DeepPattern@20 playouts=8000";
+		CONDITIONS[1] = "threads=2 book=LateOpeningBook heuristics=Escape@20:Pattern@20:Capture@20 playouts=8000";
 	}
 	
 	/** Path to run gnugo on your machine */
