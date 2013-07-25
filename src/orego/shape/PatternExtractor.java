@@ -25,11 +25,11 @@ public class PatternExtractor {
 
 	private static int[][] parameters = {
 //		{1,18},{2,17},
-//		{4,16}
+		{4,16}
 //	,
 //		{8,8}
 //		,
-		{16,4}
+//		{16,4}
 
 	};
 	

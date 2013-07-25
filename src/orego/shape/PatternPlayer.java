@@ -81,12 +81,14 @@ public class PatternPlayer extends McPlayer {
 //			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
 //		}
 //		float threshold = 5 * (0.45f + (0.1f * vacantPoints.size()) / getBoardArea()); // 5 * because the win rates from five tables are being added, not averaged
-		float threshold = 5 * (0.51f); // 5 * because the win rates from five tables are being added, not averaged
+		float threshold = 5 * (0.6f); // 5 * because the win rates from five tables are being added, not averaged
+		int count = 0;
 		do {
 			int move = vacantPoints.get(i);
 //			double searchValue = searchValue(board, move, totalRuns);
 			if (board.isFeasible(move)) {
-				double searchValue = patterns.getWinRate(board, move);
+				float searchValue = patterns.getWinRate(board, move) + 0.1f * random.nextFloat();
+				count++;
 				if (searchValue > best && board.isLegal(move)) {
 					best = searchValue;
 					result = move;
@@ -98,11 +100,13 @@ public class PatternPlayer extends McPlayer {
 			// in a manner analogous to double hashing.
 			i = (i + 457) % vacantPoints.size();
 		} while ((i != start) && best < threshold);
+		debug("Looked at "+count+" moves.");
 		return result;
 	}
 
 	@Override
 	public int bestStoredMove() {
+		System.err.println(numPlayouts + " playouts");
 		return bestStoredMove(getBoard());
 	}
 		
@@ -149,6 +153,7 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
+		debug("Starting new playout.");
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
 			int move = bestSearchMove(runnable.getBoard(), runnable.getRandom());
@@ -271,6 +276,7 @@ public class PatternPlayer extends McPlayer {
 			if (best == RESIGN) {
 				legality = -1;
 			} else {
+				debug(pointToString(best) + " is legal on\n" + board);
 				legality = board.play(best);
 			}
 			if (legality != orego.core.Board.PLAY_OK) {

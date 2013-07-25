@@ -50,9 +50,11 @@ public class SgfParser {
 		try {
 			Scanner s;
 			s = new Scanner(file);
+			StringBuilder builder = new StringBuilder();
 			while (s.hasNextLine()) {
-				input += s.nextLine();
+				builder.append(s.nextLine());
 			}
+			input = builder.toString();
 			input = input.replace("W[]", "W[tt]");
 			input = input.replace("B[]", "B[tt]");
 			StringTokenizer stoken = new StringTokenizer(input, ")[];");
