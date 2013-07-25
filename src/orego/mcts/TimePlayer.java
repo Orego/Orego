@@ -6,12 +6,12 @@ import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.util.Gaussian.Phi;
 import orego.play.UnknownPropertyException;
-//import static orego.core.Coordinates.pointToString;
-//import java.io.BufferedWriter;
-//import java.io.FileNotFoundException;
-//import java.io.FileWriter;
-//import java.io.IOException;
-//import java.io.PrintWriter;
+import static orego.core.Coordinates.pointToString;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class TimePlayer extends Lgrf2Player {
 
@@ -490,8 +490,8 @@ public class TimePlayer extends Lgrf2Player {
 		 * of time we have left for the game.
 		 */
 
-		// to avoid going overtime, try to never have < 10 seconds left
-		seconds -= 7;
+//		// to avoid going overtime, try to never have < 10 seconds left
+//		seconds -= 7;
 		
 		// don't crash if time left is negative
 		if (seconds < 0) {

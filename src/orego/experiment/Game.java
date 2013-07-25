@@ -34,7 +34,7 @@ public class Game {
 	 * The amount of time to add to each player's timeUsedInMilliseconds[]
 	 * entry, for each move. Used to simulate network lag for KGS.
 	 */
-	private static final int LAG_PER_MOVE_IN_MS = 100;
+	private static final int LAG_PER_MOVE_IN_MS = 0;
 
 	/** The amount of time each player has used so far. */
 	private int[] timeUsedInMilliseconds;
