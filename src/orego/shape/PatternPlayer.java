@@ -68,6 +68,8 @@ public class PatternPlayer extends McPlayer {
 	/** Pass only if all moves have a win rate this low. */
 	public static final float PASS_THRESHOLD = 0.25f;
 	
+	private float threshold;
+	
 	/** Returns the best move to make from here during a playout. */
 	public int bestSearchMove(Board board, MersenneTwisterFast random) {
 		double best = PASS_THRESHOLD;
@@ -81,7 +83,6 @@ public class PatternPlayer extends McPlayer {
 //			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
 //		}
 //		float threshold = 5 * (0.45f + (0.1f * vacantPoints.size()) / getBoardArea()); // 5 * because the win rates from five tables are being added, not averaged
-		float threshold = 5 * (0.6f); // 5 * because the win rates from five tables are being added, not averaged
 		int count = 0;
 		do {
 			int move = vacantPoints.get(i);
@@ -98,7 +99,7 @@ public class PatternPlayer extends McPlayer {
 			// in a manner analogous to double hashing.
 			i = (i + skip) % vacantPoints.size();
 		} while ((i != start) && best < threshold);
-		debug("Looked at "+count+" moves.");
+//		debug("Looked at "+count+" moves.");
 		return result;
 	}
 
@@ -149,7 +150,7 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
-		debug("Starting new playout.");
+//		debug("Starting new playout.");
 		runnable.getBoard().copyDataFrom(getBoard());
 		while (runnable.getBoard().getPasses() < 2) {
 			int move = bestSearchMove(runnable.getBoard(), runnable.getRandom());
@@ -234,7 +235,7 @@ public class PatternPlayer extends McPlayer {
 				if (result.length() > 0)
 					result += '\n';
 
-				float totalRate = (float) getWinRate(p) / 5.0f; // / 5.0 is a kludge
+				float totalRate = (float) getWinRate(p);
 				// RATE
 				result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
 						colorCode(totalRate), pointToString(p),
@@ -464,6 +465,8 @@ public class PatternPlayer extends McPlayer {
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
 		numPlayouts++;
+		threshold = 0.999f * threshold + 0.001f;
+		debug("Threshold: " + threshold);
 	}
 
 	protected void initializePlayer(boolean maintain) {
@@ -498,6 +501,7 @@ public class PatternPlayer extends McPlayer {
 	public void reset() {
 		super.reset();
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
+		threshold = 0.001f;
 		setUpRunnables();
 	}
 
