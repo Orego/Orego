@@ -172,6 +172,7 @@ public class Game {
 					toPrograms[oregoColor].flush();
 					return;
 				}
+				board.play(at(coordinates));
 				if (board.getPasses() == 2) {
 					out.println(";RE["
 							+ (board.finalWinner() == BLACK ? "B" : "W") + "+"
@@ -183,7 +184,6 @@ public class Game {
 					toPrograms[oregoColor].flush();
 					return;
 				}
-				board.play(at(coordinates));
 				if (GAME_TIME_IN_SECONDS > 0) {
 					mode = SENDING_MOVE;
 				} else {
