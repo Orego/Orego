@@ -604,4 +604,10 @@ public class OregoTest {
 		assertEquals(1, (heuristics.size()));
 	}
 
+	@Test
+	public void testCgtcColorSwitch() {
+		orego = new Orego(System.in, new PipedOutputStream(), new String[] {"cgtc=true"});
+		orego.handleCommand("reg_genmove white");
+		assertEquals(WHITE, orego.getPlayer().getBoard().getColorToPlay());
+	}
 }
