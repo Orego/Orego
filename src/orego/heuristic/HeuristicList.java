@@ -24,6 +24,7 @@ public class HeuristicList implements Cloneable {
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
+		int skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			int p = vacantPoints.get(i);
 			if ((board.getColor(p) == VACANT) && (board.isFeasible(p))) {
@@ -31,9 +32,9 @@ public class HeuristicList implements Cloneable {
 					return p;
 				}
 			}
-			// Advancing by 457 skips "randomly" through the array,
+			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
+			i = (i + skip) % vacantPoints.size();
 		} while (i != start);
 		// Nothing left -- pass!
 		board.pass();
@@ -159,6 +160,7 @@ public class HeuristicList implements Cloneable {
 	 */
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		// Try to get good moves from heuristics
+		int skip = PRIMES[random.nextInt(PRIMES.length)];
 		for (Heuristic h : heuristics) {
 			h.prepare(board);
 			IntSet good = h.getGoodMoves();
@@ -171,9 +173,9 @@ public class HeuristicList implements Cloneable {
 							&& (board.playFast(p) == PLAY_OK)) {
 						return p;
 					}
-					// Advancing by 457 skips "randomly" through the set of
-					// suggested moves, in a manner analogous to double hashing.
-					i = (i + 457) % good.size();
+					// Advancing by a random prime skips through the array
+					// in a manner analogous to double hashing.
+					i = (i + skip) % good.size();
 				} while (i != start);
 			}
 		}
