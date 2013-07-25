@@ -51,14 +51,6 @@ public class PatternPlayer extends McPlayer {
 //
 //	public static final int NUM_HASH_TABLES = 4;
 
-	public PatternPlayer() {
-		initializePlayer(true);
-	}
-
-	public PatternPlayer(boolean maintainBoardHashes) {
-		initializePlayer(maintainBoardHashes);
-	}
-
 	@Override
 	public void beforeStartingThreads() {
 //		playoutCount = new int[getFirstPointBeyondBoard()];
@@ -88,7 +80,7 @@ public class PatternPlayer extends McPlayer {
 			int move = vacantPoints.get(i);
 //			double searchValue = searchValue(board, move, totalRuns);
 			if (board.isFeasible(move)) {
-				float searchValue = patterns.getWinRate(board, move) + 0.1f * random.nextFloat();
+				float searchValue = patterns.getWinRate(board, move) + 0.0f * random.nextFloat();
 				count++;
 				if (searchValue > best && board.isLegal(move)) {
 					best = searchValue;
@@ -105,7 +97,8 @@ public class PatternPlayer extends McPlayer {
 
 	@Override
 	public int bestStoredMove() {
-		System.err.println(numPlayouts + " playouts");
+		debug("Choosing a move for " + COLOR_NAMES[getBoard().getColorToPlay()] + " on:\n" + getBoard());
+		debug(numPlayouts + " playouts");
 		return bestStoredMove(getBoard());
 	}
 		
@@ -465,18 +458,8 @@ public class PatternPlayer extends McPlayer {
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
 		numPlayouts++;
-		threshold = 0.999f * threshold + 0.001f;
+//		threshold = 0.999f * threshold + 0.001f;
 		debug("Threshold: " + threshold);
-	}
-
-	protected void initializePlayer(boolean maintain) {
-//		maintainHashes = maintain;
-//		patternWeights = new double[] { 1 / 20.0, 3 / 20.0, 6 / 20.0, 10 / 20.0 };
-		setBoard(new Board(maintain));
-		playoutCount = new int[getFirstPointBeyondBoard()];
-		loadPatternHashMaps();
-//		numPlayouts = 0;
-//		this.setInOpeningBook(false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -500,8 +483,12 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void reset() {
 		super.reset();
+		setBoard(new Board(true));
+		playoutCount = new int[getFirstPointBeyondBoard()];
+		loadPatternHashMaps();
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
-		threshold = 0.001f;
+//		threshold = 0.001f;
+		threshold = 0.5f;
 		setUpRunnables();
 	}
 

@@ -20,7 +20,7 @@ public class PatternPlayerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new PatternPlayer(true);
+		player = new PatternPlayer();
 		player.reset();
 	}
 
