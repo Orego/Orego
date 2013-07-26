@@ -110,7 +110,7 @@ public class Board {
 	/**
 	 * Records whether or not we should keep track of current pattern in all points on board (probably computation intensive).
 	 */
-	private boolean maintainPatternHashes = false;
+	private boolean maintainPatternHashes;
 	
 	/** Incrementally maintained pattern hash by point and radius. */
 	private long[][] patternHashAtPoint;
@@ -195,6 +195,9 @@ public class Board {
 	/** Neighbors of a stone just captured. Used by removeStone(). */
 	private IntList neighborsOfCapturedStone;
 
+	/** Number of nearby stones, indexed by point and radius. */
+	private int[][] nearbyStones;
+	
 	/** Number of consecutive passes. */
 	private int passes;
 
@@ -220,8 +223,7 @@ public class Board {
 	private IntSet vacantPoints;
 
 	public Board() {
-		maintainPatternHashes = false;
-		clear();
+		this(false);
 	}
 	
 	public Board(boolean maintainPatternHashes){
@@ -385,6 +387,7 @@ public class Board {
 				}
 			}
 			maintainPatternHashes = true;
+			nearbyStones = new int[getFirstPointBeyondBoard()][MAX_PATTERN_RADIUS + 1];
 		}
 	}
 
@@ -421,6 +424,7 @@ public class Board {
 			patternHashAtPoint = new long[getFirstPointBeyondBoard()][MAX_PATTERN_RADIUS + 1];
 			for (int p : getAllPointsOnBoard()){
 				System.arraycopy(that.patternHashAtPoint[p], 0, patternHashAtPoint[p], 0, MAX_PATTERN_RADIUS + 1);
+				System.arraycopy(that.nearbyStones[p], 0, nearbyStones[p], 0, MAX_PATTERN_RADIUS + 1);
 			}
 		}
 	}
@@ -734,6 +738,12 @@ public class Board {
 		assert colors[p] == VACANT;
 		return result;
 	}
+
+	/** Returns the number of stones within radius of p. */
+	public int getNumberOfStonesNear(int p, int radius) {
+		return nearbyStones[p][radius];
+	}
+
 
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
@@ -1332,14 +1342,12 @@ public class Board {
 	/** Removes stones. */
 	public void removeStone(int s) {
 		int color = colors[s];
-		
-		if (maintainPatternHashes){
-			updatePatternHashes(s, color);
-		}
-		
 		stoneCounts[color]--;
 		hash ^= ZOBRIST_HASHES[color][s];
 		colors[s] = VACANT;
+		if (maintainPatternHashes){
+			updatePatternHashes(s, color);
+		}
 		vacantPoints.addKnownAbsent(s);
 		neighborsOfCapturedStone.clear();
 		for (int k = 0; k < 4; k++) {
@@ -1485,6 +1493,11 @@ public class Board {
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
 			for (int[] pair : PATTERN_MAINTENANCE_OFFSETS[radius][p]) {
 				patternHashAtPoint[pair[0]][radius] ^= PATTERN_ZOBRIST_HASHES[radius][color][pair[1]];
+				if (colors[p] == color) {
+					nearbyStones[pair[0]][radius]++;
+				} else {
+					nearbyStones[pair[0]][radius]--;					
+				}
 			}
 		}
 	}

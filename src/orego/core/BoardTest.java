@@ -2502,4 +2502,41 @@ public class BoardTest {
 		assertFalse(board.isLegal(at("c9")));		
 	}
 
+	@Test
+	public void testMaintainStoneCount() {
+		String[] problem = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"O.O................",// 2
+				"#.#O..............." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		board = new Board(true);
+		board.setUpProblem(WHITE, problem);
+		assertEquals(3, board.getNumberOfStonesNear(at("d2"), 1));
+		assertEquals(3, board.getNumberOfStonesNear(at("d2"), 2));
+		assertEquals(5, board.getNumberOfStonesNear(at("d2"), 3));
+		assertEquals(5, board.getNumberOfStonesNear(at("d2"), 4));
+		board.play(at("b1"));
+		assertEquals(2, board.getNumberOfStonesNear(at("d2"), 1));
+		assertEquals(3, board.getNumberOfStonesNear(at("d2"), 2));
+		assertEquals(4, board.getNumberOfStonesNear(at("d2"), 3));
+		assertEquals(4, board.getNumberOfStonesNear(at("d2"), 4));
+	}
+
 }
