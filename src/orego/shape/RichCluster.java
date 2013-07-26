@@ -55,7 +55,7 @@ public class RichCluster extends Cluster {
 	public float getWinRate(Board board, int move) {
 		int color = board.getColorToPlay();
 		long globalHash = getGlobalHash(board, move, color);
-		return (1 * super.getWinRate(board, move) + 1 * global[color].getWinRate(globalHash)) / 2.0f;
+		return (4 * super.getWinRate(board, move) + 1 * global[color].getWinRate(globalHash)) / 5.0f;
 	}
 
 }

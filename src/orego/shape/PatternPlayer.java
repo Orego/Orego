@@ -62,6 +62,8 @@ public class PatternPlayer extends McPlayer {
 	
 	private float threshold;
 	
+	private float noise;
+	
 	/** Returns the best move to make from here during a playout. */
 	public int bestSearchMove(Board board, MersenneTwisterFast random) {
 		double best = PASS_THRESHOLD;
@@ -70,6 +72,7 @@ public class PatternPlayer extends McPlayer {
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
 		int skip = PRIMES[random.nextInt(PRIMES.length)];
+//		threshold = -1f;
 //		int totalRuns = 0;
 //		for(int j=0; j<vacantPoints.size(); j++){
 //			totalRuns+= patterns.getCount(board, vacantPoints.get(j));
@@ -80,8 +83,13 @@ public class PatternPlayer extends McPlayer {
 			int move = vacantPoints.get(i);
 //			double searchValue = searchValue(board, move, totalRuns);
 			if (board.isFeasible(move)) {
-				float searchValue = patterns.getWinRate(board, move) + 0.0f * random.nextFloat();
 				count++;
+				float searchValue = patterns.getWinRate(board, move) + noise * random.nextFloat();
+//				double searchValue = searchValue(board, move, totalRuns);
+//				if (threshold == -1f) {
+//					threshold = searchValue * 1.0f;
+////					debug("Threshold adjusted to " + threshold);
+//				}
 				if (searchValue > best && board.isLegal(move)) {
 					best = searchValue;
 					result = move;
@@ -90,7 +98,9 @@ public class PatternPlayer extends McPlayer {
 			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
 			i = (i + skip) % vacantPoints.size();
-		} while ((i != start) && best < threshold);
+		} while ((i != start) 
+				&& best < threshold
+				);
 //		debug("Looked at "+count+" moves.");
 		return result;
 	}
@@ -459,7 +469,9 @@ public class PatternPlayer extends McPlayer {
 		}
 		numPlayouts++;
 //		threshold = 0.999f * threshold + 0.001f;
-		debug("Threshold: " + threshold);
+		noise = 0.999f * noise;
+		debug("Noise: " + noise);
+//		debug("Threshold: " + threshold);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -488,7 +500,8 @@ public class PatternPlayer extends McPlayer {
 		loadPatternHashMaps();
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
 //		threshold = 0.001f;
-		threshold = 0.5f;
+		threshold = 0.51f;
+		noise = 1.0f;
 		setUpRunnables();
 	}
 
