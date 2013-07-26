@@ -61,7 +61,11 @@ public class Table implements Serializable {
 	/** Sets the count for all entries in this table. */
 	public void setCount(long count) {
 		for (int i = 0; i < counts.length; i++) {
-			fill(counts[i], count);
+			for (int j = 0; j < counts[i].length; j++) {
+				counts[i][j] = Math.min(counts[i][j], count);
+//				assert counts[i][j] == 0 || counts[i][j] > count : "Count was only " + counts[i][j];
+			}
+//			fill(counts[i], count);
 		}
 	}
 

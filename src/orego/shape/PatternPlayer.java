@@ -151,6 +151,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gogui-playouts-through");
 		result.add("gogui-run-counts");
 		result.add("gogui-primary-variation");
+		result.add("gogui-radius-run-counts");
 		return result;
 	}
 
@@ -163,6 +164,7 @@ public class PatternPlayer extends McPlayer {
 		result.add("gfx/Playouts through/gogui-playouts-through");
 		result.add("gfx/Run counts/gogui-run-counts");
 		result.add("gfx/Primary variation/gogui-primary-variation");
+		result.add("gfx/Radius run counts/gogui-radius-run-counts %s");
 		return result;
 	}
 
@@ -296,6 +298,29 @@ public class PatternPlayer extends McPlayer {
 		return result;
 	}
 
+	protected String goguiRadiusRunCounts(int radius) {
+		String result="";
+		long max = -1;
+		for (int p : getAllPointsOnBoard()) {
+			long count = patterns.getCount(getBoard(), p);
+			if (count > max) {
+				max = count;
+			}
+		}		
+		for (int p : getAllPointsOnBoard()) {
+			if (getBoard().getColor(p) == VACANT) {
+				if (result.length() > 0)
+					result += '\n';
+				long count = patterns.getPatternCount(getBoard().getPatternHash(p, radius), getBoard().getColorToPlay(), radius);
+				// Number of playouts through each point
+				result += String.format("COLOR %s %s\nLABEL %s %s",
+						colorCode(((double)count) / max), pointToString(p),
+						pointToString(p), count);
+			}
+		}
+		return result;
+	}
+
 	@Override
 	public String handleCommand(String command, StringTokenizer arguments) {
 		boolean threadsWereRunning = threadsRunning();
@@ -308,6 +333,8 @@ public class PatternPlayer extends McPlayer {
 			result = goguiCombinedPatternWinRates();
 		} else if (command.equals("gogui-run-counts")) {
 			result = goguiRunCounts();
+		} else if (command.equals("gogui-radius-run-counts")) {
+			result = goguiRadiusRunCounts(Integer.parseInt(arguments.nextToken()));
 		} else if (command.equals("gogui-primary-variation")) {
 			result = goguiPrimaryVariation();
 		} else if (command.equals("gogui-playouts")) {
