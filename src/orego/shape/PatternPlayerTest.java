@@ -189,49 +189,51 @@ public class PatternPlayerTest {
 //		System.out.println(player.getTotalNumPlayouts());
 //	}
 //	
-//	@Test
-//	public void testMaintainBoardViability(){
-//		PatternPlayer playerTrue = new PatternPlayer (true);
-//		PatternPlayer playerFalse = new PatternPlayer (false);
-//		
-//		playerTrue.setMillisecondsPerMove(2000);
-//		playerFalse.setMillisecondsPerMove(2000);
-//		playerTrue.reset();
-//		playerFalse.reset();
-//		
-//		String[] problem = { "...................",// 19
-//				"...................",// 18
-//				"...................",// 17
-//				"...................",// 16
-//				"...................",// 15
-//				"...................",// 14
-//				"...................",// 13
-//				"...................",// 12
-//				"...................",// 11
-//				"...................",// 10
-//				".OOO...............",// 9
-//				"O#.#O#.#...........",// 8
-//				"OO.OOO.O...........",// 7
-//				"...................",// 6
-//				"..#...O.O..........",// 5
-//				"...O...O...........",// 4
-//				"##....#............",// 3
-//				"OO#..#O#...........",// 2
-//				".O#....O#.........." // 1
-//		// ABCDEFGHJKLMNOPQRST
-//		};
-//		playerTrue.setUpProblem(BLACK, problem);
-//		playerFalse.setUpProblem(BLACK, problem);
-//		
-////		playerTrue.setUpRunnables();
-////		playerFalse.setUpRunnables();
-//
-//		playerTrue.bestMove();
-//		playerFalse.bestMove();
-//		
-//		//System.out.println("With maintenance: "+playerTrue.getTotalNumPlayouts()+"; without: "+playerFalse.getTotalNumPlayouts());
-//		assertTrue(playerTrue.getTotalNumPlayouts()>playerFalse.getTotalNumPlayouts());
-//		
-//	}
+	@Test
+	public void testMaintainBoardViability(){
+		PatternPlayer playerTrue = new PatternPlayer (true);
+		PatternPlayer playerFalse = new PatternPlayer (false);
+		
+		playerTrue.setMillisecondsPerMove(2000);
+		playerFalse.setMillisecondsPerMove(2000);
+		playerTrue.reset();
+		playerFalse.reset();
+		
+		String[] problem = { "...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".OOO...............",// 9
+				"O#.#O#.#...........",// 8
+				"OO.OOO.O...........",// 7
+				"...................",// 6
+				"..#...O.O..........",// 5
+				"...O...O...........",// 4
+				"##....#............",// 3
+				"OO#..#O#...........",// 2
+				".O#....O#.........." // 1
+		// ABCDEFGHJKLMNOPQRST
+		};
+		playerTrue.setUpProblem(BLACK, problem);
+		playerFalse.setUpProblem(BLACK, problem);
+		
+//		playerTrue.setUpRunnables();
+//		playerFalse.setUpRunnables();
+
+		playerTrue.bestMove();
+		playerFalse.bestMove();
+		
+		System.out.println(playerTrue.getTotalPlayoutCount());
+		System.out.println(playerFalse.getTotalPlayoutCount());
+		//System.out.println("With maintenance: "+playerTrue.getTotalNumPlayouts()+"; without: "+playerFalse.getTotalNumPlayouts());
+		assertTrue(playerTrue.getTotalPlayoutCount()>playerFalse.getTotalPlayoutCount());
+		
+	}
 
 }

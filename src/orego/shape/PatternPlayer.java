@@ -1,9 +1,5 @@
 package orego.shape;
 
-import static java.lang.Double.NEGATIVE_INFINITY;
-import static java.lang.Math.log;
-import static java.lang.Math.min;
-import static java.lang.Math.sqrt;
 import static java.lang.String.format;
 import static orego.core.Board.*;
 import static orego.core.Colors.*;
@@ -56,11 +52,29 @@ public class PatternPlayer extends McPlayer {
 	/** Used in bestSearchMove(). */
 	private float threshold;
 	
+	/** Total number of playouts this turn. */
+	private long totalPlayoutCount;
+
+	/** Initial value for noise. */
+	private float initialNoise;
+	
+	public PatternPlayer() {
+		this(true);
+	}
+
+	public PatternPlayer(boolean maintainHashes) {
+		setBoard(new Board(maintainHashes));
+		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
+		threshold = 0.51f;
+		initialNoise = 1.0f;
+	}
+	
 	@Override
 	public void beforeStartingThreads() {
-		// Does nothing
+		totalPlayoutCount = 0;
+		noise = initialNoise;
 	}
-		
+	
 	/** Returns the best move to make from here during a playout. */
 	public int bestSearchMove(Board board, MersenneTwisterFast random) {
 		double best = PASS_THRESHOLD;
@@ -85,13 +99,13 @@ public class PatternPlayer extends McPlayer {
 		} while ((i != start) && best < threshold);
 		return result;
 	}
-
+		
 	@Override
 	public int bestStoredMove() {
 		debug("Choosing a move for " + COLOR_NAMES[getBoard().getColorToPlay()] + " on:\n" + getBoard());
 		return bestStoredMove(getBoard());
 	}
-	
+
 	protected int bestStoredMove(Board board) {
 		MersenneTwisterFast random = ((McRunnable)(getRunnable(0))).getRandom();
 		double best = PASS_THRESHOLD;
@@ -115,7 +129,7 @@ public class PatternPlayer extends McPlayer {
 		} while (i != start);
 		return result;
 	}
-
+	
 	@Override
 	public void generateMovesToFrontier(McRunnable runnable) {
 		runnable.getBoard().copyDataFrom(getBoard());
@@ -155,6 +169,11 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public long getPlayouts(int p) {
 		return playoutCount[p];
+	}
+
+	/** Returns the total number of playouts this turn. */
+	protected long getTotalPlayoutCount() {
+		return totalPlayoutCount;
 	}
 
 	protected float getWinRate(Board b, int point) {
@@ -292,6 +311,7 @@ public class PatternPlayer extends McPlayer {
 		} else if (command.equals("gogui-primary-variation")) {
 			result = goguiPrimaryVariation();
 		} else if (command.equals("gogui-playouts")) {
+			beforeStartingThreads();
 			int n = Integer.parseInt(arguments.nextToken());
 			for (int i = 0; i < n; i++) {
 				((McRunnable) getRunnable(0)).performMcRun();
@@ -346,6 +366,7 @@ public class PatternPlayer extends McPlayer {
 		}
 		noise = 0.999f * noise;
 		debug("Noise: " + noise);
+		totalPlayoutCount++;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -365,13 +386,11 @@ public class PatternPlayer extends McPlayer {
 	@Override
 	public void reset() {
 		super.reset();
-		setBoard(new Board(true));
 		playoutCount = new int[getFirstPointBeyondBoard()];
 		loadPatternHashMaps();
-		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
-		threshold = 0.51f;
-		noise = 1.0f;
-		setUpRunnables();
+		for (int i = 0; i < getNumberOfThreads(); i++) {
+			setRunnable(i, new McRunnable(this, getHeuristics().clone()));
+		}
 	}
 
 	/** Selects and plays one move in the search tree. */
@@ -382,9 +401,13 @@ public class PatternPlayer extends McPlayer {
 		return move;
 	}
 
-	protected void setUpRunnables() {
-		for (int i = 0; i < getNumberOfThreads(); i++) {
-			setRunnable(i, new McRunnable(this, getHeuristics().clone()));
+	@Override
+	public void setProperty(String property, String value)
+			throws UnknownPropertyException {
+		if (property.equals("initialnoise")) {
+			initialNoise = Float.parseFloat(value);
+		} else {
+			super.setProperty(property, value);
 		}
 	}
 
