@@ -49,6 +49,17 @@ public class Cluster implements Serializable {
 					board.getPatternHash(move, radius), win);
 		}
 	}
+	
+	/**
+	 * @param board Board on which move is made.
+	 * @param move Move to be made.
+	 * @param win 1 or 0.
+	 * @param radius The radius of the pattern being stored
+	 */
+	public void store(Board board, int move, int win, int radius) {
+		tables[radius][board.getColorToPlay()].store(
+					board.getPatternHash(move, radius), win);
+	}
 
 	/** Returns the win rate for playing move on board. */
 	public float getWinRate(Board board, int move) {
