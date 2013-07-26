@@ -124,6 +124,17 @@ public class HeuristicListTest {
 		assertEquals(at("h5"), heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board));	
 	}
 
+	@Test
+	public void testUniformRandomness(){
+		Board board = new Board();
+		int[] count = new int[getFirstPointBeyondBoard()];
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		for (int i=0; i<10000; i++){
+			board.clear();
+			count[heuristics.selectAndPlayOneMove(random, board)] ++;
+		}
+		assertTrue(count[at("q3")]<2*count[at("r3")]);
+	}
 
 	@Test
 	public void testNoHeuristics() throws Exception {
