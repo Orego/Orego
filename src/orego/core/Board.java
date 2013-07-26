@@ -1148,14 +1148,15 @@ public class Board {
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10" },
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K10" },
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16" },
-				{ "D4", "Q16", "D16", "Q4", ",D10", "Q10", "K4", "K16", "K10" } };
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16", "K10" } };
 		for (int i = 0; i < handicapSize - 1; i++) {
 			placeInitialStone(BLACK, handicaps[handicapSize - 2][i]);
 		}
-		placeInitialStone(BLACK, handicaps[handicapSize - 2][handicapSize - 1]);	
+		placeInitialStone(BLACK, handicaps[handicapSize - 2][handicapSize-1]);
 		if(handicapSize > 0){
 			komi = 0;
 		}
+		setColorToPlay(WHITE);
 	}
 	
 	/** Sets the komi. */
