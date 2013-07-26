@@ -182,6 +182,10 @@ public class TimePlayer extends Lgrf2Player {
 	private boolean earlyC = false;
 
 	private static final int SET_RUNS = 722;
+	
+	private int extraTimeInMsec = 0;
+
+	private boolean rollOverTime = false;
 
 	@Override
 	public int bestMove() {
@@ -239,6 +243,10 @@ public class TimePlayer extends Lgrf2Player {
 //						if (earlyMove == -1) {
 //							earlyMove = best;
 //						}
+						if (rollOverTime) {
+							int timeSavedInMsec = (int) (timeRemainingInSec * 1000);
+							extraTimeInMsec += timeSavedInMsec;
+						}
 						return best;
 					}
 				}
@@ -478,6 +486,8 @@ public class TimePlayer extends Lgrf2Player {
 			benefitFromPreviousWork = true;
 		} else if (property.equals("early-c")) {
 			earlyC = true;
+		} else if (property.equals("roll-over-time")) {
+			rollOverTime = true;
 		} else {
 			super.setProperty(property, value);
 		}
@@ -515,6 +525,8 @@ public class TimePlayer extends Lgrf2Player {
 		default:
 			msPerMove = 0;
 		}
+		
+		msPerMove += extraTimeInMsec;
 
 		int timeSaved;
 		// benefit from previous work is turned on and 
