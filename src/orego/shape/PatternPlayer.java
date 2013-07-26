@@ -71,6 +71,7 @@ public class PatternPlayer extends McPlayer {
 	
 	@Override
 	public void beforeStartingThreads() {
+		debug("Threshold: "+threshold);
 		totalPlayoutCount = 0;
 		noise = initialNoise;
 	}
@@ -406,7 +407,10 @@ public class PatternPlayer extends McPlayer {
 			throws UnknownPropertyException {
 		if (property.equals("initialnoise")) {
 			initialNoise = Float.parseFloat(value);
-		} else {
+		} else if (property.equals("threshold")){
+			threshold = Float.parseFloat(value);
+		}
+		else {
 			super.setProperty(property, value);
 		}
 	}
