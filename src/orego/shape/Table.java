@@ -46,6 +46,7 @@ public class Table implements Serializable {
 		float sum = 0.0f;
 		for (int i = 0; i < winRates.length; i++) {
 			sum += winRates[i][getLocalIndex(hash, i)];
+			
 		}
 		return sum / winRates.length;
 	}
