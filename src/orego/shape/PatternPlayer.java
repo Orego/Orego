@@ -58,6 +58,18 @@ public class PatternPlayer extends McPlayer {
 	/** Initial value for noise. */
 	private float initialNoise;
 	
+	private float[] thresholds = {0.45f,0.5f,0.55f};
+	private float[] initNoise = {1f,0.1f};
+	private float[] endNoise = {0.1f,0.01f,0.0f};
+	private float[] decay = {0.9999f,0.999f,0.99f};
+	private int[] cutoff = {1000,500,100};
+
+	private float finalNoise;
+
+	private float noiseDecay;
+
+	private int cutOff;
+	
 	public PatternPlayer() {
 		this(true);
 	}
@@ -67,6 +79,9 @@ public class PatternPlayer extends McPlayer {
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
 		threshold = 0.51f;
 		initialNoise = 1.0f;
+		cutOff = 1000;
+		finalNoise = 0;
+		noiseDecay = 0.999f;
 	}
 	
 	@Override
@@ -365,7 +380,8 @@ public class PatternPlayer extends McPlayer {
 			}
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
-		noise = 0.999f * noise;
+		//TODO: ask Peter
+		noise = noiseDecay * noise + (1-noiseDecay)*finalNoise;
 		debug("Noise: " + noise);
 		totalPlayoutCount++;
 	}
@@ -377,7 +393,7 @@ public class PatternPlayer extends McPlayer {
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "Patternsr4t4b16.data")));
 			patterns = (RichCluster) (in.readObject());
-			patterns.setCount(1000);
+			patterns.setCount(cutOff);
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -409,6 +425,17 @@ public class PatternPlayer extends McPlayer {
 			initialNoise = Float.parseFloat(value);
 		} else if (property.equals("threshold")){
 			threshold = Float.parseFloat(value);
+		} else if (property.equals("patternvalues")){
+			int index = Integer.parseInt(value);
+			threshold = thresholds[index/54];
+			index%=54;
+			initialNoise = initNoise[index/27];
+			index%=27;
+			finalNoise = endNoise[index/9];
+			index%=9;
+			noiseDecay = decay[index/3];
+			cutOff = cutoff[index%3];
+			debug("threshold: "+threshold+" init noise: "+initialNoise+" final noise: "+finalNoise+" noise decay: "+noiseDecay+" cutoff: "+cutOff);
 		}
 		else {
 			super.setProperty(property, value);
