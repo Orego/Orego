@@ -111,7 +111,7 @@ public class PatternExtractor2 {
 		for (int rotation = 0; rotation < 4; rotation++) {
 			for (int reflection = 0; reflection < 2; reflection++) {
 				for (int color = 0; color < 2; color++) {
-					patternBoard[rotation][reflection][color] = new Board();					
+					patternBoard[rotation][reflection][color] = new Board(true);					
 				}
 				patternBoard[rotation][reflection][WHITE].setColorToPlay(WHITE);					
 			}
