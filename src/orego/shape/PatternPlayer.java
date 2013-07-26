@@ -61,7 +61,7 @@ public class PatternPlayer extends McPlayer {
 	private float[] thresholds = {0.45f,0.5f,0.55f};
 	private float[] initNoise = {1f,0.1f};
 	private float[] endNoise = {0.1f,0.01f,0.0f};
-	private float[] decay = {0.9999f,0.999f,0.99f};
+	private float[] decay = {1-0.9999f,1-0.999f,1-0.99f};
 	private int[] cutoff = {1000,500,100};
 
 	private float finalNoise;
@@ -380,9 +380,8 @@ public class PatternPlayer extends McPlayer {
 			}
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
 		}
-		//TODO: ask Peter
-		noise = noiseDecay * noise + (1-noiseDecay)*finalNoise;
-		debug("Noise: " + noise);
+		noise = (1-noiseDecay) * noise + noiseDecay*finalNoise;
+//		debug("Noise: " + noise);
 		totalPlayoutCount++;
 	}
 
