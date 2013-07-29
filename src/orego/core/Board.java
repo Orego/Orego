@@ -422,6 +422,7 @@ public class Board {
 		maintainPatternHashes = that.maintainPatternHashes;
 		if (maintainPatternHashes){
 			patternHashAtPoint = new long[getFirstPointBeyondBoard()][MAX_PATTERN_RADIUS + 1];
+			nearbyStones = new int[getFirstPointBeyondBoard()][MAX_PATTERN_RADIUS + 1];
 			for (int p : getAllPointsOnBoard()){
 				System.arraycopy(that.patternHashAtPoint[p], 0, patternHashAtPoint[p], 0, MAX_PATTERN_RADIUS + 1);
 				System.arraycopy(that.nearbyStones[p], 0, nearbyStones[p], 0, MAX_PATTERN_RADIUS + 1);
@@ -739,9 +740,28 @@ public class Board {
 		return result;
 	}
 
-	/** Returns the number of stones within radius of p. */
+	/**
+	 * Returns the number of stones within radius of p.
+	 */
 	public int getNumberOfStonesNear(int p, int radius) {
-		return nearbyStones[p][radius];
+		if (maintainPatternHashes) {
+			return nearbyStones[p][radius];
+		}
+		int result = 0;
+		int row = row(p);
+		int column = column(p);
+		for (int r = row - radius; r <= row + radius; r++) {
+			for (int c = column - radius; c <= column + radius; c++) {
+				if (isValidOneDimensionalCoordinate(r) && isValidOneDimensionalCoordinate(c)) {
+					int color = getColor(at(r, c));
+					if (color != VACANT) {
+						result++;
+					}
+				}
+			}
+		}
+		return result;
+		
 	}
 
 

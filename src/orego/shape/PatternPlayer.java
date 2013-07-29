@@ -37,6 +37,9 @@ public class PatternPlayer extends McPlayer {
 				+ benchMarkInfo[1]);
 	}
 
+	/** Counts of nearby stones for later incorporating into pattern tables. */
+	private int[][] counts;
+	
 	/** Hashes around move for later incorporating into pattern tables. */
 	private long[][] hashes;
 
@@ -65,6 +68,7 @@ public class PatternPlayer extends McPlayer {
 	public PatternPlayer(boolean maintainHashes) {
 		setBoard(new Board(maintainHashes));
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
+		counts = new int[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 1];
 		threshold = 0.51f;
 		initialNoise = 1.0f;
 	}
@@ -311,7 +315,7 @@ public class PatternPlayer extends McPlayer {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0)
 					result += '\n';
-				long count = patterns.getPatternCount(getBoard().getPatternHash(p, radius), getBoard().getColorToPlay(), radius);
+				long count = patterns.getPatternCount(getBoard(), p, radius);
 				// Number of playouts through each point
 				result += String.format("COLOR %s %s\nLABEL %s %s",
 						colorCode(((double)count) / max), pointToString(p),
@@ -385,7 +389,7 @@ public class PatternPlayer extends McPlayer {
 				winner=0;
 			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
-				patterns.store(hashes[t], color, winner);
+				patterns.store(hashes[t], counts[t], color, winner);
 				winner=1-winner;
 				color=1-color;
 			}
@@ -443,6 +447,7 @@ public class PatternPlayer extends McPlayer {
 		int turn = board.getTurn();
 		for (int r = 1; r <= MAX_PATTERN_RADIUS; r++) {
 			hashes[turn][r] = board.getPatternHash(move, r);
+			counts[turn][r] = board.getNumberOfStonesNear(move, r);
 		}
 		hashes[turn][MAX_PATTERN_RADIUS + 1] = patterns.getGlobalHash(board, move, board.getColorToPlay());
 	}

@@ -46,8 +46,8 @@ public class RichCluster extends Cluster {
 	}
 
 	@Override
-	public void store(long[] hashes, int color, int win) {
-		super.store(hashes, color, win);
+	public void store(long[] hashes, int[] counts, int color, int win) {
+		super.store(hashes, counts, color, win);
 		global[color].store(hashes[MAX_PATTERN_RADIUS + 1], win);
 	}
 
