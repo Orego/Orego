@@ -1,6 +1,7 @@
 package orego.book;
 
 import static orego.core.Coordinates.NO_POINT;
+import static orego.core.Coordinates.PRIMES;
 import static orego.core.Coordinates.getBoardWidth;
 
 import java.io.File;
@@ -60,6 +61,7 @@ public class PatternBook implements OpeningBook {
 			int start;
 			start = random.nextInt(vacantPoints.size());
 			int i = start;
+			int skip = PRIMES[random.nextInt(PRIMES.length)];
 			do {
 				int move = vacantPoints.get(i);
 				double searchValue = patterns.getWinRate(board, move);
@@ -74,7 +76,7 @@ public class PatternBook implements OpeningBook {
 				// Advancing by 457 therefore skips "randomly" through the
 				// array,
 				// in a manner analogous to double hashing.
-				i = (i + 457) % vacantPoints.size();
+				i = (i + skip) % vacantPoints.size();
 			} while (i != start);
 			return result;
 		} else
