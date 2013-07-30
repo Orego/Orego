@@ -8,11 +8,7 @@ import static java.lang.String.format;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.opposite;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.RESIGN;
-import static orego.core.Coordinates.getAllPointsOnBoard;
-import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
 
 import java.util.Set;
@@ -149,6 +145,7 @@ public class MctsPlayer extends McPlayer {
 		int start;
 		start = random.nextInt(vacantPoints.size());
 		int i = start;
+		int skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			int move = vacantPoints.get(i);
 			double searchValue = searchValue(node, board, move);
@@ -160,11 +157,9 @@ public class MctsPlayer extends McPlayer {
 					node.exclude(move);
 				}
 			}
-			// The magic number 457 is prime and larger than
-			// vacantPoints.size().
-			// Advancing by 457 therefore skips "randomly" through the array,
+			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
+			i = (i + skip) % vacantPoints.size();
 		} while (i != start);
 		return result;
 	}
