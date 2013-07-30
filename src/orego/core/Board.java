@@ -375,6 +375,8 @@ public class Board {
 				neighborCounts[p] += edgeCount * EDGE_INCREMENT;
 			}
 		}
+
+		nearbyStones = new int[getFirstPointBeyondBoard()][MAX_PATTERN_RADIUS + 1];
 		
 		if (maintainPatternHashes){
 			maintainPatternHashes = false;
@@ -387,7 +389,6 @@ public class Board {
 				}
 			}
 			maintainPatternHashes = true;
-			nearbyStones = new int[getFirstPointBeyondBoard()][MAX_PATTERN_RADIUS + 1];
 		}
 	}
 

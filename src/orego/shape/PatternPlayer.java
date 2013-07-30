@@ -39,6 +39,9 @@ public class PatternPlayer extends McPlayer {
 
 	/** Hashes around move for later incorporating into pattern tables. */
 	private long[][] hashes;
+	
+	/** Board hashes used to look up response. */
+	private long[] boardHashes;
 
 	/** Noise added to the win rate of each move when choosing moves in playouts. */
 	private float noise; 
@@ -58,6 +61,9 @@ public class PatternPlayer extends McPlayer {
 	/** Initial value for noise. */
 	private float initialNoise;
 	
+	/** Responses to a particular board position. */
+	private MoveHashTable boardResponses;
+	
 	public PatternPlayer() {
 		this(true);
 	}
@@ -67,6 +73,8 @@ public class PatternPlayer extends McPlayer {
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
 		threshold = 0.51f;
 		initialNoise = 1.0f;
+		boardResponses = new MoveHashTable();
+		boardHashes = new long[MAX_MOVES_PER_GAME];
 	}
 	
 	@Override
@@ -79,6 +87,10 @@ public class PatternPlayer extends McPlayer {
 	public int bestSearchMove(Board board, MersenneTwisterFast random) {
 		double best = PASS_THRESHOLD;
 		int result = PASS;
+		int testResponse = boardResponses.getMove(board.getHash());
+		if (testResponse != NO_POINT && board.isLegal(testResponse)) {
+			return testResponse;
+		}
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
@@ -86,8 +98,7 @@ public class PatternPlayer extends McPlayer {
 		do {
 			int move = vacantPoints.get(i);
 			if (board.isFeasible(move)) {
-				float searchValue = patterns.getWinRate(board, move) + noise
-						* random.nextFloat();
+				float searchValue = patterns.getWinRate(board, move)+ noise * random.nextFloat();
 				if (searchValue > best && board.isLegal(move)) {
 					best = searchValue;
 					result = move;
@@ -96,7 +107,7 @@ public class PatternPlayer extends McPlayer {
 			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
 			i = (i + skip) % vacantPoints.size();
-		} while ((i != start) && best < threshold);
+		} while ((i != start));// && best < threshold);
 		return result;
 	}
 		
@@ -138,6 +149,7 @@ public class PatternPlayer extends McPlayer {
 			if (move != PASS) {
 				storeHashes(runnable.getBoard(), move);
 			}
+			boardHashes[runnable.getBoard().getTurn()]=runnable.getBoard().getHash();
 			runnable.acceptMove(move);
 		}
 	}
@@ -166,6 +178,10 @@ public class PatternPlayer extends McPlayer {
 		result.add("gfx/Primary variation/gogui-primary-variation");
 		result.add("gfx/Radius run counts/gogui-radius-run-counts %s");
 		return result;
+	}
+	
+	protected MoveHashTable getMoveHashTable() {
+		return boardResponses;
 	}
 
 	@Override
@@ -374,6 +390,7 @@ public class PatternPlayer extends McPlayer {
 		}
 		return result;
 	}
+	
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		if (winner != VACANT) {
@@ -385,6 +402,12 @@ public class PatternPlayer extends McPlayer {
 				winner=0;
 			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
+				if (winner == 1) {
+					boardResponses.add(boardHashes[t], runnable.getBoard().getMove(t));
+				}
+				else {
+					boardResponses.add(boardHashes[t], NO_POINT);
+				}
 				patterns.store(hashes[t], color, winner);
 				winner=1-winner;
 				color=1-color;

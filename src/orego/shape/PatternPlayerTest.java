@@ -3,12 +3,12 @@ package orego.shape;
 import static orego.core.Board.MAX_PATTERN_RADIUS;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.at;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static orego.core.Coordinates.*;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
+import orego.mcts.McRunnable;
 import orego.util.IntSet;
 
 import org.junit.Before;
@@ -24,45 +24,50 @@ public class PatternPlayerTest {
 		player.reset();
 	}
 
-//	@Test
-//	public void testValidTableEntry() {
-//		String[] problem = { "...................",// 19
-//				"...................",// 18
-//				"...................",// 17
-//				"...................",// 16
-//				"...................",// 15
-//				"...................",// 14
-//				"...................",// 13
-//				"...................",// 12
-//				"...................",// 11
-//				"...................",// 10
-//				".OOO...............",// 9
-//				"O#.#O#.#...........",// 8
-//				"OO.OOO.O...........",// 7
-//				"...................",// 6
-//				"..#...O.O..........",// 5
-//				"...O...O...........",// 4
-//				"##....#............",// 3
-//				"OO#..#O#...........",// 2
-//				".O#....O#.........." // 1
-//		// ABCDEFGHJKLMNOPQRST
-//		};
-//		player.setUpProblem(BLACK, problem);
-//		float d5rate = player.getInformation(THREE_PATTERN,
-//				player.getBoard().getPatternHash(THREE_PATTERN, at("D5")),BLACK)[0]
-//				.getRate();
-//		long d5runs = player.getInformation(THREE_PATTERN,
-//				player.getBoard().getPatternHash(THREE_PATTERN, at("D5")),BLACK)[0]
-//				.getRuns();
-//		float k1rate = player.getInformation(THREE_PATTERN,
-//				player.getBoard().getPatternHash(THREE_PATTERN, at("K1")),BLACK)[0]
-//				.getRate();
-//		long k1runs = player.getInformation(THREE_PATTERN,
-//				player.getBoard().getPatternHash(THREE_PATTERN, at("K1")),BLACK)[0]
-//				.getRuns();
-//		assertTrue(d5rate > k1rate);
-//		assertTrue(d5runs > k1runs);
-//	}
+	@Test
+	public void testBoardResponse() {
+		String[] problem = { "...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				".OOO...............",// 9
+				"O#.#O#.#...........",// 8
+				"OO.OOO.O...........",// 7
+				"...................",// 6
+				"..#...O.O..........",// 5
+				"...O...O...........",// 4
+				"##....#............",// 3
+				"OO#..#O#...........",// 2
+				".O#....O#.........." // 1
+		// 		 ABCDEFGHJKLMNOPQRST
+		};
+		
+		player.setUpProblem(BLACK, problem);
+		int move1 = player.bestStoredMove();
+		long hash1 = player.getBoard().getHash();
+		player.acceptMove(move1);
+		int move2 = player.bestStoredMove();
+		long hash2 = player.getBoard().getHash();
+		
+		player.setUpProblem(BLACK, problem);
+		((McRunnable)player.getRunnable(0)).performMcRun();
+		
+		assertTrue((move1 == player.getMoveHashTable().getMove(hash1)
+				&& NO_POINT == player.getMoveHashTable().getMove(hash2))
+				||(NO_POINT == player.getMoveHashTable().getMove(hash1)
+				&& move2 == player.getMoveHashTable().getMove(hash2)));
+//		assertFalse(move1 == player.getMoveHashTable().getMove(hash1));
+//		assertFalse(NO_POINT == player.getMoveHashTable().getMove(hash2));
+//		assertTrue(NO_POINT == player.getMoveHashTable().getMove(hash1));
+//		assertTrue(move2 == player.getMoveHashTable().getMove(hash2));
+		
+	}
 
 //	@Test
 //	public void testSwitchBestMove() {
