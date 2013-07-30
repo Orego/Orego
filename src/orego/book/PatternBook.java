@@ -49,7 +49,7 @@ public class PatternBook implements OpeningBook {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		patterns.setWeights(1,9,36,100);
+		patterns.setWeights(1,1,1,1);
 	}
 
 	@Override

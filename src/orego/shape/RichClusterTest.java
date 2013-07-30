@@ -69,11 +69,10 @@ public class RichClusterTest {
 		board.play("e3");
 		board.play("e4");
 		cluster.store(board, at("e5"), 1);
+		cluster.store(board, at("e5"), 1);
 		board.clear();
 		board.play("e1");
 		board.play("e4");
-		System.out.println(cluster.getWinRate(board, at("e5")));
-		System.out.println(cluster.getWinRate(board, at("k5")));
 		assertTrue(cluster.getWinRate(board, at("e5")) > cluster.getWinRate(board, at("k5")));		
 	}
 

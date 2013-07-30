@@ -50,6 +50,7 @@ public class Cluster implements Serializable {
 	 */
 	public void store(Board board, int move, int win) {
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+//			System.out.println("Storing " + win + " at hash " + board.getPatternHash(move, radius) + " for radius " + radius);
 			tables[radius][board.getColorToPlay()].store(
 					board.getPatternHash(move, radius), win);
 		}
@@ -60,7 +61,9 @@ public class Cluster implements Serializable {
 		float sum = 0.0f;
 		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
 			sum += tables[radius][board.getColorToPlay()].getWinRate(board.getPatternHash(move, radius))*weights[radius];
+//			System.out.println("Radius " + radius + " " + tables[radius][board.getColorToPlay()].getCount(board.getPatternHash(move, radius)) + " at hash " + board.getPatternHash(move, radius));
 		}
+//		System.out.println(orego.core.Coordinates.pointToString(move) + " => " + sum);
 		return sum;
 	}
 	

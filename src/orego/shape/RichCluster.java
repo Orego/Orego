@@ -54,7 +54,7 @@ public class RichCluster extends Cluster {
 		long globalHash = board.getHash() ^ Board.ZOBRIST_HASHES[color][move];
 //		long reply1Hash = Board.ZOBRIST_HASHES[opposite(color)][board.getMove(board.getTurn() - 1)] ^ Board.ZOBRIST_HASHES[color][move];
 //		return (super.getWinRate(board, move) + global[color].getWinRate(globalHash) + reply1[color].getWinRate(reply1Hash)) / 3.0f;
-		return (super.getWinRate(board, move) + global[color].getWinRate(globalHash)) / 2.0f;
+		return (super.getWinRate(board, move) + 0 * global[color].getWinRate(globalHash)) / 1.0f;
 	}
 
 }
