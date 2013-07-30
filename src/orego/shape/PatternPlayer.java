@@ -107,7 +107,7 @@ public class PatternPlayer extends McPlayer {
 			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
 			i = (i + skip) % vacantPoints.size();
-		} while ((i != start));// && best < threshold);
+		} while ((i != start) && best < threshold);
 		return result;
 	}
 		

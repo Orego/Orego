@@ -1,8 +1,6 @@
 package orego.shape;
 
-import static orego.core.Board.MAX_MOVES_PER_GAME;
 import static orego.core.Coordinates.*;
-import orego.core.SuperKoTable;
 
 /**
  * Set of Zobrist hashes (longs) from previous board positions. This is a hash
@@ -26,32 +24,44 @@ public class MoveHashTable {
 	 * just set this flags.
 	 */
 	private int emptyBoardMove;
+	
+	private int currentAddCount;
 
 	/** The table proper. */
 	private long[] data;
 	private int[] move;
+	private int[] addCount;
+	
+	private final int MAX_ADD_AGE = 1<<15;
 
 	public MoveHashTable() {
-		data = new long[65536]; // This is 2^16.
-		move = new int[65536];
+		data = new long[MAX_ADD_AGE*2]; // This is 2^16.
+		move = new int[MAX_ADD_AGE*2];
+		addCount = new int[MAX_ADD_AGE*2];
 		emptyBoardMove = NO_POINT;
+		currentAddCount = 0;
 	}
 
 	/** Adds key to this table. */
 	public void add(long key, int move) {
+		currentAddCount++;
 		if (key == 0) {
 			emptyBoardMove = move;
 		} else {
 			int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
-			while (data[slot] != EMPTY) {
+			while (addCount[slot]>currentAddCount) {
 				if (data[slot] == key) {
 					this.move[slot] = move;
+					addCount[slot]=currentAddCount+MAX_ADD_AGE;
 					return;
 				}
 				slot = (slot + 1) % data.length;
 			}
-			data[slot] = key;
-			this.move[slot] = move;
+			if (move != NO_POINT){
+				data[slot] = key;
+				this.move[slot] = move;
+				addCount[slot]=currentAddCount+MAX_ADD_AGE;
+			}
 		}
 	}
 
@@ -61,8 +71,9 @@ public class MoveHashTable {
 			return emptyBoardMove;
 		} else {
 			int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
-			while (data[slot] != EMPTY) {
+			while (addCount[slot]>currentAddCount) {
 				if (data[slot] == key) {
+					addCount[slot]=currentAddCount+MAX_ADD_AGE;
 					return move[slot];
 				}
 				slot = (slot + 1) % data.length;
