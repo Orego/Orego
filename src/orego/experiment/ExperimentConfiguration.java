@@ -68,7 +68,11 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_COLOR = GAMES_PER_CONDITION
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
-	/** The amount of time each player is allocated for each game. */
+	/**
+	 * The amount of time each player is allocated for each game. If this is 0,
+	 * no time_left commands will be sent. This is useful if using the msec or
+	 * playouts properties.
+	 */
 	public static final int GAME_TIME_IN_SECONDS = 500;
 	
 	static {
