@@ -16,33 +16,28 @@ public class TestEvaluator {
 	}
 
 	/**
-	 * Takes a directory of index#.html files and walks through them, looking for the number
-	 * of tests that passed
+	 * Takes a directory of index#.html files and walks through them, looking
+	 * for the number of tests that passed
 	 */
 	public void run(String directory) {
-		try {
-			for (int i = 0; i < 162; i++) {
-				File file = new File(directory + File.separator + "index"+i+".html");
+		for (int i = 0; i < 70; i++) {
+			try {
+				File file = new File(directory + File.separator + "index" + i
+						+ ".html");
 				int passes = lookForPasses(file);
-				System.out.println(i+" "+passes);
+				System.out.println(i + " " + passes);
+			} catch (Exception e) {
+				System.out.println(i + " is missing");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 
 	/**
 	 * Check for the patterns in a particular file.
 	 */
-	public int lookForPasses(File file) {
+	public int lookForPasses(File file) throws FileNotFoundException {
 		Scanner s=null;
-		try {
-			s = new Scanner (file);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
+		s = new Scanner (file);
 		String string="";
 		while (s.hasNextLine()) {
 			string = s.nextLine();
