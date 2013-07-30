@@ -87,6 +87,13 @@ public class OregoTest {
 		}
 		oregoOut.readLine(); // read out the extra return
 	}
+	
+	@Test
+	public void testHandicapColorChange() {
+		orego.handleCommand("fixed_handicap 9");
+		assertEquals(BLACK,orego.getPlayer().getBoard().getColor(at("D10")));
+		assertEquals(WHITE,orego.getPlayer().getBoard().getColorToPlay());
+	}
 
 	/** Test the "final_score" command. */
 	@Test
@@ -604,4 +611,10 @@ public class OregoTest {
 		assertEquals(1, (heuristics.size()));
 	}
 
+	@Test
+	public void testCgtcColorSwitch() {
+		orego = new Orego(System.in, new PipedOutputStream(), new String[] {"cgtc=true"});
+		orego.handleCommand("reg_genmove white");
+		assertEquals(WHITE, orego.getPlayer().getBoard().getColorToPlay());
+	}
 }

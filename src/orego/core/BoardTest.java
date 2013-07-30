@@ -2454,6 +2454,7 @@ public class BoardTest {
 		assertEquals(BLACK, board.getColor(at("Q10")));
 		assertEquals(BLACK, board.getColor(at("K10")));
 		assertEquals(7, board.getHandicap());
+		assertEquals(WHITE,board.getColorToPlay());
 	}
 
 	@Test
