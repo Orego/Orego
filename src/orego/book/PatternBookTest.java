@@ -2,14 +2,11 @@ package orego.book;
 
 import static org.junit.Assert.*;
 import static orego.core.Colors.*;
-import static orego.core.Coordinates.getBoardWidth;
-
+import static orego.core.Coordinates.*;
 import java.io.File;
-
 import orego.core.Board;
 import orego.core.Coordinates;
 import orego.shape.PatternExtractor;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,8 +51,9 @@ public class PatternBookTest {
 		// ABCDEFGHJKLMNOPQRST
 		};
 		b.setUpProblem(WHITE, problem);
-		
-		assertEquals(Coordinates.at("c4"),book.nextMove(b));
+		int move = book.nextMove(b);
+		System.out.println(pointToString(move));
+		assertEquals(Coordinates.at("f17"), move);
 	}
 
 }
