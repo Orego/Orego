@@ -80,13 +80,12 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[3];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer";
-		CONDITIONS[2] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderbias=40";
-		CONDITIONS[3] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderbias=10 laddermult";
+		CONDITIONS[0] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer";
+		CONDITIONS[1] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderBias=40";
+		CONDITIONS[2] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderBias=10 ladderMult";
 	}
 	
 	/** Path to run gnugo on your machine */
