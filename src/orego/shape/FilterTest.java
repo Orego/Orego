@@ -28,10 +28,10 @@ public class FilterTest {
 	public void testFilter() {
 		assertEquals(0,filter.getLowestCount(0x0));
 		assertEquals(0,filter.getLowestCount(0xbeef0000));
-		for (int i=-5; i<Filter.THRESHOLD; i++){
+		for (int i=-5; i<filter.getThreshold(); i++){
 			filter.store(0xbeef0000);
 		}
-		assertEquals(Filter.THRESHOLD+5,filter.getLowestCount(0xbeef0000));
+		assertEquals(filter.getThreshold()+5,filter.getLowestCount(0xbeef0000));
 		assertEquals(0,filter.getLowestCount(0x0));
 		assertTrue(filter.isReasonable(0xbeef0000));
 		assertFalse(filter.isReasonable(0x0));

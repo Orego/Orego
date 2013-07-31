@@ -50,7 +50,7 @@ public class MultiStageFilterExtractor {
 			random = new MersenneTwisterFast(0L);
 			setUp(in);
 			ObjectOutputStream ow = new ObjectOutputStream(
-					new FileOutputStream(new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out + File.separator + "Filter-r"+Board.MAX_PATTERN_RADIUS+"-t"+t+"-b"+b+".data")));
+					new FileOutputStream(new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + out + File.separator + "MultiFilter-r"+Board.MAX_PATTERN_RADIUS+"-t"+t+"-b"+b+".data")));
 			ow.writeObject(multiFilter);
 			ow.close();
 		} catch (Exception ex) {

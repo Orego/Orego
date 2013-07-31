@@ -16,7 +16,7 @@ public class Filter implements Serializable {
 	/** Width, in bits, of each table's indices. */
 	private int width;
 	
-	public static final int THRESHOLD = 1000;
+	private static int threshold;
 	
 	/**
 	 * @param tables number of tables.
@@ -26,6 +26,7 @@ public class Filter implements Serializable {
 		counts = new long[tables][1 << bits];
 		width = bits;
 		mask = (1 << bits) - 1;
+		threshold = 159000;
 	}
 
 	/** Returns the index into the specified table. */
@@ -36,7 +37,7 @@ public class Filter implements Serializable {
 	/** Returns whether the hash has been seen more than THRESHOLD times. */
 	public boolean isReasonable(long hash){
 		for (int i=0; i<counts.length; i++){
-			if (counts[i][getLocalIndex(hash,i)]<THRESHOLD){
+			if (counts[i][getLocalIndex(hash,i)]<threshold){
 				return false;
 			}
 		}
@@ -64,6 +65,14 @@ public class Filter implements Serializable {
 			int index = getLocalIndex(hash, i);
 			counts[i][index] = Math.max(min, counts[i][index]);
 		}		
+	}
+
+	public void setThreshold(int threshold2) {
+		threshold = threshold2;
+	}
+	
+	public int getThreshold(){
+		return threshold;
 	}
 
 }
