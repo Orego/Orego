@@ -70,7 +70,7 @@ public class DisputedHeuristicTest {
 		heuristic.setProperty("maxVacancies", "7237");
 		assertTrue(heuristic.maxVacancies == 7237);
 		heuristic.setProperty("neighborhood", "knight");
-		assertTrue(heuristic.neighborhood == Coordinates.KNIGHT_NEIGHBORHOOD);
+		assertTrue(heuristic.neighborhood == 2);
 	}
 
 }

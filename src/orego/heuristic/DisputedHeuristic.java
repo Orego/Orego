@@ -10,7 +10,11 @@ public class DisputedHeuristic extends Heuristic {
 
 	protected double threshold;
 	protected int maxVacancies;
-	protected int[][] neighborhood;
+	
+	/**
+	 * The size of the neighborhood, 1=adjacent, 2=knight's move, 3=large knight's move
+	 */
+	protected int neighborhood;
 	
 	public DisputedHeuristic(int weight) {
 		super(weight);
@@ -33,9 +37,9 @@ public class DisputedHeuristic extends Heuristic {
 	}
 	
 	public void setNeighborhood(String str) throws UnknownPropertyException {
-		if (str.equals("largeknight")) neighborhood = Coordinates.LARGE_KNIGHT_NEIGHBORHOOD;
-		else if (str.equals("knight")) neighborhood = Coordinates.KNIGHT_NEIGHBORHOOD;
-		else if (str.equals("adjacent")) neighborhood = Coordinates.NEIGHBORS;
+		if (str.equals("largeknight")) neighborhood = 3;
+		else if (str.equals("knight")) neighborhood = 2;
+		else if (str.equals("adjacent")) neighborhood = 1;
 		else throw new UnknownPropertyException("Invalid neighborhood: " + str);
 	}
 	
@@ -47,7 +51,14 @@ public class DisputedHeuristic extends Heuristic {
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int numBlack = 0;	
 				int numWhite = 0;
-				int[] neighborhoodAtPoint = neighborhood[vacantPoints.get(i)];
+				int[] neighborhoodAtPoint;
+				if(neighborhood==1){
+					neighborhoodAtPoint = Coordinates.getNeighbors(vacantPoints.get(i));
+				} else if(neighborhood==2){
+					neighborhoodAtPoint = Coordinates.getKnightNeighborhood(vacantPoints.get(i));
+				} else{
+					neighborhoodAtPoint = Coordinates.getLargeKnightNeighborhood(vacantPoints.get(i));
+				}
 				for (int j = 0; j < neighborhoodAtPoint.length; j++) {
 					int color = board.getColor(neighborhoodAtPoint[j]);
 					if (color == BLACK) numBlack++;
