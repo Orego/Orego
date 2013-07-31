@@ -263,8 +263,8 @@ public class RavePlayer extends MctsPlayer {
 		double rc = raveNode.getRaveRuns(move);
 		double rr = raveNode.getRaveWinRate(move);
 		double coef = raveCoefficient(c, rc);
-		
-		
+		double uncertainty=0;
+		if(explorationValue!=0){
 		double barX = node.getWinRate(move);
 		if (barX < 0) { // if the move has been excluded
 			return NEGATIVE_INFINITY;
@@ -286,7 +286,8 @@ public class RavePlayer extends MctsPlayer {
 				+ board.getVacantPoints().toStringAsPoints();
 		double factor1 = logParentRunCount / node.getRuns(move);
 		double factor2 = min(0.25, v);
-		double uncertainty = explorationValue * sqrt(factor1 * factor2);
+		uncertainty = explorationValue * sqrt(factor1 * factor2);
+		}
 		return (r * (1 - coef) + rr * coef) + uncertainty;
 	}
 

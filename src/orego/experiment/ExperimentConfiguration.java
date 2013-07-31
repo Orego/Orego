@@ -55,7 +55,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 600;
+	public static final int GAMES_PER_CONDITION = 480;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -79,13 +79,17 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[8];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		CONDITIONS[0] = "threads=2 book=FusekiBook explorevalue=0";
+		CONDITIONS[1] = "threads=2 book=FusekiBook explorevalue=-.1";
+		CONDITIONS[2] = "threads=2 book=FusekiBook explorevalue=-.01";
+		CONDITIONS[3] = "threads=2 book=FusekiBook explorevalue=-.25";
+		CONDITIONS[4] = "threads=2 book=FusekiBook explorevalue=-.5";
+		CONDITIONS[5] = "threads=2 book=FusekiBook explorevalue=-.75";
+		CONDITIONS[6] = "threads=2 book=FusekiBook explorevalue=-1";
+		CONDITIONS[7] = "threads=2 book=FusekiBook explorevalue=-2";
 	}
 	
 	/** Path to run gnugo on your machine */
