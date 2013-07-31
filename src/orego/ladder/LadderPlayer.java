@@ -71,22 +71,27 @@ public class LadderPlayer extends Lgrf2Player {
 		// playout (run) will be incorporated into the search tree.
 		
 		runnable = new McRunnable(this, null); // ladders are played out here
-		
+		McRunnable recordRunnable = new McRunnable(this, null);
 		// get the ladders
 		IntSet ladderLiberties = libertiesOfLadders(BLACK);
 		int numberOfBlackLadders = ladderLiberties.size();
 		ladderLiberties.addAll(libertiesOfLadders(WHITE));
-		
+		SearchNode root = getRoot();
 		// play out each ladder separately
+		Board ourCopy = new Board();
 		for (int i = 0; i < ladderLiberties.size(); i++) {
-			runnable.copyDataFrom(getBoard());
+			ourCopy.copyDataFrom(getBoard());
+			
+//			recordRunnable.copyDataFrom(getBoard());
 			int insidePlaysHere = ladderLiberties.get(i);
 			int insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
 			int outsideColor = opposite(insideColor);
 			int winner;
 			int length = 0; // "length" of this ladder
 			boolean neighborAtari=false;   // test to see if neighboring stones are in atari
-			runnable.getBoard().setColorToPlay(insideColor);
+			ourCopy.setColorToPlay(insideColor);
+//			runnable.getBoard().setColorToPlay(insideColor);
+//			recordRunnable.getBoard().setColorToPlay(insideColor);
 			
 			// keep applying the policy of the inside player and the outside player until
 			// the ladder is over (either the inside player is free or has been captured)
@@ -95,15 +100,18 @@ public class LadderPlayer extends Lgrf2Player {
 				// inside player policy: play in my only liberty
 				// Must check if move is legal first (not suicide)
 				
-				
-				if(runnable.getBoard().isLegal(insidePlaysHere)){
-					runnable.acceptMove(insidePlaysHere);
-				}else{
-					winner=outsideColor;
+//				if(runnable.getBoard().isLegal(insidePlaysHere)){
+//					runnable.acceptMove(insidePlaysHere);
+//				}
+				if (ourCopy.isLegal(insidePlaysHere)) {
+					ourCopy.play(insidePlaysHere);
+				} else {
+					winner = outsideColor;
 					break;
 				}
-						
-				if (runnable.getBoard().getLibertyCount(insidePlaysHere) >= 3) {
+					
+				if (ourCopy.getLibertyCount(insidePlaysHere) >= 3) {
+//				if (runnable.getBoard().getLibertyCount(insidePlaysHere) >= 3) {
 					// inside player is free
 					winner = insideColor;
 					break;
@@ -111,25 +119,32 @@ public class LadderPlayer extends Lgrf2Player {
 				
 				// outside player policy: play in the inside player's
 				// liberty with the most vacant neighbors
-				IntSet insideLiberties = runnable.getBoard().getLiberties(insidePlaysHere);
+//				IntSet insideLiberties = runnable.getBoard().getLiberties(insidePlaysHere);
+				IntSet insideLiberties = ourCopy.getLiberties(insidePlaysHere);
 				int mostVacantNeighbors = -1;
 				int pointToPlay = getFirstPointOnBoard();
 				for (int j = 0; j < insideLiberties.size(); j++) {
 					int lib = insideLiberties.get(j);
-					int vacantNeighborCount = runnable.getBoard().getVacantNeighborCount(lib);
+//					int vacantNeighborCount = runnable.getBoard().getVacantNeighborCount(lib);
+					int vacantNeighborCount = ourCopy.getVacantNeighborCount(lib);
 					if (vacantNeighborCount > mostVacantNeighbors) {
 						mostVacantNeighbors = vacantNeighborCount;
 						pointToPlay = lib;
 					}
 				}
-				if(runnable.getBoard().isLegal(pointToPlay)){
-					runnable.acceptMove(pointToPlay);
-				}else{
+//				if(runnable.getBoard().isLegal(pointToPlay)){
+//					runnable.acceptMove(pointToPlay);
+//				}
+				if(ourCopy.isLegal(pointToPlay)){
+					ourCopy.play(pointToPlay);
+				}
+				else{
 					winner=insideColor;
 					break;
 				}
 				
-				if (runnable.getBoard().getColor(insidePlaysHere) != insideColor) {
+//				if (runnable.getBoard().getColor(insidePlaysHere) != insideColor) {
+				if (ourCopy.getColor(insidePlaysHere) != insideColor) {
 					// inside player was captured
 					winner = outsideColor;
 					break;
@@ -143,7 +158,11 @@ public class LadderPlayer extends Lgrf2Player {
 				for (int x = 0; x < 4; x++) {
 				  	int n = getNeighbors(insidePlaysHere)[x];
 				  	if(isOnBoard(n)){
-				  		if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
+				  		
+//				  		if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
+//				  			neighborAtari=true;
+//				  		}
+				  		if(ourCopy.isInAtari(ourCopy.getChainId(n)) && ourCopy.getColor(n)==outsideColor){
 				  			neighborAtari=true;
 				  		}
 				  	}
@@ -153,16 +172,23 @@ public class LadderPlayer extends Lgrf2Player {
 					break;
 				}
 				
-				insidePlaysHere = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
+//				insidePlaysHere = runnable.getBoard().getLiberties(insidePlaysHere).get(0);
+				insidePlaysHere = ourCopy.getLiberties(insidePlaysHere).get(0);
 				length++;
+				
+				
 			}
 			
 			// bias the search tree: call this playout for the winner.
 			// 100 is used as the number of runs incorporated, this needs to be tuned.
-			for (int j = 0; j < (ladderMult? length*ladderBias: ladderBias); j++) {
-				
-				incorporateRun(winner, runnable);
+			if(winner==insideColor){
+				root.addWins(ladderLiberties.get(i), ladderMult? length*ladderBias: ladderBias);
+			} else{
+				root.addLosses(ladderLiberties.get(i), ladderMult? length*ladderBias: ladderBias);
 			}
+//			for (int j = 0; j < (ladderMult? length*ladderBias: ladderBias); j++) {
+//				incorporateRun(winner, recordRunnable);
+//			}
 		}
 	}
 	
