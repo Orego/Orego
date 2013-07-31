@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-
 import orego.play.Playable;
 import orego.play.Player;
 import orego.play.UnknownPropertyException;
