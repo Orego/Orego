@@ -81,7 +81,7 @@ public class PatternPlayer extends McPlayer {
 		initialNoise = 1.0f;
 		cutOff = 1000;
 		finalNoise = 0;
-		noiseDecay = 0.999f;
+		noiseDecay = 1-0.999f;
 	}
 	
 	@Override
