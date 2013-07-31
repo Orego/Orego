@@ -1,7 +1,7 @@
 package orego.experiment;
 
 import static orego.core.Colors.*;
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.experiment.ExperimentConfiguration.*;
 
 /** Plays a series of experimental games on one machine. */

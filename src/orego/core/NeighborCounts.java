@@ -12,6 +12,8 @@ import static orego.core.Colors.*;
  * The three neighbor counts for each point are stored within a single int. This
  * allows us to, for example, increment the black neighbor count and decrement
  * the vacant neighbor count with a single addition.
+ * <p>
+ * This implementation is based on Lukasz Lew's libEGO.
  */
 public class NeighborCounts {
 

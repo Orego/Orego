@@ -28,7 +28,6 @@ public class SpecificPointHeuristicTest {
 	@Test
 	public void testSetProperty()  throws Exception {
 		heuristic.setProperty("specificPoint", "12");
-		
 		assertEquals(12, heuristic.getSpecificPoint());
 	}
 	

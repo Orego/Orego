@@ -2,8 +2,8 @@ package orego.mcts;
 
 import static java.lang.String.format;
 import static java.util.Arrays.fill;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.core.Coordinates.pointToString;
 import orego.util.IntSet;
 
@@ -16,8 +16,8 @@ public class RaveNode extends SearchNode {
 	private float[] raveWinRates;
 
 	public RaveNode() {
-		raveRuns = new int[FIRST_POINT_BEYOND_BOARD];
-		raveWinRates = new float[FIRST_POINT_BEYOND_BOARD];
+		raveRuns = new int[getFirstPointBeyondBoard()];
+		raveWinRates = new float[getFirstPointBeyondBoard()];
 	}
 
 	public void addRaveLoss(int p) {
@@ -81,7 +81,7 @@ public class RaveNode extends SearchNode {
 	@Override
 	public String toString(int p) {
 		return format("%s: %7d/%7d (%1.4f), RAVE %7d/%7d (%1.4f)\n",
-				pointToString(p), getWins(p), getRuns(p), getWinRate(p), 
+				pointToString(p), (int) getWins(p), getRuns(p), getWinRate(p), 
 				(int) getRaveWins(p), (int) raveRuns[p],
 				raveWinRates[p]);
 	}

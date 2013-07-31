@@ -4,10 +4,7 @@ import orego.mcts.*;
 import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
 import orego.core.*;
-import static orego.core.Colors.BLACK;
-import static orego.core.Colors.WHITE;
-import static orego.core.Colors.opposite;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
+import static orego.core.Colors.*;
 
 /**
  * This player plays out all the ladders on the board to find out who wins

@@ -68,4 +68,15 @@ public class ThreadedPlayerTest {
 		player.stopThreads();
 	}
 
+	@Test
+	public void testReturnToOpeningBook() throws UnknownPropertyException {
+		player.setProperty("book", "FusekiBook");
+		for (int i = 0; i < 200; i++) {
+			int move = player.bestMove();
+			player.acceptMove(move);
+		}
+		player.reset();
+		assertEquals(at("q4"), player.bestMove());
+	}
+
 }

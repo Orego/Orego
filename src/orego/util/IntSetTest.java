@@ -14,7 +14,7 @@ public class IntSetTest {
 	@Before
 	public void setUp() throws Exception {
 		// Set can hold any points on the board
-		set = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		set = new IntSet(getFirstPointBeyondBoard());
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class IntSetTest {
 		// Test reflexivity
 		assertTrue(set.equals(set));
 		// Create a second set
-		IntSet other = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet other = new IntSet(getFirstPointBeyondBoard());
 		other.add(5);
 		other.add(7);
 		other.add(6);
@@ -222,7 +222,7 @@ public class IntSetTest {
 		assertFalse(other2.equals(set));
 		assertFalse(other2.equals(other));
 		// Different sets of the same size should not be equals()
-		IntSet other3 = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet other3 = new IntSet(getFirstPointBeyondBoard());
 		other3.add(4);
 		other3.add(9);
 		assertFalse(other3.equals(set));
@@ -235,7 +235,7 @@ public class IntSetTest {
 		set.add(4);
 		set.add(5);
 		// Create a superset
-		IntSet other = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet other = new IntSet(getFirstPointBeyondBoard());
 		other.add(4);
 		other.add(5);
 		other.add(3);

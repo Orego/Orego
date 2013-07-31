@@ -5,7 +5,7 @@ import static orego.core.Board.PLAY_OK;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
 
-/** A player that runs multiple threads. */
+/** A player that runs multiple threads. NOW EXTENDS CGTC*/
 public abstract class ThreadedPlayer extends Player {
 
 	/** Milliseconds allocated per move. A value <= 0 indicates no time limit. */
@@ -25,7 +25,7 @@ public abstract class ThreadedPlayer extends Player {
 
 	/** True when threads are running. */
 	private boolean threadsRunning;
-
+		
 	/** A threaded player with n threads and no pondering. */
 	public ThreadedPlayer() {
 		threadsRunning = false;
@@ -54,10 +54,12 @@ public abstract class ThreadedPlayer extends Player {
 	public int bestMove() {
 		try {
 			stopThreads();
-			if (getOpeningBook() != null) {
+			if ((getOpeningBook() != null) && (isInOpeningBook())) {
 				int move = getOpeningBook().nextMove(getBoard());
 				if (move != NO_POINT) {
 					return move;
+				} else {
+					setInOpeningBook(false);
 				}
 			}
 			runThreads();
@@ -65,6 +67,7 @@ public abstract class ThreadedPlayer extends Player {
 			shouldNotHappen.printStackTrace();
 			System.exit(1);
 		}
+		
 		return bestStoredMove();
 	}
 
@@ -73,6 +76,11 @@ public abstract class ThreadedPlayer extends Player {
 	 * bestMove().
 	 */
 	public abstract int bestStoredMove();
+
+	@Override
+	public void endGame() {
+		stopThreads();
+	}
 
 	@Override
 	public int getMillisecondsPerMove() {

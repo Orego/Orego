@@ -15,13 +15,13 @@ public class StarPointsBook implements OpeningBook {
 	 * center last.
 	 */
 	private int[] STAR_POINTS = 
-			BOARD_WIDTH == 9 ? new int[] {
+			getBoardWidth() == 9 ? new int[] {
 			at("e5"), 
 			at("c3"), 
 			at("c7"), 
 			at("g3"), 
 			at("g7") }
-			: BOARD_WIDTH == 19 ? new int[] { 
+			: getBoardWidth() == 19 ? new int[] { 
 			at("d4"), 
 			at("d16"), 
 			at("q4"),		
