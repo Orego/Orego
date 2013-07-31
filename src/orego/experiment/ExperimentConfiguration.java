@@ -52,10 +52,10 @@ public class ExperimentConfiguration {
 	 * more than the number of processor cores on each host. If Orego is being
 	 * run with multiple threads, it might be even smaller.
 	 */
-	public static final int GAMES_PER_HOST = 1;
+	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 2;
+	public static final int GAMES_PER_CONDITION = 480;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -83,10 +83,10 @@ public class ExperimentConfiguration {
 	public static final String[] CONDITIONS = new String[4];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		CONDITIONS[0] = "threads=2 book=FusekiBook";
+		CONDITIONS[1] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer";
+		CONDITIONS[2] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderbias=40";
+		CONDITIONS[3] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderbias=10 laddermult";
 	}
 	
 	/** Path to run gnugo on your machine */
