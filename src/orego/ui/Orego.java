@@ -5,9 +5,9 @@ import static java.lang.Integer.parseInt;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.WHITE;
-import static orego.core.Coordinates.BOARD_WIDTH;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getBoardWidth;
 import static orego.core.Coordinates.setBoardWidth;
 import static orego.core.Coordinates.pointToString;
 import static orego.experiment.Debug.debug;
@@ -75,7 +75,7 @@ public class Orego {
 			"orego.play", "orego.response", "" };
 
 	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "7.13";
+	public static final String VERSION_STRING = "7.15";
 
 	/**
 	 * @param args
@@ -120,6 +120,10 @@ public class Orego {
 	
 	/** The komi given on the command line. */
 	private double komiArgument = -1;
+	
+	/** set to true with command line option if running with compter go test collection.
+	 * This disables an assertion that the color from loadsgf command matched getColortoPlay. */
+	private boolean cgtc=false;
 
 	/**
 	 * @param inStream
@@ -233,19 +237,10 @@ public class Orego {
 		if (command.equals("boardsize")) {
 			if (arguments.countTokens() == 1) {
 				int width = parseInt(arguments.nextToken());
-				if (width == BOARD_WIDTH) {
+				if (width == getBoardWidth()) {
 					player.reset();
 					acknowledge();
-				} else if(width > 0){
-					try{
-						setBoardWidth(width);
-						player.getBoard().clear();
-						player.reset();
-						acknowledge();
-					}catch(IndexOutOfBoundsException e){
-						error("unacceptable size");
-					}
-				}else{
+				} else{
 					error("unacceptable size");
 				}
 			} else {
@@ -276,7 +271,15 @@ public class Orego {
 			} else {
 				color = (command.equals("genmove_black") ? BLACK : WHITE);
 			}
-			assert color == player.getBoard().getColorToPlay();
+			//this assertion to fails when running with CGTC, so skip it if command line option set to true
+			if(cgtc){
+				player.getBoard().setColorToPlay(color);
+			} else {
+				assert color == player.getBoard().getColorToPlay();
+			}
+			if (command.equals("kgs-genmove_cleanup")) {
+				player.setCleanUpMode(true);
+			}
 			point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
@@ -311,9 +314,11 @@ public class Orego {
 			acknowledge(response);
 		} else if (command.equals("loadsgf")) {
 			if (arguments.countTokens() > 1) {
+				System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
 				player.setUpSgf(arguments.nextToken(),
 						Integer.parseInt(arguments.nextToken()));
 			} else {
+				System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
 				player.setUpSgf(arguments.nextToken(), 0);
 			}
 			acknowledge();
@@ -357,18 +362,16 @@ public class Orego {
 			try {
 				Scanner scanner;
 				acknowledge();
-				player.reset(); // to stop threaded players
+				player.endGame(); // to stop threaded players
 				scanner = new Scanner(new File("QuitAfterGameOver.txt"));
 				if (scanner.nextLine().equals("true")) {
 					scanner.close();
 					return false;
 				} else {
 					scanner.close();
-					acknowledge();
 				}
 			} catch (FileNotFoundException e) {
 				// The file was not found, so we continue to play.
-				acknowledge();
 			}
 		} else if (command.equals("time_settings")) {
 			int secondsLeft = parseInt(arguments.nextToken());
@@ -417,7 +420,7 @@ public class Orego {
 		ArrayList<String> properties = new ArrayList<String>();
 		ArrayList<String> values = new ArrayList<String>();
 		// Default settings
-		String playerClass = "Lgrf2";
+		String playerClass = "Time";
 		boolean heuristicsSet = false;
 		// Parse arguments
 		for (int i = 0; i < args.length; i++) {
@@ -441,16 +444,36 @@ public class Orego {
 			} else if (left.equals("debugfile")) {
 				setDebugFile(right);
 			} else if(left.equals("boardsize")){
-				int width = Integer.parseInt(right);
-				setBoardWidth(width);
-				if (player != null) {
-					player.getBoard().clear();
-					player.reset();
+				StringTokenizer boardWidth = new StringTokenizer(right);
+				if (boardWidth.countTokens() == 1) {
+					int width = parseInt(boardWidth.nextToken());
+					if (width == getBoardWidth()) {
+						if(player != null) {							
+							player.reset();
+						}
+					} else if(width > 0){
+						try{
+							setBoardWidth(width);
+							if(player != null) {								
+								player.getBoard().clear();
+								player.reset();
+							}
+						}catch(IndexOutOfBoundsException e){
+							error("unacceptable size");
+						}
+					}else{
+						error("unacceptable size");
+					}
+				} else {
+					error("unacceptable size");
 				}
 					
 			} else if(left.equals("komi")) {
 				komiArgument = Double.parseDouble(right);
-			} else if (left.equals("player")) {
+			} else if(left.equals("cgtc")){//set to true if running with computer go test collection
+				cgtc=Boolean.parseBoolean(right);
+			}
+			else if (left.equals("player")) {
 				playerClass = right;
 			} else { // Let the player set this property
 				properties.add(left);
@@ -493,6 +516,9 @@ public class Orego {
 		try {
 			for (int i = 0; i < properties.size(); i++) {
 				player.setProperty(properties.get(i), values.get(i));
+				if (properties.get(i).equals("heuristics")) {
+					heuristicsSet = true;
+				}
 			}
 			// If the heuristics weren't set, use default values
 			if (!heuristicsSet) {

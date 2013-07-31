@@ -64,7 +64,7 @@ public class EscapeHeuristicTest {
 				"..........#O#......",// 10
 				"..........#O#......",// 9
 				"..........#O#......",// 8
-				"...........#.......",// 7
+				"...................",// 7
 				"...................",// 6
 				"...................",// 5
 				"...................",// 4
@@ -73,7 +73,8 @@ public class EscapeHeuristicTest {
 				"..................."// 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("m7");
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
@@ -89,7 +90,7 @@ public class EscapeHeuristicTest {
 				"...................",// 14
 				"...................",// 13
 				"...................",// 12
-				"..........#O#......",// 11
+				"..........#O.......",// 11
 				"..........#O#......",// 10
 				"..........#O#......",// 9
 				"..........#O#......",// 8
@@ -102,7 +103,8 @@ public class EscapeHeuristicTest {
 				"..................."// 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("n11");
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
@@ -122,7 +124,7 @@ public class EscapeHeuristicTest {
 				"..........#O#......",// 10
 				"..........#O#......",// 9
 				"..........#O#......",// 8
-				"...........#.......",// 7
+				"...................",// 7
 				"...................",// 6
 				"...................",// 5
 				"...................",// 4
@@ -131,7 +133,8 @@ public class EscapeHeuristicTest {
 				"..................."// 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("m7");
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
@@ -151,7 +154,7 @@ public class EscapeHeuristicTest {
 				"..........#O#......",// 10
 				"..........#O#......",// 9
 				"..........#O#......",// 8
-				"...........#.......",// 7
+				"...................",// 7
 				"...................",// 6
 				"...................",// 5
 				"...................",// 4
@@ -160,7 +163,8 @@ public class EscapeHeuristicTest {
 				"..................."// 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("m7");
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("m12")));
 	}
@@ -214,12 +218,13 @@ public class EscapeHeuristicTest {
 				"...#O#...#O#.......",// 6
 				"...#O#####O#.......",// 5
 				"...#OOOOOOO#.......",// 4
-				"....#######........",// 3
+				"....######.........",// 3
 				"...................",// 2
 				"..................."// 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		board.setUpProblem(WHITE, problem);
+		board.setUpProblem(BLACK, problem);
+		board.play("l3");
 		heuristic.prepare(board);
 		assertTrue(heuristic.getGoodMoves().contains(at("k10")));
 	}
@@ -411,13 +416,7 @@ public class EscapeHeuristicTest {
 	@Test
 	public void testClone() {
 		EscapeHeuristic copy = heuristic.clone();
-		
 		assertNotSame(heuristic, copy);
-		
-		assertNotSame(heuristic.getFriends(), copy.getFriends());
-		assertNotSame(heuristic.getTargets(), copy.getTargets());
-		
-		assertEquals(heuristic.getTargets().size(), copy.getTargets().size());
 	}
 
 }

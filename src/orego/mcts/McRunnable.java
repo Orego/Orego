@@ -27,7 +27,7 @@ public class McRunnable implements Runnable {
 	private McPlayer player;
 
 	/** Number of playouts completed. */
-	private int playoutsCompleted;
+	private long playoutsCompleted;
 
 	/** Array of heuristics. */
 	private HeuristicList heuristics;
@@ -40,7 +40,7 @@ public class McRunnable implements Runnable {
 		this.player = player;
 		random = new MersenneTwisterFast();
 		hashes = new long[MAX_MOVES_PER_GAME + 1];
-		playedPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		playedPoints = new IntSet(getFirstPointBeyondBoard());
 		this.heuristics = heuristics;
 	}
 
@@ -105,7 +105,7 @@ public class McRunnable implements Runnable {
 	}
 
 	/** Returns the number of playouts completed by this runnable. */
-	public int getPlayoutsCompleted() {
+	public long getPlayoutsCompleted() {
 		return playoutsCompleted;
 	}
 
@@ -157,7 +157,7 @@ public class McRunnable implements Runnable {
 				return board.playoutWinner();
 			}
 			/** BOARD_AREA/2 is the mercy threshold*/
-			if (Math.abs(board.approximateScore()) > BOARD_AREA / 2) {
+			if (Math.abs(board.approximateScore()) > getBoardArea() / 2) {
 				// One player has far more stones on the board
 				return board.approximateWinner();
 			}
@@ -171,8 +171,8 @@ public class McRunnable implements Runnable {
 	@Override
 	public void run() {
 		boolean limitPlayouts = player.getMillisecondsPerMove() <= 0;
-		int playouts = 0;
-		int limit = player.getPlayoutLimit();
+		long playouts = 0;
+		long limit = player.getPlayoutLimit();
 		while ((limitPlayouts && playouts < limit)
 				|| (!limitPlayouts & getPlayer().shouldKeepRunning())) {
 			performMcRun();
@@ -188,16 +188,17 @@ public class McRunnable implements Runnable {
 	// places; could it be consolidated into the few places where fresh nodes
 	// are produced?
 	public void updatePriors(SearchNode node, Board board) {
-		for (Heuristic h : heuristics.getHeuristics()) {
+		for (int i = 0; i < heuristics.size(); i++) {
+			Heuristic h = heuristics.get(i);
 			h.prepare(board);
 			IntSet good = h.getGoodMoves();
-			for (int i = 0; i < good.size(); i++) {
-				int p = good.get(i);
+			for (int j = 0; j < good.size(); j++) {
+				int p = good.get(j);
 				node.addWins(p, h.getWeight());
 			}
 			// TODO The remaining code doesn't seem to do anything. Why is it here? Left over from when we had negative heuristics?
 			IntSet vacant = board.getVacantPoints();
-			for (int i = 0; i < vacant.size(); i++) {
+			for (int j = 0; j < vacant.size(); j++) {
 				int p = vacant.get(i);
 			}
 		}

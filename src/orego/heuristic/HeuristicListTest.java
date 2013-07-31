@@ -21,96 +21,47 @@ public class HeuristicListTest {
 	
 	@Test
 	public void testPopulateHeuristics() {
-		heuristics.loadHeuristicList("Escape@5:Capture");
+		heuristics.loadHeuristics("Escape@5:Capture");
 		assertEquals(2, heuristics.size());
-		assertEquals(5, heuristics.getHeuristics()[0].getWeight());
-		assertEquals(1, heuristics.getHeuristics()[1].getWeight());
-		assertEquals(EscapeHeuristic.class, heuristics.getHeuristics()[0].getClass());
-		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
+		assertEquals(5, heuristics.get(0).getWeight());
+		assertEquals(1, heuristics.get(1).getWeight());
+		assertEquals(EscapeHeuristic.class, heuristics.get(0).getClass());
+		assertEquals(CaptureHeuristic.class, heuristics.get(1).getClass());
 		heuristics = new HeuristicList("Pattern@23:SpecificPoint@2");
 		assertEquals(2, heuristics.size());
 	}
 	
 	@Test
 	public void testClone() {
-		heuristics.loadHeuristicList("Escape@2:Capture@3");
+		heuristics.loadHeuristics("Escape@2:Capture@3");
 		HeuristicList cloned = heuristics.clone();
-		
 		// make sure not the same object (different copies)
 		assertTrue(cloned != heuristics);
-		
 		assertEquals(2, cloned.size());
-		
 		// make sure not the same object (different copies)
-		assertFalse(cloned.getHeuristics()[0] == heuristics.getHeuristics()[0]);
-		assertFalse(cloned.getHeuristics()[1] == heuristics.getHeuristics()[1]);
-		
-		assertEquals(2, cloned.getHeuristics()[0].getWeight(), .000001);
-		assertEquals(3, cloned.getHeuristics()[1].getWeight(), .000001);
-		
-		assertEquals(EscapeHeuristic.class, heuristics.getHeuristics()[0].getClass());
-		assertEquals(CaptureHeuristic.class,   heuristics.getHeuristics()[1].getClass());
-		
+		assertFalse(cloned.get(0) == heuristics.get(0));
+		assertFalse(cloned.get(1) == heuristics.get(1));
+		assertEquals(2, cloned.get(0).getWeight(), .000001);
+		assertEquals(3, cloned.get(1).getWeight(), .000001);
+		assertEquals(EscapeHeuristic.class, heuristics.get(0).getClass());
+		assertEquals(CaptureHeuristic.class,   heuristics.get(1).getClass());
 	}
 		
 	@Test
 	public void testSetProperty() throws Exception {
-		heuristics.loadHeuristicList("Escape@2:Capture@3");
+		heuristics.loadHeuristics("Escape@2:Capture@3");
 		assertEquals(2, heuristics.size());
-		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
-		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
+		assertEquals(EscapeHeuristic.class,  heuristics.get(0).getClass());
+		assertEquals(CaptureHeuristic.class, heuristics.get(1).getClass());
 		heuristics.setProperty("heuristic.Escape.weight", "10");
-		assertEquals(10, heuristics.getHeuristics()[0].getWeight(), .000001);
+		assertEquals(10, heuristics.get(0).getWeight(), .000001);
 		heuristics.setProperty("heuristic.Capture.weight", "5");
-		assertEquals(5.0, heuristics.getHeuristics()[1].getWeight(), .000001);
+		assertEquals(5.0, heuristics.get(1).getWeight(), .000001);
 	}
 	
-	@Test
-	public void testRemoveZeroWeightedHeuristics() throws Exception {
-		heuristics.loadHeuristicList("Escape@2:Capture@3");
-		assertEquals(2, heuristics.size());
-		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
-		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
-		heuristics.setProperty("heuristic.Escape.weight", "0");
-		heuristics.removeZeroWeightedHeuristics();
-		// make sure the escape property is gone
-		assertEquals(1, heuristics.size());
-		assertEquals(CaptureHeuristic.class,  heuristics.getHeuristics()[0].getClass());
-		heuristics.setProperty("heuristic.Capture.weight", "0");
-		heuristics.removeZeroWeightedHeuristics();
-		// make sure the capture property is gone
-		assertEquals(0, heuristics.size());
-	}
-	
-	@Test
-	public void testAddNewHeuristicWhenSettingProperty() throws Exception {
-		heuristics.loadHeuristicList("Escape@2:Capture@3");
-		assertEquals(2, heuristics.size());
-		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
-		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
-		heuristics.setProperty("heuristic.Pattern.weight", "10");
-		// we should have added the Proximity heuristic
-		assertEquals(3, heuristics.size());
-		assertEquals(EscapeHeuristic.class,  heuristics.getHeuristics()[0].getClass());
-		assertEquals(CaptureHeuristic.class, heuristics.getHeuristics()[1].getClass());
-		assertEquals(PatternHeuristic.class, heuristics.getHeuristics()[2].getClass());
-		// we should now remove the escape heuristic
-		heuristics.setProperty("heuristic.Escape.weight", "0");
-		heuristics.removeZeroWeightedHeuristics();
-		assertEquals(2, heuristics.size());
-		assertEquals(CaptureHeuristic.class,  heuristics.getHeuristics()[0].getClass());
-		assertEquals(PatternHeuristic.class, heuristics.getHeuristics()[1].getClass());
-	}
-	
-	@Test
-	public void testZeroWeightHeuristic() {
-		heuristics.loadHeuristicList("Escape@2:Capture@0:Pattern@10");
-		assertEquals(2, heuristics.getHeuristics().length);
-	}
-
 	@Test
 	public void testSelectAndPlayOneMove() {
-		heuristics.loadHeuristicList("Capture@1:Pattern@1000");
+		heuristics.loadHeuristics("Capture@1:Pattern@1000");
 		String[] problem = new String[] {
 				"...................",//19
 				"...................",//18
@@ -142,7 +93,7 @@ public class HeuristicListTest {
 
 	@Test
 	public void testSelectAndPlayOneMoveDistant() {
-		heuristics.loadHeuristicList("Capture@1:Pattern@1000");
+		heuristics.loadHeuristics("Capture@1:Pattern@1000");
 		String[] problem = new String[] {
 				"...................",//19
 				"...................",//18
@@ -173,11 +124,22 @@ public class HeuristicListTest {
 		assertEquals(at("h5"), heuristics.selectAndPlayOneMove(new MersenneTwisterFast(), board));	
 	}
 
+	@Test
+	public void testUniformRandomness(){
+		Board board = new Board();
+		int[] count = new int[getFirstPointBeyondBoard()];
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		for (int i=0; i<10000; i++){
+			board.clear();
+			count[heuristics.selectAndPlayOneMove(random, board)] ++;
+		}
+		assertTrue(count[at("q3")]<2*count[at("r3")]);
+	}
 
 	@Test
 	public void testNoHeuristics() throws Exception {
 		heuristics.setProperty("heuristics", "");
-		assertEquals(0, heuristics.getHeuristics().length);
+		assertEquals(0, heuristics.size());
 	}
 
 }

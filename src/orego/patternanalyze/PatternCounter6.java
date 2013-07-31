@@ -15,7 +15,7 @@ public class PatternCounter6 extends PatternCounter5 {
 
 	@Override
 	protected int[] getPointsToAnalyze(int p) {
-		return ALL_POINTS_ON_BOARD;
+		return getAllPointsOnBoard();
 	}
 	
 }

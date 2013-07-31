@@ -5,10 +5,10 @@ import static orego.core.Colors.NUMBER_OF_PLAYER_COLORS;
 import static orego.core.Colors.VACANT;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.opposite;
-import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.getAllPointsOnBoard;
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
 
 import java.lang.reflect.Constructor;
 
@@ -27,7 +27,7 @@ public class Lgrf2Player extends RavePlayer {
 	protected int[][] getReplies1() {
 		return replies1;
 	}
-
+	
 	/** Indices are color, antepenultimate move, previous move. */
 	private int[][][] replies2;
 
@@ -56,12 +56,12 @@ public class Lgrf2Player extends RavePlayer {
 		try {
 			super.reset();
 			// Create reply tables
-			replies1 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD];
-			replies2 = new int[NUMBER_OF_PLAYER_COLORS][FIRST_POINT_BEYOND_BOARD][FIRST_POINT_BEYOND_BOARD];
+			replies1 = new int[NUMBER_OF_PLAYER_COLORS][getFirstPointBeyondBoard()];
+			replies2 = new int[NUMBER_OF_PLAYER_COLORS][getFirstPointBeyondBoard()][getFirstPointBeyondBoard()];
 			for (int c = BLACK; c <= WHITE; c++) {
-				for (int p : ALL_POINTS_ON_BOARD) {
+				for (int p : getAllPointsOnBoard()) {
 					replies1[c][p] = NO_POINT;
-					for (int q : ALL_POINTS_ON_BOARD) {
+					for (int q : getAllPointsOnBoard()) {
 						replies2[c][p][q] = NO_POINT;
 					}
 					replies2[c][p][PASS] = NO_POINT;

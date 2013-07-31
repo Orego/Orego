@@ -27,16 +27,16 @@ public class SearchNodeTest {
 	public void testIsFresh() {
 		assertTrue(node.isFresh());
 		node.recordPlayout(1, new int[] { PASS }, 0, 1, new IntSet(
-				FIRST_POINT_BEYOND_BOARD));
+				getFirstPointBeyondBoard()));
 	}
 
 	@Test
 	public void testToString() {
 		node.recordPlayout(1, new int[] { at("a1") }, 0, 1, new IntSet(
-				FIRST_POINT_BEYOND_BOARD));
+				getFirstPointBeyondBoard()));
 		node.recordPlayout(1, new int[] { PASS }, 0, 1, new IntSet(
-				FIRST_POINT_BEYOND_BOARD));
-		int base = (2 * BOARD_AREA) + 12;
+				getFirstPointBeyondBoard()));
+		int base = (2 * getBoardArea()) + 12;
 		assertEquals(
 				"Total runs: "
 						+ base
@@ -53,28 +53,28 @@ public class SearchNodeTest {
 
 	@Test
 	public void testOverallWinRate() {
-		assertEquals((BOARD_AREA + 1.0) / ((2 * BOARD_AREA) + 10),
+		assertEquals((getBoardArea() + 1.0) / ((2 * getBoardArea()) + 10),
 				node.overallWinRate(), 0.001);
 		node.exclude(at("e3"));
-		assertEquals((BOARD_AREA) / ((2 * BOARD_AREA) + 8.0),
+		assertEquals((getBoardArea()) / ((2 * getBoardArea()) + 8.0),
 				node.overallWinRate(), 0.001);
 	}
 
 	@Test
 	public void testInitialWins() {
 		node.reset(0L);
-		assertEquals(1, node.getWins(FIRST_POINT_ON_BOARD), 0.001);
-		assertEquals(2, node.getRuns(FIRST_POINT_ON_BOARD));
+		assertEquals(1, node.getWins(getFirstPointOnBoard()), 0.001);
+		assertEquals(2, node.getRuns(getFirstPointOnBoard()));
 	}
 
 	@Test
 	public void testGetWinningMove() {
 		assertEquals(NO_POINT, node.getWinningMove());
 		node.recordPlayout(1, new int[] { at("a1") }, 0, 1, new IntSet(
-				FIRST_POINT_BEYOND_BOARD));
+				getFirstPointOnBoard()));
 		assertEquals(at("a1"), node.getWinningMove());
 		node.recordPlayout(0, new int[] { at("a1") }, 0, 1, new IntSet(
-				FIRST_POINT_BEYOND_BOARD));
+				getFirstPointOnBoard()));
 		assertEquals(NO_POINT, node.getWinningMove());
 	}
 
@@ -82,7 +82,7 @@ public class SearchNodeTest {
 	public void testTieUpdate() {
 		node.reset(0L);
 		node.recordPlayout((float) 0.5, new int[] { at("a1") }, 0, 1, new IntSet(
-				FIRST_POINT_BEYOND_BOARD));
+				getFirstPointOnBoard()));
 		assertEquals(3, node.getRuns(at("a1")));
 		assertEquals(1.5, node.getWins(at("a1")), 0.001);
 		assertEquals(0.5, node.getWinRate(at("a1")), 0.001);

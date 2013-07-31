@@ -3,6 +3,7 @@ package orego.ui;
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
 import orego.core.Coordinates;
+import orego.heuristic.HeuristicList;
 import orego.mcts.McPlayer;
 import orego.play.ThreadedPlayer;
 import org.junit.Before;
@@ -44,32 +45,16 @@ public class OregoTest {
 	/** A test of the to verify the "boardsize" command. */
 	@Test
 	public void testBoardSize() throws IOException {
-		// 0 or fewer is an invalid size, check for an error
-		// message.
-		orego.handleCommand("boardsize " + 0);
+		// Any value not boardsize is invalid
+		orego.handleCommand("boardsize " + (getBoardWidth() - 1));
 		String output = oregoOut.readLine();
 		assertEquals('?', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		orego.handleCommand("boardsize " + -9);
-		output = oregoOut.readLine();
-		assertEquals('?', output.charAt(0));
-		oregoOut.readLine(); // read out the extra return
-		// Check with a valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + BOARD_WIDTH);
+		// Check with the valid BOARD_WIDTH parameter
+		orego.handleCommand("boardsize " + getBoardWidth());
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
 		oregoOut.readLine(); // read out the extra return
-		// Check with other valid BOARD_WIDTH parameter
-		orego.handleCommand("boardsize " + 9);
-		output = oregoOut.readLine();
-		assertEquals ('=', output.charAt(0));
-		assertEquals(9, BOARD_WIDTH);
-		assertEquals(81, Coordinates.BOARD_AREA);
-		oregoOut.readLine();
-		//set back to 19 so other tests will work
-		orego.handleCommand("boardsize " + 19);
-		output = oregoOut.readLine();
-		oregoOut.readLine();
 		// Check without a parameter. Check for error message.
 		orego.handleCommand("boardsize");
 		output = oregoOut.readLine();
@@ -96,11 +81,18 @@ public class OregoTest {
 		orego.handleCommand("showboard");
 		output = oregoOut.readLine();
 		assertEquals('=', output.charAt(0));
-		for (int i = 0; i < BOARD_WIDTH + 2; i++) {
+		for (int i = 0; i < getBoardWidth() + 2; i++) {
 			output = oregoOut.readLine();
 			assertFalse(output.contains("#"));
 		}
 		oregoOut.readLine(); // read out the extra return
+	}
+	
+	@Test
+	public void testHandicapColorChange() {
+		orego.handleCommand("fixed_handicap 9");
+		assertEquals(BLACK,orego.getPlayer().getBoard().getColor(at("D10")));
+		assertEquals(WHITE,orego.getPlayer().getBoard().getColorToPlay());
 	}
 
 	/** Test the "final_score" command. */
@@ -127,7 +119,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		outcome = output.split("\\+"); // regex for split at the +
 		assertTrue(outcome[0].endsWith("B")); // Black wins
-		double blackScore = BOARD_AREA - komi; // With max territory
+		double blackScore = getBoardArea() - komi; // With max territory
 		assertEquals(outcome[1], "" + blackScore);
 	}
 
@@ -136,7 +128,7 @@ public class OregoTest {
 		assertEquals('=', output.charAt(0));
 		// This converts the text output internal numerical format and verifies
 		// the move is valid.
-		assertTrue(at(output.substring(2)) < FIRST_POINT_BEYOND_BOARD);
+		assertTrue(at(output.substring(2)) < getFirstPointBeyondBoard());
 	}
 
 	@Test
@@ -407,9 +399,62 @@ public class OregoTest {
 	/** Test the "kgs-game_over" command. */
 	@Test
 	public void testKgsGameOver() throws IOException {
-		// This won't work if the QuitAfterGameOver.txt file contains true
+		// (This won't work if the QuitAfterGameOver.txt file contains true.)
+
+		// Make it so only A1 is a valid move.
+		String[] problem = {
+				"OOOOOOOOOOOOOOOOOOO",// 19
+				"OOOOOOOOOOOOOOOOOOO",// 18
+				"OOOOOOOOOOOOOOOOOOO",// 17
+				"OOOOOOOOOOOOOOOOOOO",// 16
+				"OOOOOOOOOOOOOOOOOOO",// 15
+				"OOOOOOOOOOOOOOOOOOO",// 14
+				"OOOOOOOOOOOOOOOOOOO",// 13
+				"OOOOOOOOOOOOOOOOOOO",// 12
+				"OOOOOOOOOOOOOOOOOOO",// 11
+				"OOOOOOOOOOOOOOOOOOO",// 10
+				"OOOOOOOOOOOOOOOOOOO",// 9
+				"OOOOOOOOOOOOOOOOOOO",// 8
+				"OOOOOOOOOOOOOOOOOOO",// 7
+				"OOOOOOOOOOOOOOOOOOO",// 6
+				"OOOOOOOOOOOOOOOOOOO",// 5
+				"OOOOOOOOOOOOOOOOOOO",// 4
+				"OOOOOOOOOOOOOOOOOOO",// 3
+				"OOOOOOOOOOOOOOOOOOO",// 2
+				"..OOOOOOOOOOOOOOOOO" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		orego.getPlayer().getBoard().setUpProblem(WHITE, problem);
+
+		// Send Orego the "kgs-game_over" command and gets its response.
 		orego.handleCommand("kgs-game_over");
 		assertEquals("= ", oregoOut.readLine());
+		oregoOut.readLine();
+
+		// Verify that the board is not empty.
+		orego.handleCommand("showboard");
+		String output = oregoOut.readLine();
+		assertEquals('=', output.charAt(0));
+		for (int i = 0; i < getBoardWidth(); i++) { // all but the last row
+			assertFalse(oregoOut.readLine().contains("."));
+		}
+		oregoOut.readLine(); oregoOut.readLine(); oregoOut.readLine(); // read out the last lines and the extra return
+
+		// Pick the game back up, verifying that Orego does not accept a move at C1.
+		orego.handleCommand("play white c1");
+		assertEquals('?', oregoOut.readLine().charAt(0));
+		oregoOut.readLine();
+
+		// Verify that Orego does accept a move at B1.
+		orego.handleCommand("play white b1");
+		output = oregoOut.readLine();
+		assertEquals('=', output.charAt(0));
+		oregoOut.readLine();
+
+		// Verify the Orego generates a move at A1, the only legal move.
+		orego.handleCommand("genmove black");
+		output = oregoOut.readLine();
+		assertEquals(at(output.substring(2)), at("A1"));
 	}
 
 	/** Test the fixed_handicap command. */
@@ -523,15 +568,19 @@ public class OregoTest {
 
 	@Test
 	public void testCommandLineArguments() {
-		orego = new Orego(new String[] { "player=MctsPlayer", "msec=100",
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=9", "msec=100",
 				"ponder" });
 		McPlayer player = (McPlayer) orego.getPlayer();
 		assertEquals(100, player.getMillisecondsPerMove());
 		assertTrue(((ThreadedPlayer) orego.getPlayer()).isPondering());
+		assertEquals(9, getBoardWidth());
 		orego = new Orego(new String[] { "player=Mcts", "playouts=500" });
 		player = (McPlayer) orego.getPlayer();
 		assertEquals(-1, player.getMillisecondsPerMove());
 		assertEquals(500, player.getPlayoutLimit());
+		orego = new Orego(new String[] { "player=MctsPlayer", "boardsize=19", "msec=100",
+		"ponder" });
+		//sets boardsize back to 19 so tests will work?
 	}
 	
 	@Test
@@ -544,4 +593,28 @@ public class OregoTest {
 		assertEquals(-1, ((McPlayer)(orego.getPlayer())).getPlayoutLimit());
 	}
 
+	@Test
+	public void testDefaultHeuristics() {
+		orego = new Orego(new String[] {});
+		HeuristicList heuristics = orego.getPlayer().getHeuristics();
+		assertEquals("class orego.heuristic.EscapeHeuristic", (heuristics.get(0).getClass().toString()));
+		assertEquals(20, (heuristics.get(0).getWeight()));
+		assertEquals("class orego.heuristic.PatternHeuristic", (heuristics.get(1).getClass().toString()));
+		assertEquals(20, (heuristics.get(0).getWeight()));
+		assertEquals("class orego.heuristic.CaptureHeuristic", (heuristics.get(2).getClass().toString()));
+		assertEquals(20, (heuristics.get(0).getWeight()));
+		assertEquals(3, (heuristics.size()));
+		orego = new Orego(new String[] {"heuristics=Capture@50"});
+		heuristics = orego.getPlayer().getHeuristics();
+		assertEquals("class orego.heuristic.CaptureHeuristic", (heuristics.get(0).getClass().toString()));
+		assertEquals(50, (heuristics.get(0).getWeight()));
+		assertEquals(1, (heuristics.size()));
+	}
+
+	@Test
+	public void testCgtcColorSwitch() {
+		orego = new Orego(System.in, new PipedOutputStream(), new String[] {"cgtc=true"});
+		orego.handleCommand("reg_genmove white");
+		assertEquals(WHITE, orego.getPlayer().getBoard().getColorToPlay());
+	}
 }

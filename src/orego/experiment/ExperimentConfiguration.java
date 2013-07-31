@@ -1,25 +1,52 @@
 package orego.experiment;
 
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.experiment.Debug.OREGO_ROOT_DIRECTORY;
+import static java.io.File.separator;
+import static orego.core.Coordinates.getBoardWidth;
+import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 
 /** Defines some system-dependent constants for experiments. */
 public class ExperimentConfiguration {
 
 	/** Directory where game files are stored. */
-	public static final String RESULTS_DIRECTORY = "/home/drake/results/";
+	public static final String RESULTS_DIRECTORY;
 
 	/** Command to start Java Virtual Machine with Orego's classpath. */
-	public static final String JAVA_WITH_OREGO_CLASSPATH = "java -ea -cp /home/drake/workspace/Orego/bin";
+	public static final String JAVA_WITH_OREGO_CLASSPATH;
 
 	/**
 	 * The host from which commands are given must be listed first for
 	 * KillExperiment to work.
 	 */
-	public static final String[] HOSTS = { "fido.bw01.lclark.edu",
-			"n001.bw01.lclark.edu",
-			"n002.bw01.lclark.edu",
-			"n003.bw01.lclark.edu", "n004.bw01.lclark.edu" };
-
+	public static final String[] HOSTS;
+	
+	static {
+		Properties defaultProp = new Properties();
+		try {
+			defaultProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "config.properties"));
+		} catch (FileNotFoundException e1) {
+			System.err.println("config.properties not found.");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		Properties userProp = new Properties(defaultProp);
+		try {
+			userProp.load(new FileInputStream(OREGO_ROOT_DIRECTORY + separator + "user.properties"));
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		RESULTS_DIRECTORY = userProp.getProperty("resultsdirectory");
+		JAVA_WITH_OREGO_CLASSPATH = userProp.getProperty("oregoclasspath");
+		GNUGO = userProp.getProperty("gnugoclasspath") + " --boardsize " + getBoardWidth() + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+		String s = userProp.getProperty("hosts");
+		HOSTS = s.trim().split("\\s+");
+	}
+	
 	/**
 	 * Number of games to run simultaneously on each host. This should be no
 	 * more than the number of processor cores on each host. If Orego is being
@@ -37,6 +64,13 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_COLOR = GAMES_PER_CONDITION
 			/ (2 * HOSTS.length * GAMES_PER_HOST);
 
+	/**
+	 * The amount of time each player is allocated for each game. If this is 0,
+	 * no time_left commands will be sent. This is useful if using the msec or
+	 * playouts properties.
+	 */
+	public static final int GAME_TIME_IN_SECONDS = 500;
+	
 	static {
 		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
 	}
@@ -45,17 +79,16 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[3];
-		 
+	public static final String[] CONDITIONS = new String[4];
+
 	static {
-		int i = 0;
-		for (int maxVacancies = 100; maxVacancies <= 300; maxVacancies += 50) {
-		    CONDITIONS[i] = "threads=2 maxVacancies=" + maxVacancies + " book=FusekiBook";
-		    i++;
-		}
+		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
+		CONDITIONS[1] = "threads=2 book=FusekiBook";
+		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
+		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
 	}
 	
 	/** Path to run gnugo on your machine */
-	public static final String GNUGO = "/usr/local/bin/gnugo --boardsize " + BOARD_WIDTH + " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi 7.5";
+	public static final String GNUGO;
 
 }
