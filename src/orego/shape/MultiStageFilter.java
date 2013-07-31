@@ -17,8 +17,8 @@ public class MultiStageFilter implements Serializable {
 	private Filter[][] filters;
 
 	/**
-	 * @param tables Number of sloppy hash tables.
-	 * @param bits Number of bits for indexing into each table.
+	 * @param tables Number of filters.
+	 * @param bits Number of bits for indexing into each filter.
 	 */
 	public MultiStageFilter(int tables, int bits) {
 		this.filters = new Filter[MAX_PATTERN_RADIUS + 1][NUMBER_OF_PLAYER_COLORS];
@@ -56,7 +56,7 @@ public class MultiStageFilter implements Serializable {
 	}
 	
 	/**
-	 * Store run
+	 * Stores a run
 	 * @param board Board on which move is made.
 	 * @param move Move to be made.
 	 */

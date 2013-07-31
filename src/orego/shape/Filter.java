@@ -16,7 +16,7 @@ public class Filter implements Serializable {
 	/** Width, in bits, of each table's indices. */
 	private int width;
 	
-	private final int THRESHOLD = 10000;
+	public static final int THRESHOLD = 1000;
 	
 	/**
 	 * @param tables number of tables.
@@ -54,15 +54,6 @@ public class Filter implements Serializable {
 		}
 		return min;
 	}
-
-//	/** Sets the count for all entries in this table. 
-//	 * @param count The value to set the run counts to.
-//	 */
-//	public void setCount(long count) {
-//		for (int i = 0; i < counts.length; i++) {
-//			Arrays.fill(counts[i], count);
-//		}
-//	}
 	
 	/**
 	 * Stores a run for this hash.
