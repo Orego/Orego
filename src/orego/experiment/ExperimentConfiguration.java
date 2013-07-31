@@ -79,13 +79,19 @@ public class ExperimentConfiguration {
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
 	 */
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[6];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=largeknight maxvacancies=100";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=knight maxvacancies=100";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=adjacent maxvacancies=100";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=largeknight maxvacancies=200";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=knight maxvacancies=200";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=adjacent maxvacancies=200";
+
+
+
 	}
 	
 	/** Path to run gnugo on your machine */
