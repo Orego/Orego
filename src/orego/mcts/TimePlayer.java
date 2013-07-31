@@ -1,17 +1,13 @@
 package orego.mcts;
 
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static orego.core.Coordinates.RESIGN;
 import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.util.Gaussian.Phi;
+
 import orego.play.UnknownPropertyException;
-import static orego.core.Coordinates.pointToString;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 public class TimePlayer extends Lgrf2Player {
 
@@ -165,14 +161,14 @@ public class TimePlayer extends Lgrf2Player {
 	private int quickMovesOutOfBook = 0;
 
 	private int firstMoveOutOfOpeningBook = -22;
-	
+
 	private static int THINKING_SLICES = 3;
 
 	/**
 	 * This keeps track of the playouts per Second
 	 */
 	private double playoutsPerSec = 0;
-	
+
 	/**
 	 * We will think less if there are previous runs in the root node.
 	 */
@@ -182,37 +178,53 @@ public class TimePlayer extends Lgrf2Player {
 	private boolean earlyC = false;
 
 	private static final int SET_RUNS = 722;
-	
+
+	/**
+	 * The amount of extra time that should be allocated to the current move
+	 * (due to time saved in the previous move).
+	 */
 	private int extraTimeInMsec = 0;
 
-	private boolean rollOverTime = false;
+	/**
+	 * The portion of the time saved that should be allocated to the next move.
+	 */
+	private double rolloverCoefficient = 0.0;
+
+	/**
+	 * If this is > 0, all moves will be allocated this amount of time or less
+	 * (though a think-longer heuristic could use a bit more).
+	 */
+	private int maxTimePerMoveInMsec = 0;
 
 	@Override
 	public int bestMove() {
-		
+
 		// Get the start time and initial playouts before we run best move
 		long startTime = System.currentTimeMillis();
 		int initialPlayouts = getRoot().getTotalRuns();
-		
+
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
 
-//		int earlyMove = -1;
-
 		// if we might leave early...
-		if ((compareSecond && compareSecondConf < 1.0) || (compareRest && compareRestConf < 1.0) || quickMovesOutOfBook > 0 || earlyC) {
+		if ((compareSecond && compareSecondConf < 1.0)
+				|| (compareRest && compareRestConf < 1.0)
+				|| quickMovesOutOfBook > 0 || earlyC) {
 
 			// increase the allocated time
 			totalTimeInMs *= earlyExitMult;
-			
-			// check for middle range (for compare-second and compare-rest) 
+
+			// check for middle range (for compare-second and compare-rest)
 			boolean inMiddleRange = false;
-			if (compareSecond && totalTimeInMs < compareSecondConfDontApplyMax && totalTimeInMs > compareSecondConfDontApplyMin) {
+			if (compareSecond && totalTimeInMs < compareSecondConfDontApplyMax
+					&& totalTimeInMs > compareSecondConfDontApplyMin) {
 				inMiddleRange = true;
-			} else if (compareRest && totalTimeInMs < compareRestConfDontApplyMax && totalTimeInMs > compareRestConfDontApplyMin) {
+			} else if (compareRest
+					&& totalTimeInMs < compareRestConfDontApplyMax
+					&& totalTimeInMs > compareRestConfDontApplyMin) {
 				inMiddleRange = true;
 			}
-			
+
 			// split the time allocated for this move into slices
 			int timePerIteration = max(1, totalTimeInMs / THINKING_SLICES);
 			setMillisecondsPerMove(timePerIteration);
@@ -220,32 +232,34 @@ public class TimePlayer extends Lgrf2Player {
 			// execute each slice and stop early if applicable
 			for (int i = 0; i < THINKING_SLICES - 1; i++) {
 				int best = super.bestMove();
-				
+
 				updatePlayoutsPerSecond(startTime, initialPlayouts);
 				if (movesOutOfOpeningBook() < quickMovesOutOfBook * 2) {
 					setMillisecondsPerMove(totalTimeInMs); // change it back
 					return best;
 				}
 
-				// if we're in the middle range, only check after the 2nd to last iteration
+				// if we're in the middle range, only check after the 2nd to
+				// last iteration
 				if (inMiddleRange && i != THINKING_SLICES - 2) {
 					continue;
 				}
-				
+
 				int remainingIterations = (THINKING_SLICES - (i + 1));
-				double timeRemainingInSec = remainingIterations * timePerIteration / 1000.0;
-				
-				// consider leaving early (but only if behind and unstable-eval don't prohibit this)
+				double timeRemainingInSec = remainingIterations
+						* timePerIteration / 1000.0;
+
+				// consider leaving early (but only if behind and unstable-eval
+				// don't prohibit this)
 				if ((compareSecond && confidenceBestVsSecondBest() > compareSecondConf)
 						|| (compareRest && confidenceBestVsRest() > compareRestConf)
-						|| (earlyC && expectedPlayoutsRemaining(timeRemainingInSec) * 0.4 < getWins(best) - getWins(moveWithSecondMostWins()))) {
-					if ((!behind || !weAreBehind())	&& (!unstableEval || !isEvaluationUnstable())) {
-//						if (earlyMove == -1) {
-//							earlyMove = best;
-//						}
-						if (rollOverTime) {
+						|| (earlyC && expectedPlayoutsRemaining(timeRemainingInSec) * 0.4 < getWins(best)
+								- getWins(moveWithSecondMostWins()))) {
+					if ((!behind || !weAreBehind())
+							&& (!unstableEval || !isEvaluationUnstable())) {
+						if (rolloverCoefficient > 0.0 && !isInOpeningBook()) {
 							int timeSavedInMsec = (int) (timeRemainingInSec * 1000);
-							extraTimeInMsec += timeSavedInMsec;
+							extraTimeInMsec = (int) (rolloverCoefficient * timeSavedInMsec);
 						}
 						return best;
 					}
@@ -253,31 +267,8 @@ public class TimePlayer extends Lgrf2Player {
 			}
 		}
 
-//		PrintWriter debugFile = null;
-//		try {
-//			debugFile = new PrintWriter(new BufferedWriter(new FileWriter(
-//					"leaveearly.txt", true)));
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
 		int best = super.bestMove();
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
-
-//		if (earlyMove != -1) {
-//			if (earlyMove == best) {
-//				debugFile.println(getTurn() + "," + totalTimeInMs + ",Same");
-//				debugFile.flush();
-//			} else {
-//				debugFile.println(getTurn() + "," + totalTimeInMs
-//						+ ",Different");
-//				debugFile.flush();
-//			}
-//		}
-//
-//		 debugFile.close();
 
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
@@ -305,6 +296,7 @@ public class TimePlayer extends Lgrf2Player {
 			maxMultiple = compareRestUnconfMult;
 		}
 
+		extraTimeInMsec = 0;
 		if (maxMultiple > 0) {
 			setMillisecondsPerMove(max(1,
 					(int) Math.round(totalTimeInMs * maxMultiple)));
@@ -486,8 +478,10 @@ public class TimePlayer extends Lgrf2Player {
 			benefitFromPreviousWork = true;
 		} else if (property.equals("early-c")) {
 			earlyC = true;
-		} else if (property.equals("roll-over-time")) {
-			rollOverTime = true;
+		} else if (property.equals("rollover-coefficient")) {
+			rolloverCoefficient = Double.parseDouble(value);
+		} else if (property.equals("max-time-per-move-msec")) {
+			maxTimePerMoveInMsec = Integer.parseInt(value);
 		} else {
 			super.setProperty(property, value);
 		}
@@ -500,9 +494,9 @@ public class TimePlayer extends Lgrf2Player {
 		 * of time we have left for the game.
 		 */
 
-//		// to avoid going overtime, try to never have < 10 seconds left
-//		seconds -= 7;
-		
+		// // to avoid going overtime, try to never have < 10 seconds left
+		// seconds -= 7;
+
 		// don't crash if time left is negative
 		if (seconds < 0) {
 			seconds = 0;
@@ -525,17 +519,21 @@ public class TimePlayer extends Lgrf2Player {
 		default:
 			msPerMove = 0;
 		}
-		
+
 		msPerMove += extraTimeInMsec;
 
 		int timeSaved;
-		// benefit from previous work is turned on and 
+		// benefit from previous work is turned on and
 		// playouts per ms has been set from the previous move
 		if (benefitFromPreviousWork && playoutsPerSec > 0) {
-			timeSaved = (int) (((getRoot().getTotalRuns() - SET_RUNS) / playoutsPerSec)*1000);
+			timeSaved = (int) (((getRoot().getTotalRuns() - SET_RUNS) / playoutsPerSec) * 1000);
 			timeSaved = max(0, timeSaved);
 			// Subtract the time we saved
 			msPerMove -= timeSaved;
+		}
+
+		if (maxTimePerMoveInMsec > 0) {
+			msPerMove = min(msPerMove, maxTimePerMoveInMsec);
 		}
 
 		// never allocate < 1 ms to a move
@@ -544,22 +542,23 @@ public class TimePlayer extends Lgrf2Player {
 	}
 
 	/**
-	 * Update the playouts per second every move. 
+	 * Update the playouts per second every move.
+	 * 
 	 * @param startTime
 	 * @param initialPlayouts
 	 */
 	protected void updatePlayoutsPerSecond(long startTime, int initialPlayouts) {
 		// Get the final number of playouts
 		int finalPlayouts = getRoot().getTotalRuns();
-	
+
 		// Get the end time after we run our playouts
 		long endTime = System.currentTimeMillis();
-	
+
 		// Determine the playouts per second
-		playoutsPerSec =  (finalPlayouts - initialPlayouts)
-				/ ((endTime - startTime)/1000.0);
+		playoutsPerSec = (finalPlayouts - initialPlayouts)
+				/ ((endTime - startTime) / 1000.0);
 	}
-	
+
 	protected void setPlayoutsPerSecond(double pps) {
 		playoutsPerSec = pps;
 	}
