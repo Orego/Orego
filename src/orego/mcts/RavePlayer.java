@@ -1,6 +1,9 @@
 package orego.mcts;
 
 import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 import static java.lang.String.format;
 import static orego.core.Colors.VACANT;
 import static orego.core.Coordinates.*;
@@ -35,6 +38,8 @@ public class RavePlayer extends MctsPlayer {
 	 * is, the less attention is paid to RAVE.
 	 */
 	private double raveBias;
+	
+	private double explorationValue;
 
 	public RavePlayer() {
 		raveBias = 0.0009;
@@ -242,13 +247,47 @@ public class RavePlayer extends MctsPlayer {
 		if (move == PASS) {
 			return node.getWinRate(move);
 		}
+		// barX = r
+		// uncertainty = .4 * sqrt(factor1 * factor2)
+		// factor1 = logParentRunCount / getRuns(move)
+		// factor2 = min(.25, v)
+		// v = term1 + term2 + term3
+		// term1 = barX
+		// term2 = -(barX * barX)
+		// term3 = sqrt(2 * logParentRunCount / node.getRuns(move))
 		RaveNode raveNode = (RaveNode) node;
+		
+		
 		double c = raveNode.getRuns(move);
 		double r = raveNode.getWinRate(move);
 		double rc = raveNode.getRaveRuns(move);
 		double rr = raveNode.getRaveWinRate(move);
 		double coef = raveCoefficient(c, rc);
-		return r * (1 - coef) + rr * coef;
+		
+		
+		double barX = node.getWinRate(move);
+		if (barX < 0) { // if the move has been excluded
+			return NEGATIVE_INFINITY;
+		}
+		double logParentRunCount = log(node.getTotalRuns());
+		// In the paper, term1 is the mean of the SQUARES of the rewards; since
+		// all rewards are 0 or 1 here, this is equivalent to the mean of the
+		// rewards, i.e., the win rate.
+		double term1 = barX;
+		double term2 = -(barX * barX);
+		double term3 = sqrt(2 * logParentRunCount / node.getRuns(move));
+		double v = term1 + term2 + term3; // This equation is above Eq. 1
+		assert v >= 0 : "Negative variability in UCT for move "
+				+ pointToString(move) + ":\n" + node + "\nterm1: " + term1
+				+ "\nterm2: " + term2 + "\nterm3: " + term3
+				+ "\nPlayer's board:\n" + getBoard() + "\nVacant points: "
+				+ getBoard().getVacantPoints().toStringAsPoints()
+				+ "\nRunnable's board:\n" + board + "\nVacant points: "
+				+ board.getVacantPoints().toStringAsPoints();
+		double factor1 = logParentRunCount / node.getRuns(move);
+		double factor2 = min(0.25, v);
+		double uncertainty = explorationValue * sqrt(factor1 * factor2);
+		return (r * (1 - coef) + rr * coef) + uncertainty;
 	}
 
 	@Override
@@ -256,6 +295,8 @@ public class RavePlayer extends MctsPlayer {
 			throws UnknownPropertyException {
 		if (property.equals("bias")) {
 			raveBias = Double.parseDouble(value);
+		} else if (property.equals("explorevalue")) {
+			explorationValue = Double.parseDouble(value);
 		} else {
 			super.setProperty(property, value);
 		}
