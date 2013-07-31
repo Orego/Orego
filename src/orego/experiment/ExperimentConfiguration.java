@@ -92,7 +92,6 @@ public class ExperimentConfiguration {
 		CONDITIONS[6] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=largeknight maxvacancies=200";
 		CONDITIONS[7] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=knight maxvacancies=200";
 		CONDITIONS[8] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=adjacent maxvacancies=200";
-
 	}
 	
 	/** Path to run gnugo on your machine */
