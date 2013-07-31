@@ -63,6 +63,9 @@ public class PatternPlayer extends McPlayer {
 	private float[] endNoise = {0.1f,0.01f,0.0f};
 	private float[] decay = {1-0.9999f,1-0.999f,1-0.99f};
 	private int[] cutoff = {1000,500,100};
+	
+	/** Most recent winning reply to a two-move sequence, indexed by color, first move, and second move. */
+	private int[][][] moveSequence;
 
 	private float finalNoise;
 
@@ -82,6 +85,7 @@ public class PatternPlayer extends McPlayer {
 		cutOff = 1000;
 		finalNoise = 0;
 		noiseDecay = 1-0.999f;
+		moveSequence = new int[2][getFirstPointBeyondBoard()][getFirstPointBeyondBoard()];
 	}
 	
 	@Override
@@ -94,7 +98,16 @@ public class PatternPlayer extends McPlayer {
 	/** Returns the best move to make from here during a playout. */
 	public int bestSearchMove(Board board, MersenneTwisterFast random) {
 		double best = PASS_THRESHOLD;
-		int result = PASS;
+		int result;
+		if (board.getTurn()>=2){
+			result = moveSequence[board.getColorToPlay()][board.getMove(board.getTurn()-2)][board.getMove(board.getTurn()-1)];
+//			System.out.println(pointToString(board.getMove(board.getTurn()-2))+" "+pointToString(board.getMove(board.getTurn()-1))+" "+pointToString(result));
+			if (isOnBoard(result) && board.isLegal(result)){
+//				System.out.println(pointToString(result));
+				return result;
+			}
+		}
+		result = PASS;
 		IntSet vacantPoints = board.getVacantPoints();
 		int start = random.nextInt(vacantPoints.size());
 		int i = start;
@@ -374,6 +387,13 @@ public class PatternPlayer extends McPlayer {
 				winner=0;
 			}
 			for (int t = getBoard().getTurn(); t < turn; t++) {
+				if (t>=2){
+					if (winner == 1){
+						moveSequence[color][runnable.getBoard().getMove(t-2)][runnable.getBoard().getMove(t-1)]=runnable.getBoard().getMove(t);
+					}else{
+						moveSequence[color][runnable.getBoard().getMove(t-2)][runnable.getBoard().getMove(t-1)]=NO_POINT;
+					}
+				}
 				patterns.store(hashes[t], color, winner);
 				winner=1-winner;
 				color=1-color;

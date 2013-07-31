@@ -14,7 +14,7 @@ public class TestEvaluator {
 	
 	public static void main(String[] args) {
 //		new TestEvaluator().run(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + "SgfTestFiles" + File.separator);
-		new TestEvaluator().run("/Network/Servers/maccsserver.lclark.edu/Users/lvonessen/Desktop/indexfiles");
+		new TestEvaluator().run("/Network/Servers/maccsserver.lclark.edu/Users/lvonessen/Desktop/indexfiles3");
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class TestEvaluator {
 
 	private void printArray() {
 		// [threshold][initNoise][finalNoise][decay][cutoff]
-		System.out.println("            thr     thr     thr\n" +
+		System.out.println("            thr         thr         thr\n" +
 						   "            cut cut cut cut cut cut cut cut cut");
 		for (int initNoise = 0; initNoise < 2; initNoise++) {
 			System.out.print("beg ");
