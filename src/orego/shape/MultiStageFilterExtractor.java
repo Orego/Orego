@@ -35,8 +35,9 @@ public class MultiStageFilterExtractor {
 	
 	public static void main(String[] args) {
 		//System.out.println(new File(inputDirectory).getAbsolutePath());
+		MultiStageFilterExtractor extractor = new MultiStageFilterExtractor();
 		for (int i = 0; i < parameters.length; i++) {
-			new MultiStageFilterExtractor().run(SGF_DIRECTORY, outputDirectory, parameters[i][0], parameters[i][1]);
+			extractor.run(SGF_DIRECTORY, outputDirectory, parameters[i][0], parameters[i][1]);
 		}
 	}
 	
