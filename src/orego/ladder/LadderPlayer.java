@@ -12,7 +12,7 @@ import static orego.core.Coordinates.*;
  * This player plays out all the ladders on the board to find out who wins
  * and biases each position for the winner.
  */
-public class LadderPlayer extends Lgrf2Player {
+public class LadderPlayer extends TimePlayer {
 
 	/**
 	 * The McRunnable used for incorporating ladder playouts into the search tree.
