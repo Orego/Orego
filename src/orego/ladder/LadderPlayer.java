@@ -2,6 +2,7 @@ package orego.ladder;
 
 import orego.mcts.*;
 import orego.play.UnknownPropertyException;
+import orego.util.IntList;
 import orego.util.IntSet;
 import orego.core.*;
 import static orego.core.Colors.*;
@@ -26,17 +27,9 @@ public class LadderPlayer extends Lgrf2Player {
 //	int lengths[];
 	
 	@Override
-	/** Returns the best move, first biasing the search tree with the results of ladder playouts. */
-	public int bestMove() {
-		try {
-			stopThreads();
-			playOutLadders();
- 			runThreads();
-		} catch (InterruptedException shouldNotHappen) {
-			shouldNotHappen.printStackTrace();
-			System.exit(1);
-		}
-		return bestStoredMove();
+	public void beforeStartingThreads() {
+		playOutLadders();
+		super.beforeStartingThreads();
 	}
 	
 	//Commit test
