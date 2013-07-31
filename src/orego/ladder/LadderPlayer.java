@@ -5,6 +5,7 @@ import orego.play.UnknownPropertyException;
 import orego.util.IntSet;
 import orego.core.*;
 import static orego.core.Colors.*;
+import static orego.core.Coordinates.*;
 
 /**
  * This player plays out all the ladders on the board to find out who wins
@@ -59,7 +60,7 @@ public class LadderPlayer extends Lgrf2Player {
 		// our definition of a ladder is: a chain in atari whose
 		// liberty has exactly two vacant neighbors
 		IntSet chainsInAtari = getBoard().getChainsInAtari(color);
-		IntSet libertiesOfLadders = new IntSet (Coordinates.FIRST_POINT_BEYOND_BOARD);
+		IntSet libertiesOfLadders = new IntSet (getFirstPointBeyondBoard());
 		for (int i = 0; i < chainsInAtari.size(); i++) {
 			int liberty = getBoard().getLibertyOfChainInAtari(chainsInAtari.get(i));
 			if (getBoard().getVacantNeighborCount(liberty) == 2) {
@@ -119,7 +120,7 @@ public class LadderPlayer extends Lgrf2Player {
 				// liberty with the most vacant neighbors
 				IntSet insideLiberties = runnable.getBoard().getLiberties(insidePlaysHere);
 				int mostVacantNeighbors = -1;
-				int pointToPlay = FIRST_POINT_BEYOND_BOARD;
+				int pointToPlay = getFirstPointOnBoard();
 				for (int j = 0; j < insideLiberties.size(); j++) {
 					int lib = insideLiberties.get(j);
 					int vacantNeighborCount = runnable.getBoard().getVacantNeighborCount(lib);
@@ -147,8 +148,8 @@ public class LadderPlayer extends Lgrf2Player {
 				// if an outside stone is in atari it sets winner to inside color and breaks.
 				
 				for (int x = 0; x < 4; x++) {
-				  	int n = Coordinates.NEIGHBORS[insidePlaysHere][x];
-				  	if(Coordinates.ON_BOARD[n]){
+				  	int n = getNeighbors(insidePlaysHere)[x];
+				  	if(isOnBoard(n)){
 				  		if(runnable.getBoard().isInAtari(runnable.getBoard().getChainId(n)) && runnable.getBoard().getColor(n)==outsideColor){
 				  			neighborAtari=true;
 				  		}
