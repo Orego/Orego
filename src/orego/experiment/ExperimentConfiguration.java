@@ -80,16 +80,15 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 
-	public static final String[] CONDITIONS = new String[7];
+	public static final String[] CONDITIONS = new String[6];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=50";
-		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=50";
-		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=50";
-		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=150";
-		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=150";
-		CONDITIONS[6] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=150";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 DisputedHeuristic.neighborhood=largeknight DisputedHeuristic.maxVacancies=50";
+		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 DisputedHeuristic.neighborhood=knight DisputedHeuristic.maxVacancies=50";
+		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 DisputedHeuristic.neighborhood=adjacent DisputedHeuristic.maxVacancies=50";
+		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 DisputedHeuristic.neighborhood=largeknight DisputedHeuristic.maxVacancies=150";
+		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 DisputedHeuristic.neighborhood=knight DisputedHeuristic.maxVacancies=150";
+		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 DisputedHeuristic.neighborhood=adjacent DisputedHeuristic.maxVacancies=150";
 	}
 	
 	/** Path to run gnugo on your machine */
