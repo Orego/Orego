@@ -25,7 +25,7 @@ public class LadderPlayerTest {
 		String[] diagram = {
 				"...................",// 19
 				".....OOOOO.O.......",// 18
-				"...OO#####O........",// 17
+				"...OO#####OO.......",// 17
 				"..O########O.......",// 16
 				"..OOO#OOOOOO.......",// 15
 				"....O#O............",// 14
@@ -150,7 +150,7 @@ public class LadderPlayerTest {
 				"...................",// 2
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
-		}; // length is 48
+		};
 		
 		player.reset();
 		player.setUpProblem(WHITE, diagram);
@@ -181,12 +181,10 @@ public class LadderPlayerTest {
 				"...................",// 2
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
-		}; // length is 48
-		
+		};
 		player.reset();
 		player.setUpProblem(WHITE, diagram);
 		assertTrue(player.bestMove() != at("T15"));
-
 	}
 	
 	@Test
@@ -213,44 +211,43 @@ public class LadderPlayerTest {
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
 		}; // length is 48
-		
 		player.reset();
 		player.setUpProblem(WHITE, diagram);
 		player.bestMove();
+		System.err.println("F12 IS AT " + at("F12"));
 		assertEquals(100, player.getBias(at("F12")));
 	}
 	
-//	@Test
-//	public void testInitialInAtari() {		
-//		String[] diagram = {
-//				"...................",// 19
-//				"...##..............",// 18
-//				"..#OOO##...........",// 17
-//				"..#O##O............",// 16
-//				"..O###O............",// 15
-//				"...OO#O............",// 14
-//				"....O#.............",// 13
-//				".....O.............",// 12
-//				"...................",// 11
-//				"...................",// 10
-//				"...................",// 9
-//				"...................",// 8
-//				"...................",// 7
-//				"...................",// 6
-//				"...................",// 5
-//				"...................",// 4
-//				"...................",// 3
-//				"...................",// 2
-//				"..................."// 1
-//			  // ABCDEFGHJKLMNOPQRST
-//		}; // length is 48
-//		
-//		player.reset();
-//		player.setUpProblem(BLACK, diagram);
-//		System.err.println(player.bestMove());
-//		assertEquals(-100, player.getBias(at("F18")));
-//		assertEquals(100, player.getBias(at("G13")));
-//	}
+	@Test
+	public void testInitialInAtari() {		
+		String[] diagram = {
+				"...................",// 19
+				"...##..............",// 18
+				"..#OOO##...........",// 17
+				"..#O##O............",// 16
+				"..O###O............",// 15
+				"...OO#O............",// 14
+				"....O#.............",// 13
+				".....O.............",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		
+		player.reset();
+		player.setUpProblem(BLACK, diagram);
+		System.err.println(player.bestMove());
+		assertEquals(100, player.getBias(at("G13")));
+	}
 	
 	
 }

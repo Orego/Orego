@@ -479,6 +479,15 @@ public class Board {
 	public int getColor(int p) {
 		return colors[p];
 	}
+	
+	/** Returns the list of vacant neighbors around point p. */
+	public IntSet getVacantNeighbors(int p){
+		IntSet result = new IntSet(getVacantNeighborCount(p));
+		for(int i = 0; i<getVacantNeighborCount(p); i++){
+			
+		}
+		return result;
+	}
 
 	/** Returns the color (BLACK or WHITE) to play next. */
 	public int getColorToPlay() {

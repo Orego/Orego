@@ -69,18 +69,18 @@ public class LadderPlayer extends TimePlayer {
 	}
 	
 	public IntSet twoLibertyGroups(int color) {
-		IntSet libertiesOfLadders = new IntSet(getFirstPointBeyondBoard());
+		IntSet libertiesOfTwoLadders = new IntSet(getFirstPointBeyondBoard());
 		for (int i = 0; i < Coordinates.getBoardArea(); i++) {
-			if (getBoard().getColor(i)==BLACK || getBoard().getColor(i)==WHITE) {
+			if (getBoard().getColor(i)==color) {
 				if (getBoard().getChainId(i) == i) {
 					if (getBoard().getLibertyCount(i) == 2) {
 						System.err.println("ADDING");
-						libertiesOfLadders.add(i);
+						libertiesOfTwoLadders.add(i);
 					}
 				}
 			}
 		}
-		return libertiesOfLadders;
+		return libertiesOfTwoLadders;
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class LadderPlayer extends TimePlayer {
 		ladderLiberties.addAll(libertiesOfLadders(WHITE));
 		IntSet twoLibertyLadders = twoLibertyGroups(BLACK);
 		int numberOfBlackTwoLibertyLadders = twoLibertyLadders.size();
-		twoLibertyLadders.addAll(libertiesOfLadders(WHITE));
+		twoLibertyLadders.addAll(twoLibertyGroups(WHITE));
 		boolean twoLiberties=false;
 		
 		SearchNode root = getRoot();
@@ -118,17 +118,17 @@ public class LadderPlayer extends TimePlayer {
 				int lib1= getBoard().getVacantNeighborCount(twoLiberty.get(0));
 				int lib2= getBoard().getVacantNeighborCount(twoLiberty.get(1));
 				if(lib1>lib2){
-					firstMove=lib1;
-					if(ourCopy.isLegal(lib1)){
-						ourCopy.play(lib1);
+					firstMove=twoLiberty.get(0);
+					if(ourCopy.isLegal(twoLiberty.get(0))){
+						ourCopy.play(twoLiberty.get(0));
 					}
-					insidePlaysHere=lib2;
+					insidePlaysHere=twoLiberty.get(1);
 				} else{
-					firstMove=lib2;
-					if(ourCopy.isLegal(lib2)){
-						ourCopy.play(lib2);
+					firstMove=twoLiberty.get(1);
+					if(ourCopy.isLegal(twoLiberty.get(1))){
+						ourCopy.play(twoLiberty.get(1));
 					}
-					insidePlaysHere=lib1;
+					insidePlaysHere=twoLiberty.get(0);
 				}
 				insideColor=ourCopy.getColor(twoLibertyLadders.get(i-ladderLiberties.size()));
 				
@@ -159,14 +159,8 @@ public class LadderPlayer extends TimePlayer {
 							}
 						}
 					}
-
 				}
-
 				stone = ourCopy.getChainNextPoint(stone);
-				System.err.println(stone);
-				if (stone == 0) {
-					break;
-				}
 				System.err.println(stone);
 			} while (stone != insidePlaysHere);
 			// runnable.getBoard().setColorToPlay(insideColor);
@@ -176,6 +170,7 @@ public class LadderPlayer extends TimePlayer {
 			// player until
 			// the ladder is over (either the inside player is free or has been
 			// captured)
+			if(!neighborAtari){
 			while (true) {
 
 				// inside player policy: play in my only liberty
@@ -267,9 +262,25 @@ public class LadderPlayer extends TimePlayer {
 				length++;
 
 			}
+			}else{
+				winner=insideColor;
+			}
 			// bias the search tree: call this playout for the winner.
 			// 100 is used as the number of runs incorporated, this needs to be
 			// tuned.
+			
+			if(twoLiberties){
+				if (winner == insideColor) {
+					
+				} else if (winner == outsideColor
+						&& outsideColor == getBoard().getColorToPlay()) {
+					System.err.println("bye");
+					biased[firstMove] += ladderMult ? length
+							* ladderBias : ladderBias;
+					root.addWins(firstMove, ladderMult ? length
+							* ladderBias : ladderBias);
+				}
+			} else{
 			if (winner == insideColor) {
 				biased[ladderLiberties.get(i)] += ladderMult ? length
 						* ladderBias : ladderBias;
@@ -287,13 +298,13 @@ public class LadderPlayer extends TimePlayer {
 			// incorporateRun(winner, recordRunnable);
 			// }
 		}
+		}
 	}
 
 	/**
 	 * Returns the amount a node was biased. For testing purposes
 	 */
 	public int getBias(int i) {
-		System.err.println("Biased[" + i + "] should be " + biased[i]);
 		return biased[i];
 	}
 
