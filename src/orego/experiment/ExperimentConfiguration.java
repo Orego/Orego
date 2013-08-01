@@ -80,18 +80,16 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 
-	public static final String[] CONDITIONS = new String[6];
+	public static final String[] CONDITIONS = new String[7];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer";
-		CONDITIONS[1] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderBias=40";
-		CONDITIONS[2] = "threads=2 book=FusekiBook player=orego.ladder.LadderPlayer ladderBias=10 ladderMult";
-		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=largeknight maxvacancies=100";
-		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=knight maxvacancies=100";
-		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=adjacent maxvacancies=100";
-//		CONDITIONS[6] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=largeknight maxvacancies=200";
-//		CONDITIONS[7] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=knight maxvacancies=200";
-//		CONDITIONS[8] = "threads=2 book=FusekiBook heuristics=Capture@20:Escape@20:Pattern@20:Disputed@20 neighborhood=adjacent maxvacancies=200";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20";
+		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=100";
+		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=100";
+		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=100";
+		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=200";
+		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=200";
+		CONDITIONS[6] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=200";
 	}
 	
 	/** Path to run gnugo on your machine */
