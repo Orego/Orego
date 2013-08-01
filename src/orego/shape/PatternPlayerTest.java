@@ -14,6 +14,8 @@ import orego.util.IntSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+
 public class PatternPlayerTest {
 
 	private PatternPlayer player;
@@ -234,6 +236,11 @@ public class PatternPlayerTest {
 		//System.out.println("With maintenance: "+playerTrue.getTotalNumPlayouts()+"; without: "+playerFalse.getTotalNumPlayouts());
 		assertTrue(playerTrue.getTotalPlayoutCount()>playerFalse.getTotalPlayoutCount());
 		
+	}
+	
+	@Test
+	public void testIllustratedGenerateMovesToFrontier(){
+		player.generateMovesToFrontierIllustrated(new MersenneTwisterFast(0),3);
 	}
 
 }

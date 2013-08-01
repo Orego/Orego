@@ -79,9 +79,16 @@ public class PatternPlayer extends McPlayer {
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
 		threshold = 0.51f;
 		initialNoise = 1.0f;
+		noise = initialNoise;
 		cutOff = 1000;
 		finalNoise = 0;
-		noiseDecay = 1-0.999f;
+		noiseDecay = 1-0.99f;
+		try {
+			setProperty("patternvalues","160");
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
 	}
 	
 	@Override
@@ -114,6 +121,42 @@ public class PatternPlayer extends McPlayer {
 			i = (i + skip) % vacantPoints.size();
 		} while ((i != start) && best < threshold);
 		return result;
+	}
+	
+	/** Returns the best move to make from here during a playout. */
+	public int bestSearchMoveIllustrated(Board board, MersenneTwisterFast random) {
+		double best = PASS_THRESHOLD;
+		int result = PASS;
+		IntSet vacantPoints = board.getVacantPoints();
+		int start = random.nextInt(vacantPoints.size());
+		int i = start;
+		int choice = -1;
+		int skip = PRIMES[random.nextInt(PRIMES.length)];
+		do {
+			int move = vacantPoints.get(i);
+			if (board.isFeasible(move)) {
+				float noise1 =  noise
+						* random.nextFloat();
+				float searchValue = patterns.getWinRate(board, move);
+				System.out.println(pointToString(move)+"\t"+searchValue+"\t"+noise1);
+				searchValue += noise1;
+				if (choice == -1 && searchValue > best && board.isLegal(move)) {
+					best = searchValue;
+					result = move;
+					if (best>threshold){
+						choice = result;
+					}
+				}
+			}
+			// Advancing by a random prime skips through the array
+			// in a manner analogous to double hashing.
+			i = (i + skip) % vacantPoints.size();
+		} while ((i != start));
+		if (choice == -1){
+			choice = result;
+		}
+		System.out.println("chose "+pointToString(choice));
+		return choice;
 	}
 		
 	@Override
@@ -156,6 +199,20 @@ public class PatternPlayer extends McPlayer {
 			}
 			runnable.acceptMove(move);
 		}
+	}
+	
+	public void generateMovesToFrontierIllustrated(MersenneTwisterFast random, int depth) {
+		Board b = new Board();
+		b.copyDataFrom(getBoard());
+		for (int i=0; i<depth; i++) {
+			System.out.println("playout "+i);
+			int move = bestSearchMoveIllustrated(b, random);
+			if (move != PASS) {
+				storeHashes(b, move);
+			}
+			b.play(move);
+		}
+		this.incorporateRunIllustrated(b.finalWinner(), b);
 	}
 
 	@Override
@@ -363,6 +420,7 @@ public class PatternPlayer extends McPlayer {
 		}
 		return result;
 	}
+	
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
 		if (winner != VACANT) {
@@ -379,6 +437,27 @@ public class PatternPlayer extends McPlayer {
 				color=1-color;
 			}
 			playoutCount[runnable.getBoard().getMove(getBoard().getTurn())]++;
+		}
+		noise = (1-noiseDecay) * noise + noiseDecay*finalNoise;
+//		debug("Noise: " + noise);
+		totalPlayoutCount++;
+	}
+	
+	public void incorporateRunIllustrated(int winner, Board b) {
+		if (winner != VACANT) {
+			int turn = b.getTurn();
+			int color = getBoard().getColorToPlay();
+			if (winner == color) {
+				winner=1;
+			} else{
+				winner=0;
+			}
+			for (int t = getBoard().getTurn(); t < turn; t++) {
+				patterns.store(hashes[t], color, winner);
+				winner=1-winner;
+				color=1-color;
+			}
+			playoutCount[b.getMove(getBoard().getTurn())]++;
 		}
 		noise = (1-noiseDecay) * noise + noiseDecay*finalNoise;
 //		debug("Noise: " + noise);
@@ -434,6 +513,7 @@ public class PatternPlayer extends McPlayer {
 			index%=9;
 			noiseDecay = decay[index/3];
 			cutOff = cutoff[index%3];
+			noise = initialNoise;
 			debug("threshold: "+threshold+" init noise: "+initialNoise+" final noise: "+finalNoise+" noise decay: "+noiseDecay+" cutoff: "+cutOff);
 		}
 		else {
