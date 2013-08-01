@@ -84,12 +84,12 @@ public class ExperimentConfiguration {
 
 	static {
 		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20";
-		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=100";
-		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=100";
-		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=100";
-		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=200";
-		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=200";
-		CONDITIONS[6] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=200";
+		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=50";
+		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=50";
+		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=50";
+		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=150";
+		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=150";
+		CONDITIONS[6] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=150";
 	}
 	
 	/** Path to run gnugo on your machine */
