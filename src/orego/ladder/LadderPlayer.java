@@ -99,25 +99,52 @@ public class LadderPlayer extends TimePlayer {
 		IntSet twoLibertyLadders = twoLibertyGroups(BLACK);
 		int numberOfBlackTwoLibertyLadders = twoLibertyLadders.size();
 		twoLibertyLadders.addAll(libertiesOfLadders(WHITE));
-		
+		boolean twoLiberties=false;
 		
 		SearchNode root = getRoot();
 		// play out each ladder separately
 		Board ourCopy = new Board();
 		for (int i = 0; i < ladderLiberties.size() + twoLibertyLadders.size(); i++) {
-			if(i>ladderLiberties.size()){
-				continue;
-			}
+			
 			ourCopy.copyDataFrom(getBoard());
-
+			
+			int firstMove = 0;
+			int insidePlaysHere=0;
+			int insideColor;
+			if(i>=ladderLiberties.size()){
+				twoLiberties=true;
+				
+				IntSet twoLiberty = getBoard().getLiberties(twoLibertyLadders.get(i-ladderLiberties.size()));
+				int lib1= getBoard().getVacantNeighborCount(twoLiberty.get(0));
+				int lib2= getBoard().getVacantNeighborCount(twoLiberty.get(1));
+				if(lib1>lib2){
+					firstMove=lib1;
+					if(ourCopy.isLegal(lib1)){
+						ourCopy.play(lib1);
+					}
+					insidePlaysHere=lib2;
+				} else{
+					firstMove=lib2;
+					if(ourCopy.isLegal(lib2)){
+						ourCopy.play(lib2);
+					}
+					insidePlaysHere=lib1;
+				}
+				insideColor=ourCopy.getColor(twoLibertyLadders.get(i-ladderLiberties.size()));
+				
+			} else{
+				insidePlaysHere = ladderLiberties.get(i);
+				insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
+			}
 			// recordRunnable.copyDataFrom(getBoard());
-			int insidePlaysHere = ladderLiberties.get(i);
-			int insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
+			
+			
 			int outsideColor = opposite(insideColor);
 			int winner;
 			int length = 0; // "length" of this ladder
 			boolean neighborAtari = false; // test to see if neighboring stones
 											// are in atari
+			
 			ourCopy.setColorToPlay(insideColor);
 
 			int stone = insidePlaysHere;
