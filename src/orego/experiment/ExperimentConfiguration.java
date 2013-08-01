@@ -83,7 +83,7 @@ public class ExperimentConfiguration {
 	public static final String[] CONDITIONS = new String[7];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20";
+		CONDITIONS[0] = "threads=2 book=FusekiBook";
 		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=largeknight maxVacancies=50";
 		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=knight maxVacancies=50";
 		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 neighborhood=adjacent maxVacancies=50";
