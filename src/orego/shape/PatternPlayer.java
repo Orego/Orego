@@ -135,11 +135,10 @@ public class PatternPlayer extends McPlayer {
 		do {
 			int move = vacantPoints.get(i);
 			if (board.isFeasible(move)) {
-				float noise1 =  noise
-						* random.nextFloat();
-				float searchValue = patterns.getWinRate(board, move);
-				System.out.println(pointToString(move)+"\t"+searchValue+"\t"+noise1);
-				searchValue += noise1;
+				float noise1 = noise * random.nextFloat();
+				float winrate = patterns.getWinRate(board, move);
+				System.out.println(pointToString(move).charAt(0)+"\t"+pointToString(move).substring(1)+"\t"+winrate+"\t"+noise1);
+				float searchValue = noise1+winrate;
 				if (choice == -1 && searchValue > best && board.isLegal(move)) {
 					best = searchValue;
 					result = move;
@@ -153,6 +152,7 @@ public class PatternPlayer extends McPlayer {
 			i = (i + skip) % vacantPoints.size();
 		} while ((i != start));
 		if (choice == -1){
+			System.out.println("threshold too high");
 			choice = result;
 		}
 		System.out.println("chose "+pointToString(choice));
