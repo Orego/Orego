@@ -58,11 +58,11 @@ public class PatternPlayer extends McPlayer {
 	/** Initial value for noise. */
 	private float initialNoise;
 	
-	private float[] thresholds = {0.45f,0.5f,0.55f};
-	private float[] initNoise = {1f,0.1f};
-	private float[] endNoise = {0.1f,0.01f,0.0f};
-	private float[] decay = {1-0.9999f,1-0.999f,1-0.99f};
-	private int[] cutoff = {1000,500,100};
+	private float[] thresholds = {0.55f,0.6f,0.65f};
+	private float[] initNoise = {0.4f,0.1f};
+	private float[] endNoise = {0.2f,0.1f,0.01f};
+	private float[] decay = {0.01f,0.05f,0.1f};
+	private int[] cutoff = {600,500,300};
 
 	private float finalNoise;
 
