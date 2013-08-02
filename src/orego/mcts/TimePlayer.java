@@ -7,6 +7,8 @@ import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.util.Gaussian.Phi;
 
+
+
 import orego.play.UnknownPropertyException;
 
 public class TimePlayer extends Lgrf2Player {
@@ -205,6 +207,8 @@ public class TimePlayer extends Lgrf2Player {
 
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
+		
+
 
 		// if we might leave early...
 		if ((compareSecond && compareSecondConf < 1.0)
@@ -266,9 +270,12 @@ public class TimePlayer extends Lgrf2Player {
 				}
 			}
 		}
+		
+
 
 		int best = super.bestMove();
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
+		
 
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
