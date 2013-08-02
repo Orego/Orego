@@ -457,7 +457,7 @@ public class FilterPlayer extends McPlayer {
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "MultiFilter-r4-t4-b16.data")));
 			patterns = (MultiStageFilter) (in.readObject());
-			patterns.setThreshold(new int[] {0,65000,65000,65000,65000});
+			patterns.setThreshold(new int[] {0,21135,6500,2400,500});
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();

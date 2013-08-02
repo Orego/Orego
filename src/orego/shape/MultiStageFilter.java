@@ -1,6 +1,7 @@
 package orego.shape;
 
 import java.io.Serializable;
+import java.util.List;
 
 import orego.core.*;
 import static orego.core.Board.MAX_PATTERN_RADIUS;
@@ -95,5 +96,11 @@ public class MultiStageFilter implements Serializable {
 
 	public int getThreshold(int radius) {
 		return filters[radius][0].getThreshold();
+	}
+
+	public void store(List<Long> listOfHashes, int radius, int color) {
+		for (int i=0; i<listOfHashes.size(); i++){
+			filters[radius][color].store(listOfHashes.get(i));
+		}
 	}
 }

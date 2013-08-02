@@ -3,9 +3,12 @@ package orego.shape;
 import static orego.experiment.ExperimentConfiguration.SGF_DIRECTORY;
 import static orego.core.Coordinates.*;
 import static orego.core.Colors.*;
+import static orego.core.Board.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
 import ec.util.MersenneTwisterFast;
 import orego.core.Board;
 import orego.sgf.SgfParser;
@@ -94,43 +97,66 @@ public class MultiStageFilterExtractor {
 	 */
 	public void checkForPatterns(File file) {
 		Board board = SgfParser.sgfToBoard(file);
-		if (board.getInitialBlackStones().size()!=0||board.getInitialWhiteStones().size()!=0){
-			//handicap game, so ignore it
+		if (board.getInitialBlackStones().size() != 0
+				|| board.getInitialWhiteStones().size() != 0) {
+			// handicap game, so ignore it
 			return;
 		}
 		Board[][][] patternBoard = new Board[4][2][2];
 		for (int rotation = 0; rotation < 4; rotation++) {
 			for (int reflection = 0; reflection < 2; reflection++) {
 				for (int color = 0; color < 2; color++) {
-					patternBoard[rotation][reflection][color] = new Board();					
+					patternBoard[rotation][reflection][color] = new Board();
 				}
-				patternBoard[rotation][reflection][WHITE].setColorToPlay(WHITE);					
+				patternBoard[rotation][reflection][WHITE].setColorToPlay(WHITE);
 			}
 		}
 		int turn = board.getTurn();
 		int currentTurn = 0;
 		while (currentTurn < turn) {
 			int goodMove = board.getMove(currentTurn);
+			ArrayList<Long>[][] hashes = new ArrayList[2][MAX_PATTERN_RADIUS + 1];
+
+			for (int color = 0; color < 2; color++) {
+				for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+					hashes[color][radius] = new ArrayList<Long>();
+				}
+			}
 			if (isOnBoard(goodMove)) {
 				// Store in all 16 rotations, reflections, and color inversions
 				for (int rotation = 0; rotation < 4; rotation++) {
 					for (int reflection = 0; reflection < 2; reflection++) {
 						for (int color = 0; color < 2; color++) {
-							multiFilter.store(patternBoard[rotation][reflection][color], goodMove);
-							//play the move
-							patternBoard[rotation][reflection][color].play(goodMove);
+							// collect hashes
+							for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+								Long hash = new Long(patternBoard[rotation][reflection][color]
+										.getPatternHash(goodMove, radius));
+								if (!hashes[color][radius].contains(hash))
+									hashes[color][radius].add(hash);
+//								else
+//									System.out.println("Found a duplicate");
+							}
+							// play the move
+							patternBoard[rotation][reflection][color]
+									.play(goodMove);
 						}
 						goodMove = reflect(goodMove);
 					}
 					goodMove = rotate(goodMove);
 				}
-			}
-			else{
-				//play the move
+				//store the hashes
+				for (int color = 0; color < 2; color++) {
+					for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+						multiFilter.store(hashes[color][radius], radius, color);
+					}
+				}
+			} else {
+				// play the move
 				for (int rotation = 0; rotation < 4; rotation++) {
 					for (int reflection = 0; reflection < 2; reflection++) {
 						for (int color = 0; color < 2; color++) {
-							patternBoard[rotation][reflection][color].play(goodMove);
+							patternBoard[rotation][reflection][color]
+									.play(goodMove);
 						}
 					}
 				}

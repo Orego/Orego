@@ -16,7 +16,7 @@ public class Filter implements Serializable {
 	/** Width, in bits, of each table's indices. */
 	private int width;
 	
-	private static int threshold;
+	private int threshold;
 	
 	/**
 	 * @param tables number of tables.
@@ -26,7 +26,7 @@ public class Filter implements Serializable {
 		counts = new long[tables][1 << bits];
 		width = bits;
 		mask = (1 << bits) - 1;
-		threshold = 159000;
+		threshold = 10000000;
 	}
 
 	/** Returns the index into the specified table. */
