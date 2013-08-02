@@ -36,6 +36,15 @@ public class MultiStageFilter implements Serializable {
 			}
 		}
 	}
+	
+	/** Sets the given threshold for each radius. */
+	public void setThreshold(int[] threshold){
+		for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius++) {
+			for (int color = BLACK; color <= WHITE; color++) {
+				this.filters[radius][color].setThreshold(threshold[radius]);
+			}
+		}
+	}
 
 	/** Returns the lowest count for a particular pattern hash. */
 	public long getPatternCount(long hash, int color, int radius){
@@ -84,7 +93,7 @@ public class MultiStageFilter implements Serializable {
 		}		
 	}
 
-	public int getThreshold() {
-		return filters[1][0].getThreshold();
+	public int getThreshold(int radius) {
+		return filters[radius][0].getThreshold();
 	}
 }

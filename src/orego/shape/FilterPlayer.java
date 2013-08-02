@@ -302,18 +302,24 @@ public class FilterPlayer extends McPlayer {
 			if (getBoard().getColor(p) == VACANT) {
 				if (result.length() > 0)
 					result += '\n';
-				int reasonable = 0;
+				float reasonable = 0;
 				if (patterns.isReasonable(getBoard(), p)){
 					reasonable = 1;
 				}
-				long max = 0;
-				for (int radius = 1; radius <= MAX_PATTERN_RADIUS; radius ++){
-					max = Math.max(max, patterns.getPatternCount(getBoard().getPatternHash(p, radius), getBoard().getColorToPlay(), radius));
+				long max = patterns.getPatternCount(getBoard().getPatternHash(p, 1), getBoard().getColorToPlay(), 1)-patterns.getThreshold(1);
+				float finalRadius = 1;
+				for (int radius = 2; radius <= MAX_PATTERN_RADIUS; radius ++){
+					long temp = patterns.getPatternCount(getBoard().getPatternHash(p, radius), getBoard().getColorToPlay(), radius)-patterns.getThreshold(radius);
+					if (max<temp){
+						max = temp;
+						finalRadius = radius;
+					}
 				}
+				threshold/=MAX_PATTERN_RADIUS;
 				// Number of playouts through each point
 				result += String.format("COLOR %s %s\nLABEL %s %d",
-						colorCode(reasonable), pointToString(p),
-						pointToString(p), max-patterns.getThreshold());
+						colorCode(reasonable*finalRadius/MAX_PATTERN_RADIUS), pointToString(p),
+						pointToString(p), max);
 			}
 		}
 		return result;
@@ -333,7 +339,7 @@ public class FilterPlayer extends McPlayer {
 				// Number of playouts through each point
 				result += String.format("COLOR %s %s\nLABEL %s %d",
 						colorCode(reasonable), pointToString(p),
-						pointToString(p), patterns.getPatternCount(getBoard().getPatternHash(p, radius), getBoard().getColorToPlay(), radius)-patterns.getThreshold());
+						pointToString(p), patterns.getPatternCount(getBoard().getPatternHash(p, radius), getBoard().getColorToPlay(), radius)-patterns.getThreshold(radius));
 			}
 		}
 		return result;
@@ -451,7 +457,7 @@ public class FilterPlayer extends McPlayer {
 					new File(orego.experiment.Debug.OREGO_ROOT_DIRECTORY
 							+ "SgfFiles" + File.separator + "MultiFilter-r4-t4-b16.data")));
 			patterns = (MultiStageFilter) (in.readObject());
-			patterns.setThreshold(500);
+			patterns.setThreshold(new int[] {0,65000,65000,65000,65000});
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
