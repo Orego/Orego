@@ -245,7 +245,6 @@ public class LadderPlayerTest {
 		
 		player.reset();
 		player.setUpProblem(BLACK, diagram);
-		System.err.println(player.bestMove());
 		assertEquals(100, player.getBias(at("G13")));
 	}
 	
