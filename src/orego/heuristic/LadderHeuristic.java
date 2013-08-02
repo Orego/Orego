@@ -16,8 +16,14 @@ public class LadderHeuristic extends Heuristic {
 	public LadderHeuristic(int weight) {
 		super(weight);
 	}
+	
+	private Board ourCopy = new Board();
 
 	private int[] biased = new int[getFirstPointBeyondBoard()];
+	
+	private IntSet libertiesOfLadders = new IntSet(getFirstPointBeyondBoard());
+
+	private IntSet libertiesOfTwoLadders = new IntSet(getFirstPointBeyondBoard());
 
 	@Override
 	public void prepare(Board board, boolean local) {
@@ -25,8 +31,6 @@ public class LadderHeuristic extends Heuristic {
 		if (!local) {
 			IntSet suggest = playOutLadders(board);
 			for (int i = 0; i < suggest.size(); i++) {
-				System.err.println("Size is " + suggest.size());
-				System.err.println(i);
 				recommend(suggest.get(i));
 			}
 		}
@@ -41,7 +45,8 @@ public class LadderHeuristic extends Heuristic {
 		// our definition of a ladder is: a chain in atari whose
 		// liberty has exactly two vacant neighbors
 		IntSet chainsInAtari = board.getChainsInAtari(color);
-		IntSet libertiesOfLadders = new IntSet(getFirstPointBeyondBoard());
+		
+		libertiesOfLadders.clear();
 		for (int i = 0; i < chainsInAtari.size(); i++) {
 			libertiesOfLadders.add(chainsInAtari.get(i));
 		}
@@ -58,7 +63,7 @@ public class LadderHeuristic extends Heuristic {
 	}
 
 	public IntSet twoLibertyGroups(int color, Board board) {
-		IntSet libertiesOfTwoLadders = new IntSet(getFirstPointBeyondBoard());
+		libertiesOfTwoLadders.clear();
 		for (int i = 0; i < Coordinates.getBoardArea(); i++) {
 			if (board.getColor(i) == color) {
 				if (board.getChainId(i) == i) {
@@ -89,8 +94,6 @@ public class LadderHeuristic extends Heuristic {
 		twoLibertyLadders.addAll(twoLibertyGroups(WHITE, board));
 		boolean twoLiberties = false;
 
-		// play out each ladder separately
-		Board ourCopy = new Board();
 		for (int i = 0; i < ladderLiberties.size() + twoLibertyLadders.size(); i++) {
 
 			ourCopy.copyDataFrom(board);

@@ -39,7 +39,7 @@ public class Lgrf2Player extends RavePlayer {
 	public static void main(String[] args) {
 		try {
 			Lgrf2Player p = new Lgrf2Player();
-			p.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20");
+			p.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20:Ladder@20");
 			p.setProperty("heuristic.Pattern.numberOfGoodPatterns", "400");
 			p.setProperty("threads", "1");
 			double[] benchMarkInfo = p.benchmark();
