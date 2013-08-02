@@ -33,6 +33,21 @@ public class LadderPlayer extends TimePlayer {
 		playOutLadders();
 		super.beforeStartingThreads();
 	}
+	
+	public static void main(String[] args) {
+		try {
+			LadderPlayer p = new LadderPlayer();
+			p.setProperty("heuristics", "Escape@20:Pattern@20:Capture@20");
+			p.setProperty("heuristic.Pattern.numberOfGoodPatterns", "400");
+			p.setProperty("threads", "1");
+			double[] benchMarkInfo = p.benchmark();
+			System.out.println("Mean: " + benchMarkInfo[0] + "\nStd Deviation: "
+					+ benchMarkInfo[1]);
+		} catch (UnknownPropertyException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 
 	// Commit test
 
