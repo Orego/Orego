@@ -146,7 +146,7 @@ public class HeuristicList implements Cloneable {
 	public int moveRating(int move, Board board) {
 		int value = 0;
 		for (Heuristic h : heuristics) {
-			h.prepare(board);
+			h.prepare(board,true);
 			if (h.getGoodMoves().contains(move)) {
 				value += h.getWeight();
 			}
@@ -162,7 +162,7 @@ public class HeuristicList implements Cloneable {
 		// Try to get good moves from heuristics
 		int skip = PRIMES[random.nextInt(PRIMES.length)];
 		for (Heuristic h : heuristics) {
-			h.prepare(board);
+			h.prepare(board,true);
 			IntSet good = h.getGoodMoves();
 			if (good.size() > 0) {
 				int start = random.nextInt(good.size());

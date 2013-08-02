@@ -113,5 +113,43 @@ public class McRunnableTest {
 		assertEquals(6, node.getWins(at("d15")), 0.001);
 		assertEquals(7, node.getRuns(at("d15")));
 	}
+	
+	@Test
+	public void testGlobalUpdatePriors() {
+		player.setHeuristics(new HeuristicList("Pattern@5"));
+		player.reset();
+		runnable = (McRunnable)(player.getRunnable(0));
+		assertTrue(runnable.getHeuristics().get(0) instanceof PatternHeuristic);
+		String[] problem = { 
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...O...............",// 16
+				"..#.#..............",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................."// 1
+		// 		 ABCDEFGHJKLMNOPQRST
+		};
+		Board board = runnable.getBoard();
+		board.setUpProblem(WHITE, problem);
+		board.play("d4"); //same as above test, but play at d4 instead of d14 to see if it finds pattern that is not local, given presence of additional point d16
+		SearchNode node = new SearchNode();
+		node.reset(board.getHash());
+		runnable.updatePriors(node, board);
+		assertEquals(6, node.getWins(at("d15")), 0.001); //1 win by default, so should be 6 if we add 5
+		assertEquals(7, node.getRuns(at("d15"))); //2 tries by default, so should be 7 if we add 5
+	}
 
 }

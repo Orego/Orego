@@ -178,7 +178,7 @@ public abstract class McPlayer extends ThreadedPlayer {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
 		for (int i = 0; i < getHeuristics().size(); i++) {
-			getHeuristics().get(i).prepare(getBoard());
+			getHeuristics().get(i).prepare(getBoard(),true);
 		}
 		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
