@@ -7,6 +7,11 @@ import static orego.core.Coordinates.getAllPointsOnBoard;
 import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.util.Gaussian.Phi;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import orego.play.UnknownPropertyException;
 
 public class TimePlayer extends Lgrf2Player {
@@ -195,10 +200,17 @@ public class TimePlayer extends Lgrf2Player {
 	 * (though a think-longer heuristic could use a bit more).
 	 */
 	private int maxTimePerMoveInMsec = 0;
-
+	
 	@Override
 	public int bestMove() {
 
+		PrintWriter logFile = null;
+		try {		
+			logFile = new PrintWriter(new BufferedWriter(new FileWriter("leave-early-results.txt", true)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		// Get the start time and initial playouts before we run best move
 		long startTime = System.currentTimeMillis();
 		int initialPlayouts = getRoot().getTotalRuns();
@@ -206,6 +218,8 @@ public class TimePlayer extends Lgrf2Player {
 		// get the total time allocated to this move
 		int totalTimeInMs = getMillisecondsPerMove();
 
+		int earlyMove = -1;
+		
 		// if we might leave early...
 		if ((compareSecond && compareSecondConf < 1.0)
 				|| (compareRest && compareRestConf < 1.0)
@@ -229,6 +243,8 @@ public class TimePlayer extends Lgrf2Player {
 			int timePerIteration = max(1, totalTimeInMs / THINKING_SLICES);
 			setMillisecondsPerMove(timePerIteration);
 
+			int timeSavedInMsec = 0;
+			
 			// execute each slice and stop early if applicable
 			for (int i = 0; i < THINKING_SLICES - 1; i++) {
 				int best = super.bestMove();
@@ -257,11 +273,16 @@ public class TimePlayer extends Lgrf2Player {
 								- getWins(moveWithSecondMostWins()))) {
 					if ((!behind || !weAreBehind())
 							&& (!unstableEval || !isEvaluationUnstable())) {
+						timeSavedInMsec = (int) (timeRemainingInSec * 1000);
 						if (rolloverCoefficient > 0.0 && !isInOpeningBook()) {
-							int timeSavedInMsec = (int) (timeRemainingInSec * 1000);
 							extraTimeInMsec = (int) (rolloverCoefficient * timeSavedInMsec);
 						}
-						return best;
+						if (earlyMove == -1) {
+							earlyMove = best;
+							logFile.print(getTurn() + " TimeSaved: " + timeSavedInMsec);
+						}
+						// don't return best...
+						// return best;
 					}
 				}
 			}
@@ -270,6 +291,16 @@ public class TimePlayer extends Lgrf2Player {
 		int best = super.bestMove();
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
 
+		if (earlyMove != -1) {
+			if (earlyMove == best) {
+				logFile.println(" SAME");
+			} else {
+				logFile.println(" DIFFERENT");
+			}
+		}
+		logFile.flush();
+		logFile.close();
+		
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
 
@@ -300,10 +331,10 @@ public class TimePlayer extends Lgrf2Player {
 		if (maxMultiple > 0) {
 			setMillisecondsPerMove(max(1,
 					(int) Math.round(totalTimeInMs * maxMultiple)));
-			return super.bestMove();
-		} else {
-			return best;
+			best = super.bestMove();
 		}
+		
+		return best;
 	}
 
 	private double expectedPlayoutsRemaining(double timeRemainingInSec) {
