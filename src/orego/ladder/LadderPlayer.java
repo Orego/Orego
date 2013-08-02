@@ -80,7 +80,6 @@ public class LadderPlayer extends TimePlayer {
 			if (getBoard().getColor(i) == color) {
 				if (getBoard().getChainId(i) == i) {
 					if (getBoard().getLibertyCount(i) == 2) {
-						System.err.println("ADDING");
 						libertiesOfTwoLadders.add(i);
 					}
 				}
@@ -163,8 +162,6 @@ public class LadderPlayer extends TimePlayer {
 				firstStone= ladderLiberties.get(i);
 			}
 			do {
-				System.err.println(stone);
-				System.err.println(i);
 				for (int j = 0; j < 4; j++) {
 					int neighbor = getNeighbors(stone)[j];
 					if (ourCopy.getColor(neighbor) != ourCopy.getColor(stone)) {
@@ -296,7 +293,6 @@ public class LadderPlayer extends TimePlayer {
 
 			if (twoLiberties) {
 				if (winner == insideColor) {
-					System.err.println("INSIDE COLOR WON TWO LIBERTIES");
 					biased[firstMove] -= ladderMult ? length * ladderBias
 							: ladderBias;
 					root.addLosses(firstMove, ladderMult ? length * ladderBias
