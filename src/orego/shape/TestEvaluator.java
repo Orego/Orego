@@ -10,11 +10,11 @@ import java.util.StringTokenizer;
  */
 public class TestEvaluator {
 
-	private int[][][][][] array; //[threshold][initNoise][finalNoise][decay][cutoff]
+	private double[][][][][] array; //[threshold][initNoise][finalNoise][decay][cutoff]
 	
 	public static void main(String[] args) {
 //		new TestEvaluator().run(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + "SgfTestFiles" + File.separator);
-		new TestEvaluator().run("/Network/Servers/maccsserver.lclark.edu/Users/lvonessen/Desktop/indexfiles");
+		new TestEvaluator().run("/Network/Servers/maccsserver.lclark.edu/Users/lvonessen/Desktop/");
 	}
 
 	/**
@@ -22,12 +22,15 @@ public class TestEvaluator {
 	 * for the number of tests that passed
 	 */
 	public void run(String directory) {
-		array = new int[3][2][3][3][3];
+		array = new double[3][2][3][3][3];
 		for (int i = 0; i < 162; i++) {
 			try {
-				File file = new File(directory + File.separator + "index" + i
+				File file = new File(directory + File.separator + "indexfiles8-1a/index" + i
 						+ ".html");
-				int passes = lookForPasses(file);
+				double passes = lookForPasses(file);
+				file = new File(directory + File.separator + "indexfiles8-1b/index" + i
+						+ ".html");
+				passes = (passes + lookForPasses(file))/2.0;
 				System.out.println(i + " " + passes);
 				store(i,passes);
 			} catch (Exception e) {
@@ -69,7 +72,7 @@ public class TestEvaluator {
 		}
 	}
 
-	private void store(int index, int passes) {
+	private void store(int index, double passes) {
 		//array[threshold][initNoise][finalNoise][decay][cutoff]
 		int threshold = index/54;
 		index%=54;

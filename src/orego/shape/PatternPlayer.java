@@ -77,18 +77,18 @@ public class PatternPlayer extends McPlayer {
 	public PatternPlayer(boolean maintainHashes) {
 		setBoard(new Board(maintainHashes));
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
-		threshold = 0.51f;
-		initialNoise = 1.0f;
+		threshold = 0.55f;
+		initialNoise = 0.1f;
 		noise = initialNoise;
-		cutOff = 1000;
+		cutOff = 500;
 		finalNoise = 0;
-		noiseDecay = 1-0.99f;
-		try {
-			setProperty("patternvalues","160");
-		} catch (UnknownPropertyException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
+		noiseDecay = 0.01f;
+//		try {
+//			setProperty("patternvalues","160");
+//		} catch (UnknownPropertyException e) {
+//			e.printStackTrace();
+//			System.exit(0);
+//		}
 	}
 	
 	@Override
@@ -134,12 +134,12 @@ public class PatternPlayer extends McPlayer {
 		int skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			int move = vacantPoints.get(i);
-			if (board.isFeasible(move)) {
+			if (board.isFeasible(move)&& board.isLegal(move)) {
 				float noise1 = noise * random.nextFloat();
 				float winrate = patterns.getWinRate(board, move);
-				System.out.println(pointToString(move).charAt(0)+"\t"+pointToString(move).substring(1)+"\t"+winrate+"\t"+noise1);
+				System.out.println(pointToString(move)/*.charAt(0)+"\t"+pointToString(move).substring(1)*/+"\t"+winrate+"\t"+noise1);
 				float searchValue = noise1+winrate;
-				if (choice == -1 && searchValue > best && board.isLegal(move)) {
+				if (choice == -1 && searchValue > best ) {
 					best = searchValue;
 					result = move;
 					if (best>threshold){
