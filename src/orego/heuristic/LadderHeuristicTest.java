@@ -55,7 +55,7 @@ public class LadderHeuristicTest {
 		}; // length is 48
 		
 		board.setUpProblem(BLACK, diagram);
-		heuristic.prepare(board);
+		heuristic.prepare(board, false);
 		assertFalse(heuristic.getGoodMoves().contains(at("F13")));
 		assertFalse(heuristic.getGoodMoves().contains(at("G15")));
 	}
@@ -84,10 +84,8 @@ public class LadderHeuristicTest {
 				"..................."// 1
 			  // ABCDEFGHJKLMNOPQRST
 		};
-		System.err.println("testing");
 		board.setUpProblem(BLACK, diagram);
-		heuristic.prepare(board);
-		System.err.println(heuristic.getGoodMoves());
+		heuristic.prepare(board, false);
 		assertTrue(heuristic.getGoodMoves().contains(at("G13")));
 	}
 

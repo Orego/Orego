@@ -44,8 +44,8 @@ public class DisputedHeuristic extends Heuristic {
 	}
 	
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
+	public void prepare(Board board, boolean local) {
+		super.prepare(board, local);
 		IntSet vacantPoints = board.getVacantPoints();
 		if (vacantPoints.size() <= maxVacancies) {
 			for (int i = 0; i < vacantPoints.size(); i++) {

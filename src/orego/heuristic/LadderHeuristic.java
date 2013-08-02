@@ -12,37 +12,37 @@ import orego.core.Coordinates;
 import orego.mcts.SearchNode;
 import orego.util.IntSet;
 
-public class LadderHeuristic extends Heuristic{
+public class LadderHeuristic extends Heuristic {
 	public LadderHeuristic(int weight) {
 		super(weight);
 	}
-	
-	private int ladderBias = 100;
-	private boolean ladderMult = false;
 
 	private int[] biased = new int[getFirstPointBeyondBoard()];
 
 	@Override
-	public void prepare(Board board) {
-		super.prepare(board);
-		IntSet suggest = playOutLadders(board);
-		System.err.println(suggest);
-		for (int i = 0; i < suggest.size(); i++) {
-			recommend(suggest.get(i));
+	public void prepare(Board board, boolean local) {
+		super.prepare(board, local);
+		if (!local) {
+			IntSet suggest = playOutLadders(board);
+			for (int i = 0; i < suggest.size(); i++) {
+				System.err.println("Size is " + suggest.size());
+				System.err.println(i);
+				recommend(suggest.get(i));
+			}
 		}
 	}
 
 	@Override
 	public LadderHeuristic clone() {
-		return (LadderHeuristic)super.clone();
+		return (LadderHeuristic) super.clone();
 	}
-	
+
 	public IntSet libertiesOfLadders(int color, Board board) {
 		// our definition of a ladder is: a chain in atari whose
 		// liberty has exactly two vacant neighbors
 		IntSet chainsInAtari = board.getChainsInAtari(color);
 		IntSet libertiesOfLadders = new IntSet(getFirstPointBeyondBoard());
-		for(int i=0; i<chainsInAtari.size(); i++){
+		for (int i = 0; i < chainsInAtari.size(); i++) {
 			libertiesOfLadders.add(chainsInAtari.get(i));
 		}
 		// for (int i = 0; i < chainsInAtari.size(); i++) {
@@ -53,11 +53,10 @@ public class LadderHeuristic extends Heuristic{
 		// }
 		// }
 		// return libertiesOfLadders;
-		
-		
+
 		return libertiesOfLadders;
 	}
-	
+
 	public IntSet twoLibertyGroups(int color, Board board) {
 		IntSet libertiesOfTwoLadders = new IntSet(getFirstPointBeyondBoard());
 		for (int i = 0; i < Coordinates.getBoardArea(); i++) {
@@ -71,12 +70,12 @@ public class LadderHeuristic extends Heuristic{
 		}
 		return libertiesOfTwoLadders;
 	}
-	
+
 	/**
 	 * Plays out every ladder and biases the search tree for each.
 	 */
 	public IntSet playOutLadders(Board board) {
-		IntSet suggest= new IntSet(361);
+		IntSet suggest = new IntSet(getFirstPointBeyondBoard());
 		// Each ladder will be played out on runnable and then that entire
 		// playout (run) will be incorporated into the search tree.
 		// get the ladders
@@ -102,8 +101,8 @@ public class LadderHeuristic extends Heuristic{
 			if (i >= ladderLiberties.size()) {
 				twoLiberties = true;
 
-				IntSet twoLiberty = board.getLiberties(
-						twoLibertyLadders.get(i - ladderLiberties.size()));
+				IntSet twoLiberty = board.getLiberties(twoLibertyLadders.get(i
+						- ladderLiberties.size()));
 				int lib1 = board.getVacantNeighborCount(twoLiberty.get(0));
 				int lib2 = board.getVacantNeighborCount(twoLiberty.get(1));
 				if (lib1 > lib2) {
@@ -123,8 +122,8 @@ public class LadderHeuristic extends Heuristic{
 						- ladderLiberties.size()));
 
 			} else {
-				insidePlaysHere = board.getLiberties(
-						ladderLiberties.get(i)).get(0);
+				insidePlaysHere = board.getLiberties(ladderLiberties.get(i))
+						.get(0);
 				insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
 			}
 			// recordRunnable.copyDataFrom(getBoard());
@@ -138,12 +137,12 @@ public class LadderHeuristic extends Heuristic{
 			ourCopy.setColorToPlay(insideColor);
 			int stone;
 			int firstStone;
-			if(i>=ladderLiberties.size()){
-				stone = twoLibertyLadders.get(i-ladderLiberties.size());
-				firstStone= twoLibertyLadders.get(i-ladderLiberties.size());
-			}else{
+			if (i >= ladderLiberties.size()) {
+				stone = twoLibertyLadders.get(i - ladderLiberties.size());
+				firstStone = twoLibertyLadders.get(i - ladderLiberties.size());
+			} else {
 				stone = ladderLiberties.get(i);
-				firstStone= ladderLiberties.get(i);
+				firstStone = ladderLiberties.get(i);
 			}
 			do {
 				for (int j = 0; j < 4; j++) {
@@ -158,7 +157,7 @@ public class LadderHeuristic extends Heuristic{
 						}
 					}
 				}
-				if(neighborAtari){
+				if (neighborAtari) {
 					break;
 				}
 				stone = ourCopy.getChainNextPoint(stone);
@@ -277,36 +276,41 @@ public class LadderHeuristic extends Heuristic{
 
 			if (twoLiberties) {
 				if (winner == insideColor) {
-					// In this case, we would negatively bias, but we don't want to do that, so do nothing.
+					// In this case, we would negatively bias, but we don't want
+					// to do that, so do nothing.
 
 				} else if (winner == outsideColor
 						&& outsideColor == board.getColorToPlay()) {
-//					biased[firstMove] += ladderMult ? length * ladderBias
-//							: ladderBias;
-//					root.addWins(firstMove, ladderMult ? length * ladderBias
-//							: ladderBias);
+					// biased[firstMove] += ladderMult ? length * ladderBias
+					// : ladderBias;
+					// root.addWins(firstMove, ladderMult ? length * ladderBias
+					// : ladderBias);
+					if(!suggest.contains(firstMove)){
 					suggest.add(firstMove);
-					
+					}
 				}
 			} else {
 				if (winner == insideColor) {
-//					biased[getBoard().getLiberties(ladderLiberties.get(i)).get(
-//							0)] += ladderMult ? length * ladderBias
-//							: ladderBias;
-//					root.addWins(getBoard()
-//							.getLiberties(ladderLiberties.get(i)).get(0),
-//							ladderMult ? length * ladderBias : ladderBias);
-					suggest.add(board.getLiberties(ladderLiberties.get(i)).get(0));
+					// biased[getBoard().getLiberties(ladderLiberties.get(i)).get(
+					// 0)] += ladderMult ? length * ladderBias
+					// : ladderBias;
+					// root.addWins(getBoard()
+					// .getLiberties(ladderLiberties.get(i)).get(0),
+					// ladderMult ? length * ladderBias : ladderBias);
+					if(!suggest.contains(board.getLiberties(ladderLiberties.get(i)).get(0))){
+					suggest.add(board.getLiberties(ladderLiberties.get(i)).get(
+							0));
+					}
 				} else if (winner == outsideColor
 						&& insideColor == board.getColorToPlay()) {
 					// Don't negatively bias, only positively.
-//					biased[getBoard().getLiberties(ladderLiberties.get(i)).get(
-//							0)] += ladderMult ? -length * ladderBias
-//							: -ladderBias;
-//					root.addLosses(
-//							getBoard().getLiberties(ladderLiberties.get(i))
-//									.get(0), ladderMult ? length * ladderBias
-//									: ladderBias);
+					// biased[getBoard().getLiberties(ladderLiberties.get(i)).get(
+					// 0)] += ladderMult ? -length * ladderBias
+					// : -ladderBias;
+					// root.addLosses(
+					// getBoard().getLiberties(ladderLiberties.get(i))
+					// .get(0), ladderMult ? length * ladderBias
+					// : ladderBias);
 				}
 			}
 		}
@@ -314,4 +318,3 @@ public class LadderHeuristic extends Heuristic{
 	}
 
 }
-

@@ -56,7 +56,7 @@ public class DisputedHeuristicTest {
 				};
 		board.setUpProblem(WHITE, problem);
 		heuristic.setMaxVacancies(19*19);
-		heuristic.prepare(board);
+		heuristic.prepare(board, true);
 		assertFalse(heuristic.getGoodMoves().contains(at("b2")));
 		assertFalse(heuristic.getGoodMoves().contains(at("r17")));
 		assertTrue(heuristic.getGoodMoves().contains(at("q2")));
