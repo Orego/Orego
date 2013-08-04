@@ -30,7 +30,7 @@ public class LadderHeuristicTest {
 	}
 	
 	@Test
-	public void testStoneInAtari() {		
+	public void testLadder() {		
 		String[] diagram = {
 				"...................",// 19
 				"...................",// 18
@@ -57,6 +57,37 @@ public class LadderHeuristicTest {
 		board.setUpProblem(BLACK, diagram);
 		heuristic.prepare(board, false);
 		assertFalse(heuristic.getGoodMoves().contains(at("F13")));
+		assertFalse(heuristic.getGoodMoves().contains(at("G15")));
+	}
+	
+	@Test
+	public void testLosingLadder() {		
+		String[] diagram = {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				".....O.............",// 15
+				"....O#O............",// 14
+				"....O..............",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"..............#....",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................."// 1
+			  // ABCDEFGHJKLMNOPQRST
+		}; // length is 48
+		
+		board.setUpProblem(BLACK, diagram);
+		heuristic.prepare(board, false);
+		assertTrue(heuristic.getGoodMoves().contains(at("F13")));
 		assertFalse(heuristic.getGoodMoves().contains(at("G15")));
 	}
 	

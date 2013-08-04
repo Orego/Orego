@@ -80,15 +80,14 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 
-	public static final String[] CONDITIONS = new String[6];
+	public static final String[] CONDITIONS = new String[4];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 heuristic.Disputed.neighborhood=largeknight heuristic.Disputed.maxVacancies=50";
-		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 heuristic.Disputed.neighborhood=knight heuristic.Disputed.maxVacancies=50";
-		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 heuristic.Disputed.neighborhood=adjacent heuristic.Disputed.maxVacancies=50";
-		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 heuristic.Disputed.neighborhood=largeknight heuristic.Disputed.maxVacancies=150";
-		CONDITIONS[4] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 heuristic.Disputed.neighborhood=knight heuristic.Disputed.maxVacancies=150";
-		CONDITIONS[5] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Disputed@20 heuristic.Disputed.neighborhood=adjacent heuristic.Disputed.maxVacancies=150";
+		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20";
+		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Ladder@20";
+		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Ladder@40";
+		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Ladder@30";
+
 	}
 	
 	/** Path to run gnugo on your machine */

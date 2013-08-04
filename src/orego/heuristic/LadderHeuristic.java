@@ -25,6 +25,16 @@ public class LadderHeuristic extends Heuristic {
 
 	private IntSet libertiesOfTwoLadders = new IntSet(getFirstPointBeyondBoard());
 
+	private IntSet suggest = new IntSet(getFirstPointBeyondBoard());
+	
+	private IntSet ladderLiberties = new IntSet(getFirstPointBeyondBoard());
+	
+	private IntSet twoLibertyLadders = new IntSet(getFirstPointBeyondBoard());
+	
+	
+	//This might not need to be so big, but it crashes otherwise.
+	private IntSet twoLiberty = new IntSet(getFirstPointBeyondBoard());
+
 	@Override
 	public void prepare(Board board, boolean local) {
 		super.prepare(board, local);
@@ -45,7 +55,6 @@ public class LadderHeuristic extends Heuristic {
 		// our definition of a ladder is: a chain in atari whose
 		// liberty has exactly two vacant neighbors
 		IntSet chainsInAtari = board.getChainsInAtari(color);
-		
 		libertiesOfLadders.clear();
 		for (int i = 0; i < chainsInAtari.size(); i++) {
 			libertiesOfLadders.add(chainsInAtari.get(i));
@@ -80,22 +89,23 @@ public class LadderHeuristic extends Heuristic {
 	 * Plays out every ladder and biases the search tree for each.
 	 */
 	public IntSet playOutLadders(Board board) {
-		IntSet suggest = new IntSet(getFirstPointBeyondBoard());
+		suggest.clear();
 		// Each ladder will be played out on runnable and then that entire
 		// playout (run) will be incorporated into the search tree.
 		// get the ladders
 		for (int i = 0; i < biased.length; i++) {
 			biased[i] = 0;
 		}
-		IntSet ladderLiberties = libertiesOfLadders(BLACK, board);
+		ladderLiberties.clear();
+		ladderLiberties.addAll(libertiesOfLadders(BLACK, board));
 		int numberOfBlackLadders = ladderLiberties.size();
 		ladderLiberties.addAll(libertiesOfLadders(WHITE, board));
-		IntSet twoLibertyLadders = twoLibertyGroups(BLACK, board);
+
+		twoLibertyLadders.addAll(twoLibertyGroups(BLACK, board));
 		twoLibertyLadders.addAll(twoLibertyGroups(WHITE, board));
 		boolean twoLiberties = false;
 
 		for (int i = 0; i < ladderLiberties.size() + twoLibertyLadders.size(); i++) {
-
 			ourCopy.copyDataFrom(board);
 
 			int firstMove = 0;
@@ -103,9 +113,11 @@ public class LadderHeuristic extends Heuristic {
 			int insideColor;
 			if (i >= ladderLiberties.size()) {
 				twoLiberties = true;
-
-				IntSet twoLiberty = board.getLiberties(twoLibertyLadders.get(i
-						- ladderLiberties.size()));
+				twoLiberty.clear();
+				int checkLiberty = twoLibertyLadders.get(i- ladderLiberties.size());
+				if(checkLiberty == BLACK || checkLiberty == WHITE){
+				twoLiberty.addAll(board.getLiberties(checkLiberty));
+				}
 				int lib1 = board.getVacantNeighborCount(twoLiberty.get(0));
 				int lib2 = board.getVacantNeighborCount(twoLiberty.get(1));
 				if (lib1 > lib2) {
@@ -129,11 +141,9 @@ public class LadderHeuristic extends Heuristic {
 						.get(0);
 				insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
 			}
-			// recordRunnable.copyDataFrom(getBoard());
 
 			int outsideColor = opposite(insideColor);
 			int winner;
-			int length = 0; // "length" of this ladder
 			boolean neighborAtari = false; // test to see if neighboring stones
 											// are in atari
 
@@ -165,9 +175,6 @@ public class LadderHeuristic extends Heuristic {
 				}
 				stone = ourCopy.getChainNextPoint(stone);
 			} while (stone != firstStone);
-			// runnable.getBoard().setColorToPlay(insideColor);
-			// recordRunnable.getBoard().setColorToPlay(insideColor);
-
 			// keep applying the policy of the inside player and the outside
 			// player until
 			// the ladder is over (either the inside player is free or has been
@@ -177,10 +184,6 @@ public class LadderHeuristic extends Heuristic {
 
 					// inside player policy: play in my only liberty
 					// Must check if move is legal first (not suicide)
-
-					// if(runnable.getBoard().isLegal(insidePlaysHere)){
-					// runnable.acceptMove(insidePlaysHere);
-					// }
 					if (ourCopy.isLegal(insidePlaysHere)) {
 						ourCopy.play(insidePlaysHere);
 					} else {
@@ -189,10 +192,6 @@ public class LadderHeuristic extends Heuristic {
 					}
 
 					if (ourCopy.getLibertyCount(insidePlaysHere) >= 3) {
-						// if
-						// (runnable.getBoard().getLibertyCount(insidePlaysHere)
-						// >= 3) {
-						// inside player is free
 						winner = insideColor;
 						break;
 					}
@@ -207,18 +206,13 @@ public class LadderHeuristic extends Heuristic {
 					int pointToPlay = getFirstPointOnBoard();
 					for (int j = 0; j < insideLiberties.size(); j++) {
 						int lib = insideLiberties.get(j);
-						// int vacantNeighborCount =
-						// runnable.getBoard().getVacantNeighborCount(lib);
 						int vacantNeighborCount = ourCopy
 								.getVacantNeighborCount(lib);
 						if (vacantNeighborCount > mostVacantNeighbors) {
 							mostVacantNeighbors = vacantNeighborCount;
 							pointToPlay = lib;
 						}
-					}
-					// if(runnable.getBoard().isLegal(pointToPlay)){
-					// runnable.acceptMove(pointToPlay);
-					// }
+					} 
 					if (ourCopy.isLegal(pointToPlay)) {
 						ourCopy.play(pointToPlay);
 					} else {
@@ -226,8 +220,6 @@ public class LadderHeuristic extends Heuristic {
 						break;
 					}
 
-					// if (runnable.getBoard().getColor(insidePlaysHere) !=
-					// insideColor) {
 					if (ourCopy.getColor(insidePlaysHere) != insideColor) {
 						// inside player was captured
 						winner = outsideColor;
@@ -267,16 +259,11 @@ public class LadderHeuristic extends Heuristic {
 					// runnable.getBoard().getLiberties(insidePlaysHere).get(0);
 					insidePlaysHere = ourCopy.getLiberties(insidePlaysHere)
 							.get(0);
-					length++;
 
 				}
 			} else {
 				winner = insideColor;
 			}
-			// bias the search tree: call this playout for the winner.
-			// 100 is used as the number of runs incorporated, this needs to be
-			// tuned.
-
 			if (twoLiberties) {
 				if (winner == insideColor) {
 					// In this case, we would negatively bias, but we don't want
@@ -284,36 +271,19 @@ public class LadderHeuristic extends Heuristic {
 
 				} else if (winner == outsideColor
 						&& outsideColor == board.getColorToPlay()) {
-					// biased[firstMove] += ladderMult ? length * ladderBias
-					// : ladderBias;
-					// root.addWins(firstMove, ladderMult ? length * ladderBias
-					// : ladderBias);
 					if(!suggest.contains(firstMove)){
 					suggest.add(firstMove);
 					}
 				}
 			} else {
 				if (winner == insideColor) {
-					// biased[getBoard().getLiberties(ladderLiberties.get(i)).get(
-					// 0)] += ladderMult ? length * ladderBias
-					// : ladderBias;
-					// root.addWins(getBoard()
-					// .getLiberties(ladderLiberties.get(i)).get(0),
-					// ladderMult ? length * ladderBias : ladderBias);
 					if(!suggest.contains(board.getLiberties(ladderLiberties.get(i)).get(0))){
 					suggest.add(board.getLiberties(ladderLiberties.get(i)).get(
 							0));
 					}
 				} else if (winner == outsideColor
 						&& insideColor == board.getColorToPlay()) {
-					// Don't negatively bias, only positively.
-					// biased[getBoard().getLiberties(ladderLiberties.get(i)).get(
-					// 0)] += ladderMult ? -length * ladderBias
-					// : -ladderBias;
-					// root.addLosses(
-					// getBoard().getLiberties(ladderLiberties.get(i))
-					// .get(0), ladderMult ? length * ladderBias
-					// : ladderBias);
+					// Don't negatively bias, only positively
 				}
 			}
 		}
