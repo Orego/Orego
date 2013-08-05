@@ -141,7 +141,9 @@ public class LadderHeuristic extends Heuristic {
 						.get(0);
 				insideColor = (i < numberOfBlackLadders) ? BLACK : WHITE;
 			}
-
+			if(insideColor != BLACK && insideColor != WHITE){
+				break;
+			}
 			int outsideColor = opposite(insideColor);
 			int winner;
 			boolean neighborAtari = false; // test to see if neighboring stones
@@ -188,6 +190,12 @@ public class LadderHeuristic extends Heuristic {
 						ourCopy.play(insidePlaysHere);
 					} else {
 						winner = outsideColor;
+						break;
+					}
+					
+					//If this player tries to pass, they lose.
+					if(insidePlaysHere==0){
+						winner=outsideColor;
 						break;
 					}
 
