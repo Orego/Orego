@@ -80,13 +80,11 @@ public class ExperimentConfiguration {
 	 * experiment.
 	 */
 
-	public static final String[] CONDITIONS = new String[4];
+	public static final String[] CONDITIONS = new String[2];
 
 	static {
 		CONDITIONS[0] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20";
 		CONDITIONS[1] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Capture@20:Ladder@20";
-		CONDITIONS[2] = "threads=2 book=FusekiBook heuristics=Escape@20:Ladder@20:Pattern@20:Capture@20";
-		CONDITIONS[3] = "threads=2 book=FusekiBook heuristics=Escape@20:Pattern@20:Ladder@20:Capture@20";
 
 	}
 	
