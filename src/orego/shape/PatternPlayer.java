@@ -77,18 +77,7 @@ public class PatternPlayer extends McPlayer {
 	public PatternPlayer(boolean maintainHashes) {
 		setBoard(new Board(maintainHashes));
 		hashes = new long[MAX_MOVES_PER_GAME][MAX_PATTERN_RADIUS + 2];
-		threshold = 0.55f;
-		initialNoise = 0.1f;
-		noise = initialNoise;
-		cutOff = 500;
-		finalNoise = 0;
-		noiseDecay = 0.01f;
-//		try {
-//			setProperty("patternvalues","160");
-//		} catch (UnknownPropertyException e) {
-//			e.printStackTrace();
-//			System.exit(0);
-//		}
+		setPatternValues(101);
 	}
 	
 	@Override
@@ -495,6 +484,21 @@ public class PatternPlayer extends McPlayer {
 		runnable.acceptMove(move);
 		return move;
 	}
+	
+	/** Sets noise, threshold, cutoff, decay, etc... */
+	protected void setPatternValues(int index){
+		threshold = thresholds[index/54];
+		index%=54;
+		initialNoise = initNoise[index/27];
+		index%=27;
+		finalNoise = endNoise[index/9];
+		index%=9;
+		noiseDecay = decay[index/3];
+		cutOff = cutoff[index%3];
+		noise = initialNoise;
+		debug("threshold: "+threshold+" init noise: "+initialNoise+" final noise: "+finalNoise+" noise decay: "+noiseDecay+" cutoff: "+cutOff);
+
+	}
 
 	@Override
 	public void setProperty(String property, String value)
@@ -504,17 +508,7 @@ public class PatternPlayer extends McPlayer {
 		} else if (property.equals("threshold")){
 			threshold = Float.parseFloat(value);
 		} else if (property.equals("patternvalues")){
-			int index = Integer.parseInt(value);
-			threshold = thresholds[index/54];
-			index%=54;
-			initialNoise = initNoise[index/27];
-			index%=27;
-			finalNoise = endNoise[index/9];
-			index%=9;
-			noiseDecay = decay[index/3];
-			cutOff = cutoff[index%3];
-			noise = initialNoise;
-			debug("threshold: "+threshold+" init noise: "+initialNoise+" final noise: "+finalNoise+" noise decay: "+noiseDecay+" cutoff: "+cutOff);
+			setPatternValues(Integer.parseInt(value));
 		}
 		else {
 			super.setProperty(property, value);

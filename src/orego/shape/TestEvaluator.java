@@ -14,7 +14,7 @@ public class TestEvaluator {
 	
 	public static void main(String[] args) {
 //		new TestEvaluator().run(orego.experiment.Debug.OREGO_ROOT_DIRECTORY + "SgfTestFiles" + File.separator);
-		new TestEvaluator().run("/Network/Servers/maccsserver.lclark.edu/Users/lvonessen/Desktop/");
+		new TestEvaluator().run("/Network/Servers/maccsserver.lclark.edu/Users/lvonessen/Desktop/indexfiles8-2");
 	}
 
 	/**
@@ -25,10 +25,10 @@ public class TestEvaluator {
 		array = new double[3][2][3][3][3];
 		for (int i = 0; i < 162; i++) {
 			try {
-				File file = new File(directory + File.separator + "indexfiles8-1a/index" + i
+				File file = new File(directory + File.separator + "index" + i
 						+ ".html");
 				double passes = lookForPasses(file);
-				file = new File(directory + File.separator + "indexfiles8-1b/index" + i
+				file = new File(directory + File.separator + "index0" + i
 						+ ".html");
 				passes = (passes + lookForPasses(file))/2.0;
 				System.out.println(i + " " + passes);
@@ -37,10 +37,15 @@ public class TestEvaluator {
 				System.out.println(i + " is missing");
 			}
 		}
-		printArray();
+		int value = 0;
+		Scanner scan = new Scanner (System.in);
+		do{
+			printArray(value);
+			value = scan.nextInt();
+		}while (value>=0);
 	}
 
-	private void printArray() {
+	private void printArray(int minValue) {
 		// [threshold][initNoise][finalNoise][decay][cutoff]
 		System.out.println("            thr     thr     thr\n" +
 						   "            cut cut cut cut cut cut cut cut cut");
@@ -58,8 +63,8 @@ public class TestEvaluator {
 					System.out.print("dec ");
 					for (int threshold = 0; threshold < 3; threshold++) {
 						for (int cutoff = 0; cutoff < 3; cutoff++) {
-							if (array[threshold][initNoise][finalNoise][decay][cutoff] == 0)
-								System.out.print("--- ");
+							if (array[threshold][initNoise][finalNoise][decay][cutoff] <minValue)
+								System.out.print("----- ");
 							else
 								System.out
 									.print(array[threshold][initNoise][finalNoise][decay][cutoff]
