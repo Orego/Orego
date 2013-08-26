@@ -57,7 +57,7 @@ public class ExperimentConfiguration {
 	public static final int GAMES_PER_HOST = 6;
 
 	/** Total number of games desired per condition. */
-	public static final int GAMES_PER_CONDITION = 360;
+	public static final int GAMES_PER_CONDITION = 600;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -75,7 +75,7 @@ public class ExperimentConfiguration {
 	 * no time_left commands will be sent. This is useful if using the msec or
 	 * playouts properties.
 	 */
-	public static final int GAME_TIME_IN_SECONDS = 500;
+	public static final int GAME_TIME_IN_SECONDS = 0;
 
 	
 	static {
@@ -89,10 +89,9 @@ public class ExperimentConfiguration {
 	public static final String[] CONDITIONS = new String[4];
 
 	static {
-		CONDITIONS[0] = "threads=2 book=LateOpeningBook";
-		CONDITIONS[1] = "threads=2 book=FusekiBook";
-		CONDITIONS[2] = "player=Lgrf2 threads=2 book=FusekiBook grace";
-		CONDITIONS[3] = "threads=2 book=FusekiBook grace";
+		CONDITIONS[0] = "threads=2 msec=2000 book=FusekiBook player=ClusterPlayer";
+		CONDITIONS[1] = "threads=2 msec=2000 book=FusekiBook player=MaxClusterPlayer";
+		CONDITIONS[2] = "threads=2 msec=2000 book=FusekiBook player=VotingClusterPlayer";
 	}
 	
 	/** Path to run gnugo on your machine */
