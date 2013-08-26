@@ -8,8 +8,6 @@ import static orego.patterns.Pattern.*;
 import static orego.heuristic.PatternHeuristic.*;
 import static orego.heuristic.HeuristicList.selectAndPlayUniformlyRandomMove;
 import static org.junit.Assert.*;
-import orego.heuristic.*;
-import orego.play.Player;
 import orego.util.IntList;
 import orego.util.IntSet;
 import org.junit.Before;
@@ -30,7 +28,7 @@ public class BoardTest {
 
 	/** Verifies that p has the indicated liberties. */
 	protected void assertLiberties(Board board, String p, String... liberties) {
-		IntSet libs = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet libs = new IntSet(getFirstPointBeyondBoard());
 		for (String s : liberties) {
 			libs.add(at(s));
 		}
@@ -168,7 +166,7 @@ public class BoardTest {
 		// We could make an equals() method for Board, but it would
 		// not be used anywhere else
 		assertEquals(board.toString(), b.toString());
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			assertEquals(board.getColor(p), b.getColor(p));
 			if (b.getColor(p) != VACANT) {
 				assertEquals(board.getLiberties(p), b.getLiberties(p));
@@ -320,7 +318,7 @@ public class BoardTest {
 		      // ABCDEFGHJKLMNOPQRST
 		};
 		board.setUpProblem(BLACK, problem);
-		assertEquals(10 + (2 - (50 + (14 * 19))), board.finalScore());
+		assertEquals(9.5 + (2 - (50 + (14 * 19))), board.finalScore(), 0.001);
 	}
 
 	@Test
@@ -934,6 +932,17 @@ public class BoardTest {
 		assertEquals(diagramToNeighborhood(".O#\nO .\n***"),
 				board.getNeighborhoodColorsReversed(at("b1")));
 	}
+	
+	@Test
+	public void testPlaceInitialStone() {
+		int initialColor = board.getColorToPlay();
+		board.placeInitialStone(WHITE, "a2");
+		board.placeInitialStone(WHITE, "c3");
+		assertEquals(WHITE, board.getColor(at("a2")));
+		assertEquals(WHITE, board.getColor(at("c3")));
+		assertEquals(initialColor, board.getColorToPlay());
+		assertEquals(0, board.getTurn());
+	}
 
 	@Test
 	public void testPlayFast() {
@@ -1096,7 +1105,7 @@ public class BoardTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.setKomi(7.5);
-		assertEquals(50, board.playoutScore());
+		assertEquals(49.5, board.playoutScore(), 0.001);
 		assertEquals(BLACK, board.playoutWinner());
 	}
 
@@ -1125,7 +1134,7 @@ public class BoardTest {
 		};
 		board.setUpProblem(BLACK, problem);
 		board.setKomi(7.5);
-		assertEquals(-56, board.playoutScore());
+		assertEquals(-56.5, board.playoutScore(), 0.001);
 	}
 
 	@Test
@@ -1929,6 +1938,7 @@ public class BoardTest {
 		assertEquals(BLACK, board.getColor(at("Q10")));
 		assertEquals(BLACK, board.getColor(at("K10")));
 		assertEquals(7, board.getHandicap());
+		assertEquals(WHITE,board.getColorToPlay());
 	}
 
 	@Test
@@ -1964,7 +1974,7 @@ public class BoardTest {
 	@Test
 	public void testFinalScoreOnEmptyBoard() {
 		// White wins by komi
-		assertEquals(-7, board.finalScore());
+		assertEquals(-board.getKomi(), board.finalScore(), 0.001);
 	}
 
 	@Test
@@ -1980,6 +1990,16 @@ public class BoardTest {
 	public void testSetKomi() {
 		board.setKomi(5.5);
 		assertEquals(5.5, board.getKomi(), 0.01);
+		board.setKomi(7);
+		assertEquals(7, board.getKomi(), 0.01);
+	}
+	
+	@Test
+	public void testTie() {
+		board.setKomi(0);
+		assertEquals(VACANT, board.approximateWinner());
+		assertEquals(VACANT, board.playoutWinner());
+		assertEquals(VACANT, board.finalWinner());
 	}
 
 	@Test

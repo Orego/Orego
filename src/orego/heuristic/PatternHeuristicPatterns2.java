@@ -1,6 +1,8 @@
 package orego.heuristic;
 
+// TODO Needs clarification -- these patterns were gathered in a slightly different way from those in PatternHeuristicPatterns, but what's the difference?
 public class PatternHeuristicPatterns2 {
+
 	public static String[] ALL_GOOD_PATTERNS = {
 		"####O###", // 0/1768 = 0.0
 		"OOOOOOO#", // 1/52036 = 1.9217464832039358E-5

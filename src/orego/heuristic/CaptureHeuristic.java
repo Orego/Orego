@@ -24,4 +24,5 @@ public class CaptureHeuristic extends Heuristic {
 	public CaptureHeuristic clone() {
 		return (CaptureHeuristic)super.clone();
 	}
+
 }

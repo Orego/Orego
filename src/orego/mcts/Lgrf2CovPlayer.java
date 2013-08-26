@@ -1,11 +1,7 @@
 package orego.mcts;
 
 import static java.lang.String.format;
-import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-import static orego.core.Coordinates.NEIGHBORS;
-import static orego.core.Coordinates.pointToString;
-import static orego.core.Coordinates.BOARD_WIDTH;
+import static orego.core.Coordinates.*;
 import static orego.core.Coordinates.at;
 import static orego.core.Colors.WHITE;
 import static orego.core.Colors.BLACK;
@@ -38,7 +34,7 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 	@Override
 	public int bestMove() {
 		// Clear out the stored covariance data
-		covarianceData = new int[FIRST_POINT_BEYOND_BOARD][4];
+		covarianceData = new int[getFirstPointBeyondBoard()][4];
 		// Do the actual search
 		return super.bestMove();
 	}
@@ -53,14 +49,14 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		// This is the offset to add depending on whether black or white won
 		int winnerAdd = board.playoutWinner() == WHITE ? 2 : 0;
 		
-		for(int p = 0; p < FIRST_POINT_BEYOND_BOARD; p++) {
+		for(int p = 0; p < getFirstPointBeyondBoard(); p++) {
 			
 			// Count the number of adjacent black or white points
 			int whiteNeighbors = 0;
 			int blackNeighbors = 0;
 			
 			for(int n = 0; n < 4; n++) {
-				int color = board.getColor(NEIGHBORS[p][n]);
+				int color = board.getColor(getNeighbors(p)[n]);
 				if(color == WHITE) {
 					whiteNeighbors++;
 				}
@@ -97,7 +93,7 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		if(getBoard().getColor(p) == VACANT) return maxCov; 
 		
 		int chainId = getBoard().getChainId(p);
-		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+		for(int idx = 0; idx < getFirstPointBeyondBoard(); idx++) {
 			if(getBoard().getChainId(idx) == chainId && getCovariance(idx) > maxCov) {
 				maxCov = getCovariance(idx);
 			}
@@ -142,7 +138,7 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		// Find the max covariance of any move
 		double max = 0;
 		double min = Double.POSITIVE_INFINITY;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			double cov = getCovarianceOverChain(p);
 			
 			if (cov > max) {
@@ -154,7 +150,7 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 		}
 		// Display normalized covariance through each move
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			result += format(" %s %.3f", pointToString(p), (getCovarianceOverChain(p) - min) / (max - min));
 		}
 		return result;
@@ -178,12 +174,12 @@ public class Lgrf2CovPlayer extends Lgrf2Player {
 	}
 	
 	protected void writeCovarianceDataToStream(Writer stream) throws IOException {
-		for(int row = 0; row < BOARD_WIDTH; row++) {
+		for(int row = 0; row < getBoardWidth(); row++) {
 			StringBuilder lineBuilder = new StringBuilder();
-			for(int col = 0; col < BOARD_WIDTH; col++) {
+			for(int col = 0; col < getBoardWidth(); col++) {
 				int p = at(row, col);
 				lineBuilder.append(getCovarianceOverChain(p));
-				if(col < BOARD_WIDTH - 1) lineBuilder.append(", ");
+				if(col < getBoardWidth() - 1) lineBuilder.append(", ");
 			}
 			lineBuilder.append('\n');
 			stream.write(lineBuilder.toString());

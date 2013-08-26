@@ -1,20 +1,24 @@
 package orego.mcts;
 
-import static orego.core.Board.PLAY_OK;
-import static orego.core.Colors.*;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
+import static java.lang.String.format;
+import static orego.core.Colors.BLACK;
+import static orego.core.Colors.VACANT;
+import static orego.core.Colors.opposite;
 import static orego.core.Coordinates.*;
 import static orego.experiment.Debug.debug;
-import static java.lang.Math.*;
-import static java.lang.String.format;
-import static java.lang.Double.*;
 
-import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import orego.core.Board;
+import orego.core.Coordinates;
 import orego.play.UnknownPropertyException;
-import orego.util.*;
-import orego.core.*;
-import orego.heuristic.Heuristic;
+import orego.util.IntList;
+import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -25,7 +29,7 @@ import ec.util.MersenneTwisterFast;
 public class MctsPlayer extends McPlayer {
 
 	/** If the expected win rate exceeds this, emphasize capturing dead stones. */
-	public static final double COUP_DE_GRACE_PARAMETER = 0.9;
+	public static final double COUP_DE_GRACE_PARAMETER = 0.85;
 
 	/**
 	 * This player will resign if the win percentage is less than
@@ -47,26 +51,42 @@ public class MctsPlayer extends McPlayer {
 				+ benchMarkInfo[1]);
 	}
 
-	/**
-	 * True if the "coup de grace" property has been set. This causes the player
-	 * to try to end the game (by capturing enough enemy stones that it can
-	 * safely pass) when it is very confident of winning.
-	 */
-	private boolean grace;
-
 	/** The transposition table. */
 	private TranspositionTable table;
 
+	//private boolean kgsCleanupMode = false;
+
 	@Override
 	public void beforeStartingThreads() {
-		// Nothing special has to be done here
+		if (isCleanUpMode() || getBoard().getMove(getBoard().getTurn() - 1) == PASS) {
+			// Add wins to the moves that are liberties of dead stones (to
+			// emphasize killing them).
+			IntList deadStones = getDeadStones(1.0);
+			IntSet pointsToRecommend = new IntSet(
+					Coordinates.getFirstPointBeyondBoard());
+
+			for (int i = 0; i < deadStones.size(); i++) {
+				if (getBoard().getColor(deadStones.get(i)) != getBoard()
+						.getColorToPlay()) {
+					IntSet libs = getBoard().getLiberties(deadStones.get(i));
+					pointsToRecommend.addAll(libs);
+				}
+			}
+
+			for (int i = 0; i < pointsToRecommend.size(); i++) {
+				int recommendedMove = pointsToRecommend.get(i);
+				int bias = (int) (getRoot().getWins(getRoot()
+						.getMoveWithMostWins()));
+				getRoot().addWins(recommendedMove, bias);
+			}
+		}
 	}
 
 	public void printAdditionalBenchmarkInfo(double kpps, int playouts,
 			long time) {
 		System.out.println(this);
 		for (int i = 0; i < getNumberOfThreads(); i++) {
-			int pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
+			long pp = ((McRunnable) getRunnable(i)).getPlayoutsCompleted();
 			System.out.println("Thread " + i + ": " + pp + " playouts");
 		}
 		System.out.println("(" + getRoot().getTotalRuns()
@@ -81,7 +101,7 @@ public class MctsPlayer extends McPlayer {
 	 * to during a playout). We choose the move with the most wins.
 	 */
 	protected int bestPlayMove(SearchNode node) {
-		int best = 1;
+		double best = 1;
 		int result = PASS;
 		IntSet vacantPoints = getBoard().getVacantPoints();
 		do {
@@ -93,6 +113,7 @@ public class MctsPlayer extends McPlayer {
 				node.exclude(result);
 				result = PASS;
 			}
+			
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				int move = vacantPoints.get(i);
 				if (node.getWins(move) > best) {
@@ -103,12 +124,6 @@ public class MctsPlayer extends McPlayer {
 		} while ((result != PASS)
 				&& !(getBoard().isFeasible(result) && (getBoard()
 						.isLegal(result))));
-		// Consider entering coup de grace mode
-		if (grace
-				&& (node.getWinRate(result) > COUP_DE_GRACE_PARAMETER)) {
-			debug("Initiating coup de grace");
-			// TODO Implement coup de grace here; it used to be a policy
-		}
 		// Consider resigning
 		if (node.getWinRate(result) < RESIGN_PARAMETER) {
 			return RESIGN;
@@ -130,6 +145,7 @@ public class MctsPlayer extends McPlayer {
 		int start;
 		start = random.nextInt(vacantPoints.size());
 		int i = start;
+		int skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			int move = vacantPoints.get(i);
 			double searchValue = searchValue(node, board, move);
@@ -141,10 +157,9 @@ public class MctsPlayer extends McPlayer {
 					node.exclude(move);
 				}
 			}
-			// The magic number 457 is prime and larger than vacantPoints.size().
-			// Advancing by 457 therefore skips "randomly" through the array,
+			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
-			i = (i + 457) % vacantPoints.size();
+			i = (i + skip) % vacantPoints.size();
 		} while (i != start);
 		return result;
 	}
@@ -152,13 +167,9 @@ public class MctsPlayer extends McPlayer {
 	@Override
 	public int bestStoredMove() {
 		SearchNode root = getRoot();
-		// Can we win outright by passing?
-		if (getBoard().getPasses() >= 1) {
-			if (secondPassWouldWinGame()) {
-				return PASS;
-			}
-			// If not, don't pass if there's a legal move!
-			root.exclude(PASS);
+		if ((getBoard().getPasses() >= 1) && secondPassWouldWinGame()) {
+			// Pass if we can win outright by doing so
+			return PASS;
 		}
 		return bestPlayMove(root);
 	}
@@ -193,8 +204,7 @@ public class MctsPlayer extends McPlayer {
 					table.addChild(node, child);
 					if (child.isFresh()) {
 						// child might not be fresh if it's a transposition
-						runnable.updatePriors(child,
-								runnable.getBoard());
+						runnable.updatePriors(child, runnable.getBoard());
 					}
 					return;
 				}
@@ -213,12 +223,16 @@ public class MctsPlayer extends McPlayer {
 			return "";
 		}
 		String result = "";
-		IntList dead = deadStones();
-		for (int p : ALL_POINTS_ON_BOARD) {
-			if (getBoard().getColor(p) != VACANT) {
-				if (status.equals("alive") != dead.contains(p)) {
+		IntList dead = getDeadStones(0.25);
+		if (status.equals("alive")) {
+			for (int p : getAllPointsOnBoard()) {
+				if ((getBoard().getColor(p) != VACANT) && (!dead.contains(p))) {
 					result += pointToString(p) + " ";
 				}
+			}			
+		} else { // Dead stones
+			for (int i = 0; i < dead.size(); i++) {
+				result += pointToString(dead.get(i)) + " ";
 			}
 		}
 		return result;
@@ -234,7 +248,8 @@ public class MctsPlayer extends McPlayer {
 			SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getHash());
 			synchronized (table) {
-				// a child will only be created if we expect the node to be visited again
+				// a child will only be created if we expect the node to be
+				// visited again
 				if (!node.hasChild(p) && (node.getWins(p) >= 2)) {
 					child = table.findOrAllocate(runnable.getBoard().getHash());
 					if (child == null) {
@@ -280,31 +295,40 @@ public class MctsPlayer extends McPlayer {
 	}
 
 	@Override
-	public int getPlayouts(int p) {
+	public long getPlayouts(int p) {
 		return getRoot().getRuns(p);
 	}
 
 	@Override
-	public int getWins(int p) {
-		return getRoot().getWins(p);
+	public double getWins(int p) {
+		return (long) ( getRoot().getWins(p) * getRoot().getRuns(p) );
 	}
 	
-	private long[] nodeResultsToLong(int[] nodeResults) {
+	private long[] nodeResultsToLong(double[] nodeResults, SearchNode node) {
 		long[] cast = new long[nodeResults.length];
 		for(int idx = 0; idx < nodeResults.length; idx++) {
-			cast[idx] = (long)nodeResults[idx];
+			cast[idx] = (long) nodeResults[idx];
 		}
 		return cast;
 	}
 	
 	@Override
 	public long[] getBoardWins() {
-		return nodeResultsToLong(getRoot().getWinsArray());
+		long[] cast = new long[getRoot().getWinRateArray().length];
+		for(int idx = 0; idx < getRoot().getWinRateArray().length; idx++) {
+			cast[idx] = (long) ( getRoot().getWinRateArray()[idx] * getRoot().getRuns(idx));
+		}
+		return cast;
 	}
 	
 	@Override
 	public long[] getBoardPlayouts() {
-		return nodeResultsToLong(getRoot().getRunsArray());
+		int[] runs = getRoot().getRunsArray();
+		long[] cast = new long[runs.length];
+		for(int idx = 0; idx < runs.length; idx++) {
+			cast[idx] = (long) runs[idx];
+		}
+		return cast;
 	}
 	
 	@Override
@@ -336,6 +360,7 @@ public class MctsPlayer extends McPlayer {
 	public double getWinRate(int p) {
 		return getRoot().getWinRate(p);
 	}
+	
 	/**
 	 * Runs one playout and returns a String that GoGui can use to display that
 	 * playout.
@@ -391,7 +416,7 @@ public class MctsPlayer extends McPlayer {
 		// the various gogui methods
 		double min = 1.0;
 		double max = 0.0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -402,7 +427,7 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "";
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
 				double winRate = getWinRate(p);
 				if (winRate > 0) {
@@ -421,10 +446,10 @@ public class MctsPlayer extends McPlayer {
 
 	protected String goguiTotalWins() {
 		double max = 0, min = 1;
-		int maxWins = 0;
-		for (int p : ALL_POINTS_ON_BOARD) {
+		double maxWins = 0;
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
-				int wins = getWins(p);
+				double wins = getWins(p);
 				// Excluded moves have negative win rates
 				if (wins > 0) {
 					max = Math.max(max, wins);
@@ -434,8 +459,8 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		String result = "INFLUENCE";
-		for (int p : ALL_POINTS_ON_BOARD) {
-			int wins = 0;
+		for (int p : getAllPointsOnBoard()) {
+			double wins = 0;
 			if (getBoard().getColor(p) == VACANT) {
 				wins = getWins(p);
 				if (wins > 0) {
@@ -445,9 +470,9 @@ public class MctsPlayer extends McPlayer {
 			}
 		}
 		// Display win rates as colors and percentages
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (getBoard().getColor(p) == VACANT) {
-				int wins = getWins(p);
+				double wins = getWins(p);
 				if (wins > 0) {
 					if (result.length() > 0) {
 						result += "\n";
@@ -493,31 +518,24 @@ public class MctsPlayer extends McPlayer {
 
 	@Override
 	public void incorporateRun(int winner, McRunnable runnable) {
-		if (winner != VACANT) {
-			int turn = runnable.getTurn();
-			SearchNode node = getRoot();
-			int[] moves = runnable.getMoves();
-			long[] hashes = runnable.getHashes();
-			boolean win = winner == getBoard().getColorToPlay();
-			for (int t = getBoard().getTurn(); t < turn; t++) {
-				node.recordPlayout(win, moves, t, turn,
-						runnable.getPlayedPoints());
-				long hash = hashes[t + 1];
-				node = table.findIfPresent(hash);
-				if (node == null) {
-					return;
-				}
-				win = !win;
-			}
+		int turn = runnable.getTurn();
+		SearchNode node = getRoot();
+		int[] moves = runnable.getMoves();
+		long[] hashes = runnable.getHashes();
+		float winProportion = winner == getBoard().getColorToPlay() ? 1 : 0;
+		if (winner == VACANT) {
+			winProportion = 0.5f;
 		}
-	}
-
-	/**
-	 * Returns true if the coup de grace property (which encourages capturing
-	 * enemy stones when the game is clearly won) is true.
-	 */
-	public boolean isGrace() {
-		return grace;
+		for (int t = getBoard().getTurn(); t < turn; t++) {
+			node.recordPlayout(winProportion, moves, t, turn,
+					runnable.getPlayedPoints());
+			long hash = hashes[t + 1];
+			node = table.findIfPresent(hash);
+			if (node == null) {
+				return;
+			}
+			winProportion = 1 - winProportion;
+		}
 	}
 
 	@Override
@@ -608,14 +626,11 @@ public class MctsPlayer extends McPlayer {
 		if (property.equals("pool")) {
 			table = new TranspositionTable(Integer.parseInt(value),
 					getPrototypeNode());
-		} else if (property.equals("grace")) {
-			assert value.equals("true");
-			grace = true;
 		} else {
 			super.setProperty(property, value);
 		}
 	}
-	
+
 	protected void setTable(TranspositionTable table) {
 		this.table = table;
 	}
@@ -644,7 +659,7 @@ public class MctsPlayer extends McPlayer {
 		String result = indent + "Hash: " + node.getHash() + " Total runs: "
 				+ node.getTotalRuns() + "\n";
 		Board childBoard = new Board();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			if (node.getRuns(p) > 2) {
 				result += indent + node.toString(p);
 				childBoard.copyDataFrom(board);
@@ -682,8 +697,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 		}
 		if (isPondering()) {
 			startThreads();
@@ -702,8 +716,7 @@ public class MctsPlayer extends McPlayer {
 		root = getRoot();
 		assert root != null;
 		if (root.isFresh()) {
-			((McRunnable) getRunnable(0)).updatePriors(root,
-					getBoard());
+			((McRunnable) getRunnable(0)).updatePriors(root, getBoard());
 		}
 		debug(winRateReport());
 	}
@@ -713,6 +726,11 @@ public class MctsPlayer extends McPlayer {
 		return "";
 		// return colorToString(getBoard().getColorToPlay()) + " to play: "
 		// + getRoot();
+	}
+
+	@Override
+	public int getWholeWins(int p) {
+		return (int) getWins(p);
 	}
 
 }

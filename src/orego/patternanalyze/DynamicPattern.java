@@ -114,9 +114,9 @@ public class DynamicPattern implements Serializable {
 	 */
 	public static long setupPattern(int p, Board board, int size) {
 		long currentPattern = ((long)board.getColorToPlay()) << 62;
-		int north = -SOUTH;
+		int north = -getSouth();
 		int east = EAST;
-		int south = SOUTH;
+		int south = getSouth();
 		int west = -EAST;
 		for (int i = 0; i < size; i++) {
 			switch (i) {

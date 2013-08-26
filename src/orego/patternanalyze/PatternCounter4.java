@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import orego.core.Board;
+import orego.sgf.SgfParser;
 
 
 /**
@@ -222,92 +223,68 @@ public class PatternCounter4 {
 	 * @param SGF file of a particular game.
 	 */
 	public void checkPatterns(File dir) {
-		try {
-			System.out.println("Starting file "+dir.getName());
-			Board board = new Board();
-			String input = "";
-			Scanner s = new Scanner(dir);
-			while (s.hasNextLine()) {
-				input += s.nextLine();
-			}
-			input = input.replace("W[]", "W[tt]");
-			input = input.replace("B[]", "B[tt]");
-			StringTokenizer stoken = new StringTokenizer(input, "()[];");
-			while (stoken.hasMoreTokens()) {
-				String token = stoken.nextToken();
-				if (token.equals("W") || token.equals("B")) {
-					token = stoken.nextToken();
-					if (token.equals("tt")) {
-						board.play(PASS);
-					} else {
-						board.play(sgfToPoint(token));
-					}
-				}
-			}
-			s.close();
-			int turn = board.getTurn();
-			int currentTurn = 0;
-			Board patternBoard = new Board();
-			ArrayList<Long> patternSeenInGame = new ArrayList<Long>();
-			ArrayList<Long> patternPlayedInGame = new ArrayList<Long>();
-			while (currentTurn < turn) {
-				int currentPlay = board.getMove(currentTurn);
-				int lastPlay = board.getMove(currentTurn - 1);
-				if (ON_BOARD[lastPlay] && ON_BOARD[currentPlay]) {
-					for (int p : NEIGHBORS[lastPlay]) {
-						if (patternBoard.getColor(p) == VACANT) {
-							DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
-							if (pattern.getColorToPlay() == WHITE) {
-								pattern = DynamicPattern.switchColor(pattern);
-							}
-							boolean foundPattern = false;
-							for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
-								if (patternSeen.containsKey(pattern.getPattern()[i])) {
-									foundPattern = true;
-									Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
-									if (!patternSeenInGame.contains(pattern.getPattern()[i])) {
-										patternData[PATTERN_SEEN] += 1;
-										patternSeenInGame.add(pattern.getPattern()[i]);
-									}
-									if (currentTurn < patternData[MIN_TURN]) {
-										patternData[MIN_TURN] = (long)currentTurn;
-									}
-									if (currentTurn > patternData[MAX_TURN]) {
-										patternData[MAX_TURN] = (long)currentTurn;
-									}
-									patternData[TOTAL_TURN] += currentTurn;
-									patternSeen.put(pattern.getPattern()[i], patternData);
-									if ((p == currentPlay) &&
-											(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
-										patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
-										patternPlayedInGame.add(pattern.getPattern()[i]);
-									}
+		System.out.println("Starting file "+dir.getName());
+		Board board = SgfParser.sgfToBoard(dir);
+		int turn = board.getTurn();
+		int currentTurn = 0;
+		Board patternBoard = new Board();
+		ArrayList<Long> patternSeenInGame = new ArrayList<Long>();
+		ArrayList<Long> patternPlayedInGame = new ArrayList<Long>();
+		while (currentTurn < turn) {
+			int currentPlay = board.getMove(currentTurn);
+			int lastPlay = board.getMove(currentTurn - 1);
+			if (isOnBoard(lastPlay) && isOnBoard(currentPlay)) {
+				for (int p : getNeighbors(lastPlay)) {
+					if (patternBoard.getColor(p) == VACANT) {
+						DynamicPattern pattern = new DynamicPattern(p, patternBoard, PATTERN_LENGTH);
+						if (pattern.getColorToPlay() == WHITE) {
+							pattern = DynamicPattern.switchColor(pattern);
+						}
+						boolean foundPattern = false;
+						for (int i = 0; i < DynamicPattern.NUMBER_CHOICES; i++) {
+							if (patternSeen.containsKey(pattern.getPattern()[i])) {
+								foundPattern = true;
+								Long[] patternData = patternSeen.get(pattern.getPattern()[i]);
+								if (!patternSeenInGame.contains(pattern.getPattern()[i])) {
+									patternData[PATTERN_SEEN] += 1;
+									patternSeenInGame.add(pattern.getPattern()[i]);
+								}
+								if (currentTurn < patternData[MIN_TURN]) {
+									patternData[MIN_TURN] = (long)currentTurn;
+								}
+								if (currentTurn > patternData[MAX_TURN]) {
+									patternData[MAX_TURN] = (long)currentTurn;
+								}
+								patternData[TOTAL_TURN] += currentTurn;
+								patternSeen.put(pattern.getPattern()[i], patternData);
+								if ((p == currentPlay) &&
+										(!patternPlayedInGame.contains(pattern.getPattern()[i]))) {
+									patternSeen.get(pattern.getPattern()[i])[PATTERN_PLAYED]++;
+									patternPlayedInGame.add(pattern.getPattern()[i]);
 								}
 							}
-							if (!foundPattern) {
-								Long[] patternData = new Long[5];
-								patternData[PATTERN_SEEN] = (long)1;
-								patternSeenInGame.add(pattern.getPattern()[0]);
-								patternData[MIN_TURN] = (long)currentTurn;
-								patternData[MAX_TURN] = (long)currentTurn;
-								patternData[TOTAL_TURN] = (long)currentTurn;
-								patternData[PATTERN_PLAYED] = 0L;
-								patternSeen.put(pattern.getPattern()[0], patternData);
-								if ((p == currentPlay) && (!patternPlayedInGame.contains(pattern.getPattern()[0]))) {
-									patternSeen.get(pattern.getPattern()[0])[PATTERN_PLAYED]++;
-									patternPlayedInGame.add(pattern.getPattern()[0]);
-								}
+						}
+						if (!foundPattern) {
+							Long[] patternData = new Long[5];
+							patternData[PATTERN_SEEN] = (long)1;
+							patternSeenInGame.add(pattern.getPattern()[0]);
+							patternData[MIN_TURN] = (long)currentTurn;
+							patternData[MAX_TURN] = (long)currentTurn;
+							patternData[TOTAL_TURN] = (long)currentTurn;
+							patternData[PATTERN_PLAYED] = 0L;
+							patternSeen.put(pattern.getPattern()[0], patternData);
+							if ((p == currentPlay) && (!patternPlayedInGame.contains(pattern.getPattern()[0]))) {
+								patternSeen.get(pattern.getPattern()[0])[PATTERN_PLAYED]++;
+								patternPlayedInGame.add(pattern.getPattern()[0]);
 							}
 						}
 					}
 				}
-				currentTurn++;
-				patternBoard.play(currentPlay);
 			}
-			System.out.println("Finished file "+dir.getName());
-		} catch (IOException ex) {
-			ex.printStackTrace();
+			currentTurn++;
+			patternBoard.play(currentPlay);
 		}
+		System.out.println("Finished file "+dir.getName());
 	}
 
 }

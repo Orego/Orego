@@ -68,9 +68,9 @@ public class ClusterPlayerTest {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						long[] runs = new long[FIRST_POINT_BEYOND_BOARD];
+						long[] runs = new long[getFirstPointBeyondBoard()];
 						Arrays.fill(runs, runsPerPoint);
-						long[] wins = new long[FIRST_POINT_BEYOND_BOARD];
+						long[] wins = new long[getFirstPointBeyondBoard()];
 						Arrays.fill(wins, winsPerPoint);
 						if(bestMove >= 0) {
 							runs[bestMove] += 10;

@@ -17,13 +17,24 @@ public interface Playable {
 	 */
 	public int acceptMove(int p);
 
-	/** Returns the best move for the color to play. */
+	/** Returns the best move for the color to play. 
+	 * @param b */
+	public int bestMove(boolean b);
+	
 	public int bestMove();
+
+	/**
+	 * Ends the game, possibly temporarily: it may be picked up again.
+	 * Subclasses should override this to, for instance, stop threads from
+	 * running, but not clear the board or clear data structures it may need in
+	 * case the game continues later.
+	 */
+	public void endGame();
 
 	/**
 	 * @see orego.core.Board#finalScore()
 	 */
-	public int finalScore();
+	public double finalScore();
 
 	/**
 	 * @return the board
@@ -58,6 +69,11 @@ public interface Playable {
 	 * It allows the player to perform any cleanup before termination.
 	 */
 	public void terminate();
+	
+	/**
+	 * Sets whether the player should make post-game "cleanup" moves to kill dead stones.
+	 */
+	public void setCleanUpMode(boolean value);
 	
 	/**
 	 * @see orego.core.Board#setKomi(double)

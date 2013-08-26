@@ -1,8 +1,6 @@
 package orego.cluster;
 
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-import static orego.core.Coordinates.at;
-import static orego.core.Coordinates.PASS;
+import static orego.core.Coordinates.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -18,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.core.Coordinates;
 import orego.mcts.Lgrf2Player;
 import orego.mcts.StatisticalPlayer;
 
@@ -124,8 +123,8 @@ public class ClusterTreeSearcherTest {
 
 	@Test
 	public void testShouldGetBestMoveFromPlayer() throws Exception {
-		long[] wins = new long[FIRST_POINT_BEYOND_BOARD];
-		long[] runs = new long[FIRST_POINT_BEYOND_BOARD];
+		long[] wins = new long[Coordinates.getFirstPointBeyondBoard()];
+		long[] runs = new long[Coordinates.getFirstPointBeyondBoard()];
 
 		when(player.getBoardWins()).thenReturn(wins);
 		when(player.getBoardPlayouts()).thenReturn(runs);

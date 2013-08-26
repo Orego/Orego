@@ -1,31 +1,26 @@
 package orego.heuristic;
 
-import static orego.core.Colors.BLACK;
-import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.at;
-import static org.junit.Assert.*;
-
-import orego.core.Board;
-
+//import static orego.core.Colors.BLACK;
+//import static orego.core.Coordinates.at;
+//import static org.junit.Assert.*;
+//import orego.core.Board;
 import org.junit.Before;
-import org.junit.Test;
-
-import ec.util.MersenneTwisterFast;
+//import org.junit.Test;
+//import ec.util.MersenneTwisterFast;
 
 public class DynamicPatternHeuristicTest {
 	
-	private Board board;
-	
-	private DynamicPatternHeuristic heuristic;
-
-	private MersenneTwisterFast random;
+//	private Board board;
+//	
+//	private DynamicPatternHeuristic heuristic;
+//
+//	private MersenneTwisterFast random;
 	
 	@Before
 	public void setUp() throws Exception {
-		board = new Board();
-		DynamicPatternHeuristic.setTestMode(true);
-		heuristic = new DynamicPatternHeuristic(1);
-		random = new MersenneTwisterFast();
+//		board = new Board();
+//		heuristic = new DynamicPatternHeuristic(1);
+//		random = new MersenneTwisterFast();
 	}
 
 

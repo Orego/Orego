@@ -1,9 +1,6 @@
 package orego.cluster;
 
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.pointToString;
-import static orego.core.Coordinates.ALL_POINTS_ON_BOARD;
+import static orego.core.Coordinates.*;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -112,13 +109,13 @@ public class BalancedClusterPlayer extends ClusterPlayer {
 		List<Integer> searcherIds = new ArrayList<Integer>();
 		for(TreeSearcher searcher : remoteSearchers) {
 			int id = searcher.getSearcherId();
-			searchersToPoints.put(id, new IntSet(FIRST_POINT_BEYOND_BOARD));
+			searchersToPoints.put(id, new IntSet(getFirstPointBeyondBoard()));
 			searcherIds.add(id);
 		}
 		
 		// Add points to be considered by each searcher by counting off
 		int count = remoteSearchers.size();
-		for(int p = 0; p < FIRST_POINT_BEYOND_BOARD; p++) {
+		for(int p = 0; p < getFirstPointBeyondBoard(); p++) {
 			int id = searcherIds.get(p % count);
 			searchersToPoints.get(id).add(p);
 		}

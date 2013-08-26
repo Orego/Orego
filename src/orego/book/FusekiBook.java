@@ -25,16 +25,19 @@ public class FusekiBook implements OpeningBook, Serializable {
 		this("SgfFiles");
 	}
 
+	
+	/** Gets the Fuseki Book from a data file */
 	@SuppressWarnings("unchecked")
 	public FusekiBook(String directory) {
 		try {
 			directory = OREGO_ROOT_DIRECTORY + directory + File.separator
-					+ BOARD_WIDTH;
+					+ getBoardWidth();
 			File file = new File(directory + File.separator + "Fuseki"
-					+ BOARD_WIDTH + ".data");
+					+ getBoardWidth() + ".data");
 			ObjectInputStream in = new ObjectInputStream(
 					new FileInputStream(file));
 			book = (HashMap<Long, Integer>) (in.readObject());
+			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

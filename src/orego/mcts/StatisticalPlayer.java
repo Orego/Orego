@@ -3,14 +3,15 @@ package orego.mcts;
 import orego.play.Playable;
 
 public interface StatisticalPlayer extends Playable {
+	
+	/** Returns the number of wins for the current color to play at point p. */
+	public abstract int getWholeWins(int p);
+	
 	/** Performs playouts in the manner of bestMove, but does not try to determine the move to play */
 	public void runSearch();
 	
-	/** Get the number of wins through the point p */
-	public int getWins(int p);
-	
 	/** Get the number of playouts through the point p */
-	public int getPlayouts(int p);
+	public long getPlayouts(int p);
 	
 	/** Get an array containing the wins through each point on the board */
 	public long[] getBoardWins();

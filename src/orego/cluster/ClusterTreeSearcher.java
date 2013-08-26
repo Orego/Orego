@@ -1,7 +1,6 @@
 package orego.cluster;
 
-import static orego.core.Coordinates.pointToString;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
+import static orego.core.Coordinates.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -273,7 +272,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 	private void excludeIgnoredPoints() {
 		if(consideredPoints == null) return;
 		
-		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+		for(int idx = 0; idx < getFirstPointBeyondBoard(); idx++) {
 			if(!consideredPoints.contains(idx)) {
 				// TODO: This is a bit of a hack
 				((MctsPlayer)this.player).getRoot().exclude(idx);

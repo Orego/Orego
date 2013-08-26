@@ -1,13 +1,13 @@
 package orego.cluster;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static orego.core.Coordinates.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
 import orego.cluster.RMIStartup.RegistryFactory;
+import orego.core.Coordinates;
 import orego.util.IntSet;
 
 import org.junit.Before;
@@ -47,9 +47,9 @@ public class BalancedClusterPlayerTest {
 	public void testSoloSearcherGetsAllPoints() throws RemoteException {
 		player.addSearcher(searcherA);
 		
-		IntSet allPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet allPoints = new IntSet(getFirstPointBeyondBoard());
 		
-		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) allPoints.add(idx);
+		for(int idx = 0; idx < getFirstPointBeyondBoard(); idx++) allPoints.add(idx);
 		
 		verify(searcherA).setPointsToConsider(allPoints);
 	}
@@ -64,9 +64,9 @@ public class BalancedClusterPlayerTest {
 		player.addSearcher(searcherA);		
 		player.addSearcher(searcherB);
 		
-		IntSet firstHalf = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet firstHalf = new IntSet(getFirstPointBeyondBoard());
 		
-		for(int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+		for(int idx = 0; idx < getFirstPointBeyondBoard(); idx++) {
 			if(idx % 2 == 0) firstHalf.add(idx);
 		}
 		

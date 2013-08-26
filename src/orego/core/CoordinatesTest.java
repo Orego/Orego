@@ -1,7 +1,10 @@
 package orego.core;
 
-import static org.junit.Assert.*;
 import static orego.core.Coordinates.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class CoordinatesTest {
@@ -31,46 +34,47 @@ public class CoordinatesTest {
 	public void testRowAndColumnToChar() {
 			// These methods are for sgf
 			int p = at("p14");
-			assertEquals('n', rowToChar(row(p)));
-			assertEquals('o', columnToChar(column(p)));
+			assertEquals('n', rowToSgfChar(row(p)));
+			assertEquals('o', columnToSgfChar(column(p)));
 			p = at("a1");
-			assertEquals('a', rowToChar(row(p)));
-			assertEquals('a', columnToChar(column(p)));
+			assertEquals('a', rowToSgfChar(row(p)));
+			assertEquals('a', columnToSgfChar(column(p)));
 			p = at("t19");
-			assertEquals('s', rowToChar(row(p)));
-			assertEquals('s', columnToChar(column(p)));
+			assertEquals('s', rowToSgfChar(row(p)));
+			assertEquals('s', columnToSgfChar(column(p)));
 	}
 
 	@Test
 	public void testIs3or4() {
 			// Test whether various points are on line 3 or 4 from both edges
-			assertFalse(THIRD_OR_FOURTH_LINE[at("a1")]);
-			assertTrue(THIRD_OR_FOURTH_LINE[at("e4")]);
-			assertFalse(THIRD_OR_FOURTH_LINE[at("b2")]);
-			assertFalse(THIRD_OR_FOURTH_LINE[at("j9")]);
-			assertTrue(THIRD_OR_FOURTH_LINE[at("c4")]);
-			assertFalse(THIRD_OR_FOURTH_LINE[at("a7")]);
-			assertTrue(THIRD_OR_FOURTH_LINE[at("q4")]);
-			assertTrue(THIRD_OR_FOURTH_LINE[at("q17")]);
-			assertTrue(THIRD_OR_FOURTH_LINE[at("r16")]);
-			assertFalse(THIRD_OR_FOURTH_LINE[at("t7")]);
+			assertFalse(isOnThirdOrFourthLine(at("a1")));
+			assertTrue(isOnThirdOrFourthLine(at("e4")));
+			assertFalse(isOnThirdOrFourthLine(at("b2")));
+			assertFalse(isOnThirdOrFourthLine(at("j9")));
+			assertTrue(isOnThirdOrFourthLine(at("c4")));
+			assertFalse(isOnThirdOrFourthLine(at("a7")));
+			assertTrue(isOnThirdOrFourthLine(at("q4")));
+			assertTrue(isOnThirdOrFourthLine(at("q17")));
+			assertTrue(isOnThirdOrFourthLine(at("r16")));
+			assertFalse(isOnThirdOrFourthLine(at("t7")));
 	}
 
 	@Test
 	public void testIsOnBoard() {
 			// a1 has two neighbors on the board
 			int p = at("a1");
-			assertTrue(ON_BOARD[p]);
-			assertTrue(ON_BOARD[north(p)]);
-			assertTrue(ON_BOARD[east(p)]);
-			assertFalse(ON_BOARD[south(p)]);
-			assertFalse(ON_BOARD[west(p)]);
+			assertTrue(isOnBoard(p));
+			assertTrue(isOnBoard(getNeighbors(p)[0]));
+			assertFalse(isOnBoard(getNeighbors(p)[1]));
+			assertTrue(isOnBoard(getNeighbors(p)[2]));
+			assertFalse(isOnBoard(getNeighbors(p)[3]));
 			// t19 has a different two neighbors on the board
 			int p2 = at("t19");
-			assertTrue(ON_BOARD[p2]);
-			assertFalse(ON_BOARD[north(p2)]);
-			assertFalse(ON_BOARD[east(p2)]);
-			assertTrue(ON_BOARD[south(p2)]);
+			assertTrue(isOnBoard(p2));
+			assertFalse(isOnBoard(getNeighbors(p2)[0]));
+			assertTrue(isOnBoard(getNeighbors(p2)[1]));
+			assertFalse(isOnBoard(getNeighbors(p2)[2]));
+			assertTrue(isOnBoard(getNeighbors(p2)[3]));
 	}
 
 	@Test
@@ -92,39 +96,30 @@ public class CoordinatesTest {
 	public void testLargeKnightsMoveNeighbors() {
 		// Point on the edge have fewer large knight neighbors than
 		// points in the center
-		assertEquals(36, LARGE_KNIGHT_NEIGHBORHOOD[at("e5")].length);
-		assertEquals(12, LARGE_KNIGHT_NEIGHBORHOOD[at("a1")].length);
-	}
-
-	@Test
-	public void testThirdFourthLineArray() {
-		// Confirm the size of the array
-		int count = 0;
-		for (int i = 0; i < EXTENDED_BOARD_AREA; i++) {
-			if (THIRD_OR_FOURTH_LINE[i]) {
-				count++;
-			}
-		}
-		assertEquals(count, THIRD_AND_FOURTH_LINE_POINTS.length);
-		// Confirm the contents of the array
-		for (int i = 0; i < THIRD_AND_FOURTH_LINE_POINTS.length; i++) {
-			assertTrue(THIRD_OR_FOURTH_LINE[THIRD_AND_FOURTH_LINE_POINTS[i]]);
-		}
-	}
-	
-	@Test
-	public void testSgfToPoint() {
-		// Test conversion of sgf (and human-readable strings) to ints
-		assertEquals(at("e15"), sgfToPoint("ee"));
-		assertEquals(at("t1"), sgfToPoint("ss"));
-		assertEquals(at("a19"), sgfToPoint("aa"));
-		assertEquals(at("t19"), sgfToPoint("sa"));
-		assertEquals(at("a1"), sgfToPoint("as"));
+		assertEquals(36, getLargeKnightNeighborhood(at("e5")).length);
+		assertEquals(12, getLargeKnightNeighborhood(at("a1")).length);
 	}
 	
 	@Test
 	public void testManhattanDistance() {
 		assertEquals(7, manhattanDistance(at("c4"), at("f8")));
+	}
+	
+	/** THis test will throw an IndexOutOfBounds exception, and therefore fail, 
+	 * on the attempt to set BOARD_WIDTH to 8. This means setBoardWidth is working correctly.
+	 * 
+	 */
+	@Test(expected=IndexOutOfBoundsException.class)
+	public void testSetBoardWidthFailure() throws IndexOutOfBoundsException{
+		setBoardWidth(-8);
+	}
+	
+	@Test
+	public void testSetBoardWidth() {
+		setBoardWidth(9);
+		assertEquals(9, getBoardWidth());
+		setBoardWidth(19);
+		assertEquals(19, getBoardWidth());
 	}
 
 }

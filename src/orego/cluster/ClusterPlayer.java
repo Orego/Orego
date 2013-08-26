@@ -4,11 +4,7 @@ import static java.lang.Math.max;
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.BLACK;
 import static orego.core.Colors.opposite;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
-import static orego.core.Coordinates.NO_POINT;
-import static orego.core.Coordinates.PASS;
-import static orego.core.Coordinates.RESIGN;
-import static orego.core.Coordinates.pointToString;
+import static orego.core.Coordinates.*;
 import static orego.mcts.MctsPlayer.RESIGN_PARAMETER;
 
 import java.io.FileWriter;
@@ -118,8 +114,8 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		searchLock = new ReentrantLock();
 		searchDone = searchLock.newCondition();
 		
-		totalRuns = new long[FIRST_POINT_BEYOND_BOARD];
-		totalWins = new long[FIRST_POINT_BEYOND_BOARD];
+		totalRuns = new long[getFirstPointBeyondBoard()];
+		totalWins = new long[getFirstPointBeyondBoard()];
 		
 		// RNG used for fallback moves
 		random = new MersenneTwisterFast();
@@ -265,7 +261,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	public void tallyResults(TreeSearcher searcher, long[] runs, long[] wins) {
 		// aggregate all of the recommended moves from the player
-		for (int idx = 0; idx < FIRST_POINT_BEYOND_BOARD; idx++) {
+		for (int idx = 0; idx < getFirstPointBeyondBoard(); idx++) {
 			totalRuns[idx] += runs[idx];
 			totalWins[idx] += wins[idx];
 		}
@@ -518,7 +514,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 			// is better than just resigning
 			if(remoteSearchers.size() == 0) {
 				getLogWriter().println("No searchers connected. Resigning the game.");
-				return Coordinates.RESIGN;
+				return RESIGN;
 			}
 			
 			// If we're here, we need to start searching, call up the searchers
@@ -537,7 +533,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	/** Decides on a move to play from the data received from searchers. */
 	protected int bestSearchMove() {
-		IntSet vacantPoints = new IntSet(FIRST_POINT_BEYOND_BOARD);
+		IntSet vacantPoints = new IntSet(getFirstPointBeyondBoard());
 		vacantPoints.copyDataFrom(getBoard().getVacantPoints());
 		int bestMove = PASS;
 		long maxWins = 0;
@@ -754,12 +750,12 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	}
 	
 	@Override
-	public synchronized int getWins(int p) {
+	public synchronized int getWholeWins(int p) {
 		return (int) totalWins[p];
 	}
 	
 	@Override
-	public synchronized int getPlayouts(int p) {
+	public synchronized long getPlayouts(int p) {
 		return (int) totalRuns[p];
 	}
 	

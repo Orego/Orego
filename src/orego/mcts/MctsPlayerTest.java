@@ -13,6 +13,7 @@ import ec.util.MersenneTwisterFast;
 import orego.core.*;
 import orego.heuristic.HeuristicList;
 import orego.play.UnknownPropertyException;
+import orego.util.IntSet;
 
 public class MctsPlayerTest {
 
@@ -66,6 +67,167 @@ public class MctsPlayerTest {
 			runnable.acceptMove(p);
 		}
 		player.incorporateRun(winner, runnable);
+	}
+
+	@Test
+	public void testBestCleanupMove() {
+		String[] problem1 = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...................",// 4
+				".##................",// 3
+				"OO#................",// 2
+				".O#................" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes1 = 0;
+		for (int i = 0; i < 10; i++) {
+			player.setPlayoutLimit(1000);
+			player.reset();
+			player.setCleanUpMode(true);
+			player.setUpProblem(BLACK, problem1);
+			player.bestMove(); // To generate some playouts
+			int move1 = player.bestMove();
+			assertTrue(move1 != PASS);
+			if (move1 == at("a3")) {
+				successes1++;
+			}
+		}
+		assertTrue(successes1 >= 5);
+
+		// another test
+		String[] problem2 = new String[] {
+				".........#O........",// 19
+				".........#O........",// 18
+				".........#O........",// 17
+				".........#O........",// 16
+				"#######..#O........",// 15
+				"#.....#..#O........",// 14
+				"#.....#..#O........",// 13
+				"#..O..#..#O........",// 12
+				"#.....#..#O........",// 11
+				"#.....#..#O........",// 10
+				"#######..#O........",// 9
+				".........#O........",// 8
+				".........#O........",// 7
+				".........#O........",// 6
+				".........#O........",// 5
+				".........#O........",// 4
+				".........#O........",// 3
+				".........#O........",// 2
+				".........#O........" // 1
+			  // ABCDEFGHJKLMNOPQRST
+		};
+		int successes2 = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setCleanUpMode(true);
+			player.setUpProblem(BLACK, problem2);
+			player.bestMove(); // To generate some playouts
+			int move2 = player.bestMove();
+			assertTrue(move2 != PASS);
+			if (move2 == at("C12") || move2 == at("D11") || move2 == at("D13") || move2 == at("E12")) {
+				successes2++;
+			}
+		}
+		assertTrue(successes2 >= 5);
+	}
+	
+	@Test
+	public void testCoupDeGrace() throws UnknownPropertyException {
+		String[] problem = new String[] {
+				"..O.O.#..#O#######.",// 19
+				".OO.O#####O#######.",// 18
+				"O.O.O#.#.#O########",// 17
+				".OOOO#####O##.###.#",// 16
+				"OOOOOOOO##O#######.",// 15
+				".O.....OOOO####....",// 14
+				".OOOOOOO..O#####.#.",// 13
+				"OO.O..O.OOO##.#.#..",// 12
+				".OOO.O..O.O#.#.#.#.",// 11
+				"..O.OOOOOOO#..##...",// 10
+				".OOOO.O..#O#####.#.",// 9
+				"...O.OO######.#.#..",// 8
+				"OOOO.O.#OOO##....#.",// 7
+				"..O.OO##O########..",// 6
+				"..O.O.#OO#OOOO##.#.",// 5
+				"..O.O.#O.#O.O.O#.#.",// 4
+				".OO.O.#O##OOOOO##..",// 3
+				"O.O.O.#OOO##O######",// 2
+				"..O.O.##O.#.######." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		int successes = 0;
+		int failures = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(BLACK, problem);
+			player.bestMove(); // To generate some playouts
+			player.setCleanUpMode(true);
+			int move = player.bestMove();
+			if (move == at("J4")) {
+				successes++;
+			} else if (move == at("K1")) {
+				failures ++;
+			}
+		}
+		assertEquals(0, failures);
+		assertTrue(successes >= 5);
+	}
+
+	@Test
+	public void testDoNotCoupDeGraceTooEarly() throws UnknownPropertyException {
+		String[] problem = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...#...........#...",// 17
+				"...................",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...................",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...#...........#...",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		int successes = 0;
+		int failures = 0;
+		for (int i = 0; i < 10; i++) {
+			player.reset();
+			player.setUpProblem(WHITE, problem);
+			player.acceptMove(at("a1"));
+			player.bestMove(); // To generate some playouts
+			int move = player.bestMove();
+			if (move == at("a2") || move == at("b1")) {
+				failures++;
+			} else {
+				successes++;
+			}
+		}
+		assertTrue(failures == 0);
+		assertTrue(successes >= 5);
 	}
 
 	@Test
@@ -249,7 +411,7 @@ public class MctsPlayerTest {
 		for (int i = 0; i < runs; i++) {
 			runnable.performMcRun();
 		}
-		assertEquals(runs + (2 * BOARD_AREA + 10), player.getRoot()
+		assertEquals(runs + (2 * getBoardArea() + 10), player.getRoot()
 				.getTotalRuns());
 	}
 
@@ -283,7 +445,8 @@ public class MctsPlayerTest {
 
 	@Test
 	public void testPassInSeki() {
-			String[] problem = { "#.#########OOOOOOOO",// 19
+			String[] problem = {
+					"#.#########OOOOOOOO",// 19
 					".##########OOOOOOO.",// 18
 					"###########OOOOOOOO",// 17
 					"###########OOOOOOO.",// 16
@@ -313,7 +476,7 @@ public class MctsPlayerTest {
 	public void testReclaimOldNodes() {
 		SearchNode node = player.getTable().findIfPresent(0L);
 		node.incrementTotalRuns();
-		assertEquals(BOARD_AREA * 2 + 10 + 1, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 10 + 1, node.getTotalRuns());
 		player.acceptMove(at("a1"));
 		long hash = indexOfBoard(player.getBoard());
 		player.acceptMove(at("a2"));
@@ -444,7 +607,8 @@ public class MctsPlayerTest {
 	@Test
 	public void testSecondPassWouldLoseGame() {
 		String[] problem;
-			problem = new String[] { "OOOOOOOOOOOOOOOOOOO",// 19
+			problem = new String[] {
+					"OOOOOOOOOOOOOOOOOOO",// 19
 					"O..OOOOOOO#OOOOOOOO",// 18
 					"O...OO############O",// 17
 					"OO.OOOOOOO#OOOOOOOO",// 16
@@ -463,15 +627,46 @@ public class MctsPlayerTest {
 					"#####O#####OO.OOO.O",// 3
 					"#####O#..##OOOOOOOO",// 2
 					"#######..##########" // 1
-			// ABCDEFGHJKLMNOPQRST
+			      // ABCDEFGHJKLMNOPQRST
 			};
 		player.getBoard().setUpProblem(WHITE, problem);
 		player.acceptMove(PASS);
-		// Black has to kill the top white group to win, but passing
-		// to end the game appears to win
-		player.getRoot().addWins(PASS, 100);
-		// System.out.println(pointToString(player.bestStoredMove()));
-		assertFalse(PASS == player.bestStoredMove());
+		assertFalse(PASS == player.bestMove());
+	}
+	
+	@Test
+	public void testNotPassingWouldLoseGameDueToSeki() {
+		String[] problem;
+			problem = new String[] { 
+					".OOOOOOOOOOOOOOOOOO",// 19
+					"OOOOOOOOOOOOOOOOOOO",// 18
+					"OOOOOOOOOOOOOOOOOOO",// 17
+					"OOOOOOOOOOOOOOOOOOO",// 16
+					"OOOOOOOOOOOOOOOOOOO",// 15
+					"OOOOOOOOOOOOOOOOOOO",// 14
+					"OOOOOOOOOOOOOOOOOOO",// 13
+					"OOOOOOOOOOOOOOOOOOO",// 12
+					"OOOOOOOOOOOOOOOOOOO",// 11
+					"OOOOOOOOO.OOOOOOOOO",// 10
+					"###################",// 9
+					"###################",// 8
+					"###################",// 7
+					"###################",// 6
+					"###################",// 5
+					"###################",// 4
+					"###################",// 3
+					"###################",// 2
+					"##################." // 1
+			// ABCDEFGHJKLMNOPQRST
+			};
+		
+		for (int i = 0; i < 10; i++) {
+			player.setPlayoutLimit(1000);
+			player.reset();
+			player.setUpProblem(WHITE, problem);
+			player.bestMove();
+			assertEquals(PASS,player.bestStoredMove());
+		}
 	}
 
 	@Test
@@ -566,7 +761,8 @@ public class MctsPlayerTest {
 
 	@Test
 	public void testConnect() throws UnknownPropertyException {
-			String[] problem = { "##########OOOOOOOOO",// 19
+			String[] problem = {
+					"##########OOOOOOOOO",// 19
 					"##.#######OOOOOO.OO",// 18
 					"#...######OOOOO...O",// 17
 					"##.#######OOOOOO.OO",// 16
@@ -593,6 +789,71 @@ public class MctsPlayerTest {
 			assertEquals(at("k10"), move);
 	}
 
+	@Test
+	public void testDefendBeforeExecutingDeadStones() throws UnknownPropertyException {
+			String[] problem = {
+					"##########OOOOOOOOO",// 19
+					"#OO.######OOOOO...O",// 18
+					"#OO.######OOOOO...O",// 17
+					"#OO.######OOOOO...O",// 16
+					"##########OOOOOOOOO",// 15
+					"##########OOOOOOOOO",// 14
+					"###.######OOOOOOOOO",// 13
+					"##########OOOOOOOOO",// 12
+					"##########OOOO#####",// 11
+					"OOOOOOOOOOOOOO#####",// 10
+					"OOOOOOOOO##########",// 9
+					"OOOOOOOOO##########",// 8
+					"OOOOOOOOO##########",// 7
+					"OOOOOOOOO##########",// 6
+					"OOO...OOO##########",// 5
+					"OOO...OOO######.###",// 4
+					"OOO...OOO#####...##",// 3
+					"OOOOOOOOO######.###",// 2
+					"OOOOOOOOO##########" // 1
+			      // ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(WHITE, problem);
+			player.acceptMove(PASS);
+			player.setProperty("playouts", "10000");
+			int move = player.bestMove();
+			assertEquals(at("Q3"), move);
+	}
+
+	@Test
+	public void testKillDeadStonesAfterPassWhenSafe() throws UnknownPropertyException {
+			String[] problem = {
+					"##########OOOOOOOOO",// 19
+					"#OO.######OOOOO...O",// 18
+					"#OO.######OOOOO.OOO",// 17
+					"#OO.######OOOOO...O",// 16
+					"##########OOOOOOOOO",// 15
+					"##########OOOOOOOOO",// 14
+					"###.######OOOOOOOOO",// 13
+					"##########OOOOOOOOO",// 12
+					"##########OOOO#####",// 11
+					"OOOOOOOOOOOOOO#####",// 10
+					"OOOOOOOOO##########",// 9
+					"OOOOOOOOO##########",// 8
+					"OOOOOOOOO##########",// 7
+					"OOOOOOOOO##########",// 6
+					"OOO...OOO##########",// 5
+					"OOO.OOOOO######.###",// 4
+					"OOO...OOO#####.#.##",// 3
+					"OOOOOOOOO######.###",// 2
+					"OOOOOOOOO##########" // 1
+			      // ABCDEFGHJKLMNOPQRST
+			};
+			player.setUpProblem(WHITE, problem);
+			player.acceptMove(PASS);
+			player.setProperty("playouts", "10000");
+			int move = player.bestMove();
+//			System.out.println(pointToString(move));
+			IntSet correct = player.getBoard().getLiberties(at("b18"));
+//			assertEquals(at("Q3"), move);
+			assertTrue(correct.contains(move));
+	}
+	
 	@Test
 	public void testSuperko() {
 		String[] problem;
@@ -624,7 +885,7 @@ public class MctsPlayerTest {
 		// Add some wins so the move looks good
 		player.getRoot().addWins(at("d1"), 1000);
 		player.bestMove();
-		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")));
+		assertEquals(Integer.MIN_VALUE, player.getWins(at("d1")), 0.001);
 	}
 
 	@Test
@@ -639,14 +900,14 @@ public class MctsPlayerTest {
 		board.play(at("c5"));
 		long greatGrandchild = indexOfBoard(board);
 		SearchNode node = player.getTable().findIfPresent(greatGrandchild);
-		assertEquals(BOARD_AREA * 2 + 11, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 11, node.getTotalRuns());
 		board.copyDataFrom(player.getBoard()); // Create other child
 		board.play(at("c5"));
 		fakeRun(BLACK, "c5");
 		fakeRun(BLACK, "c5", "c4", "c3", "c6");
 		board.play(at("c4"));
 		fakeRun(BLACK, "c5", "c4", "c3", "c6");
-		assertEquals(BOARD_AREA * 2 + 12, node.getTotalRuns());
+		assertEquals(getBoardArea() * 2 + 12, node.getTotalRuns());
 	}
 
 	@Test
@@ -695,20 +956,20 @@ public class MctsPlayerTest {
 		player.reset();
 		player.acceptMove(at("b1"));
 		SearchNode root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")), 0.001);
+		assertEquals(3, root.getRuns(at("c5")), 0.001);
 		player.acceptMove(at("b2"));
 		player.acceptMove(at("b3"));
 		player.acceptMove(at("b4"));
 		root = player.getRoot();
-		assertEquals(2, root.getWins(at("c5")));
-		assertEquals(3, root.getRuns(at("c5")));
+		assertEquals(2, root.getWins(at("c5")), 0.001);
+		assertEquals(3, root.getRuns(at("c5")), 0.001);
 	}
 
 	@Test
 	public void testResign() {
 		SearchNode root = player.getRoot();
-		for (int p : ALL_POINTS_ON_BOARD) {
+		for (int p : getAllPointsOnBoard()) {
 			root.addLosses(p, 100);
 		}
 		root.addWins(PASS, 1);
@@ -720,7 +981,8 @@ public class MctsPlayerTest {
 	@Test
 	public void testFinalStatusList() {
 		String[] problem;
-			problem = new String[] { "OO....OOOOOOOOOOOOO",// 19
+			problem = new String[] {
+					"OO....OOOOOOOOOOOOO",// 19
 					"OOOOOOOOOOOOOOOOOOO",// 18
 					"OOOOOOOOOOOOOOOOOOO",// 17
 					"OOOOOOOOOOOOOOOOOOO",// 16
@@ -735,19 +997,23 @@ public class MctsPlayerTest {
 					"OOOOOOOOOOOOOOOOOOO",// 7
 					"OOOOOOOOOOOOOOOOOOO",// 6
 					"OOOOOOO############",// 5
-					"OOOOOOO#..#########",// 4
-					"OOOOOOO#..#########",// 3
+					"OOOOOOO#.##########",// 4
+					"OOOOOOO############",// 3
 					"OOOOOOO############",// 2
-					"OOOOOOO############" // 1
-			// ABCDEFGHJKLMNOPQRST
+					"OOOOOOO#########.O." // 1
+			//       ABCDEFGHJKLMNOPQRST
 			};
 			player.getBoard().setUpProblem(BLACK, problem);
 			// We currently don't report points in seki
 			assertEquals("", player.handleCommand("final_status_list",
 					new StringTokenizer("seki")));
+			// Count all stones that might live as alive
 			assertEquals(
-					"A19 B19 G19 H19 J19 K19 L19 M19 N19 O19 P19 Q19 R19 S19 T19 A18 B18 C18 D18 E18 F18 G18 H18 J18 K18 L18 M18 N18 O18 P18 Q18 R18 S18 T18 A17 B17 C17 D17 E17 F17 G17 H17 J17 K17 L17 M17 N17 O17 P17 Q17 R17 S17 T17 A16 B16 C16 D16 E16 F16 G16 H16 J16 K16 L16 M16 N16 O16 P16 Q16 R16 S16 T16 A15 B15 C15 D15 E15 F15 G15 H15 J15 K15 L15 M15 N15 O15 P15 Q15 R15 S15 T15 A14 B14 D14 E14 F14 G14 H14 J14 K14 L14 M14 N14 O14 P14 R14 S14 T14 A13 B13 C13 D13 E13 F13 G13 H13 J13 K13 L13 M13 N13 O13 P13 Q13 R13 S13 T13 A12 B12 C12 D12 E12 F12 G12 H12 J12 K12 L12 M12 N12 O12 P12 Q12 R12 S12 T12 A11 B11 D11 E11 F11 G11 H11 J11 K11 L11 M11 N11 O11 P11 R11 S11 T11 A10 B10 C10 D10 E10 F10 G10 H10 J10 K10 L10 M10 N10 O10 P10 Q10 R10 S10 T10 A9 B9 C9 D9 E9 F9 G9 H9 J9 K9 L9 M9 N9 O9 P9 Q9 R9 S9 T9 A8 B8 C8 D8 E8 F8 G8 H8 J8 K8 L8 M8 N8 O8 P8 Q8 R8 S8 T8 A7 B7 C7 D7 E7 F7 G7 H7 J7 K7 L7 M7 N7 O7 P7 Q7 R7 S7 T7 A6 B6 C6 D6 E6 F6 G6 H6 J6 K6 L6 M6 N6 O6 P6 Q6 R6 S6 T6 A5 B5 C5 D5 E5 F5 G5 A4 B4 C4 D4 E4 F4 G4 A3 B3 C3 D3 E3 F3 G3 A2 B2 C2 D2 E2 F2 G2 A1 B1 C1 D1 E1 F1 G1 ",
+					"A19 B19 G19 H19 J19 K19 L19 M19 N19 O19 P19 Q19 R19 S19 T19 A18 B18 C18 D18 E18 F18 G18 H18 J18 K18 L18 M18 N18 O18 P18 Q18 R18 S18 T18 A17 B17 C17 D17 E17 F17 G17 H17 J17 K17 L17 M17 N17 O17 P17 Q17 R17 S17 T17 A16 B16 C16 D16 E16 F16 G16 H16 J16 K16 L16 M16 N16 O16 P16 Q16 R16 S16 T16 A15 B15 C15 D15 E15 F15 G15 H15 J15 K15 L15 M15 N15 O15 P15 Q15 R15 S15 T15 A14 B14 D14 E14 F14 G14 H14 J14 K14 L14 M14 N14 O14 P14 R14 S14 T14 A13 B13 C13 D13 E13 F13 G13 H13 J13 K13 L13 M13 N13 O13 P13 Q13 R13 S13 T13 A12 B12 C12 D12 E12 F12 G12 H12 J12 K12 L12 M12 N12 O12 P12 Q12 R12 S12 T12 A11 B11 D11 E11 F11 G11 H11 J11 K11 L11 M11 N11 O11 P11 R11 S11 T11 A10 B10 C10 D10 E10 F10 G10 H10 J10 K10 L10 M10 N10 O10 P10 Q10 R10 S10 T10 A9 B9 C9 D9 E9 F9 G9 H9 J9 K9 L9 M9 N9 O9 P9 Q9 R9 S9 T9 A8 B8 C8 D8 E8 F8 G8 H8 J8 K8 L8 M8 N8 O8 P8 Q8 R8 S8 T8 A7 B7 C7 D7 E7 F7 G7 H7 J7 K7 L7 M7 N7 O7 P7 Q7 R7 S7 T7 A6 B6 C6 D6 E6 F6 G6 H6 J6 K6 L6 M6 N6 O6 P6 Q6 R6 S6 T6 A5 B5 C5 D5 E5 F5 G5 H5 J5 K5 L5 M5 N5 O5 P5 Q5 R5 S5 T5 A4 B4 C4 D4 E4 F4 G4 H4 K4 L4 M4 N4 O4 P4 Q4 R4 S4 T4 A3 B3 C3 D3 E3 F3 G3 H3 J3 K3 L3 M3 N3 O3 P3 Q3 R3 S3 T3 A2 B2 C2 D2 E2 F2 G2 H2 J2 K2 L2 M2 N2 O2 P2 Q2 R2 S2 T2 A1 B1 C1 D1 E1 F1 G1 H1 J1 K1 L1 M1 N1 O1 P1 Q1 ",
 					player.finalStatusList("alive"));
+			// Count obviously dead stones as dead
+			assertEquals(
+					"S1 ", player.handleCommand("final_status_list", new StringTokenizer("dead")));
 	}
 
 	@Test
@@ -772,13 +1038,6 @@ public class MctsPlayerTest {
 		runnable.copyDataFrom(player.getBoard());
 		int move = player.selectAndPlayMove(player.getRoot(), runnable);
 		assertEquals(PASS, move);
-	}
-
-	@Test
-	public void testSetPropertyGrace() throws UnknownPropertyException {
-		assertEquals(false, player.isGrace());
-		player.setProperty("grace", "true");
-		assertEquals(true, player.isGrace());
 	}
 
 	@Test

@@ -12,6 +12,13 @@ scripts/cgtc/cgtc-2.0.1/sgf/
 
 bin
 
+# but we want *some* sgf files
+!SgfTestFiles/9/*
+!SgfTestFiles/19/*
+!testFiles/*
+
+# we don't want machine specific paths
+user.properties
 
 ## generic files to ignore
 *~

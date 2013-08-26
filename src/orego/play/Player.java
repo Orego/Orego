@@ -2,11 +2,11 @@ package orego.play;
 
 import static orego.core.Board.PLAY_OK;
 import static orego.core.Colors.VACANT;
-import static orego.core.Coordinates.BOARD_WIDTH;
-import static orego.core.Coordinates.FIRST_POINT_BEYOND_BOARD;
 import static orego.core.Coordinates.NO_POINT;
 import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.at;
+import static orego.core.Coordinates.getBoardWidth;
+import static orego.core.Coordinates.getFirstPointBeyondBoard;
 import static orego.core.Coordinates.pointToString;
 
 import java.io.BufferedReader;
@@ -21,6 +21,7 @@ import orego.book.OpeningBook;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
 import orego.heuristic.HeuristicList;
+import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
@@ -30,9 +31,23 @@ import ec.util.MersenneTwisterFast;
 
 /** Chooses moves to play. The default implementation is a pure random player. */
 public class Player implements Playable {
-
+	
 	/** The Board this player plays on. */
 	private Board board;
+
+	/** If true, this player should prefer moves that kill dead stones (for kgs-genmove_cleanup). */
+	private boolean cleanUpMode;
+	
+	/**
+	 * Returns whether the player is in cleanup mode (for kgs-genmove_cleanup).
+	 */
+	public boolean isCleanUpMode() {
+		return cleanUpMode;
+	}
+
+	public void setCleanUpMode(boolean cleanupMode) {
+		this.cleanUpMode = cleanupMode;
+	}
 
 	/** Used to generate moves in bestMove(). */
 	private HeuristicList heuristics;
@@ -42,6 +57,9 @@ public class Player implements Playable {
 
 	/** Random number generator. */
 	private MersenneTwisterFast random;
+	
+	/** Is the player still in the opening? Will be set to true to check opening book. */
+	private boolean inOpeningBook;
 
 	/** A default player with a random policy. */
 	public Player() {
@@ -81,7 +99,7 @@ public class Player implements Playable {
 	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
 		return heuristics.selectAndPlayOneMove(random, board);
 	}
-
+	
 	public int bestMove() {
 		int move;
 		if (getOpeningBook() != null) { // play from opening book
@@ -99,8 +117,16 @@ public class Player implements Playable {
 		}
 		return PASS;
 	}
+	
+	public int bestMove(boolean x) { // TODO there's probably a better way to do this
+		return bestMove();
+	}
 
-	public int finalScore() {
+	public void endGame() {
+		// Do nothing special
+	}
+
+	public double finalScore() {
 		return board.finalScore();
 	}
 
@@ -153,7 +179,7 @@ public class Player implements Playable {
 	public OpeningBook getOpeningBook() {
 		return openingBook;
 	}
-
+	
 	/** Returns the current turn number. */
 	public int getTurn() {
 		return board.getTurn();
@@ -174,9 +200,17 @@ public class Player implements Playable {
 		}
 		return null;
 	}
+	
+
+	/** Returns if the player is using an opening book. */
+	public boolean isInOpeningBook() {
+		return inOpeningBook;
+	}
 
 	@Override
 	public void reset() {
+		cleanUpMode = false;
+		inOpeningBook = true;
 		if (board == null) {
 			board = new Board();
 		} else { // The new board must have the same komi as the old one
@@ -190,9 +224,15 @@ public class Player implements Playable {
 	}
 	
 	protected void clearBoardWhilePreservingKomi() {
+		IntSet blackStones = new IntSet(getFirstPointBeyondBoard());
+		blackStones.addAll(board.getInitialBlackStones());
+		IntSet whiteStones = new IntSet(getFirstPointBeyondBoard());
+		whiteStones.addAll(board.getInitialWhiteStones());
 		double komi = board.getKomi();
 		board.clear();
 		board.setKomi(komi);
+		board.setAndPlaceInitialBlackStones(blackStones);
+		board.setAndPlaceInitialWhiteStones(whiteStones);
 	}
 
 	protected void setBoard(Board board) {
@@ -207,6 +247,11 @@ public class Player implements Playable {
 	/** Sets the heuristics. */
 	public void setHeuristics(HeuristicList list) {
 		this.heuristics = list;
+	}
+	
+	/** Sets whether or not this player is using its opening book. */
+	public void setInOpeningBook(boolean b) {
+		inOpeningBook = b;
 	}
 
 	/** Sets the komi or handicap for the current game. */
@@ -233,14 +278,15 @@ public class Player implements Playable {
 				openingBook = (OpeningBook) Class.forName(genClass)
 						.newInstance();
 				orego.experiment.Debug.debug("Opening book: " + openingBook);
+				inOpeningBook = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
-		} else {
+		}
+
+		else {
 			getHeuristics().setProperty(property, value); // toss off to the heuristics list
-			// remove any heuristics which now have a weight of zero
-			getHeuristics().removeZeroWeightedHeuristics();
 		}
 	}
 
@@ -257,66 +303,10 @@ public class Player implements Playable {
 	}
 
 	public void setUpSgf(String filepath, int colorToPlay) {
+		System.err.println("filepath: "+filepath+" colorToPlay:"+colorToPlay);
 		reset();
+		setBoard(SgfParser.sgfToBoard(filepath));
 		board.setColorToPlay(colorToPlay);
-		try {
-			File file = new File(filepath);
-			BufferedReader bf = new BufferedReader(new FileReader(file));
-			String input = "";
-			String current = "";
-			char[][] ourBoard = new char[BOARD_WIDTH][BOARD_WIDTH];
-			for (int i = 0; i < BOARD_WIDTH; i++) {
-				for (int j = 0; j < BOARD_WIDTH; j++) {
-					ourBoard[i][j] = '.';
-				}
-			}
-			while ((current = bf.readLine()) != null) {
-				input += current;
-			}
-			StringTokenizer stoken = new StringTokenizer(input, ";");
-			stoken.nextToken();
-			stoken.nextToken();
-			String boardSetup = stoken.nextToken();
-			stoken = new StringTokenizer(boardSetup, "[]()");
-			int state = 0;
-			String currentToken = "";
-			while (stoken.hasMoreTokens()) {
-				currentToken = stoken.nextToken();
-				assert currentToken.length() == 2;
-				if (currentToken.equals("AB")) {
-					// Add black stones (handicap)
-					state = 0;
-				} else if (currentToken.equals("AW")) {
-					// Add white stones
-					state = 1;
-				} else if (Character.isUpperCase(currentToken.charAt(0))) {
-					// Other special SGF codes; ignore
-					state = 2;
-				} else if (state == 0) {
-					if (currentToken.length() == 2) {
-						int row = currentToken.charAt(1) - 'a';
-						int col = currentToken.charAt(0) - 'a';
-						ourBoard[row][col] = '#';
-						// place black stone here.
-					}
-				} else if (state == 1) {
-					if (currentToken.length() == 2) {
-						int row = currentToken.charAt(1) - 'a';
-						int col = currentToken.charAt(0) - 'a';
-						ourBoard[row][col] = 'O';
-						// place white stone here.
-					}
-				}
-			}
-			String[] arrayOfStrings = new String[BOARD_WIDTH];
-			for (int i = 0; i < arrayOfStrings.length; i++) {
-				arrayOfStrings[i] = new String(ourBoard[i]);
-			}
-			getBoard().setUpProblem(colorToPlay, arrayOfStrings);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
 	}
 
 	@Override
@@ -328,9 +318,6 @@ public class Player implements Playable {
 	public boolean undo() {
 		if (getTurn() == 0) { // Beginning of game, can't undo
 			return false;
-		} else if (getTurn() == 1) { // Don't want to replay any moves
-			clearBoardWhilePreservingKomi();
-			return true;
 		}
 		int[] moves = new int[getTurn() - 1];
 		for (int t = 0; t < getTurn() - 1; t++) {
@@ -339,6 +326,9 @@ public class Player implements Playable {
 		clearBoardWhilePreservingKomi();
 		for (int p : moves) {
 			board.play(p);
+		}
+		if(openingBook != null) {			
+			inOpeningBook = true;
 		}
 		return true;
 	}
