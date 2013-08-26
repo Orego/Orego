@@ -2,7 +2,6 @@ package orego.experiment;
 
 import java.io.*;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import static orego.core.Colors.*;
 import static orego.core.Coordinates.*;
@@ -43,7 +42,6 @@ public class Game {
 	/** The board on which this game is played. */
 	private Board board;
 
-
 	/** Shell commands to start the two contestants. */
 	private String[] contestants;
 
@@ -58,7 +56,6 @@ public class Game {
 
 	/** Prints to the two program processes. */
 	public PrintWriter[] toPrograms;
-
 
 	/** Number of the winning player (BLACK or WHITE). */
 	private int winner;
@@ -81,7 +78,7 @@ public class Game {
 	 * @param white
 	 *            shell command to start white player
 	 */
-	public Game(String sgfLogFilename, String black, String white) {
+	public Game(String filename, String black, String white) {
 		try {
 			this.filename = filename;
 			out = new PrintWriter(filename);
@@ -90,28 +87,26 @@ public class Game {
 			out.println("(;FF[4]CA[UTF-8]AP[Orego"+Orego.VERSION_STRING+"]KM[7.5]GM[1]SZ["+getBoardWidth()+"]");
 			out.println("PB["+black+"]");
 			out.println("PW["+white+"]");
-
 			if (black.contains("Orego")) {
 				oregoColor = orego.core.Colors.BLACK;
 			} else {
 				oregoColor = orego.core.Colors.WHITE;
 			}
-			
-			sgfGameLogBetweenPlayers.flush();
+			out.flush();
 			starttime = System.currentTimeMillis();
 		} catch (Throwable e) {
-			sgfGameLogBetweenPlayers.println("In " + sgfLogFilename + ":");
-			sgfGameLogBetweenPlayers.println(board);
-			e.printStackTrace(sgfGameLogBetweenPlayers);
-			sgfGameLogBetweenPlayers.flush();
-			sgfGameLogBetweenPlayers.close();
+			out.println("In " + filename + ":");
+			out.println(board);
+			e.printStackTrace(out);
+			out.flush();
+			out.close();
 			System.exit(1);
 		}
 
 	}
 
 	/**
-	 * Sends the quit command to both playersShellCommands, so that the processes will
+	 * Sends the quit command to both contestants, so that the processes will
 	 * end.
 	 */
 	protected void endPrograms() {
@@ -123,8 +118,8 @@ public class Game {
 		out.flush();
 		mode = QUITTING;
 		for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
-			playerProgramsSTDIN[color].println("quit");
-			playerProgramsSTDIN[color].flush();
+			toPrograms[color].println("quit");
+			toPrograms[color].flush();
 		}
 	}
 
@@ -145,7 +140,6 @@ public class Game {
 			endPrograms();
 			return;
 		}
-		
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// accumulate the time the player spent their total
@@ -170,7 +164,6 @@ public class Game {
 				// end sgf output
 				if (coordinates.toLowerCase().equals("resign")) {
 					winner = opposite(getColorToPlay());
-
 					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+R]");
 					out.flush();
 					out.println(";C[moves:" + board.getTurn() + "]");
@@ -229,17 +222,12 @@ public class Game {
 				out.println(board);
 				out.println("Got something other than an acknowledgment: "
 						+ line);
-
 				endPrograms();
 				while (s.hasNextLine()) {
-					sgfGameLogBetweenPlayers.println(s.nextLine());
+					out.println(s.nextLine());
 				}
-				sgfGameLogBetweenPlayers.flush();
-
-				// Forcibly kill processes if they are still alive
-				for(Process p : programs) {
-					p.destroy();
-				}
+				out.flush();
+				System.exit(1);
 			}
 		}
 	}
@@ -253,31 +241,19 @@ public class Game {
 	public int play() {
 		try {
 			winner = -1;
-			
-			programs = new Process[NUMBER_OF_PLAYER_COLORS];
-			
-			playerProgramsSTDIN = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
-			
+			Process[] programs = new Process[NUMBER_OF_PLAYER_COLORS];
+			toPrograms = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				ProcessBuilder builder = new ProcessBuilder("nohup", "bash",
 						"-c", contestants[color], "&");
-				
 				builder.redirectErrorStream(true);
-				
 				programs[color] = builder.start();
-
 				toPrograms[color] = new PrintWriter(
 						programs[color].getOutputStream());
-
 				new Thread(new PlayerListener(color,
 						programs[color].getInputStream(), this)).start();
 			}
-			
-			// Before starting the game, wait 5s for Orego to establish networking
-			Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-			
 			board = new Board();
-			
 			// start by telling the first player how much time they have left,
 			// which gets the game started (see the handleResponse() method).
 			if (GAME_TIME_IN_SECONDS > 0) {
@@ -298,32 +274,25 @@ public class Game {
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				programs[color].waitFor();
 			}
-
 			if (!crashed) {
 				if (winner == -1) { // Game not already resolved by resignation
 					winner = board.finalWinner();
 				}
 			}
-			
 			for (int c = BLACK; c < NUMBER_OF_PLAYER_COLORS; c++) {
-				playerProgramsSTDIN[c].close();
+				toPrograms[c].close();
 				programs[c].getInputStream().close();
 				programs[c].getOutputStream().close();
 				programs[c].getErrorStream().close();
 				programs[c].destroy();
 			}
-			
-			sgfGameLogBetweenPlayers.close();
+			out.close();
 		} catch (Throwable e) {
-			
-			sgfGameLogBetweenPlayers.println("In " + sgfGameLogBetweenPlayersFilename + ":");
-			sgfGameLogBetweenPlayers.println(board);
-			
-			e.printStackTrace(sgfGameLogBetweenPlayers);
-			
-			sgfGameLogBetweenPlayers.flush();
-			sgfGameLogBetweenPlayers.close();
-			
+			out.println("In " + filename + ":");
+			out.println(board);
+			e.printStackTrace(out);
+			out.flush();
+			out.close();
 			System.exit(1);
 		}
 		return winner;
