@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -51,7 +52,7 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 	
 	private List<TreeSearcher> remoteSearchers;
 	
-	private Map<String, String> remoteProperties;
+	private ConcurrentHashMap<String, String> remoteProperties;
 	
 	private PrintWriter logWriter;
 	
@@ -105,7 +106,10 @@ public class ClusterPlayer extends Player implements SearchController, Statistic
 		// we need a copy on write array list to avoid concurrent modification exceptions.
 		// the number of searchers is small enough that this is fine.
 		remoteSearchers = new CopyOnWriteArrayList<TreeSearcher>();
-		remoteProperties = new HashMap<String, String>();
+		
+		// TODO: too lazy to change threading parameters but might be too much overhead later.
+		// see http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
+		remoteProperties = new ConcurrentHashMap<String, String>();
 		
 		// Set up the PrintWriter that will be used for error messages
 		setLogWriter(new PrintWriter(System.err, true)); 

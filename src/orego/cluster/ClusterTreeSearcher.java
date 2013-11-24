@@ -117,7 +117,7 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		// we boot ourselves up and connect to the friendly neighborhood server
 		// Do we need the permissions?
 		// we do not need to publish any classes, so pass null for the first argument to configureRmi
-		RMIStartup.configureRmi(null, RMIStartup.SECURITY_POLICY_FILE);
+		RMIStartup.configureRmi(ClusterTreeSearcher.class, RMIStartup.SECURITY_POLICY_FILE);
 		
 		// this call does not actually try to connect; RMI only connects
 		// when we call .lookup()
@@ -125,7 +125,6 @@ public class ClusterTreeSearcher extends UnicastRemoteObject implements TreeSear
 		
 		if (reg == null)
 			throw new RemoteException();
-		
 		
 		SearchController controller = tryToConnectToController(reg, controllerIndex, MAX_WAIT);
 				

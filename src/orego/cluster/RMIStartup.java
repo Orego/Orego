@@ -34,6 +34,7 @@ public class RMIStartup {
 	 * sets security policy from the given file.
 	 */
 	public static void configureRmi(Class<?> classToServe, String policyFileName) {
+		
 		// Tell RMI where to find the class files
 		if(classToServe != null) {
 			System.setProperty("java.rmi.server.codebase", 
@@ -41,26 +42,31 @@ public class RMIStartup {
 		}
 		
 		// Configure the security policy
-		System.setProperty("java.security.policy", getLocationOfPolicyFile(policyFileName));
+		System.setProperty("java.security.policy", getLocationOfPolicyFile(policyFileName, classToServe));
 		
 		if(System.getSecurityManager() == null) {
 			System.setSecurityManager(new SecurityManager());
 		}
 	}
 	
+	/** Constructs the appropriate policy file*/
+	private static String generatePolicyFile(Class<?> classToServe) {
+		return String.format(
+				"grant codeBase \"%s\" {\n" + 
+				"    permission java.security.AllPermission;\n" + 
+				"};", classToServe.getProtectionDomain().getCodeSource().getLocation().toString());
+	}
 	/** Copies the security policy file from the jar
 	 *  into a temporary directory and returns the location of the copy. 
 	 */
-    private static String getLocationOfPolicyFile(String policyFileName) {
+    private static String getLocationOfPolicyFile(String policyFileName, Class<?> classToServe) {
         try {
             File tempFile = File.createTempFile("rmi-base", ".policy");
-            InputStream is = RMIStartup.class.getResourceAsStream(policyFileName);
             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-            int read = 0;
-            while((read = is.read()) != -1) {
-                writer.write(read);
-            }
+            writer.write(generatePolicyFile(classToServe));
+            writer.flush();
             writer.close();
+            
             tempFile.deleteOnExit();
             return tempFile.getAbsolutePath();
         }
