@@ -67,8 +67,11 @@ public class ClusterOrego {
 
 		for (String remoteHost : HOSTS) {
 
-			String java_command = JAVA_WITH_OREGO_CLASSPATH + " -Xmx2048M orego.cluster.ClusterTreeSearcher " + localhost + " -1 " + "&> " +
-					outputDirectory  + remoteHost + ".log";
+			String java_command = String.format("%s -Xmx2048M orego.cluster.ClusterTreeSearcher -1 %s &> %s%s.log", 
+								JAVA_WITH_OREGO_CLASSPATH, 
+								localhost, 
+								outputDirectory, 
+								remoteHost);
 
 			ProcessBuilder pBuilder = new ProcessBuilder("nohup", "ssh", remoteHost, java_command, "&");
 

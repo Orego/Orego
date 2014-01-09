@@ -41,7 +41,7 @@ public class GameBatch implements Runnable {
 		GameBatch.launchGameBatches(args[0]);
 	}
 
-	/** Launches more copies of ourselves to run the games*/
+	/** Launches more copies of ourself to run the games*/
 	public static void launchGameBatches(String hostname) {
 		AtomicInteger batchesRemaining = new AtomicInteger();
 		batchesRemaining.set(GAMES_PER_HOST);
