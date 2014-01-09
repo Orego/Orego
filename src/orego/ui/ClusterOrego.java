@@ -10,6 +10,8 @@ import java.util.List;
 
 public class ClusterOrego {
 	
+	private final static int DEFAULT_PLAYER_INDEX = 1;
+	
 	public static void main(String[] args) throws IOException {
 		List<String> modifiedArgs = new ArrayList<String>();
 		
@@ -50,7 +52,7 @@ public class ClusterOrego {
 		
 		modifiedArgs.add("player=" + player);
 		modifiedArgs.add("cluster_player_log=" + new File(output, "player.log").getPath());
-		
+		modifiedArgs.add("cluster_player_index=" + DEFAULT_PLAYER_INDEX);
 		List<Process> searchers = spinUpRemoteSearchers(localhost, output);
 		
 		String[] oregoArgs = new String[modifiedArgs.size()];
@@ -67,8 +69,9 @@ public class ClusterOrego {
 
 		for (String remoteHost : HOSTS) {
 
-			String java_command = String.format("%s -Xmx2048M orego.cluster.ClusterTreeSearcher -1 %s &> %s%s.log", 
+			String java_command = String.format("%s -Xmx2048M orego.cluster.ClusterTreeSearcher %d %s &> %s%s.log", 
 								JAVA_WITH_OREGO_CLASSPATH, 
+								DEFAULT_PLAYER_INDEX,
 								localhost, 
 								outputDirectory, 
 								remoteHost);
