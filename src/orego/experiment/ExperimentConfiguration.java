@@ -79,7 +79,8 @@ public class ExperimentConfiguration {
 
 	
 	static {
-		assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
+		// TODO: re-enable this when running experiments
+		//assert 2 * HOSTS.length * GAMES_PER_HOST * GAMES_PER_COLOR == GAMES_PER_CONDITION : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
 	}
 
 	/**
