@@ -105,14 +105,14 @@ public class CoordinatesTest {
 		assertEquals(7, manhattanDistance(at("c4"), at("f8")));
 	}
 	
-	/** THis test will throw an IndexOutOfBounds exception, and therefore fail, 
-	 * on the attempt to set BOARD_WIDTH to 8. This means setBoardWidth is working correctly.
-	 * 
-	 */
-	@Test(expected=IndexOutOfBoundsException.class)
-	public void testSetBoardWidthFailure() throws IndexOutOfBoundsException{
-		setBoardWidth(-8);
-	}
+//	/** THis test will throw an IndexOutOfBounds exception, and therefore fail, 
+//	 * on the attempt to set BOARD_WIDTH to 8. This means setBoardWidth is working correctly.
+//	 * 
+//	 */
+//	@Test(expected=IndexOutOfBoundsException.class)
+//	public void testSetBoardWidthFailure() throws IndexOutOfBoundsException{
+//		setBoardWidth(-8);
+//	}
 	
 	@Test
 	public void testSetBoardWidth() {
