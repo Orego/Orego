@@ -57,4 +57,11 @@ public class RaveNodeTest {
 		assertEquals(3, node.getRaveRuns(at("a2")), 0.001);
 		assertEquals(1.5, node.getRaveWins(at("a2")), 0.001);
 	}
+	
+	@Test
+	public void testToString() {
+		node.recordPlayout((float) 0.5, new int[] {at("a1"), at("b2"), at("a2")}, 0, 3, new IntSet(getFirstPointBeyondBoard()));
+		node.toString();
+		// The toString() function should not crash. (previous versions had it crash due to format not working right)
+	}
 }

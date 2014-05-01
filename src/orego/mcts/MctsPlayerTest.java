@@ -182,7 +182,7 @@ public class MctsPlayerTest {
 				failures ++;
 			}
 		}
-		assertTrue(failures == 0);
+		assertEquals(0, failures);
 		assertTrue(successes >= 5);
 	}
 

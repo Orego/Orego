@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import orego.core.Board;
 import orego.patterns.RatedPattern;
+import orego.sgf.SgfParser;
 import orego.util.BitVector;
 import static orego.patterns.Pattern.*;
 import static orego.core.Board.*;
@@ -100,34 +101,14 @@ public class PatternCounter5 {
 		}
 	}
 	
-	public Board sgfToGame(File file) throws Exception {
+	public Board sgfToGame(File file) {
 		System.out.println("Starting file "+file.getName());
-		Board board = new Board();
-		String input = "";
-		Scanner s = new Scanner(file);
-		while (s.hasNextLine()) {
-			input += s.nextLine();
+		Board board = SgfParser.sgfToBoard(file);
+		if((board.getInitialBlackStones().size() != 0) 
+				|| (board.getInitialWhiteStones().size() != 0)) {
+			// Handicap Game; ignore it.
+			return null;
 		}
-		input = input.replace("W[]", "W[tt]");
-		input = input.replace("B[]", "B[tt]");
-		StringTokenizer stoken = new StringTokenizer(input, "()[];");
-		while (stoken.hasMoreTokens()) {
-			String token = stoken.nextToken();
-			if (token.equals("AB")) {
-				s.close();
-				return null; // Handicap game; ignore
-			}
-			if (token.equals("W") || token.equals("B")) {
-				token = stoken.nextToken();
-				if (token.equals("tt")) {
-					board.play(PASS);
-				} else {
-					int legality = board.play(sgfToPoint(token));
-					assert legality == PLAY_OK;
-				}
-			}
-		}
-		s.close();
 		System.out.println("Finished file "+file.getName());
 		return board;
 	}

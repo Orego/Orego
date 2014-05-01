@@ -984,6 +984,12 @@ public class Board {
 		}
 		// Hooray, it's legal!
 		finalizePlay(color, p);
+		// Add this stone to the initial stones IntSet
+		if(color == BLACK) {
+			initialBlackStones.add(p);
+		} else {
+			initialWhiteStones.add(p);
+		}
 		// The hash to store for superko checking does not include the simple ko
 		// point
 		long hashToStore = hash ^ ZOBRIST_HASHES[VACANT][koPoint];
@@ -1142,14 +1148,15 @@ public class Board {
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10" },
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K10" },
 				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16" },
-				{ "D4", "Q16", "D16", "Q4", ",D10", "Q10", "K4", "K16", "K10" } };
+				{ "D4", "Q16", "D16", "Q4", "D10", "Q10", "K4", "K16", "K10" } };
 		for (int i = 0; i < handicapSize - 1; i++) {
 			placeInitialStone(BLACK, handicaps[handicapSize - 2][i]);
 		}
-		placeInitialStone(BLACK, handicaps[handicapSize - 2][handicapSize - 1]);	
+		placeInitialStone(BLACK, handicaps[handicapSize - 2][handicapSize-1]);
 		if(handicapSize > 0){
 			komi = 0;
 		}
+		setColorToPlay(WHITE);
 	}
 	
 	/** Sets the komi. */
@@ -1185,24 +1192,15 @@ public class Board {
 		assert diagram.length == getBoardWidth();
 		assert diagram[0].length() == getBoardWidth();
 		clear();
-		IntSet blackStones = new IntSet(getFirstPointBeyondBoard());
-		IntSet whiteStones = new IntSet(getFirstPointBeyondBoard());
 		for (int r = 0; r < getBoardWidth(); r++) {
 			for (int c = 0; c < getBoardWidth(); c++) {
 				int color = charToColor(diagram[r].charAt(c));
 				if (isAPlayerColor(color)) {
 					int p = at(r, c);
 					placeInitialStone(color, p);
-					if(color == WHITE) {
-						whiteStones.add(p);
-					} else {
-						blackStones.add(p);
-					}
 				}
 			}
 		}
-		setAndPlaceInitialBlackStones(blackStones);
-		setAndPlaceInitialWhiteStones(whiteStones);
 		this.colorToPlay = colorToPlay;
 	}
 

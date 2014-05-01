@@ -179,14 +179,6 @@ public class Game {
 					return;
 				}
 				board.play(at(coordinates));
-				mode = SENDING_MOVE;
-				// Note the color reversal here, because the color to play has
-				// already been switched
-				toPrograms[getColorToPlay()]
-				.println(COLOR_NAMES[opposite(getColorToPlay())]
-						 + " " + coordinates);
-				toPrograms[getColorToPlay()].flush();
-			} else if (mode == SENDING_MOVE) {
 				if (board.getPasses() == 2) {
 					out.println(";RE["
 							+ (board.finalWinner() == BLACK ? "B" : "W") + "+"
@@ -197,16 +189,27 @@ public class Game {
 					toPrograms[oregoColor].println("playout_count");
 					toPrograms[oregoColor].flush();
 					return;
+				}
+				if (GAME_TIME_IN_SECONDS > 0) {
+					mode = SENDING_MOVE;
 				} else {
 					mode = SENDING_TIME_LEFT;
-					// tell the player how much time they have left in the game
-					int timeLeftInSeconds = GAME_TIME_IN_SECONDS
-							- timeUsedInMilliseconds[getColorToPlay()] / 1000;
-					toPrograms[getColorToPlay()].println("time_left "
-							+ COLOR_NAMES[getColorToPlay()] + " "
-							+ timeLeftInSeconds + " 0");
-					toPrograms[getColorToPlay()].flush();
 				}
+				// Note the color reversal here, because the color to play has
+				// already been switched
+				toPrograms[getColorToPlay()]
+				.println(COLOR_NAMES[opposite(getColorToPlay())]
+						 + " " + coordinates);
+				toPrograms[getColorToPlay()].flush();
+			} else if (mode == SENDING_MOVE) {
+				mode = SENDING_TIME_LEFT;
+				// tell the player how much time they have left in the game
+				int timeLeftInSeconds = GAME_TIME_IN_SECONDS
+						- timeUsedInMilliseconds[getColorToPlay()] / 1000;
+				toPrograms[getColorToPlay()].println("time_left "
+						+ COLOR_NAMES[getColorToPlay()] + " "
+						+ timeLeftInSeconds + " 0");
+				toPrograms[getColorToPlay()].flush();
 			} else if (mode == SENDING_TIME_LEFT) {
 				// ignore the player's response to the time_left command.
 				// request a move.
@@ -259,12 +262,20 @@ public class Game {
 			board = new Board();
 			// start by telling the first player how much time they have left,
 			// which gets the game started (see the handleResponse() method).
-			mode = SENDING_TIME_LEFT;
-			int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInMilliseconds[getColorToPlay()] / 1000;
-			toPrograms[getColorToPlay()].println("time_left "
-					+ COLOR_NAMES[getColorToPlay()] + " "
-					+ timeLeftInSeconds + " 0");
-			toPrograms[getColorToPlay()].flush();
+			if (GAME_TIME_IN_SECONDS > 0) {
+				mode = SENDING_TIME_LEFT;
+				int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsedInMilliseconds[getColorToPlay()] / 1000;
+				toPrograms[getColorToPlay()].println("time_left "
+						+ COLOR_NAMES[getColorToPlay()] + " "
+						+ timeLeftInSeconds + " 0");
+				toPrograms[getColorToPlay()].flush();
+			} else {
+				mode = REQUESTING_MOVE;
+				toPrograms[getColorToPlay()].println("genmove "
+						+ COLOR_NAMES[getColorToPlay()]);
+				toPrograms[getColorToPlay()].flush();
+				timeLastMoveWasRequested = System.currentTimeMillis();
+			}
 			// Wait for programs to finish
 			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
 				programs[color].waitFor();

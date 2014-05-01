@@ -101,16 +101,6 @@ public class CoordinatesTest {
 	}
 	
 	@Test
-	public void testSgfToPoint() {
-		// Test conversion of sgf (and human-readable strings) to ints
-		assertEquals(at("e15"), sgfToPoint("ee"));
-		assertEquals(at("t1"), sgfToPoint("ss"));
-		assertEquals(at("a19"), sgfToPoint("aa"));
-		assertEquals(at("t19"), sgfToPoint("sa"));
-		assertEquals(at("a1"), sgfToPoint("as"));
-	}
-	
-	@Test
 	public void testManhattanDistance() {
 		assertEquals(7, manhattanDistance(at("c4"), at("f8")));
 	}

@@ -273,7 +273,9 @@ public class Orego {
 				color = (command.equals("genmove_black") ? BLACK : WHITE);
 			}
 			//this assertion to fails when running with CGTC, so skip it if command line option set to true
-			if(!cgtc){
+			if(cgtc){
+				player.getBoard().setColorToPlay(color);
+			} else {
 				assert color == player.getBoard().getColorToPlay();
 			}
 			if (command.equals("kgs-genmove_cleanup")) {
@@ -515,6 +517,9 @@ public class Orego {
 		try {
 			for (int i = 0; i < properties.size(); i++) {
 				player.setProperty(properties.get(i), values.get(i));
+				if (properties.get(i).equals("heuristics")) {
+					heuristicsSet = true;
+				}
 			}
 			// If the heuristics weren't set, use default values
 			if (!heuristicsSet) {

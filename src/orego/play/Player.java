@@ -21,6 +21,7 @@ import orego.book.OpeningBook;
 import orego.core.Board;
 import orego.heuristic.Heuristic;
 import orego.heuristic.HeuristicList;
+import orego.sgf.SgfParser;
 import orego.util.IntSet;
 import ec.util.MersenneTwisterFast;
 
@@ -298,69 +299,8 @@ public class Player implements Playable {
 	public void setUpSgf(String filepath, int colorToPlay) {
 		System.err.println("filepath: "+filepath+" colorToPlay:"+colorToPlay);
 		reset();
+		setBoard(SgfParser.sgfToBoard(filepath));
 		board.setColorToPlay(colorToPlay);
-		try {
-			File file = new File(filepath);
-			BufferedReader bf = new BufferedReader(new FileReader(file));
-			String input = "";
-			String current = "";
-			char[][] ourBoard = new char[getBoardWidth()][getBoardWidth()];
-			for (int i = 0; i < getBoardWidth(); i++) {
-				for (int j = 0; j < getBoardWidth(); j++) {
-					ourBoard[i][j] = '.';
-				}
-			}
-			while ((current = bf.readLine()) != null) {
-				input += current;
-			}
-			bf.close();
-			StringTokenizer stoken = new StringTokenizer(input, ";");
-
-				stoken.nextToken();
-				stoken.nextToken();
-
-			String boardSetup = stoken.nextToken();
-			stoken = new StringTokenizer(boardSetup, "[]()");
-			int state = 0;
-			String currentToken = "";
-			while (stoken.hasMoreTokens()) {
-				currentToken = stoken.nextToken();
-				assert currentToken.length() == 2 : "The token " + currentToken + " is not exactly two characters long";
-				if (currentToken.equals("AB")) {
-					// Add black stones (handicap)
-					state = 0;
-				} else if (currentToken.equals("AW")) {
-					// Add white stones
-					state = 1;
-				} else if (Character.isUpperCase(currentToken.charAt(0))) {
-					// Other special SGF codes; ignore
-					state = 2;
-				} else if (state == 0) {
-					if (currentToken.length() == 2) {
-						int row = currentToken.charAt(1) - 'a';
-						int col = currentToken.charAt(0) - 'a';
-						ourBoard[row][col] = '#';
-						// place black stone here.
-					}
-				} else if (state == 1) {
-					if (currentToken.length() == 2) {
-						int row = currentToken.charAt(1) - 'a';
-						int col = currentToken.charAt(0) - 'a';
-						ourBoard[row][col] = 'O';
-						// place white stone here.
-					}
-				}
-			}
-			String[] arrayOfStrings = new String[getBoardWidth()];
-			for (int i = 0; i < arrayOfStrings.length; i++) {
-				arrayOfStrings[i] = new String(ourBoard[i]);
-			}
-			getBoard().setUpProblem(colorToPlay, arrayOfStrings);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
 	}
 
 	@Override

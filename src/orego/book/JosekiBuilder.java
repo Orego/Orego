@@ -5,6 +5,7 @@ import static orego.core.Coordinates.PASS;
 import static orego.core.Coordinates.column;
 import static orego.core.Coordinates.row;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import orego.core.Board;
@@ -53,9 +54,9 @@ public abstract class JosekiBuilder extends BookBuilder {
 		return "RawJoseki";
 	}
 
-	protected void processFile(BufferedReader reader) throws IOException {
+	protected void processFile(File file) throws IOException {
 		Board board = new Board();
-		List<List<Integer>> games = getGames(reader);
+		List<List<Integer>> games = getGames(file);
 		for (List<Integer> moves : games) {
 			// Store moves
 			for (int corner = 0; corner < 4; corner++) {

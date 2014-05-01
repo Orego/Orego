@@ -39,8 +39,8 @@ public class FusekiBookTest {
 		String[] correct;
 			correct = new String[] { "q4", "d16", "c4" };
 		for (String move : correct) {
-			assertEquals(pointToString(at(move)), pointToString(gen.nextMove(board)));
 			int m = gen.nextMove(board);
+			assertEquals(pointToString(at(move)), pointToString(m));
 			board.play(m);
 		}
 	}
