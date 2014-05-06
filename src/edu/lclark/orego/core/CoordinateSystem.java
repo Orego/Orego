@@ -56,7 +56,7 @@ public final class CoordinateSystem {
 	/**
 	 * @see #getAllPointsOnBoard()
 	 */
-	private char[] allPointsOnBoard;
+	private final char[] allPointsOnBoard;
 
 	/**
 	 * @see #getNeighbors(int)
