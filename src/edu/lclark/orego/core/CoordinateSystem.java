@@ -1,24 +1,24 @@
 package edu.lclark.orego.core;
 
 /**
- * Coordinate system to convert between a char and other representations of a
+ * Coordinate system to convert between a short and other representations of a
  * location. There is no public constructor for this class; instead, use the
  * static method widthOf to get the appropriate instance.
  * <p>
- * A point is represented as a single char. This is an index into a
+ * A point is represented as a single short. This is an index into a
  * one-dimensional array representing the board, with a buffer of sentinel
  * points around the edges.
  * <p>
  * The standard idiom for accessing all points on the board is:
  * <pre>
- * for (char p : getAllPointsOnBoard()) {
+ * for (short p : getAllPointsOnBoard()) {
  * 	// Do something with p
  * }
  * </pre>
  * The standard idiom for accessing all neighbors of point p is:
  * <pre>
  * for (int i = 0; i < 4; i++) {
- * 	char n = getNeighbors(p)[i];
+ * 	short n = getNeighbors(p)[i];
  * 	// Do something with n, which might be an off-board point
  * }
  * </pre>
@@ -31,19 +31,19 @@ package edu.lclark.orego.core;
 public final class CoordinateSystem {
 
 	/** Added to a point to find the one to the east. */
-	private static final char EAST = 1;
+	private static final short EAST = 1;
 
 	/** Instances for various board widths. */
 	private static final CoordinateSystem[] instances = new CoordinateSystem[20];
 
 	/** Special value for no point. */
-	public static final char NO_POINT = 0;
+	public static final short NO_POINT = 0;
 
 	/** Special value for passing. */
-	public static final char PASS = 1;
+	public static final short PASS = 1;
 
 	/** Special value for resigning. */
-	public static final char RESIGN = 2;
+	public static final short RESIGN = 2;
 
 	/** Returns the CoordinateSystem for the specified width. */
 	public static CoordinateSystem forWidth(int width) {
@@ -56,15 +56,15 @@ public final class CoordinateSystem {
 	/**
 	 * @see #getAllPointsOnBoard()
 	 */
-	private final char[] allPointsOnBoard;
+	private final short[] allPointsOnBoard;
 
 	/**
 	 * @see #getNeighbors(int)
 	 */
-	private final char[][] neighbors;
+	private final short[][] neighbors;
 
 	/** Added to a point to find the one to the south. */
-	private final char south;
+	private final short south;
 	
 	/** Width of the board. */
 	private final int width;
@@ -72,10 +72,10 @@ public final class CoordinateSystem {
 	/** Other classes should use forWidth to get an instance. */
 	private CoordinateSystem(int width) {
 		this.width = width;
-		south = (char)(width + 1);
+		south = (short)(width + 1);
 		int boardArea = width * width;
 		int extendedBoardArea = (width + 1) * (width + 2) + 1;
-		allPointsOnBoard = new char[boardArea];
+		allPointsOnBoard = new short[boardArea];
 		int i = 0;
 		for (int r = 0; r < width; r++) {
 			for (int c = 0; c < width; c++) {
@@ -83,31 +83,31 @@ public final class CoordinateSystem {
 				i++;
 			}
 		}
-		neighbors = new char[extendedBoardArea][];
-		for (char p : allPointsOnBoard) {
-			neighbors[p] = new char[] {(char)(p - south),
-									(char)(p - EAST),
-									(char)(p + EAST),
-									(char)(p + south),
-									(char)(p - south - EAST),
-									(char)(p - south + EAST),
-									(char)(p + south - EAST),
-									(char)(p + south + EAST)};
+		neighbors = new short[extendedBoardArea][];
+		for (short p : allPointsOnBoard) {
+			neighbors[p] = new short[] {(short)(p - south),
+									(short)(p - EAST),
+									(short)(p + EAST),
+									(short)(p + south),
+									(short)(p - south - EAST),
+									(short)(p - south + EAST),
+									(short)(p + south - EAST),
+									(short)(p + south + EAST)};
 		}
 	}
 	
-	/** Returns the char representation of the point at row r, column c. */
-	public char at(int r, int c) {
+	/** Returns the short representation of the point at row r, column c. */
+	public short at(int r, int c) {
 		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
-		return (char)((r + 1) * south + (c + 1) * EAST);
+		return (short)((r + 1) * south + (c + 1) * EAST);
 	}
 	
 	/**
-	 * Returns the char representation of the point described by label, which
+	 * Returns the short representation of the point described by label, which
 	 * might be something like "A5", "b3", or "PASS".
 	 */
-	public char at(String label) {
+	public short at(String label) {
 		label = label.toUpperCase();
 		if (label.equals("PASS")) {
 			return PASS;
@@ -128,7 +128,7 @@ public final class CoordinateSystem {
 	}
 
 	/** Returns the column of point p. */
-	public int column(char p) {
+	public int column(short p) {
 		return p % south - 1;
 	}
 
@@ -138,7 +138,7 @@ public final class CoordinateSystem {
 	}
 
 	/** Returns an array of all the points on the board, for iterating through. */
-	public char[] getAllPointsOnBoard() {
+	public short[] getAllPointsOnBoard() {
 		return allPointsOnBoard;
 	}
 
@@ -156,17 +156,17 @@ public final class CoordinateSystem {
 	 * 637
 	 * </pre>
 	 */
-	public char[] getNeighbors(char p) {
+	public short[] getNeighbors(short p) {
 		return neighbors[p];
 	}
 
 	/** Returns true if p is on the board. */
-	public boolean isOnBoard(char p) {
+	public boolean isOnBoard(short p) {
 		return isValidOneDimensionalCoordinate(row(p)) && isValidOneDimensionalCoordinate(column(p));
 	}
 
 	/** Returns true if p is on the third or fourth line. */
-	public boolean isOnThirdOrFourthLine(char p) {
+	public boolean isOnThirdOrFourthLine(short p) {
 		int line = line(p);
 		return ((line >= 3) && (line <= 4));
 	}
@@ -179,21 +179,21 @@ public final class CoordinateSystem {
 	/**
 	 * Returns p's line (1-based) from the edge of the board
 	 */
-	private int line(char p) {
+	private int line(short p) {
 		int r = Math.min(row(p), width - row(p) - 1);
 		int c = Math.min(column(p), width - column(p) - 1);
 		return 1 + Math.min(r, c);		
 	}
 
 	/** Returns the Manhattan distance from p to q. */
-	public int manhattanDistance(char p, char q) {
+	public int manhattanDistance(short p, short q) {
 		int rowd = Math.abs(row(p) - row(q));
 		int cold = Math.abs(column(p) - column(q));
 		return rowd + cold;
 	}
 
 	/** Returns a String representation of point. */
-	public String pointToString(char p) {
+	public String pointToString(short p) {
 		if (p == PASS) {
 			return "PASS";
 		} else if (p == NO_POINT) {
@@ -206,7 +206,7 @@ public final class CoordinateSystem {
 	}
 
 	/** Returns the row of point p. */
-	public int row(char p) {
+	public int row(short p) {
 		return p / south - 1;
 	}
 

@@ -26,7 +26,7 @@ public class CoordinateSystemTest {
 
 	@Test
 	public void testRowAndCol() {
-		char p = c5.at(4, 2);
+		short p = c5.at(4, 2);
 		assertEquals(4, c5.row(p));
 		assertEquals(2, c5.column(p));
 		p = c19.at(4, 2);
@@ -36,7 +36,7 @@ public class CoordinateSystemTest {
 
 	@Test
 	public void testRowAndColumnToString() {
-		char p = c19.at("p14");
+		short p = c19.at("p14");
 		assertEquals("14", c19.rowToString(c19.row(p)));
 		assertEquals("P", c19.columnToString(c19.column(p)));
 	}
@@ -59,14 +59,14 @@ public class CoordinateSystemTest {
 	@Test
 	public void testIsOnBoard() {
 			// a1 has two neighbors on the board
-			char p = c19.at("a1");
+			short p = c19.at("a1");
 			assertTrue(c19.isOnBoard(p));
 			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[0]));
 			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[1]));
 			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[2]));
 			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[3]));
 			// t19 has a different two neighbors on the board
-			char p2 = c19.at("t19");
+			short p2 = c19.at("t19");
 			assertTrue(c19.isOnBoard(p2));
 			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[0]));
 			assertTrue(c19.isOnBoard(c19.getNeighbors(p2)[1]));
