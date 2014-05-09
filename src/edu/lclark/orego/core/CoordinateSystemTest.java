@@ -1,5 +1,6 @@
 package edu.lclark.orego.core;
 
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,21 +58,27 @@ public class CoordinateSystemTest {
 	}
 
 	@Test
-	public void testIsOnBoard() {
-			// a1 has two neighbors on the board
+	public void testNeighborsOnBoard() {
 			short p = c19.at("a1");
 			assertTrue(c19.isOnBoard(p));
-			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[0]));
-			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[1]));
-			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[2]));
-			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[3]));
-			// t19 has a different two neighbors on the board
+			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[NORTH_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[WEST_NEIGHBOR]));
+			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[EAST_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[SOUTH_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[NORTHWEST_NEIGHBOR]));
+			assertTrue(c19.isOnBoard(c19.getNeighbors(p)[NORTHEAST_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[SOUTHWEST_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p)[SOUTHEAST_NEIGHBOR]));
 			short p2 = c19.at("t19");
 			assertTrue(c19.isOnBoard(p2));
-			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[0]));
-			assertTrue(c19.isOnBoard(c19.getNeighbors(p2)[1]));
-			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[2]));
-			assertTrue(c19.isOnBoard(c19.getNeighbors(p2)[3]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[NORTH_NEIGHBOR]));
+			assertTrue(c19.isOnBoard(c19.getNeighbors(p2)[WEST_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[EAST_NEIGHBOR]));
+			assertTrue(c19.isOnBoard(c19.getNeighbors(p2)[SOUTH_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[NORTHWEST_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[NORTHEAST_NEIGHBOR]));
+			assertTrue(c19.isOnBoard(c19.getNeighbors(p2)[SOUTHWEST_NEIGHBOR]));
+			assertFalse(c19.isOnBoard(c19.getNeighbors(p2)[SOUTHEAST_NEIGHBOR]));
 	}
 
 	@Test

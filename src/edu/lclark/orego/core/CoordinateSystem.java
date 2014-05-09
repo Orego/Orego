@@ -15,21 +15,57 @@ package edu.lclark.orego.core;
  * 	// Do something with p
  * }
  * </pre>
- * The standard idiom for accessing all neighbors of point p is:
+ * The standard idiom for traversing all orthogonal neighbors of point p is:
  * <pre>
- * for (int i = 0; i < 4; i++) {
+ * for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
  * 	short n = getNeighbors(p)[i];
  * 	// Do something with n, which might be an off-board point
  * }
  * </pre>
- * To access diagonal neighbors, do the same, but with 0 and 4 replaced with 4
- * and 8.
+ * To traverse diagonal neighbors, do the same, but with DIAGONAL substituted for ORTHOGONAL.
+ * To traverse both, iterate from FIRST_ORTHOGONAL_NEIGHBOR to LAST_DIAGONAL_NEIGHBOR.
  * <p>
  * On those rare occasions where rows and columns are used, rows are always
  * zero-based from the top, columns from the left.
  */
 public final class CoordinateSystem {
 
+	/** Index into an array returned by getNeighbors. */
+	public static final int NORTH_NEIGHBOR = 0;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int WEST_NEIGHBOR = 1;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int EAST_NEIGHBOR = 2;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int SOUTH_NEIGHBOR = 3;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int NORTHWEST_NEIGHBOR = 4;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int NORTHEAST_NEIGHBOR = 5;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int SOUTHWEST_NEIGHBOR = 6;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int SOUTHEAST_NEIGHBOR = 7;
+	
+	/** Index into an array returned by getNeighbors. */
+	public static final int FIRST_ORTHOGONAL_NEIGHBOR = NORTH_NEIGHBOR;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int LAST_ORTHOGONAL_NEIGHBOR = SOUTH_NEIGHBOR;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int FIRST_DIAGONAL_NEIGHBOR = NORTHWEST_NEIGHBOR;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int LAST_DIAGONAL_NEIGHBOR = SOUTHEAST_NEIGHBOR;
+	
 	/** Added to a point to find the one to the east. */
 	private static final short EAST = 1;
 
