@@ -178,6 +178,11 @@ public final class CoordinateSystem {
 		return allPointsOnBoard;
 	}
 
+	/** Returns the index of the first point beyond the board. This is useful as the size of any array that must have an entry for any point on the board. */
+	public short getFirstPointBeyondBoard() {
+		return (short)(width * (south + EAST) + 1);
+	}
+
 	/**
 	 * Returns an array of p's four orthogonal neighbors (indices 0-3) and four
 	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the

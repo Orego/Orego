@@ -100,4 +100,10 @@ public class CoordinateSystemTest {
 		assertEquals(361, c19.getAllPointsOnBoard().length);
 	}
 
+	@Test
+	public void testGetFirstPointBeyondBoard() {
+		assertEquals((5 * 7) + 1, c5.getFirstPointBeyondBoard());
+		assertEquals((19 * 21) + 1, c19.getFirstPointBeyondBoard());
+	}
+
 }

@@ -7,6 +7,6 @@ public enum NonStoneColor implements Color {
 	VACANT,
 	
 	/** Color of, e.g., a sentinel point off the edge of the board. */
-	OFF_BOARD
+	OFF_BOARD;
 
 }
