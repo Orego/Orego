@@ -9,7 +9,7 @@ public class BoardImplementation {
 
 	/** Colors of points on the board. */
 	private final Color[] colors;
-	
+
 	/** The color to play next. */
 	private StoneColor colorToPlay;
 	
@@ -26,8 +26,8 @@ public class BoardImplementation {
 		}
 		colorToPlay = BLACK;
 	}
-
-	/** @see edu.lclark.orego.core.CoordinateSystem#at(String) */
+	
+	/** @see CoordinateSystem#at(String) */
 	public short at(String label) {
 		return coordinateSystem.at(label);
 	}
@@ -38,10 +38,20 @@ public class BoardImplementation {
 	}
 
 	/**
+	 * Returns an array of the neighbors of p.
+	 * 
+	 * @see CoordinateSystem#getNeighbors(short)
+	 */
+	public short[] getNeighbors(short p) {
+		return coordinateSystem.getNeighbors(p);
+	}
+
+	/**
 	 * Plays a move at point p if possible. Has no side effect if the move is
 	 * illegal. Returns the legality of that move.
 	 */
 	public Legality play(short p) {
+		assert coordinateSystem.isOnBoard(p);
 		colors[p] = colorToPlay;
 		colorToPlay = colorToPlay.opposite();
 		// TODO This currently considers any move legal!
