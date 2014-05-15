@@ -39,7 +39,7 @@ public class CoordinateSystemTest {
 	public void testRowAndColumnToString() {
 		short p = c19.at("p14");
 		assertEquals("14", c19.rowToString(c19.row(p)));
-		assertEquals("P", c19.columnToString(c19.column(p)));
+		assertEquals("P", CoordinateSystem.columnToString(c19.column(p)));
 	}
 	
 	@Test

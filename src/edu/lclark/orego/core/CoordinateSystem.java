@@ -169,7 +169,7 @@ public final class CoordinateSystem {
 	}
 
 	/** Returns a String representation of column c. */
-	public String columnToString(int column) {
+	public static String columnToString(int column) {
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(column);
 	}
 
@@ -199,6 +199,11 @@ public final class CoordinateSystem {
 	 */
 	public short[] getNeighbors(short p) {
 		return neighbors[p];
+	}
+
+	/** Returns the width of the board (e.g., 19). */
+	public int getWidth() {
+		return width;
 	}
 
 	/** Returns true if p is on the board. */
