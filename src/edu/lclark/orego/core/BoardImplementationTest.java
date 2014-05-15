@@ -53,6 +53,26 @@ public class BoardImplementationTest {
 	}
 
 	@Test
+	public void testPass() {
+		assertEquals(OK, board.play(at("pass")));
+		assertEquals(WHITE, board.getColorToPlay());
+	}
+
+	@Test
+	public void testSuicide() {
+		String[] before = {
+				".O.#.",
+				".##..",
+				".....",
+				".##..",
+				"#O.#.",
+		};
+		board.setUpProblem(before, WHITE);
+		assertEquals(SUICIDE, board.play(at("c1")));
+		assertEquals(OK, board.play(at("c5")));
+	}
+
+	@Test
 	public void testCapture() {
 		String[] before = {
 				".....",

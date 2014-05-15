@@ -10,20 +10,25 @@ package edu.lclark.orego.core;
  * points around the edges.
  * <p>
  * The standard idiom for accessing all points on the board is:
+ * 
  * <pre>
  * for (short p : getAllPointsOnBoard()) {
  * 	// Do something with p
  * }
  * </pre>
+ * 
  * The standard idiom for traversing all orthogonal neighbors of point p is:
+ * 
  * <pre>
- * for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
- * 	short n = getNeighbors(p)[i];
+ * short[] neighbors = getNeighbors(p);
+ * for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i &lt;= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+ * 	short n = neighbors[i];
  * 	// Do something with n, which might be an off-board point
  * }
  * </pre>
- * To traverse diagonal neighbors, do the same, but with DIAGONAL substituted for ORTHOGONAL.
- * To traverse both, iterate from FIRST_ORTHOGONAL_NEIGHBOR to LAST_DIAGONAL_NEIGHBOR.
+ * 
+ * To traverse diagonal neighbors, do the same, but with DIAGONAL substituted
+ * for ORTHOGONAL. To traverse both, use a for-each loop on neighbors.
  * <p>
  * On those rare occasions where rows and columns are used, rows are always
  * zero-based from the top, columns from the left.
@@ -32,28 +37,28 @@ public final class CoordinateSystem {
 
 	/** Index into an array returned by getNeighbors. */
 	public static final int NORTH_NEIGHBOR = 0;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int WEST_NEIGHBOR = 1;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int EAST_NEIGHBOR = 2;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int SOUTH_NEIGHBOR = 3;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int NORTHWEST_NEIGHBOR = 4;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int NORTHEAST_NEIGHBOR = 5;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int SOUTHWEST_NEIGHBOR = 6;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int SOUTHEAST_NEIGHBOR = 7;
-	
+
 	/** Index into an array returned by getNeighbors. */
 	public static final int FIRST_ORTHOGONAL_NEIGHBOR = NORTH_NEIGHBOR;
 
@@ -65,7 +70,7 @@ public final class CoordinateSystem {
 
 	/** Index into an array returned by getNeighbors. */
 	public static final int LAST_DIAGONAL_NEIGHBOR = SOUTHEAST_NEIGHBOR;
-	
+
 	/** Added to a point to find the one to the east. */
 	private static final short EAST = 1;
 
@@ -88,7 +93,7 @@ public final class CoordinateSystem {
 		}
 		return instances[width];
 	}
-	
+
 	/**
 	 * @see #getAllPointsOnBoard()
 	 */
@@ -101,14 +106,14 @@ public final class CoordinateSystem {
 
 	/** Added to a point to find the one to the south. */
 	private final short south;
-	
+
 	/** Width of the board. */
 	private final int width;
 
 	/** Other classes should use forWidth to get an instance. */
 	private CoordinateSystem(int width) {
 		this.width = width;
-		south = (short)(width + 1);
+		south = (short) (width + 1);
 		int boardArea = width * width;
 		int extendedBoardArea = (width + 1) * (width + 2) + 1;
 		allPointsOnBoard = new short[boardArea];
@@ -121,24 +126,21 @@ public final class CoordinateSystem {
 		}
 		neighbors = new short[extendedBoardArea][];
 		for (short p : allPointsOnBoard) {
-			neighbors[p] = new short[] {(short)(p - south),
-									(short)(p - EAST),
-									(short)(p + EAST),
-									(short)(p + south),
-									(short)(p - south - EAST),
-									(short)(p - south + EAST),
-									(short)(p + south - EAST),
-									(short)(p + south + EAST)};
+			neighbors[p] = new short[] { (short) (p - south),
+					(short) (p - EAST), (short) (p + EAST),
+					(short) (p + south), (short) (p - south - EAST),
+					(short) (p - south + EAST), (short) (p + south - EAST),
+					(short) (p + south + EAST) };
 		}
 	}
-	
+
 	/** Returns the short representation of the point at row r, column c. */
 	public short at(int r, int c) {
 		assert isValidOneDimensionalCoordinate(r) : "Invalid row: " + r;
 		assert isValidOneDimensionalCoordinate(c) : "Invalid column: " + c;
-		return (short)((r + 1) * south + (c + 1) * EAST);
+		return (short) ((r + 1) * south + (c + 1) * EAST);
 	}
-	
+
 	/**
 	 * Returns the short representation of the point described by label, which
 	 * might be something like "A5", "b3", or "PASS".
@@ -178,24 +180,31 @@ public final class CoordinateSystem {
 		return allPointsOnBoard;
 	}
 
-	/** Returns the index of the first point beyond the board. This is useful as the size of any array that must have an entry for any point on the board. */
+	/**
+	 * Returns the index of the first point beyond the board. This is useful as
+	 * the size of any array that must have an entry for any point on the board.
+	 */
 	public short getFirstPointBeyondBoard() {
-		return (short)(width * (south + EAST) + 1);
+		return (short) (width * (south + EAST) + 1);
 	}
 
 	/**
-	 * Returns an array of p's four orthogonal neighbors (indices 0-3) and four
-	 * diagonal neighbors (4-7). If a point is at the edge (corner) of the
-	 * board, one (two) of its neighbors are off-board points. The neighbors of
-	 * an off-board point are not defined.
+	 * Returns the index of the first point beyond the extended board (which
+	 * includes the sentinels around the outside.) This is useful as the size of
+	 * any array that must have an entry for any point or sentinel.
+	 */
+	public short getFirstPointBeyondExtendedBoard() {
+		return (short) ((width + 1) * (width + 2) + 1);
+	}
+
+	/**
+	 * Returns an array of p's four orthogonal neighbors and four diagonal
+	 * neighbors. If a point is at the edge (corner) of the board, one (two) of
+	 * its neighbors are off-board points. The neighbors of an off-board point
+	 * are not defined.
 	 * <p>
-	 * The neighbors are ordered like this:
 	 * 
-	 * <pre>
-	 * 405
-	 * 1 2
-	 * 637
-	 * </pre>
+	 * @see edu.lclark.orego.core.CoordinateSystem
 	 */
 	public short[] getNeighbors(short p) {
 		return neighbors[p];
@@ -208,7 +217,8 @@ public final class CoordinateSystem {
 
 	/** Returns true if p is on the board. */
 	public boolean isOnBoard(short p) {
-		return isValidOneDimensionalCoordinate(row(p)) && isValidOneDimensionalCoordinate(column(p));
+		return isValidOneDimensionalCoordinate(row(p))
+				&& isValidOneDimensionalCoordinate(column(p));
 	}
 
 	/** Returns true if p is on the third or fourth line. */
@@ -228,7 +238,7 @@ public final class CoordinateSystem {
 	private int line(short p) {
 		int r = Math.min(row(p), width - row(p) - 1);
 		int c = Math.min(column(p), width - column(p) - 1);
-		return 1 + Math.min(r, c);		
+		return 1 + Math.min(r, c);
 	}
 
 	/** Returns the Manhattan distance from p to q. */
