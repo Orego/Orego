@@ -5,17 +5,16 @@ import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static java.util.Arrays.*;
-import static orego.core.Coordinates.getFirstPointBeyondBoard;
+import edu.lclark.orego.util.ShortSet;
 import orego.util.IntList;
-import orego.util.IntSet;
 
 public final class BoardImplementation {
 
 	/** The liberties of each chain. */
-	private IntSet[] liberties;
+	private ShortSet[] liberties;
 
 	/** Liberties of the stone just played. */
-	private IntSet lastPlayLiberties;
+	private ShortSet lastPlayLiberties;
 
 	/**
 	 * Identifiers of enemy chains adjacent to the move just played. Used by
@@ -46,6 +45,9 @@ public final class BoardImplementation {
 	/** Coordinate system based on board width. */
 	private final CoordinateSystem coordinateSystem;
 
+	/** Neighbors of a stone just captured. Used by removeStone(). */
+	private IntList neighborsOfCapturedStone;
+	
 	public BoardImplementation(int width) {
 		coordinateSystem = CoordinateSystem.forWidth(width);
 		// Many arrays are of these sizes, so naming them clarifies the code
@@ -56,11 +58,12 @@ public final class BoardImplementation {
 		chainNextPoints = new short[n];
 		friendlyNeighboringChainIds = new IntList(4);
 		enemyNeighboringChainIds = new IntList(4);
-		lastPlayLiberties = new IntSet(n);
-		liberties = new IntSet[n];
+		lastPlayLiberties = new ShortSet(n);
+		liberties = new ShortSet[n];
 		for (short p : coordinateSystem.getAllPointsOnBoard()) {
-			liberties[p] = new IntSet(n);
+			liberties[p] = new ShortSet(n);
 		}
+		neighborsOfCapturedStone = new IntList(4);
 		clear();
 	}
 
@@ -87,6 +90,7 @@ public final class BoardImplementation {
 		for (short p : coordinateSystem.getAllPointsOnBoard()) {
 			colors[p] = VACANT;
 			chainIds[p] = p;
+			liberties[p].clear();
 		}
 		colorToPlay = BLACK;
 	}
@@ -133,6 +137,7 @@ public final class BoardImplementation {
 
 	/** Places a stone of color at point p. */
 	private void placeInitialStone(StoneColor color, short p) {
+		System.out.println("Placing initial " + color + " stone at " + coordinateSystem.pointToString(p));
 		// Initial stones will always be legal, but the legality method
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);
@@ -164,23 +169,104 @@ public final class BoardImplementation {
 		return OK;
 	}
 
+	/** Returns true if the stone at p has the maximum possible number of neighbors of color p. */
+	private boolean hasMaxNeighborsForColor(StoneColor color, short p) {
+		short[] neighbors = getNeighbors(p);
+		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+			Color c = colors[neighbors[i]];
+			if (c != color && c != OFF_BOARD) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** Removes the stone at p. */
+	public void removeStone(short p) {
+		StoneColor color = (StoneColor)(colors[p]);
+//		stoneCounts[color]--;
+//		hash ^= ZOBRIST_HASHES[color][p];
+		System.out.println("Removing " + colors[p] + " stone at " + coordinateSystem.pointToString(p));
+		colors[p] = VACANT;
+//		vacantPoints.addKnownAbsent(p);
+		neighborsOfCapturedStone.clear();
+		short[] neighbors = getNeighbors(p);
+		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+			short n = neighbors[i];
+//			neighborCounts[n] -= NEIGHBOR_INCREMENT[color];
+			// This seems to be a rare appropriate use of instanceof
+			if (colors[n] instanceof StoneColor) {
+				neighborsOfCapturedStone.addIfNotPresent(chainIds[n]);
+			}
+		}
+		StoneColor enemyColor = color.opposite();
+		for (int k = 0; k < neighborsOfCapturedStone.size(); k++) {
+			int c = neighborsOfCapturedStone.get(k);
+			liberties[c].addKnownAbsent(p);
+//			if (liberties[c].size() > 1) {
+//				chainsInAtari[enemyColor].remove(c);
+//			}
+		}
+		// Clear chainId so that a stone removed by undo() doesn't appear to
+		// still be part of its former chain
+		// (This would be a problem when updating liberties if the same move
+		// were replayed.)
+		chainIds[p] = p;
+	}
+
+	/**
+	 * Deals with enemy chains adjacent to the move just played at p, either
+	 * capturing them or decrementing their liberty counts.
+	 * 
+	 * @param Color The color of the stone just played.
+	 */
+	private void adjustEnemyNeighbors(StoneColor color, short p) {
+		System.out.println("Adjusting enemy neigbors around " + color + " stone at " + coordinateSystem.pointToString(p));
+		// TODO Should the caller find the opposite color?
+		StoneColor enemyColor = color.opposite();
+		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
+			System.out.println(coordinateSystem.pointToString((short)(enemyNeighboringChainIds.get(i))));
+			// TODO Remove cast
+			short enemy = (short)(enemyNeighboringChainIds.get(i));
+			System.out.println("Enemy chain at " + coordinateSystem.pointToString(enemy));
+			if (liberties[enemy].size() == 1) {
+				System.out.println("Captured something");
+//				chainsInAtari[enemyColor].remove(enemy);
+				short s = enemy;
+				do {
+					System.out.println("Removing stone at " + coordinateSystem.pointToString(s));
+					removeStone(s);
+					s = chainNextPoints[s];
+				} while (s != enemy);
+			} else {
+				liberties[enemy].removeKnownPresent(p);
+//				if (liberties[enemy].size() == 1) {
+//					chainsInAtari[enemyColor].addKnownAbsent(enemy);
+//				}
+			}
+		}
+	}
+
 	/**
 	 * Updates data structures at the end of a play.
+	 * 
+	 * @param color The color of the stone played.
+	 * @param p The location where the stone was played.
 	 */
 	private void finalizePlay(StoneColor color, short p) {
 //		int lastVacantPointCount = vacantPoints.size();
-		colors[p] = colorToPlay;
+		System.out.println("Adding " + color + " stone at " + coordinateSystem.pointToString(p));
+		colors[p] = color;
 		// TODO Update stone counts, hash, vacant points, maybe neighbor counts
-//		boolean surrounded = hasMaxNeighborsForColor(neighborCounts[p],
-//				opposite(color));
+		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
 		
-//		adjustFriendlyNeighbors(color, p);
-//		adjustEnemyNeighbors(color, p);
+		adjustFriendlyNeighbors(color, p);
+		adjustEnemyNeighbors(color, p);
 		
 //		if (liberties[chainIds[p]].size() == 1) {
 //			chainsInAtari[color].add(chainIds[p]);
 //		}
-		// The rest is about the local ko point
+		// The rest is about the local ko point and hash
 //		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
 //		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 //			koPoint = vacantPoints.get(vacantPoints.size() - 1);
@@ -188,6 +274,83 @@ public final class BoardImplementation {
 //			koPoint = NO_POINT;
 //		}
 //		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
+	}
+
+	/** Adds stone p to chain. */
+	private void addStone(short p, short chain) {
+		chainNextPoints[p] = chainNextPoints[chain];
+		chainNextPoints[chain] = p;
+		chainIds[p] = chain;
+	}
+
+	// TODO The casts to short will be unnecessary once this is a ShortList instead of an IntList
+	/**
+	 * Deals with friendly neighbors of the move p just played, merging chains
+	 * as necessary.
+	 */
+	private void adjustFriendlyNeighbors(StoneColor color, short p) {
+		if (friendlyNeighboringChainIds.size() == 0) {
+			// If there are no friendly neighbors, create a new, one-stone chain
+			chainNextPoints[p] = p;
+			liberties[p].copyDataFrom(lastPlayLiberties);
+//			if (liberties[p].size() == 1) {
+//				chainsInAtari[color].addKnownAbsent(p);
+//			}
+		} else if (friendlyNeighboringChainIds.size() == 1) {
+			// If there is only one friendly neighbor, add this stone to that
+			// chain
+			short c = (short)(friendlyNeighboringChainIds.get(0));
+			liberties[c].addAll(lastPlayLiberties);
+			liberties[c].removeKnownPresent(p);
+			addStone(p, c);
+//			if (liberties[c].size() == 1) {
+//				chainsInAtari[color].add(c);
+//			} else {
+//				chainsInAtari[color].remove(c);
+//			}
+		} else {
+			// If there are several friendly neighbors, merge them
+			short c = (short)(friendlyNeighboringChainIds.get(0));
+			addStone(p, c);
+			for (int i = 1; i < friendlyNeighboringChainIds.size(); i++) {
+				short ally = (short)(friendlyNeighboringChainIds.get(i));
+				if (liberties[ally].size() <= liberties[c].size()) {
+					mergeChains(c, ally);
+				} else {
+					mergeChains(ally, c);
+					c = ally;
+				}
+			}
+			liberties[c].addAll(lastPlayLiberties);
+			assert liberties[c].contains(p);
+			liberties[c].removeKnownPresent(p);
+//			if (liberties[c].size() == 1) {
+//				chainsInAtari[color].add(c);
+//			} else {
+//				chainsInAtari[color].remove(c);
+//			}
+		}
+	}
+
+	/**
+	 * Merges the stones in appendage into the chain at base. Each parameter is
+	 * a stone in one of the chains to be merged.
+	 * 
+	 * @param base
+	 *            if not too expensive to compute, should be the larger of the
+	 *            two chains.
+	 */
+	private void mergeChains(int base, int appendage) {
+		liberties[base].addAll(liberties[appendage]);
+//		chainsInAtari[colors[appendage]].remove(appendage);
+		int active = appendage;
+		do {
+			chainIds[active] = chainIds[base];
+			active = chainNextPoints[active];
+		} while (active != appendage);
+		short temp = chainNextPoints[base];
+		chainNextPoints[base] = chainNextPoints[appendage];
+		chainNextPoints[appendage] = temp;
 	}
 
 	/**

@@ -105,5 +105,14 @@ public class CoordinateSystemTest {
 		assertEquals((5 * 7) + 1, c5.getFirstPointBeyondBoard());
 		assertEquals((19 * 21) + 1, c19.getFirstPointBeyondBoard());
 	}
+	
+	@Test
+	public void testNeighbors() {
+		short[] neighbors = c5.getNeighbors(c5.at("b2"));
+		assertEquals(c5.at("b3"), neighbors[NORTH_NEIGHBOR]);
+		assertEquals(c5.at("b1"), neighbors[SOUTH_NEIGHBOR]);
+		assertEquals(c5.at("c2"), neighbors[EAST_NEIGHBOR]);
+		assertEquals(c5.at("a2"), neighbors[WEST_NEIGHBOR]);
+	}
 
 }

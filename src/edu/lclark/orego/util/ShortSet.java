@@ -1,0 +1,152 @@
+package edu.lclark.orego.util;
+
+import edu.lclark.orego.core.CoordinateSystem;
+
+/**
+ * A set implementation that offers constant time insertion, search, deletion,
+ * clearing, and size, assuming that the keys are all in the range [0, n).
+ * If space is important, or if the set is fairly dense, BitVector may be
+ * preferable.
+ * @see BitVector
+ */
+public class ShortSet {
+
+	/** data[i] is the ith element of this set. */
+	private short[] data;
+
+	/** locations[i] is the index in data where i is stored (if any). */
+	private short[] locations;
+
+	/** Number of elements in this set. */
+	private short size;
+
+	/** All keys must be in [0, capacity). */
+	public ShortSet(int capacity) {
+		data = new short[capacity];
+		locations = new short[capacity];
+	}
+
+	/**
+	 * Adds key, which may or may not be present, to this set.
+	 */
+	public void add(short key) {
+		if (!contains(key)) {
+			addKnownAbsent(key);
+		}
+	}
+
+	/** This set becomes the result of the union of this and that. */
+	public void addAll(ShortSet that) {
+		for (short i = 0; i < that.size; i++) {
+			add(that.get(i));
+		}
+	}
+
+	/** Adds key, which is known to be absent, to this set. */
+	public void addKnownAbsent(short key) {
+		data[size] = key;
+		locations[key] = size;
+		size++;
+	}
+
+	/** Removes all elements from this set. */
+	public void clear() {
+		size = 0;
+	}
+
+	/** Returns true if key is in this set. */
+	public boolean contains(short key) {
+		int location = locations[key];
+		return (location < size) & (data[locations[key]] == key);
+	}
+
+	/**
+	 * Makes this into a copy of that, without the overhead of creating a new
+	 * object.
+	 */
+	public void copyDataFrom(ShortSet that) {
+		size = that.size;
+		System.arraycopy(that.data, 0, data, 0, size);
+		System.arraycopy(that.locations, 0, locations, 0, locations.length);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ShortSet that = (ShortSet) obj;
+		if (that.data.length != data.length) {
+			// If we have different universes, we're not equal.
+			return false;
+		}
+		if (that.size != size) {
+			return false;
+		}
+		for (int i = 0; i < size; i++) {
+			if (!that.contains(data[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** Returns the ith element of this list. */
+	public short get(short i) {
+		return data[i];
+	}
+
+	/** Removes key, which may or may not be present, from this set. */
+	public void remove(short key) {
+		if (contains(key)) {
+			removeKnownPresent(key);
+		}
+	}
+
+	/** Removes key, which is known to be present, from this set. */
+	public void removeKnownPresent(int key) {
+		size--;
+		short location = locations[key];
+		short replacement = data[size];
+		data[location] = replacement;
+		locations[replacement] = location;
+	}
+
+	/** Returns the number of elements in this set. */
+	public short size() {
+		return size;
+	}
+
+	public String toString() {
+		String result = "{";
+		if (size > 0) {
+			result += data[0];
+			for (int i = 1; i < size; i++) {
+				result += ", " + data[i];
+			}
+		}
+		return result + "}";
+	}
+
+	/**
+	 * Similar to toString(), but displays human-readable point labels (e.g.,
+	 * "d3") instead of ints.
+	 */
+	public String toStringAsPoints(CoordinateSystem system) {
+		String result = size + ": {";
+		if (size > 0) {
+			result += system.pointToString(data[0]);
+			for (int i = 1; i < size; i++) {
+				result += ", " + system.pointToString(data[i]);
+			}
+		}
+		return result + "}";
+	}
+
+}
