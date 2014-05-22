@@ -373,11 +373,11 @@ public final class BoardImplementation {
 				lastPlayLiberties.add(n);
 				suicide = false;
 			} else if (neighborColor == color) { // Friendly neighbor
-				int chainId = chainIds[n];
+				short chainId = chainIds[n];
 				friendlyNeighboringChainIds.addIfNotPresent(chainId);
 				suicide &= (liberties[chainId].size() == 1);
 			} else if (neighborColor != OFF_BOARD) { // Enemy neighbor
-				int chainId = chainIds[n];
+				short chainId = chainIds[n];
 				enemyNeighboringChainIds.addIfNotPresent(chainId);
 				suicide &= !(liberties[chainId].size() == 1);
 			}
@@ -392,7 +392,7 @@ public final class BoardImplementation {
 			return OCCUPIED;
 		}
 		// TODO Game too long, simple ko
-		if (isSuicidal(colorToPlay, p)) {
+		if (isSuicidal(color, p)) {
 			return SUICIDE;
 		}
 		// TODO Superko
