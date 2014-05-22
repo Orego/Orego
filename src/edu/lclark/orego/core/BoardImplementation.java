@@ -43,16 +43,16 @@ public final class BoardImplementation {
 	private StoneColor colorToPlay;
 
 	/** Coordinate system based on board width. */
-	private final CoordinateSystem coordinateSystem;
+	private final CoordinateSystem coords;
 
 	/** Neighbors of a stone just captured. Used by removeStone(). */
 	private ShortList neighborsOfCapturedStone;
 	
 	public BoardImplementation(int width) {
-		coordinateSystem = CoordinateSystem.forWidth(width);
+		coords = CoordinateSystem.forWidth(width);
 		// Many arrays are of these sizes, so naming them clarifies the code
-		short n = coordinateSystem.getFirstPointBeyondBoard();
-		short extended = coordinateSystem.getFirstPointBeyondExtendedBoard();
+		short n = coords.getFirstPointBeyondBoard();
+		short extended = coords.getFirstPointBeyondExtendedBoard();
 		colors = new Color[extended];
 		chainIds = new short[extended];
 		chainNextPoints = new short[n];
@@ -60,7 +60,7 @@ public final class BoardImplementation {
 		enemyNeighboringChainIds = new ShortList(4);
 		lastPlayLiberties = new ShortSet(n);
 		liberties = new ShortSet[n];
-		for (short p : coordinateSystem.getAllPointsOnBoard()) {
+		for (short p : coords.getAllPointsOnBoard()) {
 			liberties[p] = new ShortSet(n);
 		}
 		neighborsOfCapturedStone = new ShortList(4);
@@ -71,12 +71,12 @@ public final class BoardImplementation {
 	 * @see edu.lclark.orego.core.CoordinateSystem#at(int, int)
 	 */
 	private short at(int r, int c) {
-		return coordinateSystem.at(r, c);
+		return coords.at(r, c);
 	}
 
 	/** @see CoordinateSystem#at(String) */
 	public short at(String label) {
-		return coordinateSystem.at(label);
+		return coords.at(label);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public final class BoardImplementation {
 	 */
 	public void clear() {
 		fill(colors, OFF_BOARD);
-		for (short p : coordinateSystem.getAllPointsOnBoard()) {
+		for (short p : coords.getAllPointsOnBoard()) {
 			colors[p] = VACANT;
 			chainIds[p] = p;
 			liberties[p].clear();
@@ -111,7 +111,7 @@ public final class BoardImplementation {
 	 * @see CoordinateSystem#getNeighbors(short)
 	 */
 	public short[] getNeighbors(short p) {
-		return coordinateSystem.getNeighbors(p);
+		return coords.getNeighbors(p);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public final class BoardImplementation {
 	 * @see edu.lclark.orego.core.CoordinateSystem#getWidth()
 	 */
 	public int getWidth() {
-		return coordinateSystem.getWidth();
+		return coords.getWidth();
 	}
 
 	/** Plays a pass move. */
@@ -379,7 +379,7 @@ public final class BoardImplementation {
 
 	/** Returns the legality of playing at p. */
 	public Legality legality(StoneColor color, short p) {
-		assert coordinateSystem.isOnBoard(p);
+		assert coords.isOnBoard(p);
 		if (colors[p] != VACANT) {
 			return OCCUPIED;
 		}
