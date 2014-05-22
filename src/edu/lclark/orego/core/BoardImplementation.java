@@ -137,7 +137,6 @@ public final class BoardImplementation {
 
 	/** Places a stone of color at point p. */
 	private void placeInitialStone(StoneColor color, short p) {
-		System.out.println("Placing initial " + color + " stone at " + coordinateSystem.pointToString(p));
 		// Initial stones will always be legal, but the legality method
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);
@@ -186,7 +185,6 @@ public final class BoardImplementation {
 		StoneColor color = (StoneColor)(colors[p]);
 //		stoneCounts[color]--;
 //		hash ^= ZOBRIST_HASHES[color][p];
-		System.out.println("Removing " + colors[p] + " stone at " + coordinateSystem.pointToString(p));
 		colors[p] = VACANT;
 //		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
@@ -221,20 +219,15 @@ public final class BoardImplementation {
 	 * @param Color The color of the stone just played.
 	 */
 	private void adjustEnemyNeighbors(StoneColor color, short p) {
-		System.out.println("Adjusting enemy neigbors around " + color + " stone at " + coordinateSystem.pointToString(p));
 		// TODO Should the caller find the opposite color?
 		StoneColor enemyColor = color.opposite();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
-			System.out.println(coordinateSystem.pointToString((short)(enemyNeighboringChainIds.get(i))));
 			// TODO Remove cast
 			short enemy = (short)(enemyNeighboringChainIds.get(i));
-			System.out.println("Enemy chain at " + coordinateSystem.pointToString(enemy));
 			if (liberties[enemy].size() == 1) {
-				System.out.println("Captured something");
 //				chainsInAtari[enemyColor].remove(enemy);
 				short s = enemy;
 				do {
-					System.out.println("Removing stone at " + coordinateSystem.pointToString(s));
 					removeStone(s);
 					s = chainNextPoints[s];
 				} while (s != enemy);
@@ -255,7 +248,6 @@ public final class BoardImplementation {
 	 */
 	private void finalizePlay(StoneColor color, short p) {
 //		int lastVacantPointCount = vacantPoints.size();
-		System.out.println("Adding " + color + " stone at " + coordinateSystem.pointToString(p));
 		colors[p] = color;
 		// TODO Update stone counts, hash, vacant points, maybe neighbor counts
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);

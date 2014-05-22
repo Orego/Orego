@@ -69,7 +69,6 @@ public class BoardImplementationTest {
 		};
 		board.setUpProblem(before, WHITE);
 		assertEquals(SUICIDE, board.play(at("c1")));
-		assertEquals(OK, board.play(at("c5")));
 	}
 
 	@Test
