@@ -83,10 +83,10 @@ public class CoordinateSystemTest {
 
 	@Test
 	public void testPointToString() {
-		assertEquals("E3", c19.pointToString(c19.at("e3")));
-		assertEquals("PASS", c19.pointToString(CoordinateSystem.PASS));
-		assertEquals("NO_POINT", c19.pointToString(CoordinateSystem.NO_POINT));
-		assertEquals("RESIGN", c19.pointToString(CoordinateSystem.RESIGN));
+		assertEquals("E3", c19.toString(c19.at("e3")));
+		assertEquals("PASS", c19.toString(CoordinateSystem.PASS));
+		assertEquals("NO_POINT", c19.toString(CoordinateSystem.NO_POINT));
+		assertEquals("RESIGN", c19.toString(CoordinateSystem.RESIGN));
 	}
 
 	@Test

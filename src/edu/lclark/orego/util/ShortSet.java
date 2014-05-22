@@ -7,15 +7,16 @@ import edu.lclark.orego.core.CoordinateSystem;
  * clearing, and size, assuming that the keys are all in the range [0, n).
  * If space is important, or if the set is fairly dense, BitVector may be
  * preferable.
+ * 
  * @see BitVector
  */
-public class ShortSet {
+public final class ShortSet {
 
 	/** data[i] is the ith element of this set. */
-	private short[] data;
+	private final short[] data;
 
 	/** locations[i] is the index in data where i is stored (if any). */
-	private short[] locations;
+	private final short[] locations;
 
 	/** Number of elements in this set. */
 	private short size;
@@ -42,7 +43,7 @@ public class ShortSet {
 		}
 	}
 
-	/** Adds key, which is known to be absent, to this set. */
+	/** Adds key, which is known to be absent, to this set. This is faster than add. */
 	public void addKnownAbsent(short key) {
 		data[size] = key;
 		locations[key] = size;
@@ -109,7 +110,7 @@ public class ShortSet {
 		}
 	}
 
-	/** Removes key, which is known to be present, from this set. */
+	/** Removes key, which is known to be present, from this set. This is faster than remove. */
 	public void removeKnownPresent(int key) {
 		size--;
 		short location = locations[key];
@@ -123,6 +124,7 @@ public class ShortSet {
 		return size;
 	}
 
+	@Override
 	public String toString() {
 		String result = "{";
 		if (size > 0) {
@@ -138,12 +140,12 @@ public class ShortSet {
 	 * Similar to toString(), but displays human-readable point labels (e.g.,
 	 * "d3") instead of ints.
 	 */
-	public String toStringAsPoints(CoordinateSystem system) {
+	public String toString(CoordinateSystem coords) {
 		String result = size + ": {";
 		if (size > 0) {
-			result += system.pointToString(data[0]);
+			result += coords.toString(data[0]);
 			for (int i = 1; i < size; i++) {
-				result += ", " + system.pointToString(data[i]);
+				result += ", " + coords.toString(data[i]);
 			}
 		}
 		return result + "}";

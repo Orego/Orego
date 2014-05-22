@@ -248,9 +248,8 @@ public final class CoordinateSystem {
 		return rowd + cold;
 	}
 
-	// TODO Should this just be called toString, but with a parameter?
-	/** Returns a String representation of point. */
-	public String pointToString(short p) {
+	/** Returns a String representation of p. */
+	public String toString(short p) {
 		if (p == PASS) {
 			return "PASS";
 		} else if (p == NO_POINT) {

@@ -6,7 +6,7 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static java.util.Arrays.*;
 import edu.lclark.orego.util.ShortSet;
-import orego.util.IntList;
+import edu.lclark.orego.util.ShortList;
 
 public final class BoardImplementation {
 
@@ -20,10 +20,10 @@ public final class BoardImplementation {
 	 * Identifiers of enemy chains adjacent to the move just played. Used by
 	 * isSuicidal() and isSelfAtari().
 	 */
-	private IntList enemyNeighboringChainIds;
+	private ShortList enemyNeighboringChainIds;
 
 	/** Identifiers of friendly chains adjacent to the move just played. */
-	private IntList friendlyNeighboringChainIds;
+	private ShortList friendlyNeighboringChainIds;
 
 	/** Colors of points on the board. */
 	private final Color[] colors;
@@ -46,7 +46,7 @@ public final class BoardImplementation {
 	private final CoordinateSystem coordinateSystem;
 
 	/** Neighbors of a stone just captured. Used by removeStone(). */
-	private IntList neighborsOfCapturedStone;
+	private ShortList neighborsOfCapturedStone;
 	
 	public BoardImplementation(int width) {
 		coordinateSystem = CoordinateSystem.forWidth(width);
@@ -56,14 +56,14 @@ public final class BoardImplementation {
 		colors = new Color[extended];
 		chainIds = new short[extended];
 		chainNextPoints = new short[n];
-		friendlyNeighboringChainIds = new IntList(4);
-		enemyNeighboringChainIds = new IntList(4);
+		friendlyNeighboringChainIds = new ShortList(4);
+		enemyNeighboringChainIds = new ShortList(4);
 		lastPlayLiberties = new ShortSet(n);
 		liberties = new ShortSet[n];
 		for (short p : coordinateSystem.getAllPointsOnBoard()) {
 			liberties[p] = new ShortSet(n);
 		}
-		neighborsOfCapturedStone = new IntList(4);
+		neighborsOfCapturedStone = new ShortList(4);
 		clear();
 	}
 

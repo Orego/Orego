@@ -11,9 +11,9 @@ public class ShortSetTest {
 
 	private ShortSet set;
 
-	private static final CoordinateSystem SYSTEM = CoordinateSystem.forWidth(19);
+	private static final CoordinateSystem COORDS = CoordinateSystem.forWidth(19);
 	
-	private static final int CAPACITY = SYSTEM.getFirstPointBeyondBoard();
+	private static final int CAPACITY = COORDS.getFirstPointBeyondBoard();
 	
 	@Before
 	public void setUp() throws Exception {
@@ -166,12 +166,12 @@ public class ShortSetTest {
 	@Test
 	public void testToStringAsPoints() {
 		// Test on empty set
-		assertEquals("0: {}", set.toStringAsPoints(SYSTEM));
+		assertEquals("0: {}", set.toString(COORDS));
 		// Add elements
-		set.add(SYSTEM.at("e2"));
-		set.add(SYSTEM.at("b1"));
+		set.add(COORDS.at("e2"));
+		set.add(COORDS.at("b1"));
 		// Test on resulting set
-		assertEquals("2: {E2, B1}", set.toStringAsPoints(SYSTEM));
+		assertEquals("2: {E2, B1}", set.toString(COORDS));
 	}
 
 	@Test
