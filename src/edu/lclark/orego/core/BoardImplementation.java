@@ -24,6 +24,9 @@ public final class BoardImplementation {
 	/** Identifiers of friendly chains adjacent to the move just played. */
 	private final ShortList friendlyNeighboringChainIds;
 
+	/** The point, if any, where the simple ko rule prohibits play. */
+	private short koPoint;
+
 	/** Liberties of the stone just played. */
 	private final ShortSet lastPlayLiberties;
 
@@ -33,12 +36,17 @@ public final class BoardImplementation {
 	/** Point on the board (and surrounding sentinels). */
 	private final Point[] points;
 	
+	/** The set of vacant points. */
+	private final ShortSet vacantPoints;
+	
 	public BoardImplementation(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
 		enemyNeighboringChainIds = new ShortList(4);
-		lastPlayLiberties = new ShortSet(coords.getFirstPointBeyondBoard());
+		int n = coords.getFirstPointBeyondBoard();
+		lastPlayLiberties = new ShortSet(n);
+		vacantPoints = new ShortSet(n);
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);
 		}
@@ -138,10 +146,13 @@ public final class BoardImplementation {
 	 * board do not have to change.
 	 */
 	public void clear() {
+		colorToPlay = BLACK;
+		koPoint = NO_POINT;
+		vacantPoints.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			points[p].clear();
+			vacantPoints.addKnownAbsent(p);
 		}
-		colorToPlay = BLACK;
 	}
 
 	/**
@@ -151,9 +162,10 @@ public final class BoardImplementation {
 	 * @param p The location where the stone was played.
 	 */
 	private void finalizePlay(StoneColor color, short p) {
-//		int lastVacantPointCount = vacantPoints.size();
+		short lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
-		// TODO Update stone counts, hash, vacant points, maybe neighbor counts
+		vacantPoints.remove(p);
+		// TODO Update stone counts, hash, maybe neighbor counts
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
 		adjustFriendlyNeighbors(color, p);
 		adjustEnemyNeighbors(color, p);
@@ -162,11 +174,11 @@ public final class BoardImplementation {
 //		}
 		// The rest is about the local ko point and hash
 //		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
-//		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
-//			koPoint = vacantPoints.get(vacantPoints.size() - 1);
-//		} else {
-//			koPoint = NO_POINT;
-//		}
+		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
+			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
+		} else {
+			koPoint = NO_POINT;
+		}
 //		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
 	}
 
@@ -243,11 +255,14 @@ public final class BoardImplementation {
 
 	/** Returns the legality of playing at p. */
 	public Legality legality(StoneColor color, short p) {
+		// TODO Game too long
 		assert coords.isOnBoard(p);
 		if (points[p].color != VACANT) {
 			return OCCUPIED;
 		}
-		// TODO Game too long, simple ko
+		if (p == koPoint) {
+			return KO_VIOLATION;
+		}
 		if (isSuicidal(color, p)) {
 			return SUICIDE;
 		}
@@ -278,11 +293,11 @@ public final class BoardImplementation {
 
 	/** Plays a pass move. */
 	public void pass() {
-		// TODO Update ko point, hash, number of passes, history 
-//		if (koPoint != NO_POINT) {
+		// TODO Update hash, number of passes, history 
+		if (koPoint != NO_POINT) {
 //			hash ^= ZOBRIST_HASHES[VACANT][koPoint];
-//			koPoint = NO_POINT;
-//		}
+			koPoint = NO_POINT;
+		}
 		colorToPlay = colorToPlay.opposite();
 //		passes++;
 //		moves[turn] = PASS;
@@ -327,7 +342,7 @@ public final class BoardImplementation {
 //		stoneCounts[color]--;
 //		hash ^= ZOBRIST_HASHES[color][p];
 		points[p].color = VACANT;
-//		vacantPoints.addKnownAbsent(p);
+		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
 		short[] neighbors = getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {

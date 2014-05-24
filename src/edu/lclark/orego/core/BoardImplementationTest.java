@@ -122,4 +122,26 @@ public class BoardImplementationTest {
 		assertEquals(asOneString(after), board.toString());
 	}
 
+	@Test
+	public void testSimpleKo() {
+		String[] before = {
+				".....",
+				".....",
+				".....",
+				"#O...",
+				".#O..",
+		};
+		board.setUpProblem(before, WHITE);
+		assertEquals(OK, board.play(at("a1")));
+		assertEquals(KO_VIOLATION, board.play(at("b1")));
+		String[] after = {
+				".....",
+				".....",
+				".....",
+				"#O...",
+				"O.O..",
+		};
+		assertEquals(asOneString(after), board.toString());
+	}
+
 }
