@@ -69,6 +69,15 @@ public class BoardImplementationTest {
 		};
 		board.setUpProblem(before, WHITE);
 		assertEquals(SUICIDE, board.play(at("c1")));
+		assertEquals(OK, board.play(at("c5")));
+		String[] after = {
+				".OO#.",
+				".##..",
+				".....",
+				".##..",
+				"#O.#.",
+		};
+		assertEquals(asOneString(after), board.toString());
 	}
 
 	@Test
@@ -88,6 +97,27 @@ public class BoardImplementationTest {
 				".....",
 				".##..",
 				"#..#.",
+		};
+		assertEquals(asOneString(after), board.toString());
+	}
+
+	@Test
+	public void testMultipleCapture() {
+		String[] before = {
+				".O#O.",
+				"OO#O.",
+				"##.##",
+				"OO#OO",
+				".O#O.",
+		};
+		board.setUpProblem(before, WHITE);
+		assertEquals(OK, board.play(at("c3")));
+		String[] after = {
+				".O.O.",
+				"OO.O.",
+				"..O##",
+				"OO.OO",
+				".O.O.",
 		};
 		assertEquals(asOneString(after), board.toString());
 	}
