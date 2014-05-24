@@ -56,6 +56,16 @@ final class Point {
 	}
 
 	/**
+	 * Makes this stone a single-stone chain.
+	 * 
+	 * @param directLiberties The liberties directly around this point.
+	 */
+	void becomeOneStoneChain(ShortSet directLiberties) {
+		chainNextPoint = index;
+		liberties.copyDataFrom(directLiberties);
+	}
+
+	/**
 	 * Returns this point to its initial state. Should only be called on
 	 * on-board points.
 	 */
@@ -63,6 +73,14 @@ final class Point {
 		liberties.clear();
 		color = VACANT;
 		chainId = index;
+	}
+
+	/**
+	 * Returns true if this point is in atari. Assumes that this point is the root of it chain.
+	 */
+	boolean isInAtari() {
+		assert chainId == index;
+		return liberties.size() == 1;
 	}
 
 }

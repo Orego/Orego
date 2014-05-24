@@ -35,13 +35,10 @@ public final class BoardImplementation {
 	
 	public BoardImplementation(int width) {
 		coords = CoordinateSystem.forWidth(width);
-		// Many arrays are of these sizes, so naming them clarifies the code
-		short n = coords.getFirstPointBeyondBoard();
-		short extended = coords.getFirstPointBeyondExtendedBoard();
-		points = new Point[extended];
+		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
 		enemyNeighboringChainIds = new ShortList(4);
-		lastPlayLiberties = new ShortSet(n);
+		lastPlayLiberties = new ShortSet(coords.getFirstPointBeyondBoard());
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);
 		}
@@ -53,7 +50,7 @@ public final class BoardImplementation {
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
 	 * 
-	 * @param Color The color of the stone just played.
+	 * @param color The color of the stone just played.
 	 */
 	private void adjustEnemyNeighbors(StoneColor color, short p) {
 		// TODO Should the caller find the opposite color?
@@ -83,8 +80,7 @@ public final class BoardImplementation {
 	private void adjustFriendlyNeighbors(StoneColor color, short p) {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
-			points[p].chainNextPoint = p;
-			points[p].liberties.copyDataFrom(lastPlayLiberties);
+			points[p].becomeOneStoneChain(lastPlayLiberties);
 //			if (points[p].liberties.size() == 1) {
 //				chainsInAtari[color].addKnownAbsent(p);
 //			}
@@ -114,7 +110,6 @@ public final class BoardImplementation {
 				}
 			}
 			points[c].liberties.addAll(lastPlayLiberties);
-			assert points[c].liberties.contains(p);
 			points[c].liberties.removeKnownPresent(p);
 //			if (points[c].liberties.size() == 1) {
 //				chainsInAtari[color].add(c);
@@ -131,7 +126,7 @@ public final class BoardImplementation {
 		return coords.at(r, c);
 	}
 	
-	/** @see CoordinateSystem#at(String) */
+	/** @see edu.lclark.orego.core.CoordinateSystem#at(String) */
 	public short at(String label) {
 		return coords.at(label);
 	}
@@ -160,10 +155,8 @@ public final class BoardImplementation {
 		points[p].color = color;
 		// TODO Update stone counts, hash, vacant points, maybe neighbor counts
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
-		
 		adjustFriendlyNeighbors(color, p);
 		adjustEnemyNeighbors(color, p);
-		
 //		if (liberties[points[p].chainId].size() == 1) {
 //			chainsInAtari[color].add(points[p].chainId);
 //		}
@@ -238,11 +231,11 @@ public final class BoardImplementation {
 			} else if (neighborColor == color) { // Friendly neighbor
 				short chainId = points[n].chainId;
 				friendlyNeighboringChainIds.addIfNotPresent(chainId);
-				suicide &= (points[chainId].liberties.size() == 1);
+				suicide &= (points[chainId].isInAtari());
 			} else if (neighborColor != OFF_BOARD) { // Enemy neighbor
 				short chainId = points[n].chainId;
 				enemyNeighboringChainIds.addIfNotPresent(chainId);
-				suicide &= !(points[chainId].liberties.size() == 1);
+				suicide &= !(points[chainId].isInAtari());
 			}
 		}
 		return suicide;
@@ -325,7 +318,6 @@ public final class BoardImplementation {
 //		moves[turn] = p;
 //		turn++;
 		// TODO Update hash code, superko table
-		// TODO This currently considers any move legal!
 		return OK;
 	}
 
