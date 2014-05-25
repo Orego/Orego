@@ -13,6 +13,7 @@ import edu.lclark.orego.util.*;
  * Note that, elsewhere in Orego, Points are not passed around as arguments.
  * Primitive shorts are used instead.
  * 
+ * @see edu.lclark.orego.core.BoardImplementation
  * @see edu.lclark.orego.core.CoordinateSystem.
  */
 final class Point {

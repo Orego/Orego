@@ -8,6 +8,8 @@ import orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 
+// TODO Should this implement the same interface as CoordinateSystem and provide delegate methods?
+// Alternately, should we rip out the delegates and ask others to call getCoordinateSystem?
 public final class BoardImplementation {
 
 	/**
@@ -32,8 +34,7 @@ public final class BoardImplementation {
 	private final ShortList friendlyNeighboringChainIds;
 
 	/**
-	 * Zobrist hash of the current board position, including the simple ko
-	 * point.
+	 * Zobrist hash of the current board position.
 	 * 
 	 * @see #getHash()
 	 */
@@ -85,8 +86,8 @@ public final class BoardImplementation {
 	 *            The color of the stone just played.
 	 */
 	private void adjustEnemyNeighbors(StoneColor color, short p) {
-		// TODO Should the caller find the opposite color?
-		StoneColor enemyColor = color.opposite();
+//		// TODO Should the caller find the opposite color?
+//		StoneColor enemyColor = color.opposite();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
 			if (points[enemy].liberties.size() == 1) {
@@ -154,7 +155,7 @@ public final class BoardImplementation {
 	/**
 	 * @see edu.lclark.orego.core.CoordinateSystem#at(int, int)
 	 */
-	private short at(int r, int c) {
+	public short at(int r, int c) {
 		return coords.at(r, c);
 	}
 
@@ -208,6 +209,20 @@ public final class BoardImplementation {
 		}
 	}
 
+	/**
+	 * @see edu.lclark.orego.core.CoordinateSystem#getAllPointsOnBoard()
+	 */
+	public short[] getAllPointsOnBoard() {
+		return coords.getAllPointsOnBoard();
+	}
+
+	/**
+	 * @see edu.lclark.orego.core.CoordinateSystem#getArea()
+	 */
+	public int getArea() {
+		return coords.getArea();
+	}
+
 	/** Returns the color at point p. */
 	public Color getColorAt(short p) {
 		return points[p].color;
@@ -223,6 +238,13 @@ public final class BoardImplementation {
 	 */
 	public long getHash() {
 		return hash;
+	}
+
+	/**
+	 * @see edu.lclark.orego.core.CoordinateSystem#getMaxMovesPerGame()
+	 */
+	public short getMaxMovesPerGame() {
+		return coords.getMaxMovesPerGame();
 	}
 
 	/**
@@ -416,7 +438,6 @@ public final class BoardImplementation {
 		short[] neighbors = getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
-			// neighborCounts[n] -= NEIGHBOR_INCREMENT[color];
 			// This seems to be a rare appropriate use of instanceof
 			if (points[n].color instanceof StoneColor) {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
@@ -430,11 +451,6 @@ public final class BoardImplementation {
 			// chainsInAtari[enemyColor].remove(c);
 			// }
 		}
-		// Clear chainId so that a stone removed by undo() doesn't appear to
-		// still be part of its former chain
-		// (This would be a problem when updating liberties if the same move
-		// were replayed.)
-		points[p].chainId = p;
 	}
 
 	/**

@@ -145,7 +145,7 @@ public class BoardImplementationTest {
 	}
 
 	@Test
-	public void testPositionalSuperko() {
+	public void testPositionalSuperKo() {
 		String[] before = {
 				".....",
 				".....",
@@ -165,6 +165,41 @@ public class BoardImplementationTest {
 				"#..#.",
 		};
 		assertEquals(asOneString(after), board.toString());
+	}
+	
+	@Test
+	public void testMaxMovesPerGame() {
+		short[] points = board.getAllPointsOnBoard();
+		int i;
+		for (i = 0; i < points.length - 2; i++) {
+			assertEquals(OK, board.play(points[i]));
+			board.pass();
+		}
+		assertEquals(OK, board.play(points[i]));
+		i++;
+		assertEquals(OK, board.play(points[i]));
+		board.pass();
+		int n = board.getArea() * 2 - 1;
+		for (i = 0; i < points.length - 2; i++) {
+			assertEquals(OK, board.play(points[i]));
+			n++;
+			if (n == board.getMaxMovesPerGame() - 2) {
+				break;
+			}
+			board.pass();
+			n++;
+			if (n == board.getMaxMovesPerGame() - 2) {
+				break;
+			}
+		}
+		System.out.println("Too long");
+		i++;
+		assertEquals(GAME_TOO_LONG, board.play(points[i]));
+		assertEquals(OK, board.play(PASS));
+		i++;
+		assertEquals(GAME_TOO_LONG, board.play(points[i]));
+		assertEquals(OK, board.play(PASS));
+		return;
 	}
 
 }

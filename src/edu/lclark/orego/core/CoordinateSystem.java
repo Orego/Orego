@@ -1,6 +1,6 @@
 package edu.lclark.orego.core;
 
-import static edu.lclark.orego.core.NonStoneColor.*;
+import static orego.core.Coordinates.getBoardArea;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -80,6 +80,11 @@ public final class CoordinateSystem {
 	/** Instances for various board widths. */
 	private static final CoordinateSystem[] instances = new CoordinateSystem[20];
 
+	/**
+	 * @see #getMaxMovesPerGame()
+	 */
+	private final short maxMovesPerGame;
+
 	/** Special value for no point. */
 	public static final short NO_POINT = 0;
 
@@ -123,13 +128,14 @@ public final class CoordinateSystem {
 	private CoordinateSystem(int width) {
 		this.width = width;
 		south = (short) (width + 1);
-		int boardArea = width * width;
+		short boardArea = (short)(width * width);
 		allPointsOnBoard = new short[boardArea];
 		for (int r = 0, i = 0; r < width; r++) {
 			for (int c = 0; c < width; c++, i++) {
 				allPointsOnBoard[i] = at(r, c);
 			}
 		}
+		maxMovesPerGame = (short)(boardArea * 3);
 		int extended = getFirstPointBeyondExtendedBoard();
 		neighbors = new short[extended][];
 		zobristHashes = new long[2][extended];
@@ -192,6 +198,11 @@ public final class CoordinateSystem {
 	public short[] getAllPointsOnBoard() {
 		return allPointsOnBoard;
 	}
+	
+	/** Returns the number of points on the board. */
+	public int getArea() {
+		return width * width;
+	}
 
 	/**
 	 * Returns the index of the first point beyond the board. This is useful as
@@ -213,6 +224,16 @@ public final class CoordinateSystem {
 	/** Returns the random number for playing a stone of color at p. */
 	long getHash(Color color, short p) {
 		return zobristHashes[color.index()][p];
+	}
+
+	/**
+	 * Returns the maximum number of moves per game. It should be extremely rare
+	 * to actually play this many moves, but a playout (which doesn't check
+	 * superko) might run this long. It's faster to just cut off such unusual
+	 * runs (by forcing passes) than to check for superko in playouts.
+	 */
+	public short getMaxMovesPerGame() {
+		return maxMovesPerGame;
 	}
 
 	/**
