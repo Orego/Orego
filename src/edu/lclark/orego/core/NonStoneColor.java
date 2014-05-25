@@ -4,15 +4,23 @@ package edu.lclark.orego.core;
 public enum NonStoneColor implements Color {
 
 	/** Color of, e.g., a sentinel point off the edge of the board. */
-	OFF_BOARD('?'),
+	OFF_BOARD('?', 3),
 
 	/** Color of an unoccupied point. */
-	VACANT('.');
+	VACANT('.', 2);
 
 	private char glyph;
 
-	private NonStoneColor(char c) {
+	private int index;
+	
+	private NonStoneColor(char c, int index) {
 		glyph = c;
+		this.index = index;
+	}
+
+	@Override
+	public int index() {
+		return index;
 	}
 
 	@Override

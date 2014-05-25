@@ -1,5 +1,8 @@
 package edu.lclark.orego.core;
 
+import static edu.lclark.orego.core.NonStoneColor.*;
+import ec.util.MersenneTwisterFast;
+
 /**
  * Coordinate system to convert between a short and other representations of a
  * location. There is no public constructor for this class; instead, use the
@@ -110,27 +113,40 @@ public final class CoordinateSystem {
 	/** Width of the board. */
 	private final int width;
 
+	/**
+	 * Random numbers for Zobrist hashes, indexed by color and point. The last
+	 * row is for the simple ko point.
+	 */
+	private final long[][] zobristHashes;
+	
 	/** Other classes should use forWidth to get an instance. */
 	private CoordinateSystem(int width) {
 		this.width = width;
 		south = (short) (width + 1);
 		int boardArea = width * width;
-		int extendedBoardArea = (width + 1) * (width + 2) + 1;
 		allPointsOnBoard = new short[boardArea];
-		int i = 0;
-		for (int r = 0; r < width; r++) {
-			for (int c = 0; c < width; c++) {
+		for (int r = 0, i = 0; r < width; r++) {
+			for (int c = 0; c < width; c++, i++) {
 				allPointsOnBoard[i] = at(r, c);
-				i++;
 			}
 		}
-		neighbors = new short[extendedBoardArea][];
+		int extended = getFirstPointBeyondExtendedBoard();
+		neighbors = new short[extended][];
+		zobristHashes = new long[3][extended];
 		for (short p : allPointsOnBoard) {
 			neighbors[p] = new short[] { (short) (p - south),
 					(short) (p - EAST), (short) (p + EAST),
 					(short) (p + south), (short) (p - south - EAST),
 					(short) (p - south + EAST), (short) (p + south - EAST),
 					(short) (p + south + EAST) };
+			// TODO Should we be using Java's random instead?
+			MersenneTwisterFast random = new MersenneTwisterFast(0L);
+			for (int i = 0; i < zobristHashes.length; i++) {
+				zobristHashes[i][p] = random.nextLong();
+			}
+			// Set the element below to zero, so that xoring in the ko point when
+			// there isn't one has no effect.
+			zobristHashes[VACANT.index()][NO_POINT] = 0L;
 		}
 	}
 
@@ -195,6 +211,11 @@ public final class CoordinateSystem {
 	 */
 	public short getFirstPointBeyondExtendedBoard() {
 		return (short) ((width + 1) * (width + 2) + 1);
+	}
+
+	/** Returns the random number for playing a stone of color at p. */
+	long getHash(Color color, short p) {
+		return zobristHashes[color.index()][p];
 	}
 
 	/**

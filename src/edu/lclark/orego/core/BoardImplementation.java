@@ -4,14 +4,21 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
+import orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 
 public final class BoardImplementation {
 
+	/**
+	 * Used (for different purposes) by hashAfterRemovingCapturedStones() and
+	 * isSelfAtari().
+	 */
+	private final BitVector adjacentChains;
+
 	/** The color to play next. */
 	private StoneColor colorToPlay;
-	
+
 	/** Coordinate system based on board width. */
 	private final CoordinateSystem coords;
 
@@ -24,6 +31,14 @@ public final class BoardImplementation {
 	/** Identifiers of friendly chains adjacent to the move just played. */
 	private final ShortList friendlyNeighboringChainIds;
 
+	/**
+	 * Zobrist hash of the current board position, including the simple ko
+	 * point.
+	 * 
+	 * @see #getHash()
+	 */
+	private long hash;
+	
 	/** The point, if any, where the simple ko rule prohibits play. */
 	private short koPoint;
 
@@ -35,17 +50,25 @@ public final class BoardImplementation {
 
 	/** Point on the board (and surrounding sentinels). */
 	private final Point[] points;
-	
+
+	/**
+	 * A hash table of all previous board positions for ko verification. The
+	 * hash codes stored here do NOT include the simple ko point.
+	 */
+	private final SuperKoTable superKoTable;
+
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
-	
+
 	public BoardImplementation(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
 		enemyNeighboringChainIds = new ShortList(4);
 		int n = coords.getFirstPointBeyondBoard();
+		adjacentChains = new BitVector(n);
 		lastPlayLiberties = new ShortSet(n);
+		superKoTable = new SuperKoTable();
 		vacantPoints = new ShortSet(n);
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);
@@ -58,7 +81,8 @@ public final class BoardImplementation {
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
 	 * 
-	 * @param color The color of the stone just played.
+	 * @param color
+	 *            The color of the stone just played.
 	 */
 	private void adjustEnemyNeighbors(StoneColor color, short p) {
 		// TODO Should the caller find the opposite color?
@@ -66,7 +90,7 @@ public final class BoardImplementation {
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
 			if (points[enemy].liberties.size() == 1) {
-//				chainsInAtari[enemyColor].remove(enemy);
+				// chainsInAtari[enemyColor].remove(enemy);
 				short s = enemy;
 				do {
 					removeStone(s);
@@ -74,9 +98,9 @@ public final class BoardImplementation {
 				} while (s != enemy);
 			} else {
 				points[enemy].liberties.removeKnownPresent(p);
-//				if (points[enemy].liberties.size() == 1) {
-//					chainsInAtari[enemyColor].addKnownAbsent(enemy);
-//				}
+				// if (points[enemy].liberties.size() == 1) {
+				// chainsInAtari[enemyColor].addKnownAbsent(enemy);
+				// }
 			}
 		}
 	}
@@ -89,9 +113,9 @@ public final class BoardImplementation {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			points[p].becomeOneStoneChain(lastPlayLiberties);
-//			if (points[p].liberties.size() == 1) {
-//				chainsInAtari[color].addKnownAbsent(p);
-//			}
+			// if (points[p].liberties.size() == 1) {
+			// chainsInAtari[color].addKnownAbsent(p);
+			// }
 		} else if (friendlyNeighboringChainIds.size() == 1) {
 			// If there is only one friendly neighbor, add this stone to that
 			// chain
@@ -99,11 +123,11 @@ public final class BoardImplementation {
 			points[c].liberties.addAll(lastPlayLiberties);
 			points[c].liberties.removeKnownPresent(p);
 			points[p].addToChain(points[c]);
-//			if (points[c].liberties.size() == 1) {
-//				chainsInAtari[color].add(c);
-//			} else {
-//				chainsInAtari[color].remove(c);
-//			}
+			// if (points[c].liberties.size() == 1) {
+			// chainsInAtari[color].add(c);
+			// } else {
+			// chainsInAtari[color].remove(c);
+			// }
 		} else {
 			// If there are several friendly neighbors, merge them
 			short c = friendlyNeighboringChainIds.get(0);
@@ -119,11 +143,11 @@ public final class BoardImplementation {
 			}
 			points[c].liberties.addAll(lastPlayLiberties);
 			points[c].liberties.removeKnownPresent(p);
-//			if (points[c].liberties.size() == 1) {
-//				chainsInAtari[color].add(c);
-//			} else {
-//				chainsInAtari[color].remove(c);
-//			}
+			// if (points[c].liberties.size() == 1) {
+			// chainsInAtari[color].add(c);
+			// } else {
+			// chainsInAtari[color].remove(c);
+			// }
 		}
 	}
 
@@ -133,7 +157,7 @@ public final class BoardImplementation {
 	private short at(int r, int c) {
 		return coords.at(r, c);
 	}
-	
+
 	/** @see edu.lclark.orego.core.CoordinateSystem#at(String) */
 	public short at(String label) {
 		return coords.at(label);
@@ -147,7 +171,9 @@ public final class BoardImplementation {
 	 */
 	public void clear() {
 		colorToPlay = BLACK;
+		hash = SuperKoTable.EMPTY;
 		koPoint = NO_POINT;
+		superKoTable.clear();
 		vacantPoints.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			points[p].clear();
@@ -158,28 +184,31 @@ public final class BoardImplementation {
 	/**
 	 * Updates data structures at the end of a play.
 	 * 
-	 * @param color The color of the stone played.
-	 * @param p The location where the stone was played.
+	 * @param color
+	 *            The color of the stone played.
+	 * @param p
+	 *            The location where the stone was played.
 	 */
 	private void finalizePlay(StoneColor color, short p) {
 		short lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
 		vacantPoints.remove(p);
-		// TODO Update stone counts, hash, maybe neighbor counts
+		// TODO Update stone counts, maybe neighbor counts
+		hash ^= coords.getHash(color, p);
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
 		adjustFriendlyNeighbors(color, p);
 		adjustEnemyNeighbors(color, p);
-//		if (liberties[points[p].chainId].size() == 1) {
-//			chainsInAtari[color].add(points[p].chainId);
-//		}
+		// if (liberties[points[p].chainId].size() == 1) {
+		// chainsInAtari[color].add(points[p].chainId);
+		// }
 		// The rest is about the local ko point and hash
-//		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
+		hash ^= coords.getHash(VACANT, koPoint);
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
 			koPoint = NO_POINT;
 		}
-//		hash ^= ZOBRIST_HASHES[VACANT][koPoint];
+		 hash ^= coords.getHash(VACANT, koPoint);
 	}
 
 	/** Returns the color at point p. */
@@ -192,6 +221,16 @@ public final class BoardImplementation {
 		return colorToPlay;
 	}
 
+	/**
+	 * Returns the Zobrist hash of the current board position, including the
+	 * simple ko point and color to play.
+	 */
+	public long getHash() {
+		if (colorToPlay == WHITE) {
+			return ~hash;
+		}
+		return hash;
+	}
 	/**
 	 * Returns an array of the neighbors of p.
 	 * 
@@ -209,7 +248,47 @@ public final class BoardImplementation {
 		return coords.getWidth();
 	}
 
-	/** Returns true if the stone at p has the maximum possible number of neighbors of color p. */
+	/**
+	 * Returns the hash value that would result if the captured stones were
+	 * removed. Used by play() to detect superko.
+	 * 
+	 * @param color Color of the stone to be played.
+	 * @param p Location of the stone to be played.
+	 */
+	private long hashAfterRemovingCapturedStones(StoneColor color, short p) {
+		long result = hash;
+		result ^= coords.getHash(color, p);
+		adjacentChains.clear(); // Chains to be captured
+		StoneColor enemy = color.opposite();
+		short[] neighbors = coords.getNeighbors(p);
+		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+			short n = neighbors[i];
+			if (points[n].color == enemy) {
+				short c = points[n].chainId;
+				if (points[c].isInAtari() & !adjacentChains.get(c)) {
+					adjacentChains.set(c, true);
+					short active = c;
+					do {
+						result ^= coords.getHash(enemy, active);
+						active = points[active].chainNextPoint;
+					} while (active != c);
+				}
+			}
+		}
+		// Xor out the old simple ko point
+		result ^= coords.getHash(VACANT, koPoint);
+		// The new simple ko point is NOT xored back in, because the
+		// superko table hashes should not include this information
+		if (colorToPlay == BLACK) {
+			return ~result;
+		}
+		return result;
+	}
+
+	/**
+	 * Returns true if the stone at p has the maximum possible number of
+	 * neighbors of color p.
+	 */
 	private boolean hasMaxNeighborsForColor(StoneColor color, short p) {
 		short[] neighbors = getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
@@ -224,7 +303,8 @@ public final class BoardImplementation {
 	/**
 	 * Visits neighbors of p, looking for potential captures and chains to merge
 	 * with the new stone. As a side effect, loads the fields
-	 * friendlyNeighboringChainIds, enemyNeighboringChainIds, and lastPlayLiberties.
+	 * friendlyNeighboringChainIds, enemyNeighboringChainIds, and
+	 * lastPlayLiberties.
 	 * 
 	 * @return true if playing at p would be suicidal.
 	 */
@@ -266,7 +346,10 @@ public final class BoardImplementation {
 		if (isSuicidal(color, p)) {
 			return SUICIDE;
 		}
-		// TODO Superko
+		long proposed = hashAfterRemovingCapturedStones(color, p);
+		if (superKoTable.contains(proposed) || superKoTable.contains(~proposed)) {
+			return KO_VIOLATION;
+		}
 		return OK;
 	}
 
@@ -275,12 +358,12 @@ public final class BoardImplementation {
 	 * a stone in one of the chains to be merged.
 	 * 
 	 * @param base
-	 *            if not too expensive to compute, should be the larger of the
-	 *            two chains.
+	 *            If not too expensive to compute, base should be the larger of
+	 *            the two chains.
 	 */
-	private void mergeChains(int base, int appendage) {
+	private void mergeChains(short base, short appendage) {
 		points[base].liberties.addAll(points[appendage].liberties);
-//		chainsInAtari[colors[appendage]].remove(appendage);
+		// chainsInAtari[colors[appendage]].remove(appendage);
 		int active = appendage;
 		do {
 			points[active].chainId = points[base].chainId;
@@ -293,15 +376,15 @@ public final class BoardImplementation {
 
 	/** Plays a pass move. */
 	public void pass() {
-		// TODO Update hash, number of passes, history 
+		// TODO Update hash, number of passes, history
 		if (koPoint != NO_POINT) {
-//			hash ^= ZOBRIST_HASHES[VACANT][koPoint];
+			hash ^= coords.getHash(VACANT, koPoint);
 			koPoint = NO_POINT;
 		}
 		colorToPlay = colorToPlay.opposite();
-//		passes++;
-//		moves[turn] = PASS;
-//		turn++;
+		// passes++;
+		// moves[turn] = PASS;
+		// turn++;
 	}
 
 	/** Places a stone of color at point p. */
@@ -310,7 +393,16 @@ public final class BoardImplementation {
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);
 		finalizePlay(color, p);
-		// TODO Update hash code
+		// The hash to store for superko checking does not include the simple ko
+		// point
+		// TODO Why not?
+		long hashToStore = hash ^ coords.getHash(VACANT, koPoint);
+		// TODO Does the stored hash include the color to play or not? Comments
+		// elsewhere are ambiguous.
+		if (color == WHITE) {
+			hashToStore = ~hashToStore;
+		}
+		superKoTable.add(hashToStore);
 	}
 
 	/**
@@ -329,25 +421,32 @@ public final class BoardImplementation {
 		finalizePlay(colorToPlay, p);
 		colorToPlay = colorToPlay.opposite();
 		// TODO Update passes, move history
-//		passes = 0;
-//		moves[turn] = p;
-//		turn++;
-		// TODO Update hash code, superko table
+		// passes = 0;
+		// moves[turn] = p;
+		// turn++;
+		// The hash to store for superko checking does not include the simple ko
+		// point
+		// TODO Why is this an issue?
+		long hashToStore = hash ^ coords.getHash(VACANT, koPoint);
+		if (colorToPlay == WHITE) {
+			hashToStore = ~hashToStore;
+		}
+		superKoTable.add(hashToStore);
 		return OK;
 	}
 
 	/** Removes the stone at p. */
 	public void removeStone(short p) {
-		StoneColor color = (StoneColor)(points[p].color);
-//		stoneCounts[color]--;
-//		hash ^= ZOBRIST_HASHES[color][p];
+		StoneColor color = (StoneColor) (points[p].color);
+		// stoneCounts[color]--;
+		hash ^= coords.getHash(color, p);
 		points[p].color = VACANT;
 		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
 		short[] neighbors = getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
-//			neighborCounts[n] -= NEIGHBOR_INCREMENT[color];
+			// neighborCounts[n] -= NEIGHBOR_INCREMENT[color];
 			// This seems to be a rare appropriate use of instanceof
 			if (points[n].color instanceof StoneColor) {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
@@ -357,9 +456,9 @@ public final class BoardImplementation {
 		for (int k = 0; k < neighborsOfCapturedStone.size(); k++) {
 			int c = neighborsOfCapturedStone.get(k);
 			points[c].liberties.addKnownAbsent(p);
-//			if (points[c].liberties.size() > 1) {
-//				chainsInAtari[enemyColor].remove(c);
-//			}
+			// if (points[c].liberties.size() > 1) {
+			// chainsInAtari[enemyColor].remove(c);
+			// }
 		}
 		// Clear chainId so that a stone removed by undo() doesn't appear to
 		// still be part of its former chain

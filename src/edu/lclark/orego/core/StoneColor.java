@@ -3,14 +3,22 @@ package edu.lclark.orego.core;
 /** Color of a stone. */
 public enum StoneColor implements Color {
 
-	BLACK('#'),
+	BLACK('#', 0),
 
-	WHITE('O');
+	WHITE('O', 1);
 
 	private char glyph;
 
-	private StoneColor(char c) {
+	private int index;
+	
+	private StoneColor(char c, int index) {
 		glyph = c;
+		this.index = index;
+	}
+
+	@Override
+	public int index() {
+		return index;
 	}
 
 	/** Returns the opposite color. */
