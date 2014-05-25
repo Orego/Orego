@@ -8,7 +8,7 @@ import static orego.core.Board.MAX_MOVES_PER_GAME;
  * insertion, search, and copying. Collisions are resolved by linear probing.
  * The special value EMPTY is always considered to be in the table.
  */
-public class SuperKoTable {
+public final class SuperKoTable {
 
 	/**
 	 * Special value for an empty slot in the table. This number also represents
@@ -23,7 +23,7 @@ public class SuperKoTable {
 	public static final int IGNORE_SIGN_BIT = 0x7fffffff;
 
 	/** The table proper. */
-	private long[] data;
+	private final long[] data;
 
 	public SuperKoTable() {
 		data = new long[MAX_MOVES_PER_GAME * 2];
@@ -31,7 +31,7 @@ public class SuperKoTable {
 
 	/** Adds key to this table. */
 	public void add(long key) {
-		if (key != 0) {
+		if (key != EMPTY) {
 			int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
 			while (data[slot] != EMPTY) {
 				if (data[slot] == key) {

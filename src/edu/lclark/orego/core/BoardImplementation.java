@@ -201,14 +201,11 @@ public final class BoardImplementation {
 		// if (liberties[points[p].chainId].size() == 1) {
 		// chainsInAtari[color].add(points[p].chainId);
 		// }
-		// The rest is about the local ko point and hash
-		hash ^= coords.getHash(VACANT, koPoint);
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
 			koPoint = NO_POINT;
 		}
-		 hash ^= coords.getHash(VACANT, koPoint);
 	}
 
 	/** Returns the color at point p. */
@@ -222,15 +219,12 @@ public final class BoardImplementation {
 	}
 
 	/**
-	 * Returns the Zobrist hash of the current board position, including the
-	 * simple ko point and color to play.
+	 * Returns the Zobrist hash of the current board position.
 	 */
 	public long getHash() {
-		if (colorToPlay == WHITE) {
-			return ~hash;
-		}
 		return hash;
 	}
+
 	/**
 	 * Returns an array of the neighbors of p.
 	 * 
@@ -274,13 +268,6 @@ public final class BoardImplementation {
 					} while (active != c);
 				}
 			}
-		}
-		// Xor out the old simple ko point
-		result ^= coords.getHash(VACANT, koPoint);
-		// The new simple ko point is NOT xored back in, because the
-		// superko table hashes should not include this information
-		if (colorToPlay == BLACK) {
-			return ~result;
 		}
 		return result;
 	}
@@ -347,7 +334,7 @@ public final class BoardImplementation {
 			return SUICIDE;
 		}
 		long proposed = hashAfterRemovingCapturedStones(color, p);
-		if (superKoTable.contains(proposed) || superKoTable.contains(~proposed)) {
+		if (superKoTable.contains(proposed)) {
 			return KO_VIOLATION;
 		}
 		return OK;
@@ -376,9 +363,8 @@ public final class BoardImplementation {
 
 	/** Plays a pass move. */
 	public void pass() {
-		// TODO Update hash, number of passes, history
+		// TODO Update number of passes, history
 		if (koPoint != NO_POINT) {
-			hash ^= coords.getHash(VACANT, koPoint);
 			koPoint = NO_POINT;
 		}
 		colorToPlay = colorToPlay.opposite();
@@ -393,16 +379,7 @@ public final class BoardImplementation {
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);
 		finalizePlay(color, p);
-		// The hash to store for superko checking does not include the simple ko
-		// point
-		// TODO Why not?
-		long hashToStore = hash ^ coords.getHash(VACANT, koPoint);
-		// TODO Does the stored hash include the color to play or not? Comments
-		// elsewhere are ambiguous.
-		if (color == WHITE) {
-			hashToStore = ~hashToStore;
-		}
-		superKoTable.add(hashToStore);
+		superKoTable.add(hash);
 	}
 
 	/**
@@ -424,14 +401,7 @@ public final class BoardImplementation {
 		// passes = 0;
 		// moves[turn] = p;
 		// turn++;
-		// The hash to store for superko checking does not include the simple ko
-		// point
-		// TODO Why is this an issue?
-		long hashToStore = hash ^ coords.getHash(VACANT, koPoint);
-		if (colorToPlay == WHITE) {
-			hashToStore = ~hashToStore;
-		}
-		superKoTable.add(hashToStore);
+		superKoTable.add(hash);
 		return OK;
 	}
 
@@ -452,7 +422,7 @@ public final class BoardImplementation {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
 			}
 		}
-		StoneColor enemyColor = color.opposite();
+//		StoneColor enemyColor = color.opposite();
 		for (int k = 0; k < neighborsOfCapturedStone.size(); k++) {
 			int c = neighborsOfCapturedStone.get(k);
 			points[c].liberties.addKnownAbsent(p);

@@ -103,6 +103,11 @@ public final class ShortSet {
 		return data[i];
 	}
 
+	@Override
+	public int hashCode() {
+		throw new UnsupportedOperationException("ShortSets are not suitable for storing in hash tables");
+	}
+
 	/** Removes key, which may or may not be present, from this set. */
 	public void remove(short key) {
 		if (contains(key)) {

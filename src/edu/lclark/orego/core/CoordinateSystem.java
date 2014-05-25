@@ -132,21 +132,18 @@ public final class CoordinateSystem {
 		}
 		int extended = getFirstPointBeyondExtendedBoard();
 		neighbors = new short[extended][];
-		zobristHashes = new long[3][extended];
+		zobristHashes = new long[2][extended];
+		// TODO Should we be using Java's random instead?
+		MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (short p : allPointsOnBoard) {
 			neighbors[p] = new short[] { (short) (p - south),
 					(short) (p - EAST), (short) (p + EAST),
 					(short) (p + south), (short) (p - south - EAST),
 					(short) (p - south + EAST), (short) (p + south - EAST),
 					(short) (p + south + EAST) };
-			// TODO Should we be using Java's random instead?
-			MersenneTwisterFast random = new MersenneTwisterFast(0L);
 			for (int i = 0; i < zobristHashes.length; i++) {
 				zobristHashes[i][p] = random.nextLong();
 			}
-			// Set the element below to zero, so that xoring in the ko point when
-			// there isn't one has no effect.
-			zobristHashes[VACANT.index()][NO_POINT] = 0L;
 		}
 	}
 
