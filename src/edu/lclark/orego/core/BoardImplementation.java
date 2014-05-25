@@ -49,6 +49,9 @@ public final class BoardImplementation {
 	/** Neighbors of a stone just captured. Used by removeStone(). */
 	private final ShortList neighborsOfCapturedStone;
 
+	/** Number of consecutive passes just played. */
+	private short passes;
+	
 	/** Point on the board (and surrounding sentinels). */
 	private final Point[] points;
 
@@ -177,6 +180,7 @@ public final class BoardImplementation {
 		colorToPlay = BLACK;
 		hash = SuperKoTable.EMPTY;
 		koPoint = NO_POINT;
+		passes = 0;
 		superKoTable.clear();
 		turn = 0;
 		vacantPoints.clear();
@@ -258,6 +262,13 @@ public final class BoardImplementation {
 	 */
 	public short[] getNeighbors(short p) {
 		return coords.getNeighbors(p);
+	}
+
+	/**
+	 * Returns the number of consecutive passes ending the move sequence so far.
+	 */
+	public int getPasses() {
+		return passes;
 	}
 
 	/**
@@ -393,7 +404,7 @@ public final class BoardImplementation {
 			koPoint = NO_POINT;
 		}
 		colorToPlay = colorToPlay.opposite();
-		// passes++;
+		passes++;
 		// moves[turn] = PASS;
 		turn++;
 	}
@@ -425,8 +436,7 @@ public final class BoardImplementation {
 		}
 		finalizePlay(colorToPlay, p);
 		colorToPlay = colorToPlay.opposite();
-		// TODO Update passes, move history
-		// passes = 0;
+		passes = 0;
 		// moves[turn] = p;
 		turn++;
 		superKoTable.add(hash);

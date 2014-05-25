@@ -201,4 +201,16 @@ public class BoardImplementationTest {
 		return;
 	}
 
+	@Test
+	public void testPasses() {
+		assertEquals(0, board.getPasses());
+		board.pass();
+		assertEquals(1, board.getPasses());
+		board.play(at("c4"));
+		assertEquals(0, board.getPasses());
+		board.pass();
+		assertEquals(1, board.getPasses());
+		board.pass();
+		assertEquals(2, board.getPasses());
+	}
 }
