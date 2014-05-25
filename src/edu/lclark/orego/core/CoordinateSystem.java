@@ -254,6 +254,20 @@ public final class CoordinateSystem {
 		return width;
 	}
 
+//	/** Returns true if p is on the edge or corner of the board. */
+//	public boolean isEdgeOrCorner(short p) {
+//		assert isOnBoard(p);
+//		int r = row(p);
+//		if (r == 0 || r == width - 1) {
+//			return true;
+//		}
+//		int c = column(p);
+//		if (c == 0 || c == width - 1) {
+//			return true;
+//		}
+//		return false;
+//	}
+
 	/** Returns true if p is on the board. */
 	public boolean isOnBoard(short p) {
 		return isValidOneDimensionalCoordinate(row(p))

@@ -2,7 +2,6 @@ package edu.lclark.orego.core;
 
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -12,7 +11,10 @@ public class BoardImplementationTest {
 
 	private BoardImplementation board;
 
-	/** Returns a single String built from diagram, analogous to that produced by BoardImplementation.toString. */
+	/**
+	 * Returns a single String built from diagram, analogous to that produced by
+	 * BoardImplementation.toString.
+	 */
 	private static String asOneString(String[] diagram) {
 		String result = "";
 		for (String s : diagram) {

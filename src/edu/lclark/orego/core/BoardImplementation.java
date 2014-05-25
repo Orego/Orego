@@ -324,6 +324,13 @@ public final class BoardImplementation {
 		return true;
 	}
 
+//	/**
+//	 * @see edu.lclark.orego.core.CoordinateSystem#isEdgeOrCorner(short)
+//	 */
+//	public boolean isEdgeOrCorner(short p) {
+//		return coords.isEdgeOrCorner(p);
+//	}
+
 	/**
 	 * Visits neighbors of p, looking for potential captures and chains to merge
 	 * with the new stone. As a side effect, loads the fields
