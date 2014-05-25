@@ -192,7 +192,6 @@ public class BoardImplementationTest {
 				break;
 			}
 		}
-		System.out.println("Too long");
 		i++;
 		assertEquals(GAME_TOO_LONG, board.play(points[i]));
 		assertEquals(OK, board.play(PASS));

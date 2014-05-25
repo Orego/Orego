@@ -58,6 +58,9 @@ public final class BoardImplementation {
 	 */
 	private final SuperKoTable superKoTable;
 
+	/** Turn number. At the beginning of a game, this is 0. */
+	private short turn;
+	
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
 
@@ -175,6 +178,7 @@ public final class BoardImplementation {
 		hash = SuperKoTable.EMPTY;
 		koPoint = NO_POINT;
 		superKoTable.clear();
+		turn = 0;
 		vacantPoints.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			points[p].clear();
@@ -385,14 +389,13 @@ public final class BoardImplementation {
 
 	/** Plays a pass move. */
 	public void pass() {
-		// TODO Update number of passes, history
 		if (koPoint != NO_POINT) {
 			koPoint = NO_POINT;
 		}
 		colorToPlay = colorToPlay.opposite();
 		// passes++;
 		// moves[turn] = PASS;
-		// turn++;
+		turn++;
 	}
 
 	/** Places a stone of color at point p. */
@@ -413,6 +416,9 @@ public final class BoardImplementation {
 			pass();
 			return OK;
 		}
+		if (turn >= coords.getMaxMovesPerGame() - 2) {
+			return GAME_TOO_LONG;
+		}
 		Legality result = legality(colorToPlay, p);
 		if (result != OK) {
 			return result;
@@ -422,7 +428,7 @@ public final class BoardImplementation {
 		// TODO Update passes, move history
 		// passes = 0;
 		// moves[turn] = p;
-		// turn++;
+		turn++;
 		superKoTable.add(hash);
 		return OK;
 	}
