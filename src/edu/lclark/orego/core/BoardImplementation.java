@@ -272,6 +272,13 @@ public final class BoardImplementation {
 	}
 
 	/**
+	 * Returns the set of vacant points on this board.
+	 */
+	public ShortSet getVacantPoints() {
+		return vacantPoints;
+	}
+
+	/**
 	 * @return
 	 * @see edu.lclark.orego.core.CoordinateSystem#getWidth()
 	 */
@@ -448,6 +455,13 @@ public final class BoardImplementation {
 		turn++;
 		superKoTable.add(hash);
 		return OK;
+	}
+
+	/**
+	 * @see edu.lclark.orego.core.CoordinateSystem#toString(short)
+	 */
+	public String toString(short p) {
+		return coords.toString(p);
 	}
 
 	/** Removes the stone at p. */
