@@ -7,28 +7,11 @@ public enum StoneColor implements Color {
 
 	WHITE('O', 1);
 
-	private char glyph;
-
-	private int index;
-	
-	private StoneColor(char c, int index) {
-		glyph = c;
-		this.index = index;
-	}
-
-	@Override
-	public int index() {
-		return index;
-	}
-
-	/** Returns the opposite color. */
-	public StoneColor opposite() {
-		// Can anyone do this without the if? I can't find a way to store the
-		// information as the instances are created.
-		if (this == BLACK) {
-			return WHITE;
-		}
-		return BLACK;
+	// Set the opposite fields. This cannot be done in the constructor because,
+	// when BLACK is being constructed, WHITE doesn't exist yet.
+	static {
+		BLACK.opposite = WHITE;
+		WHITE.opposite = BLACK;
 	}
 
 	/**
@@ -42,6 +25,27 @@ public enum StoneColor implements Color {
 			return WHITE;
 		}
 		return null;
+	}
+
+	private final char glyph;
+
+	private final int index;
+
+	private StoneColor opposite;
+
+	private StoneColor(char c, int index) {
+		glyph = c;
+		this.index = index;
+	}
+
+	@Override
+	public int index() {
+		return index;
+	}
+
+	/** Returns the opposite color. */
+	public StoneColor opposite() {
+		return opposite;
 	}
 
 	@Override
