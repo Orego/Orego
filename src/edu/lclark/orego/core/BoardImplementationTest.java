@@ -215,4 +215,35 @@ public class BoardImplementationTest {
 		board.pass();
 		assertEquals(2, board.getPasses());
 	}
+	
+	@Test
+	public void testBug1() {
+		assertEquals(OK, board.play(at("D5")));
+		assertEquals(OK, board.play(at("A5")));
+		assertEquals(OK, board.play(at("A2")));
+		assertEquals(OK, board.play(at("E4")));
+		assertEquals(OK, board.play(at("D2")));
+		assertEquals(OK, board.play(at("C4")));
+		assertEquals(OK, board.play(at("B2")));
+		assertEquals(OK, board.play(at("B5")));
+		assertEquals(OK, board.play(at("E3")));
+		assertEquals(OK, board.play(at("A1")));
+		assertEquals(OK, board.play(at("C2")));
+		assertEquals(OK, board.play(at("B1")));
+		assertEquals(OK, board.play(at("D1")));
+		assertEquals(OK, board.play(at("E2")));
+		assertEquals(OK, board.play(at("D4")));
+		assertEquals(OK, board.play(at("A4")));
+		assertEquals(OK, board.play(at("E5")));
+		assertEquals(OK, board.play(at("D3")));
+		assertEquals(OK, board.play(at("C3")));
+		assertEquals(OK, board.play(at("B4")));
+		assertEquals(OK, board.play(at("C5")));
+		assertEquals(OK, board.play(at("B3")));
+		assertEquals(OK, board.play(at("C1")));
+		assertEquals(OK, board.play(at("B1")));
+		assertEquals(OK, board.play(at("D3")));
+		assertEquals(SUICIDE, board.play(at("A1")));
+	}
+
 }

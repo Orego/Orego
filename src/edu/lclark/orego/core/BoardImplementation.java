@@ -249,6 +249,13 @@ public final class BoardImplementation {
 	}
 
 	/**
+	 * Returns the liberties of p.
+	 */
+	public ShortSet getLiberties(short p) {
+		return points[points[p].chainId].liberties;
+	}
+	
+	/**
 	 * @see edu.lclark.orego.core.CoordinateSystem#getMaxMovesPerGame()
 	 */
 	public short getMaxMovesPerGame() {

@@ -62,6 +62,7 @@ final class Point {
 	 * @param directLiberties The liberties directly around this point.
 	 */
 	void becomeOneStoneChain(ShortSet directLiberties) {
+		chainId = index;
 		chainNextPoint = index;
 		liberties.copyDataFrom(directLiberties);
 	}
