@@ -1,6 +1,6 @@
 package edu.lclark.orego.core;
 
-import static orego.core.Coordinates.getBoardArea;
+import static java.lang.Math.*;
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -289,15 +289,15 @@ public final class CoordinateSystem {
 	 * Returns p's line (1-based) from the edge of the board
 	 */
 	private int line(short p) {
-		int r = Math.min(row(p), width - row(p) - 1);
-		int c = Math.min(column(p), width - column(p) - 1);
-		return 1 + Math.min(r, c);
+		int r = min(row(p), width - row(p) - 1);
+		int c = min(column(p), width - column(p) - 1);
+		return 1 + min(r, c);
 	}
 
 	/** Returns the Manhattan distance from p to q. */
 	public int manhattanDistance(short p, short q) {
-		int rowd = Math.abs(row(p) - row(q));
-		int cold = Math.abs(column(p) - column(q));
+		int rowd = abs(row(p) - row(q));
+		int cold = abs(column(p) - column(q));
 		return rowd + cold;
 	}
 
