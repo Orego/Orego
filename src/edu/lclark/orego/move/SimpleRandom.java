@@ -73,14 +73,4 @@ public final class SimpleRandom {
 		return PASS;
 	}
 
-	public static void main(String[] args) {
-		MersenneTwisterFast random = new MersenneTwisterFast();
-		BoardImplementation board = new BoardImplementation(5);
-		do {
-			short p = selectAndPlayOneMove(random, board);
-			System.out.println(board.toString(p));
-			System.out.println(board);
-		} while (board.getPasses() < 2);
-	}
-
 }

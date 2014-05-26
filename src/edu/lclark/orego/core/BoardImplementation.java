@@ -61,7 +61,7 @@ public final class BoardImplementation {
 	 */
 	private final SuperKoTable superKoTable;
 
-	/** Turn number. At the beginning of a game, this is 0. */
+	/** @see #getTurn() */
 	private short turn;
 	
 	/** The set of vacant points. */
@@ -276,6 +276,13 @@ public final class BoardImplementation {
 	 */
 	public int getPasses() {
 		return passes;
+	}
+
+	/**
+	 * Returns the current turn number (0 at the beginning of the game).
+	 */
+	public int getTurn() {
+		return turn;
 	}
 
 	/**

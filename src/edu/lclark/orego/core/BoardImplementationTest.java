@@ -217,6 +217,15 @@ public class BoardImplementationTest {
 	}
 	
 	@Test
+	public void testGetTurn() {
+		assertEquals(0, board.getTurn());
+		board.play(at("c1"));
+		assertEquals(1, board.getTurn());
+		board.pass();
+		assertEquals(2, board.getTurn());
+	}
+
+	@Test
 	public void testBug1() {
 		assertEquals(OK, board.play(at("D5")));
 		assertEquals(OK, board.play(at("A5")));
