@@ -37,11 +37,11 @@ public final class BoardImplementation {
 	 * @see #getHash()
 	 */
 	private long hash;
-	
+
 	/** The point, if any, where the simple ko rule prohibits play. */
 	private short koPoint;
 
-	/** Liberties of the stone just played. */
+	/** Direct liberties of the stone just played. */
 	private final ShortSet lastPlayLiberties;
 
 	/** Neighbors of a stone just captured. Used by removeStone(). */
@@ -49,7 +49,7 @@ public final class BoardImplementation {
 
 	/** Number of consecutive passes just played. */
 	private short passes;
-	
+
 	/** Point on the board (and surrounding sentinels). */
 	private final Point[] points;
 
@@ -61,7 +61,7 @@ public final class BoardImplementation {
 
 	/** @see #getTurn() */
 	private short turn;
-	
+
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
 
@@ -90,8 +90,8 @@ public final class BoardImplementation {
 	 *            The color of the stone just played.
 	 */
 	private void adjustEnemyNeighbors(StoneColor color, short p) {
-//		// TODO Should the caller find the opposite color?
-//		StoneColor enemyColor = color.opposite();
+		// // TODO Should the caller find the opposite color?
+		// StoneColor enemyColor = color.opposite();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
 			if (points[enemy].liberties.size() == 1) {
@@ -224,7 +224,7 @@ public final class BoardImplementation {
 	public long getHash() {
 		return hash;
 	}
-	
+
 	/**
 	 * Returns the liberties of p.
 	 */
@@ -257,8 +257,10 @@ public final class BoardImplementation {
 	 * Returns the hash value that would result if the captured stones were
 	 * removed. Used by play() to detect superko.
 	 * 
-	 * @param color Color of the stone to be played.
-	 * @param p Location of the stone to be played.
+	 * @param color
+	 *            Color of the stone to be played.
+	 * @param p
+	 *            Location of the stone to be played.
 	 */
 	private long hashAfterRemovingCapturedStones(StoneColor color, short p) {
 		long result = hash;
@@ -283,12 +285,12 @@ public final class BoardImplementation {
 		return result;
 	}
 
-//	/**
-//	 * @see edu.lclark.orego.core.CoordinateSystem#isEdgeOrCorner(short)
-//	 */
-//	public boolean isEdgeOrCorner(short p) {
-//		return coords.isEdgeOrCorner(p);
-//	}
+	// /**
+	// * @see edu.lclark.orego.core.CoordinateSystem#isEdgeOrCorner(short)
+	// */
+	// public boolean isEdgeOrCorner(short p) {
+	// return coords.isEdgeOrCorner(p);
+	// }
 
 	/**
 	 * Returns true if the stone at p has the maximum possible number of
@@ -309,7 +311,7 @@ public final class BoardImplementation {
 	 * Visits neighbors of p, looking for potential captures and chains to merge
 	 * with the new stone. As a side effect, loads the fields
 	 * friendlyNeighboringChainIds, enemyNeighboringChainIds, and
-	 * lastPlayLiberties.
+	 * lastPlayLiberties, used by finalizePlay.
 	 * 
 	 * @return true if playing at p would be suicidal.
 	 */
@@ -328,7 +330,7 @@ public final class BoardImplementation {
 			} else if (neighborColor == color) { // Friendly neighbor
 				short chainId = points[n].chainId;
 				friendlyNeighboringChainIds.addIfNotPresent(chainId);
-				suicide &= (points[chainId].isInAtari());
+				suicide &= points[chainId].isInAtari();
 			} else if (neighborColor != OFF_BOARD) { // Enemy neighbor
 				short chainId = points[n].chainId;
 				enemyNeighboringChainIds.addIfNotPresent(chainId);
@@ -338,10 +340,16 @@ public final class BoardImplementation {
 		return suicide;
 	}
 
-	/** Returns the legality of playing at p. */
+	/**
+	 * Returns the legality of playing at p. As a side effect, loads the fields
+	 * friendlyNeighboringChainIds, enemyNeighboringChainIds, and
+	 * lastPlayLiberties, used by finalizePlay.
+	 */
 	public Legality legality(StoneColor color, short p) {
-		// TODO Game too long
 		assert coords.isOnBoard(p);
+		if (turn >= coords.getMaxMovesPerGame() - 2) {
+			return GAME_TOO_LONG;
+		}
 		if (points[p].color != VACANT) {
 			return OCCUPIED;
 		}
@@ -351,6 +359,7 @@ public final class BoardImplementation {
 		if (isSuicidal(color, p)) {
 			return SUICIDE;
 		}
+		// TODO If we're figuring this out now, why not store it?
 		long proposed = hashAfterRemovingCapturedStones(color, p);
 		if (superKoTable.contains(proposed)) {
 			return KO_VIOLATION;
@@ -386,7 +395,6 @@ public final class BoardImplementation {
 		}
 		colorToPlay = colorToPlay.opposite();
 		passes++;
-		// moves[turn] = PASS;
 		turn++;
 	}
 
@@ -408,9 +416,6 @@ public final class BoardImplementation {
 			pass();
 			return OK;
 		}
-		if (turn >= coords.getMaxMovesPerGame() - 2) {
-			return GAME_TOO_LONG;
-		}
 		Legality result = legality(colorToPlay, p);
 		if (result != OK) {
 			return result;
@@ -418,7 +423,6 @@ public final class BoardImplementation {
 		finalizePlay(colorToPlay, p);
 		colorToPlay = colorToPlay.opposite();
 		passes = 0;
-		// moves[turn] = p;
 		turn++;
 		superKoTable.add(hash);
 		return OK;
@@ -440,7 +444,7 @@ public final class BoardImplementation {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
 			}
 		}
-//		StoneColor enemyColor = color.opposite();
+		// StoneColor enemyColor = color.opposite();
 		for (int k = 0; k < neighborsOfCapturedStone.size(); k++) {
 			int c = neighborsOfCapturedStone.get(k);
 			points[c].liberties.addKnownAbsent(p);

@@ -78,7 +78,7 @@ final class Point {
 	}
 
 	/**
-	 * Returns true if this point is in atari. Assumes that this point is the root of it chain.
+	 * Returns true if this point is in atari. Assumes that this point is the root of its chain.
 	 */
 	boolean isInAtari() {
 		assert chainId == index;
