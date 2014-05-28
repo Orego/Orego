@@ -199,7 +199,7 @@ public final class BoardImplementation {
 	 *            The location where the stone was played.
 	 */
 	private void finalizePlay(StoneColor color, short p) {
-		short lastVacantPointCount = vacantPoints.size();
+		int lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
 		vacantPoints.remove(p);
 		// TODO Update stone counts, maybe neighbor counts

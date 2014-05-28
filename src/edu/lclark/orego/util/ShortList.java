@@ -24,7 +24,10 @@ public final class ShortList {
 		data = new short[capacity];
 	}
 
-	/** Adds key to the end of this list. If it is already present, a second copy is added. */
+	/**
+	 * Adds key to the end of this list. If it is already present, a second copy
+	 * is added.
+	 */
 	public void add(short key) {
 		data[size] = key;
 		size++;
@@ -75,7 +78,8 @@ public final class ShortList {
 	/**
 	 * Removes and returns the last element of this list.
 	 * 
-	 * @throws ArrayIndexOutOfBoundsException if this list is empty.
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if this list is empty.
 	 */
 	public short removeLast() {
 		size--;

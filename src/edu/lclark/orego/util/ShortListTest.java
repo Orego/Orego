@@ -11,9 +11,6 @@ public class ShortListTest {
 
 	private ShortList list;
 
-	// TODO Should we put these common test requirements in a common class? Can we?
-	private static final CoordinateSystem COORDS = CoordinateSystem.forWidth(19);
-
 	@Before
 	public void setUp() throws Exception {
 		list = new ShortList(100);
@@ -124,13 +121,14 @@ public class ShortListTest {
 
 	@Test
 	public void testToStringAsPoints() {
+		CoordinateSystem coords = CoordinateSystem.forWidth(19);
 		// Test toString() for the empty list
-		assertEquals("()", list.toString(COORDS));
+		assertEquals("()", list.toString(coords));
 		// Add elements
-		list.add(COORDS.at("e2"));
-		list.add(COORDS.at("b1"));
+		list.add(coords.at("e2"));
+		list.add(coords.at("b1"));
 		// Test toString() on resulting list
-		assertEquals("(E2, B1)", list.toString(COORDS));
+		assertEquals("(E2, B1)", list.toString(coords));
 	}
 
 }

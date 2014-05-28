@@ -4,11 +4,11 @@ import edu.lclark.orego.core.CoordinateSystem;
 
 /**
  * A set implementation that offers constant time insertion, search, deletion,
- * clearing, and size, assuming that the keys are all in the range [0, n).
- * If space is important, or if the set is fairly dense, BitVector may be
+ * clearing, and size, assuming that the keys are all in the range [0, n). If
+ * space is important, or if the set is fairly dense, BitVector may be
  * preferable.
  * 
- * @see BitVector
+ * @see edu.lclark.orego.util.BitVector
  */
 public final class ShortSet {
 
@@ -19,7 +19,7 @@ public final class ShortSet {
 	private final short[] locations;
 
 	/** Number of elements in this set. */
-	private short size;
+	private int size;
 
 	/** All keys must be in [0, capacity). */
 	public ShortSet(int capacity) {
@@ -43,10 +43,13 @@ public final class ShortSet {
 		}
 	}
 
-	/** Adds key, which is known to be absent, to this set. This is faster than add. */
+	/**
+	 * Adds key, which is known to be absent, to this set. This is faster than
+	 * add.
+	 */
 	public void addKnownAbsent(short key) {
 		data[size] = key;
-		locations[key] = size;
+		locations[key] = (short)size;
 		size++;
 	}
 
@@ -105,7 +108,8 @@ public final class ShortSet {
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException("ShortSets are not suitable for storing in hash tables");
+		throw new UnsupportedOperationException(
+				"ShortSets are not suitable for storing in hash tables");
 	}
 
 	/** Removes key, which may or may not be present, from this set. */
@@ -115,7 +119,10 @@ public final class ShortSet {
 		}
 	}
 
-	/** Removes key, which is known to be present, from this set. This is faster than remove. */
+	/**
+	 * Removes key, which is known to be present, from this set. This is faster
+	 * than remove.
+	 */
 	public void removeKnownPresent(int key) {
 		size--;
 		short location = locations[key];
@@ -125,7 +132,7 @@ public final class ShortSet {
 	}
 
 	/** Returns the number of elements in this set. */
-	public short size() {
+	public int size() {
 		return size;
 	}
 
