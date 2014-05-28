@@ -456,7 +456,6 @@ public final class BoardImplementation {
 			}
 		}
 		this.colorToPlay = colorToPlay;
-		// TODO Put this new hash code in the superko table
 	}
 
 	@Override
@@ -469,13 +468,6 @@ public final class BoardImplementation {
 			result += "\n";
 		}
 		return result;
-	}
-
-	/**
-	 * @see edu.lclark.orego.core.CoordinateSystem#toString(short)
-	 */
-	public String toString(short p) {
-		return coords.toString(p);
 	}
 
 }
