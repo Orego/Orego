@@ -68,7 +68,7 @@ public final class BoardImplementation {
 		enemyNeighboringChainIds = new ShortList(4);
 		int n = coords.getFirstPointBeyondBoard();
 		lastPlayLiberties = new ShortSet(n);
-		superKoTable = new SuperKoTable();
+		superKoTable = new SuperKoTable(coords);
 		vacantPoints = new ShortSet(n);
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);

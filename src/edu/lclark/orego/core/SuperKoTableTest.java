@@ -3,7 +3,6 @@ package edu.lclark.orego.core;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static orego.core.Board.MAX_MOVES_PER_GAME;
 
 public class SuperKoTableTest {
 
@@ -11,7 +10,7 @@ public class SuperKoTableTest {
 
 	@Before
 	public void setUp() throws Exception {
-		table = new SuperKoTable();
+		table = new SuperKoTable(CoordinateSystem.forWidth(19));
 	}
 
 	@Test
@@ -30,7 +29,7 @@ public class SuperKoTableTest {
 
 	@Test
 	public void testCopyDataFrom() {
-		SuperKoTable table2 = new SuperKoTable();
+		SuperKoTable table2 = new SuperKoTable(CoordinateSystem.forWidth(19));
 		table.add(-3);
 		table2.copyDataFrom(table);
 		assertTrue(table2.contains(-3));
@@ -54,7 +53,7 @@ public class SuperKoTableTest {
 	public void testCollision() {
 		// Add two values that would end up in the same slot
 		table.add(5);
-		int key = 5 + (MAX_MOVES_PER_GAME * 2);
+		int key = 5 + table.capacity();
 		table.add(key);
 		assertTrue(table.contains(5));
 		assertTrue(table.contains(key));

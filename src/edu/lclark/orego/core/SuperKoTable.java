@@ -1,7 +1,5 @@
 package edu.lclark.orego.core;
 
-import static orego.core.Board.MAX_MOVES_PER_GAME;
-
 /**
  * Set of Zobrist hashes (longs) from previous board positions. This is a hash
  * table, but without all of the overhead of java.util.HashSet. It only supports
@@ -25,8 +23,8 @@ public final class SuperKoTable {
 	/** The table proper. */
 	private final long[] data;
 
-	public SuperKoTable() {
-		data = new long[MAX_MOVES_PER_GAME * 2];
+	public SuperKoTable(CoordinateSystem coords) {
+		data = new long[coords.getMaxMovesPerGame() * 2];
 	}
 
 	/** Adds key to this table. */
@@ -69,6 +67,11 @@ public final class SuperKoTable {
 	 */
 	public void copyDataFrom(SuperKoTable that) {
 		System.arraycopy(that.data, 0, data, 0, data.length);
+	}
+
+	/** Returns the number of slots in the table. */
+	int capacity() {
+		return data.length;
 	}
 
 }
