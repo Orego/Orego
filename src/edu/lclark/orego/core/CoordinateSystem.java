@@ -277,7 +277,7 @@ public final class CoordinateSystem {
 	/** Returns true if p is on the third or fourth line. */
 	public boolean isOnThirdOrFourthLine(short p) {
 		int line = line(p);
-		return ((line >= 3) && (line <= 4));
+		return (line >= 3) & (line <= 4);
 	}
 
 	/** Returns true if c is a valid row or column index. */
