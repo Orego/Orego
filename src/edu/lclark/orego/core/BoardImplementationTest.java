@@ -258,4 +258,22 @@ public class BoardImplementationTest {
 		assertEquals(SUICIDE, board.play(at("A1")));
 	}
 
+	@Test
+	public void testLibertyUpdate() {
+		String[] before = {
+				".#O#.",
+				".#O#.",
+				"##.##",
+				".OO..",
+				".....",
+		};
+		board.setUpProblem(before, BLACK);
+		assertEquals(1, board.getLiberties(at("c4")).size());
+		assertEquals(4, board.getLiberties(at("b3")).size());
+		assertEquals(5, board.getLiberties(at("d3")).size());
+		assertEquals(5, board.getLiberties(at("c2")).size());
+		assertEquals(OK, board.play(at("c3")));
+		assertEquals(9, board.getLiberties(at("c3")).size());
+	}
+
 }

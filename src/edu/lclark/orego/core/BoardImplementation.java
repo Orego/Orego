@@ -10,12 +10,6 @@ import edu.lclark.orego.util.ShortList;
 
 public final class BoardImplementation {
 
-	/**
-	 * Used (for different purposes) by hashAfterRemovingCapturedStones() and
-	 * isSelfAtari().
-	 */
-	private final BitVector adjacentChains;
-
 	/** The color to play next. */
 	private StoneColor colorToPlay;
 
@@ -71,7 +65,6 @@ public final class BoardImplementation {
 		friendlyNeighboringChainIds = new ShortList(4);
 		enemyNeighboringChainIds = new ShortList(4);
 		int n = coords.getFirstPointBeyondBoard();
-		adjacentChains = new BitVector(n);
 		lastPlayLiberties = new ShortSet(n);
 		superKoTable = new SuperKoTable();
 		vacantPoints = new ShortSet(n);
@@ -114,45 +107,28 @@ public final class BoardImplementation {
 	 * Deals with friendly neighbors of the move p just played, merging chains
 	 * as necessary.
 	 */
-	private void adjustFriendlyNeighbors(StoneColor color, short p) {
+	private void adjustFriendlyNeighbors(short p) {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			points[p].becomeOneStoneChain(lastPlayLiberties);
-			// if (points[p].liberties.size() == 1) {
-			// chainsInAtari[color].addKnownAbsent(p);
-			// }
-		} else if (friendlyNeighboringChainIds.size() == 1) {
-			// If there is only one friendly neighbor, add this stone to that
-			// chain
-			short c = friendlyNeighboringChainIds.get(0);
-			points[c].liberties.addAll(lastPlayLiberties);
-			points[c].liberties.removeKnownPresent(p);
-			points[p].addToChain(points[c]);
-			// if (points[c].liberties.size() == 1) {
-			// chainsInAtari[color].add(c);
-			// } else {
-			// chainsInAtari[color].remove(c);
-			// }
 		} else {
-			// If there are several friendly neighbors, merge them
 			short c = friendlyNeighboringChainIds.get(0);
 			points[p].addToChain(points[c]);
-			for (int i = 1; i < friendlyNeighboringChainIds.size(); i++) {
-				short ally = friendlyNeighboringChainIds.get(i);
-				if (points[ally].liberties.size() <= points[c].liberties.size()) {
-					mergeChains(c, ally);
-				} else {
-					mergeChains(ally, c);
-					c = ally;
+			points[c].liberties.addAll(lastPlayLiberties);
+			if (friendlyNeighboringChainIds.size() > 1) {
+				// If there are several friendly neighbors, merge them
+				for (int i = 1; i < friendlyNeighboringChainIds.size(); i++) {
+					short ally = friendlyNeighboringChainIds.get(i);
+					if (points[c].liberties.size() >= points[ally].liberties
+							.size()) {
+						mergeChains(c, ally);
+					} else {
+						mergeChains(ally, c);
+						c = ally;
+					}
 				}
 			}
-			points[c].liberties.addAll(lastPlayLiberties);
 			points[c].liberties.removeKnownPresent(p);
-			// if (points[c].liberties.size() == 1) {
-			// chainsInAtari[color].add(c);
-			// } else {
-			// chainsInAtari[color].remove(c);
-			// }
 		}
 	}
 
@@ -188,14 +164,11 @@ public final class BoardImplementation {
 		int lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
 		vacantPoints.remove(p);
-		// TODO Update stone counts, maybe neighbor counts
 		hash ^= coords.getHash(color, p);
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
-		adjustFriendlyNeighbors(color, p);
+		adjustFriendlyNeighbors(p);
 		adjustEnemyNeighbors(color, p);
-		// if (liberties[points[p].chainId].size() == 1) {
-		// chainsInAtari[color].add(points[p].chainId);
-		// }
+		// TODO Do we really need the simple ko point?
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
@@ -265,32 +238,19 @@ public final class BoardImplementation {
 	private long hashAfterRemovingCapturedStones(StoneColor color, short p) {
 		long result = hash;
 		result ^= coords.getHash(color, p);
-		adjacentChains.clear(); // Chains to be captured
 		StoneColor enemy = color.opposite();
-		short[] neighbors = coords.getNeighbors(p);
-		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			if (points[n].color == enemy) {
-				short c = points[n].chainId;
-				if (points[c].isInAtari() & !adjacentChains.get(c)) {
-					adjacentChains.set(c, true);
-					short active = c;
-					do {
-						result ^= coords.getHash(enemy, active);
-						active = points[active].chainNextPoint;
-					} while (active != c);
-				}
+		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
+			short c = enemyNeighboringChainIds.get(i);
+			if (points[c].isInAtari()) {
+				short active = c;
+				do {
+					result ^= coords.getHash(enemy, active);
+					active = points[active].chainNextPoint;
+				} while (active != c);
 			}
 		}
 		return result;
 	}
-
-	// /**
-	// * @see edu.lclark.orego.core.CoordinateSystem#isEdgeOrCorner(short)
-	// */
-	// public boolean isEdgeOrCorner(short p) {
-	// return coords.isEdgeOrCorner(p);
-	// }
 
 	/**
 	 * Returns true if the stone at p has the maximum possible number of
@@ -377,7 +337,6 @@ public final class BoardImplementation {
 	 */
 	private void mergeChains(short base, short appendage) {
 		points[base].liberties.addAll(points[appendage].liberties);
-		// chainsInAtari[colors[appendage]].remove(appendage);
 		int active = appendage;
 		do {
 			points[active].chainId = points[base].chainId;
