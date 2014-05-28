@@ -4,7 +4,6 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
-import orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 
@@ -159,7 +158,6 @@ public final class BoardImplementation {
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
 		adjustFriendlyNeighbors(p);
 		adjustEnemyNeighbors(p);
-		// TODO Do we really need the simple ko point?
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
@@ -422,18 +420,13 @@ public final class BoardImplementation {
 		short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
-			// This seems to be a rare appropriate use of instanceof
-			if (points[n].color instanceof StoneColor) {
+			if (points[n].color == BLACK | points[n].color == WHITE) {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
 			}
 		}
-		// StoneColor enemyColor = color.opposite();
 		for (int k = 0; k < neighborsOfCapturedStone.size(); k++) {
 			int c = neighborsOfCapturedStone.get(k);
 			points[c].liberties.addKnownAbsent(p);
-			// if (points[c].liberties.size() > 1) {
-			// chainsInAtari[enemyColor].remove(c);
-			// }
 		}
 	}
 

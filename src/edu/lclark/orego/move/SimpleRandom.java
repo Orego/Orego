@@ -60,7 +60,6 @@ public final class SimpleRandom {
 			short p = vacantPoints.get(i);
 			// TODO Verify on 3rd or 4th line or near an existing stone
 			if ((board.getColorAt(p) == VACANT) && !EyeLike.isEyeLike(p, board)) {
-				// TODO Use playFast instead
 				if (board.playFast(p) == OK) {
 					return p;
 				}
