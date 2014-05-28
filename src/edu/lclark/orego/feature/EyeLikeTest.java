@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.lclark.orego.core.BoardImplementation;
+import edu.lclark.orego.core.Board;
 import static edu.lclark.orego.core.StoneColor.*;
 
 public class EyeLikeTest {
@@ -15,11 +15,11 @@ public class EyeLikeTest {
 		return board.getCoordinateSystem().at(label);
 	}
 
-	private BoardImplementation board;
+	private Board board;
 	
 	@Before
 	public void setUp() throws Exception {
-		board = new BoardImplementation(5);
+		board = new Board(5);
 	}
 
 	@Test

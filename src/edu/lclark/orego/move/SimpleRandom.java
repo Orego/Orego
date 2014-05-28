@@ -51,7 +51,7 @@ public final class SimpleRandom {
 			2939, 2953, 2957, 2963, 2969, 2971, 2999, 3001, 3011, 3019 };
 
 	public static short selectAndPlayOneMove(
-			MersenneTwisterFast random, BoardImplementation board) {
+			MersenneTwisterFast random, Board board) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short)(random.nextInt(vacantPoints.size()));
 		short i = start;

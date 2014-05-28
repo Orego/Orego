@@ -2,7 +2,7 @@ package edu.lclark.orego.feature;
 
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
-import edu.lclark.orego.core.BoardImplementation;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.*;
 
 // TODO Maybe this should implement a Feature interface?
@@ -14,7 +14,7 @@ public final class EyeLike {
 	 * board edge) diagonally adjacent enemy stones. It is almost always a bad
 	 * idea to play in such a point. The point p is assumed to be vacant.
 	 */
-	public static final boolean isEyeLike(short p, BoardImplementation board) {
+	public static final boolean isEyeLike(short p, Board board) {
 		assert board.getColorAt(p) == VACANT;
 		StoneColor color = board.getColorToPlay();
 		int diagonalEnemyCount = 0;

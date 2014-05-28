@@ -5,7 +5,7 @@ import edu.lclark.orego.util.*;
 
 /**
  * Class to hold the information on a single point. This is separated out from
- * BoardImplementation to make that class simpler. It may also make that class
+ * Board to make that class simpler. It may also make that class
  * faster, as individual Points (rather than larger arrays) can be swapped in
  * and out of cache. Because Point is only used by a class that fully understand
  * it, its fields are directly accessed.
@@ -13,7 +13,7 @@ import edu.lclark.orego.util.*;
  * Note that, elsewhere in Orego, Points are not passed around as arguments.
  * Primitive shorts are used instead.
  * 
- * @see edu.lclark.orego.core.BoardImplementation
+ * @see edu.lclark.orego.core.Board
  * @see edu.lclark.orego.core.CoordinateSystem.
  */
 final class Point {

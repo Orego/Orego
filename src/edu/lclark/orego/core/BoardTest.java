@@ -7,15 +7,15 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BoardImplementationTest {
+public class BoardTest {
 
-	private BoardImplementation board;
+	private Board board;
 
 	private CoordinateSystem coords;
 	
 	/**
 	 * Returns a single String built from diagram, analogous to that produced by
-	 * BoardImplementation.toString.
+	 * Board.toString.
 	 */
 	private static String asOneString(String[] diagram) {
 		String result = "";
@@ -32,7 +32,7 @@ public class BoardImplementationTest {
 
 	@Before
 	public void setUp() throws Exception {
-		board = new BoardImplementation(5);
+		board = new Board(5);
 		coords = board.getCoordinateSystem();
 	}
 

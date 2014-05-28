@@ -7,7 +7,7 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 
-public final class BoardImplementation {
+public final class Board {
 
 	/** The color to play next. */
 	private StoneColor colorToPlay;
@@ -61,7 +61,7 @@ public final class BoardImplementation {
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
 
-	public BoardImplementation(int width) {
+	public Board(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
