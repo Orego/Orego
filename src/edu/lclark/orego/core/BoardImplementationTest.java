@@ -11,6 +11,8 @@ public class BoardImplementationTest {
 
 	private BoardImplementation board;
 
+	private CoordinateSystem coords;
+	
 	/**
 	 * Returns a single String built from diagram, analogous to that produced by
 	 * BoardImplementation.toString.
@@ -25,12 +27,13 @@ public class BoardImplementationTest {
 
 	/** Delegate method to call at on board. */
 	private short at(String label) {
-		return board.at(label);
+		return coords.at(label);
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		board = new BoardImplementation(5);
+		coords = board.getCoordinateSystem();
 	}
 
 	@Test
@@ -44,7 +47,7 @@ public class BoardImplementationTest {
 	@Test(expected = AssertionError.class)
 	public void testOffBoard() {
 		// p is not on the board
-		short p = board.getNeighbors(at("e2"))[EAST_NEIGHBOR];
+		short p = coords.getNeighbors(at("e2"))[EAST_NEIGHBOR];
 		board.play(p);
 	}
 
@@ -171,7 +174,7 @@ public class BoardImplementationTest {
 	
 	@Test
 	public void testMaxMovesPerGame() {
-		short[] points = board.getAllPointsOnBoard();
+		short[] points = coords.getAllPointsOnBoard();
 		int i;
 		for (i = 0; i < points.length - 2; i++) {
 			assertEquals(OK, board.play(points[i]));
@@ -181,16 +184,16 @@ public class BoardImplementationTest {
 		i++;
 		assertEquals(OK, board.play(points[i]));
 		board.pass();
-		int n = board.getArea() * 2 - 1;
+		int n = coords.getArea() * 2 - 1;
 		for (i = 0; i < points.length - 2; i++) {
 			assertEquals(OK, board.play(points[i]));
 			n++;
-			if (n == board.getMaxMovesPerGame() - 2) {
+			if (n == coords.getMaxMovesPerGame() - 2) {
 				break;
 			}
 			board.pass();
 			n++;
-			if (n == board.getMaxMovesPerGame() - 2) {
+			if (n == coords.getMaxMovesPerGame() - 2) {
 				break;
 			}
 		}

@@ -18,7 +18,7 @@ public final class EyeLike {
 		assert board.getColorAt(p) == VACANT;
 		StoneColor color = board.getColorToPlay();
 		int diagonalEnemyCount = 0;
-		short[] neighbors = board.getNeighbors(p);
+		short[] neighbors = board.getCoordinateSystem().getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
 			Color c = board.getColorAt(n);

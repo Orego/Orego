@@ -12,7 +12,7 @@ public class EyeLikeTest {
 
 	/** Delegate method to call at on board. */
 	private short at(String label) {
-		return board.at(label);
+		return board.getCoordinateSystem().at(label);
 	}
 
 	private BoardImplementation board;

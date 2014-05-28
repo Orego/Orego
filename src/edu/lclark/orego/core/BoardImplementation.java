@@ -8,8 +8,6 @@ import orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 
-// TODO Should this implement the same interface as CoordinateSystem and provide delegate methods?
-// Alternately, should we rip out the delegates and ask others to call getCoordinateSystem?
 public final class BoardImplementation {
 
 	/**
@@ -159,18 +157,6 @@ public final class BoardImplementation {
 	}
 
 	/**
-	 * @see edu.lclark.orego.core.CoordinateSystem#at(int, int)
-	 */
-	public short at(int r, int c) {
-		return coords.at(r, c);
-	}
-
-	/** @see edu.lclark.orego.core.CoordinateSystem#at(String) */
-	public short at(String label) {
-		return coords.at(label);
-	}
-
-	/**
 	 * Returns this board to its blank state. Any initial stones are removed and
 	 * the komi is reset to a default value. This is roughly equivalent to
 	 * creating a new instance, but (a) it is faster, and (b) references to the
@@ -217,20 +203,6 @@ public final class BoardImplementation {
 		}
 	}
 
-	/**
-	 * @see edu.lclark.orego.core.CoordinateSystem#getAllPointsOnBoard()
-	 */
-	public short[] getAllPointsOnBoard() {
-		return coords.getAllPointsOnBoard();
-	}
-
-	/**
-	 * @see edu.lclark.orego.core.CoordinateSystem#getArea()
-	 */
-	public int getArea() {
-		return coords.getArea();
-	}
-
 	/** Returns the color at point p. */
 	public Color getColorAt(short p) {
 		return points[p].color;
@@ -241,34 +213,23 @@ public final class BoardImplementation {
 		return colorToPlay;
 	}
 
+	/** Returns the CoordinateSystem associated with this board. */
+	public CoordinateSystem getCoordinateSystem() {
+		return coords;
+	}
+
 	/**
 	 * Returns the Zobrist hash of the current board position.
 	 */
 	public long getHash() {
 		return hash;
 	}
-
+	
 	/**
 	 * Returns the liberties of p.
 	 */
 	public ShortSet getLiberties(short p) {
 		return points[points[p].chainId].liberties;
-	}
-	
-	/**
-	 * @see edu.lclark.orego.core.CoordinateSystem#getMaxMovesPerGame()
-	 */
-	public short getMaxMovesPerGame() {
-		return coords.getMaxMovesPerGame();
-	}
-
-	/**
-	 * Returns an array of the neighbors of p.
-	 * 
-	 * @see CoordinateSystem#getNeighbors(short)
-	 */
-	public short[] getNeighbors(short p) {
-		return coords.getNeighbors(p);
 	}
 
 	/**
@@ -290,14 +251,6 @@ public final class BoardImplementation {
 	 */
 	public ShortSet getVacantPoints() {
 		return vacantPoints;
-	}
-
-	/**
-	 * @return
-	 * @see edu.lclark.orego.core.CoordinateSystem#getWidth()
-	 */
-	public int getWidth() {
-		return coords.getWidth();
 	}
 
 	/**
@@ -330,12 +283,19 @@ public final class BoardImplementation {
 		return result;
 	}
 
+//	/**
+//	 * @see edu.lclark.orego.core.CoordinateSystem#isEdgeOrCorner(short)
+//	 */
+//	public boolean isEdgeOrCorner(short p) {
+//		return coords.isEdgeOrCorner(p);
+//	}
+
 	/**
 	 * Returns true if the stone at p has the maximum possible number of
 	 * neighbors of color p.
 	 */
 	private boolean hasMaxNeighborsForColor(StoneColor color, short p) {
-		short[] neighbors = getNeighbors(p);
+		short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			Color c = points[neighbors[i]].color;
 			if (c != color && c != OFF_BOARD) {
@@ -344,13 +304,6 @@ public final class BoardImplementation {
 		}
 		return true;
 	}
-
-//	/**
-//	 * @see edu.lclark.orego.core.CoordinateSystem#isEdgeOrCorner(short)
-//	 */
-//	public boolean isEdgeOrCorner(short p) {
-//		return coords.isEdgeOrCorner(p);
-//	}
 
 	/**
 	 * Visits neighbors of p, looking for potential captures and chains to merge
@@ -365,7 +318,7 @@ public final class BoardImplementation {
 		enemyNeighboringChainIds.clear();
 		lastPlayLiberties.clear();
 		boolean suicide = true;
-		short[] neighbors = getNeighbors(p);
+		short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
 			Color neighborColor = points[n].color;
@@ -471,13 +424,6 @@ public final class BoardImplementation {
 		return OK;
 	}
 
-	/**
-	 * @see edu.lclark.orego.core.CoordinateSystem#toString(short)
-	 */
-	public String toString(short p) {
-		return coords.toString(p);
-	}
-
 	/** Removes the stone at p. */
 	public void removeStone(short p) {
 		StoneColor color = (StoneColor) (points[p].color);
@@ -486,7 +432,7 @@ public final class BoardImplementation {
 		points[p].color = VACANT;
 		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
-		short[] neighbors = getNeighbors(p);
+		short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
 			// This seems to be a rare appropriate use of instanceof
@@ -510,14 +456,14 @@ public final class BoardImplementation {
 	 * is set as indicated.
 	 */
 	public void setUpProblem(String[] diagram, StoneColor colorToPlay) {
-		assert diagram.length == getWidth();
+		assert diagram.length == coords.getWidth();
 		clear();
-		for (int r = 0; r < getWidth(); r++) {
-			assert diagram[r].length() == getWidth();
-			for (int c = 0; c < getWidth(); c++) {
+		for (int r = 0; r < coords.getWidth(); r++) {
+			assert diagram[r].length() == coords.getWidth();
+			for (int c = 0; c < coords.getWidth(); c++) {
 				StoneColor color = StoneColor.forChar(diagram[r].charAt(c));
 				if (color != null) {
-					placeInitialStone(color, at(r, c));
+					placeInitialStone(color, coords.at(r, c));
 				}
 			}
 		}
@@ -528,13 +474,20 @@ public final class BoardImplementation {
 	@Override
 	public String toString() {
 		String result = "";
-		for (int r = 0; r < getWidth(); r++) {
-			for (int c = 0; c < getWidth(); c++) {
-				result += points[at(r, c)].color.toChar();
+		for (int r = 0; r < coords.getWidth(); r++) {
+			for (int c = 0; c < coords.getWidth(); c++) {
+				result += points[coords.at(r, c)].color.toChar();
 			}
 			result += "\n";
 		}
 		return result;
+	}
+
+	/**
+	 * @see edu.lclark.orego.core.CoordinateSystem#toString(short)
+	 */
+	public String toString(short p) {
+		return coords.toString(p);
 	}
 
 }
