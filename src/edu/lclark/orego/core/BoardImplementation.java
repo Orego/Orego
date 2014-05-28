@@ -46,6 +46,9 @@ public final class BoardImplementation {
 	/** Point on the board (and surrounding sentinels). */
 	private final Point[] points;
 
+	/** Hash after removing captured stones. */
+	private long proposedHash;
+	
 	/**
 	 * A hash table of all previous board positions for ko verification. The
 	 * hash codes stored here do NOT include the simple ko point.
@@ -154,7 +157,6 @@ public final class BoardImplementation {
 		int lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
 		vacantPoints.remove(p);
-		hash ^= coords.getHash(color, p);
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
 		adjustFriendlyNeighbors(p);
 		adjustEnemyNeighbors(p);
@@ -309,9 +311,8 @@ public final class BoardImplementation {
 		if (isSuicidal(color, p)) {
 			return SUICIDE;
 		}
-		// TODO If we're figuring this out now, why not store it?
-		long proposed = hashAfterRemovingCapturedStones(color, p);
-		if (superKoTable.contains(proposed)) {
+		proposedHash = hashAfterRemovingCapturedStones(color, p);
+		if (superKoTable.contains(proposedHash)) {
 			return KO_VIOLATION;
 		}
 		return OK;
@@ -370,6 +371,7 @@ public final class BoardImplementation {
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);
 		finalizePlay(color, p);
+		hash = proposedHash;
 		superKoTable.add(hash);
 	}
 
@@ -390,6 +392,7 @@ public final class BoardImplementation {
 		colorToPlay = colorToPlay.opposite();
 		passes = 0;
 		turn++;
+		hash = proposedHash;
 		superKoTable.add(hash);
 		return OK;
 	}
@@ -412,8 +415,6 @@ public final class BoardImplementation {
 	
 	/** Removes the stone at p. */
 	public void removeStone(short p) {
-		StoneColor color = (StoneColor) (points[p].color);
-		hash ^= coords.getHash(color, p);
 		points[p].color = VACANT;
 		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
