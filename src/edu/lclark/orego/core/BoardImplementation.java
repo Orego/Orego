@@ -257,6 +257,14 @@ public final class BoardImplementation {
 		}
 		return true;
 	}
+	
+	/** Returns true if p (which might be a point on the board or PASS) is legal. */
+	public boolean isLegal(short p) {
+		if (p == PASS) {
+			return true;
+		}
+		return legality(colorToPlay, p) == OK;
+	}
 
 	/**
 	 * Visits neighbors of p, looking for potential captures and chains to merge
@@ -296,8 +304,7 @@ public final class BoardImplementation {
 	 * friendlyNeighboringChainIds, enemyNeighboringChainIds, and
 	 * lastPlayLiberties, used by finalizePlay.
 	 */
-	public Legality legality(StoneColor color, short p) {
-		// TODO This is public, but the assertion fails on PASS
+	private Legality legality(StoneColor color, short p) {
 		assert coords.isOnBoard(p);
 		if (turn >= coords.getMaxMovesPerGame() - 2) {
 			return GAME_TOO_LONG;

@@ -295,4 +295,21 @@ public class BoardImplementationTest {
 		assertEquals(asOneString(before), board.toString());
 	}
 
+	@Test
+	public void testIsLegal() {
+		String[] before = {
+				"..#..",
+				".....",
+				".....",
+				".....",
+				".....",
+		};
+		board.setUpProblem(before, BLACK);
+		assertFalse(board.isLegal(at("c5")));
+		assertTrue(board.isLegal(PASS));
+		assertTrue(board.isLegal(at("c4")));
+		assertEquals(asOneString(before), board.toString());
+		assertEquals(BLACK, board.getColorToPlay());
+	}
+
 }
