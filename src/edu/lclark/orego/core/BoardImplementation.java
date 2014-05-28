@@ -78,17 +78,11 @@ public final class BoardImplementation {
 	/**
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
-	 * 
-	 * @param color
-	 *            The color of the stone just played.
 	 */
-	private void adjustEnemyNeighbors(StoneColor color, short p) {
-		// // TODO Should the caller find the opposite color?
-		// StoneColor enemyColor = color.opposite();
+	private void adjustEnemyNeighbors(short p) {
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
-			if (points[enemy].liberties.size() == 1) {
-				// chainsInAtari[enemyColor].remove(enemy);
+			if (points[enemy].isInAtari()) {
 				short s = enemy;
 				do {
 					removeStone(s);
@@ -96,9 +90,6 @@ public final class BoardImplementation {
 				} while (s != enemy);
 			} else {
 				points[enemy].liberties.removeKnownPresent(p);
-				// if (points[enemy].liberties.size() == 1) {
-				// chainsInAtari[enemyColor].addKnownAbsent(enemy);
-				// }
 			}
 		}
 	}
@@ -167,7 +158,7 @@ public final class BoardImplementation {
 		hash ^= coords.getHash(color, p);
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
 		adjustFriendlyNeighbors(p);
-		adjustEnemyNeighbors(color, p);
+		adjustEnemyNeighbors(p);
 		// TODO Do we really need the simple ko point?
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
@@ -306,6 +297,7 @@ public final class BoardImplementation {
 	 * lastPlayLiberties, used by finalizePlay.
 	 */
 	public Legality legality(StoneColor color, short p) {
+		// TODO This is public, but the assertion fails on PASS
 		assert coords.isOnBoard(p);
 		if (turn >= coords.getMaxMovesPerGame() - 2) {
 			return GAME_TOO_LONG;
@@ -323,6 +315,23 @@ public final class BoardImplementation {
 		long proposed = hashAfterRemovingCapturedStones(color, p);
 		if (superKoTable.contains(proposed)) {
 			return KO_VIOLATION;
+		}
+		return OK;
+	}
+
+	/**
+	 * Similar to #legality, but doesn't check for occupied point or superko violation.
+	 */
+	private Legality legalityFast(StoneColor color, short p) {
+		assert coords.isOnBoard(p);
+		if (turn >= coords.getMaxMovesPerGame() - 2) {
+			return GAME_TOO_LONG;
+		}
+		if (p == koPoint) {
+			return KO_VIOLATION;
+		}
+		if (isSuicidal(color, p)) {
+			return SUICIDE;
 		}
 		return OK;
 	}
@@ -387,10 +396,25 @@ public final class BoardImplementation {
 		return OK;
 	}
 
+	/**
+	 * Similar to play, but assumes p is on board and not occupied. Does not maintain hash or check superko.
+	 */
+	public Legality playFast(short p) {
+		Legality result = legalityFast(colorToPlay, p);
+		if (result != OK) {
+			return result;
+		}
+		finalizePlay(colorToPlay, p);
+		colorToPlay = colorToPlay.opposite();
+		passes = 0;
+		turn++;
+		return OK;
+	}
+	
+	
 	/** Removes the stone at p. */
 	public void removeStone(short p) {
 		StoneColor color = (StoneColor) (points[p].color);
-		// stoneCounts[color]--;
 		hash ^= coords.getHash(color, p);
 		points[p].color = VACANT;
 		vacantPoints.addKnownAbsent(p);
