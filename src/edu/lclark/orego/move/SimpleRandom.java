@@ -17,7 +17,7 @@ public final class SimpleRandom {
 	 * These are 361 primes greater than 361 used to skip randomly through a set
 	 * of possible moves.
 	 */
-	public static final int[] PRIMES = { 367, 373, 379, 383, 389, 397, 401,
+	public static final short[] PRIMES = { 367, 373, 379, 383, 389, 397, 401,
 			409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479,
 			487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571,
 			577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647,
@@ -55,7 +55,7 @@ public final class SimpleRandom {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short)(random.nextInt(vacantPoints.size()));
 		short i = start;
-		int skip = PRIMES[random.nextInt(PRIMES.length)];
+		short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			short p = vacantPoints.get(i);
 			// TODO Verify on 3rd or 4th line or near an existing stone

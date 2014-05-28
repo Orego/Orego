@@ -5,10 +5,10 @@ import edu.lclark.orego.util.*;
 
 /**
  * Class to hold the information on a single point. This is separated out from
- * Board to make that class simpler. It may also make that class
- * faster, as individual Points (rather than larger arrays) can be swapped in
- * and out of cache. Because Point is only used by a class that fully understand
- * it, its fields are directly accessed.
+ * Board to make that class simpler. It may also make that class faster, as
+ * individual Points (rather than larger arrays) can be swapped in and out of
+ * cache. Because Point is only used by a class that fully understand it, its
+ * fields are directly accessed.
  * 
  * Note that, elsewhere in Orego, Points are not passed around as arguments.
  * Primitive shorts are used instead.
@@ -59,7 +59,8 @@ final class Point {
 	/**
 	 * Makes this stone a single-stone chain.
 	 * 
-	 * @param directLiberties The liberties directly around this point.
+	 * @param directLiberties
+	 *            The liberties directly around this point.
 	 */
 	void becomeOneStoneChain(ShortSet directLiberties) {
 		chainId = index;
@@ -78,7 +79,8 @@ final class Point {
 	}
 
 	/**
-	 * Returns true if this point is in atari. Assumes that this point is the root of its chain.
+	 * Returns true if this point is in atari. Assumes that this point is the
+	 * root of its chain.
 	 */
 	boolean isInAtari() {
 		assert chainId == index;
