@@ -26,7 +26,7 @@ public class ConjunctionTest {
 	public void setUp() throws Exception {
 		board = new Board(7);
 		coords = board.getCoordinateSystem();
-//		conjunction = new Conjunction(new NotEyeLike(board), new OnThirdOrFourthLine(board));
+		conjunction = new Conjunction(new NotEyeLike(board), new OnThirdOrFourthLine(board));
 	}
 
 	@Test
@@ -41,14 +41,16 @@ public class ConjunctionTest {
 				".......",
 		};
 		board.setUpProblem(before, BLACK);
-		assertTrue(conjunction.at(at("c4")));
 		assertFalse(conjunction.at(at("g6")));
-		assertFalse(conjunction.at(at("d3")));
+		assertFalse(conjunction.at(at("c4")));
+		assertFalse(conjunction.at(at("a2")));
+		assertTrue(conjunction.at(at("d3")));
 	}
 
-	@Test
-	public void testClear() {
-		fail("Not yet implemented");
-	}
+	// TODO
+//	@Test
+//	public void testClear() {
+//		fail("Not yet implemented");
+//	}
 
 }
