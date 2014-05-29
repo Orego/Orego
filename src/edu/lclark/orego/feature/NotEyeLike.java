@@ -20,7 +20,7 @@ public final class NotEyeLike implements Feature {
 	}
 
 	@Override
-	public final boolean at(short p) {
+	public boolean at(short p) {
 		assert board.getColorAt(p) == VACANT;
 		StoneColor color = board.getColorToPlay();
 		int diagonalEnemyCount = 0;
@@ -47,6 +47,11 @@ public final class NotEyeLike implements Feature {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void clear() {
+		// Does nothing
 	}
 
 }
