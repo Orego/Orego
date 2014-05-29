@@ -9,4 +9,6 @@ public interface Feature {
 	/** Resets any data structures maintained by this feature. */
 	public void clear();
 
+	// TODO We'll need copyDataFrom from multithreading
+
 }

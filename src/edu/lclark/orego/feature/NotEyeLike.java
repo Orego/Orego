@@ -11,16 +11,15 @@ import edu.lclark.orego.core.*;
  * diagonally adjacent enemy stones. It is almost always a bad idea to play in
  * such a point. The point p is assumed to be vacant.
  */
-public final class NotEyeLike implements Feature {
-
-	private final Board board;
+public final class NotEyeLike extends AbstractFeature {
 
 	public NotEyeLike(Board board) {
-		this.board = board;
+		super(board);
 	}
 
 	@Override
 	public boolean at(short p) {
+		Board board = getBoard();
 		assert board.getColorAt(p) == VACANT;
 		StoneColor color = board.getColorToPlay();
 		int diagonalEnemyCount = 0;
@@ -47,11 +46,6 @@ public final class NotEyeLike implements Feature {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void clear() {
-		// Does nothing
 	}
 
 }

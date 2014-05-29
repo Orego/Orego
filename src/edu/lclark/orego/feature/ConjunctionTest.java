@@ -1,7 +1,5 @@
 package edu.lclark.orego.feature;
 
-import static edu.lclark.orego.core.Legality.OK;
-import static edu.lclark.orego.core.Legality.SUICIDE;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
