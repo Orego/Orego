@@ -15,7 +15,7 @@ public class NearAnotherStone implements Feature{
 	public final boolean at(short p){
 		
 		
-		return board.getCoordinateSystem();
+		return false;
 	}
 	
 }
