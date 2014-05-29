@@ -4,7 +4,8 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
-import edu.lclark.orego.feature.EyeLike;
+import edu.lclark.orego.feature.Feature;
+import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.util.*;
 import ec.util.MersenneTwisterFast;
 
@@ -50,16 +51,27 @@ public final class SimpleRandom {
 			2843, 2851, 2857, 2861, 2879, 2887, 2897, 2903, 2909, 2917, 2927,
 			2939, 2953, 2957, 2963, 2969, 2971, 2999, 3001, 3011, 3019 };
 
-	public static short selectAndPlayOneMove(
-			MersenneTwisterFast random, Board board) {
+	private final Board board;
+	
+	private final Feature filter;
+	
+	/**
+	 * @param filter Only moves with this feature will be considered.
+	 */
+	public SimpleRandom(Board board, Feature filter) {
+		this.board = board;
+		this.filter = filter;
+	}
+
+	public short selectAndPlayOneMove(
+			MersenneTwisterFast random) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short)(random.nextInt(vacantPoints.size()));
 		short i = start;
 		short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			short p = vacantPoints.get(i);
-			// TODO Verify on 3rd or 4th line or near an existing stone
-			if ((board.getColorAt(p) == VACANT) && !EyeLike.isEyeLike(p, board)) {
+			if ((board.getColorAt(p) == VACANT) && filter.at(p)) {
 				if (board.playFast(p) == OK) {
 					return p;
 				}

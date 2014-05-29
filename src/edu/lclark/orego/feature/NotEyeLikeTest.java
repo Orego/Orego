@@ -1,14 +1,12 @@
 package edu.lclark.orego.feature;
 
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import edu.lclark.orego.core.Board;
 import static edu.lclark.orego.core.StoneColor.*;
 
-public class EyeLikeTest {
+public class NotEyeLikeTest {
 
 	/** Delegate method to call at on board. */
 	private short at(String label) {
@@ -17,9 +15,12 @@ public class EyeLikeTest {
 
 	private Board board;
 	
+	private NotEyeLike notEyeLike;
+	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(5);
+		notEyeLike = new NotEyeLike(board);
 	}
 
 	@Test
@@ -32,10 +33,10 @@ public class EyeLikeTest {
 				".#.O.",
 		};
 		board.setUpProblem(before, BLACK);
-		assertTrue(EyeLike.isEyeLike(at("a1"), board));
-		assertFalse(EyeLike.isEyeLike(at("e1"), board));
-		assertFalse(EyeLike.isEyeLike(at("a5"), board));
-		assertFalse(EyeLike.isEyeLike(at("a3"), board));
+		assertFalse(notEyeLike.at(at("a1")));
+		assertTrue(notEyeLike.at(at("e1")));
+		assertTrue(notEyeLike.at(at("a5")));
+		assertTrue(notEyeLike.at(at("a3")));
 	}
 
 	@Test
@@ -48,8 +49,8 @@ public class EyeLikeTest {
 				".O.O.",
 		};
 		board.setUpProblem(before, WHITE);
-		assertTrue(EyeLike.isEyeLike(at("c5"), board));
-		assertFalse(EyeLike.isEyeLike(at("c1"), board));
+		assertFalse(notEyeLike.at(at("c5")));
+		assertTrue(notEyeLike.at(at("c1")));
 	}
 
 	@Test
@@ -62,9 +63,9 @@ public class EyeLikeTest {
 				".....",
 		};
 		board.setUpProblem(before, BLACK);
-		assertTrue(EyeLike.isEyeLike(at("b3"), board));
-		assertFalse(EyeLike.isEyeLike(at("d3"), board));
-		assertFalse(EyeLike.isEyeLike(at("c2"), board));
+		assertFalse(notEyeLike.at(at("b3")));
+		assertTrue(notEyeLike.at(at("d3")));
+		assertTrue(notEyeLike.at(at("c2")));
 	}
 	
 }

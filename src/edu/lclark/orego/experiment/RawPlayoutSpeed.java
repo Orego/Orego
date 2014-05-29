@@ -2,6 +2,7 @@ package edu.lclark.orego.experiment;
 
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.move.SimpleRandom;
 
 public final class RawPlayoutSpeed {
@@ -9,13 +10,14 @@ public final class RawPlayoutSpeed {
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board board = new Board(19);
+		SimpleRandom mover = new SimpleRandom(board, new NotEyeLike(board));
 		final int runs = 100000;
 		long total = 0;
 		for (int run = 0; run < runs; run++) {
 			long before = System.nanoTime();
 			board.clear();
 			do {
-				short p = SimpleRandom.selectAndPlayOneMove(random, board);
+				short p = mover.selectAndPlayOneMove(random);
 //				System.out.println(board.toString(p));
 //				System.out.println(board);
 			} while (board.getPasses() < 2);
