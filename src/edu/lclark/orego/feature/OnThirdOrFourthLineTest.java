@@ -28,7 +28,6 @@ public class OnThirdOrFourthLineTest {
 		assertFalse(onThirdOrFourthLine.at(at("a3")));
 		assertTrue(onThirdOrFourthLine.at(at("c3")));
 		assertTrue(onThirdOrFourthLine.at(at("q16")));
-
 	}
 
 }
