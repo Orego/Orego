@@ -35,10 +35,32 @@ public class BitBoardTest {
 	}
 	
 	@Test
-	public void testClear(){
+	public void testClear() {
 		bitBoard.set(at("b3"));
 		bitBoard.clear();
 		assertFalse(bitBoard.get(at("b3")));
+	}
+	
+	@Test
+	public void testExpand() {
+		bitBoard.set(at("c3"));
+		bitBoard.expand();
+		assertEquals("00000\n00100\n01110\n00100\n00000\n", bitBoard.toString());
+		
+		bitBoard.clear();
+		bitBoard.set(at("a2"));
+		bitBoard.set(at("e5"));
+		bitBoard.expand();
+		assertEquals("00011\n00001\n10000\n11000\n10000\n", bitBoard.toString());
+		bitBoard.expand();
+		assertEquals("00111\n10011\n11001\n11100\n11000\n", bitBoard.toString());
+	}
+	
+	@Test
+	public void testToString() {
+		String after = "00000\n00000\n10000\n00000\n00000\n";
+		bitBoard.set(at("a3"));
+		assertEquals(after, bitBoard.toString());
 	}
 
 }

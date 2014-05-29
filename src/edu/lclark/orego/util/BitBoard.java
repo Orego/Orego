@@ -36,5 +36,34 @@ public final class BitBoard {
 		assert coords.isOnBoard(p);
 		return (bits[coords.row(p)] & (1 << coords.column(p))) != 0;
 	}
+	
+	public void expand() {
+		int[] result = new int[coords.getWidth()];
+		for(int i = 0; i< bits.length; i++){
+			result[i] |= bits[i];
+			if(i!=0){
+				result[i] |= bits[i-1];
+			}
+			if(i<coords.getWidth()-1){
+				result[i] |= bits[i+1];
+			}
+			result[i] |= bits[i] >> 1;
+			result[i] |= bits[i] << 1;
+		}
+		for(int i = 0; i<bits.length; i++){
+			bits[i] = result[i];
+		}
+	}
+	
+	public String toString() {
+		String result = "";
+		for(int i = 0; i<coords.getWidth(); i++){
+			for(int j = 0; j<coords.getWidth(); j++){
+				result += (bits[i] >> j) & 1;
+			}
+			result += "\n";
+		}
+		return result;
+	}
 
 }
