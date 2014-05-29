@@ -13,9 +13,7 @@ public class OnThirdOrFourthLine implements Feature{
 	
 	@Override
 	public final boolean at(short p){
-		
-		
-		return false;
+		return board.getCoordinateSystem().isOnThirdOrFourthLine(p);
 	}
 
 }
