@@ -1,36 +1,44 @@
 package edu.lclark.orego.util;
 
 import static org.junit.Assert.*;
-import orego.util.BitVector;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.lclark.orego.core.CoordinateSystem;
+
 public class BitBoardTest {
+	
+	private CoordinateSystem coords;
 	
 	private BitBoard bitBoard;
 	
 	@Before
 	public void setUp() throws Exception {
-		bitBoard = new BitBoard(19);
+		coords = CoordinateSystem.forWidth(5);
+		bitBoard = new BitBoard(coords);
+	}
+
+	/** Delegate method to call at on board. */
+	private short at(String label) {
+		return coords.at(label);
 	}
 
 	@Test
 	public void testSet() {
-		bitBoard.set(0, 0);
-		assertEquals(1, bitBoard.getRow(0));
-		assertEquals(0, bitBoard.getRow(1));
-		bitBoard.set(0,2);
-		assertEquals(5, bitBoard.getRow(0));
-		
+		bitBoard.set(at("b3"));
+		assertTrue(bitBoard.get(at("b3")));
+		assertFalse(bitBoard.get(at("a2")));
+		bitBoard.set(at("a2"));
+		assertTrue(bitBoard.get(at("b3")));
+		assertTrue(bitBoard.get(at("a2")));
 	}
 	
 	@Test
 	public void testClear(){
-		bitBoard.set(0, 5);
-		assertEquals(32, bitBoard.getRow(0));
+		bitBoard.set(at("b3"));
 		bitBoard.clear();
-		assertEquals(0, bitBoard.getRow(0));
+		assertFalse(bitBoard.get(at("b3")));
 	}
 
 }

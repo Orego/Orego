@@ -1,28 +1,40 @@
 package edu.lclark.orego.util;
 
-public class BitBoard {
+import edu.lclark.orego.core.CoordinateSystem;
+
+/** Dense bit representation of a set of points on the board. */
+public final class BitBoard {
+
+	private final int[] bits;
+
+	private final CoordinateSystem coords;
 	
-	private int[] board;
-	
-	public BitBoard(int capacity){
-		board = new int[capacity];
+	public BitBoard(CoordinateSystem coords) {
+		this.coords = coords;
+		bits = new int[coords.getWidth()];
 	}
-	
-	/**
-	 * Sets the bit at row r and column c to 1
-	 */
-	public void set(int r, int c){
-		board[r] |= (1 << c);
-	}
-	
-	public void clear(){
-		for(int i=0; i<board.length; i++){
-			board[i]=0;
+
+	/** Turns off all of the bits. */
+	public void clear() {
+		for (int i = 0; i < bits.length; i++) {
+			bits[i] = 0;
 		}
 	}
-	
-	public int getRow(int index){
-		return board[index];
+
+	/**
+	 * Sets the bit for p.
+	 */
+	public void set(short p) {
+		assert coords.isOnBoard(p);
+		bits[coords.row(p)] |= (1 << coords.column(p));
+	}
+
+	/**
+	 * Returns true if the bit for p is set.
+	 */
+	public boolean get(short p) {
+		assert coords.isOnBoard(p);
+		return (bits[coords.row(p)] & (1 << coords.column(p))) != 0;
 	}
 
 }
