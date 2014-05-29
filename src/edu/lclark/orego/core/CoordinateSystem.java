@@ -260,24 +260,9 @@ public final class CoordinateSystem {
 				&& isValidOneDimensionalCoordinate(column(p));
 	}
 
-	/** Returns true if p is on the third or fourth line. */
-	public boolean isOnThirdOrFourthLine(short p) {
-		int line = line(p);
-		return (line >= 3) & (line <= 4);
-	}
-
 	/** Returns true if c is a valid row or column index. */
 	private boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < width);
-	}
-
-	/**
-	 * Returns p's line (1-based) from the edge of the board
-	 */
-	private int line(short p) {
-		int r = min(row(p), width - row(p) - 1);
-		int c = min(column(p), width - column(p) - 1);
-		return 1 + min(r, c);
 	}
 
 	/** Returns the Manhattan distance from p to q. */

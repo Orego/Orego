@@ -41,21 +41,6 @@ public class CoordinateSystemTest {
 		assertEquals("14", c19.rowToString(c19.row(p)));
 		assertEquals("P", CoordinateSystem.columnToString(c19.column(p)));
 	}
-	
-	@Test
-	public void testIs3or4() {
-			// Test whether various points are on line 3 or 4 from both edges
-			assertFalse(c19.isOnThirdOrFourthLine(c19.at("a1")));
-			assertTrue(c19.isOnThirdOrFourthLine(c19.at("e4")));
-			assertFalse(c19.isOnThirdOrFourthLine(c19.at("b2")));
-			assertFalse(c19.isOnThirdOrFourthLine(c19.at("j9")));
-			assertTrue(c19.isOnThirdOrFourthLine(c19.at("c4")));
-			assertFalse(c19.isOnThirdOrFourthLine(c19.at("a7")));
-			assertTrue(c19.isOnThirdOrFourthLine(c19.at("q4")));
-			assertTrue(c19.isOnThirdOrFourthLine(c19.at("q17")));
-			assertTrue(c19.isOnThirdOrFourthLine(c19.at("r16")));
-			assertFalse(c19.isOnThirdOrFourthLine(c19.at("t7")));
-	}
 
 	@Test
 	public void testNeighborsOnBoard() {
