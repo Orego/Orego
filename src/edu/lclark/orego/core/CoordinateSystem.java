@@ -139,7 +139,6 @@ public final class CoordinateSystem {
 		int extended = getFirstPointBeyondExtendedBoard();
 		neighbors = new short[extended][];
 		zobristHashes = new long[2][extended];
-		// TODO Should we be using Java's random instead?
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (short p : allPointsOnBoard) {
 			neighbors[p] = new short[] { (short) (p - south),
