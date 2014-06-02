@@ -10,6 +10,9 @@ import edu.lclark.orego.util.ShortList;
 
 public final class Board {
 
+	/** Stones captured by the last move. */
+	private final ShortList capturedStones;
+
 	/** The color to play next. */
 	private StoneColor colorToPlay;
 
@@ -42,8 +45,8 @@ public final class Board {
 	private final ShortList neighborsOfCapturedStone;
 
 	/** Observers of this board. */
-	private final BoardObserver[] observers;
-	
+	private BoardObserver[] observers;
+
 	/** Number of consecutive passes just played. */
 	private short passes;
 
@@ -52,7 +55,7 @@ public final class Board {
 
 	/** Hash after removing captured stones. */
 	private long proposedHash;
-	
+
 	/**
 	 * A hash table of all previous board positions for ko verification. The
 	 * hash codes stored here do NOT include the simple ko point.
@@ -65,15 +68,23 @@ public final class Board {
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
 
-	public Board(int width) {
-		this(width, new BoardObserver[0]);
+	/**
+	 * Sets the observers of this board.
+	 */
+	public void setObservers(BoardObserver... observers) {
+		// The assertions check that nothing has happened on this board
+		assert hash == SuperKoTable.EMPTY;
+		assert turn == 0;
+		// Defensive copy
+		this.observers = observers.clone();
 	}
-	
-	public Board(int width, BoardObserver... observers) {
+
+	public Board(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
 		enemyNeighboringChainIds = new ShortList(4);
+		capturedStones = new ShortList(coords.getArea());
 		int n = coords.getFirstPointBeyondBoard();
 		lastPlayLiberties = new ShortSet(n);
 		superKoTable = new SuperKoTable(coords);
@@ -82,7 +93,6 @@ public final class Board {
 			points[p] = new Point(coords, p);
 		}
 		neighborsOfCapturedStone = new ShortList(4);
-		this.observers = observers;
 		clear();
 	}
 
@@ -267,8 +277,10 @@ public final class Board {
 		}
 		return true;
 	}
-	
-	/** Returns true if p (which might be a point on the board or PASS) is legal. */
+
+	/**
+	 * Returns true if p (which might be a point on the board or PASS) is legal.
+	 */
 	public boolean isLegal(short p) {
 		if (p == PASS) {
 			return true;
@@ -336,7 +348,8 @@ public final class Board {
 	}
 
 	/**
-	 * Similar to #legality, but doesn't check for occupied point or superko violation.
+	 * Similar to #legality, but doesn't check for occupied point or superko
+	 * violation.
 	 */
 	private Legality legalityFast(StoneColor color, short p) {
 		assert coords.isOnBoard(p);
@@ -411,20 +424,24 @@ public final class Board {
 		turn++;
 		hash = proposedHash;
 		superKoTable.add(hash);
-		notifyObservers(p);
+		// To ensure that the board is in a stable state, this must be done last
+		// The color argument is flipped back to the color of the stone played
+		notifyObservers(colorToPlay.opposite(), p);
 		return OK;
 	}
 
 	/** Notify the observers about what has changed. */
-	private void notifyObservers(short p) {
+	private void notifyObservers(StoneColor color, short p) {
 		for (BoardObserver observer : observers) {
-			// Note that we have to flip colorToPlay because it has already been flipped as the move was completed
-			observer.update(colorToPlay.opposite(), p, capturedStones);
+			// Note that we have to flip colorToPlay because it has already been
+			// flipped as the move was completed
+			observer.update(color, p, capturedStones);
 		}
 	}
 
 	/**
-	 * Similar to play, but assumes p is on board and not occupied. Does not maintain hash or check superko.
+	 * Similar to play, but assumes p is on board and not occupied. Does not
+	 * maintain hash or check superko.
 	 */
 	public Legality playFast(short p) {
 		Legality result = legalityFast(colorToPlay, p);
@@ -437,8 +454,7 @@ public final class Board {
 		turn++;
 		return OK;
 	}
-	
-	
+
 	/** Removes the stone at p. */
 	public void removeStone(short p) {
 		points[p].color = VACANT;

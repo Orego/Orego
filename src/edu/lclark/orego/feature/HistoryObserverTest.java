@@ -23,6 +23,7 @@ public class HistoryObserverTest {
 		board = new Board(5);
 		coords = board.getCoordinateSystem();
 		observer = new HistoryObserver(board);
+		board.setObservers(observer);
 	}
 
 	/** Delegate method to call at on board. */
