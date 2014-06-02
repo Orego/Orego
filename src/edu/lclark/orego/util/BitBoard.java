@@ -1,22 +1,17 @@
 package edu.lclark.orego.util;
 
-import java.util.Arrays;
-
 import edu.lclark.orego.core.CoordinateSystem;
 
 /** Dense bit representation of a set of points on the board. */
 public final class BitBoard {
 
-	private int[] bits;
+	private final int[] bits;
 	
-	private int[] expansion;
-
 	private final CoordinateSystem coords;
 	
 	public BitBoard(CoordinateSystem coords) {
 		this.coords = coords;
 		bits = new int[coords.getWidth()];
-		expansion = new int[coords.getWidth()];
 	}
 
 	/** Turns off all of the bits. */
@@ -43,23 +38,17 @@ public final class BitBoard {
 	}
 	
 	public void expand() {
-		Arrays.fill(expansion, 0);
-		for(int i = 0; i< bits.length; i++){
-			expansion[i] |= bits[i];
-			if(i!=0){
-				expansion[i] |= bits[i-1];
-			}
-			if(i<coords.getWidth()-1){
-				expansion[i] |= bits[i+1];
-			}
-			expansion[i] |= bits[i] >> 1;
-			expansion[i] |= bits[i] << 1;
+		int previous = 0;
+		int i;
+		for(i = 0; i < bits.length - 1; i++) {
+			int temp = bits[i];
+			bits[i] |= bits[i] << 1 | bits[i] >>> 1 | previous | bits[i + 1];
+			previous = temp;
 		}
-		int[] temp = bits;
-		bits=expansion;
-		expansion = temp;
+		bits[i] |= bits[i] << 1 | bits[i] >>> 1 | previous;
 	}
 	
+	@Override
 	public String toString() {
 		String result = "";
 		for(int i = 0; i<coords.getWidth(); i++){
