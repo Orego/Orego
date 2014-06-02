@@ -53,7 +53,7 @@ public final class BitBoard {
 		String result = "";
 		for(int i = 0; i<coords.getWidth(); i++){
 			for(int j = 0; j<coords.getWidth(); j++){
-				result += (bits[i] >> j) & 1;
+				result += (((bits[i] >> j) & 1) != 0) ? 'X' : '.';
 			}
 			result += "\n";
 		}

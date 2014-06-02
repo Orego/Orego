@@ -13,6 +13,18 @@ public class BitBoardTest {
 	
 	private BitBoard bitBoard;
 	
+	// TODO Should we put this in one central place?
+	/**
+	 * Returns a single String made by concatenating all the strings in diagram.
+	 */
+	private static String asOneString(String[] diagram) {
+		String result = "";
+		for (String s : diagram) {
+			result += s + "\n";
+		}
+		return result;
+	}
+
 	@Before
 	public void setUp() throws Exception {
 		coords = CoordinateSystem.forWidth(5);
@@ -45,22 +57,35 @@ public class BitBoardTest {
 	public void testExpand() {
 		bitBoard.set(at("c3"));
 		bitBoard.expand();
-		assertEquals("00000\n00100\n01110\n00100\n00000\n", bitBoard.toString());
-		
+		String[] correct = {
+				".....",
+				"..X..",
+				".XXX.",
+				"..X..",
+				".....",
+		};
+		assertEquals(asOneString(correct), bitBoard.toString());
 		bitBoard.clear();
 		bitBoard.set(at("a2"));
 		bitBoard.set(at("e5"));
 		bitBoard.expand();
-		assertEquals("00011\n00001\n10000\n11000\n10000\n", bitBoard.toString());
+		correct = new String[] {
+				"...XX",
+				"....X",
+				"X....",
+				"XX...",
+				"X....",		
+		};
+		assertEquals(asOneString(correct), bitBoard.toString());
 		bitBoard.expand();
-		assertEquals("00111\n10011\n11001\n11100\n11000\n", bitBoard.toString());
-	}
-	
-	@Test
-	public void testToString() {
-		String after = "00000\n00000\n10000\n00000\n00000\n";
-		bitBoard.set(at("a3"));
-		assertEquals(after, bitBoard.toString());
+		correct = new String[] {
+				"..XXX",
+				"X..XX",
+				"XX..X",
+				"XXX..",
+				"XX...",		
+		};
+		assertEquals(asOneString(correct), bitBoard.toString());
 	}
 
 }
