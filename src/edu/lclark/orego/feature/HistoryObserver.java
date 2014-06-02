@@ -11,12 +11,16 @@ import edu.lclark.orego.util.ShortList;
  */
 public class HistoryObserver implements BoardObserver {
 
+	private final Board board;
+	
 	/** The sequence of moves. */
 	private final ShortList history;
 	
 	public HistoryObserver(Board board) {
+		this.board = board;
 		CoordinateSystem coords = board.getCoordinateSystem();
 		history = new ShortList(coords.getMaxMovesPerGame());
+		board.addObserver(this);
 	}
 
 	// TODO We'll need clear and copyDataFrom
@@ -25,7 +29,9 @@ public class HistoryObserver implements BoardObserver {
 	@Override
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
-		history.add(location);
+		if (board.getTurn() > 0) {
+			history.add(location);
+		}
 	}
 
 	/** Returns the move played at time t. */

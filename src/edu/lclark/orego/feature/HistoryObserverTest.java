@@ -23,23 +23,11 @@ public class HistoryObserverTest {
 		board = new Board(5);
 		coords = board.getCoordinateSystem();
 		observer = new HistoryObserver(board);
-		board.setObservers(observer);
 	}
 
 	/** Delegate method to call at on board. */
 	private short at(String label) {
 		return coords.at(label);
-	}
-
-	@Test
-	public void testUpdate() {
-		ShortList none = new ShortList(0);
-		observer.update(BLACK, at("a2"), none);
-		observer.update(WHITE, at("b3"), none);
-		observer.update(BLACK, at("d1"), none);
-		assertEquals(at("a2"), observer.get(0));
-		assertEquals(at("b3"), observer.get(1));
-		assertEquals(at("d1"), observer.get(2));
 	}
 
 	@Test

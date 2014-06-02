@@ -69,14 +69,15 @@ public final class Board {
 	private final ShortSet vacantPoints;
 
 	/**
-	 * Sets the observers of this board.
+	 * Adds an observer to this board.
 	 */
-	public void setObservers(BoardObserver... observers) {
+	public void addObserver(BoardObserver observer) {
 		// The assertions check that nothing has happened on this board
 		assert hash == SuperKoTable.EMPTY;
 		assert turn == 0;
 		// Defensive copy
-		this.observers = observers.clone();
+		observers = java.util.Arrays.copyOf(observers, observers.length + 1);
+		observers[observers.length - 1] = observer;
 	}
 
 	public Board(int width) {
@@ -93,6 +94,7 @@ public final class Board {
 			points[p] = new Point(coords, p);
 		}
 		neighborsOfCapturedStone = new ShortList(4);
+		observers = new BoardObserver[0];
 		clear();
 	}
 
@@ -101,6 +103,7 @@ public final class Board {
 	 * capturing them or decrementing their liberty counts.
 	 */
 	private void adjustEnemyNeighbors(short p) {
+		capturedStones.clear();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
 			if (points[enemy].isInAtari()) {
@@ -403,6 +406,8 @@ public final class Board {
 		finalizePlay(color, p);
 		hash = proposedHash;
 		superKoTable.add(hash);
+		// To ensure that the board is in a stable state, this must be done last
+		notifyObservers(color, p);
 	}
 
 	/**
@@ -452,11 +457,14 @@ public final class Board {
 		colorToPlay = colorToPlay.opposite();
 		passes = 0;
 		turn++;
+		// To ensure that the board is in a stable state, this must be done last
+		// The color argument is flipped back to the color of the stone played
+		notifyObservers(colorToPlay.opposite(), p);
 		return OK;
 	}
 
 	/** Removes the stone at p. */
-	public void removeStone(short p) {
+	private void removeStone(short p) {
 		points[p].color = VACANT;
 		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
@@ -471,6 +479,7 @@ public final class Board {
 			int c = neighborsOfCapturedStone.get(k);
 			points[c].liberties.addKnownAbsent(p);
 		}
+		capturedStones.add(p);
 	}
 
 	/**
