@@ -5,7 +5,6 @@ import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.feature.Feature;
-import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.util.*;
 import ec.util.MersenneTwisterFast;
 

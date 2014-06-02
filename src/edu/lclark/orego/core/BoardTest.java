@@ -3,6 +3,7 @@ package edu.lclark.orego.core;
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
+import static edu.lclark.orego.util.TestingTools.*;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,18 +14,6 @@ public class BoardTest {
 
 	private CoordinateSystem coords;
 	
-	/**
-	 * Returns a single String built from diagram, analogous to that produced by
-	 * Board.toString.
-	 */
-	private static String asOneString(String[] diagram) {
-		String result = "";
-		for (String s : diagram) {
-			result += s + "\n";
-		}
-		return result;
-	}
-
 	/** Delegate method to call at on board. */
 	private short at(String label) {
 		return coords.at(label);

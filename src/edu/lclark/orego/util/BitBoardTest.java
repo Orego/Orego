@@ -1,11 +1,10 @@
 package edu.lclark.orego.util;
 
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import edu.lclark.orego.core.CoordinateSystem;
+import static edu.lclark.orego.util.TestingTools.*;
 
 public class BitBoardTest {
 	
@@ -13,18 +12,6 @@ public class BitBoardTest {
 	
 	private BitBoard bitBoard;
 	
-	// TODO Should we put this in one central place?
-	/**
-	 * Returns a single String made by concatenating all the strings in diagram.
-	 */
-	private static String asOneString(String[] diagram) {
-		String result = "";
-		for (String s : diagram) {
-			result += s + "\n";
-		}
-		return result;
-	}
-
 	@Before
 	public void setUp() throws Exception {
 		coords = CoordinateSystem.forWidth(5);
