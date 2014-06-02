@@ -87,5 +87,21 @@ public class BitBoardTest {
 		};
 		assertEquals(asOneString(correct), bitBoard.toString());
 	}
+	
+	@Test
+	public void testRemove(){
+		bitBoard.set(at("c2"));
+		bitBoard.set(at("c3"));
+		bitBoard.set(at("c4"));
+		bitBoard.remove(at("c3"));
+		String[] correct = {
+				".....",
+				"..X..",
+				".....",
+				"..X..",
+				".....",
+		};
+		assertEquals(asOneString(correct), bitBoard.toString());
+	}
 
 }
