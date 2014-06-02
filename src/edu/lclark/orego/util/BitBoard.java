@@ -1,14 +1,16 @@
 package edu.lclark.orego.util;
 
+import java.util.Arrays;
+
 import edu.lclark.orego.core.CoordinateSystem;
 
 /** Dense bit representation of a set of points on the board. */
 public final class BitBoard {
 
 	private final int[] bits;
-	
+
 	private final CoordinateSystem coords;
-	
+
 	public BitBoard(CoordinateSystem coords) {
 		this.coords = coords;
 		bits = new int[coords.getWidth()];
@@ -36,23 +38,38 @@ public final class BitBoard {
 		assert coords.isOnBoard(p);
 		return (bits[coords.row(p)] & (1 << coords.column(p))) != 0;
 	}
-	
+
 	public void expand() {
 		int previous = 0;
 		int i;
-		for(i = 0; i < bits.length - 1; i++) {
+		for (i = 0; i < bits.length - 1; i++) {
 			int temp = bits[i];
 			bits[i] |= bits[i] << 1 | bits[i] >>> 1 | previous | bits[i + 1];
 			previous = temp;
 		}
 		bits[i] |= bits[i] << 1 | bits[i] >>> 1 | previous;
 	}
-	
+
+	public int getRow(int index) {
+		return bits[index];
+	}
+
+	public void remove(Short p) {
+		assert coords.isOnBoard(p);
+		bits[coords.row(p)] &= ~(1 << coords.column(p));
+	}
+
+	public void copyDataFrom(BitBoard source) {
+		for (int i = 0; i < bits.length; i++) {
+			bits[i] = source.getRow(i);
+		}
+	}
+
 	@Override
 	public String toString() {
 		String result = "";
-		for(int i = 0; i<coords.getWidth(); i++){
-			for(int j = 0; j<coords.getWidth(); j++){
+		for (int i = 0; i < coords.getWidth(); i++) {
+			for (int j = 0; j < coords.getWidth(); j++) {
 				result += (((bits[i] >> j) & 1) != 0) ? 'X' : '.';
 			}
 			result += "\n";
