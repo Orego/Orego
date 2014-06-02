@@ -4,6 +4,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
+import edu.lclark.orego.feature.BoardObserver;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 
@@ -40,6 +41,9 @@ public final class Board {
 	/** Neighbors of a stone just captured. Used by removeStone(). */
 	private final ShortList neighborsOfCapturedStone;
 
+	/** Observers of this board. */
+	private final BoardObserver[] observers;
+	
 	/** Number of consecutive passes just played. */
 	private short passes;
 
@@ -62,6 +66,10 @@ public final class Board {
 	private final ShortSet vacantPoints;
 
 	public Board(int width) {
+		this(width, new BoardObserver[0]);
+	}
+	
+	public Board(int width, BoardObserver... observers) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
@@ -74,6 +82,7 @@ public final class Board {
 			points[p] = new Point(coords, p);
 		}
 		neighborsOfCapturedStone = new ShortList(4);
+		this.observers = observers;
 		clear();
 	}
 
@@ -143,6 +152,7 @@ public final class Board {
 			points[p].clear();
 			vacantPoints.addKnownAbsent(p);
 		}
+		// TODO Clear observers
 	}
 
 	/**
@@ -401,7 +411,16 @@ public final class Board {
 		turn++;
 		hash = proposedHash;
 		superKoTable.add(hash);
+		notifyObservers(p);
 		return OK;
+	}
+
+	/** Notify the observers about what has changed. */
+	private void notifyObservers(short p) {
+		for (BoardObserver observer : observers) {
+			// Note that we have to flip colorToPlay because it has already been flipped as the move was completed
+			observer.update(colorToPlay.opposite(), p, capturedStones);
+		}
 	}
 
 	/**

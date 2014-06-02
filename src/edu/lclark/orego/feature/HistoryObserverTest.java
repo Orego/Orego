@@ -12,25 +12,61 @@ import static edu.lclark.orego.core.StoneColor.*;
 
 public class HistoryObserverTest {
 
-	private HistoryObserver observer;
+	private Board board;
 	
 	private CoordinateSystem coords;
 	
+	private HistoryObserver observer;
+	
 	@Before
 	public void setUp() throws Exception {
-		observer = new HistoryObserver(new Board(5));
-		coords = CoordinateSystem.forWidth(5);
+		board = new Board(5);
+		coords = board.getCoordinateSystem();
+		observer = new HistoryObserver(board);
+	}
+
+	/** Delegate method to call at on board. */
+	private short at(String label) {
+		return coords.at(label);
 	}
 
 	@Test
 	public void testUpdate() {
 		ShortList none = new ShortList(0);
-		observer.update(BLACK, coords.at("a2"), none);
-		observer.update(WHITE, coords.at("b3"), none);
-		observer.update(BLACK, coords.at("d1"), none);
-		assertEquals(coords.at("a2"), observer.get(0));
-		assertEquals(coords.at("b3"), observer.get(1));
-		assertEquals(coords.at("d1"), observer.get(2));
+		observer.update(BLACK, at("a2"), none);
+		observer.update(WHITE, at("b3"), none);
+		observer.update(BLACK, at("d1"), none);
+		assertEquals(at("a2"), observer.get(0));
+		assertEquals(at("b3"), observer.get(1));
+		assertEquals(at("d1"), observer.get(2));
+	}
+
+	@Test
+	public void testResponseToBoard() {
+		board.play(at("c4"));
+		board.play(at("e1"));
+		board.play(at("b2"));
+		assertEquals(at("c4"), observer.get(0));
+		assertEquals(at("e1"), observer.get(1));
+		assertEquals(at("b2"), observer.get(2));
+	}
+
+	@Test
+	public void testIgnoreInitialStones() {
+		String[] diagram = {
+				".#...",
+				".....",
+				"....O",
+				".....",
+				".....",
+		};
+		board.setUpProblem(diagram, BLACK);
+		board.play(at("c4"));
+		board.play(at("e1"));
+		board.play(at("b2"));
+		assertEquals(at("c4"), observer.get(0));
+		assertEquals(at("e1"), observer.get(1));
+		assertEquals(at("b2"), observer.get(2));		
 	}
 
 }
