@@ -2,70 +2,78 @@ package edu.lclark.orego.feature;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.core.NonStoneColor;
+import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
+import static edu.lclark.orego.core.NonStoneColor.*;
 
-/** True if p is "near" another stone, i.e., within Manhattan distance 4. */
+/** True if p is "near" another stone, i.e., within a large knight's move. */
 public final class NearAnotherStone implements Feature {
 
-	private static final short[][][] neighbors = new short[20][][];
-
-	private final CoordinateSystem coords;
+	/**
+	 * Values of neighborhoods for each board width.
+	 */
+	private static final short[][][] NEIGHBORHOODS = new short[MAX_POSSIBLE_BOARD_WIDTH + 1][][];
 
 	private final Board board;
 
+	/**
+	 * Large-knight neighborhoods around points. First index is point around
+	 * which neighborhood is defined.
+	 */
+	private final short[][] neighborhoods;
+
+	/** Row and column offsets of nearby points. */
+	public static final short[][] OFFSETS = { { 0, -1 }, { 0, 1 }, { -1, 0 },
+			{ 1, 0 }, { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
+			{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
+			{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 }, { 2, 2 },
+			{ 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 }, { -3, 0 }, { 0, -3 },
+			{ 0, 3 }, { 3, 1 }, { 3, -1 }, { -1, -3 }, { 1, -3 }, { -3, -1 },
+			{ -3, 1 }, { -1, 3 }, { 1, 3 } };
+
 	public NearAnotherStone(Board board) {
 		this.board = board;
-		coords = board.getCoordinateSystem();
-		if (neighbors[coords.getWidth()] == null) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		int width = coords.getWidth();
+		if (NEIGHBORHOODS[width] == null) {
 			short[] pointsOnBoard = coords.getAllPointsOnBoard();
-			neighbors[coords.getWidth()] = new short[coords.getFirstPointBeyondBoard()][];
+			NEIGHBORHOODS[width] = new short[coords.getFirstPointBeyondBoard()][];
 			for (short p : pointsOnBoard) {
-				neighbors[coords.getWidth()][p] = findNeighborhood(
-							p, new short[][] { { 0, -1 }, { 0, 1 },
-								{ -1, 0 }, { 1, 0 }, { -1, -1 }, { -1, 1 },
-								{ 1, -1 }, { 1, 1 }, { -2, 0 }, { 2, 0 },
-								{ 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
-								{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 },
-								{ 1, -2 }, { 1, 2 }, { 2, 2 }, { 2, -2 },
-								{ -2, 2 }, { -2, -2 }, { 3, 0 }, { -3, 0 },
-								{ 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
-								{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 },
-								{ -1, 3 }, { 1, 3 } });
+				NEIGHBORHOODS[width][p] = findNeighborhood(p, OFFSETS, coords);
 			}
 		}
+		neighborhoods = NEIGHBORHOODS[width];
 	}
 
 	@Override
 	public boolean at(short p) {
-		for (int i = 0; i < neighbors[coords.getWidth()][p].length; i++) {
-			if (board.getColorAt(neighbors[coords.getWidth()][p][i]) != NonStoneColor.VACANT) {
+		for (int i = 0; i < neighborhoods[p].length; i++) {
+			if (board.getColorAt(neighborhoods[p][i]) != VACANT) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private short[] findNeighborhood(short p, short[][] offsets) {
+	/**
+	 * Returns an array containing the coordinates of all on-board points within
+	 * a large knight's move of p.
+	 */
+	private static short[] findNeighborhood(short p, short[][] offsets,
+			CoordinateSystem coords) {
 		int r = coords.row(p), c = coords.column(p);
-		short large[] = new short[offsets.length];
+		short[] result = new short[offsets.length];
 		int count = 0;
 		for (int i = 0; i < offsets.length; i++) {
-			if (coords.isValidOneDimensionalCoordinate(r + offsets[i][0])
-					&& (coords.isValidOneDimensionalCoordinate(c
-							+ offsets[i][1]))) {
-				large[i] = coords.at(r + offsets[i][0], c + offsets[i][1]);
+			int rr = r + offsets[i][0];
+			int cc = c + offsets[i][1];
+			if (coords.isValidOneDimensionalCoordinate(rr)
+					&& (coords.isValidOneDimensionalCoordinate(cc))) {
+				result[i] = coords.at(rr, cc);
 				count++;
 			}
 		}
 		// Create a small array and copy the elements into it
-		short result[] = new short[count];
-		int v = 0;
-		for (int i = 0; i < offsets.length; i++)
-			if (large[i] > 0) {
-				result[v] = large[i];
-				v++;
-			}
-		return result;
+		return java.util.Arrays.copyOf(result, count);
 	}
 
 }
