@@ -7,7 +7,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 /** True if p is on the third or fourth line. */
 public final class OnThirdOrFourthLine implements Feature {
 	
-	private CoordinateSystem coords;
+	private final CoordinateSystem coords;
 	
 	public OnThirdOrFourthLine(Board board){
 		coords = board.getCoordinateSystem();

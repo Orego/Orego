@@ -13,7 +13,7 @@ import edu.lclark.orego.core.*;
  */
 public final class NotEyeLike implements Feature {
 
-	private Board board;
+	private final Board board;
 	
 	public NotEyeLike(Board board) {
 		this.board = board;
