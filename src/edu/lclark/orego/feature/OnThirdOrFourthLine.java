@@ -1,28 +1,45 @@
 package edu.lclark.orego.feature;
 
 import static java.lang.Math.min;
-import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 
 /** True if p is on the third or fourth line. */
 public final class OnThirdOrFourthLine implements Feature {
+
+	private static final OnThirdOrFourthLine[] INSTANCES = new OnThirdOrFourthLine[MAX_POSSIBLE_BOARD_WIDTH + 1];
+
+	/** Returns the unique OnThirdOrFourthLine for the width of board. */
+	public static OnThirdOrFourthLine forWidth(int width) {
+		CoordinateSystem coords = CoordinateSystem.forWidth(width);
+		if (INSTANCES[width] == null) {
+			INSTANCES[width] = new OnThirdOrFourthLine(coords);
+		}
+		return INSTANCES[width];
+	}
 	
-	private final CoordinateSystem coords;
-	
-	public OnThirdOrFourthLine(Board board){
-		coords = board.getCoordinateSystem();
+	/** True for points on third or fourth line. */
+	private final boolean[] bits;
+
+	private OnThirdOrFourthLine(CoordinateSystem coords){
+		bits = new boolean[coords.getFirstPointBeyondBoard()];
+		for (short p : coords.getAllPointsOnBoard()) {
+			int line = line(p, coords);
+			if (line == 3 | line == 4) {
+				bits[p] = true;
+			}
+		}
 	}
 
 	@Override
-	public boolean at(short p){
-		int line = line(p);
-		return (line >= 3) & (line <= 4);
+	public boolean at(short p) {
+		return bits[p];
 	}
 
 	/**
 	 * Returns p's line (1-based) from the edge of the board
 	 */
-	private int line(short p) {
+	private int line(short p, CoordinateSystem coords) {
 		int r = coords.row(p);
 		r = min(r, coords.getWidth() - r - 1);
 		int c = coords.column(p);

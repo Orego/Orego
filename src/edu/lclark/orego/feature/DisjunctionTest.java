@@ -26,7 +26,7 @@ public class DisjunctionTest {
 	public void setUp() throws Exception {
 		board = new Board(7);
 		coords = board.getCoordinateSystem();
-		disjunction = new Disjunction(new NotEyeLike(board), new OnThirdOrFourthLine(board));
+		disjunction = new Disjunction(new NotEyeLike(board), OnThirdOrFourthLine.forWidth(coords.getWidth()));
 	}
 
 	@Test

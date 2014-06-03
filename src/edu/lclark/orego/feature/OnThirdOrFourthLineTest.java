@@ -19,7 +19,7 @@ public class OnThirdOrFourthLineTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(19);
-		onThirdOrFourthLine = new OnThirdOrFourthLine(board);
+		onThirdOrFourthLine = OnThirdOrFourthLine.forWidth(board.getCoordinateSystem().getWidth());
 	}
 
 	@Test

@@ -77,8 +77,14 @@ public final class CoordinateSystem {
 	/** Added to a point to find the one to the east. */
 	private static final short EAST = 1;
 
+	/**
+	 * Orego doesn't support larger board sizes. This is a constant to avoid
+	 * magic numbers.
+	 */
+	public static final int MAX_POSSIBLE_BOARD_WIDTH = 19;
+	
 	/** Instances for various board widths. */
-	private static final CoordinateSystem[] instances = new CoordinateSystem[20];
+	private static final CoordinateSystem[] INSTANCES = new CoordinateSystem[MAX_POSSIBLE_BOARD_WIDTH + 1];
 
 	/**
 	 * @see #getMaxMovesPerGame()
@@ -94,12 +100,12 @@ public final class CoordinateSystem {
 	/** Special value for resigning. */
 	public static final short RESIGN = 2;
 
-	/** Returns the CoordinateSystem for the specified width. */
+	/** Returns the unique CoordinateSystem for the specified width. */
 	public static CoordinateSystem forWidth(int width) {
-		if (instances[width] == null) {
-			instances[width] = new CoordinateSystem(width);
+		if (INSTANCES[width] == null) {
+			INSTANCES[width] = new CoordinateSystem(width);
 		}
-		return instances[width];
+		return INSTANCES[width];
 	}
 
 	/**

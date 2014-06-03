@@ -24,7 +24,7 @@ public class ConjunctionTest {
 	public void setUp() throws Exception {
 		board = new Board(7);
 		coords = board.getCoordinateSystem();
-		conjunction = new Conjunction(new NotEyeLike(board), new OnThirdOrFourthLine(board));
+		conjunction = new Conjunction(new NotEyeLike(board), OnThirdOrFourthLine.forWidth(coords.getWidth()));
 	}
 
 	@Test

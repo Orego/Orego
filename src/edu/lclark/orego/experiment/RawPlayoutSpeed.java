@@ -16,7 +16,7 @@ public final class RawPlayoutSpeed {
 		Feature f = new Conjunction(
 				new NotEyeLike(board),
 				new Disjunction(
-						new OnThirdOrFourthLine(board),
+						OnThirdOrFourthLine.forWidth(board.getCoordinateSystem().getWidth()),
 						new NearAnotherStone(board)));
 		SimpleRandom mover = new SimpleRandom(board, f);
 //		SimpleRandom mover = new SimpleRandom(board, new NotEyeLike(board));
