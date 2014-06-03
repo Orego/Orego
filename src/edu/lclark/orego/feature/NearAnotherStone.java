@@ -1,51 +1,71 @@
 package edu.lclark.orego.feature;
 
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.StoneColor;
-import edu.lclark.orego.util.BitBoard;
-import edu.lclark.orego.util.ShortList;
+import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.NonStoneColor;
 
 /** True if p is "near" another stone, i.e., within Manhattan distance 4. */
-public final class NearAnotherStone implements Feature, BoardObserver {
+public final class NearAnotherStone implements Feature {
 
-	/** Points where stones have been played. */
-	private final BitBoard playedPoints;
+	private static final short[][][] neighbors = new short[20][][];
 
-	/** Points near past stones, which are therefore reasonable places to play. */
-	private final BitBoard nearbyPositions;
+	private final CoordinateSystem coords;
 
-	/** True if all points are near another stone. */
-	private boolean full;
+	private final Board board;
 
 	public NearAnotherStone(Board board) {
-		board.addObserver(this);
-		playedPoints = new BitBoard(board.getCoordinateSystem());
-		nearbyPositions = new BitBoard(board.getCoordinateSystem());
+		this.board = board;
+		coords = board.getCoordinateSystem();
+		if (neighbors[coords.getWidth()] == null) {
+			short[] pointsOnBoard = coords.getAllPointsOnBoard();
+			neighbors[coords.getWidth()] = new short[coords.getFirstPointBeyondBoard()][];
+			for (short p : pointsOnBoard) {
+				neighbors[coords.getWidth()][p] = findNeighborhood(
+							p, new short[][] { { 0, -1 }, { 0, 1 },
+								{ -1, 0 }, { 1, 0 }, { -1, -1 }, { -1, 1 },
+								{ 1, -1 }, { 1, 1 }, { -2, 0 }, { 2, 0 },
+								{ 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 },
+								{ -1, -2 }, { -1, 2 }, { 2, 1 }, { 2, -1 },
+								{ 1, -2 }, { 1, 2 }, { 2, 2 }, { 2, -2 },
+								{ -2, 2 }, { -2, -2 }, { 3, 0 }, { -3, 0 },
+								{ 0, -3 }, { 0, 3 }, { 3, 1 }, { 3, -1 },
+								{ -1, -3 }, { 1, -3 }, { -3, -1 }, { -3, 1 },
+								{ -1, 3 }, { 1, 3 } });
+			}
+		}
 	}
 
 	@Override
 	public boolean at(short p) {
-		return full || nearbyPositions.get(p);
-	}
-
-	@Override
-	public void clear() {
-		full = false;
-		playedPoints.clear();
-		nearbyPositions.clear();
-	}
-
-	@Override
-	public void update(StoneColor color, short location,
-			ShortList capturedStones) {
-		if (!full) {
-			playedPoints.set(location);
-			nearbyPositions.copyDataFrom(playedPoints);
-			for (int i = 0; i < 4; i++) {
-				nearbyPositions.expand();
+		for (int i = 0; i < neighbors[coords.getWidth()][p].length; i++) {
+			if (board.getColorAt(neighbors[coords.getWidth()][p][i]) != NonStoneColor.VACANT) {
+				return true;
 			}
-			full = nearbyPositions.isFull();
 		}
+		return false;
+	}
+
+	private short[] findNeighborhood(short p, short[][] offsets) {
+		int r = coords.row(p), c = coords.column(p);
+		short large[] = new short[offsets.length];
+		int count = 0;
+		for (int i = 0; i < offsets.length; i++) {
+			if (coords.isValidOneDimensionalCoordinate(r + offsets[i][0])
+					&& (coords.isValidOneDimensionalCoordinate(c
+							+ offsets[i][1]))) {
+				large[i] = coords.at(r + offsets[i][0], c + offsets[i][1]);
+				count++;
+			}
+		}
+		// Create a small array and copy the elements into it
+		short result[] = new short[count];
+		int v = 0;
+		for (int i = 0; i < offsets.length; i++)
+			if (large[i] > 0) {
+				result[v] = large[i];
+				v++;
+			}
+		return result;
 	}
 
 }
