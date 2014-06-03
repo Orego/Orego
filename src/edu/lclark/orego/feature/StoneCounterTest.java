@@ -46,4 +46,22 @@ public class StoneCounterTest {
 		assertEquals(6, counter.getCount(WHITE));
 	}
 
+	@Test
+	public void testClear() {
+		String[] diagram = {
+				"##.#O",
+				"OO.O.",
+				"....O",
+				".#...",
+				".#...",
+		};
+		board.setUpProblem(diagram, WHITE);
+		board.play(at("c5"));
+		assertEquals(2, counter.getCount(BLACK));
+		assertEquals(6, counter.getCount(WHITE));
+		board.clear();
+		assertEquals(0, counter.getCount(BLACK));
+		assertEquals(0, counter.getCount(WHITE));
+	}
+
 }

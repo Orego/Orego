@@ -11,9 +11,12 @@ public final class BitBoard {
 
 	private final CoordinateSystem coords;
 
+	private final int fullRow;
+	
 	public BitBoard(CoordinateSystem coords) {
 		this.coords = coords;
 		bits = new int[coords.getWidth()];
+		fullRow = (1 << coords.getWidth()) - 1;
 	}
 
 	/** Turns off all of the bits. */
@@ -54,7 +57,7 @@ public final class BitBoard {
 		return bits[index];
 	}
 
-	public void remove(Short p) {
+	public void remove(short p) {
 		assert coords.isOnBoard(p);
 		bits[coords.row(p)] &= ~(1 << coords.column(p));
 	}
@@ -75,6 +78,15 @@ public final class BitBoard {
 			result += "\n";
 		}
 		return result;
+	}
+
+	public boolean isFull() {
+		for (int i = 0; i < bits.length; i++) {
+			if (bits[i] != fullRow) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

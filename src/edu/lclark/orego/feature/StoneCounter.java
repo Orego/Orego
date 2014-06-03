@@ -24,6 +24,12 @@ public class StoneCounter implements BoardObserver {
 		board.addObserver(this);
 	}
 
+	@Override
+	public void clear() {
+		counts[0] = 0;
+		counts[1] = 0;
+	}
+
 	/** Returns the number of stones of this color. */
 	public int getCount(StoneColor color) {
 		return counts[color.index()];

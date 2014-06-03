@@ -23,7 +23,7 @@ public class HistoryObserver implements BoardObserver {
 		board.addObserver(this);
 	}
 
-	// TODO We'll need clear and copyDataFrom
+	// TODO We'll need copyDataFrom
 	// The latter will need to take a new board as an argument
 	
 	@Override
@@ -34,6 +34,11 @@ public class HistoryObserver implements BoardObserver {
 		}
 	}
 
+	@Override
+	public void clear() {
+		history.clear();
+	}
+	
 	/** Returns the move played at time t. */
 	public short get(int t) {
 		return history.get(t);

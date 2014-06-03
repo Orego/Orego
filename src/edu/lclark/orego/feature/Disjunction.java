@@ -17,9 +17,4 @@ public final class Disjunction implements Feature {
 		return a.at(p) || b.at(p);
 	}
 
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
-	}
-
 }

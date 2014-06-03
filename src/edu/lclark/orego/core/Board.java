@@ -165,7 +165,9 @@ public final class Board {
 			points[p].clear();
 			vacantPoints.addKnownAbsent(p);
 		}
-		// TODO Clear observers
+		for (BoardObserver observer : observers) {
+			observer.clear();
+		}
 	}
 
 	/**

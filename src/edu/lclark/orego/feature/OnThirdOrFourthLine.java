@@ -5,10 +5,12 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 
 /** True if p is on the third or fourth line. */
-public final class OnThirdOrFourthLine extends AbstractFeature {
+public final class OnThirdOrFourthLine implements Feature {
+	
+	private CoordinateSystem coords;
 	
 	public OnThirdOrFourthLine(Board board){
-		super(board);
+		coords = board.getCoordinateSystem();
 	}
 
 	@Override
@@ -21,7 +23,6 @@ public final class OnThirdOrFourthLine extends AbstractFeature {
 	 * Returns p's line (1-based) from the edge of the board
 	 */
 	private int line(short p) {
-		CoordinateSystem coords = getBoard().getCoordinateSystem();
 		int r = coords.row(p);
 		r = min(r, coords.getWidth() - r - 1);
 		int c = coords.column(p);

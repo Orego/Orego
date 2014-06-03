@@ -39,5 +39,23 @@ public class NearAnotherStoneTest {
 		assertTrue(nearAnotherStone.at(at("b5")));
 		assertTrue(nearAnotherStone.at(at("c3")));
 	}
+	
+	@Test
+	public void testClear() {
+		String[] before = {
+				"#....",
+				".....",
+				".....",
+				".....",
+				".....",
+		};
+		board.setUpProblem(before, BLACK);
+		board.play(at("a2"));
+		assertFalse(nearAnotherStone.at(at("e4")));
+		assertTrue(nearAnotherStone.at(at("b5")));
+		assertTrue(nearAnotherStone.at(at("c3")));
+		board.clear();
+		assertFalse(nearAnotherStone.at(at("a4")));
+	}
 
 }

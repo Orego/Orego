@@ -91,4 +91,13 @@ public class BitBoardTest {
 		assertEquals(asOneString(correct), bitBoard.toString());
 	}
 
+	@Test
+	public void testIsFull() {
+		for (short p : coords.getAllPointsOnBoard()) {
+			assertFalse(bitBoard.isFull());
+			bitBoard.set(p);
+		}
+		assertTrue(bitBoard.isFull());
+	}
+
 }

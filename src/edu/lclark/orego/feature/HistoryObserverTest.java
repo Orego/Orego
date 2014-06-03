@@ -58,4 +58,14 @@ public class HistoryObserverTest {
 		assertEquals(at("b2"), observer.get(2));		
 	}
 
+	@Test
+	public void testClear() {
+		board.play(at("c4"));
+		board.play(at("e1"));
+		board.play(at("b2"));
+		board.clear();
+		board.play(at("a3"));
+		assertEquals(at("a3"), observer.get(0));
+	}
+
 }
