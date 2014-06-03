@@ -38,6 +38,7 @@ public class NearAnotherStoneTest {
 		assertFalse(nearAnotherStone.at(at("e4")));
 		assertTrue(nearAnotherStone.at(at("b5")));
 		assertTrue(nearAnotherStone.at(at("c3")));
+		assertTrue(nearAnotherStone.at(at("b2")));
 	}
 	
 	@Test
@@ -51,7 +52,7 @@ public class NearAnotherStoneTest {
 		};
 		board.setUpProblem(before, BLACK);
 		board.play(at("a2"));
-		assertFalse(nearAnotherStone.at(at("e4")));
+		assertFalse(nearAnotherStone.at(at("e5")));
 		assertTrue(nearAnotherStone.at(at("b5")));
 		assertTrue(nearAnotherStone.at(at("c3")));
 		board.clear();

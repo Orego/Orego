@@ -266,7 +266,7 @@ public final class CoordinateSystem {
 	}
 
 	/** Returns true if c is a valid row or column index. */
-	private boolean isValidOneDimensionalCoordinate(int c) {
+	public boolean isValidOneDimensionalCoordinate(int c) {
 		return (c >= 0) & (c < width);
 	}
 
