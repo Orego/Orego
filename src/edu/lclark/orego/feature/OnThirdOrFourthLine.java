@@ -7,6 +7,7 @@ import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 /** True if p is on the third or fourth line. */
 public final class OnThirdOrFourthLine implements Feature {
 
+	/** Instances for various board widths. */
 	private static final OnThirdOrFourthLine[] INSTANCES = new OnThirdOrFourthLine[MAX_POSSIBLE_BOARD_WIDTH + 1];
 
 	/** Returns the unique OnThirdOrFourthLine for the width of board. */
@@ -39,7 +40,7 @@ public final class OnThirdOrFourthLine implements Feature {
 	/**
 	 * Returns p's line (1-based) from the edge of the board
 	 */
-	private int line(short p, CoordinateSystem coords) {
+	private static int line(short p, CoordinateSystem coords) {
 		int r = coords.row(p);
 		r = min(r, coords.getWidth() - r - 1);
 		int c = coords.column(p);
