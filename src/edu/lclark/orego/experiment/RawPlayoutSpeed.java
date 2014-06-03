@@ -13,12 +13,13 @@ public final class RawPlayoutSpeed {
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board board = new Board(19);
-		Feature f = new Conjunction(
-				new NotEyeLike(board),
-				new Disjunction(
-						new OnThirdOrFourthLine(board),
-						new NearAnotherStone(board)));
-//		SimpleRandom mover = new SimpleRandom(board, new NotEyeLike(board));
+//		Feature f = new Conjunction(
+//				new NotEyeLike(board),
+//				new Disjunction(
+//						new OnThirdOrFourthLine(board),
+//						new NearAnotherStone(board)));
+//		SimpleRandom mover = new SimpleRandom(board, f);
+		SimpleRandom mover = new SimpleRandom(board, new NotEyeLike(board));
 		final int runs = 100000;
 		long total = 0;
 		for (int run = 0; run < runs; run++) {
