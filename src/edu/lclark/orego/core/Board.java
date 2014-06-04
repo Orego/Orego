@@ -13,6 +13,9 @@ public final class Board {
 	/** Stones captured by the last move. */
 	private final ShortList capturedStones;
 
+	/** Set of the roots of all chains. */
+	private final ShortSet[] chains;
+
 	/** The color to play next. */
 	private StoneColor colorToPlay;
 
@@ -68,8 +71,6 @@ public final class Board {
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
 	
-	private final ShortSet[] chains;
-
 	/**
 	 * Adds an observer to this board.
 	 */
@@ -92,9 +93,7 @@ public final class Board {
 		lastPlayLiberties = new ShortSet(n);
 		superKoTable = new SuperKoTable(coords);
 		vacantPoints = new ShortSet(n);
-		chains = new ShortSet[2];
-		chains[BLACK.index()] = new ShortSet(coords.getFirstPointBeyondBoard());
-		chains[WHITE.index()] = new ShortSet(coords.getFirstPointBeyondBoard());
+		chains = new ShortSet[] { new ShortSet(n), new ShortSet(n) };
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);
 		}
@@ -107,7 +106,7 @@ public final class Board {
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
 	 */
-	private void adjustEnemyNeighbors(short p, StoneColor color) {
+	private void adjustEnemyNeighbors(StoneColor color, short p) {
 		capturedStones.clear();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
@@ -128,7 +127,7 @@ public final class Board {
 	 * Deals with friendly neighbors of the move p just played, merging chains
 	 * as necessary.
 	 */
-	private void adjustFriendlyNeighbors(short p, StoneColor color) {
+	private void adjustFriendlyNeighbors(StoneColor color, short p) {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			points[p].becomeOneStoneChain(lastPlayLiberties);
@@ -165,6 +164,8 @@ public final class Board {
 	 */
 	public void clear() {
 		colorToPlay = BLACK;
+		chains[BLACK.index()].clear();
+		chains[WHITE.index()].clear();
 		hash = SuperKoTable.EMPTY;
 		koPoint = NO_POINT;
 		passes = 0;
@@ -193,8 +194,8 @@ public final class Board {
 		points[p].color = color;
 		vacantPoints.remove(p);
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
-		adjustFriendlyNeighbors(p, color);
-		adjustEnemyNeighbors(p, color);
+		adjustFriendlyNeighbors(color, p);
+		adjustEnemyNeighbors(color, p);
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
@@ -202,7 +203,8 @@ public final class Board {
 		}
 	}
 	
-	public ShortSet getChains(StoneColor color){
+	/** Returns a set of the root stones of chains of color. */
+	public ShortSet getChains(StoneColor color) {
 		return chains[color.index()];
 	}
 

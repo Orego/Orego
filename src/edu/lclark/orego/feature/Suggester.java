@@ -3,12 +3,13 @@ package edu.lclark.orego.feature;
 import edu.lclark.orego.util.ShortSet;
 
 /**
- * Suggests moves according to certain rules
+ * Suggests moves having certain properties.
  */
 public interface Suggester {
 
 	/**
-	 * Returns a ShortSet of moves that fulfill a certain criterion.
+	 * Returns the suggested moves.
 	 */
 	public ShortSet get();
+
 }
