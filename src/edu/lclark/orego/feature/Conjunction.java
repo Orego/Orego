@@ -1,13 +1,13 @@
 package edu.lclark.orego.feature;
 
 /** True if both of the features provided to the constructor are true. */
-public final class Conjunction implements Feature {
+public final class Conjunction implements Predicate {
 
-	private final Feature a;
+	private final Predicate a;
 	
-	private final Feature b;
+	private final Predicate b;
 	
-	public Conjunction(Feature a, Feature b) {
+	public Conjunction(Predicate a, Predicate b) {
 		this.a = a;
 		this.b = b;
 	}

@@ -7,11 +7,11 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
-import edu.lclark.orego.feature.Feature;
+import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
-import edu.lclark.orego.move.SimpleRandom;
+import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.Scorer;
 import java.util.*;
@@ -23,12 +23,12 @@ public class PlayoutComparison {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board board = new Board(19);
 		Scorer scorer = new ChinesePlayoutScorer(board, 0);
-		Feature f = new Conjunction(new NotEyeLike(board), new Disjunction(
+		Predicate f = new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board)));
-		SimpleRandom mover1 = new SimpleRandom(board, f);
-		SimpleRandom mover2 = new SimpleRandom(board, new NotEyeLike(board));
-		Map<SimpleRandom, Integer> wins = new HashMap<>();
+		Mover mover1 = new PredicateMover(board, f);
+		Mover mover2 = new PredicateMover(board, new NotEyeLike(board));
+		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
 		playGames(random, board, scorer, mover1, mover2, wins);
@@ -38,8 +38,8 @@ public class PlayoutComparison {
 	}
 
 	private static void playGames(MersenneTwisterFast random, Board board,
-			Scorer scorer, SimpleRandom mover1, SimpleRandom mover2,
-			Map<SimpleRandom, Integer> wins) {	
+			Scorer scorer, Mover mover1, Mover mover2,
+			Map<Mover, Integer> wins) {	
 		final int runs = 100000;
 		for (int run = 0; run < runs; run++) {
 			board.clear();

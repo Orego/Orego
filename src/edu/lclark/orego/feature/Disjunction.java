@@ -1,13 +1,13 @@
 package edu.lclark.orego.feature;
 
 /** True if at least one of the features provided to the constructor is true. */
-public final class Disjunction implements Feature {
+public final class Disjunction implements Predicate {
 
-	private final Feature a;
+	private final Predicate a;
 	
-	private final Feature b;
+	private final Predicate b;
 	
-	public Disjunction(Feature a, Feature b) {
+	public Disjunction(Predicate a, Predicate b) {
 		this.a = a;
 		this.b = b;
 	}

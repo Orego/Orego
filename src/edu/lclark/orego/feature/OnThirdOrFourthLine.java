@@ -5,7 +5,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 
 /** True if p is on the third or fourth line. */
-public final class OnThirdOrFourthLine implements Feature {
+public final class OnThirdOrFourthLine implements Predicate {
 
 	/** Instances for various board widths. */
 	private static final OnThirdOrFourthLine[] INSTANCES = new OnThirdOrFourthLine[MAX_POSSIBLE_BOARD_WIDTH + 1];

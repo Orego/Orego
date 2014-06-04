@@ -4,7 +4,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.util.ShortSet;
 
 /** Suggests moves that capture enemy stones. */
-public class CaptureSuggester implements Suggester {
+public final class CaptureSuggester implements Suggester {
 
 	private final Board board;
 
@@ -15,7 +15,7 @@ public class CaptureSuggester implements Suggester {
 	private final ShortSet movesToCapture;
 
 	@Override
-	public ShortSet get() {
+	public ShortSet getMoves() {
 		movesToCapture.clear();
 		ShortSet enemyChains = board.getChains(board.getColorToPlay()
 				.opposite());

@@ -3,7 +3,8 @@ package edu.lclark.orego.experiment;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.*;
-import edu.lclark.orego.move.SimpleRandom;
+import edu.lclark.orego.move.PredicateMover;
+import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
@@ -14,12 +15,12 @@ public final class RawPlayoutSpeed {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board board = new Board(19);
 		Scorer scorer = new ChinesePlayoutScorer(board, 7.5);
-		Feature f = new Conjunction(
+		Predicate f = new Conjunction(
 				new NotEyeLike(board),
 				new Disjunction(
 						OnThirdOrFourthLine.forWidth(board.getCoordinateSystem().getWidth()),
 						new NearAnotherStone(board)));
-		SimpleRandom mover = new SimpleRandom(board, f);
+		Mover mover = new PredicateMover(board, f);
 //		SimpleRandom mover = new SimpleRandom(board, new NotEyeLike(board));
 		final int runs = 100000;
 		long total = 0;

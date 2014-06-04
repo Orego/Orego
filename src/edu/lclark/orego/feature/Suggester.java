@@ -10,6 +10,6 @@ public interface Suggester {
 	/**
 	 * Returns the suggested moves.
 	 */
-	public ShortSet get();
+	public ShortSet getMoves();
 
 }

@@ -37,8 +37,8 @@ public class CaptureSuggesterTest {
 				".....",
 		};
 		board.setUpProblem(diagram, BLACK);
-		assertTrue(movesToCapture.get().contains(at("e2")));
-		assertTrue(movesToCapture.get().contains(at("a4")));
+		assertTrue(movesToCapture.getMoves().contains(at("e2")));
+		assertTrue(movesToCapture.getMoves().contains(at("a4")));
 	}
 
 	@Test
@@ -51,8 +51,8 @@ public class CaptureSuggesterTest {
 				".#O#.",
 		};
 		board.setUpProblem(diagram, BLACK);
-		assertEquals(1, movesToCapture.get().size());
-		assertTrue(movesToCapture.get().contains(at("c3")));
+		assertEquals(1, movesToCapture.getMoves().size());
+		assertTrue(movesToCapture.getMoves().contains(at("c3")));
 	}
 
 }

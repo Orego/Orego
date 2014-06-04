@@ -6,7 +6,7 @@ import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 /** True if p is "near" another stone, i.e., within a large knight's move. */
-public final class NearAnotherStone implements Feature {
+public final class NearAnotherStone implements Predicate {
 
 	/**
 	 * Values of neighborhoods for each board width.
@@ -38,7 +38,7 @@ public final class NearAnotherStone implements Feature {
 			short[] pointsOnBoard = coords.getAllPointsOnBoard();
 			NEIGHBORHOODS[width] = new short[coords.getFirstPointBeyondBoard()][];
 			for (short p : pointsOnBoard) {
-				NEIGHBORHOODS[width][p] = findNeighborhood(p, OFFSETS, coords);
+				NEIGHBORHOODS[width][p] = findNeighborhood(p, coords);
 			}
 		}
 		neighborhoods = NEIGHBORHOODS[width];
@@ -58,17 +58,16 @@ public final class NearAnotherStone implements Feature {
 	 * Returns an array containing the coordinates of all on-board points within
 	 * a large knight's move of p.
 	 */
-	private static short[] findNeighborhood(short p, short[][] offsets,
-			CoordinateSystem coords) {
+	private static short[] findNeighborhood(short p, CoordinateSystem coords) {
 		int r = coords.row(p), c = coords.column(p);
-		short[] result = new short[offsets.length];
+		short[] result = new short[OFFSETS.length];
 		int count = 0;
-		for (int i = 0; i < offsets.length; i++) {
-			int rr = r + offsets[i][0];
-			int cc = c + offsets[i][1];
+		for (int i = 0; i < OFFSETS.length; i++) {
+			int rr = r + OFFSETS[i][0];
+			int cc = c + OFFSETS[i][1];
 			if (coords.isValidOneDimensionalCoordinate(rr)
 					&& (coords.isValidOneDimensionalCoordinate(cc))) {
-				result[i] = coords.at(rr, cc);
+				result[count] = coords.at(rr, cc);
 				count++;
 			}
 		}

@@ -1,18 +1,10 @@
 package edu.lclark.orego.move;
 
-import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.core.Legality.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import edu.lclark.orego.core.*;
-import edu.lclark.orego.feature.Feature;
-import edu.lclark.orego.util.*;
 import ec.util.MersenneTwisterFast;
 
-/**
- * Makes moves purely randomly, except that it does not move in eyelike points.
- */
-public final class SimpleRandom {
-
+/** Plays moves. */
+public interface Mover {
+	
 	/**
 	 * These are 361 primes greater than 361 used to skip randomly through a set
 	 * of possible moves.
@@ -50,37 +42,7 @@ public final class SimpleRandom {
 			2843, 2851, 2857, 2861, 2879, 2887, 2897, 2903, 2909, 2917, 2927,
 			2939, 2953, 2957, 2963, 2969, 2971, 2999, 3001, 3011, 3019 };
 
-	private final Board board;
-	
-	private final Feature filter;
-	
-	/**
-	 * @param filter Only moves with this feature will be considered.
-	 */
-	public SimpleRandom(Board board, Feature filter) {
-		this.board = board;
-		this.filter = filter;
-	}
-
-	public short selectAndPlayOneMove(
-			MersenneTwisterFast random) {
-		ShortSet vacantPoints = board.getVacantPoints();
-		short start = (short)(random.nextInt(vacantPoints.size()));
-		short i = start;
-		short skip = PRIMES[random.nextInt(PRIMES.length)];
-		do {
-			short p = vacantPoints.get(i);
-			if ((board.getColorAt(p) == VACANT) && filter.at(p)) {
-				if (board.playFast(p) == OK) {
-					return p;
-				}
-			}
-			// Advancing by a random prime skips through the array
-			// in a manner analogous to double hashing.
-			i = (short)((i + skip) % vacantPoints.size());
-		} while (i != start);
-		board.pass();
-		return PASS;
-	}
+	/** Selects and plays one move. */
+	public short selectAndPlayOneMove(MersenneTwisterFast random);
 
 }
