@@ -300,5 +300,17 @@ public class BoardTest {
 		assertEquals(asOneString(before), board.toString());
 		assertEquals(BLACK, board.getColorToPlay());
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testBadDiagram(){
+		String[] example = {
+				"..#..",
+				"...0.",
+				".....",
+				".....",
+				".....",
+		};
+		board.setUpProblem(example, BLACK);		
+	}
 
 }

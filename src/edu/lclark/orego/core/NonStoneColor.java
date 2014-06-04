@@ -28,4 +28,13 @@ public enum NonStoneColor implements Color {
 		return glyph;
 	}
 
+	public static NonStoneColor forChar(char c) {
+		if (c == OFF_BOARD.toChar()) {
+			return OFF_BOARD;
+		} else if (c == VACANT.toChar()) {
+			return VACANT;
+		}
+		return null;
+	}
+
 }

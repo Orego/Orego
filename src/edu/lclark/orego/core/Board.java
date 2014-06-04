@@ -488,6 +488,7 @@ public final class Board {
 	 * Places all of the stones indicated in diagram. These are set as initial
 	 * stones, not moves recorded in the board's history. The color to play next
 	 * is set as indicated.
+	 * @throws IllegalArgumentException if the diagram contains invalid characters
 	 */
 	public void setUpProblem(String[] diagram, StoneColor colorToPlay) {
 		assert diagram.length == coords.getWidth();
@@ -498,6 +499,8 @@ public final class Board {
 				StoneColor color = StoneColor.forChar(diagram[r].charAt(c));
 				if (color != null) {
 					placeInitialStone(color, coords.at(r, c));
+				} else if (NonStoneColor.forChar(diagram[r].charAt(c)) != VACANT) {
+					throw new IllegalArgumentException();
 				}
 			}
 		}
