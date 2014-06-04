@@ -5,11 +5,12 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.move.SuggesterMover;
 import edu.lclark.orego.score.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
-public final class RawPlayoutSpeed {
+public final class PlayoutSpeed {
 
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
