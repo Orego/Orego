@@ -100,7 +100,7 @@ public final class ShortSet {
 	}
 
 	/** Returns the ith element of this list. */
-	public short get(short i) {
+	public short get(int i) {
 		return data[i];
 	}
 

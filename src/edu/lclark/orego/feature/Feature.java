@@ -1,6 +1,6 @@
 package edu.lclark.orego.feature;
 
-/** A feature detector. */
+/** Detects features for individual points on the board. */
 public interface Feature {
 
 	/** Returns true if p has this feature. */
