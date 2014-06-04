@@ -7,8 +7,6 @@ import edu.lclark.orego.core.CoordinateSystem;
  * clearing, and size, assuming that the keys are all in the range [0, n). If
  * space is important, or if the set is fairly dense, BitVector may be
  * preferable.
- * 
- * @see edu.lclark.orego.util.BitVector
  */
 public final class ShortSet {
 
