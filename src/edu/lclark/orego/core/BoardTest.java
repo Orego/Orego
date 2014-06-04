@@ -312,5 +312,35 @@ public class BoardTest {
 		};
 		board.setUpProblem(example, BLACK);		
 	}
-
+	
+	@Test
+	public void testChains(){
+		String[] before = {
+				"....O",
+				"...##",
+				".....",
+				".....",
+				".....",
+		};
+		board.setUpProblem(before, BLACK);
+		assertEquals(1, board.getChains(WHITE).size());
+		board.play(at("d5"));
+		assertEquals(1, board.getChains(BLACK).size());
+		assertEquals(0, board.getChains(WHITE).size());
+	}
+	
+	@Test
+	public void testMergeChains(){
+		String[] before = {
+				".....",
+				".#.##",
+				"..#..",
+				".....",
+				".....",
+		};
+		board.setUpProblem(before, BLACK);
+		assertEquals(3, board.getChains(BLACK).size());
+		board.play(at("c4"));
+		assertEquals(1, board.getChains(BLACK).size());
+	}
 }

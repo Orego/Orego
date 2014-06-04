@@ -67,6 +67,8 @@ public final class Board {
 
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
+	
+	private final ShortSet[] chains;
 
 	/**
 	 * Adds an observer to this board.
@@ -90,6 +92,9 @@ public final class Board {
 		lastPlayLiberties = new ShortSet(n);
 		superKoTable = new SuperKoTable(coords);
 		vacantPoints = new ShortSet(n);
+		chains = new ShortSet[2];
+		chains[BLACK.index()] = new ShortSet(coords.getFirstPointBeyondBoard());
+		chains[WHITE.index()] = new ShortSet(coords.getFirstPointBeyondBoard());
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);
 		}
@@ -102,7 +107,7 @@ public final class Board {
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
 	 */
-	private void adjustEnemyNeighbors(short p) {
+	private void adjustEnemyNeighbors(short p, StoneColor color) {
 		capturedStones.clear();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
@@ -112,6 +117,7 @@ public final class Board {
 					removeStone(s);
 					s = points[s].chainNextPoint;
 				} while (s != enemy);
+				chains[color.opposite().index()].remove(enemy);
 			} else {
 				points[enemy].liberties.removeKnownPresent(p);
 			}
@@ -122,10 +128,11 @@ public final class Board {
 	 * Deals with friendly neighbors of the move p just played, merging chains
 	 * as necessary.
 	 */
-	private void adjustFriendlyNeighbors(short p) {
+	private void adjustFriendlyNeighbors(short p, StoneColor color) {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			points[p].becomeOneStoneChain(lastPlayLiberties);
+			chains[color.index()].addKnownAbsent(p);
 		} else {
 			short c = friendlyNeighboringChainIds.get(0);
 			points[p].addToChain(points[c]);
@@ -137,10 +144,13 @@ public final class Board {
 					if (points[c].liberties.size() >= points[ally].liberties
 							.size()) {
 						mergeChains(c, ally);
+						chains[color.index()].removeKnownPresent(ally);
 					} else {
 						mergeChains(ally, c);
+						chains[color.index()].removeKnownPresent(c);
 						c = ally;
 					}
+					
 				}
 			}
 			points[c].liberties.removeKnownPresent(p);
@@ -183,13 +193,17 @@ public final class Board {
 		points[p].color = color;
 		vacantPoints.remove(p);
 		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
-		adjustFriendlyNeighbors(p);
-		adjustEnemyNeighbors(p);
+		adjustFriendlyNeighbors(p, color);
+		adjustEnemyNeighbors(p, color);
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
 			koPoint = NO_POINT;
 		}
+	}
+	
+	public ShortSet getChains(StoneColor color){
+		return chains[color.index()];
 	}
 
 	/** Returns the color at point p. */
