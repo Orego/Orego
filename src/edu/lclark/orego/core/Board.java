@@ -13,9 +13,6 @@ public final class Board {
 	/** Stones captured by the last move. */
 	private final ShortList capturedStones;
 
-	/** Set of the roots of all chains. */
-	private final ShortSet[] chains;
-
 	/** The color to play next. */
 	private StoneColor colorToPlay;
 
@@ -93,7 +90,6 @@ public final class Board {
 		lastPlayLiberties = new ShortSet(n);
 		superKoTable = new SuperKoTable(coords);
 		vacantPoints = new ShortSet(n);
-		chains = new ShortSet[] { new ShortSet(n), new ShortSet(n) };
 		for (short p = 0; p < points.length; p++) {
 			points[p] = new Point(coords, p);
 		}
@@ -116,7 +112,6 @@ public final class Board {
 					removeStone(s);
 					s = points[s].chainNextPoint;
 				} while (s != enemy);
-				chains[color.opposite().index()].remove(enemy);
 			} else {
 				points[enemy].liberties.removeKnownPresent(p);
 			}
@@ -131,7 +126,6 @@ public final class Board {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			points[p].becomeOneStoneChain(lastPlayLiberties);
-			chains[color.index()].addKnownAbsent(p);
 		} else {
 			short c = friendlyNeighboringChainIds.get(0);
 			points[p].addToChain(points[c]);
@@ -143,10 +137,8 @@ public final class Board {
 					if (points[c].liberties.size() >= points[ally].liberties
 							.size()) {
 						mergeChains(c, ally);
-						chains[color.index()].removeKnownPresent(ally);
 					} else {
 						mergeChains(ally, c);
-						chains[color.index()].removeKnownPresent(c);
 						c = ally;
 					}
 					
@@ -164,8 +156,6 @@ public final class Board {
 	 */
 	public void clear() {
 		colorToPlay = BLACK;
-		chains[BLACK.index()].clear();
-		chains[WHITE.index()].clear();
 		hash = SuperKoTable.EMPTY;
 		koPoint = NO_POINT;
 		passes = 0;
@@ -203,11 +193,6 @@ public final class Board {
 		}
 	}
 	
-	/** Returns a set of the root stones of chains of color. */
-	public ShortSet getChains(StoneColor color) {
-		return chains[color.index()];
-	}
-
 	/** Returns the color at point p. */
 	public Color getColorAt(short p) {
 		return points[p].color;
