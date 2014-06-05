@@ -33,6 +33,8 @@ public final class AtariObserver implements BoardObserver {
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
 		if (location != PASS) {
+			removeInvalidChains(color);
+			removeInvalidChains(color.opposite());
 			if (board.getLiberties(location).size() == 1) {
 				chainsInAtari[color.index()].add(board.getChainRoot(location));
 			}
@@ -45,8 +47,6 @@ public final class AtariObserver implements BoardObserver {
 							.getChainRoot(n));
 				}
 			}
-			removeInvalidChains(color);
-			removeInvalidChains(color.opposite());
 		}
 	}
 
@@ -59,12 +59,8 @@ public final class AtariObserver implements BoardObserver {
 		itemsToRemove.clear();
 		for (int i = 0; i < chainsInAtari[index].size(); i++) {
 			short p = chainsInAtari[index].get(i);
-			if (board.getColorAt(p) == VACANT || board.getChainRoot(p) != p) {
+			if (board.getColorAt(p) == VACANT || board.getChainRoot(p) != p || board.getLiberties(p).size() > 1) {
 				itemsToRemove.add(p);
-			} else {
-				if (board.getLiberties(p).size() > 1) {
-					itemsToRemove.add(p);
-				}
 			}
 		}
 		for (int i = 0; i < itemsToRemove.size(); i++) {
