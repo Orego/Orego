@@ -3,13 +3,10 @@ package edu.lclark.orego.feature;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.util.ShortList;
 
 public class StoneCounterTest {
 

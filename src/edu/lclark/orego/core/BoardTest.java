@@ -5,8 +5,15 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.util.TestingTools.*;
 import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import ec.util.MersenneTwisterFast;
+import edu.lclark.orego.feature.NotEyeLike;
+import edu.lclark.orego.feature.StoneCounter;
+import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.move.PredicateMover;
 
 public class BoardTest {
 
@@ -302,7 +309,7 @@ public class BoardTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public void testBadDiagram(){
+	public void testBadDiagram() {
 		String[] example = {
 				"..#..",
 				"...0.",
@@ -311,6 +318,30 @@ public class BoardTest {
 				".....",
 		};
 		board.setUpProblem(example, BLACK);		
+	}
+
+	@Test
+	public void testCopyDataFrom() {
+		board = new Board(19);
+		Board copy = new Board(19);
+		StoneCounter counter = new StoneCounter(board);
+		StoneCounter copyCounter = new StoneCounter(copy);
+		Mover mover = new PredicateMover(board, new NotEyeLike(board));
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		for (int i = 0; i < 50; i++) {
+			mover.selectAndPlayOneMove(random);
+		}
+		copy.copyDataFrom(board);
+		assertEquals(board.toString(), copy.toString());
+		assertEquals(counter.getCount(BLACK), copyCounter.getCount(BLACK));
+		assertEquals(counter.getCount(WHITE), copyCounter.getCount(WHITE));
+		while (board.getPasses() < 2) {
+			short p = mover.selectAndPlayOneMove(random);
+			copy.play(p);
+		}
+		assertEquals(board.toString(), copy.toString());
+		assertEquals(counter.getCount(BLACK), copyCounter.getCount(BLACK));
+		assertEquals(counter.getCount(WHITE), copyCounter.getCount(WHITE));
 	}
 
 }

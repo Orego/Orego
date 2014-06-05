@@ -78,6 +78,14 @@ final class Point {
 		chainId = index;
 	}
 
+	/** Copies data from that to this. */
+	void copyDataFrom(Point that) {
+		chainId = that.chainId;
+		chainNextPoint = that.chainNextPoint;
+		color = that.color;
+		liberties.copyDataFrom(that.liberties);
+	}
+
 	/**
 	 * Returns true if this point is in atari. Assumes that this point is the
 	 * root of its chain.

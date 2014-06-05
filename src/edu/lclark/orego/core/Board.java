@@ -172,6 +172,25 @@ public final class Board {
 	}
 
 	/**
+	 * Copies data from that to this.
+	 */
+	public void copyDataFrom(Board that) {
+		colorToPlay = that.colorToPlay;
+		hash = that.hash;
+		koPoint = that.koPoint;
+		for (int i = 0; i < observers.length; i++) {
+			observers[i].copyDataFrom(that.observers[i]);
+		}
+		passes = that.passes;
+		for (short p : coords.getAllPointsOnBoard()) {
+			points[p].copyDataFrom(that.points[p]);
+		}
+		superKoTable.copyDataFrom(that.superKoTable);
+		turn = that.turn;
+		vacantPoints.copyDataFrom(that.vacantPoints);
+	}
+
+	/**
 	 * Updates data structures at the end of a play.
 	 * 
 	 * @param color
