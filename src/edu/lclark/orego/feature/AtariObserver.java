@@ -18,15 +18,12 @@ public final class AtariObserver implements BoardObserver {
 
 	private final ShortSet[] chainsInAtari;
 
-	private final ShortList itemsToRemove;
-
 	public AtariObserver(Board board) {
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		board.addObserver(this);
 		chainsInAtari = new ShortSet[] { new ShortSet(coords.getFirstPointBeyondBoard()),
 				new ShortSet(coords.getFirstPointBeyondBoard()) };
-		itemsToRemove = new ShortList(4);
 	}
 
 	@Override
@@ -56,15 +53,13 @@ public final class AtariObserver implements BoardObserver {
 	 */
 	private void removeInvalidChains(StoneColor color) {
 		int index = color.index();
-		itemsToRemove.clear();
-		for (int i = 0; i < chainsInAtari[index].size(); i++) {
-			short p = chainsInAtari[index].get(i);
+		ShortSet chains = chainsInAtari[index];
+		for (int i = 0; i < chains.size(); i++) {
+			short p = chains.get(i);
 			if (board.getColorAt(p) == VACANT || board.getChainRoot(p) != p || board.getLiberties(p).size() > 1) {
-				itemsToRemove.add(p);
+				chains.remove(p);
+				i--;
 			}
-		}
-		for (int i = 0; i < itemsToRemove.size(); i++) {
-			chainsInAtari[index].remove(itemsToRemove.get(i));
 		}
 	}
 
