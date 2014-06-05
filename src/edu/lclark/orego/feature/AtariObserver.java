@@ -30,20 +30,24 @@ public final class AtariObserver implements BoardObserver {
 	}
 
 	@Override
-	public void update(StoneColor color, short location, ShortList capturedStones) {
-		if (board.getLiberties(location).size() == 1) {
-			chainsInAtari[color.index()].add(board.getChainRoot(location));
-		}
-		short[] neighbors = coords.getNeighbors(location);
-		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			if (board.getColorAt(n) == color.opposite() && board.getLiberties(n).size() == 1) {
-				chainsInAtari[color.opposite().index()].add(board.getChainRoot(n));
+	public void update(StoneColor color, short location,
+			ShortList capturedStones) {
+		if (location != PASS) {
+			if (board.getLiberties(location).size() == 1) {
+				chainsInAtari[color.index()].add(board.getChainRoot(location));
 			}
+			short[] neighbors = coords.getNeighbors(location);
+			for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+				short n = neighbors[i];
+				if (board.getColorAt(n) == color.opposite()
+						&& board.getLiberties(n).size() == 1) {
+					chainsInAtari[color.opposite().index()].add(board
+							.getChainRoot(n));
+				}
+			}
+			removeInvalidChains(color);
+			removeInvalidChains(color.opposite());
 		}
-
-		removeInvalidChains(color);
-		removeInvalidChains(color.opposite());
 	}
 
 	/**

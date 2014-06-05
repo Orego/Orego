@@ -419,6 +419,7 @@ public final class Board {
 		colorToPlay = colorToPlay.opposite();
 		passes++;
 		turn++;
+		notifyObservers(colorToPlay.opposite(), PASS);
 	}
 
 	/** Places a stone of color at point p. */

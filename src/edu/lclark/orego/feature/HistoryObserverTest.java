@@ -4,10 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.util.ShortList;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.StoneColor.*;
 
 public class HistoryObserverTest {
@@ -68,4 +67,9 @@ public class HistoryObserverTest {
 		assertEquals(at("a3"), observer.get(0));
 	}
 
+	@Test
+	public void testPass() {
+		board.pass();
+		assertEquals(PASS, observer.get(0));
+	}
 }

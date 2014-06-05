@@ -94,5 +94,12 @@ public class AtariObserverTest {
 		assertFalse(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("c5"))));
 		assertEquals(0, atari.getChainsInAtari(WHITE).size());
 	}
+	
+	@Test
+	public void testPass() {
+		board.pass();
+		assertEquals(0, atari.getChainsInAtari(BLACK).size());
+		assertEquals(0, atari.getChainsInAtari(WHITE).size());
+	}
 
 }
