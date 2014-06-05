@@ -5,6 +5,7 @@ import static edu.lclark.orego.core.StoneColor.WHITE;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.CaptureSuggester;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
@@ -28,7 +29,7 @@ public class PlayoutComparison {
 		Predicate f = new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board)));
-		Mover mover1 = new SuggesterMover(board, new CaptureSuggester(board), new PredicateMover(board, f));
+		Mover mover1 = new SuggesterMover(board, new CaptureSuggester(board, new AtariObserver(board)), new PredicateMover(board, f));
 		Mover mover2 = new PredicateMover(board, new NotEyeLike(board));
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);

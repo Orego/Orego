@@ -8,7 +8,7 @@ import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.feature.CaptureSuggester;
+import edu.lclark.orego.feature.*;
 import edu.lclark.orego.feature.NotEyeLike;
 import static edu.lclark.orego.core.StoneColor.*;
 
@@ -29,7 +29,7 @@ public class SuggesterMoverTest {
 	public void setUp() throws Exception {
 		board = new Board(5);
 		coords = board.getCoordinateSystem();
-		mover = new SuggesterMover(board, new CaptureSuggester(board),
+		mover = new SuggesterMover(board, new CaptureSuggester(board, new AtariObserver(board)),
 				new PredicateMover(board, new NotEyeLike(board)));
 	}
 

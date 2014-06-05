@@ -236,6 +236,11 @@ public final class Board {
 	public ShortSet getLiberties(short p) {
 		return points[points[p].chainId].liberties;
 	}
+	
+	/** Return the root of the chain that contains p. */
+	public short getChainRoot(short p){
+		return points[p].chainId;
+	}
 
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.

@@ -19,7 +19,7 @@ public class CaptureSuggesterTest {
 	public void setUp() throws Exception {
 		board = new Board(5);
 		coords = board.getCoordinateSystem();
-		movesToCapture = new CaptureSuggester(board);
+		movesToCapture = new CaptureSuggester(board, new AtariObserver(board));
 	}
 	
 	/** Delegate method to call at on board. */
