@@ -21,7 +21,8 @@ public final class PlayoutSpeed {
 				new Disjunction(
 						OnThirdOrFourthLine.forWidth(board.getCoordinateSystem().getWidth()),
 						new NearAnotherStone(board)));
-		Mover mover = new PredicateMover(board, f);
+		Mover mover = //new PredicateMover(board, f);
+		new SuggesterMover(board, new CaptureSuggester(board, new AtariObserver(board)), new PredicateMover(board, f));
 //		SimpleRandom mover = new SimpleRandom(board, new NotEyeLike(board));
 		final int runs = 100000;
 		long total = 0;
