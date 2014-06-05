@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ec.util.MersenneTwisterFast;
+import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.Mover;

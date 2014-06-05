@@ -68,18 +68,6 @@ public final class Board {
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
 	
-	/**
-	 * Adds an observer to this board.
-	 */
-	public void addObserver(BoardObserver observer) {
-		// The assertions check that nothing has happened on this board
-		assert hash == SuperKoTable.EMPTY;
-		assert turn == 0;
-		// Defensive copy
-		observers = java.util.Arrays.copyOf(observers, observers.length + 1);
-		observers[observers.length - 1] = observer;
-	}
-
 	public Board(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
@@ -96,6 +84,18 @@ public final class Board {
 		neighborsOfCapturedStone = new ShortList(4);
 		observers = new BoardObserver[0];
 		clear();
+	}
+
+	/**
+	 * Adds an observer to this board.
+	 */
+	public void addObserver(BoardObserver observer) {
+		// The assertions check that nothing has happened on this board
+		assert hash == SuperKoTable.EMPTY;
+		assert turn == 0;
+		// Defensive copy
+		observers = java.util.Arrays.copyOf(observers, observers.length + 1);
+		observers[observers.length - 1] = observer;
 	}
 
 	/**
@@ -212,6 +212,11 @@ public final class Board {
 		}
 	}
 	
+	/** Return the root of the chain that contains p. */
+	public short getChainRoot(short p){
+		return points[p].chainId;
+	}
+
 	/** Returns the color at point p. */
 	public Color getColorAt(short p) {
 		return points[p].color;
@@ -233,17 +238,12 @@ public final class Board {
 	public long getHash() {
 		return hash;
 	}
-
+	
 	/**
 	 * Returns the liberties of p.
 	 */
 	public ShortSet getLiberties(short p) {
 		return points[points[p].chainId].liberties;
-	}
-	
-	/** Return the root of the chain that contains p. */
-	public short getChainRoot(short p){
-		return points[p].chainId;
 	}
 
 	/**
@@ -415,6 +415,15 @@ public final class Board {
 		points[appendage].chainNextPoint = temp;
 	}
 
+	/** Notify the observers about what has changed. */
+	private void notifyObservers(StoneColor color, short p) {
+		for (BoardObserver observer : observers) {
+			// Note that we have to flip colorToPlay because it has already been
+			// flipped as the move was completed
+			observer.update(color, p, capturedStones);
+		}
+	}
+
 	/** Plays a pass move. */
 	public void pass() {
 		if (koPoint != NO_POINT) {
@@ -461,15 +470,6 @@ public final class Board {
 		// The color argument is flipped back to the color of the stone played
 		notifyObservers(colorToPlay.opposite(), p);
 		return OK;
-	}
-
-	/** Notify the observers about what has changed. */
-	private void notifyObservers(StoneColor color, short p) {
-		for (BoardObserver observer : observers) {
-			// Note that we have to flip colorToPlay because it has already been
-			// flipped as the move was completed
-			observer.update(color, p, capturedStones);
-		}
 	}
 
 	/**
