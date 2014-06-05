@@ -74,4 +74,11 @@ public final class AtariObserver implements BoardObserver {
 		chainsInAtari[WHITE.index()].clear();
 	}
 
+	@Override
+	public void copyDataFrom(BoardObserver that) {
+		AtariObserver original = (AtariObserver)that;
+		chainsInAtari[BLACK.index()].copyDataFrom(original.chainsInAtari[BLACK.index()]);
+		chainsInAtari[WHITE.index()].copyDataFrom(original.chainsInAtari[WHITE.index()]);
+	}
+
 }

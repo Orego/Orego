@@ -35,4 +35,11 @@ public class StoneCounter implements BoardObserver {
 		return counts[color.index()];
 	}
 
+	@Override
+	public void copyDataFrom(BoardObserver that) {
+		StoneCounter original = (StoneCounter)that;
+		counts[0] = original.counts[0];
+		counts[1] = original.counts[1];
+	}
+
 }

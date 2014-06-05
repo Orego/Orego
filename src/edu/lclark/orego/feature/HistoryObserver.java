@@ -12,7 +12,7 @@ import edu.lclark.orego.util.ShortList;
 public class HistoryObserver implements BoardObserver {
 
 	private final Board board;
-	
+		
 	/** The sequence of moves. */
 	private final ShortList history;
 	
@@ -23,9 +23,6 @@ public class HistoryObserver implements BoardObserver {
 		board.addObserver(this);
 	}
 
-	// TODO We'll need copyDataFrom
-	// The latter will need to take a new board as an argument
-	
 	@Override
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
@@ -42,6 +39,12 @@ public class HistoryObserver implements BoardObserver {
 	/** Returns the move played at time t. */
 	public short get(int t) {
 		return history.get(t);
+	}
+
+	@Override
+	public void copyDataFrom(BoardObserver that) {
+		HistoryObserver original = (HistoryObserver)that;
+		history.copyDataFrom(original.history);
 	}
 
 }

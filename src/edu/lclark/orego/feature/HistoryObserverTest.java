@@ -4,8 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.util.ShortList;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.StoneColor.*;
 
@@ -72,4 +74,19 @@ public class HistoryObserverTest {
 		board.pass();
 		assertEquals(PASS, observer.get(0));
 	}
+	
+	@Test
+	public void testCopyDataFrom() {
+		HistoryObserver copy = new HistoryObserver(board);
+		board.play(at("b1"));
+		observer.update(BLACK, at("e2"), new ShortList(0));
+		copy.copyDataFrom(observer);
+		assertEquals(at("b1"), copy.get(0));
+		assertEquals(at("e2"), copy.get(1));
+		copy.update(WHITE, at("c1"), new ShortList(0));
+		copy.copyDataFrom(observer);
+		copy.update(WHITE, at("a2"), new ShortList(0));
+		assertEquals(at("a2"), copy.get(2));
+	}
+
 }

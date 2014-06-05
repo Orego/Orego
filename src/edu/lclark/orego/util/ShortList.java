@@ -65,7 +65,7 @@ public final class ShortList {
 	 * object.
 	 */
 	public void copyDataFrom(ShortList that) {
-		size = that.size();
+		size = that.size;
 		System.arraycopy(that.data, 0, data, 0, size);
 	}
 
