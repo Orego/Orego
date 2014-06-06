@@ -2,15 +2,13 @@ package edu.lclark.orego.experiment;
 
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.MoverFactory;
-import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.move.Mover;
-import edu.lclark.orego.move.SuggesterMover;
 import edu.lclark.orego.score.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
+/** Tests the speed of playouts in one thread. */
 public final class PlayoutSpeed {
 
 	public static void main(String[] args) {
@@ -19,8 +17,8 @@ public final class PlayoutSpeed {
 		Board copy = new Board(19);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers
-		MoverFactory.greedy(original);
-		Mover mover = MoverFactory.greedy(copy);
+		MoverFactory.simpleRandom(original);
+		Mover mover = MoverFactory.simpleRandom(copy);
 		final int runs = 100000;
 		long total = 0;
 		int[] wins = new int[3];
