@@ -5,54 +5,47 @@ import static edu.lclark.orego.core.StoneColor.WHITE;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
-import edu.lclark.orego.feature.AtariObserver;
-import edu.lclark.orego.feature.CaptureSuggester;
-import edu.lclark.orego.feature.Conjunction;
-import edu.lclark.orego.feature.Disjunction;
-import edu.lclark.orego.feature.Predicate;
-import edu.lclark.orego.feature.NearAnotherStone;
-import edu.lclark.orego.feature.NotEyeLike;
-import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.Scorer;
 
 import java.util.*;
 
-/** Runs two playout policies against each other and reports the win rates for each. */
+/** Runs two playout policies against each other and reports the win rates for each. Speed is ignored. */
 public class PlayoutComparison {
 
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
-		Board board = new Board(19);
-		Scorer scorer = new ChinesePlayoutScorer(board, 0);
-		Predicate f = new Conjunction(new NotEyeLike(board), new Disjunction(
-				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-						.getWidth()), new NearAnotherStone(board)));
-		Mover mover1 = new SuggesterMover(board, new CaptureSuggester(board, new AtariObserver(board)), new PredicateMover(board, f));
-		Mover mover2 = new PredicateMover(board, new NotEyeLike(board));
+		Board original = new Board(19);
+		Board copy = new Board(19);
+		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
+		// Movers attached to original ensure that it has the correct observers
+		MoverFactory.greedy(original);
+		MoverFactory.simpleRandom(original);
+		Mover mover1 = MoverFactory.greedy(copy);
+		Mover mover2 = MoverFactory.simpleRandom(copy);
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
-		playGames(random, board, scorer, mover1, mover2, wins);
-		playGames(random, board, scorer, mover2, mover1, wins);
+		playGames(random, original, copy, scorer, mover1, mover2, wins);
+		playGames(random, original, copy, scorer, mover2, mover1, wins);
 		System.out.println("Version 1 wins: " + wins.get(mover1));
 		System.out.println("Version 2 wins: " + wins.get(mover2));
 	}
 
-	private static void playGames(MersenneTwisterFast random, Board board,
+	private static void playGames(MersenneTwisterFast random, Board original, Board copy,
 			Scorer scorer, Mover mover1, Mover mover2,
 			Map<Mover, Integer> wins) {	
 		final int runs = 100000;
 		for (int run = 0; run < runs; run++) {
-			board.clear();
+			copy.copyDataFrom(original);
 			do {
-				if (board.getColorToPlay() == BLACK) {
+				if (copy.getColorToPlay() == BLACK) {
 					mover1.selectAndPlayOneMove(random);
 				} else {
 					mover2.selectAndPlayOneMove(random);
 				}
-			} while (board.getPasses() < 2);
+			} while (copy.getPasses() < 2);
 			Color winner = scorer.winner();
 			if (winner == BLACK) {
 				wins.put(mover1, wins.get(mover1) + 1);
