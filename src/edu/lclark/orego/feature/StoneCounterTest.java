@@ -60,5 +60,28 @@ public class StoneCounterTest {
 		assertEquals(0, counter.getCount(BLACK));
 		assertEquals(0, counter.getCount(WHITE));
 	}
+	
+	@Test
+	public void testMercy(){
+		Board board11 = new Board(11);
+		StoneCounter mercyCounter = new StoneCounter(board11);
+		assertEquals(null, mercyCounter.mercyWinner());
+		String[] diagram = {
+				"#########..",
+				"#########..",
+				"########...",
+				"#########..",
+				"#####......",
+				"#####......",
+				"#####......",
+				"#####......",
+				"#####......",
+				"#####...OO.",
+				"#####......",
+		};
+		board11.setUpProblem(diagram, WHITE);
+		board11.play(board11.getCoordinateSystem().at("f1"));
+		assertEquals(BLACK, mercyCounter.mercyWinner());
+	}
 
 }

@@ -2,6 +2,7 @@ package edu.lclark.orego.experiment;
 
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.*;
@@ -15,6 +16,8 @@ public final class PlayoutSpeed {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board original = new Board(19);
 		Board copy = new Board(19);
+		StoneCounter originalMercy = new StoneCounter(original);
+		StoneCounter mercyObserver = new StoneCounter(copy);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers
 		MoverFactory.simpleRandom(original);
@@ -27,7 +30,7 @@ public final class PlayoutSpeed {
 			copy.copyDataFrom(original);
 			do {
 				mover.selectAndPlayOneMove(random);
-			} while (copy.getPasses() < 2);
+			} while (copy.getPasses() < 2 && mercyObserver.mercyWinner()==null);
 			wins[scorer.winner().index()]++;
 			long after = System.nanoTime();
 			total += (after - before);

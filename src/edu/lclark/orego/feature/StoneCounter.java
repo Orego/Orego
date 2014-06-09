@@ -2,6 +2,7 @@ package edu.lclark.orego.feature;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.StoneColor;
+import static edu.lclark.orego.core.StoneColor.*;
 import edu.lclark.orego.util.ShortList;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 
@@ -9,7 +10,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 public class StoneCounter implements BoardObserver {
 
 	private final int[] counts;
-	
+
 	@Override
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
@@ -18,7 +19,7 @@ public class StoneCounter implements BoardObserver {
 			counts[color.opposite().index()] -= capturedStones.size();
 		}
 	}
-	
+
 	public StoneCounter(Board board) {
 		counts = new int[2];
 		board.addObserver(this);
@@ -35,9 +36,19 @@ public class StoneCounter implements BoardObserver {
 		return counts[color.index()];
 	}
 
+	public StoneColor mercyWinner() {
+		int difference = counts[BLACK.index()] - counts[WHITE.index()];
+		if (difference > 50) {
+			return BLACK;
+		} else if (difference < -50) {
+			return WHITE;
+		}
+		return null;
+	}
+
 	@Override
 	public void copyDataFrom(BoardObserver that) {
-		StoneCounter original = (StoneCounter)that;
+		StoneCounter original = (StoneCounter) that;
 		counts[0] = original.counts[0];
 		counts[1] = original.counts[1];
 	}
