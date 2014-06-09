@@ -2,7 +2,6 @@ package edu.lclark.orego.experiment;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.move.Mover;
@@ -16,8 +15,9 @@ public class MultithreadedPlayoutSpeed {
 	
 	public static final int MSEC = 10000;
 	
+	// This field is package-private so the inner class below can see it
 	/** True while the treads should be running. */
-	private static boolean keepRunning;
+	static boolean keepRunning;
 	
 	public static void main(String[] args) {
 		Board original = new Board(19);
@@ -72,7 +72,6 @@ public class MultithreadedPlayoutSpeed {
 			scorer = new ChinesePlayoutScorer(board, 7.5);
 		}
 
-		@SuppressWarnings("synthetic-access")
 		@Override
 		public void run() {
 			playouts = 0;
