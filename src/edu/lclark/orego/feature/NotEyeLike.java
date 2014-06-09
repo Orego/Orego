@@ -23,6 +23,9 @@ public final class NotEyeLike implements Predicate {
 	public boolean at(short p) {
 		assert board.getColorAt(p) == VACANT;
 		StoneColor color = board.getColorToPlay();
+		if(!board.hasMaxNeighborsForColor(color, p)){
+			return true;
+		}
 		int diagonalEnemyCount = 0;
 		short[] neighbors = board.getCoordinateSystem().getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {

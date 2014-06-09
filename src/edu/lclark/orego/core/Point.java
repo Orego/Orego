@@ -1,6 +1,7 @@
 package edu.lclark.orego.core;
 
 import static edu.lclark.orego.core.NonStoneColor.*;
+import static edu.lclark.orego.core.StoneColor.*;
 import edu.lclark.orego.util.*;
 
 /**
@@ -17,12 +18,51 @@ import edu.lclark.orego.util.*;
  * @see edu.lclark.orego.core.CoordinateSystem.
  */
 final class Point {
+	
+	/** Maximum number of neighbors a point can have. */
+	protected static final int MAX_NEIGHBORS = 4;
+
+	/** Each field takes up this many bits. */
+	protected static final int FIELD_SIZE = 3;
+
+	/** Number of bits by which each field is shifted. */
+	protected static final int[] SHIFT = { 0 * FIELD_SIZE, 1 * FIELD_SIZE,
+			2 * FIELD_SIZE };
+
+	/** Counts for a point with four vacant neighbors. */
+	public static final int FOUR_VACANT_NEIGHBORS = MAX_NEIGHBORS << SHIFT[VACANT.index()];
+	
+	/**
+	 * Add this to increment black and white neighbor counts and decrement
+	 * vacant neighbor count.
+	 */
+	protected static final int EDGE_INCREMENT = (1 << SHIFT[BLACK.index()])
+			+ (1 << SHIFT[WHITE.index()]) - (1 << SHIFT[VACANT.index()]);
+
+	/**
+	 * Add the BLACK or WHITE element to add one neighbor of that color and
+	 * remove a vacant neighbor. Conversely, subtract to remove a stone and add
+	 * a vacant neighbor.
+	 */
+	protected static final int[] NEIGHBOR_INCREMENT = {
+			(1 << SHIFT[BLACK.index()]) - (1 << SHIFT[VACANT.index()]),
+			(1 << SHIFT[WHITE.index()]) - (1 << SHIFT[VACANT.index()]) };
+
+	/** A group of ones as wide as a field. */
+	protected static final int MASK = (1 << FIELD_SIZE) - 1;
+
+	/** Masks indicating the maximum number of neighbors in each color. */
+	protected static final int[] MAX_COLOR_MASK = {
+			(MAX_NEIGHBORS << SHIFT[BLACK.index()]), (MAX_NEIGHBORS << SHIFT[WHITE.index()]) };
 
 	/**
 	 * Identifier of chain for this point (location of the "root" stone in that
 	 * chain). The chainId of a vacant point is the point's own location.
 	 */
 	short chainId;
+	
+	/** Stores the counts of the black, white, and vacant neighbors, using three bits of the int for each count. */
+	int neighborCounts;
 
 	/**
 	 * Next "pointers" for this point, linking points into chains.
@@ -76,6 +116,7 @@ final class Point {
 		liberties.clear();
 		color = VACANT;
 		chainId = index;
+		neighborCounts = FOUR_VACANT_NEIGHBORS;
 	}
 
 	/** Copies data from that to this. */
@@ -84,6 +125,7 @@ final class Point {
 		chainNextPoint = that.chainNextPoint;
 		color = that.color;
 		liberties.copyDataFrom(that.liberties);
+		neighborCounts = that.neighborCounts;
 	}
 
 	/**
@@ -93,6 +135,19 @@ final class Point {
 	boolean isInAtari() {
 		assert chainId == index;
 		return liberties.size() == 1;
+	}
+	
+	/** Returns the number of neighbors of color indicated by counts. */
+	public int getNeighborCount(Color color) {
+		return (neighborCounts >> SHIFT[color.index()]) & MASK;
+	}
+
+	/**
+	 * Returns true if counts indicates the maximum number of neighbors for
+	 * color.
+	 */
+	public boolean hasMaxNeighborsForColor(Color color) {
+		return (neighborCounts & MAX_COLOR_MASK[color.index()]) == MAX_COLOR_MASK[color.index()];
 	}
 
 }
