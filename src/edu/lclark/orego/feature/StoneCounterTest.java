@@ -82,6 +82,21 @@ public class StoneCounterTest {
 		board11.setUpProblem(diagram, WHITE);
 		board11.play(board11.getCoordinateSystem().at("f1"));
 		assertEquals(BLACK, mercyCounter.mercyWinner());
+		String[] diagram2 = {
+				"OOOOOOOOO..",
+				"OOOOOOOOO..",
+				"OOOOOOOOO..",
+				"OOOOOOOOO..",
+				"OOOOOOOOO..",
+				"#####......",
+				"OOOOOOOOO..",
+				"OOOOOOOOO..",
+				"OOOOOOOOO..",
+				"#####...OO.",
+				"OOOOOOOOO..",
+		};
+		board11.setUpProblem(diagram2, WHITE);
+		assertEquals(WHITE, mercyCounter.mercyWinner());
 	}
 
 }
