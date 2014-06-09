@@ -45,10 +45,4 @@ public class ConjunctionTest {
 		assertTrue(conjunction.at(at("d3")));
 	}
 
-	// TODO
-//	@Test
-//	public void testClear() {
-//		fail("Not yet implemented");
-//	}
-
 }
