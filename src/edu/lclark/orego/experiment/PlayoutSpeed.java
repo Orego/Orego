@@ -12,11 +12,12 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 /** Tests the speed of playouts in one thread. */
 public final class PlayoutSpeed {
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board original = new Board(19);
 		Board copy = new Board(19);
-		StoneCounter originalMercy = new StoneCounter(original);
+		new StoneCounter(original); // This appears unused, but original knows about its observers
 		StoneCounter mercyObserver = new StoneCounter(copy);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers

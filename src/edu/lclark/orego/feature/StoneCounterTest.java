@@ -63,40 +63,30 @@ public class StoneCounterTest {
 	
 	@Test
 	public void testMercy(){
-		Board board11 = new Board(11);
-		StoneCounter mercyCounter = new StoneCounter(board11);
+		StoneCounter mercyCounter = new StoneCounter(board);
 		assertEquals(null, mercyCounter.mercyWinner());
 		String[] diagram = {
-				"#########..",
-				"#########..",
-				"########...",
-				"#########..",
-				"#####......",
-				"#####......",
-				"#####......",
-				"#####......",
-				"#####......",
-				"#####...OO.",
-				"#####......",
+				"###..",
+				".....",
+				".....",
+				".....",
+				".....",
 		};
-		board11.setUpProblem(diagram, WHITE);
-		board11.play(board11.getCoordinateSystem().at("f1"));
+		board.setUpProblem(diagram, BLACK);
+		assertEquals(null, mercyCounter.mercyWinner());
+		board.play(board.getCoordinateSystem().at("d5"));
 		assertEquals(BLACK, mercyCounter.mercyWinner());
-		String[] diagram2 = {
-				"OOOOOOOOO..",
-				"OOOOOOOOO..",
-				"OOOOOOOOO..",
-				"OOOOOOOOO..",
-				"OOOOOOOOO..",
-				"#####......",
-				"OOOOOOOOO..",
-				"OOOOOOOOO..",
-				"OOOOOOOOO..",
-				"#####...OO.",
-				"OOOOOOOOO..",
+		diagram = new String[] {
+				"###..",
+				".....",
+				".....",
+				"O....",
+				"OOOOO",
 		};
-		board11.setUpProblem(diagram2, WHITE);
-		assertEquals(WHITE, mercyCounter.mercyWinner());
+		board.setUpProblem(diagram, WHITE);
+		assertEquals(null, mercyCounter.mercyWinner());
+		board.play(board.getCoordinateSystem().at("b2"));
+		assertEquals(WHITE, mercyCounter.mercyWinner());	
 	}
 
 }

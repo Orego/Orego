@@ -11,6 +11,9 @@ public class StoneCounter implements BoardObserver {
 
 	private final int[] counts;
 
+	/** If one side has this many more stones, it can be declared the winner. */
+	private final int mercyThreshold;
+
 	@Override
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
@@ -22,6 +25,7 @@ public class StoneCounter implements BoardObserver {
 
 	public StoneCounter(Board board) {
 		counts = new int[2];
+		mercyThreshold = board.getCoordinateSystem().getArea() / 8;
 		board.addObserver(this);
 	}
 
@@ -36,11 +40,15 @@ public class StoneCounter implements BoardObserver {
 		return counts[color.index()];
 	}
 
+	/**
+	 * Returns the color, if any, with far more stones on the board than the
+	 * other color. If there is no such color, returns null.
+	 */
 	public StoneColor mercyWinner() {
 		int difference = counts[BLACK.index()] - counts[WHITE.index()];
-		if (difference > 50) {
+		if (difference > mercyThreshold) {
 			return BLACK;
-		} else if (difference < -50) {
+		} else if (difference < -mercyThreshold) {
 			return WHITE;
 		}
 		return null;
