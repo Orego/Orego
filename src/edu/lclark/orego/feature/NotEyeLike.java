@@ -15,18 +15,19 @@ public final class NotEyeLike implements Predicate {
 
 	private final Board board;
 	
-	private static int[] eyelikeThreshold;
+	/** Number of effective diagonal neighbors at each point due to being on the edge. (This is 1 at an edge, 0 elsewhere.) */
+	private final int[] edgeEnemies;
 
 	public NotEyeLike(Board board) {
 		this.board = board;
 		CoordinateSystem coords = board.getCoordinateSystem();
-		eyelikeThreshold = new int[coords.getFirstPointBeyondBoard()];
+		edgeEnemies = new int[coords.getFirstPointBeyondBoard()];
 		for (short p : coords.getAllPointsOnBoard()) {
-			eyelikeThreshold[p] = 2;
+			edgeEnemies[p] = 0;
 			for (int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++) {
 				short n = coords.getNeighbors(p)[i];
 				if (!coords.isOnBoard(n)) {
-					eyelikeThreshold[p] = 1;
+					edgeEnemies[p] = 1;
 				}
 			}
 		}
@@ -39,15 +40,18 @@ public final class NotEyeLike implements Predicate {
 		if (!board.hasMaxNeighborsForColor(color, p)) {
 			return true;
 		}
-		int count = 0;
-		int oppositeIndex = color.opposite().index();
+		int count = edgeEnemies[p];
+		StoneColor enemy = color.opposite();
 		short[] neighbors = board.getCoordinateSystem().getNeighbors(p);
 		for (int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++) {
-			if (board.getColorAt(neighbors[i]).index() == oppositeIndex) {
+			if (board.getColorAt(neighbors[i]) == enemy) {
 				count++;
+				if (count >= 2) {
+					return true;
+				}
 			}
 		}
-		return count >= eyelikeThreshold[p];
+		return false;
 	}
 
 }
