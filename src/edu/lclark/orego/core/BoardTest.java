@@ -5,12 +5,9 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.util.TestingTools.*;
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import ec.util.MersenneTwisterFast;
-import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.Mover;

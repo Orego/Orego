@@ -103,7 +103,7 @@ public final class Board {
 	 * Deals with enemy chains adjacent to the move just played at p, either
 	 * capturing them or decrementing their liberty counts.
 	 */
-	private void adjustEnemyNeighbors(StoneColor color, short p) {
+	private void adjustEnemyNeighbors(short p) {
 		capturedStones.clear();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
 			short enemy = enemyNeighboringChainIds.get(i);
@@ -123,7 +123,7 @@ public final class Board {
 	 * Deals with friendly neighbors of the move p just played, merging chains
 	 * as necessary.
 	 */
-	private void adjustFriendlyNeighbors(StoneColor color, short p) {
+	private void adjustFriendlyNeighbors(short p) {
 		if (friendlyNeighboringChainIds.size() == 0) {
 			// If there are no friendly neighbors, create a new, one-stone chain
 			points[p].becomeOneStoneChain(lastPlayLiberties);
@@ -217,8 +217,8 @@ public final class Board {
 		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++){
 			points[neighbors[i]].neighborCounts += Point.NEIGHBOR_INCREMENT[color.index()];
 		}
-		adjustFriendlyNeighbors(color, p);
-		adjustEnemyNeighbors(color, p);
+		adjustFriendlyNeighbors(p);
+		adjustEnemyNeighbors(p);
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {

@@ -137,17 +137,16 @@ final class Point {
 		return liberties.size() == 1;
 	}
 	
-	/** Returns the number of neighbors of color indicated by counts. */
-	public int getNeighborCount(Color color) {
-		return (neighborCounts >> SHIFT[color.index()]) & MASK;
+	/** Returns the number of neighbors of color c this point has. */
+	public int getNeighborCount(Color c) {
+		return (neighborCounts >> SHIFT[c.index()]) & MASK;
 	}
 
 	/**
-	 * Returns true if counts indicates the maximum number of neighbors for
-	 * color.
+	 * Returns true if this point has the maximum possible number of neighbors of color c.
 	 */
-	public boolean hasMaxNeighborsForColor(Color color) {
-		return (neighborCounts & MAX_COLOR_MASK[color.index()]) == MAX_COLOR_MASK[color.index()];
+	public boolean hasMaxNeighborsForColor(Color c) {
+		return (neighborCounts & MAX_COLOR_MASK[c.index()]) == MAX_COLOR_MASK[c.index()];
 	}
 
 }
