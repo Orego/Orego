@@ -5,7 +5,6 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
 
 /**
  * Computes the Chinese score for the board. Assumes that no territory is larger
@@ -40,9 +39,9 @@ public class ChinesePlayoutScorer implements Scorer {
 			} else if (color == WHITE) {
 				result--;
 			} else {
-				if(board.hasMaxNeighborsForColor(BLACK, p)){
+				if (board.hasMaxNeighborsForColor(BLACK, p)) {
 					result++;
-				} else if(board.hasMaxNeighborsForColor(WHITE, p)){
+				} else if (board.hasMaxNeighborsForColor(WHITE, p)) {
 					result--;
 				}
 			}
