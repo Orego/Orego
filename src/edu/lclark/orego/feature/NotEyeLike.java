@@ -15,33 +15,39 @@ public final class NotEyeLike implements Predicate {
 
 	private final Board board;
 	
+	private static int[] eyelikeThreshold;
+
 	public NotEyeLike(Board board) {
 		this.board = board;
+		CoordinateSystem coords = board.getCoordinateSystem();
+		eyelikeThreshold = new int[coords.getFirstPointBeyondBoard()];
+		for (short p : coords.getAllPointsOnBoard()) {
+			eyelikeThreshold[p] = 2;
+			for (int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++) {
+				short n = coords.getNeighbors(p)[i];
+				if (!coords.isOnBoard(n)) {
+					eyelikeThreshold[p] = 1;
+				}
+			}
+		}
 	}
 
 	@Override
 	public boolean at(short p) {
 		assert board.getColorAt(p) == VACANT;
 		StoneColor color = board.getColorToPlay();
-		if(!board.hasMaxNeighborsForColor(color, p)){
+		if (!board.hasMaxNeighborsForColor(color, p)) {
 			return true;
 		}
 		int count = 0;
 		int oppositeIndex = color.opposite().index();
 		short[] neighbors = board.getCoordinateSystem().getNeighbors(p);
-		for(int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++){
-			if(board.getColorAt(neighbors[i]).index() == oppositeIndex){
+		for (int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++) {
+			if (board.getColorAt(neighbors[i]).index() == oppositeIndex) {
 				count++;
-				if(count == 2){
-					return true;
-				}
 			}
 		}
-		
-		if(board.getNeighborCount(color.opposite(), p) > 0 && count > 0){
-			return true;
-		}
-		return false;
+		return count >= eyelikeThreshold[p];
 	}
 
 }
