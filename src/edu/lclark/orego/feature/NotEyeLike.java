@@ -26,28 +26,20 @@ public final class NotEyeLike implements Predicate {
 		if(!board.hasMaxNeighborsForColor(color, p)){
 			return true;
 		}
-		int diagonalEnemyCount = 0;
+		int count = 0;
+		int oppositeIndex = color.opposite().index();
 		short[] neighbors = board.getCoordinateSystem().getNeighbors(p);
-		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			Color c = board.getColorAt(n);
-			if (c == color) {
-				continue;
-			}
-			if (c == OFF_BOARD) {
-				diagonalEnemyCount = 1;
-				continue;
-			}
-			return true;
-		}
-		for (int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			if (board.getColorAt(n) == color.opposite()) {
-				diagonalEnemyCount++;
-				if (diagonalEnemyCount == 2) {
+		for(int i = FIRST_DIAGONAL_NEIGHBOR; i <= LAST_DIAGONAL_NEIGHBOR; i++){
+			if(board.getColorAt(neighbors[i]).index() == oppositeIndex){
+				count++;
+				if(count == 2){
 					return true;
 				}
 			}
+		}
+		
+		if(board.getNeighborCount(color.opposite(), p) > 0 && count > 0){
+			return true;
 		}
 		return false;
 	}
