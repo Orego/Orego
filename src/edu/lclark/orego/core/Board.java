@@ -260,6 +260,14 @@ public final class Board {
 		return points[points[p].chainId].liberties;
 	}
 	
+	
+	/**
+	 * Returns the number of neighbors of a given color for the point p. Offboard points are considered both black and white.
+	 */
+	public int getNeighborsOfColor(short p, Color color){
+		return points[p].getNeighborCount(color);
+	}
+	
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
 	 */
