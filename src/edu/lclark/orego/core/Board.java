@@ -260,7 +260,7 @@ public final class Board {
 		return points[points[p].chainId].liberties;
 	}
 	
-	/** Gets the neighbors of a given color, based on the int neighborCounts in Point. */
+	/** Gets the neighbors of a given color, based on the int neighborCounts. */
 	public int getNeighborCount(Color color, short p){
 		return points[p].getNeighborCount(color);
 	}

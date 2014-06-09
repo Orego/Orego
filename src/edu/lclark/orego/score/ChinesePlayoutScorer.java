@@ -40,27 +40,9 @@ public class ChinesePlayoutScorer implements Scorer {
 			} else if (color == WHITE) {
 				result--;
 			} else {
-				short[] neighbors = coords.getNeighbors(p);
-				Color lastSeen = VACANT;
-				for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-					short n = neighbors[i];
-					if (board.getColorAt(n) == OFF_BOARD) {
-						continue;
-					} else if (board.getColorAt(n) == VACANT) {
-						lastSeen = VACANT;
-						break;
-					} else if (lastSeen == VACANT) {
-						lastSeen = board.getColorAt(n);
-					} else {
-						if (lastSeen != board.getColorAt(n)) {
-							lastSeen = VACANT;
-							break;
-						}
-					}
-				}
-				if (lastSeen == BLACK) {
+				if(board.hasMaxNeighborsForColor(BLACK, p)){
 					result++;
-				} else if (lastSeen == WHITE) {
+				} else if(board.hasMaxNeighborsForColor(WHITE, p)){
 					result--;
 				}
 			}
