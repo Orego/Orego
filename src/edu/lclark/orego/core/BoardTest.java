@@ -344,5 +344,21 @@ public class BoardTest {
 		assertEquals(counter.getCount(BLACK), copyCounter.getCount(BLACK));
 		assertEquals(counter.getCount(WHITE), copyCounter.getCount(WHITE));
 	}
+	
+	@Test
+	public void testHasMaxNeighborsForColor(){
+		String[] diagram = {
+				"..#.#",
+				"...#.",
+				"..O..",
+				".O.O.",
+				"..O..",
+		};
+		board.setUpProblem(diagram, WHITE);
+		assertTrue(board.hasMaxNeighborsForColor(BLACK, at("d5")));
+		assertTrue(board.hasMaxNeighborsForColor(WHITE, at("c2")));
+		assertFalse(board.hasMaxNeighborsForColor(BLACK, at("b5")));
+		assertFalse(board.hasMaxNeighborsForColor(WHITE, at("b2")));
+	}
 
 }

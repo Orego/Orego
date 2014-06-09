@@ -7,6 +7,7 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 import edu.lclark.orego.feature.BoardObserver;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
+import static edu.lclark.orego.core.Point.*;
 
 public final class Board {
 
@@ -165,6 +166,15 @@ public final class Board {
 		for (short p : coords.getAllPointsOnBoard()) {
 			points[p].clear();
 			vacantPoints.addKnownAbsent(p);
+			int edgeCount = 0;
+			short[] neighbors = coords.getNeighbors(p);
+			for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+				short n = neighbors[i];
+				if (!coords.isOnBoard(n)) {
+					edgeCount++;
+				}
+			}
+			points[p].neighborCounts += edgeCount * EDGE_INCREMENT;
 		}
 		for (BoardObserver observer : observers) {
 			observer.clear();
@@ -202,7 +212,11 @@ public final class Board {
 		int lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
 		vacantPoints.remove(p);
-		boolean surrounded = hasMaxNeighborsForColor(color.opposite(), p);
+		boolean surrounded = points[p].hasMaxNeighborsForColor(color.opposite());
+		short[] neighbors = coords.getNeighbors(p);
+		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++){
+			points[neighbors[i]].neighborCounts += Point.NEIGHBOR_INCREMENT[color.index()];
+		}
 		adjustFriendlyNeighbors(color, p);
 		adjustEnemyNeighbors(color, p);
 		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
@@ -245,7 +259,7 @@ public final class Board {
 	public ShortSet getLiberties(short p) {
 		return points[points[p].chainId].liberties;
 	}
-
+	
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
 	 */
@@ -297,15 +311,8 @@ public final class Board {
 	 * Returns true if the stone at p has the maximum possible number of
 	 * neighbors of color p.
 	 */
-	private boolean hasMaxNeighborsForColor(StoneColor color, short p) {
-		short[] neighbors = coords.getNeighbors(p);
-		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			Color c = points[neighbors[i]].color;
-			if (c != color && c != OFF_BOARD) {
-				return false;
-			}
-		}
-		return true;
+	public boolean hasMaxNeighborsForColor(StoneColor color, short p) {
+		return points[p].hasMaxNeighborsForColor(color);
 	}
 
 	/**
@@ -499,6 +506,7 @@ public final class Board {
 		short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
+			points[n].neighborCounts -= Point.NEIGHBOR_INCREMENT[colorToPlay.opposite().index()];
 			if (points[n].color == BLACK | points[n].color == WHITE) {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
 			}
