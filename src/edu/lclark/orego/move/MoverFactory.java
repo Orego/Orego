@@ -23,45 +23,27 @@ public class MoverFactory {
 	}
 
 	/** Like feasible, but captures when possible. */
-	public static SuggesterMover greedy(Board board) {
-		Suggester s = new CaptureSuggester(board, new AtariObserver(board));
-		return new SuggesterMover(board, s, feasible(board));
+	public static SuggesterMover capturer(Board board) {
+		return capturer(board, new AtariObserver(board));
 	}
-	
-	/** Like feasible, but captures when possible. 
-	 *  Uses an AtariObserver passed in rather than making its own. */
-	public static SuggesterMover greedy(Board board, AtariObserver atariObserver) {
+
+	/**
+	 * Like feasible, but captures when possible. Uses an AtariObserver passed
+	 * in rather than making its own.
+	 */
+	private static SuggesterMover capturer(Board board, AtariObserver atariObserver) {
 		Suggester s = new CaptureSuggester(board, atariObserver);
 		return new SuggesterMover(board, s, feasible(board));
 	}
-	
-	/** Uses EscapeSuggester as its first suggester, then feasible after */
-	public static SuggesterMover houdini(Board board){
-		Suggester s = new EscapeSuggester(board, new AtariObserver(board));
-		return new SuggesterMover(board, s, feasible(board));
-	}
-	
-	/** Uses EscapeSuggester as its first suggester, then feasible after
-	 *  Takes an AtariObserver to use rather than making its own. */
-	public static SuggesterMover houdini(Board board, AtariObserver atariObserver){
-		Suggester s = new EscapeSuggester(board, atariObserver);
-		return new SuggesterMover(board, s, feasible(board));
-	}
-	
-	/** Uses the Capture first, and the houdini (EscapeSuggester) as a fallback
+
+	/**
+	 * Uses the EscapeSuggester first, and the greedy (CaptureSuggester) as a
+	 * fallback.
 	 */
-	public static SuggesterMover thief(Board board){
-		AtariObserver atariObserver = new AtariObserver(board);
-		Suggester s = new CaptureSuggester(board, atariObserver);
-		return new SuggesterMover(board, s, houdini(board, atariObserver));
-	}
-	
-	/** Uses the EscapeSuggester first, and the greedy (EscapeSuggester) as a fallback
-	 */
-	public static SuggesterMover opportunist(Board board){
+	public static SuggesterMover escapeCapturer(Board board) {
 		AtariObserver atariObserver = new AtariObserver(board);
 		Suggester s = new EscapeSuggester(board, atariObserver);
-		return new SuggesterMover(board, s, greedy(board, atariObserver));
+		return new SuggesterMover(board, s, capturer(board, atariObserver));
 	}
-	
+
 }

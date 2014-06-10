@@ -226,6 +226,11 @@ public final class Board {
 		}
 	}
 	
+	/** Returns the next point in this chain. */
+	public short getChainNextPoint(short p) {
+		return points[p].chainNextPoint;
+	}
+
 	/** Return the root of the chain that contains p. */
 	public short getChainRoot(short p){
 		return points[p].chainId;
@@ -257,6 +262,8 @@ public final class Board {
 	 * Returns the liberties of p.
 	 */
 	public ShortSet getLiberties(short p) {
+		assert coords.isOnBoard(p);
+		assert points[p].color != VACANT;
 		return points[points[p].chainId].liberties;
 	}
 	
