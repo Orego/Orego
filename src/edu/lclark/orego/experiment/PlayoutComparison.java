@@ -21,9 +21,9 @@ public class PlayoutComparison {
 		Board copy = new Board(19);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// Movers attached to original ensure that it has the correct observers
-		MoverFactory.aladdin(original);
+		MoverFactory.thief(original);
 		MoverFactory.opportunist(original);
-		Mover mover1 = MoverFactory.aladdin(copy);
+		Mover mover1 = MoverFactory.thief(copy);
 		Mover mover2 = MoverFactory.opportunist(copy);
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
