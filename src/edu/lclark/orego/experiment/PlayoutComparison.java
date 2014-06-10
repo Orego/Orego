@@ -14,6 +14,7 @@ import java.util.*;
 /** Runs two playout policies against each other and reports the win rates for each. Speed is ignored. */
 public class PlayoutComparison {
 
+	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board original = new Board(19);
@@ -33,6 +34,7 @@ public class PlayoutComparison {
 		System.out.println("Version 2 wins: " + wins.get(mover2));
 	}
 
+	@SuppressWarnings("boxing")
 	private static void playGames(MersenneTwisterFast random, Board original, Board copy,
 			Scorer scorer, Mover mover1, Mover mover2,
 			Map<Mover, Integer> wins) {	

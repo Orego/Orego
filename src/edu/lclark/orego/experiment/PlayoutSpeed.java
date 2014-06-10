@@ -2,6 +2,7 @@ package edu.lclark.orego.experiment;
 
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.*;
@@ -11,10 +12,13 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 /** Tests the speed of playouts in one thread. */
 public final class PlayoutSpeed {
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		Board original = new Board(19);
 		Board copy = new Board(19);
+		new StoneCounter(original); // This appears unused, but original knows about its observers
+		StoneCounter mercyObserver = new StoneCounter(copy);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers
 		MoverFactory.feasible(original);
@@ -27,7 +31,7 @@ public final class PlayoutSpeed {
 			copy.copyDataFrom(original);
 			do {
 				mover.selectAndPlayOneMove(random);
-			} while (copy.getPasses() < 2);
+			} while (copy.getPasses() < 2 && mercyObserver.mercyWinner()==null);
 			wins[scorer.winner().index()]++;
 			long after = System.nanoTime();
 			total += (after - before);

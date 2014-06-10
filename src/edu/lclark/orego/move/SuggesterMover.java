@@ -1,6 +1,5 @@
 package edu.lclark.orego.move;
 
-import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import ec.util.MersenneTwisterFast;

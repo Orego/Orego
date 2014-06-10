@@ -2,6 +2,7 @@ package edu.lclark.orego.feature;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.StoneColor;
+import static edu.lclark.orego.core.StoneColor.*;
 import edu.lclark.orego.util.ShortList;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 
@@ -9,7 +10,10 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 public class StoneCounter implements BoardObserver {
 
 	private final int[] counts;
-	
+
+	/** If one side has this many more stones, it can be declared the winner. */
+	private final int mercyThreshold;
+
 	@Override
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
@@ -18,9 +22,10 @@ public class StoneCounter implements BoardObserver {
 			counts[color.opposite().index()] -= capturedStones.size();
 		}
 	}
-	
+
 	public StoneCounter(Board board) {
 		counts = new int[2];
+		mercyThreshold = board.getCoordinateSystem().getArea() / 8;
 		board.addObserver(this);
 	}
 
@@ -35,9 +40,23 @@ public class StoneCounter implements BoardObserver {
 		return counts[color.index()];
 	}
 
+	/**
+	 * Returns the color, if any, with far more stones on the board than the
+	 * other color. If there is no such color, returns null.
+	 */
+	public StoneColor mercyWinner() {
+		int difference = counts[BLACK.index()] - counts[WHITE.index()];
+		if (difference > mercyThreshold) {
+			return BLACK;
+		} else if (difference < -mercyThreshold) {
+			return WHITE;
+		}
+		return null;
+	}
+
 	@Override
 	public void copyDataFrom(BoardObserver that) {
-		StoneCounter original = (StoneCounter)that;
+		StoneCounter original = (StoneCounter) that;
 		counts[0] = original.counts[0];
 		counts[1] = original.counts[1];
 	}

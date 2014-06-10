@@ -1,7 +1,5 @@
 package edu.lclark.orego.util;
 
-import java.util.Arrays;
-
 import edu.lclark.orego.core.CoordinateSystem;
 
 /** Dense bit representation of a set of points on the board. */
