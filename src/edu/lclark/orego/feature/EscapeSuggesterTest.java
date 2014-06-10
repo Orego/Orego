@@ -56,6 +56,7 @@ public class EscapeSuggesterTest {
 		assertTrue(movesToEscape.getMoves().contains(at("e2")));
 		assertTrue(movesToEscape.getMoves().contains(at("a4")));
 		assertTrue(movesToEscape.getMoves().contains(at("e5")));
+		assertEquals(3, movesToEscape.getMoves().size());
 	}
 	
 	@Test

@@ -17,8 +17,8 @@ public final class PlayoutSpeed {
 		Board copy = new Board(19);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers
-		MoverFactory.simpleRandom(original);
-		Mover mover = MoverFactory.simpleRandom(copy);
+		MoverFactory.feasible(original);
+		Mover mover = MoverFactory.feasible(copy);
 		final int runs = 100000;
 		long total = 0;
 		int[] wins = new int[3];

@@ -27,5 +27,20 @@ public class MoverFactory {
 		Suggester s = new CaptureSuggester(board, new AtariObserver(board));
 		return new SuggesterMover(board, s, feasible(board));
 	}
+	
+	public static SuggesterMover houdini(Board board){
+		Suggester s = new EscapeSuggester(board, new AtariObserver(board));
+		return new SuggesterMover(board, s, feasible(board));
+	}
+	
+	public static SuggesterMover theif(Board board){
+		Suggester s = new CaptureSuggester(board, new AtariObserver(board));
+		return new SuggesterMover(board, s, houdini(board));
+	}
+	
+	public static SuggesterMover opportunist(Board board){
+		Suggester s = new EscapeSuggester(board, new AtariObserver(board));
+		return new SuggesterMover(board, s, greedy(board));
+	}
 
 }
