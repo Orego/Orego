@@ -14,52 +14,61 @@ public class LastMoveEscapeSuggester implements Suggester{
 	
 	private final LastMoveObserver lastMoveObserver;
 	
+	private final AtariObserver atariObserver;
+	
 	private final Board board;
 	
 	private final CoordinateSystem coords;
 	
-	private final ShortSet chainsInAtari;
+	private final ShortSet chainsToCheck;
 	
 	private final ShortSet tempLiberties;
 	
-	public LastMoveEscapeSuggester(Board board, LastMoveObserver lastMoveObserver){
+	private final ShortSet alliesVisited;
+	
+	public LastMoveEscapeSuggester(Board board, LastMoveObserver lastMoveObserver, AtariObserver atariObserver){
 		this.board = board;
+		this.atariObserver = atariObserver;
 		this.lastMoveObserver = lastMoveObserver;
 		coords = board.getCoordinateSystem();
 		movesToEscape = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
-		chainsInAtari = new ShortSet(board.getCoordinateSystem()
+		chainsToCheck = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
 		tempLiberties = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
+		alliesVisited = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
 	}
 
 	@Override
 	public ShortSet getMoves() {
+		ShortSet chainsInAtari = atariObserver.getChainsInAtari(board.getColorToPlay());
 		short lastMove = lastMoveObserver.getLastMove();
 		movesToEscape.clear();
-		if(lastMove == coords.NO_POINT){
+		chainsToCheck.clear();
+		if(lastMove == coords.NO_POINT || lastMove == coords.PASS){
 			return movesToEscape;
 		}
 		short[] neighbors = coords.getNeighbors(lastMove);
 		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i<=LAST_ORTHOGONAL_NEIGHBOR; i++){
-			if(board.getColorAt(neighbors[i])==board.getColorToPlay()){
-				if(board.getLiberties(board.getChainRoot(neighbors[i])).size()==1){
-					chainsInAtari.add(board.getChainRoot(neighbors[i]));
+			short n = neighbors[i];
+			if(board.getColorAt(n)==board.getColorToPlay()){
+				if(chainsInAtari.contains(board.getChainRoot(n))){
+					chainsToCheck.add(board.getChainRoot(n));
 				}
 			}
 		}
 		
-		for(int i = 0; i < chainsInAtari.size(); i++){
+		for(int i = 0; i < chainsToCheck.size(); i++){
 			tempLiberties.clear();
-			short p = board.getLiberties(chainsInAtari.get(i)).get(0);
+			short p = board.getLiberties(chainsToCheck.get(i)).get(0);
 			if(board.getNeighborsOfColor(p, VACANT)>=2){
 				movesToEscape.add(p);				
 			} else {
 				escapeByMerging(p);
 			}
-//			escapeByCapturing(chainsInAtari.get(i));
-//			alliesVisited.clear();
+			escapeByCapturing(chainsToCheck.get(i));
+			alliesVisited.clear();
 		}
 		return movesToEscape;
 	}
@@ -68,24 +77,24 @@ public class LastMoveEscapeSuggester implements Suggester{
 	 * 
 	 * @param p The stone in a chain in atari that we are examining.
 	 */
-//	private void escapeByCapturing(short p) {
-//		alliesVisited.add(p);
-//		short[] neighbors = coords.getNeighbors(p);
-//		ShortSet enemiesInAtari = atariObserver.getChainsInAtari(board.getColorToPlay().opposite());
-//		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i<=LAST_ORTHOGONAL_NEIGHBOR; i++){
-//			Color color = board.getColorAt(neighbors[i]);
-//			if(color==board.getColorToPlay().opposite()){
-//				if(enemiesInAtari.contains(board.getChainRoot(neighbors[i]))){
-//					movesToEscape.add(board.getLiberties(neighbors[i]).get(0));
-//				}
-//			}
-//			else if(color == board.getColorToPlay()){
-//				if(!alliesVisited.contains(neighbors[i])){
-//					escapeByCapturing(neighbors[i]);
-//				}
-//			}
-//		}
-//	}
+	private void escapeByCapturing(short p) {
+		alliesVisited.add(p);
+		short[] neighbors = coords.getNeighbors(p);
+		ShortSet enemiesInAtari = atariObserver.getChainsInAtari(board.getColorToPlay().opposite());
+		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i<=LAST_ORTHOGONAL_NEIGHBOR; i++){
+			Color color = board.getColorAt(neighbors[i]);
+			if(color==board.getColorToPlay().opposite()){
+				if(enemiesInAtari.contains(board.getChainRoot(neighbors[i]))){
+					movesToEscape.add(board.getLiberties(neighbors[i]).get(0));
+				}
+			}
+			else if(color == board.getColorToPlay()){
+				if(!alliesVisited.contains(neighbors[i])){
+					escapeByCapturing(neighbors[i]);
+				}
+			}
+		}
+	}
 	
 	/** Finds moves to escape atari by merging with other chains 
 	 * 

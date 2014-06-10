@@ -24,9 +24,10 @@ public class LastMoveEscapeSuggesterTest {
 	
 	@Before
 	public void setUp() throws Exception {
+		
 		board = new Board(5);
 		coords = board.getCoordinateSystem();
-		lastMoveEscapeSuggester = new LastMoveEscapeSuggester(board, new LastMoveObserver(board));
+		lastMoveEscapeSuggester = new LastMoveEscapeSuggester(board, new LastMoveObserver(board), new AtariObserver(board));
 	}
 	
 	@Test
@@ -44,6 +45,21 @@ public class LastMoveEscapeSuggesterTest {
 		assertFalse(lastMoveEscapeSuggester.getMoves().contains(at("a4")));
 	}
 	
+	@Test
+	public void testCaptureEscape(){
+		String[] diagram = {
+				"O#...",
+				".O..#",
+				"...#O",
+				".....",
+				".....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		board.play(at("d4"));
+		assertTrue(lastMoveEscapeSuggester.getMoves().contains(at("e2")));
+		assertEquals(1, lastMoveEscapeSuggester.getMoves().size());
+	}
+	
 	
 	@Test
 	public void testConnectEscape(){
@@ -57,7 +73,7 @@ public class LastMoveEscapeSuggesterTest {
 		board.setUpProblem(diagram, WHITE);
 		board.play(at("d4"));
 		assertTrue(lastMoveEscapeSuggester.getMoves().contains(at("e5")));
-		assertFalse(lastMoveEscapeSuggester.getMoves().contains(at("e2")));
+		assertTrue(lastMoveEscapeSuggester.getMoves().contains(at("e2")));
 	}
 
 }

@@ -56,8 +56,8 @@ public class EscapeSuggester implements Suggester {
 			} else {
 				escapeByMerging(p);
 			}
-//			escapeByCapturing(chainsInAtari.get(i));
-//			alliesVisited.clear();
+			escapeByCapturing(chainsInAtari.get(i));
+			alliesVisited.clear();
 		}
 		return movesToEscape;
 	}
@@ -77,11 +77,11 @@ public class EscapeSuggester implements Suggester {
 					movesToEscape.add(board.getLiberties(neighbors[i]).get(0));
 				}
 			}
-//			else if(color == board.getColorToPlay()){
-//				if(!alliesVisited.contains(neighbors[i])){
-//					escapeByCapturing(neighbors[i]);
-//				}
-//			}
+			else if(color == board.getColorToPlay()){
+				if(!alliesVisited.contains(neighbors[i])){
+					escapeByCapturing(neighbors[i]);
+				}
+			}
 		}
 	}
 
