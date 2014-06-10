@@ -21,8 +21,8 @@ public final class PlayoutSpeed {
 		StoneCounter mercyObserver = new StoneCounter(copy);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers
-		MoverFactory.feasible(original);
-		Mover mover = MoverFactory.feasible(copy);
+		MoverFactory.theif(original);
+		Mover mover = MoverFactory.theif(copy);
 		final int runs = 100000;
 		long total = 0;
 		int[] wins = new int[3];

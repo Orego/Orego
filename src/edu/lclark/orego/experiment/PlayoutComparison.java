@@ -21,10 +21,10 @@ public class PlayoutComparison {
 		Board copy = new Board(19);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// Movers attached to original ensure that it has the correct observers
-		MoverFactory.theif(original);
 		MoverFactory.opportunist(original);
-		Mover mover1 = MoverFactory.theif(copy);
-		Mover mover2 = MoverFactory.opportunist(copy);
+		MoverFactory.theif(original);
+		Mover mover1 = MoverFactory.opportunist(copy);
+		Mover mover2 = MoverFactory.theif(copy);
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);

@@ -28,19 +28,32 @@ public class MoverFactory {
 		return new SuggesterMover(board, s, feasible(board));
 	}
 	
+	/** Like feasible, but captures when possible. */
+	public static SuggesterMover greedy(Board board, AtariObserver atariObserver) {
+		Suggester s = new CaptureSuggester(board, atariObserver);
+		return new SuggesterMover(board, s, feasible(board));
+	}
+	
 	public static SuggesterMover houdini(Board board){
 		Suggester s = new EscapeSuggester(board, new AtariObserver(board));
 		return new SuggesterMover(board, s, feasible(board));
 	}
 	
+	public static SuggesterMover houdini(Board board, AtariObserver atariObserver){
+		Suggester s = new EscapeSuggester(board, atariObserver);
+		return new SuggesterMover(board, s, feasible(board));
+	}
+	
 	public static SuggesterMover theif(Board board){
-		Suggester s = new CaptureSuggester(board, new AtariObserver(board));
-		return new SuggesterMover(board, s, houdini(board));
+		AtariObserver atariObserver = new AtariObserver(board);
+		Suggester s = new CaptureSuggester(board, atariObserver);
+		return new SuggesterMover(board, s, houdini(board, atariObserver));
 	}
 	
 	public static SuggesterMover opportunist(Board board){
-		Suggester s = new EscapeSuggester(board, new AtariObserver(board));
-		return new SuggesterMover(board, s, greedy(board));
+		AtariObserver atariObserver = new AtariObserver(board);
+		Suggester s = new EscapeSuggester(board, atariObserver);
+		return new SuggesterMover(board, s, greedy(board, atariObserver));
 	}
 
 }
