@@ -55,5 +55,11 @@ public class MoverFactory {
 		Suggester s = new EscapeSuggester(board, atariObserver);
 		return new SuggesterMover(board, s, greedy(board, atariObserver));
 	}
+	
+	public static SuggesterMover aladdin(Board board){
+		LastMoveObserver lastMoveObserver = new LastMoveObserver(board);
+		Suggester s = new LastMoveEscapeSuggester(board, lastMoveObserver);
+		return new SuggesterMover(board, s, greedy(board, new AtariObserver(board)));
+	}
 
 }
