@@ -1,9 +1,10 @@
 package edu.lclark.orego.mcts;
 
-import static orego.core.Coordinates.*;
+import edu.lclark.orego.core.CoordinateSystem;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import static java.util.Arrays.*;
 import static java.lang.String.*;
-import orego.util.*;
+import edu.lclark.orego.util.*;
 
 /** A node in the search tree / transposition table. */
 public final class SearchNode implements Poolable<SearchNode> {
@@ -16,7 +17,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * node has already been created. Used to determine if a new child is
 	 * necessary.
 	 */
-	private BitVector hasChild;
+	private final BitVector hasChild;
 
 	/**
 	 * The Zobrist hash of the board position represented by this node. This
@@ -47,10 +48,10 @@ public final class SearchNode implements Poolable<SearchNode> {
 	/** Number of wins through each child of this node. */
 	private float[] winRates;
 
-	public SearchNode() {
-		runs = new int[getFirstPointBeyondBoard()];
-		winRates = new float[getFirstPointBeyondBoard()];
-		hasChild = new BitVector(getFirstPointBeyondBoard());
+	public SearchNode(CoordinateSystem coords) {
+		runs = new int[coords.getFirstPointBeyondBoard()];
+		winRates = new float[coords.getFirstPointBeyondBoard()];
+		hasChild = new BitVector(coords.getFirstPointBeyondBoard());
 	}
 	
 	/** Update the win rate for p, by adding 'wins' for n runs. 
@@ -79,15 +80,15 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Returns a human-readable String giving statistics on the move with the
 	 * most wins.
 	 */
-	public String bestWinCountReport() {
-		int best = getMoveWithMostWins();
-		return pointToString(best) + " wins " + winRates[best]*runs[best] + "/" + runs[best]
+	public String bestWinCountReport(CoordinateSystem coords) {
+		short best = getMoveWithMostWins(coords);
+		return coords.toString(best) + " wins " + winRates[best]*runs[best] + "/" + runs[best]
 				+ " = " + getWinRate(best);
 	}
 
 	/** Returns the win rate of the best move. */
-	public float bestWinRate() {
-		int best = getMoveWithMostWins();
+	public float bestWinRate(CoordinateSystem coords) {
+		short best = getMoveWithMostWins(coords);
 		return getWinRate(best);
 	}
 
@@ -117,9 +118,9 @@ public final class SearchNode implements Poolable<SearchNode> {
 	}
 
 	/** Returns the move with the most wins from this node. */
-	public int getMoveWithMostWins() {
-		int best = PASS;
-		for (int p : getAllPointsOnBoard()) {
+	public short getMoveWithMostWins(CoordinateSystem coords) {
+		short best = PASS;
+		for (short p : coords.getAllPointsOnBoard()) {
 			if (getWins(p) >= getWins(best)) {
 				best = p;
 			}
@@ -177,8 +178,8 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Returns true if this node has not yet experienced any playouts (other
 	 * than initial bias playouts).
 	 */
-	public boolean isFresh() {
-		return totalRuns == 2 * getBoardArea() + 10;
+	public boolean isFresh(CoordinateSystem coords) {
+		return totalRuns == 2 * coords.getArea() + 10;
 	}
 
 	/**
@@ -194,10 +195,10 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Returns the total ratio of wins to runs for moves from this node. This is
 	 * slow.
 	 */
-	public float overallWinRate() {
+	public float overallWinRate(CoordinateSystem coords) {
 		int runs = 0;
 		int wins = 0;
-		for (int p : getAllPointsOnBoard()) {
+		for (short p : coords.getAllPointsOnBoard()) {
 			if (getWins(p) > 0) {
 				wins += getWins(p);
 				runs += getRuns(p);
@@ -226,7 +227,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 *            already-played points. (Used by, e.g., RavePlayer.)
 	 */
 	public synchronized void recordPlayout(float winProportion, int[] moves, int t,
-			int turn, IntSet playedPoints) {
+			int turn, ShortSet playedPoints) {
 		assert t < turn;
 		int move = moves[t];
 		totalRuns++;
@@ -243,9 +244,9 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Resets this node as a "new" node for the board situation represented by
 	 * hash.
 	 */
-	public void reset(long hash) {
+	public void reset(long hash, CoordinateSystem coords) {
 		this.hash = hash;
-		totalRuns = 2 * getBoardArea() + 10;
+		totalRuns = 2 * coords.getArea() + 10;
 		fill(runs, (char) 2);
 		fill(winRates, 0.5f);
 		hasChild.clear();
@@ -286,16 +287,16 @@ public final class SearchNode implements Poolable<SearchNode> {
 		this.totalRuns = totalRuns;
 	}
 
-	@Override
-	public String toString() {
+	/** Returns a human-readable representation of this node. */
+	public String toString(CoordinateSystem coords) {
 		String result = "Total runs: " + totalRuns + "\n";
-		for (int p : getAllPointsOnBoard()) {
+		for (short p : coords.getAllPointsOnBoard()) {
 			if (runs[p] > 2) {
-				result += toString(p);
+				result += toString(p, coords);
 			}
 		}
 		if (runs[PASS] > 10) {
-			result += toString(PASS);
+			result += toString(PASS, coords);
 		}
 		return result;
 	}
@@ -304,8 +305,8 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Returns a human-readable representation of the information stored for
 	 * move p.
 	 */
-	public String toString(int p) {
-		return format("%s: %7d/%7d (%1.4f)\n", pointToString(p), (int) getWins(p),
+	public String toString(short p, CoordinateSystem coords) {
+		return format("%s: %7d/%7d (%1.4f)\n", coords.toString(p), (int) getWins(p),
 				(int) runs[p], winRates[p]);
 	}
 
