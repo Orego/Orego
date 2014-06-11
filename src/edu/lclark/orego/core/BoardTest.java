@@ -384,4 +384,50 @@ public class BoardTest {
 		assertTrue(stones.contains(at("a3")));
 	}
 
+	@Test
+	public void testFancyHashKo() {
+		String[] diagram = {
+				".....",
+				".....",
+				".#O..",
+				"#O.O.",
+				".#O..",
+		};
+		board.setUpProblem(diagram, BLACK);
+		board.play(at("c2"));
+		long simple1 = board.getHash();
+		long fancy1 = board.getFancyHash();
+		diagram = new String[] {
+				".....",
+				".....",
+				".#O..",
+				"#.#O.",
+				".#O..",
+		};
+		board.setUpProblem(diagram, WHITE);
+		long simple2 = board.getHash();
+		long fancy2 = board.getFancyHash();
+		assertEquals(simple1, simple2);
+		assertNotEquals(fancy1, fancy2);
+	}
+	
+	@Test
+	public void testFancyHashTurn() {
+		String[] diagram = {
+				".....",
+				".....",
+				".#O..",
+				"#O.O.",
+				".#O..",
+		};
+		board.setUpProblem(diagram, BLACK);
+		long simpleBlack = board.getHash();
+		long fancyBlack = board.getFancyHash();
+		board.setUpProblem(diagram, WHITE);
+		long simpleWhite = board.getHash();
+		long fancyWhite = board.getFancyHash();
+		assertEquals(simpleBlack, simpleWhite);
+		assertNotEquals(fancyBlack, fancyWhite);
+	}
+
 }

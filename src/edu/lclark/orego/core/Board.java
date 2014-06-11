@@ -252,7 +252,23 @@ public final class Board {
 	}
 
 	/**
-	 * Returns the Zobrist hash of the current board position.
+	 * Returns a Zobrist hash of the current board position, incorporating the
+	 * simple ko point and the color to play. This is used in the transposition
+	 * table.
+	 */
+	public long getFancyHash() {
+		long result = hash;
+		if (koPoint != NO_POINT) {
+			result ^= coords.getHash(colorToPlay, koPoint);
+		}
+		if (colorToPlay == WHITE) {
+			result = -result;
+		}
+		return result;
+	}
+
+	/**
+	 * Returns the Zobrist hash of the current board position. This is used in the superko table.
 	 */
 	public long getHash() {
 		return hash;
