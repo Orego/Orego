@@ -39,10 +39,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 	/** Total number of runs through this node. */
 	private int totalRuns;
 
-	/**
-	 * The last move played from this node if it resulted in a win, otherwise
-	 * NO_POINT.
-	 */
+	/** @see #getWinningMove() */
 	private short winningMove;
 
 	/** Number of wins through each child of this node. */
@@ -52,18 +49,6 @@ public final class SearchNode implements Poolable<SearchNode> {
 		runs = new int[coords.getFirstPointBeyondBoard()];
 		winRates = new float[coords.getFirstPointBeyondBoard()];
 		hasChild = new BitVector(coords.getFirstPointBeyondBoard());
-	}
-
-	/** Adds n losses for p. */
-	public void addLosses(int p, int n) {
-		updateWinRate(p, n, 0);
-	}
-
-	// TODO Does this need to be synchronized? Maybe, if two threads allocate
-	// the same fresh node and then but call McRunnable.updatePriors() on it.
-	/** Adds n wins for p, e.g., as a prior due to a heuristic. */
-	public synchronized void addWins(int p, int n) {
-		updateWinRate(p, n, n);
 	}
 
 	/**
@@ -86,7 +71,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Marks move p (e.g., an illegal move) as being horrible, so it will never
 	 * be tried again.
 	 */
-	public void exclude(int p) {
+	public void exclude(short p) {
 		// This will ensure that winRates[p]*runs[p] == Integer.MIN_VALUE
 		winRates[p] = Integer.MIN_VALUE;
 		runs[p] = 1;
@@ -97,11 +82,9 @@ public final class SearchNode implements Poolable<SearchNode> {
 		return children;
 	}
 
-	/** Returns the BitVector indicating which children this node has. */
-	protected BitVector getHasChild() {
-		return hasChild;
-	}
-
+	// TODO Maybe rename to distinguish this fancy hash (with simple ko point
+	// and color to play) from the
+	// regular one used by the superko table
 	/** Returns the Zobrist hash of the board situation stored in this node. */
 	public long getHash() {
 		return hash;
@@ -118,18 +101,14 @@ public final class SearchNode implements Poolable<SearchNode> {
 		return best;
 	}
 
+	@Override
 	public SearchNode getNext() {
 		return next;
 	}
 
 	/** Returns the number of runs through move p. */
-	public int getRuns(int p) {
+	public int getRuns(short p) {
 		return runs[p];
-	}
-
-	/** Returns an array of the runs where the index is the move */
-	public int[] getRunsArray() {
-		return runs;
 	}
 
 	/** Returns the total number of runs through this node. */
@@ -137,17 +116,21 @@ public final class SearchNode implements Poolable<SearchNode> {
 		return totalRuns;
 	}
 
-	public int getWinningMove() {
+	/**
+	 * Returns the last move played from this node if it resulted in a win,
+	 * otherwise NO_POINT.
+	 */
+	public short getWinningMove() {
 		return winningMove;
 	}
 
 	/** Returns the win rate through this node for move p. */
-	public float getWinRate(int p) {
+	public float getWinRate(short p) {
 		return winRates[p];
 	}
 
 	/** Returns the number of wins through move p. */
-	public float getWins(int p) {
+	public float getWins(short p) {
 		return winRates[p] * runs[p];
 	}
 
@@ -155,27 +138,26 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Returns true for those moves through which another node has already been
 	 * created.
 	 */
-	public boolean hasChild(int p) {
+	public boolean hasChild(short p) {
 		return hasChild.get(p);
 	}
 
-	/** For testing only. */
-	public void incrementTotalRuns() {
-		totalRuns++;
-	}
+	/**
+	 * When reset is called, a pass is given this many runs, only one of which
+	 * is a win, to discourage passing unless all other moves are awful.
+	 */
+	private static final int INITIAL_PASS_RUNS = 10;
 
 	/**
 	 * Returns true if this node has not yet experienced any playouts (other
 	 * than initial bias playouts).
 	 */
 	public boolean isFresh(CoordinateSystem coords) {
-		return totalRuns == 2 * coords.getArea() + 10;
+		return totalRuns == 2 * coords.getArea() + INITIAL_PASS_RUNS;
 	}
 
 	/**
 	 * True if this node is marked. Used in garbage collection.
-	 * 
-	 * @see orego.mcts.TranspositionTable
 	 */
 	public boolean isMarked() {
 		return hasChild.get(NO_POINT);
@@ -186,41 +168,42 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * slow.
 	 */
 	public float overallWinRate(CoordinateSystem coords) {
-		int runs = 0;
-		int wins = 0;
+		int r = 0; // Runs
+		int w = 0; // Wins
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (getWins(p) > 0) {
-				wins += getWins(p);
-				runs += getRuns(p);
+				w += getWins(p);
+				r += getRuns(p);
 			}
 		}
-		wins += getWins(PASS);
-		runs += getRuns(PASS);
-		return 1.0f * wins / runs;
+		w += getWins(PASS);
+		r += getRuns(PASS);
+		return 1.0f * w / r;
 	}
 
 	/**
 	 * Increments the counts for a move sequence resulting from a playout.
 	 * 
-	 * @param win
-	 *            True if this is a winning playout for the player to play at
-	 *            this node.
+	 * NOTE: Since this method is not synchronized, two simultaneous calls on
+	 * the same node might result in a race condition affecting which one sets
+	 * the winningMove field.
+	 * 
+	 * @param winProportion
+	 *            1.0 if this is a winning playout for the player to play at
+	 *            this node, 0.0 otherwise.
 	 * @param moves
 	 *            Sequence of moves made in this playout, including two final
 	 *            passes.
 	 * @param t
 	 *            Index of the first move (the one made from this node).
-	 * @param turn
-	 *            Index right after the last move played.
 	 * @param playedPoints
 	 *            For keeping track of points played to avoid counting
-	 *            already-played points. (Used by, e.g., RavePlayer.)
+	 *            already-played points.
 	 */
-	public synchronized void recordPlayout(float winProportion, short[] moves,
-			int t, int turn, ShortSet playedPoints) {
-		assert t < turn;
+	public void recordPlayout(float winProportion, short[] moves, int t,
+			ShortSet playedPoints) {
 		short move = moves[t];
-		updateWinRate(move, 1, winProportion);
+		update(move, 1, winProportion);
 		if (winProportion == 1) {
 			winningMove = move;
 		} else {
@@ -234,14 +217,14 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 */
 	public void reset(long hash, CoordinateSystem coords) {
 		this.hash = hash;
-		totalRuns = 2 * coords.getArea() + 10;
+		totalRuns = 2 * coords.getArea() + INITIAL_PASS_RUNS;
 		fill(runs, (char) 2);
 		fill(winRates, 0.5f);
 		hasChild.clear();
 		// Make passing look very bad, so it will only be tried if all other
 		// moves lose
 		runs[PASS] = 10;
-		winRates[PASS] = 1.0f / 10.0f;
+		winRates[PASS] = 1.0f / INITIAL_PASS_RUNS;
 		children = null;
 		winningMove = NO_POINT;
 	}
@@ -299,10 +282,10 @@ public final class SearchNode implements Poolable<SearchNode> {
 	}
 
 	/**
-	 * Update the win rate for p, by adding 'wins' for n runs. Also updates the
-	 * counts of total runs and runs.
+	 * Update the win rate for p, by adding the specified number of wins and n
+	 * runs. Also updates the counts of total runs and runs.
 	 */
-	private void updateWinRate(int p, int n, float wins) {
+	public synchronized void update(short p, int n, float wins) {
 		totalRuns += n;
 		winRates[p] = (wins + winRates[p] * runs[p]) / (n + runs[p]);
 		runs[p] += n;
