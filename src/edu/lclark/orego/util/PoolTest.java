@@ -1,6 +1,7 @@
 package edu.lclark.orego.util;
 
 import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class PoolTest {
 	@Before
 	public void setUp() throws Exception {
 		// Create the pool and add five nodes to it
-		pool = new Pool<ListNode<Integer>>();
+		pool = new Pool<>();
 		for (int i = 0; i < 5; i++) {
 			pool.free(new ListNode<Integer>());
 		}
@@ -35,10 +36,11 @@ public class PoolTest {
 		assertNull(pool.allocate());
 	}
 
+	@SuppressWarnings("boxing")
 	@Test
 	public void testFree() {
 		// Make a node and add it to the pool
-		ListNode<Integer> node = new ListNode<Integer>();
+		ListNode<Integer> node = new ListNode<>();
 		node.setKey(-8);
 		pool.free(node);
 		// Allocate should return this node

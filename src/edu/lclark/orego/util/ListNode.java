@@ -3,10 +3,6 @@ package edu.lclark.orego.util;
 /**
  * Linked list node. T is the type of the key in the node. This is a simple
  * container class with two fields, key and next.
- * <p>
- * It may be tempting to optimize this class by making the fields public. In
- * addition to being bad style, his would cause problems with implementing
- * Poolable.
  */
 public final class ListNode<T> implements Poolable<ListNode<T>> {
 
@@ -22,6 +18,7 @@ public final class ListNode<T> implements Poolable<ListNode<T>> {
 	}
 
 	/** Returns the next list node. */
+	@Override
 	public ListNode<T> getNext() {
 		return next;
 	}
@@ -32,6 +29,7 @@ public final class ListNode<T> implements Poolable<ListNode<T>> {
 	}
 
 	/** Sets the next list node. */
+	@Override
 	public void setNext(ListNode<T> next) {
 		this.next = next;
 	}
