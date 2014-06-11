@@ -97,4 +97,13 @@ public class SearchNodeTest {
 		assertEquals(0.5, node.getWinRate(at("a1")), 0.001);
 	}
 
+	@Test
+	public void testIsInUse() {
+		assertTrue(node.isInUse());
+		node.free();
+		assertFalse(node.isInUse());
+		node.reset(23L, coords);
+		assertTrue(node.isInUse());		
+	}
+
 }

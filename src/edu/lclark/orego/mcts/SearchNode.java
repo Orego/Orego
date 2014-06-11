@@ -7,7 +7,7 @@ import static java.lang.String.*;
 import edu.lclark.orego.util.*;
 
 /** A node in the search tree / transposition table. */
-public final class SearchNode implements Poolable<SearchNode> {
+public final class SearchNode {
 
 	/**
 	 * When reset is called, a pass is given this many runs, only one of which
@@ -32,17 +32,13 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 */
 	private long fancyHash;
 
-	/**
-	 * Next node in the free list of nodes.
-	 * 
-	 * @see orego.util.Pool
-	 */
-	private SearchNode next;
-
 	/** Number of runs through each child of this node. */
 	private final int[] runs;
 
-	/** Total number of runs through this node. */
+	/**
+	 * Total number of runs through this node. For not-in-use nodes this is set
+	 * to -1.
+	 */
 	private int totalRuns;
 
 	/** @see #getWinningMove() */
@@ -83,6 +79,11 @@ public final class SearchNode implements Poolable<SearchNode> {
 		runs[p] = 1;
 	}
 
+	/** Mark this node as unused until the next time it is reset. */
+	public void free() {
+		totalRuns = -1;
+	}
+
 	/** Returns the (beginning of the linked list of) children of this node. */
 	public ListNode<SearchNode> getChildren() {
 		return children;
@@ -105,11 +106,6 @@ public final class SearchNode implements Poolable<SearchNode> {
 			}
 		}
 		return best;
-	}
-
-	@Override
-	public SearchNode getNext() {
-		return next;
 	}
 
 	/** Returns the number of runs through move p. */
@@ -154,6 +150,11 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 */
 	public boolean isFresh(CoordinateSystem coords) {
 		return totalRuns == 2 * coords.getArea() + INITIAL_PASS_RUNS;
+	}
+
+	/** Returns true if this node is in use (i.e., has been reset since the last time it was freed). */
+	public boolean isInUse() {
+		return totalRuns >= 0;
 	}
 
 	/**
@@ -245,11 +246,6 @@ public final class SearchNode implements Poolable<SearchNode> {
 	/** Sets the mark of this node for garbage collection. */
 	public void setMarked(boolean marked) {
 		hasChild.set(NO_POINT, marked);
-	}
-
-	@Override
-	public void setNext(SearchNode next) {
-		this.next = next;
 	}
 
 	/** Sets the total number of runs in this node. */

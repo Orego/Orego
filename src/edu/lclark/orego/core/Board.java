@@ -262,7 +262,7 @@ public final class Board {
 			result ^= coords.getHash(colorToPlay, koPoint);
 		}
 		if (colorToPlay == WHITE) {
-			result = -result;
+			result = ~result;
 		}
 		return result;
 	}
