@@ -196,12 +196,15 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 *            passes.
 	 * @param t
 	 *            Index of the first move (the one made from this node).
+	 * @param turn
+	 *            Index right after the last move played.
 	 * @param playedPoints
 	 *            For keeping track of points played to avoid counting
 	 *            already-played points.
 	 */
 	public void recordPlayout(float winProportion, short[] moves, int t,
-			ShortSet playedPoints) {
+			int turn, ShortSet playedPoints) {
+		assert t < turn;
 		short move = moves[t];
 		update(move, 1, winProportion);
 		if (winProportion == 1) {
@@ -213,12 +216,12 @@ public final class SearchNode implements Poolable<SearchNode> {
 
 	/**
 	 * Resets this node as a "new" node for the board situation represented by
-	 * hash.
+	 * boardHash.
 	 */
-	public void reset(long hash, CoordinateSystem coords) {
-		this.hash = hash;
+	public void reset(long boardHash, CoordinateSystem coords) {
+		this.hash = boardHash;
 		totalRuns = 2 * coords.getArea() + INITIAL_PASS_RUNS;
-		fill(runs, (char) 2);
+		fill(runs, 2);
 		fill(winRates, 0.5f);
 		hasChild.clear();
 		// Make passing look very bad, so it will only be tried if all other
@@ -235,13 +238,8 @@ public final class SearchNode implements Poolable<SearchNode> {
 	}
 
 	/** Marks move p as visited. */
-	public void setHasChild(int p) {
+	public void setHasChild(short p) {
 		hasChild.set(p, true);
-	}
-
-	/** Sets the hash code of this node. */
-	protected void setHash(long hash) {
-		this.hash = hash;
 	}
 
 	/** Sets the mark of this node for garbage collection. */
@@ -249,6 +247,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 		hasChild.set(NO_POINT, marked);
 	}
 
+	@Override
 	public void setNext(SearchNode next) {
 		this.next = next;
 	}
@@ -276,9 +275,10 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Returns a human-readable representation of the information stored for
 	 * move p.
 	 */
+	@SuppressWarnings("boxing")
 	public String toString(short p, CoordinateSystem coords) {
 		return format("%s: %7d/%7d (%1.4f)\n", coords.toString(p),
-				(int) getWins(p), (int) runs[p], winRates[p]);
+				(int) getWins(p), runs[p], winRates[p]);
 	}
 
 	/**
