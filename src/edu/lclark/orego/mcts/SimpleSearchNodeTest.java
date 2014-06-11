@@ -8,7 +8,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
 
-public class SearchNodeTest {
+public class SimpleSearchNodeTest {
 
 	private SearchNode node;
 
@@ -22,7 +22,7 @@ public class SearchNodeTest {
 	@Before
 	public void setUp() throws Exception {
 		coords = CoordinateSystem.forWidth(19);
-		node = new SearchNode(coords);
+		node = new SimpleSearchNode(coords);
 		node.reset(0L, coords);
 	}
 

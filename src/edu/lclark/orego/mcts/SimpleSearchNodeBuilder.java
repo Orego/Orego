@@ -1,0 +1,18 @@
+package edu.lclark.orego.mcts;
+
+import edu.lclark.orego.core.CoordinateSystem;
+
+public class SimpleSearchNodeBuilder implements SearchNodeBuilder {
+
+	private CoordinateSystem coords;
+	
+	public SimpleSearchNodeBuilder(CoordinateSystem coords) {
+		this.coords = coords;
+	}
+
+	@Override
+	public SimpleSearchNode build() {
+		return new SimpleSearchNode(coords);
+	}
+
+}

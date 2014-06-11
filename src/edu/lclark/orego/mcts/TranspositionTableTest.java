@@ -17,7 +17,7 @@ public class TranspositionTableTest {
 	@Before
 	public void setUp() throws Exception {
 		CoordinateSystem coords = CoordinateSystem.forWidth(5);
-		table = new TranspositionTable(TABLE_SIZE, new SearchNode(coords), coords);
+		table = new TranspositionTable(TABLE_SIZE, new SimpleSearchNodeBuilder(coords), coords);
 	}
 
 	@Test
@@ -104,12 +104,11 @@ public class TranspositionTableTest {
 		table.addChild(d, e);
 		table.markNodesReachableFrom(b);
 		table.sweep();
-		assertEquals(table.getSearchNodes().allocate(), a);
 		assertNull(table.findIfPresent(0L));
+		assertEquals(b, table.findIfPresent(1L));
+		assertEquals(c, table.findIfPresent(2L));
+		assertEquals(d, table.findIfPresent(3L));
 		assertEquals(e, table.findIfPresent(4L));
-		SearchNode x = table.getListNodes().allocate().getKey();
-		SearchNode y = table.getListNodes().allocate().getKey();
-		assertTrue(((x == a) && (y == b)) || ((x == b) && (y == a)));
 	}
 
 	@Test

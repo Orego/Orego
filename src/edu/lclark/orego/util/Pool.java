@@ -13,9 +13,10 @@ public final class Pool<T extends Poolable<T>> {
 
 	/**
 	 * Returns the next available object in this pool, or null if none are
-	 * available.
+	 * available. It is synchronized to avoid the danger of two threads pulling
+	 * the same object out of the pool.
 	 */
-	public T allocate() {
+	public synchronized T allocate() {
 		if (free == null) {
 			return null;
 		}

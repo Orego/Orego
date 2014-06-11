@@ -4,90 +4,73 @@ import static edu.lclark.orego.core.SuperKoTable.*;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.*;
 
-// TODO Why are we using chaining instead of open addressing here?
 /** A hash table of nodes representing board configurations. */
-public class TranspositionTable {
+final class TranspositionTable {
 
 	/** ListNodes used to build child lists for SearchNodes. */
-	protected Pool<ListNode<SearchNode>> listNodes;
-
-	/** Search nodes. */
-	protected Pool<SearchNode> searchNodes;
+	private final Pool<ListNode<SearchNode>> listNodes;
 
 	/** The hash table itself. */
-	protected ListNode<SearchNode>[] table;
+	private final SearchNode[] table;
 
-	private CoordinateSystem coords;
-	
-	@SuppressWarnings("unchecked")
-	public TranspositionTable(int size, SearchNode prototype, CoordinateSystem coords) {
-		// The first line below would produce a warning if not suppressed,
-		// because generic types do not play well with arrays
-		table = new ListNode[size];
-		searchNodes = new Pool<SearchNode>();
+	private final CoordinateSystem coords;
+
+	TranspositionTable(int size, SearchNodeBuilder builder,
+			CoordinateSystem coords) {
+		table = new SearchNode[size];
 		for (int i = 0; i < size; i++) {
-			try {
-				searchNodes.free(prototype.getClass().newInstance());
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+			table[i] = builder.build();
 		}
-		listNodes = new Pool<ListNode<SearchNode>>();
+		listNodes = new Pool<>();
 		for (int i = 0; i < 3 * size; i++) {
 			listNodes.free(new ListNode<SearchNode>());
 		}
 		this.coords = coords;
 	}
 
-	public TranspositionTable(SearchNode prototype, CoordinateSystem coords) {
-		/** The calculation here is for the number of nodes to allocate in general */
-		this(1024 * 1024 * 20 / coords.getArea(), prototype, coords);
+	TranspositionTable(SearchNodeBuilder builder, CoordinateSystem coords) {
+		/**
+		 * The calculation here is for the number of nodes to allocate in
+		 * general
+		 */
+		this(1024 * 1024 * 20 / coords.getArea(), builder, coords);
 	}
 
 	/** Adds child as a child of parent. */
-	public void addChild(SearchNode parent, SearchNode child) {
-		ListNode<SearchNode> node;
-		synchronized (this) {
-			node = listNodes.allocate();
-			node.setKey(child);
-			node.setNext(parent.getChildren());
-			parent.setChildren(node);
-		}
+	void addChild(SearchNode parent, SearchNode child) {
+		ListNode<SearchNode> node = listNodes.allocate();
+		node.setKey(child);
+		node.setNext(parent.getChildren());
+		parent.setChildren(node);
 	}
 
-	/** Slow -- for testing only. Returns the number of nodes reachable from the root. */
-	public int dagSize(SearchNode root) {
-		java.util.Set<SearchNode> visited = new java.util.HashSet<SearchNode>();
-		return dagSize(root, visited);
-	}
-
-	/** Called by the one-argument version of dagSize(). */
-	protected int dagSize(SearchNode root, java.util.Set<SearchNode> visited) {
-		if (visited.contains(root)) {
-			return 0;
-		} else {
-			visited.add(root);
-			int sum = 1;
-			ListNode<SearchNode> child = root.getChildren();
-			while (child != null) {
-				sum += dagSize(child.getKey(), visited);
-				child = child.getNext();
-			}
-			return sum;
+	/**
+	 * Slow -- for testing only. Returns the number of nodes reachable from the
+	 * root.
+	 */
+	int dagSize(SearchNode root) {
+		int result = markNodesReachableFrom(root);
+		for (int i = 0; i < table.length; i++) {
+			table[i].setMarked(false);
 		}
+		return result;
 	}
 
 	/** Returns the node associated with hash, or null if there is no such node. */
-	public synchronized SearchNode findIfPresent(long hash) {
-		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
-		ListNode<SearchNode> listNode = table[slot];
-		while (listNode != null) {
-			if (listNode.getKey().getFancyHash() == hash) {
-				return listNode.getKey();
+	synchronized SearchNode findIfPresent(long hash) {
+		int start = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
+		int slot = start;
+		do {
+			SearchNode n = table[slot];
+			if (n.isInUse()) {
+				if (n.getFancyHash() == hash) {
+					return n;
+				}
+			} else {
+				return null;
 			}
-			listNode = listNode.getNext();
-		}
+			slot = (slot + 1) % table.length;
+		} while (slot != start);
 		return null;
 	}
 
@@ -96,82 +79,61 @@ public class TranspositionTable {
 	 * allocates and returns a new node from the pool. If no nodes are available
 	 * in the pool, returns null.
 	 */
-	public synchronized SearchNode findOrAllocate(long hash) {
-		int slot = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
-		ListNode<SearchNode> listNode = table[slot];
-		while (listNode != null) {
-			if (listNode.getKey().getFancyHash() == hash) {
-				return listNode.getKey();
+	synchronized SearchNode findOrAllocate(long hash) {
+		int start = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
+		int slot = start;
+		do {
+			SearchNode n = table[slot];
+			if (n.isInUse()) {
+				if (n.getFancyHash() == hash) {
+					return n;
+				}
+			} else {
+				n.reset(hash, coords);
+				return n;
 			}
-			listNode = listNode.getNext();
-		}
-		// Didn't find it; allocate a node if possible
-		if (searchNodes.isEmpty() | listNodes.isEmpty()) {
-			return null;
-		}
-		ListNode<SearchNode> newListNode = listNodes.allocate();
-		SearchNode newNode = searchNodes.allocate();
-		newNode.reset(hash, coords);
-		newListNode.setKey(newNode);
-		newListNode.setNext(table[slot]);
-		table[slot] = newListNode;
-		return newNode;
+			slot = (slot + 1) % table.length;
+		} while (slot != start);
+		return null;
 	}
 
 	/** Returns the pool of ListNodes. For testing only. */
-	protected Pool<ListNode<SearchNode>> getListNodes() {
+	Pool<ListNode<SearchNode>> getListNodes() {
 		return listNodes;
 	}
 
-	/** Returns the pool of SearchNodes. For testing only. */
-	protected Pool<SearchNode> getSearchNodes() {
-		return searchNodes;
-	}
-
-	/** Marks all nodes reachable from root, so they will survive sweep(). */
-	protected void markNodesReachableFrom(SearchNode root) {
-		if (!root.isMarked()) {
-			root.setMarked(true);
-			ListNode<SearchNode> child = root.getChildren();
-			while (child != null) {
-				markNodesReachableFrom(child.getKey());
-				child = child.getNext();
-			}
+	/** Marks all nodes reachable from root, so they will survive sweep(). Returns the number of nodes marked. */
+	int markNodesReachableFrom(SearchNode root) {
+		if (root.isMarked()) {
+			return 0;
 		}
+		root.setMarked(true);
+		int sum = 1;
+		ListNode<SearchNode> child = root.getChildren();
+		while (child != null) {
+			sum += markNodesReachableFrom(child.getKey());
+			child = child.getNext();
+		}
+		return sum;
 	}
 
 	/**
-	 * After markNodesUnreachableFrom(), returns all unmarked SearchNodes (and
-	 * associated ListNodes) to their pools.
+	 * After markNodesUnreachableFrom(), frees all unused SearchNodes (tagging
+	 * them as not in use) and associated ListNodes (returning them to the
+	 * pool).
 	 */
-	public void sweep() {
+	void sweep() {
 		for (int i = 0; i < table.length; i++) {
-			if (table[i] != null) {
-				ListNode<SearchNode> prev = null;
-				ListNode<SearchNode> node = table[i];
-				while (node != null) {
-					SearchNode searchNode = node.getKey();
-					if (searchNode.isMarked()) {
-						// Clear the mark for the next pass
-						searchNode.setMarked(false);
-						prev = node;
-						node = node.getNext();
-					} else {
-						// Reclaim the ListNodes in the SearchNode's child list
-						ListNode<SearchNode> n = searchNode.getChildren();
-						while (n != null) {
-							n = listNodes.free(n);
-						}
-						// Reclaim the SearchNode itself
-						searchNodes.free(searchNode);
-						// Reclaim this ListNode
-						node = listNodes.free(node);
-						if (prev == null) {
-							table[i] = node;
-						} else {
-							prev.setNext(node);
-						}
+			SearchNode node = table[i];
+			if (node.isInUse()) {
+				if (node.isMarked()) {
+					node.setMarked(false);
+				} else {
+					ListNode<SearchNode> n = node.getChildren();
+					while (n != null) {
+						n = listNodes.free(n);
 					}
+					node.free();
 				}
 			}
 		}
