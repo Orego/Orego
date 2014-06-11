@@ -30,7 +30,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * incorporates the simple ko position and color to play. Collisions are so
 	 * rare that they can be ignored.
 	 */
-	private long hash;
+	private long fancyHash;
 
 	/**
 	 * Next node in the free list of nodes.
@@ -88,12 +88,12 @@ public final class SearchNode implements Poolable<SearchNode> {
 		return children;
 	}
 
-	// TODO Maybe rename to distinguish this fancy hash (with simple ko point
-	// and color to play) from the
-	// regular one used by the superko table
-	/** Returns the Zobrist hash of the board situation stored in this node. */
-	public long getHash() {
-		return hash;
+	/**
+	 * Returns the fancy Zobrist hash of the board situation stored in this
+	 * node.
+	 */
+	public long getFancyHash() {
+		return fancyHash;
 	}
 
 	/** Returns the move with the most wins from this node. */
@@ -218,8 +218,8 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * Resets this node as a "new" node for the board situation represented by
 	 * boardHash.
 	 */
-	public void reset(long boardHash, CoordinateSystem coords) {
-		this.hash = boardHash;
+	public void reset(@SuppressWarnings("hiding") long fancyHash, CoordinateSystem coords) {
+		this.fancyHash = fancyHash;
 		totalRuns = 2 * coords.getArea() + INITIAL_PASS_RUNS;
 		fill(runs, 2);
 		fill(winRates, 0.5f);
