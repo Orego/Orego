@@ -34,7 +34,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 	private SearchNode next;
 
 	/** Number of runs through each child of this node. */
-	private int[] runs;
+	private final int[] runs;
 
 	/** Total number of runs through this node. */
 	private int totalRuns;
@@ -43,37 +43,27 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * The last move played from this node if it resulted in a win, otherwise
 	 * NO_POINT.
 	 */
-	private int winningMove;
+	private short winningMove;
 
 	/** Number of wins through each child of this node. */
-	private float[] winRates;
+	private final float[] winRates;
 
 	public SearchNode(CoordinateSystem coords) {
 		runs = new int[coords.getFirstPointBeyondBoard()];
 		winRates = new float[coords.getFirstPointBeyondBoard()];
 		hasChild = new BitVector(coords.getFirstPointBeyondBoard());
 	}
-	
-	/** Update the win rate for p, by adding 'wins' for n runs. 
-	 * 	Warning: you must call this *before* updating the runs count.
-	 * */
-	private void updateWinRate(int p, int n, float wins) {
-		winRates[p] = (wins + winRates[p]*runs[p])/(n + runs[p]);
-	}
 
 	/** Adds n losses for p. */
 	public void addLosses(int p, int n) {
-		totalRuns += n;
 		updateWinRate(p, n, 0);
-		runs[p] += n;
 	}
 
-	// TODO Does this need to be synchronized? Maybe, if two threads allocate the same fresh node and then but call McRunnable.updatePriors() on it.
+	// TODO Does this need to be synchronized? Maybe, if two threads allocate
+	// the same fresh node and then but call McRunnable.updatePriors() on it.
 	/** Adds n wins for p, e.g., as a prior due to a heuristic. */
 	public synchronized void addWins(int p, int n) {
-		totalRuns += n;
 		updateWinRate(p, n, n);
-		runs[p] += n;
 	}
 
 	/**
@@ -82,8 +72,8 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 */
 	public String bestWinCountReport(CoordinateSystem coords) {
 		short best = getMoveWithMostWins(coords);
-		return coords.toString(best) + " wins " + winRates[best]*runs[best] + "/" + runs[best]
-				+ " = " + getWinRate(best);
+		return coords.toString(best) + " wins " + winRates[best] * runs[best]
+				+ "/" + runs[best] + " = " + getWinRate(best);
 	}
 
 	/** Returns the win rate of the best move. */
@@ -226,13 +216,11 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 *            For keeping track of points played to avoid counting
 	 *            already-played points. (Used by, e.g., RavePlayer.)
 	 */
-	public synchronized void recordPlayout(float winProportion, int[] moves, int t,
-			int turn, ShortSet playedPoints) {
+	public synchronized void recordPlayout(float winProportion, short[] moves,
+			int t, int turn, ShortSet playedPoints) {
 		assert t < turn;
-		int move = moves[t];
-		totalRuns++;
+		short move = moves[t];
 		updateWinRate(move, 1, winProportion);
-		runs[move]++;
 		if (winProportion == 1) {
 			winningMove = move;
 		} else {
@@ -253,7 +241,7 @@ public final class SearchNode implements Poolable<SearchNode> {
 		// Make passing look very bad, so it will only be tried if all other
 		// moves lose
 		runs[PASS] = 10;
-		winRates[PASS] = 1.0f/10.0f;
+		winRates[PASS] = 1.0f / 10.0f;
 		children = null;
 		winningMove = NO_POINT;
 	}
@@ -306,8 +294,18 @@ public final class SearchNode implements Poolable<SearchNode> {
 	 * move p.
 	 */
 	public String toString(short p, CoordinateSystem coords) {
-		return format("%s: %7d/%7d (%1.4f)\n", coords.toString(p), (int) getWins(p),
-				(int) runs[p], winRates[p]);
+		return format("%s: %7d/%7d (%1.4f)\n", coords.toString(p),
+				(int) getWins(p), (int) runs[p], winRates[p]);
+	}
+
+	/**
+	 * Update the win rate for p, by adding 'wins' for n runs. Also updates the
+	 * counts of total runs and runs.
+	 */
+	private void updateWinRate(int p, int n, float wins) {
+		totalRuns += n;
+		winRates[p] = (wins + winRates[p] * runs[p]) / (n + runs[p]);
+		runs[p] += n;
 	}
 
 }
