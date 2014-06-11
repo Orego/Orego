@@ -9,6 +9,12 @@ import edu.lclark.orego.util.*;
 /** A node in the search tree / transposition table. */
 public final class SearchNode implements Poolable<SearchNode> {
 
+	/**
+	 * When reset is called, a pass is given this many runs, only one of which
+	 * is a win, to discourage passing unless all other moves are awful.
+	 */
+	private static final int INITIAL_PASS_RUNS = 10;
+
 	/** Children of this node. */
 	private ListNode<SearchNode> children;
 
@@ -141,12 +147,6 @@ public final class SearchNode implements Poolable<SearchNode> {
 	public boolean hasChild(short p) {
 		return hasChild.get(p);
 	}
-
-	/**
-	 * When reset is called, a pass is given this many runs, only one of which
-	 * is a win, to discourage passing unless all other moves are awful.
-	 */
-	private static final int INITIAL_PASS_RUNS = 10;
 
 	/**
 	 * Returns true if this node has not yet experienced any playouts (other
