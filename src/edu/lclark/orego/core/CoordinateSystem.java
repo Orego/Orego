@@ -198,7 +198,11 @@ public final class CoordinateSystem {
 	public static String columnToString(int column) {
 		return "" + "ABCDEFGHJKLMNOPQRST".charAt(column);
 	}
-
+	
+	/** Returns a String representation of column c. */
+	public static String columnToStringSgf(int column) {
+		return "" + "abcdefghijklmnopqrs".charAt(column);
+	}
 	/** Returns an array of all the points on the board, for iterating through. */
 	public short[] getAllPointsOnBoard() {
 		return allPointsOnBoard;
@@ -298,6 +302,10 @@ public final class CoordinateSystem {
 	/** Returns a String representation of row r. */
 	public String rowToString(int row) {
 		return "" + (width - row);
+	}
+	
+	public static String rowToStringSgf(int row){
+		return "" + "abcdefghijklmnopqrs".charAt(row);
 	}
 
 }
