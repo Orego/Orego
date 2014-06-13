@@ -41,4 +41,16 @@ public class McPlayer implements Player {
 		return null;
 	}
 
+	@Override
+	public short bestMove() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setMillisecondsPerMove(int milliseconds) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -44,16 +44,23 @@ public class McRunnableTest {
 
 	@Test
 	public void testPlayout() {
-		Board board = runnable.getBoard();
-		String[] before = {
+		String[] blackWins = {
 				".##O.",
 				"..#OO",
 				"###O.",
 				"..#OO",
 				".####",
 		};
-		board.setUpProblem(before, WHITE);
-		assertEquals(BLACK, runnable.playout());
+		player.getBoard().setUpProblem(blackWins, WHITE);
+		String[] whiteWins = {
+				".#O..",
+				".#O.O",
+				"##OOO",
+				".#O.O",
+				".#O..",
+		};
+		runnable.getBoard().setUpProblem(whiteWins, WHITE);
+		assertEquals(BLACK, runnable.performMcRun());
 	}
 
 }

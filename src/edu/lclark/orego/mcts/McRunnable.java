@@ -100,11 +100,13 @@ public class McRunnable implements Runnable {
 	 * Performs a single Monte Carlo run and incorporates it into player's
 	 * search tree. The player should generate moves to the frontier of the
 	 * known tree and then return. The McRunnable performs the actual playout
-	 * beyond the tree.
+	 * beyond the tree, then calls incorporateRun on the player.
+	 * 
+	 * @return The winning color, although this is only used in tests.
 	 */
-	public void performMcRun() {
+	public Color performMcRun() {
+		copyDataFrom(player.getBoard());
 		player.generateMovesToFrontier(this);
-		playoutsCompleted++;
 		Color winner;
 		if (board.getPasses() == 2) {
 			winner = scorer.winner();
@@ -112,6 +114,8 @@ public class McRunnable implements Runnable {
 			winner = playout();
 		}
 		player.incorporateRun(winner, this);
+		playoutsCompleted++;
+		return winner;
 	}
 
 	/**

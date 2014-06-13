@@ -17,4 +17,8 @@ public interface Player {
 
 	public McRunnable getMcRunnable(int i);
 	
+	public short bestMove();
+
+	public void setMillisecondsPerMove(int milliseconds);
+	
 }
