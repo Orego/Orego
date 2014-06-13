@@ -11,7 +11,7 @@ import java.io.*;
 @SuppressWarnings("serial")
 public final class CopiableStructure implements Serializable {
 
-	private Serializable[] contents;
+	private final Serializable[] contents;
 
 	public CopiableStructure(Serializable... contents) {
 		// Passing in a single array would interact strangely with the
@@ -47,7 +47,7 @@ public final class CopiableStructure implements Serializable {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		return null; // Should be unreachable
+		return null; // Unreachable
 	}
 
 	/**

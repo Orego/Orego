@@ -2,7 +2,6 @@ package edu.lclark.orego.feature;
 
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
-import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.*;
 
 /**
@@ -11,6 +10,7 @@ import edu.lclark.orego.core.*;
  * diagonally adjacent enemy stones. It is almost always a bad idea to play in
  * such a point. The point p is assumed to be vacant.
  */
+@SuppressWarnings("serial")
 public final class NotEyeLike implements Predicate {
 
 	private final Board board;

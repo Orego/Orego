@@ -1,6 +1,7 @@
 package edu.lclark.orego.feature;
 
 /** True if both of the features provided to the constructor are true. */
+@SuppressWarnings("serial")
 public final class Conjunction implements Predicate {
 
 	private final Predicate a;

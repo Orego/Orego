@@ -4,6 +4,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.util.ShortSet;
 
 /** Suggests moves that capture enemy stones. */
+@SuppressWarnings("serial")
 public final class CaptureSuggester implements Suggester {
 
 	private final Board board;

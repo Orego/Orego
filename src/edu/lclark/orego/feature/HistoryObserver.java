@@ -9,6 +9,7 @@ import edu.lclark.orego.util.ShortList;
  * Remembers the sequence of moves played on this board (not including initial
  * stones).
  */
+@SuppressWarnings("serial")
 public class HistoryObserver implements BoardObserver {
 
 	private final Board board;

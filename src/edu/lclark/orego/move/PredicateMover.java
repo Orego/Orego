@@ -11,6 +11,7 @@ import ec.util.MersenneTwisterFast;
 /**
  * Makes random moves that satisfy some criterion.
  */
+@SuppressWarnings("serial")
 public final class PredicateMover implements Mover {
 
 	private final Board board;

@@ -6,6 +6,7 @@ import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 /** True if p is "near" another stone, i.e., within a large knight's move. */
+@SuppressWarnings("serial")
 public final class NearAnotherStone implements Predicate {
 
 	/**

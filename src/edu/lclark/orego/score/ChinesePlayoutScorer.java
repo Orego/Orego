@@ -13,6 +13,7 @@ import static edu.lclark.orego.core.NonStoneColor.*;
  * @author drake
  * 
  */
+@SuppressWarnings("serial")
 public class ChinesePlayoutScorer implements Scorer {
 
 	private Board board;

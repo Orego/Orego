@@ -1,12 +1,15 @@
 package edu.lclark.orego.core;
 
+import java.io.Serializable;
+
 /**
  * Set of Zobrist hashes (longs) from previous board positions. This is a hash
  * table, but without all of the overhead of java.util.HashSet. It only supports
  * insertion, search, and copying. Collisions are resolved by linear probing.
  * The special value EMPTY is always considered to be in the table.
  */
-public final class SuperKoTable {
+@SuppressWarnings("serial")
+public final class SuperKoTable implements Serializable {
 
 	/**
 	 * Special value for an empty slot in the table. This number also represents

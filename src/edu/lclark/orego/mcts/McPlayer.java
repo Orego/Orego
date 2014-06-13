@@ -7,6 +7,7 @@ public class McPlayer implements Player {
 
 	private Board board;
 	
+	@Override
 	public Board getBoard() {
 		return board;
 	}

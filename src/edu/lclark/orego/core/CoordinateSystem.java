@@ -1,6 +1,9 @@
 package edu.lclark.orego.core;
 
 import static java.lang.Math.*;
+
+import java.io.Serializable;
+
 import ec.util.MersenneTwisterFast;
 
 /**
@@ -36,7 +39,8 @@ import ec.util.MersenneTwisterFast;
  * On those rare occasions where rows and columns are used, rows are always
  * zero-based from the top, columns from the left.
  */
-public final class CoordinateSystem {
+@SuppressWarnings("serial")
+public final class CoordinateSystem implements Serializable {
 
 	/** Index into an array returned by getNeighbors. */
 	public static final int NORTH_NEIGHBOR = 0;
@@ -288,6 +292,16 @@ public final class CoordinateSystem {
 		} else {
 			return columnToString(column(p)) + rowToString(row(p));
 		}
+	}
+
+	/**
+	 * Used so that serialization, as used in CopiableStructure, does not create
+	 * redundant CoordinateSystems.
+	 * 
+	 * @see edu.lclark.orego.mcts.CopiableStructure
+	 */
+	private Object readResolve() {
+		return forWidth(width);
 	}
 
 	/** Returns the row of point p. */

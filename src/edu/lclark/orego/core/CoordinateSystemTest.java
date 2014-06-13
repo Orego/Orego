@@ -2,8 +2,11 @@ package edu.lclark.orego.core;
 
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import edu.lclark.orego.mcts.CopiableStructure;
 
 public class CoordinateSystemTest {
 
@@ -98,6 +101,14 @@ public class CoordinateSystemTest {
 		assertEquals(c5.at("b1"), neighbors[SOUTH_NEIGHBOR]);
 		assertEquals(c5.at("c2"), neighbors[EAST_NEIGHBOR]);
 		assertEquals(c5.at("a2"), neighbors[WEST_NEIGHBOR]);
+	}
+
+	@Test
+	public void testReadResolve() {
+		// The CopiableStructure constructor requires at least two arguments
+		CopiableStructure stuff = new CopiableStructure(c19, "ignored");
+		CoordinateSystem c19again = stuff.copy().get(CoordinateSystem.class);
+		assertSame(c19, c19again);
 	}
 
 }

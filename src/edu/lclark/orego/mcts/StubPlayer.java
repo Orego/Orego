@@ -15,11 +15,12 @@ public class StubPlayer implements Player {
 	
 	private final ExecutorService executor;
 	
-	public StubPlayer(int width, int threads) {
-		board = new Board(width);
+	public StubPlayer(int threads, CopiableStructure stuff) {
+		CopiableStructure copy = stuff.copy();
+		board = copy.get(Board.class);
 		runnables = new McRunnable[threads];
 		for (int i = 0; i < runnables.length; i++) {
-			runnables[i] = new McRunnable(this);
+			runnables[i] = new McRunnable(this, stuff);
 		}
 		executor = Executors.newFixedThreadPool(threads);
 	}

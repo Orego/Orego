@@ -12,6 +12,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
  * Returns a set of moves that will allow groups to escape from atari by running
  * or merging, not by capturing.
  */
+@SuppressWarnings("serial")
 public final class EscapeSuggester implements Suggester {
 
 	private final Board board;

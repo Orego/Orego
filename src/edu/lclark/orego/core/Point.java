@@ -2,6 +2,9 @@ package edu.lclark.orego.core;
 
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.StoneColor.*;
+
+import java.io.Serializable;
+
 import edu.lclark.orego.util.*;
 
 /**
@@ -17,7 +20,8 @@ import edu.lclark.orego.util.*;
  * @see edu.lclark.orego.core.Board
  * @see edu.lclark.orego.core.CoordinateSystem.
  */
-final class Point {
+@SuppressWarnings("serial")
+final class Point implements Serializable {
 	
 	/** Maximum number of neighbors a point can have. */
 	protected static final int MAX_NEIGHBORS = 4;

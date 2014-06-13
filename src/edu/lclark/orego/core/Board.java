@@ -4,12 +4,16 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
+
+import java.io.Serializable;
+
 import edu.lclark.orego.feature.BoardObserver;
 import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
 import static edu.lclark.orego.core.Point.*;
 
-public final class Board {
+@SuppressWarnings("serial")
+public final class Board implements Serializable {
 
 	/** Stones captured by the last move. */
 	private final ShortList capturedStones;

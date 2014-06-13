@@ -1,8 +1,9 @@
 package edu.lclark.orego.score;
 
+import java.io.Serializable;
 import edu.lclark.orego.core.Color;
 
-public interface Scorer {
+public interface Scorer extends Serializable {
 	
 	
 	/**

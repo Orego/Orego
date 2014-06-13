@@ -1,5 +1,7 @@
 package edu.lclark.orego.util;
 
+import java.io.Serializable;
+
 import edu.lclark.orego.core.CoordinateSystem;
 
 /**
@@ -8,7 +10,8 @@ import edu.lclark.orego.core.CoordinateSystem;
  * space is important, or if the set is fairly dense, BitVector may be
  * preferable.
  */
-public final class ShortSet {
+@SuppressWarnings("serial")
+public final class ShortSet implements Serializable {
 
 	/** data[i] is the ith element of this set. */
 	private final short[] data;

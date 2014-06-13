@@ -4,14 +4,11 @@ import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.feature.*;
-import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import static edu.lclark.orego.core.Legality.*;
 import edu.lclark.orego.move.Mover;
-import edu.lclark.orego.move.MoverFactory;
-import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.Scorer;
 
 /**
@@ -45,14 +42,15 @@ public class McRunnable implements Runnable {
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
-	public McRunnable(Player player) {
-		coords = player.getBoard().getCoordinateSystem();
-		board = new Board(coords.getWidth());
+	public McRunnable(Player player, CopiableStructure stuff) {
+		CopiableStructure copy = stuff.copy();
+		board = copy.get(Board.class);
+		coords = board.getCoordinateSystem();
 		this.player = player;
 		random = new MersenneTwisterFast();
-		this.mover = MoverFactory.feasible(board); // TODO Don't hard-code this
-		scorer = new ChinesePlayoutScorer(board, 7.5); // TODO Don't hard-code this
-		mercyObserver = new StoneCounter(board); // TODO Don't hard-code this
+		mover = copy.get(Mover.class);
+		scorer = copy.get(Scorer.class);
+		mercyObserver = copy.get(StoneCounter.class);
 	}
 
 	/**

@@ -10,6 +10,7 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 /** Tracks all of the chains currently in atari for each color. */
+@SuppressWarnings("serial")
 public final class AtariObserver implements BoardObserver {
 
 	private final Board board;

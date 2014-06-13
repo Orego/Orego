@@ -1,5 +1,7 @@
 package edu.lclark.orego.util;
 
+import java.io.Serializable;
+
 import edu.lclark.orego.core.CoordinateSystem;
 
 /**
@@ -12,7 +14,8 @@ import edu.lclark.orego.core.CoordinateSystem;
  * keys come from a small, finite set, ShortSet or BitVector may be more
  * efficient.
  */
-public final class ShortList {
+@SuppressWarnings("serial")
+public final class ShortList implements Serializable {
 
 	/** List elements. */
 	private final short[] data;
