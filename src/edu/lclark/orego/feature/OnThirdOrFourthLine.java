@@ -23,7 +23,10 @@ public final class OnThirdOrFourthLine implements Predicate {
 	/** True for points on third or fourth line. */
 	private final boolean[] bits;
 
+	private final int width;
+	
 	private OnThirdOrFourthLine(CoordinateSystem coords){
+		width = coords.getWidth();
 		bits = new boolean[coords.getFirstPointBeyondBoard()];
 		for (short p : coords.getAllPointsOnBoard()) {
 			int line = line(p, coords);
@@ -47,6 +50,16 @@ public final class OnThirdOrFourthLine implements Predicate {
 		int c = coords.column(p);
 		c = min(c, coords.getWidth() - c - 1);
 		return 1 + min(r, c);
+	}
+
+	/**
+	 * Used so that serialization, as used in CopiableStructure, does not create
+	 * redundant CoordinateSystems.
+	 * 
+	 * @see edu.lclark.orego.mcts.CopiableStructure
+	 */
+	private Object readResolve() {
+		return forWidth(width);
 	}
 
 }
