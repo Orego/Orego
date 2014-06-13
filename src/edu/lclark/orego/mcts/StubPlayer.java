@@ -72,6 +72,7 @@ public class StubPlayer implements Player {
 			System.exit(1);
 		}
 		keepRunning = false;
+		// TODO We need to tell the executor to shut down at some point
 		return PASS;
 	}
 
