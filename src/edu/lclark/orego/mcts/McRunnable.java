@@ -126,7 +126,7 @@ public class McRunnable implements Runnable {
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				selectAndPlayOneMove(random, board);
+				selectAndPlayOneMove();
 			}
 			if (board.getPasses() >= 2) {
 				// Game ended
@@ -152,7 +152,7 @@ public class McRunnable implements Runnable {
 		}
 	}
 
-	public int selectAndPlayOneMove(MersenneTwisterFast random, Board board) {
+	public short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
 	}
 

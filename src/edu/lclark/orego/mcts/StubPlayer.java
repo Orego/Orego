@@ -6,10 +6,21 @@ import edu.lclark.orego.core.Color;
 /** Mainly for testing McRunnable. */
 public class StubPlayer implements Player {
 
+	private Board board;
+	
+	private McRunnable[] runnables;
+	
+	public StubPlayer(int width, int threads) {
+		board = new Board(width);
+		runnables = new McRunnable[threads];
+		for (int i = 0; i < runnables.length; i++) {
+			runnables[i] = new McRunnable(this);
+		}
+	}
+
 	@Override
 	public Board getBoard() {
-		// TODO Auto-generated method stub
-		return null;
+		return board;
 	}
 
 	@Override
@@ -38,8 +49,7 @@ public class StubPlayer implements Player {
 
 	@Override
 	public McRunnable getMcRunnable(int i) {
-		// TODO Auto-generated method stub
-		return null;
+		return runnables[i];
 	}
 
 }
