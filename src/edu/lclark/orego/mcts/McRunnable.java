@@ -128,7 +128,7 @@ public class McRunnable implements Runnable {
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				selectAndPlayOneMove();
+				selectAndPlayOneMove();				
 			}
 			if (board.getPasses() >= 2) {
 				// Game ended

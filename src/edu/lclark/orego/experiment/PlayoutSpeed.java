@@ -1,10 +1,7 @@
 package edu.lclark.orego.experiment;
 
-import edu.lclark.orego.core.Board;
-import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.mcts.*;
-import edu.lclark.orego.move.MoverFactory;
-import edu.lclark.orego.score.ChinesePlayoutScorer;
+import edu.lclark.orego.move.CopiableStructureFactory;
 
 /** Tests the speed of playouts in one thread. */
 public final class PlayoutSpeed {
@@ -12,14 +9,7 @@ public final class PlayoutSpeed {
 	public static void main(String[] args) {
 		final int milliseconds = 10000;
 		final int threads = 1;
-		Board board = new Board(19);
-		CopiableStructure stuff = new CopiableStructure(
-				board,
-				MoverFactory.feasible(board),
-				new ChinesePlayoutScorer(board, 7.5),
-				new StoneCounter(board)
-				);
-		Player player = new StubPlayer(threads, stuff);
+		Player player = new StubPlayer(threads, CopiableStructureFactory.feasible(19));
 		player.setMillisecondsPerMove(milliseconds);
 		player.bestMove();
 		long runs = 0;

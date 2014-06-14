@@ -1,10 +1,15 @@
 package edu.lclark.orego.experiment;
 
+import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.move.MoverFactory.*;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.AtariObserver;
+import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.Scorer;
@@ -16,44 +21,61 @@ public class PlayoutComparison {
 
 	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
-		MersenneTwisterFast random = new MersenneTwisterFast();
-		Board original = new Board(19);
-		Board copy = new Board(19);
-		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
-		// Movers attached to original ensure that it has the correct observers
-		MoverFactory.capturer(original);
-		MoverFactory.escapeCapturer(original);
-		Mover mover1 = MoverFactory.capturer(copy);
-		Mover mover2 = MoverFactory.escapeCapturer(copy);
+		Board board = new Board(19);
+		AtariObserver atariObserver = new AtariObserver(board);
+		Mover mover1 = capturer(board, atariObserver);
+		Mover mover2 = escapeCapturer(board, atariObserver);
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
-		playGames(random, original, copy, scorer, mover1, mover2, wins);
-		playGames(random, original, copy, scorer, mover2, mover1, wins);
+		Scorer scorer = new ChinesePlayoutScorer(board, 7.5);
+		StoneCounter mercyObserver = new StoneCounter(board);
+		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
+		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
 		System.out.println("Version 1 wins: " + wins.get(mover1));
 		System.out.println("Version 2 wins: " + wins.get(mover2));
 	}
 
 	@SuppressWarnings("boxing")
-	private static void playGames(MersenneTwisterFast random, Board original, Board copy,
-			Scorer scorer, Mover mover1, Mover mover2,
-			Map<Mover, Integer> wins) {	
+	private static void playGames(Mover black, Mover white,
+			Map<Mover, Integer> wins, Board board, Scorer scorer, StoneCounter mercyObserver) {
+		MersenneTwisterFast random = new MersenneTwisterFast();
 		final int runs = 100000;
+		CoordinateSystem coords = board.getCoordinateSystem();
 		for (int run = 0; run < runs; run++) {
-			copy.copyDataFrom(original);
+			board.clear();
+			Color winner = OFF_BOARD;
 			do {
-				if (copy.getColorToPlay() == BLACK) {
-					mover1.selectAndPlayOneMove(random);
-				} else {
-					mover2.selectAndPlayOneMove(random);
+				if (board.getTurn() >= coords.getMaxMovesPerGame()) {
+					// Playout ran out of moves, probably due to superko
+					winner = VACANT;
+					break;
 				}
-			} while (copy.getPasses() < 2);
-			Color winner = scorer.winner();
+				if (board.getPasses() < 2) {
+					if (board.getColorToPlay() == BLACK) {
+						black.selectAndPlayOneMove(random);
+					} else {
+						white.selectAndPlayOneMove(random);
+					}
+				}
+				if (board.getPasses() >= 2) {
+					// Game ended
+					winner = scorer.winner();
+					break;
+				}
+				Color mercyWinner = mercyObserver.mercyWinner();
+				if (mercyWinner != null) {
+					// One player has far more stones on the board
+					winner = mercyWinner;
+					break;
+				}				
+			} while (true);
 			if (winner == BLACK) {
-				wins.put(mover1, wins.get(mover1) + 1);
+				wins.put(black, wins.get(black) + 1);
 			} else if (winner == WHITE) {
-				wins.put(mover2, wins.get(mover2) + 1);
+				wins.put(white, wins.get(white) + 1);
 			}
+			assert winner != OFF_BOARD;
 		}
 	}
 

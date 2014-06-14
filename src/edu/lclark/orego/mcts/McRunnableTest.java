@@ -1,9 +1,6 @@
 package edu.lclark.orego.mcts;
 
-import edu.lclark.orego.core.*;
-import edu.lclark.orego.feature.StoneCounter;
-import edu.lclark.orego.move.MoverFactory;
-import edu.lclark.orego.score.ChinesePlayoutScorer;
+import edu.lclark.orego.move.CopiableStructureFactory;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
@@ -20,12 +17,7 @@ public class McRunnableTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		Board board = new Board(5);
-		CopiableStructure stuff = new CopiableStructure(board,
-				MoverFactory.feasible(board),
-				new ChinesePlayoutScorer(board, 7.5),
-				new StoneCounter(board));
-		player = new StubPlayer(1, stuff);
+		player = new StubPlayer(1, CopiableStructureFactory.feasible(5));
 		player.reset();
 		runnable = player.getMcRunnable(0);
 	}
