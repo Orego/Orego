@@ -1,8 +1,8 @@
-package edu.lclark.orego.move;
+package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.*;
-import edu.lclark.orego.mcts.CopiableStructure;
+import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 
 /** Static methods for creating some particular, widely-used CopiableStructures. */
@@ -12,7 +12,7 @@ public class CopiableStructureFactory {
 	public static CopiableStructure simpleRandom(int width) {
 		Board board = new Board(width);
 		return new CopiableStructure(board, MoverFactory.simpleRandom(board),
-				new ChinesePlayoutScorer(board, 7.5), new StoneCounter(board));
+				new ChinesePlayoutScorer(board, 7.5), new StoneCounter(board), new HistoryObserver(board));
 	}
 
 	/**
@@ -22,7 +22,7 @@ public class CopiableStructureFactory {
 	public static CopiableStructure feasible(int width) {
 		Board board = new Board(width);
 		return new CopiableStructure(board, MoverFactory.feasible(board),
-				new ChinesePlayoutScorer(board, 7.5), new StoneCounter(board));
+				new ChinesePlayoutScorer(board, 7.5), new StoneCounter(board), new HistoryObserver(board));
 	}
 
 	/** Like feasible, but captures when possible. */
@@ -31,7 +31,7 @@ public class CopiableStructureFactory {
 		AtariObserver atariObserver = new AtariObserver(board);
 		return new CopiableStructure(board, MoverFactory.capturer(board,
 				atariObserver), new ChinesePlayoutScorer(board, 7.5),
-				new StoneCounter(board));
+				new StoneCounter(board), new HistoryObserver(board));
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class CopiableStructureFactory {
 		AtariObserver atariObserver = new AtariObserver(board);
 		return new CopiableStructure(board, MoverFactory.escapeCapturer(board,
 				atariObserver), new ChinesePlayoutScorer(board, 7.5),
-				new StoneCounter(board));
+				new StoneCounter(board), new HistoryObserver(board));
 	}
 
 }

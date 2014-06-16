@@ -83,8 +83,9 @@ public final class Player {
 	}
 	
 	/** Clears the board and does anything else necessary to start a new game. */
-	public void reset() {
+	public void clear() {
 		board.clear();
+		runIncorporator.clear();
 	}
 
 	/** Sets the number of milliseconds to allocate per move. */

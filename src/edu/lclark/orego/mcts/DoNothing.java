@@ -6,6 +6,11 @@ import edu.lclark.orego.core.Color;
 public class DoNothing implements RunIncorporator {
 
 	@Override
+	public void clear() {
+		// Does nothing
+	}
+
+	@Override
 	public void incorporateRun(Color winner, McRunnable mcRunnable) {
 		// Does nothing
 	}

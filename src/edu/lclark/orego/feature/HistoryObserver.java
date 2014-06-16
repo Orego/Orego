@@ -48,4 +48,20 @@ public class HistoryObserver implements BoardObserver {
 		history.copyDataFrom(original.history);
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		CoordinateSystem coords = board.getCoordinateSystem();
+		result.append("[");
+		if (history.size() > 0) {
+			result.append(coords.toString(history.get(0)));
+			for (int t = 1; t < history.size(); t++) {
+				result.append(", ");
+				result.append(coords.toString(history.get(t)));
+			}
+		}
+		result.append("]");
+		return result.toString();
+	}
+
 }

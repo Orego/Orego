@@ -20,6 +20,9 @@ public class McRunnable implements Runnable {
 	/** The board on which this McRunnable plays its moves. */
 	private Board board;
 
+	/** Keeps track of moves played. */
+	private HistoryObserver historyObserver;
+	
 	/** The Player that launches the thread wrapped around this McRunnable. */
 	private Player player;
 
@@ -51,6 +54,7 @@ public class McRunnable implements Runnable {
 		mover = copy.get(Mover.class);
 		scorer = copy.get(Scorer.class);
 		mercyObserver = copy.get(StoneCounter.class);
+		historyObserver = copy.get(HistoryObserver.class);
 	}
 
 	/**
@@ -156,6 +160,10 @@ public class McRunnable implements Runnable {
 
 	public short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
+	}
+
+	public HistoryObserver getHistoryObserver() {
+		return historyObserver;
 	}
 
 }

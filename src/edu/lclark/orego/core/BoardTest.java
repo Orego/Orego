@@ -22,7 +22,7 @@ public class BoardTest {
 
 	private CoordinateSystem coords;
 	
-	/** Delegate method to call at on board. */
+	/** Delegate method to call at on coords. */
 	private short at(String label) {
 		return coords.at(label);
 	}

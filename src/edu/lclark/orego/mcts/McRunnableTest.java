@@ -1,6 +1,5 @@
 package edu.lclark.orego.mcts;
 
-import edu.lclark.orego.move.CopiableStructureFactory;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
@@ -18,7 +17,7 @@ public class McRunnableTest {
 	@Before
 	public void setUp() throws Exception {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
-		player.reset();
+		player.clear();
 		runnable = player.getMcRunnable(0);
 	}
 

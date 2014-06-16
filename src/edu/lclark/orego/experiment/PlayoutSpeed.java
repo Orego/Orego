@@ -1,7 +1,6 @@
 package edu.lclark.orego.experiment;
 
 import edu.lclark.orego.mcts.*;
-import edu.lclark.orego.move.CopiableStructureFactory;
 
 /** Tests the speed of playouts in one thread. */
 public final class PlayoutSpeed {
