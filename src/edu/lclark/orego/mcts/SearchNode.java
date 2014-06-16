@@ -1,5 +1,6 @@
 package edu.lclark.orego.mcts;
 
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ListNode;
 import edu.lclark.orego.util.ShortSet;
@@ -16,6 +17,9 @@ public interface SearchNode {
 	/** Returns the win rate of the best move. */
 	public float bestWinRate(CoordinateSystem coords);
 
+	// TODO Comment
+	public String deepToString(Board board, TranspositionTable table, int maxDepth);
+		
 	/**
 	 * Marks move p (e.g., an illegal move) as being horrible, so it will never
 	 * be tried again.
@@ -91,19 +95,13 @@ public interface SearchNode {
 	 * @param winProportion
 	 *            1.0 if this is a winning playout for the player to play at
 	 *            this node, 0.0 otherwise.
-	 * @param moves
-	 *            Sequence of moves made in this playout, including two final
-	 *            passes.
+	 * @param runnable
+	 *            The McRunnable responsible for this run.
 	 * @param t
 	 *            Index of the first move (the one made from this node).
-	 * @param turn
-	 *            Index right after the last move played.
-	 * @param playedPoints
-	 *            For keeping track of points played to avoid counting
-	 *            already-played points.
 	 */
-	public void recordPlayout(float winProportion, short[] moves,
-			int t, int turn, ShortSet playedPoints);
+	public void recordPlayout(float winProportion, McRunnable runnable,
+			int t);
 
 	/**
 	 * Resets this node as a "new" node for the board situation represented by
@@ -122,12 +120,6 @@ public interface SearchNode {
 
 	/** Returns a human-readable representation of this node. */
 	public String toString(CoordinateSystem coords);
-
-	/**
-	 * Returns a human-readable representation of the information stored for
-	 * move p.
-	 */
-	public String toString(short p, CoordinateSystem coords);
 
 	/**
 	 * Update the win rate for p, by adding the specified number of wins and n

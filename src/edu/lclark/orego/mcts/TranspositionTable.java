@@ -57,13 +57,13 @@ final class TranspositionTable {
 	}
 
 	/** Returns the node associated with hash, or null if there is no such node. */
-	synchronized SearchNode findIfPresent(long hash) {
-		int start = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
+	synchronized SearchNode findIfPresent(long fancyHash) {
+		int start = (((int) fancyHash) & IGNORE_SIGN_BIT) % table.length;
 		int slot = start;
 		do {
 			SearchNode n = table[slot];
 			if (n.isInUse()) {
-				if (n.getFancyHash() == hash) {
+				if (n.getFancyHash() == fancyHash) {
 					return n;
 				}
 			} else {
@@ -79,17 +79,17 @@ final class TranspositionTable {
 	 * allocates and returns a new node from the pool. If no nodes are available
 	 * in the pool, returns null.
 	 */
-	synchronized SearchNode findOrAllocate(long hash) {
-		int start = (((int) hash) & IGNORE_SIGN_BIT) % table.length;
+	synchronized SearchNode findOrAllocate(long fancyHash) {
+		int start = (((int) fancyHash) & IGNORE_SIGN_BIT) % table.length;
 		int slot = start;
 		do {
 			SearchNode n = table[slot];
 			if (n.isInUse()) {
-				if (n.getFancyHash() == hash) {
+				if (n.getFancyHash() == fancyHash) {
 					return n;
 				}
 			} else {
-				n.reset(hash, coords);
+				n.reset(fancyHash, coords);
 				return n;
 			}
 			slot = (slot + 1) % table.length;

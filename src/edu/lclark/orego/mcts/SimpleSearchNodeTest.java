@@ -10,10 +10,10 @@ import edu.lclark.orego.util.ShortSet;
 
 public class SimpleSearchNodeTest {
 
-	private SearchNode node;
+	private SimpleSearchNode node;
 
 	private CoordinateSystem coords;
-	
+		
 	/** Delegate method to call at on board. */
 	private short at(String label) {
 		return coords.at(label);

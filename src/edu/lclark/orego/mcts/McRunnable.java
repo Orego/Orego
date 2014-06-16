@@ -20,9 +20,12 @@ public class McRunnable implements Runnable {
 	/** The board on which this McRunnable plays its moves. */
 	private Board board;
 
+	/** @see #getFancyHashes() */
+	private final long[] fancyHashes;
+	
 	/** Keeps track of moves played. */
 	private HistoryObserver historyObserver;
-	
+
 	/** The Player that launches the thread wrapped around this McRunnable. */
 	private Player player;
 
@@ -36,10 +39,10 @@ public class McRunnable implements Runnable {
 
 	/** Determines winners of playouts. */
 	private Scorer scorer;
-	
+
 	/** Counts stones for fast mercy cutoffs of playouts. */
 	private StoneCounter mercyObserver;
-	
+
 	// TODO If this is seeded with the time, do we have to worry about different
 	// McRunnables having identical generators?
 	/** Random number generator. */
@@ -55,6 +58,7 @@ public class McRunnable implements Runnable {
 		scorer = copy.get(Scorer.class);
 		mercyObserver = copy.get(StoneCounter.class);
 		historyObserver = copy.get(HistoryObserver.class);
+		fancyHashes = new long[coords.getMaxMovesPerGame()];
 	}
 
 	/**
@@ -66,6 +70,7 @@ public class McRunnable implements Runnable {
 		Legality legality = board.play(p);
 		assert legality == OK : "Legality " + legality + " for move "
 				+ coords.toString(p) + "\n" + board;
+		fancyHashes[board.getTurn()] = board.getFancyHash();
 	}
 
 	/** Copies data from that (the player's real board) to the local board. */
@@ -132,7 +137,7 @@ public class McRunnable implements Runnable {
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				selectAndPlayOneMove();				
+				selectAndPlayOneMove();
 			}
 			if (board.getPasses() >= 2) {
 				// Game ended
@@ -164,6 +169,15 @@ public class McRunnable implements Runnable {
 
 	public HistoryObserver getHistoryObserver() {
 		return historyObserver;
+	}
+
+	/**
+	 * Returns the sequence of fancy hashes for search nodes visited during this
+	 * run. Only the elements between the real board's turn (inclusive) and this
+	 * McRunnable's turn (exclusive) are valid.
+	 */
+	public long[] getFancyHashes() {
+		return fancyHashes;
 	}
 
 }

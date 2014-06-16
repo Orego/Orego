@@ -1,6 +1,8 @@
 package edu.lclark.orego.mcts;
 
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static java.util.Arrays.*;
 import static java.lang.String.*;
@@ -161,8 +163,44 @@ public final class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public void recordPlayout(float winProportion, short[] moves, int t,
-			int turn, ShortSet playedPoints) {
+	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
+		int turn = runnable.getTurn();
+		HistoryObserver history = runnable.getHistoryObserver();
+		assert t < turn;
+		short move = history.get(t);
+		update(move, 1, winProportion);
+		if (winProportion == 1) {
+			winningMove = move;
+		} else {
+			winningMove = NO_POINT;
+		}		
+	}
+	
+	/**
+	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.
+	 * 
+	 * Increments the counts for a move sequence resulting from a playout.
+	 * 
+	 * NOTE: Since this method is not synchronized, two simultaneous calls on
+	 * the same node might result in a race condition affecting which one sets
+	 * the winningMove field.
+	 * 
+	 * @param winProportion
+	 *            1.0 if this is a winning playout for the player to play at
+	 *            this node, 0.0 otherwise.
+	 * @param moves
+	 *            Sequence of moves made in this playout, including two final
+	 *            passes.
+	 * @param t
+	 *            Index of the first move (the one made from this node).
+	 * @param turn
+	 *            Index right after the last move played.
+	 * @param playedPoints
+	 *            For keeping track of points played to avoid counting
+	 *            already-played points.
+	 */
+	void recordPlayout(float winProportion, short[] moves, int t, int turn, ShortSet playedPoints) {
+		// TODO Is this unnecessarily redundant?
 		assert t < turn;
 		short move = moves[t];
 		update(move, 1, winProportion);
@@ -170,7 +208,7 @@ public final class SimpleSearchNode implements SearchNode {
 			winningMove = move;
 		} else {
 			winningMove = NO_POINT;
-		}
+		}		
 	}
 
 	@Override
@@ -217,13 +255,52 @@ public final class SimpleSearchNode implements SearchNode {
 		return result;
 	}
 
-	@Override
 	@SuppressWarnings("boxing")
-	public String toString(short p, CoordinateSystem coords) {
+	String toString(short p, CoordinateSystem coords) {
 		return format("%s: %7d/%7d (%1.4f)\n", coords.toString(p),
 				(int) getWins(p), runs[p], winRates[p]);
 	}
 
+	public String deepToString(Board board, TranspositionTable table, int maxDepth) {
+		return deepToString(board, table, maxDepth, 0);
+	}
+	
+	String deepToString(Board board, TranspositionTable table, int maxDepth, int depth) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if (maxDepth < depth) {
+			return "";
+		}
+		String indent = "";
+		for (int i = 0; i < depth; i++) {
+			indent += "  ";
+		}
+		String result = indent + "Total runs: "
+				+ getTotalRuns() + "\n";
+		Board childBoard = new Board(coords.getWidth());
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (hasChild(p)) {
+				result += indent + toString(p, coords);
+				childBoard.copyDataFrom(board);
+				childBoard.play(p);
+				SearchNode child = table.findIfPresent(childBoard.getHash());
+				if (child != null) {
+					result += deepToString(childBoard, table, maxDepth, depth + 1);
+				}
+			}
+		}
+		short p = PASS;
+		if (hasChild(p)) {
+			result += indent + toString(p, coords);
+			childBoard.copyDataFrom(board);
+			childBoard.play(p);
+			SearchNode child = table.findIfPresent(childBoard.getHash());
+			if (child != null) {
+				result += deepToString(childBoard, table, maxDepth, depth + 1);
+			}
+		}
+		return result;		
+	}
+	
 	@Override
 	public synchronized void update(short p, int n, float wins) {
 		totalRuns += n;
