@@ -23,14 +23,14 @@ public final class BestRateDescender implements TreeDescender {
 		// Nothing to do; the TreeUpdater clears the table
 	}
 
-	// TODO Should this live in table?
+	// TODO Should this method live in table?
 	/** Returns the root node (creating it if necessary). */
 	private SearchNode getRoot() {
 		return table.findOrAllocate(board.getFancyHash());
 	}
 
 	/** Returns the best move to make from here during a playout. */
-	public static short bestSearchMove(SearchNode node, Board runnableBoard,
+	private static short bestSearchMove(SearchNode node, Board runnableBoard,
 			MersenneTwisterFast random) {
 		short result = node.getWinningMove();
 		if ((result != NO_POINT) && runnableBoard.isLegal(result)) {

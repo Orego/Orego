@@ -300,7 +300,7 @@ public final class SimpleSearchNode implements SearchNode {
 			result += indent + toString(p, coords);
 			childBoard.copyDataFrom(board);
 			childBoard.play(p);
-			SearchNode child = table.findIfPresent(childBoard.getHash());
+			SearchNode child = table.findIfPresent(childBoard.getFancyHash());
 			if (child != null) {
 				result += deepToString(childBoard, table, maxDepth, depth + 1);
 			}
