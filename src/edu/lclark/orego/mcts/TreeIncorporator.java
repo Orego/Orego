@@ -58,7 +58,7 @@ public final class TreeIncorporator implements RunIncorporator {
 	}
 
 	/** Returns the root node (creating it if necessary). */
-	private SearchNode getRoot() {
+	SearchNode getRoot() {
 		return table.findOrAllocate(board.getFancyHash());
 	}
 
