@@ -23,6 +23,14 @@ public final class Player {
 	/** For running playouts. */
 	private final McRunnable[] runnables;
 
+	/** @see RunIncorporator */
+	private RunIncorporator runIncorporator;
+	
+	/** @see RunIncorporator */
+	public void setRunIncorporator(RunIncorporator runIncorporator) {
+		this.runIncorporator = runIncorporator;
+	}
+
 	/**
 	 * @param threads Number of threads to run.
 	 * @param stuff The board and any associated BoardObservers, Mover, etc.
@@ -35,6 +43,7 @@ public final class Player {
 			runnables[i] = new McRunnable(this, stuff);
 		}
 		executor = Executors.newFixedThreadPool(threads);
+		runIncorporator = new DoNothing();
 	}
 
 	/** Runs the McRunnables for some time and then returns the best move. */
@@ -68,8 +77,9 @@ public final class Player {
 		return runnables[i];
 	}
 
+	/** Incorporate the result of a run in the tree. */
 	public void incorporateRun(Color winner, McRunnable mcRunnable) {
-		// TODO Auto-generated method stub
+		runIncorporator.incorporateRun(winner, mcRunnable);
 	}
 	
 	/** Clears the board and does anything else necessary to start a new game. */
