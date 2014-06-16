@@ -17,7 +17,7 @@ public class McRunnableTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		player = new StubPlayer(1, CopiableStructureFactory.feasible(5));
+		player = new Player(1, CopiableStructureFactory.feasible(5));
 		player.reset();
 		runnable = player.getMcRunnable(0);
 	}

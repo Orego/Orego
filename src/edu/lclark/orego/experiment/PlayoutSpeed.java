@@ -9,7 +9,7 @@ public final class PlayoutSpeed {
 	public static void main(String[] args) {
 		final int milliseconds = 10000;
 		final int threads = 1;
-		Player player = new StubPlayer(threads, CopiableStructureFactory.feasible(19));
+		Player player = new Player(threads, CopiableStructureFactory.feasible(19));
 		player.setMillisecondsPerMove(milliseconds);
 		player.bestMove();
 		long runs = 0;
