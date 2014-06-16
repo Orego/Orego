@@ -24,7 +24,7 @@ public class SimpleTreeUpdaterTest {
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
 		simpleTreeUpdater = new SimpleTreeUpdater(player.getBoard(), table);
-		player.setRunIncorporator(simpleTreeUpdater);
+		player.setTreeUpdater(simpleTreeUpdater);
 	}
 
 	@Test

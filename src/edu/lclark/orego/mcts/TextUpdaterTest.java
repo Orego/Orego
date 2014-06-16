@@ -21,7 +21,7 @@ public class TextUpdaterTest {
 	public void setUp() throws Exception {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		textUpdater = new TextUpdater();
-		player.setRunIncorporator(textUpdater);
+		player.setTreeUpdater(textUpdater);
 	}
 
 	@Test
