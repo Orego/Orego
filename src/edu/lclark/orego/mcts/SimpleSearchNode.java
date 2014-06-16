@@ -266,6 +266,11 @@ public final class SimpleSearchNode implements SearchNode {
 		return deepToString(board, table, maxDepth, 0);
 	}
 	
+	/**
+	 * Recursive helper method.
+	 * 
+	 * @see #deepToString(Board, TranspositionTable, int)
+	 */
 	String deepToString(Board board, TranspositionTable table, int maxDepth, int depth) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (maxDepth < depth) {

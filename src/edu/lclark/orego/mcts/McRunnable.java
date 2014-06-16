@@ -18,35 +18,35 @@ import edu.lclark.orego.score.Scorer;
 public class McRunnable implements Runnable {
 
 	/** The board on which this McRunnable plays its moves. */
-	private Board board;
+	private final Board board;
+
+	private final CoordinateSystem coords;
 
 	/** @see #getFancyHashes() */
 	private final long[] fancyHashes;
-	
+
 	/** Keeps track of moves played. */
-	private HistoryObserver historyObserver;
+	private final HistoryObserver historyObserver;
+
+	/** Counts stones for fast mercy cutoffs of playouts. */
+	private final StoneCounter mercyObserver;
+
+	/** Generates moves beyond the tree. */
+	private final Mover mover;
 
 	/** The Player that launches the thread wrapped around this McRunnable. */
-	private Player player;
+	private final Player player;
 
 	/** Number of playouts completed. */
 	private long playoutsCompleted;
-
-	/** Generates moves beyond the tree. */
-	private Mover mover;
-
-	private CoordinateSystem coords;
-
-	/** Determines winners of playouts. */
-	private Scorer scorer;
-
-	/** Counts stones for fast mercy cutoffs of playouts. */
-	private StoneCounter mercyObserver;
 
 	// TODO If this is seeded with the time, do we have to worry about different
 	// McRunnables having identical generators?
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
+
+	/** Determines winners of playouts. */
+	private final Scorer scorer;
 
 	public McRunnable(Player player, CopiableStructure stuff) {
 		CopiableStructure copy = stuff.copy();
@@ -81,6 +81,19 @@ public class McRunnable implements Runnable {
 	/** Returns the board associated with this runnable. */
 	public Board getBoard() {
 		return board;
+	}
+
+	/**
+	 * Returns the sequence of fancy hashes for search nodes visited during this
+	 * run. Only the elements between the real board's turn (inclusive) and this
+	 * McRunnable's turn (exclusive) are valid.
+	 */
+	public long[] getFancyHashes() {
+		return fancyHashes;
+	}
+
+	public HistoryObserver getHistoryObserver() {
+		return historyObserver;
 	}
 
 	/** @return the player associated with this runnable */
@@ -163,21 +176,8 @@ public class McRunnable implements Runnable {
 		}
 	}
 
-	public short selectAndPlayOneMove() {
+	private short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
-	}
-
-	public HistoryObserver getHistoryObserver() {
-		return historyObserver;
-	}
-
-	/**
-	 * Returns the sequence of fancy hashes for search nodes visited during this
-	 * run. Only the elements between the real board's turn (inclusive) and this
-	 * McRunnable's turn (exclusive) are valid.
-	 */
-	public long[] getFancyHashes() {
-		return fancyHashes;
 	}
 
 }

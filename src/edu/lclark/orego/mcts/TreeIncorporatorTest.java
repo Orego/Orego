@@ -3,10 +3,8 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import edu.lclark.orego.core.CoordinateSystem;
 
 public class TreeIncorporatorTest {
@@ -37,19 +35,19 @@ public class TreeIncorporatorTest {
 		runnable.acceptMove(at("a2"));
 		treeIncorporator.incorporateRun(BLACK, runnable);
 		treeIncorporator.clear();
-		assertEquals("Total runs: 60\n", treeIncorporator.toString());
+		assertEquals("Total runs: 60\n", treeIncorporator.toString(5));
 	}
 
 	@Test
 	public void testIncorporateRun() {
-		assertEquals("Total runs: 60\n", treeIncorporator.toString());
+		assertEquals("Total runs: 60\n", treeIncorporator.toString(5));
 		McRunnable runnable = player.getMcRunnable(0);
 		runnable.acceptMove(at("b1"));
 		runnable.acceptMove(at("c4"));
 		runnable.acceptMove(at("a2"));
 		treeIncorporator.incorporateRun(BLACK, runnable);
 		assertEquals("Total runs: 61\nB1:       2/      3 (0.6667)\n  Total runs: 60\n",
-				treeIncorporator.toString());
+				treeIncorporator.toString(5));
 		runnable.copyDataFrom(player.getBoard());
 		runnable.acceptMove(at("e5"));
 		runnable.acceptMove(at("d2"));
@@ -57,7 +55,7 @@ public class TreeIncorporatorTest {
 		treeIncorporator.incorporateRun(WHITE, runnable);
 		assertEquals(
 				"Total runs: 62\nE5:       1/      3 (0.3333)\n  Total runs: 60\nB1:       2/      3 (0.6667)\n  Total runs: 60\n",
-				treeIncorporator.toString());
+				treeIncorporator.toString(5));
 		runnable.copyDataFrom(player.getBoard());
 		runnable.acceptMove(at("e5"));
 		runnable.acceptMove(at("c3"));
@@ -65,7 +63,7 @@ public class TreeIncorporatorTest {
 		treeIncorporator.incorporateRun(WHITE, runnable);
 		assertEquals(
 				"Total runs: 63\nE5:       1/      4 (0.2500)\n  Total runs: 61\n  C3:       2/      3 (0.6667)\n    Total runs: 60\nB1:       2/      3 (0.6667)\n  Total runs: 60\n",
-				treeIncorporator.toString());
+				treeIncorporator.toString(5));
 	}
 
 }

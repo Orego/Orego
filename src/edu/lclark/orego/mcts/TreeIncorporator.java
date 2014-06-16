@@ -6,7 +6,7 @@ import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 /** Incorporates moves into a MC search tree. */
-public class TreeIncorporator implements RunIncorporator {
+public final class TreeIncorporator implements RunIncorporator {
 
 	private final TranspositionTable table;
 	
@@ -62,10 +62,9 @@ public class TreeIncorporator implements RunIncorporator {
 		return table.findOrAllocate(board.getFancyHash());
 	}
 
-	@Override
-	public String toString() {
-		// TODO Eek! Magic number!
-		return getRoot().deepToString(board, table, 5);
+	/** Returns a human-readable representation of the tree, up to maxDepth. */
+	public String toString(int maxDepth) {
+		return getRoot().deepToString(board, table, maxDepth);
 	}
 
 }

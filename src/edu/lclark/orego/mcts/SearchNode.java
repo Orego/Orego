@@ -3,7 +3,6 @@ package edu.lclark.orego.mcts;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ListNode;
-import edu.lclark.orego.util.ShortSet;
 
 /** A node in the search "tree". */
 public interface SearchNode {
@@ -17,9 +16,13 @@ public interface SearchNode {
 	/** Returns the win rate of the best move. */
 	public float bestWinRate(CoordinateSystem coords);
 
-	// TODO Comment
-	public String deepToString(Board board, TranspositionTable table, int maxDepth);
-		
+	/**
+	 * Returns a human-readable representation of the subtree rooted at this
+	 * node, up to max depth.
+	 */
+	public String deepToString(Board board, TranspositionTable table,
+			int maxDepth);
+
 	/**
 	 * Marks move p (e.g., an illegal move) as being horrible, so it will never
 	 * be tried again.
@@ -71,7 +74,10 @@ public interface SearchNode {
 	 */
 	public boolean isFresh(CoordinateSystem coords);
 
-	/** Returns true if this node is in use (i.e., has been reset since the last time it was freed). */
+	/**
+	 * Returns true if this node is in use (i.e., has been reset since the last
+	 * time it was freed).
+	 */
 	public boolean isInUse();
 
 	/**
@@ -100,8 +106,7 @@ public interface SearchNode {
 	 * @param t
 	 *            Index of the first move (the one made from this node).
 	 */
-	public void recordPlayout(float winProportion, McRunnable runnable,
-			int t);
+	public void recordPlayout(float winProportion, McRunnable runnable, int t);
 
 	/**
 	 * Resets this node as a "new" node for the board situation represented by
@@ -122,8 +127,8 @@ public interface SearchNode {
 	public String toString(CoordinateSystem coords);
 
 	/**
-	 * Update the win rate for p, by adding the specified number of wins and n
-	 * runs. Also updates the counts of total runs and runs.
+	 * Update the win rate for p, by adding n runs and the specified number of
+	 * wins. Also updates the counts of total runs and runs.
 	 */
 	public void update(short p, int n, float wins);
 

@@ -20,17 +20,12 @@ public final class Player {
 	/** Number of milliseconds to spend on the next move. */
 	private int millisecondsPerMove;
 
-	/** For running playouts. */
-	private final McRunnable[] runnables;
-
 	/** @see RunIncorporator */
 	private RunIncorporator runIncorporator;
-	
-	/** @see RunIncorporator */
-	public void setRunIncorporator(RunIncorporator runIncorporator) {
-		this.runIncorporator = runIncorporator;
-	}
 
+	/** For running playouts. */
+	private final McRunnable[] runnables;
+	
 	/**
 	 * @param threads Number of threads to run.
 	 * @param stuff The board and any associated BoardObservers, Mover, etc.
@@ -62,6 +57,12 @@ public final class Player {
 		return PASS;
 	}
 
+	/** Clears the board and does anything else necessary to start a new game. */
+	public void clear() {
+		board.clear();
+		runIncorporator.clear();
+	}
+
 	/** Play any moves within the tree (or other structure). */
 	public void generateMovesToFrontier(McRunnable mcRunnable) {
 		// TODO Auto-generated method stub
@@ -82,15 +83,14 @@ public final class Player {
 		runIncorporator.incorporateRun(winner, mcRunnable);
 	}
 	
-	/** Clears the board and does anything else necessary to start a new game. */
-	public void clear() {
-		board.clear();
-		runIncorporator.clear();
-	}
-
 	/** Sets the number of milliseconds to allocate per move. */
 	public void setMillisecondsPerMove(int milliseconds) {
 		millisecondsPerMove = milliseconds;
+	}
+
+	/** @see RunIncorporator */
+	public void setRunIncorporator(RunIncorporator runIncorporator) {
+		this.runIncorporator = runIncorporator;
 	}
 	
 	/** True if McRunnables attached to this Player should keep running. */
