@@ -17,11 +17,14 @@ public final class Player {
 	/** True if the threads should keep running, e.g., because time has not run out. */
 	private boolean keepRunning;
 	
+	/** @see TreeDescender */
+	private final TreeDescender generator;
+	
 	/** Number of milliseconds to spend on the next move. */
 	private int millisecondsPerMove;
 
-	/** @see RunIncorporator */
-	private RunIncorporator runIncorporator;
+	/** @see TreeUpdater */
+	private TreeUpdater runIncorporator;
 
 	/** For running playouts. */
 	private final McRunnable[] runnables;
@@ -39,6 +42,7 @@ public final class Player {
 		}
 		executor = Executors.newFixedThreadPool(threads);
 		runIncorporator = new DoNothing();
+		generator = new DoNothing();
 	}
 
 	/** Runs the McRunnables for some time and then returns the best move. */
@@ -64,8 +68,8 @@ public final class Player {
 	}
 
 	/** Play any moves within the tree (or other structure). */
-	public void generateMovesToFrontier(McRunnable mcRunnable) {
-		// TODO Auto-generated method stub
+	public void descend(McRunnable runnable) {
+		generator.descend(runnable);
 	}
 
 	/** Returns the board associated with this player. */
@@ -79,8 +83,8 @@ public final class Player {
 	}
 
 	/** Incorporate the result of a run in the tree. */
-	public void incorporateRun(Color winner, McRunnable mcRunnable) {
-		runIncorporator.incorporateRun(winner, mcRunnable);
+	public void updateTree(Color winner, McRunnable mcRunnable) {
+		runIncorporator.updateTree(winner, mcRunnable);
 	}
 	
 	/** Sets the number of milliseconds to allocate per move. */
@@ -88,8 +92,8 @@ public final class Player {
 		millisecondsPerMove = milliseconds;
 	}
 
-	/** @see RunIncorporator */
-	public void setRunIncorporator(RunIncorporator runIncorporator) {
+	/** @see TreeUpdater */
+	public void setRunIncorporator(TreeUpdater runIncorporator) {
 		this.runIncorporator = runIncorporator;
 	}
 	

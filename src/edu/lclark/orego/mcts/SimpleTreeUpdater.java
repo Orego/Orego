@@ -5,14 +5,14 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
-/** Incorporates moves into a MC search tree. */
-public final class TreeIncorporator implements RunIncorporator {
+/** Updates the tree with the results of runs. */
+public final class SimpleTreeUpdater implements TreeUpdater {
 
 	private final TranspositionTable table;
 	
 	private final Board board;
 	
-	public TreeIncorporator(Board board, TranspositionTable table) {
+	public SimpleTreeUpdater(Board board, TranspositionTable table) {
 		this.board = board;
 		this.table = table;
 	}
@@ -23,7 +23,7 @@ public final class TreeIncorporator implements RunIncorporator {
 	}
 
 	@Override
-	public void incorporateRun(Color winner, McRunnable runnable) {
+	public void updateTree(Color winner, McRunnable runnable) {
 		int turn = runnable.getTurn();
 		SearchNode node = getRoot();
 		HistoryObserver history = runnable.getHistoryObserver();
