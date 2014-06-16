@@ -212,7 +212,7 @@ public final class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public void reset(@SuppressWarnings("hiding") long fancyHash, CoordinateSystem coords) {
+	public void clear(@SuppressWarnings("hiding") long fancyHash, CoordinateSystem coords) {
 		this.fancyHash = fancyHash;
 		totalRuns = 2 * coords.getArea() + INITIAL_PASS_RUNS;
 		fill(runs, 2);
@@ -261,6 +261,7 @@ public final class SimpleSearchNode implements SearchNode {
 				(int) getWins(p), runs[p], winRates[p]);
 	}
 
+	@Override
 	public String deepToString(Board board, TranspositionTable table, int maxDepth) {
 		return deepToString(board, table, maxDepth, 0);
 	}
@@ -282,9 +283,10 @@ public final class SimpleSearchNode implements SearchNode {
 				result += indent + toString(p, coords);
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
-				SearchNode child = table.findIfPresent(childBoard.getHash());
+				// TODO Ugly cast
+				SimpleSearchNode child = (SimpleSearchNode)table.findIfPresent(childBoard.getFancyHash());
 				if (child != null) {
-					result += deepToString(childBoard, table, maxDepth, depth + 1);
+					result += child.deepToString(childBoard, table, maxDepth, depth + 1);
 				}
 			}
 		}

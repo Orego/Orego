@@ -58,7 +58,7 @@ public class McRunnable implements Runnable {
 		scorer = copy.get(Scorer.class);
 		mercyObserver = copy.get(StoneCounter.class);
 		historyObserver = copy.get(HistoryObserver.class);
-		fancyHashes = new long[coords.getMaxMovesPerGame()];
+		fancyHashes = new long[coords.getMaxMovesPerGame() + 1];
 	}
 
 	/**

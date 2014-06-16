@@ -2,7 +2,6 @@ package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
@@ -13,15 +12,14 @@ public class TreeIncorporator implements RunIncorporator {
 	
 	private final Board board;
 	
-	public TreeIncorporator(SearchNodeBuilder builder, Board board) {
+	public TreeIncorporator(Board board, TranspositionTable table) {
 		this.board = board;
-		table = new TranspositionTable(builder, board.getCoordinateSystem());
+		this.table = table;
 	}
 
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-		
+		table.sweep();
 	}
 
 	@Override
@@ -47,7 +45,6 @@ public class TreeIncorporator implements RunIncorporator {
 						if (child == null) {
 							return; // Table is full
 						}
-						System.out.println("Creating child");
 						node.setHasChild(p);
 						table.addChild(node, child);
 						// TODO Update priors if child is fresh

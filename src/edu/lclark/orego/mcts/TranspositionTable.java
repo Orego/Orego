@@ -89,7 +89,7 @@ final class TranspositionTable {
 					return n;
 				}
 			} else {
-				n.reset(fancyHash, coords);
+				n.clear(fancyHash, coords);
 				return n;
 			}
 			slot = (slot + 1) % table.length;

@@ -23,7 +23,7 @@ public class SimpleSearchNodeTest {
 	public void setUp() throws Exception {
 		coords = CoordinateSystem.forWidth(19);
 		node = new SimpleSearchNode(coords);
-		node.reset(0L, coords);
+		node.clear(0L, coords);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class SimpleSearchNodeTest {
 
 	@Test
 	public void testInitialWins() {
-		node.reset(0L, coords);
+		node.clear(0L, coords);
 		assertEquals(1, node.getWins(at("h10")), 0.001);
 		assertEquals(2, node.getRuns(at("h10")));
 	}
@@ -89,7 +89,7 @@ public class SimpleSearchNodeTest {
 
 	@Test
 	public void testTieUpdate() {
-		node.reset(0L, coords);
+		node.clear(0L, coords);
 		node.recordPlayout((float) 0.5, new short[] { at("a1") }, 0, 1, new ShortSet(
 				coords.getFirstPointBeyondBoard()));
 		assertEquals(3, node.getRuns(at("a1")));
@@ -102,7 +102,7 @@ public class SimpleSearchNodeTest {
 		assertTrue(node.isInUse());
 		node.free();
 		assertFalse(node.isInUse());
-		node.reset(23L, coords);
+		node.clear(23L, coords);
 		assertTrue(node.isInUse());		
 	}
 

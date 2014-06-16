@@ -107,7 +107,7 @@ public interface SearchNode {
 	 * Resets this node as a "new" node for the board situation represented by
 	 * boardHash.
 	 */
-	public void reset(long fancyHash, CoordinateSystem coords);
+	public void clear(long fancyHash, CoordinateSystem coords);
 
 	/** Sets the child list for this node. */
 	public void setChildren(ListNode<SearchNode> children);
