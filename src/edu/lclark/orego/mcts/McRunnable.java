@@ -40,8 +40,6 @@ public final class McRunnable implements Runnable {
 	/** Number of playouts completed. */
 	private long playoutsCompleted;
 
-	// TODO If this is seeded with the time, do we have to worry about different
-	// McRunnables having identical generators?
 	/** Random number generator. */
 	private final MersenneTwisterFast random;
 
