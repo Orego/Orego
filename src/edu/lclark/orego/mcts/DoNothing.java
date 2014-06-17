@@ -20,4 +20,10 @@ public class DoNothing implements TreeDescender, TreeUpdater {
 		// Does nothing
 	}
 
+	@Override
+	public short bestPlayMove() {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
 }

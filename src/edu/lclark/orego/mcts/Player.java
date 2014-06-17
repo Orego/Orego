@@ -47,6 +47,13 @@ public final class Player {
 
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
+		runThreads();
+		return descender.bestPlayMove();
+	}
+
+	// TODO Divide this into startThreads and stopThreads for pondering
+	/** Runs the threads. */
+	private void runThreads() {
 		keepRunning = true;
 		for (int i = 0; i < runnables.length; i++) {
 			executor.execute(runnables[i]);
@@ -58,7 +65,6 @@ public final class Player {
 			System.exit(1);
 		}
 		keepRunning = false;
-		return PASS;
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
@@ -105,6 +111,11 @@ public final class Player {
 	/** True if McRunnables attached to this Player should keep running. */
 	boolean shouldKeepRunning() {
 		return keepRunning;
+	}
+
+	@Override
+	public String toString() {
+		return descender.toString();
 	}
 
 }
