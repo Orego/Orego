@@ -31,7 +31,7 @@ public class PlayerTest {
 		player = new Player(threads, CopiableStructureFactory.feasible(5));
 		Board board = player.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
+		TranspositionTable table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(coords), coords);
 		player.setTreeDescender(new UctDescender(board, table));
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
