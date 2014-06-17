@@ -9,7 +9,7 @@ public final class PlayoutSpeed {
 
 	public static void main(String[] args) {
 		final int milliseconds = 10000;
-		final int threads = 4;
+		final int threads = 1;
 		Player player = new Player(threads, CopiableStructureFactory.feasible(19));
 		Board board = player.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
