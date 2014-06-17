@@ -64,11 +64,11 @@ public class TreeVisualizer extends JFrame {
 		add(draw, BorderLayout.NORTH);
 
 		gui = new JPanel();
-		gui.setLayout(new BorderLayout());
+		gui.setLayout(new GridLayout(1, 3));
 		add(gui, BorderLayout.SOUTH);
 
 		JPanel infoPanel = new JPanel(new GridLayout(3, 1));
-		gui.add(infoPanel, BorderLayout.EAST);
+		
 		infoPanel.setBackground(Color.WHITE);
 
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "descend");
@@ -142,7 +142,25 @@ public class TreeVisualizer extends JFrame {
 				repaint();
 			}
 		});
-		gui.add(performRun, BorderLayout.WEST);
+		gui.add(performRun);
+		
+		JButton perform100Runs = new JButton("Perform 100 Runs");
+		perform100Runs.setFocusable(false);
+		perform100Runs.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for(int i = 0; i<100; i++){
+					player.getMcRunnable(0).performMcRun();
+				}
+				buildTree();
+				updateLabels();
+				repaint();
+			}
+		});
+		gui.add(perform100Runs);
+		
+		gui.add(infoPanel);
 
 		revalidate();
 		repaint();
@@ -228,7 +246,7 @@ public class TreeVisualizer extends JFrame {
 		}
 
 		private void drawNode(Graphics g, int x, int y, TreeNode node) {
-			int diameter = 3 * (int)Math.log(node.getRuns());
+			int diameter = 3 * (int)((Math.log(node.getRuns()))/(Math.log(2)));
 			x = x - (diameter / 2);
 			y = y - (diameter / 2);
 			g.setColor(new Color(node.getWinRate(), node.getWinRate(), node.getWinRate()));
