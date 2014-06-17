@@ -75,4 +75,19 @@ public class EscapeSuggesterTest {
 		board.play(at("a3"));
 		assertTrue(movesToEscape.getMoves().contains(at("e2")));
 	}
+
+	@Test
+	public void testMultipleMerge() {
+		String[] diagram = {
+				"OO.OO",
+				".#O#.",
+				".#O#.",
+				"..#..",
+				".....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		assertTrue(movesToEscape.getMoves().contains(at("c5")));
+		assertEquals(1, movesToEscape.getMoves().size());
+	}
+
 }

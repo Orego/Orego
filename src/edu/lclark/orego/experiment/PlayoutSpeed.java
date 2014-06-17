@@ -21,12 +21,11 @@ public final class PlayoutSpeed {
 		StoneCounter mercyObserver = new StoneCounter(copy);
 		Scorer scorer = new ChinesePlayoutScorer(copy, 7.5);
 		// The first mover is created only to make any BoardObservers
-		MoverFactory.houdini(original);
-		Mover mover = MoverFactory.houdini(copy);
+		MoverFactory.escapeCapturer(original);
+		Mover mover = MoverFactory.escapeCapturer(copy);
 		final int runs = 100000;
 		long total = 0;
 		int[] wins = new int[3];
-		int avgPlayoutLength = 0;
 		int playoutLength = 0;
 		for (int run = 0; run < runs; run++) {
 			long before = System.nanoTime();
@@ -39,12 +38,11 @@ public final class PlayoutSpeed {
 			long after = System.nanoTime();
 			total += (after - before);
 		}
-		avgPlayoutLength = (playoutLength / 100000);
 		System.out.println((runs / 1000.0) / (total / 1000000000.0) + " kpps");
 		System.out.println("Black wins: " + wins[BLACK.index()]);
 		System.out.println("White wins: " + wins[WHITE.index()]);
 		System.out.println("Ties: " + wins[VACANT.index()]);
-		System.out.println("Average playout length: " + avgPlayoutLength);
+		System.out.println("Average playout length: " + playoutLength / runs);
 	}
 
 }

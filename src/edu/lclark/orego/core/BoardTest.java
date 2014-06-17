@@ -5,13 +5,16 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.util.TestingTools.*;
 import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.move.PredicateMover;
+import edu.lclark.orego.util.ShortSet;
 
 public class BoardTest {
 
@@ -356,6 +359,29 @@ public class BoardTest {
 		assertTrue(board.hasMaxNeighborsForColor(WHITE, at("c2")));
 		assertFalse(board.hasMaxNeighborsForColor(BLACK, at("b5")));
 		assertFalse(board.hasMaxNeighborsForColor(WHITE, at("b2")));
+	}
+
+	@Test
+	public void testGetChainNextPoint() {
+		String[] diagram = {
+				".....",
+				".....",
+				"#....",
+				"#....",
+				"#....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		ShortSet stones = new ShortSet(coords.getFirstPointBeyondBoard());
+		short p = at("a1");
+		short q = p;
+		do {
+			stones.add(q);
+			q = board.getChainNextPoint(q);
+		} while (q != p);
+		assertEquals(3, stones.size());
+		assertTrue(stones.contains(at("a1")));
+		assertTrue(stones.contains(at("a2")));
+		assertTrue(stones.contains(at("a3")));
 	}
 
 }
