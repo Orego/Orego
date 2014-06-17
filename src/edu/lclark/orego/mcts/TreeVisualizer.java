@@ -40,7 +40,7 @@ public class TreeVisualizer extends JFrame {
 	public TreeVisualizer() {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		board = player.getBoard();
-		table = new TranspositionTable(new SimpleSearchNodeBuilder(board.getCoordinateSystem()),
+		table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(board.getCoordinateSystem()),
 				board.getCoordinateSystem());
 		updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
@@ -228,7 +228,7 @@ public class TreeVisualizer extends JFrame {
 		}
 
 		private void drawNode(Graphics g, int x, int y, TreeNode node) {
-			int diameter = node.getRuns();
+			int diameter = 3 * (int)Math.log(node.getRuns());
 			x = x - (diameter / 2);
 			y = y - (diameter / 2);
 			g.setColor(new Color(node.getWinRate(), node.getWinRate(), node.getWinRate()));
