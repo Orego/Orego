@@ -30,6 +30,7 @@ public class TreeVisualizer extends JFrame{
 		table = new TranspositionTable(new SimpleSearchNodeBuilder(board.getCoordinateSystem()), board.getCoordinateSystem());
 		updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
+		player.setTreeDescender(new UctDescender(board, table));
 		Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		setSize((int)(dimension.getWidth()*.85), (int)(dimension.getHeight()*.85));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,22 +38,9 @@ public class TreeVisualizer extends JFrame{
 	}
 	
 	private void run() {
-		player.getMcRunnable(0).performMcRun();
-		player.getMcRunnable(0).performMcRun();
-		player.getMcRunnable(0).performMcRun();
-		
-		
-//		McRunnable mcRunnable = player.getMcRunnable(0);
-//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("a3"));
-//		player.incorporateRun(WHITE, player.getMcRunnable(0));
-//		mcRunnable.copyDataFrom(board);
-//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d4"));
-//		player.incorporateRun(BLACK, player.getMcRunnable(0));
-//		mcRunnable.copyDataFrom(board);
-//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d3"));
-//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d5"));
-//		player.incorporateRun(BLACK, player.getMcRunnable(0));
-//		System.out.println(treeIncorporator.getRoot().deepToString(board, table, 5));
+		for(int i =0; i<100; i++){
+			player.getMcRunnable(0).performMcRun();
+		}
 		repaint();
 	}
 	
@@ -71,19 +59,25 @@ public class TreeVisualizer extends JFrame{
 		g.fillOval(x, y, diameter, diameter);
 		g.setColor(Color.BLACK);
 		g.drawOval(x, y, diameter, diameter);
-		drawLevel(g, node, x, y, this.getWidth());
+		drawLevel(g, node, x, y, this.getWidth(), 0, 5);
 	}
 	
-	public void drawLevel(Graphics g, SearchNode parent, int x, int y, int width){
+	public void drawLevel(Graphics g, SearchNode parent, int x, int y, int width, int depth, int maxDepth){
+		if(maxDepth==depth){
+			return;
+		}
 		System.out.println("loop?");
 		ListNode<SearchNode> children = parent.getChildren();
+		System.out.println(children);
 		if(children == null){
 			return;
 		}
+		System.out.println("Children is not null");
 		int size = 1;
 		ListNode<SearchNode> loopChild = children.getNext();
 		while(loopChild!=null){
-			loopChild=children.getNext();
+			loopChild=loopChild.getNext();
+			System.out.println("LoopChild = " + loopChild);
 			size++;
 		}
 		x = x-(width/2);
@@ -105,7 +99,7 @@ public class TreeVisualizer extends JFrame{
 				// TODO Ugly cast
 				SimpleSearchNode child = (SimpleSearchNode)table.findIfPresent(childBoard.getFancyHash());
 				if (child != null) {
-					drawLevel(g, child, x + (newWidth/2) + (i*newWidth), y + 100, newWidth);
+					drawLevel(g, child, x + (newWidth/2) + (i*newWidth), y + 100, newWidth, depth+1, maxDepth);
 				}
 				i++;
 			}
@@ -122,7 +116,7 @@ public class TreeVisualizer extends JFrame{
 			childBoard.play(p);
 			SimpleSearchNode child = (SimpleSearchNode)table.findIfPresent(childBoard.getFancyHash());
 			if (child != null) {
-				drawLevel(g, child, x + (newWidth/2) + (i*newWidth), y + 100, newWidth);
+				drawLevel(g, child, x + (newWidth/2) + (i*newWidth), y + 100, newWidth, depth+1, maxDepth);
 			}
 		}
 	}
