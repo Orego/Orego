@@ -5,7 +5,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.*;
 
 /** A hash table of nodes representing board configurations. */
-final class TranspositionTable {
+public final class TranspositionTable {
 
 	/** ListNodes used to build child lists for SearchNodes. */
 	private final Pool<ListNode<SearchNode>> listNodes;
@@ -15,7 +15,7 @@ final class TranspositionTable {
 
 	private final CoordinateSystem coords;
 
-	TranspositionTable(int size, SearchNodeBuilder builder,
+	public TranspositionTable(int size, SearchNodeBuilder builder,
 			CoordinateSystem coords) {
 		table = new SearchNode[size];
 		for (int i = 0; i < size; i++) {
@@ -28,7 +28,7 @@ final class TranspositionTable {
 		this.coords = coords;
 	}
 
-	TranspositionTable(SearchNodeBuilder builder, CoordinateSystem coords) {
+	public TranspositionTable(SearchNodeBuilder builder, CoordinateSystem coords) {
 		/**
 		 * The calculation here is for the number of nodes to allocate in
 		 * general
@@ -48,7 +48,7 @@ final class TranspositionTable {
 	 * Slow -- for testing only. Returns the number of nodes reachable from the
 	 * root.
 	 */
-	int dagSize(SearchNode root) {
+	public int dagSize(SearchNode root) {
 		int result = markNodesReachableFrom(root);
 		for (int i = 0; i < table.length; i++) {
 			table[i].setMarked(false);

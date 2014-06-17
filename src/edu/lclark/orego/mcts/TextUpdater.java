@@ -2,12 +2,12 @@ package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.Color;
 
-/** Simple example of a RunIncorporator. */
-public final class TextIncorporator implements RunIncorporator {
+/** Stores runs as human-readable text. */
+public final class TextUpdater implements TreeUpdater {
 
 	private final StringBuilder data;
 	
-	public TextIncorporator() {
+	public TextUpdater() {
 		data = new StringBuilder();
 	}
 
@@ -17,7 +17,7 @@ public final class TextIncorporator implements RunIncorporator {
 	}
 
 	@Override
-	public void incorporateRun(Color winner, McRunnable mcRunnable) {
+	public void updateTree(Color winner, McRunnable mcRunnable) {
 		data.append(winner + ": ");
 		data.append(mcRunnable.getHistoryObserver().toString() + "\n");
 	}

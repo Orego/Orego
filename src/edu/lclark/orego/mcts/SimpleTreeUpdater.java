@@ -5,14 +5,14 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
-/** Incorporates moves into a MC search tree. */
-public final class TreeIncorporator implements RunIncorporator {
+/** Updates the tree with the results of runs. */
+public final class SimpleTreeUpdater implements TreeUpdater {
 
 	private final TranspositionTable table;
 
 	private final Board board;
-
-	public TreeIncorporator(Board board, TranspositionTable table) {
+	
+	public SimpleTreeUpdater(Board board, TranspositionTable table) {
 		this.board = board;
 		this.table = table;
 	}
@@ -22,19 +22,24 @@ public final class TreeIncorporator implements RunIncorporator {
 		table.sweep();
 	}
 
+	/** For testing. Returns the table. */
+	TranspositionTable getTable() {
+		return table;
+	}
+
 	@Override
-	public void incorporateRun(Color winner, McRunnable runnable) {
+	public void updateTree(Color winner, McRunnable runnable) {
 		int turn = runnable.getTurn();
 		SearchNode node = getRoot();
 		HistoryObserver history = runnable.getHistoryObserver();
-		long[] hashes = runnable.getFancyHashes();
+		long[] fancyHashes = runnable.getFancyHashes();
 		float winProportion = (winner == board.getColorToPlay()) ? 1 : 0;
 		if (winner == VACANT) {
 			winProportion = 0.5f;
 		}
 		for (int t = board.getTurn(); t < turn; t++) {
 			node.recordPlayout(winProportion, runnable, t);
-			long fancyHash = hashes[t + 1];
+			long fancyHash = fancyHashes[t + 1];
 			SearchNode child = table.findIfPresent(fancyHash);
 
 			if (child == null) {
@@ -65,7 +70,7 @@ public final class TreeIncorporator implements RunIncorporator {
 	}
 
 	/** Returns the root node (creating it if necessary). */
-	SearchNode getRoot() {
+	public SearchNode getRoot() {
 		return table.findOrAllocate(board.getFancyHash());
 	}
 

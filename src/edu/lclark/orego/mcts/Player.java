@@ -17,11 +17,14 @@ public final class Player {
 	/** True if the threads should keep running, e.g., because time has not run out. */
 	private boolean keepRunning;
 	
+	/** @see TreeDescender */
+	private TreeDescender descender;
+	
 	/** Number of milliseconds to spend on the next move. */
 	private int millisecondsPerMove;
 
-	/** @see RunIncorporator */
-	private RunIncorporator runIncorporator;
+	/** @see TreeUpdater */
+	private TreeUpdater updater;
 
 	/** For running playouts. */
 	private final McRunnable[] runnables;
@@ -38,7 +41,8 @@ public final class Player {
 			runnables[i] = new McRunnable(this, stuff);
 		}
 		executor = Executors.newFixedThreadPool(threads);
-		runIncorporator = new DoNothing();
+		descender = new DoNothing();
+		updater = new DoNothing();
 	}
 
 	/** Runs the McRunnables for some time and then returns the best move. */
@@ -60,12 +64,13 @@ public final class Player {
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void clear() {
 		board.clear();
-		runIncorporator.clear();
+		descender.clear();
+		updater.clear();
 	}
 
 	/** Play any moves within the tree (or other structure). */
-	public void generateMovesToFrontier(McRunnable mcRunnable) {
-		// TODO Auto-generated method stub
+	public void descend(McRunnable runnable) {
+		descender.descend(runnable);
 	}
 
 	/** Returns the board associated with this player. */
@@ -79,8 +84,8 @@ public final class Player {
 	}
 
 	/** Incorporate the result of a run in the tree. */
-	public void incorporateRun(Color winner, McRunnable mcRunnable) {
-		runIncorporator.incorporateRun(winner, mcRunnable);
+	public void updateTree(Color winner, McRunnable mcRunnable) {
+		updater.updateTree(winner, mcRunnable);
 	}
 	
 	/** Sets the number of milliseconds to allocate per move. */
@@ -88,9 +93,13 @@ public final class Player {
 		millisecondsPerMove = milliseconds;
 	}
 
-	/** @see RunIncorporator */
-	public void setRunIncorporator(RunIncorporator runIncorporator) {
-		this.runIncorporator = runIncorporator;
+	public void setTreeDescender(TreeDescender descender) {
+		this.descender = descender;
+		
+	}
+	/** @see TreeUpdater */
+	public void setTreeUpdater(TreeUpdater updater) {
+		this.updater = updater;
 	}
 	
 	/** True if McRunnables attached to this Player should keep running. */

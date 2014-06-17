@@ -76,6 +76,7 @@ public class McRunnable implements Runnable {
 	/** Copies data from that (the player's real board) to the local board. */
 	public void copyDataFrom(Board that) {
 		board.copyDataFrom(that);
+		fancyHashes[board.getTurn()] = board.getFancyHash();
 	}
 
 	/** Returns the board associated with this runnable. */
@@ -126,14 +127,14 @@ public class McRunnable implements Runnable {
 	 */
 	public Color performMcRun() {
 		copyDataFrom(player.getBoard());
-		player.generateMovesToFrontier(this);
+		player.descend(this);
 		Color winner;
 		if (board.getPasses() == 2) {
 			winner = scorer.winner();
 		} else {
 			winner = playout();
 		}
-		player.incorporateRun(winner, this);
+		player.updateTree(winner, this);
 		playoutsCompleted++;
 		return winner;
 	}

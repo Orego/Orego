@@ -71,9 +71,7 @@ public final class SimpleSearchNode implements SearchNode {
 
 	@Override
 	public void exclude(short p) {
-		// This will ensure that winRates[p]*runs[p] == Integer.MIN_VALUE
-		winRates[p] = Integer.MIN_VALUE;
-		runs[p] = 1;
+		winRates[p] = -1;
 	}
 
 	@Override
@@ -300,7 +298,7 @@ public final class SimpleSearchNode implements SearchNode {
 			result += indent + toString(p, coords);
 			childBoard.copyDataFrom(board);
 			childBoard.play(p);
-			SearchNode child = table.findIfPresent(childBoard.getHash());
+			SearchNode child = table.findIfPresent(childBoard.getFancyHash());
 			if (child != null) {
 				result += deepToString(childBoard, table, maxDepth, depth + 1);
 			}
