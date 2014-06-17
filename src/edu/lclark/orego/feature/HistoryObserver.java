@@ -10,7 +10,7 @@ import edu.lclark.orego.util.ShortList;
  * stones).
  */
 @SuppressWarnings("serial")
-public class HistoryObserver implements BoardObserver {
+public final class HistoryObserver implements BoardObserver {
 
 	private final Board board;
 		

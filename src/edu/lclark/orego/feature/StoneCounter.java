@@ -8,7 +8,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 
 /** Keeps track of how many stones there are of each color. */
 @SuppressWarnings("serial")
-public class StoneCounter implements BoardObserver {
+public final class StoneCounter implements BoardObserver {
 
 	private final int[] counts;
 

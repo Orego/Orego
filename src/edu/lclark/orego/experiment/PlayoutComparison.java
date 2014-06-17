@@ -17,7 +17,7 @@ import edu.lclark.orego.score.Scorer;
 import java.util.*;
 
 /** Runs two playout policies against each other and reports the win rates for each. Speed is ignored. */
-public class PlayoutComparison {
+public final class PlayoutComparison {
 
 	@SuppressWarnings("boxing")
 	public static void main(String[] args) {

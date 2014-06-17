@@ -12,7 +12,7 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
 
 /** Static methods for creating some particular, widely-used Movers. */
-public class MoverFactory {
+public final class MoverFactory {
 
 	/** Plays randomly except for eyelike points. */
 	public static Mover simpleRandom(Board board) {

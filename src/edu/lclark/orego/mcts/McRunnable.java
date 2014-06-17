@@ -15,7 +15,7 @@ import edu.lclark.orego.score.Scorer;
  * Players use this class to perform multiple Monte Carlo runs in different
  * threads.
  */
-public class McRunnable implements Runnable {
+public final class McRunnable implements Runnable {
 
 	/** The board on which this McRunnable plays its moves. */
 	private final Board board;

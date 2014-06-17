@@ -6,7 +6,7 @@ import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 
 /** Static methods for creating some particular, widely-used CopiableStructures. */
-public class CopiableStructureFactory {
+public final class CopiableStructureFactory {
 
 	/** Plays randomly except for eyelike points. */
 	public static CopiableStructure simpleRandom(int width) {

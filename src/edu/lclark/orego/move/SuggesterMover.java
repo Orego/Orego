@@ -9,7 +9,7 @@ import edu.lclark.orego.util.ShortSet;
 
 /** This tries to play a move suggested by some suggester. */
 @SuppressWarnings("serial")
-public class SuggesterMover implements Mover {
+public final class SuggesterMover implements Mover {
 
 	private final Board board;
 
