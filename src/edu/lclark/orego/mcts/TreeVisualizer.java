@@ -16,7 +16,7 @@ public class TreeVisualizer extends JFrame{
 	
 	final TranspositionTable table;
 	
-	final TreeIncorporator treeIncorporator;
+	final SimpleTreeUpdater updater;
 	
 	final Board board;
 	
@@ -28,8 +28,8 @@ public class TreeVisualizer extends JFrame{
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		board = player.getBoard();
 		table = new TranspositionTable(new SimpleSearchNodeBuilder(board.getCoordinateSystem()), board.getCoordinateSystem());
-		treeIncorporator = new TreeIncorporator(board, table);
-		player.setRunIncorporator(treeIncorporator);
+		updater = new SimpleTreeUpdater(board, table);
+		player.setTreeUpdater(updater);
 		Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		setSize((int)(dimension.getWidth()*.85), (int)(dimension.getHeight()*.85));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,16 +37,9 @@ public class TreeVisualizer extends JFrame{
 	}
 	
 	private void run() {
-		McRunnable runnable = player.getMcRunnable(0);
-		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("b1"));
-		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("c4"));
-		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("a2"));
-		treeIncorporator.incorporateRun(BLACK, runnable);
-		runnable.copyDataFrom(board);
-		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("b2"));
-		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("c5"));
-		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("a1"));
-		treeIncorporator.incorporateRun(BLACK, runnable);
+		player.getMcRunnable(0).performMcRun();
+		player.getMcRunnable(0).performMcRun();
+		player.getMcRunnable(0).performMcRun();
 		
 		
 //		McRunnable mcRunnable = player.getMcRunnable(0);
@@ -69,7 +62,7 @@ public class TreeVisualizer extends JFrame{
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		int x = this.getWidth()/2;
 		int y = 20;
-		SearchNode node = treeIncorporator.getRoot();
+		SearchNode node = updater.getRoot();
 		float winRate = node.getWinRate((short)0);
 		int diameter = node.getTotalRuns()/2;
 		Color c = new Color(winRate, winRate, winRate);
