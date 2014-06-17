@@ -76,6 +76,7 @@ public class McRunnable implements Runnable {
 	/** Copies data from that (the player's real board) to the local board. */
 	public void copyDataFrom(Board that) {
 		board.copyDataFrom(that);
+		fancyHashes[board.getTurn()] = board.getFancyHash();
 	}
 
 	/** Returns the board associated with this runnable. */

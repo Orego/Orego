@@ -62,8 +62,8 @@ public final class BestRateDescender implements TreeDescender {
 		return result;
 	}
 
-	private static double searchValue(SearchNode node, short move) {
-		return node.getWins(move);
+	private static float searchValue(SearchNode node, short move) {
+		return node.getWinRate(move);
 	}
 
 	/** Selects and plays one move in the search tree. */
@@ -81,7 +81,7 @@ public final class BestRateDescender implements TreeDescender {
 		while (runnable.getBoard().getPasses() < 2) {
 			selectAndPlayMove(node, runnable);
 			SearchNode child = table.findIfPresent(runnable.getBoard()
-					.getHash());
+					.getFancyHash());
 			if (child == null) {
 				return; // No child
 			}

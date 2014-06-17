@@ -111,7 +111,7 @@ public final class UctDescender implements TreeDescender {
 		while (runnable.getBoard().getPasses() < 2) {
 			selectAndPlayMove(node, runnable);
 			SearchNode child = table.findIfPresent(runnable.getBoard()
-					.getHash());
+					.getFancyHash());
 			if (child == null) {
 				return; // No child
 			}

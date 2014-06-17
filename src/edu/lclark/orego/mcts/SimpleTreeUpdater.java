@@ -22,19 +22,24 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 		table.sweep();
 	}
 
+	/** For testing. Returns the table. */
+	TranspositionTable getTable() {
+		return table;
+	}
+
 	@Override
 	public void updateTree(Color winner, McRunnable runnable) {
 		int turn = runnable.getTurn();
 		SearchNode node = getRoot();
 		HistoryObserver history = runnable.getHistoryObserver();
-		long[] hashes = runnable.getFancyHashes();
+		long[] fancyHashes = runnable.getFancyHashes();
 		float winProportion = (winner == board.getColorToPlay()) ? 1 : 0;
 		if (winner == VACANT) {
 			winProportion = 0.5f;
 		}
 		for (int t = board.getTurn(); t < turn; t++) {
 			node.recordPlayout(winProportion, runnable, t);
-			long fancyHash = hashes[t + 1];
+			long fancyHash = fancyHashes[t + 1];
 			SearchNode child = table.findIfPresent(fancyHash);
 			if (child == null) {
 				synchronized (table) {
@@ -58,7 +63,7 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 	}
 
 	/** Returns the root node (creating it if necessary). */
-	private SearchNode getRoot() {
+	public SearchNode getRoot() {
 		return table.findOrAllocate(board.getFancyHash());
 	}
 

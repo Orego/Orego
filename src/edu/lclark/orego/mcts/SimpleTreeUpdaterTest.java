@@ -11,8 +11,10 @@ public class SimpleTreeUpdaterTest {
 
 	private Player player;
 	
-	private SimpleTreeUpdater simpleTreeUpdater;
+	private SimpleTreeUpdater updater;
 
+	private TreeDescender descender;
+	
 	/** Delegate method to call at on board. */
 	private short at(String label) {
 		return player.getBoard().getCoordinateSystem().at(label);
@@ -23,8 +25,10 @@ public class SimpleTreeUpdaterTest {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
-		simpleTreeUpdater = new SimpleTreeUpdater(player.getBoard(), table);
-		player.setTreeUpdater(simpleTreeUpdater);
+		descender = new BestRateDescender(player.getBoard(), table);
+		updater = new SimpleTreeUpdater(player.getBoard(), table);
+		player.setTreeDescender(descender);
+		player.setTreeUpdater(updater);
 	}
 
 	@Test
@@ -33,37 +37,46 @@ public class SimpleTreeUpdaterTest {
 		runnable.acceptMove(at("b1"));
 		runnable.acceptMove(at("c4"));
 		runnable.acceptMove(at("a2"));
-		simpleTreeUpdater.updateTree(BLACK, runnable);
-		simpleTreeUpdater.clear();
-		assertEquals("Total runs: 60\n", simpleTreeUpdater.toString(5));
+		updater.updateTree(BLACK, runnable);
+		updater.clear();
+		assertEquals("Total runs: 60\n", updater.toString(5));
 	}
 
 	@Test
 	public void testIncorporateRun() {
-		assertEquals("Total runs: 60\n", simpleTreeUpdater.toString(5));
+		assertEquals("Total runs: 60\n", updater.toString(5));
 		McRunnable runnable = player.getMcRunnable(0);
 		runnable.acceptMove(at("b1"));
 		runnable.acceptMove(at("c4"));
 		runnable.acceptMove(at("a2"));
-		simpleTreeUpdater.updateTree(BLACK, runnable);
+		updater.updateTree(BLACK, runnable);
 		assertEquals("Total runs: 61\nB1:       2/      3 (0.6667)\n  Total runs: 60\n",
-				simpleTreeUpdater.toString(5));
+				updater.toString(5));
 		runnable.copyDataFrom(player.getBoard());
 		runnable.acceptMove(at("e5"));
 		runnable.acceptMove(at("d2"));
 		runnable.acceptMove(at("a4"));
-		simpleTreeUpdater.updateTree(WHITE, runnable);
+		updater.updateTree(WHITE, runnable);
 		assertEquals(
 				"Total runs: 62\nE5:       1/      3 (0.3333)\n  Total runs: 60\nB1:       2/      3 (0.6667)\n  Total runs: 60\n",
-				simpleTreeUpdater.toString(5));
+				updater.toString(5));
 		runnable.copyDataFrom(player.getBoard());
 		runnable.acceptMove(at("e5"));
 		runnable.acceptMove(at("c3"));
 		runnable.acceptMove(at("d1"));
-		simpleTreeUpdater.updateTree(WHITE, runnable);
+		updater.updateTree(WHITE, runnable);
 		assertEquals(
 				"Total runs: 63\nE5:       1/      4 (0.2500)\n  Total runs: 61\n  C3:       2/      3 (0.6667)\n    Total runs: 60\nB1:       2/      3 (0.6667)\n  Total runs: 60\n",
-				simpleTreeUpdater.toString(5));
+				updater.toString(5));
+	}
+
+	@Test
+	public void testTreeGrowth() {
+		McRunnable runnable = player.getMcRunnable(0);
+		for (int i = 0; i < 10; i++) {
+			runnable.performMcRun();
+		}
+		assertEquals(11, updater.getTable().dagSize(updater.getRoot()));
 	}
 
 }
