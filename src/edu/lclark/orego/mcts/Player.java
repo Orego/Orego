@@ -2,7 +2,6 @@ package edu.lclark.orego.mcts;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 
