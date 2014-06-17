@@ -9,9 +9,9 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 public final class TreeIncorporator implements RunIncorporator {
 
 	private final TranspositionTable table;
-	
+
 	private final Board board;
-	
+
 	public TreeIncorporator(Board board, TranspositionTable table) {
 		this.board = board;
 		this.table = table;
@@ -36,16 +36,23 @@ public final class TreeIncorporator implements RunIncorporator {
 			node.recordPlayout(winProportion, runnable, t);
 			long fancyHash = hashes[t + 1];
 			SearchNode child = table.findIfPresent(fancyHash);
+
 			if (child == null) {
 				synchronized (table) {
 					short p = history.get(t);
 					child = table.findOrAllocate(fancyHash);
-					// TODO We probably don't want to create a child on EVERY run
+
+					// TODO We probably don't want to create a child on EVERY
+					// run
 					if (!node.hasChild(p)) {
 						if (child == null) {
 							return; // Table is full
 						}
+
 						node.setHasChild(p);
+						if (child == node) {
+							System.out.println("They are the same");
+						}
 						table.addChild(node, child);
 						// TODO Update priors if child is fresh
 						return;

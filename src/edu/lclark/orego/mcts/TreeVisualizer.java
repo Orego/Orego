@@ -37,16 +37,29 @@ public class TreeVisualizer extends JFrame{
 	}
 	
 	private void run() {
-		McRunnable mcRunnable = player.getMcRunnable(0);
-		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("a3"));
-		player.incorporateRun(WHITE, player.getMcRunnable(0));
-		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d4"));
-		player.incorporateRun(BLACK, player.getMcRunnable(0));
-		mcRunnable.copyDataFrom(board);
-		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d3"));
-		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d5"));
-		player.incorporateRun(BLACK, player.getMcRunnable(0));
-		System.out.println(treeIncorporator.getRoot().deepToString(board, table, 5));
+		McRunnable runnable = player.getMcRunnable(0);
+		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("b1"));
+		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("c4"));
+		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("a2"));
+		treeIncorporator.incorporateRun(BLACK, runnable);
+		runnable.copyDataFrom(board);
+		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("b2"));
+		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("c5"));
+		runnable.acceptMove(player.getBoard().getCoordinateSystem().at("a1"));
+		treeIncorporator.incorporateRun(BLACK, runnable);
+		
+		
+//		McRunnable mcRunnable = player.getMcRunnable(0);
+//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("a3"));
+//		player.incorporateRun(WHITE, player.getMcRunnable(0));
+//		mcRunnable.copyDataFrom(board);
+//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d4"));
+//		player.incorporateRun(BLACK, player.getMcRunnable(0));
+//		mcRunnable.copyDataFrom(board);
+//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d3"));
+//		player.getMcRunnable(0).acceptMove(player.getBoard().getCoordinateSystem().at("d5"));
+//		player.incorporateRun(BLACK, player.getMcRunnable(0));
+//		System.out.println(treeIncorporator.getRoot().deepToString(board, table, 5));
 		repaint();
 	}
 	
@@ -75,8 +88,9 @@ public class TreeVisualizer extends JFrame{
 			return;
 		}
 		int size = 1;
-		while(children.getNext()!=null){
-			System.out.println("loop?");
+		ListNode<SearchNode> loopChild = children.getNext();
+		while(loopChild!=null){
+			loopChild=children.getNext();
 			size++;
 		}
 		x = x-(width/2);
