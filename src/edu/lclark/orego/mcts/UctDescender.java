@@ -25,6 +25,37 @@ public final class UctDescender implements TreeDescender {
 	}
 
 	@Override
+	public short bestPlayMove() {
+		double best = 1;
+		short result = PASS;
+		ShortSet vacantPoints = board.getVacantPoints();
+		SearchNode root = getRoot();
+		do {
+			best = root.getWins(PASS);
+			// If the move chosen on the last pass was illegal (e.g., a superko
+			// violation that was never actually tried in a playout),
+			// throw it out
+			if (result != PASS) {
+				root.exclude(result);
+				result = PASS;
+			}			
+			for (int i = 0; i < vacantPoints.size(); i++) {
+				short move = vacantPoints.get(i);
+				if (root.getWins(move) > best) {
+					best = root.getWins(move);
+					result = move;
+				}
+			}
+		} while ((result != PASS) && !board.isLegal(result));
+		// TODO Handle resignation
+//		// Consider resigning
+//		if (node.getWinRate(result) < RESIGN_PARAMETER) {
+//			return RESIGN;
+//		}
+		return result;
+	}
+
+	@Override
 	public void clear() {
 		// Nothing to do; the TreeUpdater clears the table
 	}
@@ -117,6 +148,11 @@ public final class UctDescender implements TreeDescender {
 			}
 			node = child;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return getRoot().deepToString(board, table, 0);
 	}
 
 }

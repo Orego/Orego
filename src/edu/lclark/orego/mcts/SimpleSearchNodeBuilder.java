@@ -2,7 +2,7 @@ package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.CoordinateSystem;
 
-public class SimpleSearchNodeBuilder implements SearchNodeBuilder {
+public final class SimpleSearchNodeBuilder implements SearchNodeBuilder {
 
 	private CoordinateSystem coords;
 	

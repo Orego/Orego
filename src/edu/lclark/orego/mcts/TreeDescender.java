@@ -16,4 +16,10 @@ public interface TreeDescender {
 	 */
 	public void descend(McRunnable runnable);
 
+	/**
+	 * Returns the best move to make from here when actually playing (as opposed
+	 * to during a playout). We choose the move with the most wins.
+	 */
+	public short bestPlayMove();
+	
 }

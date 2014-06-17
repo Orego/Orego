@@ -175,29 +175,9 @@ public final class SimpleSearchNode implements SearchNode {
 	}
 	
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.
-	 * 
-	 * Increments the counts for a move sequence resulting from a playout.
-	 * 
-	 * NOTE: Since this method is not synchronized, two simultaneous calls on
-	 * the same node might result in a race condition affecting which one sets
-	 * the winningMove field.
-	 * 
-	 * @param winProportion
-	 *            1.0 if this is a winning playout for the player to play at
-	 *            this node, 0.0 otherwise.
-	 * @param moves
-	 *            Sequence of moves made in this playout, including two final
-	 *            passes.
-	 * @param t
-	 *            Index of the first move (the one made from this node).
-	 * @param turn
-	 *            Index right after the last move played.
-	 * @param playedPoints
-	 *            For keeping track of points played to avoid counting
-	 *            already-played points.
+	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.)
 	 */
-	void recordPlayout(float winProportion, short[] moves, int t, int turn, ShortSet playedPoints) {
+	void recordPlayout(float winProportion, short[] moves, int t, int turn, @SuppressWarnings("unused") ShortSet playedPoints) {
 		// TODO Is this unnecessarily redundant?
 		assert t < turn;
 		short move = moves[t];

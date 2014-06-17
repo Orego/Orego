@@ -33,7 +33,7 @@ public final class TranspositionTable {
 		 * The calculation here is for the number of nodes to allocate in
 		 * general
 		 */
-		this(1024 * 1024 * 20 / coords.getArea(), builder, coords);
+		this(1024 * 1024 * 256 / coords.getArea(), builder, coords);
 	}
 
 	/** Adds child as a child of parent. */
@@ -94,6 +94,7 @@ public final class TranspositionTable {
 			}
 			slot = (slot + 1) % table.length;
 		} while (slot != start);
+		assert false : "Transposition table is full!";
 		return null;
 	}
 

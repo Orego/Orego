@@ -14,7 +14,7 @@ import static edu.lclark.orego.core.NonStoneColor.*;
  * 
  */
 @SuppressWarnings("serial")
-public class ChinesePlayoutScorer implements Scorer {
+public final class ChinesePlayoutScorer implements Scorer {
 
 	private Board board;
 
