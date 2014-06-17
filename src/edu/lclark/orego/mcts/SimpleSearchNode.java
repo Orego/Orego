@@ -71,9 +71,7 @@ public final class SimpleSearchNode implements SearchNode {
 
 	@Override
 	public void exclude(short p) {
-		// This will ensure that winRates[p]*runs[p] == Integer.MIN_VALUE
-		winRates[p] = Integer.MIN_VALUE;
-		runs[p] = 1;
+		winRates[p] = -1;
 	}
 
 	@Override
