@@ -268,8 +268,8 @@ public final class Board implements Serializable {
 		if (colorToPlay == WHITE) {
 			result = ~result;
 		}
-		// TODO Do we need to to take the number of passes into account? Otherwise, we'll get the
-		// same node after the last stone played and after the two passes.
+		// We don't believe we need to take the number of passes into account,
+		// because we would never look at or store data in an end-of-game node.
 		return result;
 	}
 
