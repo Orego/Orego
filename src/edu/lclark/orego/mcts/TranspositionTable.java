@@ -57,7 +57,7 @@ public final class TranspositionTable {
 	}
 
 	/** Returns the node associated with hash, or null if there is no such node. */
-	synchronized SearchNode findIfPresent(long fancyHash) {
+	public synchronized SearchNode findIfPresent(long fancyHash) {
 		int start = (((int) fancyHash) & IGNORE_SIGN_BIT) % table.length;
 		int slot = start;
 		do {

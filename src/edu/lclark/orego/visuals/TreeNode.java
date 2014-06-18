@@ -1,4 +1,4 @@
-package edu.lclark.orego.mcts;
+package edu.lclark.orego.visuals;
 
 import java.util.LinkedList;
 

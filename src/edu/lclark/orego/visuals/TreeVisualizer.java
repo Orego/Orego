@@ -1,4 +1,4 @@
-package edu.lclark.orego.mcts;
+package edu.lclark.orego.visuals;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,6 +8,14 @@ import java.util.LinkedList;
 import javax.swing.*;
 
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.mcts.CopiableStructureFactory;
+import edu.lclark.orego.mcts.Player;
+import edu.lclark.orego.mcts.SearchNode;
+import edu.lclark.orego.mcts.SimpleSearchNode;
+import edu.lclark.orego.mcts.SimpleSearchNodeBuilder;
+import edu.lclark.orego.mcts.SimpleTreeUpdater;
+import edu.lclark.orego.mcts.TranspositionTable;
+import edu.lclark.orego.mcts.UctDescender;
 import edu.lclark.orego.util.ListNode;
 
 @SuppressWarnings("serial")
