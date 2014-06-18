@@ -57,9 +57,9 @@ public class TreeVisualizer extends JFrame {
 
 	private void run() {
 		// Run playouts to generate an initial tree
-		for (int i = 0; i < 100; i++) {
-			player.getMcRunnable(0).performMcRun();
-		}
+//		for (int i = 0; i < 100; i++) {
+//			player.getMcRunnable(0).performMcRun();
+//		}
 		buildTree();
 		selectedNode = root;
 
