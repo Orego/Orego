@@ -2,8 +2,6 @@ package edu.lclark.orego.visuals;
 
 import java.util.LinkedList;
 
-import edu.lclark.orego.core.Board;
-
 public class TreeNode {
 
 	private LinkedList<TreeNode> children;

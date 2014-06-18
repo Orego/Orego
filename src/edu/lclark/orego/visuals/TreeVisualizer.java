@@ -34,12 +34,11 @@ public class TreeVisualizer extends JFrame {
 	private TreeNode selectedNode;
 
 	private JPanel gui;
-
 	private JLabel moveLabel;
 	private JLabel winRateLabel;
 	private JLabel runsLabel;
-
 	private DrawPanel draw;
+	private JCheckBox scaling;
 
 	public static void main(String[] args) {
 		new TreeVisualizer().run();
@@ -48,7 +47,8 @@ public class TreeVisualizer extends JFrame {
 	public TreeVisualizer() {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		board = player.getBoard();
-		table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(board.getCoordinateSystem()),
+		table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(
+				board.getCoordinateSystem()),
 				board.getCoordinateSystem());
 		updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
@@ -56,11 +56,14 @@ public class TreeVisualizer extends JFrame {
 	}
 
 	private void run() {
-		for(int i = 0; i < 100; i++){
+		// Run playouts to generate an initial tree
+		for (int i = 0; i < 100; i++) {
 			player.getMcRunnable(0).performMcRun();
 		}
 		buildTree();
 		selectedNode = root;
+
+		// Set up JFrame
 		Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		setSize((int) (dimension.getWidth() * .85), (int) (dimension.getHeight() * .85));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,15 +74,18 @@ public class TreeVisualizer extends JFrame {
 				.getHeight() * .75)));
 		add(draw, BorderLayout.NORTH);
 
+		// Add gui elements
 		gui = new JPanel();
 		gui.setLayout(new GridLayout(1, 3));
 		add(gui, BorderLayout.SOUTH);
 
 		JPanel infoPanel = new JPanel(new GridLayout(3, 1));
 		gui.add(infoPanel);
-		
+
 		infoPanel.setBackground(Color.WHITE);
 		gui.add(infoPanel, BorderLayout.EAST);
+
+		// Set up key bindings
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "descend");
 		infoPanel.getActionMap().put("descend", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -152,14 +158,14 @@ public class TreeVisualizer extends JFrame {
 			}
 		});
 		gui.add(performRun);
-		
+
 		JButton perform100Runs = new JButton("Perform 100 Runs");
 		perform100Runs.setFocusable(false);
 		perform100Runs.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for(int i = 0; i<100; i++){
+				for (int i = 0; i < 100; i++) {
 					player.getMcRunnable(0).performMcRun();
 				}
 				buildTree();
@@ -168,24 +174,42 @@ public class TreeVisualizer extends JFrame {
 			}
 		});
 		gui.add(perform100Runs);
+		
+		scaling = new JCheckBox("Draw with Scaling");
+		scaling.isSelected();
+		scaling.setFocusable(false);
+		scaling.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				repaint();
+				
+			}
+			
+		});
+		gui.add(scaling);
 
 		revalidate();
 		repaint();
 	}
 
+	/** Update text of labels based on the selected node. */
 	private void updateLabels() {
 		moveLabel.setText("Move: " + selectedNode.getMove());
 		winRateLabel.setText("Win Rate: " + selectedNode.getWinRate());
 		runsLabel.setText("Runs: " + selectedNode.getRuns());
 	}
 
+	/** Recursively build navegable tree based on the transition table data. */
 	private void buildTree() {
 		SearchNode node = updater.getRoot();
-		root = buildNode(node, null, null, (short) 0, new Board(player.getBoard().getCoordinateSystem().getWidth()));
+		root = buildNode(node, null, null, (short) 0, new Board(player.getBoard()
+				.getCoordinateSystem().getWidth()));
 		root.isSelected = true;
 		selectedNode = root;
 	}
 
+	/** Recursive method for constructing nodes of the navegable tree. */
 	private TreeNode buildNode(SearchNode source, SearchNode parentSearchNode, TreeNode parent,
 			short p, Board board) {
 		int runs = parentSearchNode == null ? source.getTotalRuns() : parentSearchNode
@@ -218,34 +242,48 @@ public class TreeVisualizer extends JFrame {
 		return nodeToAdd;
 	}
 
+	/** Panel for drawing the nodes based on the navegable tree structure. */
 	class DrawPanel extends JPanel {
 
 		@Override
 		public void paintComponent(Graphics g) {
+
+			//Make sure the tree has been built
 			if (root == null) {
 				return;
 			}
 			super.paintComponent(g);
 			int x = this.getWidth() / 2;
 			int y = 20;
+			
+			if(scaling.isSelected()){
+				drawWithScaling(g, x, y);
+			} else {				
+				draw.drawNode(g, x, y, root);
+				draw.drawLevel(g, root, x, y, this.getWidth(), 0, 8);
+			}
+		}
+		
+		private void drawWithScaling(Graphics g, int x, int y){
 			int i = 1;
 			TreeNode nodeToDraw = selectedNode.getNext();
-			while(nodeToDraw != null){
+			while (nodeToDraw != null) {
 				drawNode(g, x + 30 * i, y, nodeToDraw);
-				nodeToDraw = nodeToDraw.getNext();	
+				nodeToDraw = nodeToDraw.getNext();
 				i++;
 			}
 			i = 1;
 			nodeToDraw = selectedNode.getPrevious();
-			while(nodeToDraw != null){
+			while (nodeToDraw != null) {
 				drawNode(g, x - 30 * i, y, nodeToDraw);
-				nodeToDraw = nodeToDraw.getPrevious();		
+				nodeToDraw = nodeToDraw.getPrevious();
 				i++;
 			}
 			draw.drawNode(g, x, y, selectedNode);
 			draw.drawLevel(g, selectedNode, x, y, this.getWidth(), 0, 8);
 		}
 
+		/** Recursively draws all the children of a node up to a max depth. */
 		public void drawLevel(Graphics g, TreeNode parent, int x, int y, int width, int depth,
 				int maxDepth) {
 			if (maxDepth == depth) {
@@ -266,8 +304,12 @@ public class TreeVisualizer extends JFrame {
 			}
 		}
 
+		/**
+		 * Draws the circle for a given node in the proper position, highlighted
+		 * if the node is currently selected.
+		 */
 		private void drawNode(Graphics g, int x, int y, TreeNode node) {
-			int diameter = 3 * (int)((Math.log(node.getRuns()))/(Math.log(2)));
+			int diameter = 3 * (int) ((Math.log(node.getRuns())) / (Math.log(2)));
 			x = x - (diameter / 2);
 			y = y - (diameter / 2);
 			g.setColor(new Color(node.getWinRate(), node.getWinRate(), node.getWinRate()));
