@@ -19,7 +19,7 @@ import edu.lclark.orego.mcts.UctDescender;
 import edu.lclark.orego.util.ListNode;
 
 @SuppressWarnings("serial")
-public class TreeVisualizer extends JFrame {
+public final class TreeVisualizer extends JFrame {
 
 	final Player player;
 
@@ -88,6 +88,8 @@ public class TreeVisualizer extends JFrame {
 		// Set up key bindings
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "descend");
 		infoPanel.getActionMap().put("descend", new AbstractAction() {
+			@SuppressWarnings("synthetic-access")
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedNode.getChildren().size() > 0) {
 					selectedNode.isSelected = false;
@@ -101,6 +103,8 @@ public class TreeVisualizer extends JFrame {
 
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("UP"), "ascend");
 		infoPanel.getActionMap().put("ascend", new AbstractAction() {
+			@SuppressWarnings("synthetic-access")
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedNode.getParent() != null) {
 					selectedNode.isSelected = false;
@@ -114,6 +118,8 @@ public class TreeVisualizer extends JFrame {
 
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), "right");
 		infoPanel.getActionMap().put("right", new AbstractAction() {
+			@SuppressWarnings("synthetic-access")
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedNode.getNext() != null) {
 					selectedNode.isSelected = false;
@@ -127,6 +133,8 @@ public class TreeVisualizer extends JFrame {
 
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), "left");
 		infoPanel.getActionMap().put("left", new AbstractAction() {
+			@SuppressWarnings("synthetic-access")
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedNode.getPrevious() != null) {
 					selectedNode.isSelected = false;
@@ -149,6 +157,7 @@ public class TreeVisualizer extends JFrame {
 		performRun.setFocusable(false);
 		performRun.addActionListener(new ActionListener() {
 
+			@SuppressWarnings("synthetic-access")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				player.getMcRunnable(0).performMcRun();
@@ -163,6 +172,7 @@ public class TreeVisualizer extends JFrame {
 		perform100Runs.setFocusable(false);
 		perform100Runs.addActionListener(new ActionListener() {
 
+			@SuppressWarnings("synthetic-access")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				for (int i = 0; i < 100; i++) {
@@ -175,7 +185,7 @@ public class TreeVisualizer extends JFrame {
 		});
 		gui.add(perform100Runs);
 		
-		scaling = new JCheckBox("Draw with Scaling");
+		scaling = new JCheckBox("Dynamic Scaling");
 		scaling.isSelected();
 		scaling.setFocusable(false);
 		scaling.addActionListener(new ActionListener() {
@@ -209,15 +219,15 @@ public class TreeVisualizer extends JFrame {
 		selectedNode = root;
 	}
 
-	/** Recursive method for constructing nodes of the navegable tree. */
+	/** Recursive method for constructing nodes of the navigable tree. */
 	private TreeNode buildNode(SearchNode source, SearchNode parentSearchNode, TreeNode parent,
-			short p, Board board) {
+			short p, Board tempBoard) {
 		int runs = parentSearchNode == null ? source.getTotalRuns() : parentSearchNode
 				.getRuns(p);
 		float winRate = parentSearchNode == null ? 0.5f : parentSearchNode
 				.getWinRate(p);
 		TreeNode nodeToAdd = new TreeNode(winRate, runs,
-				parent, board.getCoordinateSystem().toString(p));
+				parent, tempBoard.getCoordinateSystem().toString(p));
 
 		if (parent != null && parent.getChildren().size() > 0) {
 			nodeToAdd.setPrevious(parent.getChildren().getLast());
@@ -225,10 +235,10 @@ public class TreeVisualizer extends JFrame {
 		}
 		ListNode<SearchNode> children = source.getChildren();
 		if (children != null) {
-			for (short point : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			for (short point : tempBoard.getCoordinateSystem().getAllPointsOnBoard()) {
 				if (source.hasChild(point)) {
-					Board childBoard = new Board(board.getCoordinateSystem().getWidth());
-					childBoard.copyDataFrom(board);
+					Board childBoard = new Board(tempBoard.getCoordinateSystem().getWidth());
+					childBoard.copyDataFrom(tempBoard);
 					childBoard.play(point);
 					SimpleSearchNode child = (SimpleSearchNode) table.findIfPresent(childBoard
 							.getFancyHash());
@@ -245,6 +255,7 @@ public class TreeVisualizer extends JFrame {
 	/** Panel for drawing the nodes based on the navegable tree structure. */
 	class DrawPanel extends JPanel {
 
+		@SuppressWarnings("synthetic-access")
 		@Override
 		public void paintComponent(Graphics g) {
 
@@ -264,6 +275,7 @@ public class TreeVisualizer extends JFrame {
 			}
 		}
 		
+		@SuppressWarnings("synthetic-access")
 		private void drawWithScaling(Graphics g, int x, int y){
 			int i = 1;
 			TreeNode nodeToDraw = selectedNode.getNext();
