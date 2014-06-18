@@ -71,7 +71,7 @@ public class TreeVisualizer extends JFrame {
 		gui.add(infoPanel);
 		
 		infoPanel.setBackground(Color.WHITE);
-
+		gui.add(infoPanel, BorderLayout.EAST);
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "descend");
 		infoPanel.getActionMap().put("descend", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -220,8 +220,22 @@ public class TreeVisualizer extends JFrame {
 			super.paintComponent(g);
 			int x = this.getWidth() / 2;
 			int y = 20;
-			draw.drawNode(g, x, y, root);
-			draw.drawLevel(g, root, x, y, this.getWidth(), 0, 8);
+			int i = 1;
+			TreeNode nodeToDraw = selectedNode.getNext();
+			while(nodeToDraw != null){
+				drawNode(g, x + 30 * i, y, nodeToDraw);
+				nodeToDraw = nodeToDraw.getNext();	
+				i++;
+			}
+			i = 1;
+			nodeToDraw = selectedNode.getPrevious();
+			while(nodeToDraw != null){
+				drawNode(g, x - 30 * i, y, nodeToDraw.getPrevious());
+				nodeToDraw = nodeToDraw.getPrevious();		
+				i++;
+			}
+			draw.drawNode(g, x, y, selectedNode);
+			draw.drawLevel(g, selectedNode, x, y, this.getWidth(), 0, 8);
 		}
 
 		public void drawLevel(Graphics g, TreeNode parent, int x, int y, int width, int depth,
