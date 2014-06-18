@@ -68,6 +68,7 @@ public class TreeVisualizer extends JFrame {
 		add(gui, BorderLayout.SOUTH);
 
 		JPanel infoPanel = new JPanel(new GridLayout(3, 1));
+		gui.add(infoPanel);
 		
 		infoPanel.setBackground(Color.WHITE);
 
@@ -159,8 +160,6 @@ public class TreeVisualizer extends JFrame {
 			}
 		});
 		gui.add(perform100Runs);
-		
-		gui.add(infoPanel);
 
 		revalidate();
 		repaint();
