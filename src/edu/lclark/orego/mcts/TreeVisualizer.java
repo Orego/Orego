@@ -213,7 +213,7 @@ public class TreeVisualizer extends JFrame {
 			i = 1;
 			nodeToDraw = selectedNode.getPrevious();
 			while(nodeToDraw != null){
-				drawNode(g, x - 30 * i, y, nodeToDraw.getPrevious());
+				drawNode(g, x - 30 * i, y, nodeToDraw);
 				nodeToDraw = nodeToDraw.getPrevious();		
 				i++;
 			}
