@@ -40,7 +40,7 @@ public class TreeVisualizer extends JFrame {
 	public TreeVisualizer() {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		board = player.getBoard();
-		table = new TranspositionTable(new SimpleSearchNodeBuilder(board.getCoordinateSystem()),
+		table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(board.getCoordinateSystem()),
 				board.getCoordinateSystem());
 		updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
@@ -68,9 +68,9 @@ public class TreeVisualizer extends JFrame {
 		add(gui, BorderLayout.SOUTH);
 
 		JPanel infoPanel = new JPanel(new GridLayout(3, 1));
-		gui.add(infoPanel, BorderLayout.EAST);
-		infoPanel.setBackground(Color.WHITE);
 
+		infoPanel.setBackground(Color.WHITE);
+		gui.add(infoPanel, BorderLayout.EAST);
 		infoPanel.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "descend");
 		infoPanel.getActionMap().put("descend", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -203,8 +203,22 @@ public class TreeVisualizer extends JFrame {
 			super.paintComponent(g);
 			int x = this.getWidth() / 2;
 			int y = 20;
-			draw.drawNode(g, x, y, root);
-			draw.drawLevel(g, root, x, y, this.getWidth(), 0, 8);
+			int i = 1;
+			TreeNode nodeToDraw = selectedNode.getNext();
+			while(nodeToDraw != null){
+				drawNode(g, x + 30 * i, y, nodeToDraw);
+				nodeToDraw = nodeToDraw.getNext();	
+				i++;
+			}
+			i = 1;
+			nodeToDraw = selectedNode.getPrevious();
+			while(nodeToDraw != null){
+				drawNode(g, x - 30 * i, y, nodeToDraw.getPrevious());
+				nodeToDraw = nodeToDraw.getPrevious();		
+				i++;
+			}
+			draw.drawNode(g, x, y, selectedNode);
+			draw.drawLevel(g, selectedNode, x, y, this.getWidth(), 0, 8);
 		}
 
 		public void drawLevel(Graphics g, TreeNode parent, int x, int y, int width, int depth,
