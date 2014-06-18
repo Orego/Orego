@@ -17,8 +17,8 @@ public final class PlayoutSpeed {
 		player.setTreeDescender(new UctDescender(board, table));
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
-		player.clear();
 		player.setMillisecondsPerMove(milliseconds);
+		player.clear();
 		player.bestMove();
 		System.out.println(table.dagSize(updater.getRoot()) + " tree nodes");
 //		System.out.println(updater.getRoot().deepToString(board, table, 3));

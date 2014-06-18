@@ -10,23 +10,23 @@ public final class Player {
 
 	private final Board board;
 	
+	/** @see TreeDescender */
+	private TreeDescender descender;
+	
 	/** For managing threads. */
 	private final ExecutorService executor;
 	
 	/** True if the threads should keep running, e.g., because time has not run out. */
 	private boolean keepRunning;
 	
-	/** @see TreeDescender */
-	private TreeDescender descender;
-	
 	/** Number of milliseconds to spend on the next move. */
 	private int millisecondsPerMove;
 
-	/** @see TreeUpdater */
-	private TreeUpdater updater;
-
 	/** For running playouts. */
 	private final McRunnable[] runnables;
+
+	/** @see TreeUpdater */
+	private TreeUpdater updater;
 	
 	/**
 	 * @param threads Number of threads to run.
@@ -44,26 +44,15 @@ public final class Player {
 		updater = new DoNothing();
 	}
 
+	/** Plays at p on this player's board. */
+	public void acceptMove(short point) {
+		board.play(point);
+	}
+
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
 		runThreads();
 		return descender.bestPlayMove();
-	}
-
-	// TODO Divide this into startThreads and stopThreads for pondering
-	/** Runs the threads. */
-	private void runThreads() {
-		keepRunning = true;
-		for (int i = 0; i < runnables.length; i++) {
-			executor.execute(runnables[i]);
-		}
-		try {
-			Thread.sleep(millisecondsPerMove);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		keepRunning = false;
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
@@ -88,9 +77,20 @@ public final class Player {
 		return runnables[i];
 	}
 
-	/** Incorporate the result of a run in the tree. */
-	public void updateTree(Color winner, McRunnable mcRunnable) {
-		updater.updateTree(winner, mcRunnable);
+	// TODO Divide this into startThreads and stopThreads for pondering
+	/** Runs the threads. */
+	private void runThreads() {
+		keepRunning = true;
+		for (int i = 0; i < runnables.length; i++) {
+			executor.execute(runnables[i]);
+		}
+		try {
+			Thread.sleep(millisecondsPerMove);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		keepRunning = false;
 	}
 	
 	/** Sets the number of milliseconds to allocate per move. */
@@ -115,6 +115,11 @@ public final class Player {
 	@Override
 	public String toString() {
 		return descender.toString();
+	}
+
+	/** Incorporate the result of a run in the tree. */
+	public void updateTree(Color winner, McRunnable mcRunnable) {
+		updater.updateTree(winner, mcRunnable);
 	}
 
 }

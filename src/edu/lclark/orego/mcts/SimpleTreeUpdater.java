@@ -41,7 +41,6 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 			node.recordPlayout(winProportion, runnable, t);
 			long fancyHash = fancyHashes[t + 1];
 			SearchNode child = table.findIfPresent(fancyHash);
-
 			if (child == null) {
 				synchronized (table) {
 					short p = history.get(t);

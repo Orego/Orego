@@ -164,7 +164,7 @@ public final class SimpleSearchNode implements SearchNode {
 	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
 		int turn = runnable.getTurn();
 		HistoryObserver history = runnable.getHistoryObserver();
-		assert t < turn;
+		assert t < turn : "t = " + t + " >= turn = " + turn;
 		short move = history.get(t);
 		update(move, 1, winProportion);
 		if (winProportion == 1) {

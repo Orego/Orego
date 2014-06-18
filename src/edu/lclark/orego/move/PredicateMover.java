@@ -35,9 +35,15 @@ public final class PredicateMover implements Mover {
 		short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			short p = vacantPoints.get(i);
+			assert p > 0;
 			if ((board.getColorAt(p) == VACANT) && filter.at(p)) {
+				try {
 				if (board.playFast(p) == OK) {
 					return p;
+				}
+				} catch (AssertionError e) {
+					System.err.println("Tried to play " + board.getCoordinateSystem().toString(p) + " on:\n" + board);
+					System.exit(1);
 				}
 			}
 			// Advancing by a random prime skips through the array
