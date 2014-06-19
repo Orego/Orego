@@ -306,13 +306,14 @@ public final class Orego {
 			s = "\n" + s.substring(0, s.length() - 1);
 			acknowledge(s);
 		}
-//			else if (command.equals("play")) {
-//			// Both ggo and Goban send "black f4" instead of "play black f4".
-//			// Accepts such commands.
-//			// We lower case the command string because GTP defines colors as
-//			// case insensitive.
-//			handleCommand(arguments.nextToken().toLowerCase(), arguments);
-//		} else if (command.equals("playout_count")) {
+		else if (command.equals("play")) {
+			// Both ggo and Goban send "black f4" instead of "play black f4".
+			// Accepts such commands.
+			// We lower case the command string because GTP defines colors as
+			// case insensitive.
+			handleCommand(arguments.nextToken().toLowerCase(), arguments);
+		}
+//		 else if (command.equals("playout_count")) {
 //			if (player instanceof orego.mcts.McPlayer) {
 //				orego.mcts.McPlayer mctsPlayer = (orego.mcts.McPlayer)player;
 //				long playouts = 0;
@@ -363,17 +364,19 @@ public final class Orego {
 //			}
 //		} else if (command.equals("version")) {
 //			acknowledge(VERSION_STRING + " " + player);
-//		} else if ((command.equals("black")) || (command.equals("b"))
-//				|| (command.equals("white")) || (command.equals("w"))) {
-//			char color = command.charAt(0);
-//			int point = at(arguments.nextToken());
-//			((Player) player).setColorToPlay(color == 'b' ? BLACK : WHITE);
-//			if (player.acceptMove(point) == PLAY_OK) {
-//				acknowledge();
-//			} else {
-//				error("illegal move");
-//			}
-//		} else if (command.equals("fixed_handicap")) {
+//		} 
+		else if ((command.equals("black")) || (command.equals("b"))
+				|| (command.equals("white")) || (command.equals("w"))) {
+			char color = command.charAt(0);
+			short point = coords.at(arguments.nextToken());
+			player.setColorToPlay(color == 'b' ? BLACK : WHITE);
+			if (player.acceptMove(point) == Legality.OK) {
+				acknowledge();
+			} else {
+				error("illegal move");
+			}
+		} 
+//			else if (command.equals("fixed_handicap")) {
 //			int handicapSize = parseInt(arguments.nextToken());
 //			if (handicapSize >= 2 && handicapSize <= 9) {
 //				player.getBoard().setUpHandicap(handicapSize);

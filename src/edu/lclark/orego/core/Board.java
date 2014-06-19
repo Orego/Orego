@@ -555,6 +555,12 @@ public final class Board implements Serializable {
 		capturedStones.add(p);
 	}
 
+	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
+	public void setColorToPlay(StoneColor stoneColor) {
+		colorToPlay = stoneColor;
+		
+	}
+
 	/**
 	 * Places all of the stones indicated in diagram. These are set as initial
 	 * stones, not moves recorded in the board's history. The color to play next

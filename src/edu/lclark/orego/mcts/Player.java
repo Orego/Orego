@@ -46,9 +46,10 @@ public final class Player {
 	}
 
 	/** Plays at p on this player's board. */
-	public void acceptMove(short point) {
+	public Legality acceptMove(short point) {
 		Legality legality = board.play(point);
 		assert legality == OK;
+		return legality;
 	}
 
 	/** Runs the McRunnables for some time and then returns the best move. */
@@ -125,6 +126,12 @@ public final class Player {
 	/** Incorporate the result of a run in the tree. */
 	public void updateTree(Color winner, McRunnable mcRunnable) {
 		updater.updateTree(winner, mcRunnable);
+	}
+
+	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
+	public void setColorToPlay(StoneColor stoneColor) {
+		board.setColorToPlay(stoneColor);
+		
 	}
 
 }
