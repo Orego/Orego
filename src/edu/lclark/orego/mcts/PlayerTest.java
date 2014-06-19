@@ -65,7 +65,6 @@ public class PlayerTest {
 			player.clear();
 			player.getBoard().setUpProblem(before, BLACK);
 			short move = player.bestMove();
-			System.out.println(toString(move));
 			// This move should not be chosen as it is eyelike for black
 			assertNotEquals(at("a5"), move);
 		}

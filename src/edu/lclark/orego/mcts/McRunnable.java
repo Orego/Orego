@@ -25,6 +25,9 @@ public final class McRunnable implements Runnable {
 	/** @see #getFancyHashes() */
 	private final long[] fancyHashes;
 
+	/** Moves not passing this filter should never be played. */
+	private final Predicate filter;
+	
 	/** Keeps track of moves played. */
 	private final HistoryObserver historyObserver;
 
@@ -56,6 +59,7 @@ public final class McRunnable implements Runnable {
 		scorer = copy.get(Scorer.class);
 		mercyObserver = copy.get(StoneCounter.class);
 		historyObserver = copy.get(HistoryObserver.class);
+		filter = copy.get(Predicate.class);
 		fancyHashes = new long[coords.getMaxMovesPerGame() + 1];
 	}
 
@@ -177,6 +181,11 @@ public final class McRunnable implements Runnable {
 
 	private short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
+	}
+
+	/** Returns true if p passes this McRunnable's filter. */
+	public boolean isFeasible(short p) {
+		return filter.at(p);
 	}
 
 }

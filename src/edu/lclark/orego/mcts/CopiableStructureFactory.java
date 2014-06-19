@@ -1,6 +1,7 @@
 package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
@@ -21,6 +22,7 @@ public final class CopiableStructureFactory {
 	public static CopiableStructure simpleRandom(int width) {
 		CopiableStructure base = basicParts(width);
 		Board board = base.get(Board.class);
+		base.add(new NotEyeLike(board));
 		return base.add(MoverFactory.simpleRandom(board));
 	}
 
@@ -31,7 +33,10 @@ public final class CopiableStructureFactory {
 	public static CopiableStructure feasible(int width) {
 		CopiableStructure base = basicParts(width);
 		Board board = base.get(Board.class);
-		return base.add( MoverFactory.feasible(board));
+		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
+		return base.add(MoverFactory.feasible(board));
 	}
 
 	/** Like feasible, but captures when possible. */

@@ -9,6 +9,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.sqrt;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.util.ShortSet;
 
 // TODO This is almost identical to BestRateDescender; should we consolidate?
@@ -67,8 +68,9 @@ public final class UctDescender implements TreeDescender {
 	}
 
 	/** Returns the best move to make from here during a playout. */
-	private static short bestSearchMove(SearchNode node, Board runnableBoard,
-			MersenneTwisterFast random) {
+	private short bestSearchMove(SearchNode node, McRunnable runnable) {
+		Board runnableBoard = runnable.getBoard();
+		MersenneTwisterFast random = runnable.getRandom();
 		short result = node.getWinningMove();
 		if ((result != NO_POINT) && runnableBoard.isLegal(result)) {
 			// The isLegal() check is necessary to avoid superko violations
@@ -85,7 +87,8 @@ public final class UctDescender implements TreeDescender {
 			short move = vacantPoints.get(i);
 			double searchValue = searchValue(node, move);
 			if (searchValue > best) {
-				if (runnableBoard.isLegal(move)) {
+				// TODO Would reversing the order here (and in bestPlayMove) be faster?
+				if (runnable.isFeasible(move) && runnableBoard.isLegal(move)) {
 					best = searchValue;
 					result = move;
 				} else {
@@ -128,9 +131,8 @@ public final class UctDescender implements TreeDescender {
 	}
 
 	/** Selects and plays one move in the search tree. */
-	private static short selectAndPlayMove(SearchNode node, McRunnable runnable) {
-		short move = bestSearchMove(node, runnable.getBoard(),
-				runnable.getRandom());
+	private short selectAndPlayMove(SearchNode node, McRunnable runnable) {
+		short move = bestSearchMove(node, runnable);
 		runnable.acceptMove(move);
 		return move;
 	}
