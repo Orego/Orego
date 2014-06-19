@@ -55,6 +55,8 @@ public final class Orego {
 	// TODO Can this be updated automatically?
 //	/** String to return in response to version command. */
 //	public static final String VERSION_STRING = "7.15";
+	
+	private CoordinateSystem coords;
 
 	/**
 	 * @param args
@@ -202,19 +204,21 @@ public final class Orego {
 	 */
 	private boolean handleCommand(String command, StringTokenizer arguments) {
 		if (command.equals("boardsize")) {
-//			if (arguments.countTokens() == 1) {
-//				int width = parseInt(arguments.nextToken());
-//				if (width == getBoardWidth()) {
+			if (arguments.countTokens() == 1) {
+				int width = Integer.parseInt(arguments.nextToken());
+				if (width == coords.getWidth()) {
 					player.clear();
 					acknowledge();
-//				} else{
-//					error("unacceptable size");
-//				}
-//			} else {
-//				error("unacceptable size");
-//			}
-		} else
-		if (command.equals("clear_board")) {
+				} else if(width < 20){
+					buildPlayer(width);
+					acknowledge();
+				} else {
+					error("unacceptable size");
+				}
+			} else {
+				error("unacceptable size");
+			}
+		} else if (command.equals("clear_board")) {
 			player.clear();
 			acknowledge();
 		} else
@@ -504,17 +508,21 @@ public final class Orego {
 //			e.printStackTrace();
 //			System.exit(1);
 //		}
+		buildPlayer(19);
+	}
+	
+	private void buildPlayer(int width){
 		final int milliseconds = 100;
 		final int threads = 4;
-		player = new Player(threads, CopiableStructureFactory.feasible(19));
+		player = null;
+		player = new Player(threads, CopiableStructureFactory.feasible(width));
 		Board board = player.getBoard();
-		CoordinateSystem coords = board.getCoordinateSystem();
+		coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
 		player.setTreeDescender(new UctDescender(board, table));
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
 		player.setMillisecondsPerMove(milliseconds);
-		// TODO Do we need to call player.clear?
 	}
 
 }
