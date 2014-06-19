@@ -41,6 +41,8 @@ public final class Player {
 	public Player(int threads, CopiableStructure stuff) {
 		CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
+		
+		//TODO Create separate interfaces for final and playout scorers. 
 		finalScorer = copy.get(ChineseFinalScorer.class);
 		runnables = new McRunnable[threads];
 		for (int i = 0; i < runnables.length; i++) {
