@@ -105,8 +105,7 @@ public class CoordinateSystemTest {
 
 	@Test
 	public void testReadResolve() {
-		// The CopiableStructure constructor requires at least two arguments
-		CopiableStructure stuff = new CopiableStructure(c19, "ignored");
+		CopiableStructure stuff = new CopiableStructure().add(c19);
 		CoordinateSystem c19again = stuff.copy().get(CoordinateSystem.class);
 		assertSame(c19, c19again);
 	}

@@ -20,7 +20,7 @@ public class CopiableStructureTest {
 		w.y = new Y();
 		w.x.z = new Z();
 		w.y.z = w.x.z;
-		cs = new CopiableStructure(w, w.x.z);
+		cs = new CopiableStructure().add(w).add(w.x.z);
 	}
 
 	@Test

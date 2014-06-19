@@ -8,11 +8,20 @@ import edu.lclark.orego.score.ChinesePlayoutScorer;
 /** Static methods for creating some particular, widely-used CopiableStructures. */
 public final class CopiableStructureFactory {
 
+	public static CopiableStructure basicParts(int width) {
+		Board board = new Board(width);
+		return new CopiableStructure()
+		.add(board)
+		.add(new ChinesePlayoutScorer(board, 7.5))
+		.add(new StoneCounter(board))
+		.add(new HistoryObserver(board));
+	}
+
 	/** Plays randomly except for eyelike points. */
 	public static CopiableStructure simpleRandom(int width) {
-		Board board = new Board(width);
-		return new CopiableStructure(board, MoverFactory.simpleRandom(board),
-				new ChinesePlayoutScorer(board, 7.5), new StoneCounter(board), new HistoryObserver(board));
+		CopiableStructure base = basicParts(width);
+		Board board = base.get(Board.class);
+		return base.add(MoverFactory.simpleRandom(board));
 	}
 
 	/**
@@ -20,29 +29,29 @@ public final class CopiableStructureFactory {
 	 * or near another stone.
 	 */
 	public static CopiableStructure feasible(int width) {
-		Board board = new Board(width);
-		return new CopiableStructure(board, MoverFactory.feasible(board),
-				new ChinesePlayoutScorer(board, 7.5), new StoneCounter(board), new HistoryObserver(board));
+		CopiableStructure base = basicParts(width);
+		Board board = base.get(Board.class);
+		return base.add( MoverFactory.feasible(board));
 	}
 
 	/** Like feasible, but captures when possible. */
 	public static CopiableStructure capturer(int width) {
-		Board board = new Board(width);
+		CopiableStructure base = basicParts(width);
+		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
-		return new CopiableStructure(board, MoverFactory.capturer(board,
-				atariObserver), new ChinesePlayoutScorer(board, 7.5),
-				new StoneCounter(board), new HistoryObserver(board));
+		return base.add(MoverFactory.capturer(board,
+				atariObserver));
 	}
 
 	/**
 	 * Uses an EscapeSuggester first, with a CaptureSuggester as a fallback.
 	 */
 	public static CopiableStructure escapeCapturer(int width) {
-		Board board = new Board(width);
+		CopiableStructure base = basicParts(width);
+		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
-		return new CopiableStructure(board, MoverFactory.escapeCapturer(board,
-				atariObserver), new ChinesePlayoutScorer(board, 7.5),
-				new StoneCounter(board), new HistoryObserver(board));
+		return base.add(MoverFactory.escapeCapturer(board,
+				atariObserver));
 	}
 
 }

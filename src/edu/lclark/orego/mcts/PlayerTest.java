@@ -26,7 +26,7 @@ public class PlayerTest {
 	@Before
 	public void setUp() throws Exception {
 		// TODO This is an awful lot of work, done (e.g.) here and in PlayoutSpeed. Encapsulate!
-		final int milliseconds = 1000;
+		final int milliseconds = 100;
 		final int threads = 4;
 		player = new Player(threads, CopiableStructureFactory.feasible(5));
 		Board board = player.getBoard();
@@ -50,6 +50,25 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(before, BLACK);
 		short move = player.bestMove();
 		assertEquals(at("e3"), move);
+	}
+
+	@Test
+	public void testFilter() {
+		String[] before = {
+				".##OO",
+				"##OO.",
+				"##O.O",
+				".#OO.",
+				".##OO",
+		};
+		for (int i = 0; i < 20; i++) {
+			player.clear();
+			player.getBoard().setUpProblem(before, BLACK);
+			short move = player.bestMove();
+			System.out.println(toString(move));
+			// This move should not be chosen as it is eyelike for black
+			assertNotEquals(at("a5"), move);
+		}
 	}
 
 }

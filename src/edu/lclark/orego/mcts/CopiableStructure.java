@@ -1,6 +1,7 @@
 package edu.lclark.orego.mcts;
 
 import java.io.*;
+import java.util.*;
 
 /**
  * A complicated structure with many parts. It can copy itself using
@@ -11,14 +12,16 @@ import java.io.*;
 @SuppressWarnings("serial")
 public final class CopiableStructure implements Serializable {
 
-	private final Serializable[] contents;
+	private final List<Serializable> contents;
 
-	public CopiableStructure(Serializable... contents) {
-		// Passing in a single array would interact strangely with the
-		// variable-arity argument. Since we would always be passing in multiple
-		// objects, this assertion catches this problem.
-		assert contents.length > 1;
-		this.contents = contents;
+	public CopiableStructure() {
+		this.contents = new ArrayList<>();
+	}
+
+	/** Adds item to this CopiableStructure. */
+	public CopiableStructure add(Serializable item) {
+		contents.add(item);
+		return this;
 	}
 
 	/**
