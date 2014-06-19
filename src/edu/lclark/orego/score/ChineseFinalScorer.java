@@ -89,9 +89,6 @@ public class ChineseFinalScorer implements Scorer {
 			} else if (nColor == colorToScore) {
 				continue;
 			} else {
-				System.out.println(nColor);
-				System.out.println(colorToScore);
-				System.out.println("Not valid territory");
 				validTerritory = false;
 			}
 		}
