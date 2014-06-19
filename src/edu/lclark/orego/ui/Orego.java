@@ -514,7 +514,6 @@ public final class Orego {
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
 		player.setMillisecondsPerMove(milliseconds);
-		// TODO Do we need to call player.clear?
 	}
 
 }
