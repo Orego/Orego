@@ -31,7 +31,7 @@ public final class Orego {
 //		"black", "white", //
 //		"known_command", //
 //		"komi", //
-//		"list_commands", //
+		"list_commands", //
 //		"loadsgf", //
 //		"name", //
 //		"play", //
@@ -261,7 +261,8 @@ public final class Orego {
 				// TODO Awkward
 				acknowledge(player.getBoard().getCoordinateSystem().toString(point));
 			}
-		} else 
+		} 
+//		else 
 //		if (command.equals("gogui-analyze_commands")) {
 //			String response = "";
 //			for (String s : goguiCommands) {
@@ -277,15 +278,17 @@ public final class Orego {
 //		} else if (command.equals("komi")) {
 //			player.setKomi(parseDouble(arguments.nextToken()));
 //			acknowledge();
-//		} else if (command.equals("list_commands")) {
-//			String response = "";
-//			for (String s : commands) {
-//				response += s + "\n";
-//			}
-//			// Strip final return
-//			response = response.substring(0, response.length() - 1);
-//			acknowledge(response);
-//		} else if (command.equals("loadsgf")) {
+		//} 
+		else if (command.equals("list_commands")) {
+			String response = "";
+			for (String s : commands) {
+				response += s + "\n";
+			}
+			// Strip final return
+			response = response.substring(0, response.length() - 1);
+			acknowledge(response);
+		} 
+//			else if (command.equals("loadsgf")) {
 //			if (arguments.countTokens() > 1) {
 //				System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
 //				player.setUpSgf(arguments.nextToken(),
@@ -298,7 +301,7 @@ public final class Orego {
 //		} else if (command.equals("name")) {
 //			acknowledge("Orego");
 //		} else 
-		if (command.equals("showboard")) {
+		else if (command.equals("showboard")) {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
 			acknowledge(s);
