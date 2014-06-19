@@ -67,7 +67,7 @@ public final class UctDescender implements TreeDescender {
 	}
 
 	/** Returns the best move to make from here during a playout. */
-	private short bestSearchMove(SearchNode node, McRunnable runnable) {
+	private static short bestSearchMove(SearchNode node, McRunnable runnable) {
 		Board runnableBoard = runnable.getBoard();
 		MersenneTwisterFast random = runnable.getRandom();
 		short result = node.getWinningMove();
@@ -130,7 +130,7 @@ public final class UctDescender implements TreeDescender {
 	}
 
 	/** Selects and plays one move in the search tree. */
-	private short selectAndPlayMove(SearchNode node, McRunnable runnable) {
+	private static short selectAndPlayMove(SearchNode node, McRunnable runnable) {
 		short move = bestSearchMove(node, runnable);
 		runnable.acceptMove(move);
 		return move;
