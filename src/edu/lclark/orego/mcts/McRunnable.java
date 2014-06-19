@@ -173,7 +173,6 @@ public final class McRunnable implements Runnable {
 	 */
 	@Override
 	public void run() {
-		// TODO Allow for limiting by playouts instead of time
 		while (getPlayer().shouldKeepRunning()) {
 			performMcRun();
 		}

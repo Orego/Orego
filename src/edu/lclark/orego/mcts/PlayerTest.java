@@ -18,11 +18,6 @@ public class PlayerTest {
 		return player.getBoard().getCoordinateSystem().at(label);
 	}
 
-	/** Delegate method. */
-	private String toString(short p) {
-		return player.getBoard().getCoordinateSystem().toString(p);
-	}
-
 	@Before
 	public void setUp() throws Exception {
 		// TODO This is an awful lot of work, done (e.g.) here and in PlayoutSpeed. Encapsulate!
