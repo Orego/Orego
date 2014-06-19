@@ -3,7 +3,7 @@ package edu.lclark.orego.mcts;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.MoverFactory;
-import edu.lclark.orego.score.ChinesePlayoutScorer;
+import edu.lclark.orego.score.*;
 
 /** Static methods for creating some particular, widely-used CopiableStructures. */
 public final class CopiableStructureFactory {
@@ -14,7 +14,8 @@ public final class CopiableStructureFactory {
 		.add(board)
 		.add(new ChinesePlayoutScorer(board, 7.5))
 		.add(new StoneCounter(board))
-		.add(new HistoryObserver(board));
+		.add(new HistoryObserver(board))
+		.add(new ChineseFinalScorer(board, 7.5));
 	}
 
 	/** Plays randomly except for eyelike points. */

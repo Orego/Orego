@@ -9,7 +9,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import static edu.lclark.orego.core.Legality.*;
 import edu.lclark.orego.move.Mover;
-import edu.lclark.orego.score.Scorer;
+import edu.lclark.orego.score.*;
 
 /**
  * Players use this class to perform multiple Monte Carlo runs in different
@@ -56,7 +56,7 @@ public final class McRunnable implements Runnable {
 		this.player = player;
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);
-		scorer = copy.get(Scorer.class);
+		scorer = copy.get(ChinesePlayoutScorer.class);
 		mercyObserver = copy.get(StoneCounter.class);
 		historyObserver = copy.get(HistoryObserver.class);
 		filter = copy.get(Predicate.class);

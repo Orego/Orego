@@ -22,9 +22,9 @@ import edu.lclark.orego.mcts.UctDescender;
 public final class Orego {
 
 	private static final String[] DEFAULT_GTP_COMMANDS = { //
-//		"boardsize", // comments keep the commands on
-//		"clear_board", // separate lines in the event of a
-//		"final_score", // source -> format in Eclipse
+		"boardsize", // comments keep the commands on
+		"clear_board", // separate lines in the event of a
+		"final_score", // source -> format in Eclipse
 //		"genmove", //
 //		"genmove_black", //
 //		"genmove_white", //
@@ -221,17 +221,14 @@ public final class Orego {
 		} else if (command.equals("clear_board")) {
 			player.clear();
 			acknowledge();
-		} else
-//			if (command.equals("final_score")) {
-//			double score = player.finalScore();
-//			if (score > 0) {
-//				acknowledge("B+" + score);
-//			} else {
-//				acknowledge("W+" + (-score));
-//			}
-//			debug(player.getBoard());
-//		} else
-		if (command.equals("genmove") || command.equals("genmove_black")
+		} else if (command.equals("final_score")) {
+			double score = player.finalScore();
+			if (score > 0) {
+				acknowledge("B+" + score);
+			} else {
+				acknowledge("W+" + (-score));
+			}
+		} else if (command.equals("genmove") || command.equals("genmove_black")
 				|| command.equals("genmove_white")
 				|| command.equals("kgs-genmove_cleanup")
 				|| command.equals("reg_genmove")) {
