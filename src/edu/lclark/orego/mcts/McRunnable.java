@@ -149,13 +149,8 @@ public final class McRunnable implements Runnable {
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				try {
-					selectAndPlayOneMove();
-				} catch (AssertionError e) {
-					e.printStackTrace();
-					System.out.println("Board:\n" + board);
-				}
-			}
+				selectAndPlayOneMove();
+		}
 			if (board.getPasses() >= 2) {
 				// Game ended
 				return scorer.winner();

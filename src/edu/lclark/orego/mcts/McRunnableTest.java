@@ -13,7 +13,12 @@ public class McRunnableTest {
 	private Player player;
 	
 	private McRunnable runnable;
-	
+
+	/** Delegate method to call at on player's board. */
+	private short at(String label) {
+		return player.getBoard().getCoordinateSystem().at(label);
+	}
+
 	@Before
 	public void setUp() throws Exception {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
@@ -57,6 +62,15 @@ public class McRunnableTest {
 		};
 		runnable.getBoard().setUpProblem(whiteWins, WHITE);
 		assertEquals(BLACK, runnable.performMcRun());
+	}
+
+	@Test
+	public void testCopyDataFrom() {
+		player.acceptMove(at("c3"));
+		player.acceptMove(at("d2"));
+		runnable.performMcRun();
+		runnable.copyDataFrom(player.getBoard());
+		assertEquals(player.getBoard().toString(), runnable.getBoard().toString());
 	}
 
 }

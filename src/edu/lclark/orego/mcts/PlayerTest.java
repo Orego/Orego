@@ -49,8 +49,6 @@ public class PlayerTest {
 		};
 		player.getBoard().setUpProblem(before, BLACK);
 		short move = player.bestMove();
-		System.out.println(toString(move));
-		System.out.println(player);
 		assertEquals(at("e3"), move);
 	}
 

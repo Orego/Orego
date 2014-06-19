@@ -384,12 +384,10 @@ public final class Board implements Serializable {
 				suicide = false;
 			} else if (neighborColor == color) { // Friendly neighbor
 				short chainId = points[n].chainId;
-				assert points[chainId].chainId == chainId;
 				friendlyNeighboringChainIds.addIfNotPresent(chainId);
 				suicide &= points[chainId].isInAtari();
 			} else if (neighborColor != OFF_BOARD) { // Enemy neighbor
 				short chainId = points[n].chainId;
-				assert points[chainId].chainId == chainId;
 				enemyNeighboringChainIds.addIfNotPresent(chainId);
 				suicide &= !(points[chainId].isInAtari());
 			}

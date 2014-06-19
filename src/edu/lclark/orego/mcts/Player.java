@@ -2,8 +2,10 @@ package edu.lclark.orego.mcts;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.Color;
+import java.util.concurrent.TimeUnit;
+
+import edu.lclark.orego.core.*;
+import static edu.lclark.orego.core.Legality.*;
 
 /** Runs playouts and chooses moves. */
 public final class Player {
@@ -14,7 +16,7 @@ public final class Player {
 	private TreeDescender descender;
 	
 	/** For managing threads. */
-	private final ExecutorService executor;
+	private ExecutorService executor;
 	
 	/** True if the threads should keep running, e.g., because time has not run out. */
 	private boolean keepRunning;
@@ -39,14 +41,14 @@ public final class Player {
 		for (int i = 0; i < runnables.length; i++) {
 			runnables[i] = new McRunnable(this, stuff);
 		}
-		executor = Executors.newFixedThreadPool(threads);
 		descender = new DoNothing();
 		updater = new DoNothing();
 	}
 
 	/** Plays at p on this player's board. */
 	public void acceptMove(short point) {
-		board.play(point);
+		Legality legality = board.play(point);
+		assert legality == OK;
 	}
 
 	/** Runs the McRunnables for some time and then returns the best move. */
@@ -81,16 +83,19 @@ public final class Player {
 	/** Runs the threads. */
 	private void runThreads() {
 		keepRunning = true;
+		executor = Executors.newFixedThreadPool(runnables.length);
 		for (int i = 0; i < runnables.length; i++) {
 			executor.execute(runnables[i]);
 		}
+		executor.shutdown();
 		try {
 			Thread.sleep(millisecondsPerMove);
+			keepRunning = false;
+			executor.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		keepRunning = false;
 	}
 	
 	/** Sets the number of milliseconds to allocate per move. */

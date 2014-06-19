@@ -505,7 +505,7 @@ public final class Orego {
 //			System.exit(1);
 //		}
 		final int milliseconds = 100;
-		final int threads = 1;
+		final int threads = 4;
 		player = new Player(threads, CopiableStructureFactory.feasible(19));
 		Board board = player.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();

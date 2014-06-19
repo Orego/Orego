@@ -72,7 +72,7 @@ public class SuggesterMoverTest {
 		}
 		for(short p : coords.getAllPointsOnBoard()){
 			if(p != at("a5") && p != at("b5") && p != at("a4")){
-				assertTrue(counts[p] > 25);
+				assertTrue(counts[p] > 20);
 			}
 		}
 		assertEquals(0, counts[at("a5")]);
