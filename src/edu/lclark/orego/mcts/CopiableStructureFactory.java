@@ -1,7 +1,6 @@
 package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.score.ChinesePlayoutScorer;

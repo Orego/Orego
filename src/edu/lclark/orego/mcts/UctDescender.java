@@ -9,7 +9,6 @@ import static java.lang.Math.min;
 import static java.lang.Math.sqrt;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.util.ShortSet;
 
 // TODO This is almost identical to BestRateDescender; should we consolidate?
