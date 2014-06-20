@@ -2,6 +2,7 @@ package edu.lclark.orego.score;
 
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.StoneColor.*;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
@@ -71,7 +72,7 @@ public class ChineseFinalScorer implements Scorer {
 	private int searchNeighbors(short p) {
 		int result = 1;
 		short[] neighbors = coords.getNeighbors(p);
-		for (int i = coords.FIRST_ORTHOGONAL_NEIGHBOR; i <= coords.LAST_ORTHOGONAL_NEIGHBOR; i++) {
+		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			short n = neighbors[i];
 			Color nColor = board.getColorAt(n);
 			if(nColor == OFF_BOARD){
