@@ -328,16 +328,20 @@ public final class Orego {
 //			}			
 //		} else if (command.equals("protocol_version")) {
 //			acknowledge("2");
-//		} else if (command.equals("quit")) {
-//			acknowledge();
-//			player.reset(); // to stop threaded players
-//			return false;
-//		} else if (command.equals("time_left")) {
+//		}
+		else if (command.equals("quit")) {
+			acknowledge();
+			player.clear(); // to stop threaded players
+			return false;
+		} 
+		else if (command.equals("time_left")) {
+			// TODO Currently we're ignoring this
 //			arguments.nextToken(); // Throw one argument away -- it's irrelevant
 //			int secondsLeft = parseInt(arguments.nextToken());
 //			player.setRemainingTime(secondsLeft);
-//			acknowledge();
-//		} else if (command.equals("kgs-game_over")) {
+			acknowledge();
+		} 
+//			else if (command.equals("kgs-game_over")) {
 //			try {
 //				Scanner scanner;
 //				acknowledge();
@@ -511,7 +515,7 @@ public final class Orego {
 //			e.printStackTrace();
 //			System.exit(1);
 //		}
-		buildPlayer(19);
+		buildPlayer(9);
 	}
 	
 	private void buildPlayer(int width){

@@ -67,6 +67,7 @@ public final class Player {
 
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void clear() {
+		// If pondering, stop threads
 		board.clear();
 		descender.clear();
 		updater.clear();

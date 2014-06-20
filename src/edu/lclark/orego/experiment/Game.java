@@ -17,6 +17,13 @@ import edu.lclark.orego.score.Scorer;
 /** Allows two independent GTP programs to play a game. */
 public final class Game {
 
+	public static void main(String[] args) {
+		String black = "java -ea -server -Xmx3072M -cp /Network/Servers/maccsserver.lclark.edu/Users/drake/Documents/workspace/Orego/bin edu.lclark.orego.ui.Orego";
+		String white = black;
+		new Game("/Network/Servers/maccsserver.lclark.edu/Users/drake/test.sgf", black, white).play();
+		// TODO Programs don't quit after successful game
+	}
+
 	static enum State { REQUESTING_MOVE, SENDING_MOVE, QUITTING, SENDING_TIME_LEFT }
 
 	// TODO Put this in a configuration file
@@ -131,6 +138,7 @@ public final class Game {
 	 * handling a move returned by a player.
 	 */
 	public void handleResponse(StoneColor color, String line, Scanner s) {
+		System.out.println("Got response: " + line);
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// Accumulate the time the player spent their total
@@ -243,6 +251,7 @@ public final class Game {
 				int c = color.index();
 				ProcessBuilder builder = new ProcessBuilder("nohup", "bash",
 						"-c", contestants[c], "&");
+				System.out.println("Finished constructing players");
 				builder.redirectErrorStream(true);
 				programs[c] = builder.start();
 				toPrograms[c] = new PrintWriter(
@@ -286,4 +295,5 @@ public final class Game {
 		}
 		return winner;
 	}
+
 }
