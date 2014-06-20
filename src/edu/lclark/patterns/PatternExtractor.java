@@ -7,27 +7,31 @@ import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.util.ShortSet;
-import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.move.Mover.*;
 
-public class PatternExtractor {
+public final class PatternExtractor {
 
 	private final static int PATTERN_COUNT = 65536;
 
-	private Board board;
+	private final Board board;
 
-	private CoordinateSystem coords;
+	private final CoordinateSystem coords;
 
-	private float[] winRates;
+	private final float[] winRates;
 
-	private int[] runs;
+	private final int[] runs;
 
-	private int[] wins;
+	private final int[] wins;
 
 	private MersenneTwisterFast random;
 
+	/**
+	 * Analyzes 3x3 patterns in SGF files and stores a win rate for each in an
+	 * array. Does not support varying board sizes because SgfParser does not
+	 * currently support board sizes other than 19.
+	 */
 	public PatternExtractor() {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
@@ -36,11 +40,15 @@ public class PatternExtractor {
 		wins = new int[PATTERN_COUNT];
 		random = new MersenneTwisterFast();
 	}
-	
-	float[] getWinRates(){
+
+	float[] getWinRates() {
 		return winRates;
 	}
 
+	/**
+	 * Updates the tables with a win for the pattern around the move and a loss
+	 * for some other random move on the board.
+	 */
 	private void analyzeMove(short move) {
 		updateTables(true, move);
 		updateTables(false, selectRandomMove(move));
@@ -48,7 +56,9 @@ public class PatternExtractor {
 
 	/**
 	 * Updates tables by generating hashes for patterns based on the color to
-	 * play. Color reversed patterns are stored in the same slot.
+	 * play. Color reversed patterns are stored in the same slot. If the move is
+	 * considered good, winner is true and the wins for the slot are updated. If
+	 * not, only runs is updated.
 	 */
 	private void updateTables(boolean winner, short move) {
 		short[] neighbors = coords.getNeighbors(move);
@@ -69,6 +79,10 @@ public class PatternExtractor {
 		runs[hash] += 1;
 	}
 
+	/**
+	 * Selects a random move. Used to help balance the table with losses for
+	 * points not played in the game being analyzed.
+	 */
 	private short selectRandomMove(short move) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short) (random.nextInt(vacantPoints.size()));
@@ -88,6 +102,7 @@ public class PatternExtractor {
 		return PASS;
 	}
 
+	/** Analyzes all the games in one SGF file. */
 	private float[] analyzeGames(List<List<Short>> games) {
 		for (List<Short> game : games) {
 			for (Short move : game) {
