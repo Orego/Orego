@@ -25,7 +25,7 @@ public final class PatternExtractor {
 
 	private final int[] wins;
 
-	private MersenneTwisterFast random;
+	private final MersenneTwisterFast random;
 
 	/**
 	 * Analyzes 3x3 patterns in SGF files and stores a win rate for each in an
