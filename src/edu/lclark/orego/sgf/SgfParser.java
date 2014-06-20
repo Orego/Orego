@@ -20,15 +20,6 @@ public class SgfParser {
 		this.coords = coords;
 	}
 	
-	public static void main(String[] args) {
-		SgfParser parser = new SgfParser(CoordinateSystem.forWidth(19));
-		List<List<Short>> games = parser.parseGamesFromFile(new File(ClassLoader.getSystemResource("edu/lclark/orego/sgf/game.sgf").getFile()), 100);
-		for(List<Short> game : games){
-			for(Short move : game){
-				System.out.println(parser.coords.toString(move));
-			}
-		}
-	}
 	
 	public List<List<Short>> parseGamesFromFile(File file, int maxBookDepth) {
 		List<List<Short>> games = new ArrayList<List<Short>>();
