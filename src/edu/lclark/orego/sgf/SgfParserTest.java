@@ -2,6 +2,9 @@ package edu.lclark.orego.sgf;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,6 +37,16 @@ public class SgfParserTest {
 		assertEquals(at("a19"), parser.sgfToPoint("aa"));
 		assertEquals(at("t19"), parser.sgfToPoint("sa"));
 		assertEquals(at("a1"), parser.sgfToPoint("as"));
+	}
+	
+	@Test
+	public void testSgfToMoves(){
+		List<List<Short>> games = parser.parseGamesFromFile(new File("SgfTestFiles/19/1977-02-27.sgf"), 500);
+		assertEquals(1, games.size());
+		List<Short> game = games.get(0);
+		assertEquals(180, game.size());
+		assertEquals(coords.at("R16"), (short)game.get(0));
+		assertEquals(coords.at("N11"), (short)game.get(179));
 	}
 
 }
