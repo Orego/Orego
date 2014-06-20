@@ -53,8 +53,8 @@ public final class Orego {
 	private static final int GTP_VERSION = 2;
 
 	// TODO Can this be updated automatically?
-//	/** String to return in response to version command. */
-//	public static final String VERSION_STRING = "7.15";
+	/** String to return in response to version command. */
+	public static final String VERSION_STRING = "8.00";
 	
 	private CoordinateSystem coords;
 
