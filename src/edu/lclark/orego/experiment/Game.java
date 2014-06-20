@@ -2,10 +2,10 @@ package edu.lclark.orego.experiment;
 
 import java.io.*;
 import java.util.Scanner;
-
 import static edu.lclark.orego.sgf.SgfWriter.*;
 import static edu.lclark.orego.ui.Orego.*;
 import static edu.lclark.orego.core.StoneColor.*;
+import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.experiment.Game.State.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
@@ -13,7 +13,6 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.score.ChineseFinalScorer;
 import edu.lclark.orego.score.Scorer;
-import edu.lclark.orego.ui.Orego;
 
 /** Allows two independent GTP programs to play a game. */
 public final class Game {
@@ -62,9 +61,6 @@ public final class Game {
 	 */
 	private boolean crashed;
 
-	/** Which player Orego is. */
-	private final StoneColor oregoColor;
-
 	/** System time (in nanoseconds) when the game started. */
 	private long starttime;
 
@@ -98,11 +94,6 @@ public final class Game {
 		out.println("PB[" + black + "]");
 		out.println("PW[" + white + "]");
 		out.flush();
-		if (black.contains("Orego")) {
-			oregoColor = BLACK;
-		} else {
-			oregoColor = WHITE;
-		}
 		board = new Board(boardSize);
 		scorer = new ChineseFinalScorer(board, komi);
 		starttime = System.nanoTime();
@@ -122,7 +113,6 @@ public final class Game {
 			toPrograms[color.index()].println("quit");
 			toPrograms[color.index()].flush();
 		}
-		// TODO When do we close the output file?
 	}
 
 	/**
@@ -140,7 +130,7 @@ public final class Game {
 	 * are handling a response. For example, if mode is REQUESTING_MOVE, we are
 	 * handling a move returned by a player.
 	 */
-	private void handleResponse(StoneColor color, String line, Scanner s) {
+	public void handleResponse(StoneColor color, String line, Scanner s) {
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// Accumulate the time the player spent their total
@@ -195,20 +185,11 @@ public final class Game {
 				toPrograms[getColorToPlay().index()].flush();
 			} else if (mode == SENDING_MOVE) {
 				mode = SENDING_TIME_LEFT;
-				// Tell the player how much time they have left in the game
-				long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[getColorToPlay().index()] / 1000000000;
-				toPrograms[getColorToPlay().index()].println("time_left "
-						+ getColorToPlay() + " "
-						+ timeLeftForThisPlayer + " 0");
-				toPrograms[getColorToPlay().index()].flush();
+				sendTime();
 			} else if (mode == SENDING_TIME_LEFT) {
 				// Ignore the player's response to the time_left command.
-				// Request a move.
 				mode = REQUESTING_MOVE;
-				toPrograms[getColorToPlay().index()].println("genmove "
-						+ getColorToPlay());
-				toPrograms[getColorToPlay().index()].flush();
-				timeLastMoveWasRequested = System.nanoTime();
+				sendMoveRequest();
 			} else { // Mode is QUITTING
 				// Do nothing
 			}
@@ -229,54 +210,65 @@ public final class Game {
 		}
 	}
 
+	/** Sends a move request to the color to play. */
+	private void sendMoveRequest() {
+		StoneColor c = getColorToPlay();
+		toPrograms[c.index()].println("genmove " + c);
+		toPrograms[c.index()].flush();
+		timeLastMoveWasRequested = System.nanoTime();
+	}
+
+	/** Sends a time left message to the color to play. */
+	private void sendTime() {
+		StoneColor c = getColorToPlay();
+		long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[c.index()]
+				/ 1000000000;
+		toPrograms[c.index()].println("time_left " + c + " "
+				+ timeLeftForThisPlayer + " 0");
+		toPrograms[c.index()].flush();
+	}
+
 	/**
 	 * Plays the game.
 	 * 
 	 * @return the color of the winning player (BLACK or WHITE), as defined in
 	 *         orego.core.Colors.
 	 */
-	public int play() {
+	private Color play() {
 		try {
-			winner = -1;
-			Process[] programs = new Process[NUMBER_OF_PLAYER_COLORS];
-			toPrograms = new PrintWriter[NUMBER_OF_PLAYER_COLORS];
-			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
+			winner = OFF_BOARD;
+			Process[] programs = new Process[2];
+			toPrograms = new PrintWriter[2];
+			for (StoneColor color : StoneColor.values()) {
+				int c = color.index();
 				ProcessBuilder builder = new ProcessBuilder("nohup", "bash",
-						"-c", contestants[color], "&");
+						"-c", contestants[c], "&");
 				builder.redirectErrorStream(true);
-				programs[color] = builder.start();
-				toPrograms[color] = new PrintWriter(
-						programs[color].getOutputStream());
+				programs[c] = builder.start();
+				toPrograms[c] = new PrintWriter(
+						programs[c].getOutputStream());
 				new Thread(new PlayerListener(color,
-						programs[color].getInputStream(), this)).start();
+						programs[c].getInputStream(), this)).start();
 			}
 			board.clear();
 			// start by telling the first player how much time they have left,
 			// which gets the game started (see the handleResponse() method).
 			if (GAME_TIME_IN_SECONDS > 0) {
 				mode = SENDING_TIME_LEFT;
-				int timeLeftInSeconds = GAME_TIME_IN_SECONDS - timeUsed[getColorToPlay()] / 1000;
-				toPrograms[getColorToPlay()].println("time_left "
-						+ COLOR_NAMES[getColorToPlay()] + " "
-						+ timeLeftInSeconds + " 0");
-				toPrograms[getColorToPlay()].flush();
+				sendTime();
 			} else {
 				mode = REQUESTING_MOVE;
-				toPrograms[getColorToPlay()].println("genmove "
-						+ COLOR_NAMES[getColorToPlay()]);
-				toPrograms[getColorToPlay()].flush();
-				timeLastMoveWasRequested = System.nanoTime();
+				sendMoveRequest();
 			}
 			// Wait for programs to finish
-			for (int color = 0; color < NUMBER_OF_PLAYER_COLORS; color++) {
-				programs[color].waitFor();
+			for (StoneColor color : StoneColor.values()) {
+				programs[color.index()].waitFor();
 			}
-			if (!crashed) {
-				if (winner == -1) { // Game not already resolved by resignation
-					winner = board.finalWinner();
-				}
+			if (!crashed && winner == OFF_BOARD) { // Game not already resolved by resignation
+					winner = scorer.winner();
 			}
-			for (int c = BLACK; c < NUMBER_OF_PLAYER_COLORS; c++) {
+			for (StoneColor color : StoneColor.values()) {
+				int c = color.index();
 				toPrograms[c].close();
 				programs[c].getInputStream().close();
 				programs[c].getOutputStream().close();
