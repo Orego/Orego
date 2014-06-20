@@ -2,12 +2,17 @@ package edu.lclark.orego.experiment;
 
 import java.io.*;
 import java.util.Scanner;
+
+import static edu.lclark.orego.sgf.SgfWriter.*;
 import static edu.lclark.orego.ui.Orego.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.experiment.Game.State.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.score.ChineseFinalScorer;
+import edu.lclark.orego.score.Scorer;
 import edu.lclark.orego.ui.Orego;
 
 /** Allows two independent GTP programs to play a game. */
@@ -16,7 +21,7 @@ public final class Game {
 	static enum State { REQUESTING_MOVE, SENDING_MOVE, QUITTING, SENDING_TIME_LEFT }
 
 	// TODO Put this in a configuration file
-	private static final double GAME_TIME_IN_SECONDS = 600;
+	private static final int GAME_TIME_IN_SECONDS = 600;
 	
 	/** The amount of time (in nanoseconds) each player has used so far. */
 	private final long[] timeUsed;
@@ -36,6 +41,9 @@ public final class Game {
 	/** File to which the results of this game are sent. */
 	private final String filename;
 
+	/** For scoring games. */
+	private final Scorer scorer;
+	
 	/** State of the program. */
 	private State mode;
 
@@ -84,8 +92,9 @@ public final class Game {
 		}
 		// TODO Extract board size, komi from Orego command string
 		int boardSize = 9;
+		double komi = 7.5;
 		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING
-				+ "]KM[7.5]GM[1]SZ[" + boardSize + "]");
+				+ "]KM[" + komi + "]GM[1]SZ[" + boardSize + "]");
 		out.println("PB[" + black + "]");
 		out.println("PW[" + white + "]");
 		out.flush();
@@ -95,6 +104,7 @@ public final class Game {
 			oregoColor = WHITE;
 		}
 		board = new Board(boardSize);
+		scorer = new ChineseFinalScorer(board, komi);
 		starttime = System.nanoTime();
 	}
 
@@ -125,6 +135,10 @@ public final class Game {
 	// TODO This used to be synchronized. Why?
 	/**
 	 * Handles a response string (line) from the player of the given color.
+	 * 
+	 * At the beginning of this method, mode is set to the action to which we
+	 * are handling a response. For example, if mode is REQUESTING_MOVE, we are
+	 * handling a move returned by a player.
 	 */
 	private void handleResponse(StoneColor color, String line, Scanner s) {
 		if (line.startsWith("=")) {
@@ -132,10 +146,12 @@ public final class Game {
 				// Accumulate the time the player spent their total
 				timeUsed[getColorToPlay().index()] += System
 						.nanoTime() - timeLastMoveWasRequested;
-				double timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[getColorToPlay().index()] / 1000000000.0;
+				long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[getColorToPlay().index()] / 1000000000;
 				String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL" : "WL") + "[" + timeLeftForThisPlayer + "]";
 				String coordinates = line.substring(line.indexOf(' ') + 1);
-				// SGF output
+				// TODO Make this a field?
+				CoordinateSystem coords = board.getCoordinateSystem();
+				// Begin SGF output
 				if (coordinates.equals("PASS")) {
 					out.println((getColorToPlay() == BLACK ? ";B" : ";W")
 							+ "[]" + timeLeftIndicator);
@@ -148,25 +164,24 @@ public final class Game {
 					return;
 				} else {
 					out.println((getColorToPlay() == BLACK ? ";B" : ";W") + "["
-							+ rowToSgfChar(row(at(coordinates)))
-							+ columnToSgfChar(column(at(coordinates))) + "]" + timeLeftIndicator);
+							+ toSgf(coords.at(coordinates), coords) + "]" + timeLeftIndicator);
 					out.flush();
 				}
-				// end sgf output
-				if (coordinates.toLowerCase().equals("resign")) {
-				}
-				board.play(at(coordinates));
+				// End SGF output
+				// TODO Board should probably be able to accept coordinates as a String
+				board.play(coords.at(coordinates));
 				if (board.getPasses() == 2) {
 					out.println(";RE["
-							+ (board.finalWinner() == BLACK ? "B" : "W") + "+"
-							+ Math.abs(board.finalScore()) + "]");
-					out.flush();
+							+ (scorer.winner() == BLACK ? "B" : "W") + "+"
+							+ Math.abs(scorer.score()) + "]");
 					out.println(";C[moves:" + board.getTurn() + "]");
 					out.flush();
-					toPrograms[oregoColor].println("playout_count");
-					toPrograms[oregoColor].flush();
 					return;
 				}
+				// We are going to send the move now. After the response
+				// received, we want to be in a mode indicating what we are
+				// finishing. If we aren't tracking game time, pretend we sent
+				// the time left to skip that step.
 				if (GAME_TIME_IN_SECONDS > 0) {
 					mode = SENDING_MOVE;
 				} else {
@@ -174,26 +189,25 @@ public final class Game {
 				}
 				// Note the color reversal here, because the color to play has
 				// already been switched
-				toPrograms[getColorToPlay()]
-				.println(COLOR_NAMES[opposite(getColorToPlay())]
+				toPrograms[getColorToPlay().index()]
+				.println(getColorToPlay().opposite()
 						 + " " + coordinates);
-				toPrograms[getColorToPlay()].flush();
+				toPrograms[getColorToPlay().index()].flush();
 			} else if (mode == SENDING_MOVE) {
 				mode = SENDING_TIME_LEFT;
-				// tell the player how much time they have left in the game
-				int timeLeftInSeconds = GAME_TIME_IN_SECONDS
-						- timeUsed[getColorToPlay()] / 1000;
-				toPrograms[getColorToPlay()].println("time_left "
-						+ COLOR_NAMES[getColorToPlay()] + " "
-						+ timeLeftInSeconds + " 0");
-				toPrograms[getColorToPlay()].flush();
+				// Tell the player how much time they have left in the game
+				long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[getColorToPlay().index()] / 1000000000;
+				toPrograms[getColorToPlay().index()].println("time_left "
+						+ getColorToPlay() + " "
+						+ timeLeftForThisPlayer + " 0");
+				toPrograms[getColorToPlay().index()].flush();
 			} else if (mode == SENDING_TIME_LEFT) {
-				// ignore the player's response to the time_left command.
-				// request a move.
+				// Ignore the player's response to the time_left command.
+				// Request a move.
 				mode = REQUESTING_MOVE;
-				toPrograms[getColorToPlay()].println("genmove "
-						+ COLOR_NAMES[getColorToPlay()]);
-				toPrograms[getColorToPlay()].flush();
+				toPrograms[getColorToPlay().index()].println("genmove "
+						+ getColorToPlay());
+				toPrograms[getColorToPlay().index()].flush();
 				timeLastMoveWasRequested = System.nanoTime();
 			} else { // Mode is QUITTING
 				// Do nothing
