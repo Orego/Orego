@@ -2,6 +2,7 @@ package edu.lclark.orego.experiment;
 
 import java.io.*;
 import java.util.Scanner;
+
 import static edu.lclark.orego.sgf.SgfWriter.*;
 import static edu.lclark.orego.ui.Orego.*;
 import static edu.lclark.orego.core.StoneColor.*;
@@ -20,21 +21,25 @@ public final class Game {
 	public static void main(String[] args) {
 		String black = "java -ea -server -Xmx3072M -cp /Network/Servers/maccsserver.lclark.edu/Users/drake/Documents/workspace/Orego/bin edu.lclark.orego.ui.Orego";
 		String white = black;
-		new Game("/Network/Servers/maccsserver.lclark.edu/Users/drake/test.sgf", black, white).play();
+		new Game(
+				"/Network/Servers/maccsserver.lclark.edu/Users/drake/test.sgf",
+				black, white).play();
 		// TODO Programs don't quit after successful game
 	}
 
-	static enum State { REQUESTING_MOVE, SENDING_MOVE, QUITTING, SENDING_TIME_LEFT }
+	static enum State {
+		REQUESTING_MOVE, SENDING_MOVE, QUITTING, SENDING_TIME_LEFT
+	}
 
 	// TODO Put this in a configuration file
 	private static final int GAME_TIME_IN_SECONDS = 600;
-	
+
 	/** The amount of time (in nanoseconds) each player has used so far. */
 	private final long[] timeUsed;
 
 	/**
-	 * The system time (in nanoseconds) the player was asked for a move. This
-	 * is used to calculate how much of their time each player has used.
+	 * The system time (in nanoseconds) the player was asked for a move. This is
+	 * used to calculate how much of their time each player has used.
 	 */
 	private long timeLastMoveWasRequested;
 
@@ -49,7 +54,7 @@ public final class Game {
 
 	/** For scoring games. */
 	private final Scorer scorer;
-	
+
 	/** State of the program. */
 	private State mode;
 
@@ -58,6 +63,9 @@ public final class Game {
 
 	/** Prints to the two program processes. */
 	private PrintWriter[] toPrograms;
+
+	/** Processes running the competing programs. */
+	private Process[] programs;
 
 	/** Color the winning player (BLACK or WHITE). */
 	private Color winner;
@@ -87,7 +95,7 @@ public final class Game {
 			out = new PrintWriter(filename);
 		} catch (Throwable e) {
 			out.println("In " + filename + ":");
-//			out.println(board);
+			// out.println(board);
 			e.printStackTrace(out);
 			out.flush();
 			out.close();
@@ -96,8 +104,8 @@ public final class Game {
 		// TODO Extract board size, komi from Orego command string
 		int boardSize = 9;
 		double komi = 7.5;
-		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING
-				+ "]KM[" + komi + "]GM[1]SZ[" + boardSize + "]");
+		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM[" + komi
+				+ "]GM[1]SZ[" + boardSize + "]");
 		out.println("PB[" + black + "]");
 		out.println("PW[" + white + "]");
 		out.flush();
@@ -111,6 +119,7 @@ public final class Game {
 	 * end.
 	 */
 	private void endPrograms() {
+		// TODO Put these times in more human-readable format
 		out.println(";C[starttime:" + starttime + "]");
 		out.println(";C[endtime:" + System.nanoTime() + "]");
 		out.println(")");
@@ -138,14 +147,15 @@ public final class Game {
 	 * handling a move returned by a player.
 	 */
 	public void handleResponse(StoneColor color, String line, Scanner s) {
-		System.out.println("Got response: " + line);
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// Accumulate the time the player spent their total
-				timeUsed[getColorToPlay().index()] += System
-						.nanoTime() - timeLastMoveWasRequested;
-				long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[getColorToPlay().index()] / 1000000000;
-				String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL" : "WL") + "[" + timeLeftForThisPlayer + "]";
+				timeUsed[getColorToPlay().index()] += System.nanoTime()
+						- timeLastMoveWasRequested;
+				long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS
+						- timeUsed[getColorToPlay().index()] / 1000000000;
+				String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL"
+						: "WL") + "[" + timeLeftForThisPlayer + "]";
 				String coordinates = line.substring(line.indexOf(' ') + 1);
 				// TODO Make this a field?
 				CoordinateSystem coords = board.getCoordinateSystem();
@@ -162,18 +172,18 @@ public final class Game {
 					return;
 				} else {
 					out.println((getColorToPlay() == BLACK ? ";B" : ";W") + "["
-							+ toSgf(coords.at(coordinates), coords) + "]" + timeLeftIndicator);
+							+ toSgf(coords.at(coordinates), coords) + "]"
+							+ timeLeftIndicator);
 					out.flush();
 				}
 				// End SGF output
-				// TODO Board should probably be able to accept coordinates as a String
-				board.play(coords.at(coordinates));
+				board.play(coordinates);
 				if (board.getPasses() == 2) {
-					out.println(";RE["
-							+ (scorer.winner() == BLACK ? "B" : "W") + "+"
-							+ Math.abs(scorer.score()) + "]");
+					out.println(";RE[" + (scorer.winner() == BLACK ? "B" : "W")
+							+ "+" + Math.abs(scorer.score()) + "]");
 					out.println(";C[moves:" + board.getTurn() + "]");
 					out.flush();
+					endPrograms();
 					return;
 				}
 				// We are going to send the move now. After the response
@@ -187,9 +197,8 @@ public final class Game {
 				}
 				// Note the color reversal here, because the color to play has
 				// already been switched
-				toPrograms[getColorToPlay().index()]
-				.println(getColorToPlay().opposite()
-						 + " " + coordinates);
+				toPrograms[getColorToPlay().index()].println(getColorToPlay()
+						.opposite() + " " + coordinates);
 				toPrograms[getColorToPlay().index()].flush();
 			} else if (mode == SENDING_MOVE) {
 				mode = SENDING_TIME_LEFT;
@@ -243,25 +252,23 @@ public final class Game {
 	 *         orego.core.Colors.
 	 */
 	private Color play() {
+		winner = OFF_BOARD;
+		programs = new Process[2];
+		toPrograms = new PrintWriter[2];
 		try {
-			winner = OFF_BOARD;
-			Process[] programs = new Process[2];
-			toPrograms = new PrintWriter[2];
 			for (StoneColor color : StoneColor.values()) {
 				int c = color.index();
 				ProcessBuilder builder = new ProcessBuilder("nohup", "bash",
 						"-c", contestants[c], "&");
-				System.out.println("Finished constructing players");
 				builder.redirectErrorStream(true);
 				programs[c] = builder.start();
-				toPrograms[c] = new PrintWriter(
-						programs[c].getOutputStream());
+				toPrograms[c] = new PrintWriter(programs[c].getOutputStream());
 				new Thread(new PlayerListener(color,
 						programs[c].getInputStream(), this)).start();
 			}
 			board.clear();
-			// start by telling the first player how much time they have left,
-			// which gets the game started (see the handleResponse() method).
+			// Start by telling the first player how much time they have left,
+			// which gets the game started (see handleResponse).
 			if (GAME_TIME_IN_SECONDS > 0) {
 				mode = SENDING_TIME_LEFT;
 				sendTime();
@@ -273,24 +280,33 @@ public final class Game {
 			for (StoneColor color : StoneColor.values()) {
 				programs[color.index()].waitFor();
 			}
-			if (!crashed && winner == OFF_BOARD) { // Game not already resolved by resignation
-					winner = scorer.winner();
-			}
-			for (StoneColor color : StoneColor.values()) {
-				int c = color.index();
-				toPrograms[c].close();
-				programs[c].getInputStream().close();
-				programs[c].getOutputStream().close();
-				programs[c].getErrorStream().close();
-				programs[c].destroy();
+			if (!crashed && winner == OFF_BOARD) { // Game not already resolved
+													// by resignation
+				winner = scorer.winner();
 			}
 			out.close();
 		} catch (Throwable e) {
+			// Something when wrong; report the error, kill everything, and die
 			out.println("In " + filename + ":");
 			out.println(board);
 			e.printStackTrace(out);
 			out.flush();
 			out.close();
+			try {
+				for (StoneColor color : StoneColor.values()) {
+					int c = color.index();
+					toPrograms[c].println("quit");
+					toPrograms[c].flush();
+					toPrograms[c].close();
+					programs[c].getInputStream().close();
+					programs[c].getOutputStream().close();
+					programs[c].getErrorStream().close();
+					programs[c].destroy();
+				}
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				System.exit(1);
+			}
 			System.exit(1);
 		}
 		return winner;

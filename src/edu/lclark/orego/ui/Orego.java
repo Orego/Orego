@@ -233,7 +233,6 @@ public final class Orego {
 				|| command.equals("kgs-genmove_cleanup")
 				|| command.equals("reg_genmove")) {
 			StoneColor color;
-			short point;
 			if (command.equals("genmove")
 					|| command.equals("kgs-genmove_cleanup")
 					|| command.equals("reg_genmove")) {
@@ -251,7 +250,7 @@ public final class Orego {
 //			if (command.equals("kgs-genmove_cleanup")) {
 //				player.setCleanUpMode(true);
 //			}
-			point = player.bestMove();
+			short point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
 			} else {
@@ -332,7 +331,7 @@ public final class Orego {
 		else if (command.equals("quit")) {
 			acknowledge();
 			player.clear(); // to stop threaded players
-			return false;
+			System.exit(0);
 		} 
 		else if (command.equals("time_left")) {
 			// TODO Currently we're ignoring this
