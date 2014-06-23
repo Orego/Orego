@@ -106,7 +106,7 @@ public final class Game {
 		final int boardSize = 9;
 		final double komi = 7.5;
 		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM[" + komi
-				+ "]GM[1]SZ[" + boardSize + "]");
+				+ "]GM[1]RU[Chinese]SZ[" + boardSize + "]");
 		out.println("PB[" + black + "]");
 		out.println("PW[" + white + "]");
 		out.flush();
