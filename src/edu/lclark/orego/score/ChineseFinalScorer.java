@@ -9,15 +9,15 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
-public class ChineseFinalScorer implements Scorer {
+public final class ChineseFinalScorer implements Scorer {
 
-	private Board board;
+	private final Board board;
 
-	private CoordinateSystem coords;
+	private final CoordinateSystem coords;
 
 	private Color colorToScore;
 
-	private ShortSet visitedPoints;
+	private final ShortSet visitedPoints;
 	
 	private boolean validTerritory;
 
@@ -37,6 +37,7 @@ public class ChineseFinalScorer implements Scorer {
 	@Override
 	public double score() {
 		double result = komi;
+		visitedPoints.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			Color color = board.getColorAt(p);
 			if (color == BLACK) {

@@ -59,4 +59,24 @@ public class ChineseFinalScorerTest {
 		assertEquals(4, scorer.score(), 0.01);
 	}
 
+	@Test
+	public void testBug1() {
+		board = new Board(9);
+		scorer = new ChineseFinalScorer(board, 7.5);
+		String[] diagram = {
+				"####.####",
+				"##.######",
+				"#.#.#.#.#",
+				"#########",
+				".#.#####O",
+				"######O#O",
+				"#OO#OOOOO",
+				"#OOOO.OOO",
+				"OOOO.OOO.",
+		};
+		board.setUpProblem(diagram, BLACK);
+		assertEquals(BLACK, scorer.winner());
+		assertEquals(19.5, scorer.score(), 0.01);		
+	}
+
 }
