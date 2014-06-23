@@ -70,9 +70,9 @@ public class EscapeSuggesterTest {
 		};
 		board.setUpProblem(diagram, WHITE);
 		assertFalse(movesToEscape.getMoves().contains(at("e2")));
-		board.play(at("d1"));
+		board.play("d1");
 		assertTrue(movesToEscape.getMoves().contains(at("e5")));
-		board.play(at("a3"));
+		board.play("a3");
 		assertTrue(movesToEscape.getMoves().contains(at("e2")));
 	}
 

@@ -517,6 +517,14 @@ public final class Board implements Serializable {
 	}
 
 	/**
+	 * Convenience method for specifying a move as a human-readable string, e.g., "c4" or "pass".
+	 * @see #play(short)
+	 */
+	public Legality play(String move) {
+		return play(coords.at(move));
+	}
+
+	/**
 	 * Similar to play, but assumes p is on board and not occupied. Does not
 	 * maintain hash or check superko.
 	 */

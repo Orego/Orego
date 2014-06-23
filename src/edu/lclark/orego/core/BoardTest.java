@@ -35,8 +35,8 @@ public class BoardTest {
 
 	@Test
 	public void testSimplePlay() {
-		assertEquals(OK, board.play(at("a2")));
-		assertEquals(OK, board.play(at("b3")));
+		assertEquals(OK, board.play("a2"));
+		assertEquals(OK, board.play("b3"));
 		assertEquals(BLACK, board.getColorAt(at("a2")));
 		assertEquals(WHITE, board.getColorAt(at("b3")));
 	}
@@ -50,13 +50,13 @@ public class BoardTest {
 
 	@Test
 	public void testOccupied() {
-		board.play(at("c1"));
-		assertEquals(OCCUPIED, board.play(at("c1")));
+		board.play("c1");
+		assertEquals(OCCUPIED, board.play("c1"));
 	}
 
 	@Test
 	public void testPass() {
-		assertEquals(OK, board.play(at("pass")));
+		assertEquals(OK, board.play("pass"));
 		assertEquals(WHITE, board.getColorToPlay());
 	}
 
@@ -70,8 +70,8 @@ public class BoardTest {
 				"#O.#.",
 		};
 		board.setUpProblem(before, WHITE);
-		assertEquals(SUICIDE, board.play(at("c1")));
-		assertEquals(OK, board.play(at("c5")));
+		assertEquals(SUICIDE, board.play("c1"));
+		assertEquals(OK, board.play("c5"));
 		String[] after = {
 				".OO#.",
 				".##..",
@@ -92,7 +92,7 @@ public class BoardTest {
 				"#OO#.",
 		};
 		board.setUpProblem(before, BLACK);
-		assertEquals(OK, board.play(at("b2")));
+		assertEquals(OK, board.play("b2"));
 		String[] after = {
 				".....",
 				".....",
@@ -113,7 +113,7 @@ public class BoardTest {
 				".O#O.",
 		};
 		board.setUpProblem(before, WHITE);
-		assertEquals(OK, board.play(at("c3")));
+		assertEquals(OK, board.play("c3"));
 		String[] after = {
 				".O.O.",
 				"OO.O.",
@@ -134,8 +134,8 @@ public class BoardTest {
 				".#O..",
 		};
 		board.setUpProblem(before, WHITE);
-		assertEquals(OK, board.play(at("a1")));
-		assertEquals(KO_VIOLATION, board.play(at("b1")));
+		assertEquals(OK, board.play("a1"));
+		assertEquals(KO_VIOLATION, board.play("b1"));
 		String[] after = {
 				".....",
 				".....",
@@ -156,9 +156,9 @@ public class BoardTest {
 				".O.#.",
 		};
 		board.setUpProblem(before, WHITE);
-		assertEquals(OK, board.play(at("c1")));
-		assertEquals(OK, board.play(at("a1")));
-		assertEquals(KO_VIOLATION, board.play(at("b1")));
+		assertEquals(OK, board.play("c1"));
+		assertEquals(OK, board.play("a1"));
+		assertEquals(KO_VIOLATION, board.play("b1"));
 		String[] after = {
 				".....",
 				".....",
@@ -208,7 +208,7 @@ public class BoardTest {
 		assertEquals(0, board.getPasses());
 		board.pass();
 		assertEquals(1, board.getPasses());
-		board.play(at("c4"));
+		board.play("c4");
 		assertEquals(0, board.getPasses());
 		board.pass();
 		assertEquals(1, board.getPasses());
@@ -219,7 +219,7 @@ public class BoardTest {
 	@Test
 	public void testGetTurn() {
 		assertEquals(0, board.getTurn());
-		board.play(at("c1"));
+		board.play("c1");
 		assertEquals(1, board.getTurn());
 		board.pass();
 		assertEquals(2, board.getTurn());
@@ -227,32 +227,32 @@ public class BoardTest {
 
 	@Test
 	public void testBug1() {
-		assertEquals(OK, board.play(at("D5")));
-		assertEquals(OK, board.play(at("A5")));
-		assertEquals(OK, board.play(at("A2")));
-		assertEquals(OK, board.play(at("E4")));
-		assertEquals(OK, board.play(at("D2")));
-		assertEquals(OK, board.play(at("C4")));
-		assertEquals(OK, board.play(at("B2")));
-		assertEquals(OK, board.play(at("B5")));
-		assertEquals(OK, board.play(at("E3")));
-		assertEquals(OK, board.play(at("A1")));
-		assertEquals(OK, board.play(at("C2")));
-		assertEquals(OK, board.play(at("B1")));
-		assertEquals(OK, board.play(at("D1")));
-		assertEquals(OK, board.play(at("E2")));
-		assertEquals(OK, board.play(at("D4")));
-		assertEquals(OK, board.play(at("A4")));
-		assertEquals(OK, board.play(at("E5")));
-		assertEquals(OK, board.play(at("D3")));
-		assertEquals(OK, board.play(at("C3")));
-		assertEquals(OK, board.play(at("B4")));
-		assertEquals(OK, board.play(at("C5")));
-		assertEquals(OK, board.play(at("B3")));
-		assertEquals(OK, board.play(at("C1")));
-		assertEquals(OK, board.play(at("B1")));
-		assertEquals(OK, board.play(at("D3")));
-		assertEquals(SUICIDE, board.play(at("A1")));
+		assertEquals(OK, board.play("D5"));
+		assertEquals(OK, board.play("A5"));
+		assertEquals(OK, board.play("A2"));
+		assertEquals(OK, board.play("E4"));
+		assertEquals(OK, board.play("D2"));
+		assertEquals(OK, board.play("C4"));
+		assertEquals(OK, board.play("B2"));
+		assertEquals(OK, board.play("B5"));
+		assertEquals(OK, board.play("E3"));
+		assertEquals(OK, board.play("A1"));
+		assertEquals(OK, board.play("C2"));
+		assertEquals(OK, board.play("B1"));
+		assertEquals(OK, board.play("D1"));
+		assertEquals(OK, board.play("E2"));
+		assertEquals(OK, board.play("D4"));
+		assertEquals(OK, board.play("A4"));
+		assertEquals(OK, board.play("E5"));
+		assertEquals(OK, board.play("D3"));
+		assertEquals(OK, board.play("C3"));
+		assertEquals(OK, board.play("B4"));
+		assertEquals(OK, board.play("C5"));
+		assertEquals(OK, board.play("B3"));
+		assertEquals(OK, board.play("C1"));
+		assertEquals(OK, board.play("B1"));
+		assertEquals(OK, board.play("D3"));
+		assertEquals(SUICIDE, board.play("A1"));
 	}
 
 	@Test
@@ -269,7 +269,7 @@ public class BoardTest {
 		assertEquals(4, board.getLiberties(at("b3")).size());
 		assertEquals(5, board.getLiberties(at("d3")).size());
 		assertEquals(5, board.getLiberties(at("c2")).size());
-		assertEquals(OK, board.play(at("c3")));
+		assertEquals(OK, board.play("c3"));
 		assertEquals(9, board.getLiberties(at("c3")).size());
 	}
 
@@ -394,7 +394,7 @@ public class BoardTest {
 				".#O..",
 		};
 		board.setUpProblem(diagram, BLACK);
-		board.play(at("c2"));
+		board.play("c2");
 		long simple1 = board.getHash();
 		long fancy1 = board.getFancyHash();
 		diagram = new String[] {
