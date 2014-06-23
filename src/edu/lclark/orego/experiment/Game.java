@@ -1,6 +1,7 @@
 package edu.lclark.orego.experiment;
 
 import java.io.*;
+import java.util.Date;
 import java.util.Scanner;
 
 import static edu.lclark.orego.sgf.SgfWriter.*;
@@ -55,16 +56,16 @@ public final class Game {
 	/** For scoring games. */
 	private final Scorer scorer;
 
-	/** System time (in nanoseconds) when the game started. */
+	/** System time (in milliseconds) when the game started. */
 	private long starttime;
 
 	/**
-	 * The system time (in nanoseconds) the player was asked for a move. This is
-	 * used to calculate how much of their time each player has used.
+	 * The system time (in milliseconds) the player was asked for a move. This
+	 * is used to calculate how much of their time each player has used.
 	 */
 	private long timeLastMoveWasRequested;
 
-	/** The amount of time (in nanoseconds) each player has used so far. */
+	/** The amount of time (in milliseconds) each player has used so far. */
 	private final long[] timeUsed;
 
 	/** Prints to the two program processes. */
@@ -105,17 +106,17 @@ public final class Game {
 		out.flush();
 		board = new Board(boardSize);
 		scorer = new ChineseFinalScorer(board, komi);
-		starttime = System.nanoTime();
+		starttime = System.currentTimeMillis();
 	}
 
 	/**
 	 * Sends the quit command to both contestants, so that the processes will
-	 * end.
+	 * end. Also adds start and end time comments to the end of the output SGF
+	 * file.
 	 */
 	private void endPrograms() {
-		// TODO Put these times in more human-readable format
-		out.println(";C[starttime:" + starttime + "]");
-		out.println(";C[endtime:" + System.nanoTime() + "]");
+		out.println(";C[starttime:" + new Date(starttime) + "]");
+		out.println(";C[endtime:" + new Date(System.currentTimeMillis()) + "]");
 		out.println(")");
 		out.flush();
 		mode = QUITTING;
@@ -146,10 +147,10 @@ public final class Game {
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// Accumulate the time the player spent their total
-				timeUsed[getColorToPlay().index()] += System.nanoTime()
-						- timeLastMoveWasRequested;
+				timeUsed[getColorToPlay().index()] += System
+						.currentTimeMillis() - timeLastMoveWasRequested;
 				long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS
-						- timeUsed[getColorToPlay().index()] / 1000000000;
+						- timeUsed[getColorToPlay().index()] / 1000000;
 				String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL"
 						: "WL") + "[" + timeLeftForThisPlayer + "]";
 				String coordinates = line.substring(line.indexOf(' ') + 1);
@@ -296,14 +297,14 @@ public final class Game {
 		StoneColor c = getColorToPlay();
 		toPrograms[c.index()].println("genmove " + c);
 		toPrograms[c.index()].flush();
-		timeLastMoveWasRequested = System.nanoTime();
+		timeLastMoveWasRequested = System.currentTimeMillis();
 	}
 
 	/** Sends a time left message to the color to play. */
 	private void sendTime() {
 		StoneColor c = getColorToPlay();
 		long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[c.index()]
-				/ 1000000000;
+				/ 1000000;
 		toPrograms[c.index()].println("time_left " + c + " "
 				+ timeLeftForThisPlayer + " 0");
 		toPrograms[c.index()].flush();
