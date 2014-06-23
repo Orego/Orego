@@ -18,6 +18,13 @@ import edu.lclark.orego.score.Scorer;
 /** Allows two independent GTP programs to play a game. */
 public final class Game {
 
+	static enum State {
+		QUITTING, REQUESTING_MOVE, SENDING_MOVE, SENDING_TIME_LEFT
+	}
+
+	// TODO Put this in a configuration file
+	private static final int GAME_TIME_IN_SECONDS = 600;
+
 	public static void main(String[] args) {
 		String black = "java -ea -server -Xmx3072M -cp /Network/Servers/maccsserver.lclark.edu/Users/drake/Documents/workspace/Orego/bin edu.lclark.orego.ui.Orego";
 		String white = black;
@@ -26,22 +33,6 @@ public final class Game {
 				black, white).play();
 		// TODO Programs don't quit after successful game
 	}
-
-	static enum State {
-		REQUESTING_MOVE, SENDING_MOVE, QUITTING, SENDING_TIME_LEFT
-	}
-
-	// TODO Put this in a configuration file
-	private static final int GAME_TIME_IN_SECONDS = 600;
-
-	/** The amount of time (in nanoseconds) each player has used so far. */
-	private final long[] timeUsed;
-
-	/**
-	 * The system time (in nanoseconds) the player was asked for a move. This is
-	 * used to calculate how much of their time each player has used.
-	 */
-	private long timeLastMoveWasRequested;
 
 	/** The board on which this game is played. */
 	private final Board board;
@@ -52,32 +43,35 @@ public final class Game {
 	/** File to which the results of this game are sent. */
 	private final String filename;
 
-	/** For scoring games. */
-	private final Scorer scorer;
-
 	/** State of the program. */
 	private State mode;
 
 	/** Prints to the file specified by filename. */
 	private PrintWriter out;
 
-	/** Prints to the two program processes. */
-	private PrintWriter[] toPrograms;
-
 	/** Processes running the competing programs. */
 	private Process[] programs;
 
-	/** Color the winning player (BLACK or WHITE). */
-	private Color winner;
-
-	/**
-	 * Flag to indicate a crashed game. If this is true, don't try to find the
-	 * game winner.
-	 */
-	private boolean crashed;
+	/** For scoring games. */
+	private final Scorer scorer;
 
 	/** System time (in nanoseconds) when the game started. */
 	private long starttime;
+
+	/**
+	 * The system time (in nanoseconds) the player was asked for a move. This is
+	 * used to calculate how much of their time each player has used.
+	 */
+	private long timeLastMoveWasRequested;
+
+	/** The amount of time (in nanoseconds) each player has used so far. */
+	private final long[] timeUsed;
+
+	/** Prints to the two program processes. */
+	private PrintWriter[] toPrograms;
+
+	/** Color the winning player (BLACK or WHITE). */
+	private Color winner;
 
 	/**
 	 * @param filename
@@ -218,7 +212,6 @@ public final class Game {
 			}
 		}
 		// We got something other than an acknowledgment
-		crashed = true; // TODO Why save this?
 		out.println("In " + filename + ":");
 		out.println(board);
 		out.println("Got something other than an acknowledgment: " + line);
@@ -229,24 +222,6 @@ public final class Game {
 		out.flush();
 		System.exit(1);
 		return false;
-	}
-
-	/** Sends a move request to the color to play. */
-	private void sendMoveRequest() {
-		StoneColor c = getColorToPlay();
-		toPrograms[c.index()].println("genmove " + c);
-		toPrograms[c.index()].flush();
-		timeLastMoveWasRequested = System.nanoTime();
-	}
-
-	/** Sends a time left message to the color to play. */
-	private void sendTime() {
-		StoneColor c = getColorToPlay();
-		long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[c.index()]
-				/ 1000000000;
-		toPrograms[c.index()].println("time_left " + c + " "
-				+ timeLeftForThisPlayer + " 0");
-		toPrograms[c.index()].flush();
 	}
 
 	/**
@@ -284,8 +259,8 @@ public final class Game {
 			for (StoneColor color : StoneColor.values()) {
 				programs[color.index()].waitFor();
 			}
-			if (!crashed && winner == OFF_BOARD) { // Game not already resolved
-													// by resignation
+			if (winner == OFF_BOARD) {
+				// Game not already resolved by resignation
 				winner = scorer.winner();
 			}
 			out.close();
@@ -314,6 +289,24 @@ public final class Game {
 			System.exit(1);
 		}
 		return winner;
+	}
+
+	/** Sends a move request to the color to play. */
+	private void sendMoveRequest() {
+		StoneColor c = getColorToPlay();
+		toPrograms[c.index()].println("genmove " + c);
+		toPrograms[c.index()].flush();
+		timeLastMoveWasRequested = System.nanoTime();
+	}
+
+	/** Sends a time left message to the color to play. */
+	private void sendTime() {
+		StoneColor c = getColorToPlay();
+		long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS - timeUsed[c.index()]
+				/ 1000000000;
+		toPrograms[c.index()].println("time_left " + c + " "
+				+ timeLeftForThisPlayer + " 0");
+		toPrograms[c.index()].flush();
 	}
 
 }
