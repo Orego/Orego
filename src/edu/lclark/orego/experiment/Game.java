@@ -145,8 +145,10 @@ public final class Game {
 	 * At the beginning of this method, mode is set to the action to which we
 	 * are handling a response. For example, if mode is REQUESTING_MOVE, we are
 	 * handling a move returned by a player.
+	 * 
+	 * @return true if the game ended normally.
 	 */
-	public void handleResponse(StoneColor color, String line, Scanner s) {
+	public boolean handleResponse(StoneColor color, String line, Scanner s) {
 		if (line.startsWith("=")) {
 			if (mode == REQUESTING_MOVE) {
 				// Accumulate the time the player spent their total
@@ -168,8 +170,9 @@ public final class Game {
 					winner = getColorToPlay().opposite();
 					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+R]");
 					out.println(";C[moves:" + board.getTurn() + "]");
+					endPrograms();
 					out.flush();
-					return;
+					return false;
 				} else {
 					out.println((getColorToPlay() == BLACK ? ";B" : ";W") + "["
 							+ toSgf(coords.at(coordinates), coords) + "]"
@@ -184,7 +187,7 @@ public final class Game {
 					out.println(";C[moves:" + board.getTurn() + "]");
 					out.flush();
 					endPrograms();
-					return;
+					return false;
 				}
 				// We are going to send the move now. After the response
 				// received, we want to be in a mode indicating what we are
@@ -200,31 +203,32 @@ public final class Game {
 				toPrograms[getColorToPlay().index()].println(getColorToPlay()
 						.opposite() + " " + coordinates);
 				toPrograms[getColorToPlay().index()].flush();
+				return false;
 			} else if (mode == SENDING_MOVE) {
 				mode = SENDING_TIME_LEFT;
 				sendTime();
+				return false;
 			} else if (mode == SENDING_TIME_LEFT) {
 				// Ignore the player's response to the time_left command.
 				mode = REQUESTING_MOVE;
 				sendMoveRequest();
+				return false;
 			} else { // Mode is QUITTING
-				// Do nothing
-			}
-		} else {
-			if (line.length() > 0) {
-				crashed = true;
-				out.println("In " + filename + ":");
-				out.println(board);
-				out.println("Got something other than an acknowledgment: "
-						+ line);
-				endPrograms();
-				while (s.hasNextLine()) {
-					out.println(s.nextLine());
-				}
-				out.flush();
-				System.exit(1);
+				return true;
 			}
 		}
+		// We got something other than an acknowledgment
+		crashed = true; // TODO Why save this?
+		out.println("In " + filename + ":");
+		out.println(board);
+		out.println("Got something other than an acknowledgment: " + line);
+		endPrograms();
+		while (s.hasNextLine()) {
+			out.println(s.nextLine());
+		}
+		out.flush();
+		System.exit(1);
+		return false;
 	}
 
 	/** Sends a move request to the color to play. */

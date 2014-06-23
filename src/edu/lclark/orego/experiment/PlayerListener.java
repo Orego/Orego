@@ -29,10 +29,17 @@ final class PlayerListener implements Runnable {
 	@Override
 	public void run() {
 		try (Scanner s = new Scanner(fromProgram)) {
+			boolean finishedNormally = false;
 			while (s.hasNextLine()) {
 				// s is passed in in case there is a multi-line error message,
 				// so game can dump all of the message to the output file
-				game.handleResponse(color, s.nextLine(), s);
+				String line = s.nextLine();
+				if (!line.isEmpty()) {
+					finishedNormally = game.handleResponse(color, line, s);
+				}
+			}
+			if (!finishedNormally) {
+				game.handleResponse(color, "? program crashed", s);
 			}
 		}
 	}
