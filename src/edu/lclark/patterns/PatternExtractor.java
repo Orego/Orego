@@ -1,7 +1,14 @@
 package edu.lclark.patterns;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.TreeMap;
 
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.*;
@@ -19,13 +26,17 @@ public final class PatternExtractor {
 
 	private final CoordinateSystem coords;
 
-	private final float[] winRates;
-
 	private final int[] runs;
 
 	private final int[] wins;
 
 	private final MersenneTwisterFast random;
+
+	private final ArrayList<Pattern> list;
+
+	private final SgfParser parser;
+
+	private static final String OUTPUT_FILE = "PatternData/Pro3x3PatternData.txt";
 
 	/**
 	 * Analyzes 3x3 patterns in SGF files and stores a win rate for each in an
@@ -35,14 +46,11 @@ public final class PatternExtractor {
 	public PatternExtractor() {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
-		winRates = new float[PATTERN_COUNT];
 		runs = new int[PATTERN_COUNT];
 		wins = new int[PATTERN_COUNT];
 		random = new MersenneTwisterFast();
-	}
-
-	float[] getWinRates() {
-		return winRates;
+		list = new ArrayList<>();
+		parser = new SgfParser(coords);
 	}
 
 	/**
@@ -103,7 +111,7 @@ public final class PatternExtractor {
 	}
 
 	/** Analyzes all the games in one SGF file. */
-	private float[] analyzeGames(List<List<Short>> games) {
+	private void analyzeGames(List<List<Short>> games) {
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				analyzeMove(move);
@@ -111,33 +119,67 @@ public final class PatternExtractor {
 			}
 			board.clear();
 		}
-		for (int i = 0; i < PATTERN_COUNT; i++) {
-			if (runs[i] != 0) {
-				winRates[i] = (float) wins[i] / (float) runs[i];
-			} else {
-				winRates[i] = 0.5f;
+
+	}
+
+	private List<Pattern> getPatterns() {
+		return list;
+	}
+
+	private void analyzeFiles(File file) {
+		File[] allFiles = file.listFiles();
+		if (allFiles != null) {
+			for (File tempFile : allFiles) {
+				analyzeFiles(tempFile);
+			}
+		} else {
+			if (file.getPath().endsWith(".sgf")) {
+				List<List<Short>> games = parser.parseGamesFromFile(file, 500);
+				analyzeGames(games);
 			}
 		}
-		return winRates;
 	}
 
 	public static void main(String[] args) {
-		SgfParser parser = new SgfParser(CoordinateSystem.forWidth(19));
 		PatternExtractor extractor = new PatternExtractor();
-		File folder = new File("SgfTestFiles/19");
-		File[] allFiles = folder.listFiles();
-		for (File file : allFiles) {
-			if (file.getPath().endsWith(".sgf")) {
-				List<List<Short>> games = parser.parseGamesFromFile(new File(
-						"SgfTestFiles/19/TwoGames.sgf"), 500);
-				extractor.analyzeGames(games);
+		extractor
+				.analyzeFiles(new File(
+						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles/kgs-19-2006"));
+
+		for (int i = 0; i < PATTERN_COUNT; i++) {
+			if (extractor.runs[i] != 0) {
+				extractor.list.add(new Pattern(i, (float) extractor.wins[i]
+						/ (float) extractor.runs[i]));
+			} else {
+				// Add values of .5 to unfilled points?
 			}
 		}
-		float[] winRates = extractor.getWinRates();
-		for (int i = 0; i < 65000; i++) {
-			if (winRates[i] != 0.5) {
-				System.out.println(winRates[i]);
+		Collections.sort(extractor.list);
+		try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
+			for (Pattern pattern : extractor.getPatterns()) {
+				writer.println(pattern.getWinRate() +"," +  pattern.getHash());
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	class ValueComparator implements Comparator<Integer> {
+		private Map<Integer, Float> map;
+
+		ValueComparator(HashMap<Integer, Float> map) {
+			this.map = map;
+		}
+
+		@Override
+		public int compare(Integer key1, Integer key2) {
+			if (map.get(key1) > map.get(key2)) {
+				return 1;
+			} else {
+				return -1;
 			}
 		}
+
 	}
 }
