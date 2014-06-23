@@ -6,9 +6,12 @@ public class Pattern implements Comparable<Pattern>{
 	
 	private final float winRate;
 	
-	Pattern(int hash, float winRate){
+	private final int runs;
+	
+	Pattern(int hash, float winRate, int runs){
 		this.hash = hash;
 		this.winRate = winRate;
+		this.runs = runs;
 	}
 	
 	public int getHash(){
@@ -17,6 +20,10 @@ public class Pattern implements Comparable<Pattern>{
 	
 	public float getWinRate(){
 		return winRate;
+	}
+	
+	public int getRuns(){
+		return runs;
 	}
 	
 

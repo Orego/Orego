@@ -1,14 +1,12 @@
 package edu.lclark.patterns;
 
-import java.io.File;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.TreeMap;
 
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.*;
@@ -125,6 +123,23 @@ public final class PatternExtractor {
 	private List<Pattern> getPatterns() {
 		return list;
 	}
+	
+	private void buildPatternData(File file){
+		analyzeFiles(file);
+		FileOutputStream out;
+		try {
+			out = new FileOutputStream("PatternData/Pro3x3PatternData.data"); 
+			ObjectOutputStream oos = new ObjectOutputStream(out);
+			oos.writeObject(runs);
+			oos.writeObject(wins);
+			oos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	     
+		
+	}
 
 	private void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
@@ -142,24 +157,44 @@ public final class PatternExtractor {
 
 	public static void main(String[] args) {
 		PatternExtractor extractor = new PatternExtractor();
+		int highestRuns = 0;
 		extractor
-				.analyzeFiles(new File(
-						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles/kgs-19-2006"));
-
-		for (int i = 0; i < PATTERN_COUNT; i++) {
-			if (extractor.runs[i] != 0) {
-				extractor.list.add(new Pattern(i, (float) extractor.wins[i]
-						/ (float) extractor.runs[i]));
-			} else {
-				// Add values of .5 to unfilled points?
+				.buildPatternData(new File(
+						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+		try {
+			ObjectInputStream objectInputStream = new ObjectInputStream(
+			        new FileInputStream("PatternData/Pro3x3PatternData.data"));
+			int[] fileRuns = (int[])objectInputStream.readObject();
+			int[] fileWins = (int[])objectInputStream.readObject();
+			objectInputStream.close();
+			
+			for (int i = 0; i < PATTERN_COUNT; i++) {
+				if (fileRuns[i] != 0) {
+					extractor.list.add(new Pattern(i, (float) fileWins[i]
+							/ (float) fileRuns[i], fileRuns[i]));
+					if (fileRuns[i] > highestRuns) {
+						if (i != 43690) {
+							highestRuns = fileRuns[i];
+						}
+					}
+				} 
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
+
+		
 		Collections.sort(extractor.list);
 		try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
 			for (Pattern pattern : extractor.getPatterns()) {
-				writer.println(pattern.getWinRate() +"," +  pattern.getHash());
+				writer.println(pattern.getWinRate() + ","
+						+ (float) pattern.getRuns() / highestRuns);
+				if (pattern.getWinRate() > .79 && pattern.getWinRate() < .81) {
+					System.out.println(pattern);
+				}
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
