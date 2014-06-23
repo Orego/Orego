@@ -9,6 +9,7 @@ import static edu.lclark.orego.experiment.Game.State.SENDING_TIME_LEFT;
 import static edu.lclark.orego.sgf.SgfWriter.toSgf;
 import static edu.lclark.orego.ui.Orego.VERSION_STRING;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -28,14 +29,12 @@ public final class Game {
 		QUITTING, REQUESTING_MOVE, SENDING_MOVE, SENDING_TIME_LEFT
 	}
 
-	// TODO Put this in a configuration file
-	private static final int GAME_TIME_IN_SECONDS = 600;
-
 	public static void main(String[] args) {
 		final String black = "java -ea -server -Xmx3072M -cp /Network/Servers/maccsserver.lclark.edu/Users/drake/Documents/workspace/Orego/bin edu.lclark.orego.ui.Orego";
 		final String white = black;
+		final Rules rules = new Rules(9, 7.5, 600);
 		new Game(
-				"/Network/Servers/maccsserver.lclark.edu/Users/drake/test.sgf",
+				"/Network/Servers/maccsserver.lclark.edu/Users/drake/test.sgf", rules,
 				black, white).play();
 	}
 
@@ -57,6 +56,9 @@ public final class Game {
 	/** Processes running the competing programs. */
 	private final Process[] programs;
 
+	/** Rules of this game. */
+	private Rules rules;
+	
 	/** For scoring games. */
 	private final Scorer scorer;
 
@@ -79,39 +81,35 @@ public final class Game {
 	private Color winner;
 
 	/**
-	 * @param filename
+	 * @param outputFilename
 	 *            File where output should be sent.
 	 * @param black
 	 *            Shell command to start black player.
 	 * @param white
 	 *            Shell command to start white player.
 	 */
-	public Game(String filename, String black, String white) {
-		this.filename = filename;
-		timeUsed = new long[] { 0, 0 };
+	public Game(String outputFilename, Rules rules, String black, String white) {
+		this.filename = outputFilename;
+		this.rules = rules;
+		timeUsed = new long[2];
 		programs = new Process[2];
 		toPrograms = new PrintWriter[2];
 		contestants = new String[] { black, white };
 		try {
-			out = new PrintWriter(filename);
-		} catch (final Throwable e) {
-			out.println("In " + filename + ":");
-			// out.println(board);
-			e.printStackTrace(out);
+			out = new PrintWriter(outputFilename);
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
 			out.flush();
 			out.close();
 			System.exit(1);
 		}
-		// TODO Extract board size, komi from Orego command string
-		final int boardSize = 9;
-		final double komi = 7.5;
-		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM[" + komi
-				+ "]GM[1]RU[Chinese]SZ[" + boardSize + "]");
+		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM[" + rules.komi
+				+ "]GM[1]RU[Chinese]SZ[" + rules.boardSize + "]");
 		out.println("PB[" + black + "]");
 		out.println("PW[" + white + "]");
 		out.flush();
-		board = new Board(boardSize);
-		scorer = new ChineseFinalScorer(board, komi);
+		board = new Board(rules.boardSize);
+		scorer = new ChineseFinalScorer(board, rules.komi);
 		starttime = System.currentTimeMillis();
 	}
 
@@ -152,11 +150,12 @@ public final class Game {
 	public boolean handleResponse(StoneColor color, String line, Scanner s) {
 		if (line.startsWith("=")) {
 			if (state == REQUESTING_MOVE) {
-				// Accumulate the time the player spent their total
+				// Add the time the player spent to their total
 				timeUsed[getColorToPlay().index()] += System
 						.currentTimeMillis() - timeLastMoveWasRequested;
-				final long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS
-						- timeUsed[getColorToPlay().index()] / 1000000;
+				System.out.println("Time used: " + java.util.Arrays.toString(timeUsed));
+				final int timeLeftForThisPlayer = rules.time
+						- (int)(timeUsed[getColorToPlay().index()] / 1000);
 				final String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL"
 						: "WL")
 						+ "[" + timeLeftForThisPlayer + "]";
@@ -171,7 +170,7 @@ public final class Game {
 					out.flush();
 				} else if (coordinates.toLowerCase().equals("resign")) {
 					winner = getColorToPlay().opposite();
-					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+R]");
+					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+Resign]");
 					out.println(";C[moves:" + board.getTurn() + "]");
 					endPrograms();
 					out.flush();
@@ -183,6 +182,15 @@ public final class Game {
 					out.flush();
 				}
 				// End SGF output
+				if (timeLeftForThisPlayer <= 0) {
+					// TODO Very similar to resignation code above
+					winner = getColorToPlay().opposite();
+					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+Time]");
+					out.println(";C[moves:" + board.getTurn() + "]");
+					endPrograms();
+					out.flush();
+					return false;					
+				}
 				board.play(coordinates);
 				if (board.getPasses() == 2) {
 					winner = scorer.winner();
@@ -197,7 +205,7 @@ public final class Game {
 				// received, we want to be in a mode indicating what we are
 				// finishing. If we aren't tracking game time, pretend we sent
 				// the time left to skip that step.
-				if (GAME_TIME_IN_SECONDS > 0) {
+				if (rules.time > 0) {
 					state = SENDING_MOVE;
 				} else {
 					state = SENDING_TIME_LEFT;
@@ -221,7 +229,7 @@ public final class Game {
 				return true;
 			}
 		}
-		// We got something other than an acknowledgment
+		// We got something other than an acknowledgment back from the program
 		out.println("In " + filename + ":");
 		out.println(board);
 		out.println("Got something other than an acknowledgment: " + line);
@@ -256,7 +264,7 @@ public final class Game {
 			board.clear();
 			// Start by telling the first player how much time they have left,
 			// which gets the game started (see handleResponse).
-			if (GAME_TIME_IN_SECONDS > 0) {
+			if (rules.time > 0) {
 				state = SENDING_TIME_LEFT;
 				sendTime();
 			} else {
@@ -306,8 +314,8 @@ public final class Game {
 	/** Sends a time left message to the color to play. */
 	private void sendTime() {
 		final StoneColor c = getColorToPlay();
-		final long timeLeftForThisPlayer = GAME_TIME_IN_SECONDS
-				- timeUsed[c.index()] / 1000000;
+		final int timeLeftForThisPlayer = rules.time
+				- (int)(timeUsed[c.index()] / 1000);
 		toPrograms[c.index()].println("time_left " + c + " "
 				+ timeLeftForThisPlayer + " 0");
 		toPrograms[c.index()].flush();
