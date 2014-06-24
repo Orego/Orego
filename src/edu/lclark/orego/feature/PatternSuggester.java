@@ -30,9 +30,8 @@ public class PatternSuggester implements Suggester {
 		this.history = history;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 		winRates = new float[0];
-		try {
-			ObjectInputStream objectInputStream = new ObjectInputStream(
-					new FileInputStream("PatternData/Pro3x3PatternData.data"));
+		try(ObjectInputStream objectInputStream = new ObjectInputStream(
+				new FileInputStream("PatternData/Pro3x3PatternData.data"));) {			
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
 			winRates = new float[fileRuns.length];
