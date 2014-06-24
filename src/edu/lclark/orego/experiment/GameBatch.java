@@ -12,7 +12,6 @@ public final class GameBatch implements Runnable {
 	 */
 	public static void main(String[] args) {
 		assert args.length == 1;
-		System.out.println(java.util.Arrays.toString(args));
 		try {
 			for (int i = 0; i < EXPERIMENT.gamesPerHost; i++) {
 				new Thread(new GameBatch(i, args[0])).start();
@@ -33,14 +32,13 @@ public final class GameBatch implements Runnable {
 	private String host;
 
 	public GameBatch(int batchNumber, String hostname) {
-		System.out.println("Creating game batch " + batchNumber + " on " + hostname);
 		this.batchNumber = batchNumber;
 		this.host = hostname.substring(0, hostname.indexOf('.'));
 	}
 
 	@Override
 	public void run() {
-		System.out.println("Running " + batchNumber);
+		System.out.println("Running batch " + batchNumber + " on " + host);
 		System.out.println("Conditions: " + EXPERIMENT.conditions.size());
 		for (String condition : EXPERIMENT.conditions) {
 			System.out.println("Running some games");
@@ -48,22 +46,17 @@ public final class GameBatch implements Runnable {
 			runGames(orego, EXPERIMENT.gnugo);
 			runGames(EXPERIMENT.gnugo, orego);
 		}
-		System.out.println("Done running " + batchNumber);
+		System.out.println("Done running batch " + batchNumber + " on " + host);
 	}
-
 	
 	/** Runs several games with the specified black and white players. */
 	public void runGames(String black, String white) {
 		int[] wins = new int[3];
-		System.out.println("Running games: " + EXPERIMENT.gamesPerColor);
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
 			String outFile = SYSTEM.resultsDirectory + host + "-b"
 			+ batchNumber + "-" + System.currentTimeMillis() + ".sgf";
-			System.out.println("Creating game " + outFile);
 			Game game = new Game(outFile, EXPERIMENT.rules, black, white);				
-			System.out.println("Starting game " + outFile);
 			wins[game.play().index()]++;
-			System.out.println("Finished game " + outFile);
 		}
 	}
 
