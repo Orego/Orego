@@ -18,6 +18,9 @@ bin
 user.properties
 config/system.properties
 
+# Fido-specific scripts
+build-all.sh
+
 ## generic files to ignore
 *~
 *.lock

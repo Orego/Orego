@@ -41,7 +41,9 @@ public final class GameBatch implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Running " + batchNumber);
+		System.out.println("Conditions: " + EXPERIMENT.conditions.size());
 		for (String condition : EXPERIMENT.conditions) {
+			System.out.println("Running some games");
 			String orego = SYSTEM.javaWithOregoClasspath + " -ea -Xmx1024M edu.lclark.orego.ui.Orego " + condition;
 			runGames(orego, EXPERIMENT.gnugo);
 			runGames(EXPERIMENT.gnugo, orego);
@@ -53,6 +55,7 @@ public final class GameBatch implements Runnable {
 	/** Runs several games with the specified black and white players. */
 	public void runGames(String black, String white) {
 		int[] wins = new int[3];
+		System.out.println("Running games: " + EXPERIMENT.gamesPerColor);
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
 			String outFile = SYSTEM.resultsDirectory + host + "-b"
 			+ batchNumber + "-" + System.currentTimeMillis() + ".sgf";
