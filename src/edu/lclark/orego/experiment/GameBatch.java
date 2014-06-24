@@ -11,25 +11,21 @@ import java.util.Date;
 /** Plays a series of experimental games on one machine. */
 public final class GameBatch implements Runnable {
 
-	private final String resultsDirectory;
-
 	/**
 	 * @param args
-	 *            element 0 is the host name. element 1, if any, is the
-	 *            experiment name (for creating a results subdirectory).
+	 *            element 0 is the host name. element 1, if any, is the results
+	 *            directory. If none is specified, a new directory in the system
+	 *            results directory is created.
 	 */
 	public static void main(String[] args) {
 		assert args.length >= 1;
-		String experimentName;
+		String results;
 		if (args.length >= 2) {
-			experimentName = args[1];
+			results = args[1];
 		} else {
-			experimentName = ""
-					+ new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss.SSS")
-							.format(new Date(System.currentTimeMillis()));
+			results = SYSTEM.resultsDirectory + timeStamp()
+					+ separator;
 		}
-		String results = SYSTEM.resultsDirectory + separator + experimentName
-				+ separator;
 		new File(results).mkdir();
 		try {
 			for (int i = 0; i < EXPERIMENT.gamesPerHost; i++) {
@@ -41,6 +37,12 @@ public final class GameBatch implements Runnable {
 		}
 	}
 
+	/** Returns a String representing the current date and time. */
+	public static String timeStamp() {
+		return new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss.SSS").format(new Date(
+				System.currentTimeMillis()));
+	}
+
 	/** Number of the batch (used as part of the filename). */
 	private final int batchNumber;
 
@@ -49,6 +51,8 @@ public final class GameBatch implements Runnable {
 	 * filename).
 	 */
 	private String host;
+
+	private final String resultsDirectory;
 
 	public GameBatch(int batchNumber, String hostname, String resultsDirectory) {
 		this.batchNumber = batchNumber;
@@ -74,14 +78,8 @@ public final class GameBatch implements Runnable {
 	public void runGames(String black, String white) {
 		int[] wins = new int[3];
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
-			String outFile = resultsDirectory
-					+ host
-					+ "-b"
-					+ batchNumber
-					+ "-"
-					+ new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss.SSS")
-							.format(new Date(System.currentTimeMillis()))
-					+ ".sgf";
+			String outFile = resultsDirectory + host + "-b" + batchNumber + "-"
+					+ timeStamp() + ".sgf";
 			Game game = new Game(outFile, EXPERIMENT.rules, black, white);
 			wins[game.play().index()]++;
 		}
