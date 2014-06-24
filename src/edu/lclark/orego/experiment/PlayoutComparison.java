@@ -9,6 +9,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.AtariObserver;
+import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
@@ -23,7 +24,8 @@ public final class PlayoutComparison {
 	public static void main(String[] args) {
 		Board board = new Board(19);
 		AtariObserver atariObserver = new AtariObserver(board);
-		Mover mover1 = capturer(board, atariObserver);
+		HistoryObserver historyObserver = new HistoryObserver(board);
+		Mover mover1 = escapePatternCapture(board, atariObserver, historyObserver);
 		Mover mover2 = escapeCapturer(board, atariObserver);
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);

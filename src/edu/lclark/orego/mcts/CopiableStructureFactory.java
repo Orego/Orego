@@ -10,12 +10,10 @@ public final class CopiableStructureFactory {
 
 	public static CopiableStructure basicParts(int width) {
 		Board board = new Board(width);
-		return new CopiableStructure()
-		.add(board)
-		.add(new ChinesePlayoutScorer(board, 7.5))
-		.add(new StoneCounter(board))
-		.add(new HistoryObserver(board))
-		.add(new ChineseFinalScorer(board, 7.5));
+		return new CopiableStructure().add(board)
+				.add(new ChinesePlayoutScorer(board, 7.5))
+				.add(new StoneCounter(board)).add(new HistoryObserver(board))
+				.add(new ChineseFinalScorer(board, 7.5));
 	}
 
 	/** Plays randomly except for eyelike points. */
@@ -44,8 +42,7 @@ public final class CopiableStructureFactory {
 		CopiableStructure base = basicParts(width);
 		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
-		return base.add(MoverFactory.capturer(board,
-				atariObserver));
+		return base.add(MoverFactory.capturer(board, atariObserver));
 	}
 
 	/**
@@ -55,16 +52,22 @@ public final class CopiableStructureFactory {
 		CopiableStructure base = basicParts(width);
 		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
-		return base.add(MoverFactory.escapeCapturer(board,
-				atariObserver));
+		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
+		return base.add(MoverFactory.escapeCapturer(board, atariObserver));
 	}
-	
+
 	public static CopiableStructure escapePatternCapture(int width) {
 		CopiableStructure base = basicParts(width);
 		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
 		HistoryObserver historyObserver = base.get(HistoryObserver.class);
-		return base.add(MoverFactory.escapePatternCapture(board, atariObserver, historyObserver));
+		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
+		return base.add(MoverFactory.escapePatternCapture(board, atariObserver,
+				historyObserver));
 	}
 
 }

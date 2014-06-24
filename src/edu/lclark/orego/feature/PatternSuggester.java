@@ -48,7 +48,15 @@ public class PatternSuggester implements Suggester {
 
 	@Override
 	public ShortSet getMoves() {
-		short p = history.get(board.getTurn() - 1);
+		int turn = board.getTurn();
+		if(turn==0){
+			return moves;
+		}
+		moves.clear();
+		short p = history.get(turn - 1);
+		if(p == CoordinateSystem.PASS){
+			return moves;
+		}
 		short[] neighbors = coords.getNeighbors(p);
 		for (short n : neighbors) {
 			if (board.getColorAt(n) == VACANT) {
