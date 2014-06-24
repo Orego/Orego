@@ -108,7 +108,6 @@ public final class PatternExtractor {
 			for(int j = 0; j < 8; j++){
 				hash |= tempPieces[j] << (j * 2);
 			}
-			System.out.println(hash);
 			if (winner) {
 				wins[hash] += 1;
 			}
