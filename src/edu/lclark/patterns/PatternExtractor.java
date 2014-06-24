@@ -55,9 +55,10 @@ public final class PatternExtractor {
 	 * Updates the tables with a win for the pattern around the move and a loss
 	 * for some other random move on the board.
 	 */
-	private void analyzeMove(short move) {
+	void analyzeMove(short move) {
 		updateTables(true, move);
 		updateTables(false, selectRandomMove(move));
+		board.play(move);
 	}
 
 	/**
@@ -99,7 +100,20 @@ public final class PatternExtractor {
 	}
 
 	private void updateReflections(boolean winner, int[] hashPieces) {
-
+		int[] tempPieces = hashPieces;
+		tempPieces = reflectOverDiagonal(hashPieces);
+		for(int i = 0; i < 4; i++){
+			tempPieces = rotate90Degrees(tempPieces);
+			int hash = 0;
+			for(int j = 0; j < 8; j++){
+				hash |= tempPieces[j] << (j * 2);
+			}
+			System.out.println(hash);
+			if (winner) {
+				wins[hash] += 1;
+			}
+			runs[hash] += 1;
+		}
 	}
 
 	private void updateRotations(boolean winner, int[] hashPieces) {
@@ -130,6 +144,19 @@ public final class PatternExtractor {
 		return tempPieces;
 		
 	}
+	
+	private int[] reflectOverDiagonal(int[] hashPieces){
+		int[] tempPieces = new int[8];
+		tempPieces[0] = hashPieces[2];
+		tempPieces[1] = hashPieces[3];
+		tempPieces[2] = hashPieces[0];
+		tempPieces[3] = hashPieces[1];
+		tempPieces[4] = hashPieces[7];
+		tempPieces[5] = hashPieces[5];
+		tempPieces[6] = hashPieces[6];
+		tempPieces[7] = hashPieces[4];
+		return tempPieces;
+	}
 
 	/**
 	 * Selects a random move. Used to help balance the table with losses for
@@ -159,11 +186,17 @@ public final class PatternExtractor {
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				analyzeMove(move);
-				board.play(move);
 			}
 			board.clear();
 		}
 
+	}
+	
+	float getWinRate(int hash){
+		if(runs[hash] == 0){
+			return 0.5f;
+		}
+		return (float)wins[hash] / (float)runs[hash];
 	}
 
 	private List<Pattern> getPatterns() {
