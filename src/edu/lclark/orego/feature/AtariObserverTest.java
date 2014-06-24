@@ -37,7 +37,7 @@ public class AtariObserverTest {
 		board.setUpProblem(diagram, WHITE);
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("b5"))));
 		assertFalse(atari.getChainsInAtari(BLACK).contains(board.getChainRoot(at("b4"))));
-		board.play(at("a5"));
+		board.play("a5");
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("a5"))));
 	}
 	
@@ -53,9 +53,9 @@ public class AtariObserverTest {
 		board.setUpProblem(diagram, BLACK);
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("b5"))));
 		assertFalse(atari.getChainsInAtari(BLACK).contains(board.getChainRoot(at("b4"))));
-		board.play(at("a5"));
+		board.play("a5");
 		assertFalse(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("b5"))));
-		board.play(at("a4"));
+		board.play("a4");
 		assertTrue(atari.getChainsInAtari(BLACK).contains(board.getChainRoot(at("a5"))));
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("a4"))));
 	}
@@ -73,7 +73,7 @@ public class AtariObserverTest {
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("c5"))));
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("d3"))));
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("c1"))));
-		board.play(at("c3"));
+		board.play("c3");
 		assertEquals(0, atari.getChainsInAtari(WHITE).size());
 	}
 	
@@ -90,7 +90,7 @@ public class AtariObserverTest {
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("c5"))));
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("d3"))));
 		assertTrue(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("c1"))));
-		board.play(at("c3"));
+		board.play("c3");
 		assertFalse(atari.getChainsInAtari(WHITE).contains(board.getChainRoot(at("c5"))));
 		assertEquals(0, atari.getChainsInAtari(WHITE).size());
 	}

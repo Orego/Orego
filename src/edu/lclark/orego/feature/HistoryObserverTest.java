@@ -33,9 +33,9 @@ public class HistoryObserverTest {
 
 	@Test
 	public void testResponseToBoard() {
-		board.play(at("c4"));
-		board.play(at("e1"));
-		board.play(at("b2"));
+		board.play("c4");
+		board.play("e1");
+		board.play("b2");
 		assertEquals(at("c4"), observer.get(0));
 		assertEquals(at("e1"), observer.get(1));
 		assertEquals(at("b2"), observer.get(2));
@@ -51,9 +51,9 @@ public class HistoryObserverTest {
 				".....",
 		};
 		board.setUpProblem(diagram, BLACK);
-		board.play(at("c4"));
-		board.play(at("e1"));
-		board.play(at("b2"));
+		board.play("c4");
+		board.play("e1");
+		board.play("b2");
 		assertEquals(at("c4"), observer.get(0));
 		assertEquals(at("e1"), observer.get(1));
 		assertEquals(at("b2"), observer.get(2));		
@@ -61,11 +61,11 @@ public class HistoryObserverTest {
 
 	@Test
 	public void testClear() {
-		board.play(at("c4"));
-		board.play(at("e1"));
-		board.play(at("b2"));
+		board.play("c4");
+		board.play("e1");
+		board.play("b2");
 		board.clear();
-		board.play(at("a3"));
+		board.play("a3");
 		assertEquals(at("a3"), observer.get(0));
 	}
 
@@ -78,7 +78,7 @@ public class HistoryObserverTest {
 	@Test
 	public void testCopyDataFrom() {
 		HistoryObserver copy = new HistoryObserver(board);
-		board.play(at("b1"));
+		board.play("b1");
 		observer.update(BLACK, at("e2"), new ShortList(0));
 		copy.copyDataFrom(observer);
 		assertEquals(at("b1"), copy.get(0));
