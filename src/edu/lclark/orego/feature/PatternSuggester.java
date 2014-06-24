@@ -7,6 +7,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.NonStoneColor.*;
+import edu.lclark.orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
@@ -21,23 +22,22 @@ public class PatternSuggester implements Suggester {
 	private final HistoryObserver history;
 
 	private final ShortSet moves;
-
-	private float[] winRates;
+	
+	private BitVector goodPatterns;
 
 	public PatternSuggester(Board board, HistoryObserver history) {
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		this.history = history;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
-		winRates = new float[0];
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(
 					new FileInputStream("PatternData/Pro3x3PatternData.data"));
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
-			winRates = new float[fileRuns.length];
+			goodPatterns = new BitVector(fileRuns.length);
 			for(int i = 0; i < fileRuns.length; i++){
-				winRates[i] = (float)fileWins[i] / (float)fileRuns[i];
+				goodPatterns.set(i, ((float)fileWins[i] / (float)fileRuns[i]) > THRESHOLD); ;
 			}
 			objectInputStream.close();
 		} catch (Exception e) {
@@ -53,7 +53,7 @@ public class PatternSuggester implements Suggester {
 		for (short n : neighbors) {
 			if (board.getColorAt(n) == VACANT) {
 				char hash = calculateHash(n);
-				if(winRates[hash] > THRESHOLD){
+				if(goodPatterns.get(hash)){
 					moves.add(n);
 				}
 			}
