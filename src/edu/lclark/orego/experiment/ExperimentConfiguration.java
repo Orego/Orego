@@ -1,0 +1,75 @@
+package edu.lclark.orego.experiment;
+
+import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
+import static java.io.File.separator;
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import edu.lclark.orego.ui.Orego;
+
+/** Holds experiment-dependent settings, e.g., number of games per host. */
+enum ExperimentConfiguration {
+
+	EXPERIMENT; // Name of the instance
+
+	final List<String> conditions;
+
+	/**
+	 * Number of games to play with Orego as each color. The total number of
+	 * games will be 2 * <# of hosts> * gamesPerHost * gamesPerColor.
+	 */
+	final int gamesPerColor;
+
+	final int gamesPerCondition;
+
+	final int gamesPerHost;
+
+	final String gnugo;
+
+	final Rules rules;
+
+	/** Reads settings from config/system.properties. */
+	private ExperimentConfiguration() {
+		final Properties properties = new Properties();
+		final String oregoRoot = Orego.class
+				.getProtectionDomain().getCodeSource().getLocation().getFile()
+				+ ".." + File.separator;
+		try {
+			properties.load(new FileInputStream(oregoRoot
+					+ separator + "config" + separator + "experiment.properties"));
+		} catch (final IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		gamesPerHost = parseInt(properties
+				.getProperty("gamesPerHost"));
+		gamesPerCondition = parseInt(properties
+				.getProperty("gamesPerCondition"));
+		gamesPerColor = gamesPerCondition / (2 * SYSTEM.hosts.size() * gamesPerHost);
+		assert 2 * SYSTEM.hosts.size() * gamesPerHost * gamesPerColor == gamesPerCondition : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
+		final int boardSize = parseInt(properties.getProperty("boardSize"));
+		final double komi = parseDouble(properties.getProperty("komi"));
+		rules = new Rules(boardSize,
+				komi,
+				parseInt(properties.getProperty("time")));
+		gnugo = SYSTEM.gnugoHome
+				+ " --boardsize "
+				+ boardSize
+				+ " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi " + komi;
+		System.out.println("Gnugo is " + gnugo);
+		conditions = new ArrayList<>();
+		for (final String s : properties.stringPropertyNames()) {
+			if (s.startsWith("condition")) {
+				conditions.add((String) properties.get(s));
+			}
+		}
+	}
+
+}

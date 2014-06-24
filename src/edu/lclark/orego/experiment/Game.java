@@ -263,6 +263,7 @@ final class Game {
 	 * acknowledgment of a time-left message).
 	 */
 	private void sendToOtherPlayer(final String move) {
+		out.println("Sending to other player: <" + move + ">");
 		if (rules.time > 0) {
 			state = SENDING_MOVE;
 		} else {
@@ -270,8 +271,8 @@ final class Game {
 		}
 		// Note the color reversal here, because the color to play has
 		// already been switched
-		toPrograms[getColorToPlay().index()].println(getColorToPlay()
-				.opposite() + " " + move);
+		toPrograms[getColorToPlay().index()].println((getColorToPlay()
+				.opposite() + " " + move).toLowerCase());
 		toPrograms[getColorToPlay().index()].flush();
 	}
 
