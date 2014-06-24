@@ -113,7 +113,12 @@ public final class PatternExtractor {
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				analyzeMove(move);
-				board.play(move);
+				Legality legality = board.play(move);
+				if(legality==Legality.KO_VIOLATION){
+					break;
+				} else if(legality==Legality.SUICIDE){
+					throw new IllegalArgumentException("SGF contained illegal move at " + coords.toString(move) + " on turn " + board.getTurn() + "\n" + board);
+				}
 			}
 			board.clear();
 		}
@@ -149,8 +154,15 @@ public final class PatternExtractor {
 			}
 		} else {
 			if (file.getPath().endsWith(".sgf")) {
+				
 				List<List<Short>> games = parser.parseGamesFromFile(file, 500);
+				try{
 				analyzeGames(games);
+				} catch(IllegalArgumentException e){
+					e.printStackTrace();
+					System.err.println(file.getPath());
+					System.exit(1);
+				}
 			}
 		}
 	}
@@ -158,9 +170,9 @@ public final class PatternExtractor {
 	public static void main(String[] args) {
 		PatternExtractor extractor = new PatternExtractor();
 		int highestRuns = 0;
-		extractor
-				.buildPatternData(new File(
-						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+//		extractor
+//				.buildPatternData(new File(
+//						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(
 			        new FileInputStream("PatternData/Pro3x3PatternData.data"));
@@ -183,38 +195,28 @@ public final class PatternExtractor {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		Collections.sort(extractor.list);
+		for(Pattern pattern : extractor.list){
+			if(pattern.getWinRate()>.99){
+				System.out.println(pattern);
+			}
+		}
+		
+		
 
 		
-		Collections.sort(extractor.list);
-		try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
-			for (Pattern pattern : extractor.getPatterns()) {
-				writer.println(pattern.getWinRate() + ","
-						+ (float) pattern.getRuns() / highestRuns);
-				if (pattern.getWinRate() > .79 && pattern.getWinRate() < .81) {
-					System.out.println(pattern);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+//		try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
+//			for (Pattern pattern : extractor.getPatterns()) {
+//				writer.println(pattern.getWinRate() + ","
+//						+ (float) pattern.getRuns() / highestRuns);
+//				if (pattern.getWinRate() > .79 && pattern.getWinRate() < .81) {
+//					System.out.println(pattern);
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
 	}
 
-	class ValueComparator implements Comparator<Integer> {
-		private Map<Integer, Float> map;
-
-		ValueComparator(HashMap<Integer, Float> map) {
-			this.map = map;
-		}
-
-		@Override
-		public int compare(Integer key1, Integer key2) {
-			if (map.get(key1) > map.get(key2)) {
-				return 1;
-			} else {
-				return -1;
-			}
-		}
-
-	}
 }

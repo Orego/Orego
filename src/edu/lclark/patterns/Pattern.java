@@ -50,7 +50,7 @@ public class Pattern implements Comparable<Pattern>{
 	
 	public String toString(){
 		
-		String result = "Win Rate: " + winRate + " Hash = " + hash + "\n";
+		String result = "Win Rate: " + winRate + " Hash = " + hash + " Runs = " + runs + "\n";
 		result += toChar(((hash >>> 8) & 3));
 		result += toChar((hash & 3));
 		result += toChar(((hash >>> 10) & 3));
