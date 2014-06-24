@@ -20,6 +20,7 @@ public class SgfParser {
 		this.coords = coords;
 	}
 	
+	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
 		SgfParser parser = new SgfParser(CoordinateSystem.forWidth(19));
 		List<List<Short>> games = parser.parseGamesFromFile(new File("SgfTestFiles/19/1977-02-27.sgf"), 179);
@@ -31,10 +32,9 @@ public class SgfParser {
 	}
 	
 	public List<List<Short>> parseGamesFromFile(File file, int maxBookDepth) {
-		List<List<Short>> games = new ArrayList<List<Short>>();
+		List<List<Short>> games = new ArrayList<>();
 		String input = "";
-		try{
-			Scanner s = new Scanner(file);
+		try (Scanner s = new Scanner(file)) {
 			while (s.hasNextLine()) {
 				input += s.nextLine();
 			}
@@ -48,11 +48,9 @@ public class SgfParser {
 					List<Short> game = parseGame(stoken, maxBookDepth);
 					if(game != null) {
 						games.add(game);
-					}else{
 					}
 				}
-			}
-			
+			}			
 			return games;
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found!");
@@ -61,8 +59,9 @@ public class SgfParser {
 		return null;
 	}
 	
+	@SuppressWarnings("boxing")
 	protected List<Short> parseGame(StringTokenizer stoken, int maxBookDepth) {
-		List<Short> game = new ArrayList<Short>();
+		List<Short> game = new ArrayList<>();
 		int turn = 0;
 		while (turn <= maxBookDepth) {
 			if(!stoken.hasMoreTokens()){
