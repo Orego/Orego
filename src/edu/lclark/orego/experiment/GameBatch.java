@@ -5,6 +5,7 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 import static java.io.File.separator;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /** Plays a series of experimental games on one machine. */
@@ -22,7 +23,8 @@ public final class GameBatch implements Runnable {
 		if (args.length >= 2) {
 			experimentName = args[1];
 		} else {
-			experimentName = "" + new Date(System.currentTimeMillis());
+			experimentName = "" + new SimpleDateFormat(
+                    "yyyy-MM-dd-hh:mm:ss").format(new Date(System.currentTimeMillis()));
 		}
 		String results = SYSTEM.resultsDirectory + separator + experimentName + separator;
 		new File(results).mkdir();
