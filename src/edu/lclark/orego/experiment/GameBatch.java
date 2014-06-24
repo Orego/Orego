@@ -2,19 +2,33 @@ package edu.lclark.orego.experiment;
 
 import static edu.lclark.orego.experiment.ExperimentConfiguration.EXPERIMENT;
 import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
+import static java.io.File.separator;
+
+import java.io.File;
+import java.util.Date;
 
 /** Plays a series of experimental games on one machine. */
 public final class GameBatch implements Runnable {
 
+	private final String resultsDirectory;
+	
 	/**
 	 * @param args
-	 *            element 0 is the host name.
+	 *            element 0 is the host name. element 1, if any, is the experiment name (for creating a results subdirectory).
 	 */
 	public static void main(String[] args) {
-		assert args.length == 1;
+		assert args.length >= 1;
+		String experimentName;
+		if (args.length >= 2) {
+			experimentName = args[1];
+		} else {
+			experimentName = "" + new Date(System.currentTimeMillis());
+		}
+		String results = SYSTEM.resultsDirectory + separator + experimentName + separator;
+		new File(results).mkdir();
 		try {
 			for (int i = 0; i < EXPERIMENT.gamesPerHost; i++) {
-				new Thread(new GameBatch(i, args[0])).start();
+				new Thread(new GameBatch(i, args[0], results)).start();
 			}
 		} catch (Throwable e) {
 			e.printStackTrace(System.out);
@@ -31,9 +45,10 @@ public final class GameBatch implements Runnable {
 	 */
 	private String host;
 
-	public GameBatch(int batchNumber, String hostname) {
+	public GameBatch(int batchNumber, String hostname, String resultsDirectory) {
 		this.batchNumber = batchNumber;
 		this.host = hostname.substring(0, hostname.indexOf('.'));
+		this.resultsDirectory = resultsDirectory;
 	}
 
 	@Override
@@ -53,7 +68,7 @@ public final class GameBatch implements Runnable {
 	public void runGames(String black, String white) {
 		int[] wins = new int[3];
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
-			String outFile = SYSTEM.resultsDirectory + host + "-b"
+			String outFile = resultsDirectory + host + "-b"
 			+ batchNumber + "-" + System.currentTimeMillis() + ".sgf";
 			Game game = new Game(outFile, EXPERIMENT.rules, black, white);				
 			wins[game.play().index()]++;
