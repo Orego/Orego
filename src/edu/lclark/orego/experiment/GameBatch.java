@@ -12,10 +12,11 @@ import java.util.Date;
 public final class GameBatch implements Runnable {
 
 	private final String resultsDirectory;
-	
+
 	/**
 	 * @param args
-	 *            element 0 is the host name. element 1, if any, is the experiment name (for creating a results subdirectory).
+	 *            element 0 is the host name. element 1, if any, is the
+	 *            experiment name (for creating a results subdirectory).
 	 */
 	public static void main(String[] args) {
 		assert args.length >= 1;
@@ -23,10 +24,12 @@ public final class GameBatch implements Runnable {
 		if (args.length >= 2) {
 			experimentName = args[1];
 		} else {
-			experimentName = "" + new SimpleDateFormat(
-                    "yyyy-MM-dd-hh:mm:ss").format(new Date(System.currentTimeMillis()));
+			experimentName = ""
+					+ new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss.SSS")
+							.format(new Date(System.currentTimeMillis()));
 		}
-		String results = SYSTEM.resultsDirectory + separator + experimentName + separator;
+		String results = SYSTEM.resultsDirectory + separator + experimentName
+				+ separator;
 		new File(results).mkdir();
 		try {
 			for (int i = 0; i < EXPERIMENT.gamesPerHost; i++) {
@@ -37,7 +40,7 @@ public final class GameBatch implements Runnable {
 			System.exit(1);
 		}
 	}
-	
+
 	/** Number of the batch (used as part of the filename). */
 	private final int batchNumber;
 
@@ -59,20 +62,27 @@ public final class GameBatch implements Runnable {
 		System.out.println("Conditions: " + EXPERIMENT.conditions.size());
 		for (String condition : EXPERIMENT.conditions) {
 			System.out.println("Running some games");
-			String orego = SYSTEM.javaWithOregoClasspath + " -ea -Xmx1024M edu.lclark.orego.ui.Orego " + condition;
+			String orego = SYSTEM.javaWithOregoClasspath
+					+ " -ea -Xmx1024M edu.lclark.orego.ui.Orego " + condition;
 			runGames(orego, EXPERIMENT.gnugo);
 			runGames(EXPERIMENT.gnugo, orego);
 		}
 		System.out.println("Done running batch " + batchNumber + " on " + host);
 	}
-	
+
 	/** Runs several games with the specified black and white players. */
 	public void runGames(String black, String white) {
 		int[] wins = new int[3];
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
-			String outFile = resultsDirectory + host + "-b"
-			+ batchNumber + "-" + System.currentTimeMillis() + ".sgf";
-			Game game = new Game(outFile, EXPERIMENT.rules, black, white);				
+			String outFile = resultsDirectory
+					+ host
+					+ "-b"
+					+ batchNumber
+					+ "-"
+					+ new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss.SSS")
+							.format(new Date(System.currentTimeMillis()))
+					+ ".sgf";
+			Game game = new Game(outFile, EXPERIMENT.rules, black, white);
 			wins[game.play().index()]++;
 		}
 	}

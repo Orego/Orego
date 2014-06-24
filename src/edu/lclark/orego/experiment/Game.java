@@ -263,7 +263,6 @@ final class Game {
 	 * acknowledgment of a time-left message).
 	 */
 	private void sendToOtherPlayer(final String move) {
-		out.println("Sending to other player: <" + move + ">");
 		if (rules.time > 0) {
 			state = SENDING_MOVE;
 		} else {
