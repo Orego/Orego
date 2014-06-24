@@ -274,7 +274,7 @@ public final class PatternExtractor {
 		}
 		Collections.sort(extractor.list);
 		for(Pattern pattern : extractor.list){
-			if(pattern.getWinRate()>.99){
+			if(pattern.getWinRate() < 0.3 && pattern.getWinRate() > 0.25){
 				System.out.println(pattern);
 			}
 		}

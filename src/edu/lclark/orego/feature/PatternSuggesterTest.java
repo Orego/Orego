@@ -33,6 +33,12 @@ public class PatternSuggesterTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		board.play("b4");
+		assertTrue(patterns.getMoves().contains(board.getCoordinateSystem().at("a4")));
+		board.play("c3");
+		board.play("c1");
+		assertFalse(patterns.getMoves().contains(board.getCoordinateSystem().at("b2")));
 	}
+	
+	
 
 }
