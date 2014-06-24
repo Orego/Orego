@@ -11,7 +11,7 @@ import edu.lclark.orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
-public class PatternSuggester implements Suggester {
+public final class PatternSuggester implements Suggester {
 	
 	private static final float THRESHOLD = 0.8f;
 
@@ -30,14 +30,13 @@ public class PatternSuggester implements Suggester {
 		coords = board.getCoordinateSystem();
 		this.history = history;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
-		try {
-			ObjectInputStream objectInputStream = new ObjectInputStream(
-					new FileInputStream("PatternData/Pro3x3PatternData.data"));
+		try(ObjectInputStream objectInputStream = new ObjectInputStream(
+				new FileInputStream("PatternData/Pro3x3PatternData.data"));) {
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
 			goodPatterns = new BitVector(fileRuns.length);
 			for(int i = 0; i < fileRuns.length; i++){
-				goodPatterns.set(i, ((float)fileWins[i] / (float)fileRuns[i]) > THRESHOLD); ;
+				goodPatterns.set(i, ((float)fileWins[i] / (float)fileRuns[i]) > THRESHOLD);
 			}
 			objectInputStream.close();
 		} catch (Exception e) {

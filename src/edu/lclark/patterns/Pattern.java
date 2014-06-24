@@ -44,10 +44,7 @@ public class Pattern implements Comparable<Pattern>{
 		return 0;
 	}
 	
-	public boolean equals(Pattern pattern){
-		return false;
-	}
-	
+	@Override
 	public String toString(){
 		
 		String result = "Win Rate: " + winRate + " Hash = " + hash + " Runs = " + runs + "\n";
@@ -66,7 +63,7 @@ public class Pattern implements Comparable<Pattern>{
 		return result;
 	}
 	
-	public char toChar(int i){
+	public static char toChar(int i){
 		switch(i){
 		case 0: return '#';
 		case 1: return 'O';

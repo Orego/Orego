@@ -3,11 +3,7 @@ package edu.lclark.patterns;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
-
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.sgf.SgfParser;
@@ -33,8 +29,6 @@ public final class PatternExtractor {
 	private final ArrayList<Pattern> list;
 
 	private final SgfParser parser;
-
-	private static final String OUTPUT_FILE = "PatternData/Pro3x3PatternData.txt";
 
 	/**
 	 * Analyzes 3x3 patterns in SGF files and stores a win rate for each in an
@@ -70,7 +64,6 @@ public final class PatternExtractor {
 	private void updateTables(boolean winner, short move) {
 		short[] neighbors = coords.getNeighbors(move);
 		int[] hashPieces = new int[8];
-		int hash = 0;
 		for (int i = 0; i < neighbors.length; i++) {
 			Color color = board.getColorAt(neighbors[i]);
 			if (color == board.getColorToPlay()) {
@@ -90,7 +83,7 @@ public final class PatternExtractor {
 
 	private void updateOriginalPattern(boolean winner, int[] hashPieces) {
 		int hash = 0;
-		for(int i = 0; i < 8; i++){
+		for (int i = 0; i < 8; i++) {
 			hash |= hashPieces[i] << (i * 2);
 		}
 		if (winner) {
@@ -102,10 +95,10 @@ public final class PatternExtractor {
 	private void updateReflections(boolean winner, int[] hashPieces) {
 		int[] tempPieces = hashPieces;
 		tempPieces = reflectOverDiagonal(hashPieces);
-		for(int i = 0; i < 4; i++){
+		for (int i = 0; i < 4; i++) {
 			tempPieces = rotate90Degrees(tempPieces);
 			int hash = 0;
-			for(int j = 0; j < 8; j++){
+			for (int j = 0; j < 8; j++) {
 				hash |= tempPieces[j] << (j * 2);
 			}
 			if (winner) {
@@ -117,10 +110,10 @@ public final class PatternExtractor {
 
 	private void updateRotations(boolean winner, int[] hashPieces) {
 		int[] tempPieces = hashPieces;
-		for(int i = 0; i < 3; i++){
+		for (int i = 0; i < 3; i++) {
 			tempPieces = rotate90Degrees(tempPieces);
 			int hash = 0;
-			for(int j = 0; j < 8; j++){
+			for (int j = 0; j < 8; j++) {
 				hash |= hashPieces[j] << (i * 2);
 			}
 			if (winner) {
@@ -130,7 +123,7 @@ public final class PatternExtractor {
 		}
 	}
 
-	private int[] rotate90Degrees(int[] hashPieces) {
+	private static int[] rotate90Degrees(int[] hashPieces) {
 		int[] tempPieces = new int[8];
 		tempPieces[0] = hashPieces[1];
 		tempPieces[1] = hashPieces[3];
@@ -141,10 +134,10 @@ public final class PatternExtractor {
 		tempPieces[6] = hashPieces[7];
 		tempPieces[7] = hashPieces[5];
 		return tempPieces;
-		
+
 	}
-	
-	private int[] reflectOverDiagonal(int[] hashPieces){
+
+	private static int[] reflectOverDiagonal(int[] hashPieces) {
 		int[] tempPieces = new int[8];
 		tempPieces[0] = hashPieces[2];
 		tempPieces[1] = hashPieces[3];
@@ -181,41 +174,37 @@ public final class PatternExtractor {
 	}
 
 	/** Analyzes all the games in one SGF file. */
+	@SuppressWarnings("boxing")
 	private void analyzeGames(List<List<Short>> games) {
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				Legality legality = analyzeMove(move);
-				if(legality==Legality.KO_VIOLATION){
+				if (legality == Legality.KO_VIOLATION) {
 					break;
-				} else if(legality==Legality.SUICIDE){
-					throw new IllegalArgumentException("SGF contained illegal move at " + coords.toString(move) + " on turn " + board.getTurn() + "\n" + board);
+				} else if (legality == Legality.SUICIDE) {
+					throw new IllegalArgumentException("SGF contained illegal move at "
+							+ coords.toString(move) + " on turn " + board.getTurn() + "\n" + board);
 				}
 			}
 			board.clear();
 		}
 
 	}
-	
-	float getWinRate(int hash){
-		if(runs[hash] == 0){
+
+	float getWinRate(int hash) {
+		if (runs[hash] == 0) {
 			return 0.5f;
 		}
-		return (float)wins[hash] / (float)runs[hash];
+		return (float) wins[hash] / (float) runs[hash];
 	}
 
-	private List<Pattern> getPatterns() {
-		return list;
-	}
-
+	@SuppressWarnings("unused")
 	private void buildPatternData(File file) {
 		analyzeFiles(file);
-		FileOutputStream out;
-		try {
-			out = new FileOutputStream("PatternData/Pro3x3PatternData.data");
-			ObjectOutputStream oos = new ObjectOutputStream(out);
+		try (FileOutputStream out = new FileOutputStream("PatternData/Pro3x3PatternData.data");
+				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(runs);
 			oos.writeObject(wins);
-			oos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -231,11 +220,11 @@ public final class PatternExtractor {
 			}
 		} else {
 			if (file.getPath().endsWith(".sgf")) {
-				
+
 				List<List<Short>> games = parser.parseGamesFromFile(file, 500);
-				try{
-				analyzeGames(games);
-				} catch(IllegalArgumentException e){
+				try {
+					analyzeGames(games);
+				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 					System.err.println(file.getPath());
 					System.exit(1);
@@ -247,12 +236,11 @@ public final class PatternExtractor {
 	public static void main(String[] args) {
 		PatternExtractor extractor = new PatternExtractor();
 		int highestRuns = 0;
-//		extractor
-//				.buildPatternData(new File(
-//						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
-		try {
-			ObjectInputStream objectInputStream = new ObjectInputStream(
-					new FileInputStream("PatternData/Pro3x3PatternData.data"));
+		// extractor
+		// .buildPatternData(new File(
+		// "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+		try (ObjectInputStream objectInputStream = new ObjectInputStream(
+				new FileInputStream("PatternData/Pro3x3PatternData.data"))) {
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
 			objectInputStream.close();
@@ -273,27 +261,27 @@ public final class PatternExtractor {
 			System.exit(1);
 		}
 		Collections.sort(extractor.list);
-		for(Pattern pattern : extractor.list){
-			if(pattern.getWinRate() > .99){
+		for (Pattern pattern : extractor.list) {
+			if (pattern.getWinRate() > .99) {
 				System.out.println(pattern);
 			}
 		}
-		
-		
 
-		
-//		try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
-//			for (Pattern pattern : extractor.getPatterns()) {
-//				writer.println(pattern.getWinRate() + ","
-//						+ (float) pattern.getRuns() / highestRuns);
-//				if (pattern.getWinRate() > .79 && pattern.getWinRate() < .81) {
-//					System.out.println(pattern);
-//				}
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
+
+		//This is used to generate an output file with data that can be graphed in Mathematica.
+//		private static final String OUTPUT_FILE = "PatternData/Pro3x3PatternData.csv";
+		// try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
+		// for (Pattern pattern : extractor.getPatterns()) {
+		// writer.println(pattern.getWinRate() + ","
+		// + (float) pattern.getRuns() / highestRuns);
+		// if (pattern.getWinRate() > .79 && pattern.getWinRate() < .81) {
+		// System.out.println(pattern);
+		// }
+		// }
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// System.exit(1);
+		// }
 	}
 
 }
