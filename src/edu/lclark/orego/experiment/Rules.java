@@ -7,7 +7,7 @@ final class Rules {
 
 	final double komi;
 
-	/** In seconds. If there is no time limit, this is a negative number. */
+	/** In seconds. If there is no time limit, this is a nonpositive number. */
 	final int time;
 
 	Rules(int boardSize, double komi, int time) {
