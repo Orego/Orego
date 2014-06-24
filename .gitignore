@@ -16,7 +16,7 @@ bin
 
 # we don't want machine specific paths
 user.properties
-system.properties
+config/system.properties
 
 ## generic files to ignore
 *~
