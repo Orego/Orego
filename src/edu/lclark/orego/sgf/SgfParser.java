@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 
-public class SgfParser {
+public final class SgfParser {
 
 	private CoordinateSystem coords;
 

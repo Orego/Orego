@@ -11,7 +11,7 @@ import edu.lclark.orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
-public class PatternSuggester implements Suggester {
+public final class PatternSuggester implements Suggester {
 	
 	private static final float THRESHOLD = 0.8f;
 
