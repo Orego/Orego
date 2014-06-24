@@ -44,8 +44,8 @@ final class Game {
 	/** The board on which this game is played. */
 	private final Board board;
 
-	/** Shell commands to start the two contestants. */
-	private final String[] contestants;
+	/** Shell commands to start the two players. */
+	private final String[] players;
 
 	/** File to which the results of this game are sent. */
 	private final String filename;
@@ -97,7 +97,7 @@ final class Game {
 		timeUsed = new long[2];
 		programs = new Process[2];
 		toPrograms = new PrintWriter[2];
-		contestants = new String[] { black, white };
+		players = new String[] { black, white };
 		board = new Board(rules.boardSize);
 		scorer = new ChineseFinalScorer(board, rules.komi);
 		try {
@@ -110,8 +110,8 @@ final class Game {
 		}
 		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM["
 				+ rules.komi + "]GM[1]RU[Chinese]SZ[" + rules.boardSize + "]");
-		out.println("PB[" + contestants[BLACK.index()] + "]");
-		out.println("PW[" + contestants[WHITE.index()] + "]");
+		out.println("PB[" + players[BLACK.index()] + "]");
+		out.println("PW[" + players[WHITE.index()] + "]");
 		out.flush();
 	}
 
@@ -133,7 +133,7 @@ final class Game {
 	}
 
 	/**
-	 * Sends the quit command to both contestants, so that the processes will
+	 * Sends the quit command to both players, so that the processes will
 	 * end. Also adds start and end time comments to the end of the output SGF
 	 * file.
 	 */
@@ -281,7 +281,7 @@ final class Game {
 			for (final StoneColor color : StoneColor.values()) {
 				final int c = color.index();
 				final ProcessBuilder builder = new ProcessBuilder("nohup",
-						"bash", "-c", contestants[c], "&");
+						"bash", "-c", players[c], "&");
 				builder.redirectErrorStream(true);
 				programs[c] = builder.start();
 				toPrograms[c] = new PrintWriter(programs[c].getOutputStream());
@@ -291,8 +291,8 @@ final class Game {
 		} catch (final IOException e) {
 			System.err
 					.println("Failed to start one of the following two processes:");
-			System.err.println(contestants[BLACK.index()]);
-			System.err.println(contestants[WHITE.index()]);
+			System.err.println(players[BLACK.index()]);
+			System.err.println(players[WHITE.index()]);
 			e.printStackTrace();
 			System.exit(1);
 		}
