@@ -6,9 +6,11 @@ import edu.lclark.orego.feature.CaptureSuggester;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
 import edu.lclark.orego.feature.EscapeSuggester;
+import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
+import edu.lclark.orego.feature.PatternSuggester;
 import edu.lclark.orego.feature.Predicate;
 
 /** Static methods for creating some particular, widely-used Movers. */
@@ -42,6 +44,13 @@ public final class MoverFactory {
 	public static Mover escapeCapturer(Board board, AtariObserver atariObserver) {
 		return new SuggesterMover(board, new EscapeSuggester(board,
 				atariObserver), capturer(board, atariObserver));
+	}
+
+	public static Mover escapePatternCapture(Board board,
+			AtariObserver atariObserver, HistoryObserver historyObserver) {
+		return new SuggesterMover(board, new EscapeSuggester(board,
+				atariObserver), new SuggesterMover(board, new PatternSuggester(
+				board, historyObserver), capturer(board, atariObserver)));
 	}
 
 }

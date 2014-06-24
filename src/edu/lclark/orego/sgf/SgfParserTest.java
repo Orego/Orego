@@ -39,6 +39,7 @@ public class SgfParserTest {
 		assertEquals(at("a1"), parser.sgfToPoint("as"));
 	}
 	
+	@SuppressWarnings("boxing")
 	@Test
 	public void testSgfToMoves(){
 		List<List<Short>> games = parser.parseGamesFromFile(new File("SgfTestFiles/19/1977-02-27.sgf"), 500);
