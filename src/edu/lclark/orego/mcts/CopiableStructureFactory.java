@@ -58,5 +58,13 @@ public final class CopiableStructureFactory {
 		return base.add(MoverFactory.escapeCapturer(board,
 				atariObserver));
 	}
+	
+	public static CopiableStructure escapePatternCapture(int width) {
+		CopiableStructure base = basicParts(width);
+		Board board = base.get(Board.class);
+		AtariObserver atariObserver = new AtariObserver(board);
+		HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		return base.add(MoverFactory.escapePatternCapture(board, atariObserver, historyObserver));
+	}
 
 }
