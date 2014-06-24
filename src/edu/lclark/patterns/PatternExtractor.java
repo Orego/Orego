@@ -68,21 +68,67 @@ public final class PatternExtractor {
 	 */
 	private void updateTables(boolean winner, short move) {
 		short[] neighbors = coords.getNeighbors(move);
+		int[] hashPieces = new int[8];
 		int hash = 0;
 		for (int i = 0; i < neighbors.length; i++) {
 			Color color = board.getColorAt(neighbors[i]);
 			if (color == board.getColorToPlay()) {
 				// Friendly stone at this neighbor
-				hash |= 1 << (i * 2);
+				hashPieces[i] = 1;
 			} else if (color != board.getColorToPlay().opposite()) {
 				// neighbor is vacant or off board
-				hash |= color.index() << (i * 2);
-			} // else do nothing, no need to OR 0 with 0
+				hashPieces[i] = color.index();
+			} else {
+				hashPieces[i] = 0;
+			}
+		}
+		updateOriginalPattern(winner, hashPieces);
+		updateRotations(winner, hashPieces);
+		updateReflections(winner, hashPieces);
+	}
+
+	private void updateOriginalPattern(boolean winner, int[] hashPieces) {
+		int hash = 0;
+		for(int i = 0; i < 8; i++){
+			hash |= hashPieces[i] << (i * 2);
 		}
 		if (winner) {
 			wins[hash] += 1;
 		}
 		runs[hash] += 1;
+	}
+
+	private void updateReflections(boolean winner, int[] hashPieces) {
+
+	}
+
+	private void updateRotations(boolean winner, int[] hashPieces) {
+		int[] tempPieces = hashPieces;
+		for(int i = 0; i < 3; i++){
+			tempPieces = rotate90Degrees(tempPieces);
+			int hash = 0;
+			for(int j = 0; j < 8; j++){
+				hash |= hashPieces[j] << (i * 2);
+			}
+			if (winner) {
+				wins[hash] += 1;
+			}
+			runs[hash] += 1;
+		}
+	}
+
+	private int[] rotate90Degrees(int[] hashPieces) {
+		int[] tempPieces = new int[8];
+		tempPieces[0] = hashPieces[1];
+		tempPieces[1] = hashPieces[3];
+		tempPieces[2] = hashPieces[0];
+		tempPieces[3] = hashPieces[2];
+		tempPieces[4] = hashPieces[6];
+		tempPieces[5] = hashPieces[4];
+		tempPieces[6] = hashPieces[7];
+		tempPieces[7] = hashPieces[5];
+		return tempPieces;
+		
 	}
 
 	/**
@@ -123,12 +169,12 @@ public final class PatternExtractor {
 	private List<Pattern> getPatterns() {
 		return list;
 	}
-	
-	private void buildPatternData(File file){
+
+	private void buildPatternData(File file) {
 		analyzeFiles(file);
 		FileOutputStream out;
 		try {
-			out = new FileOutputStream("PatternData/Pro3x3PatternData.data"); 
+			out = new FileOutputStream("PatternData/Pro3x3PatternData.data");
 			ObjectOutputStream oos = new ObjectOutputStream(out);
 			oos.writeObject(runs);
 			oos.writeObject(wins);
@@ -137,8 +183,7 @@ public final class PatternExtractor {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	     
-		
+
 	}
 
 	private void analyzeFiles(File file) {
@@ -163,11 +208,11 @@ public final class PatternExtractor {
 						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(
-			        new FileInputStream("PatternData/Pro3x3PatternData.data"));
-			int[] fileRuns = (int[])objectInputStream.readObject();
-			int[] fileWins = (int[])objectInputStream.readObject();
+					new FileInputStream("PatternData/Pro3x3PatternData.data"));
+			int[] fileRuns = (int[]) objectInputStream.readObject();
+			int[] fileWins = (int[]) objectInputStream.readObject();
 			objectInputStream.close();
-			
+
 			for (int i = 0; i < PATTERN_COUNT; i++) {
 				if (fileRuns[i] != 0) {
 					extractor.list.add(new Pattern(i, (float) fileWins[i]
@@ -177,14 +222,13 @@ public final class PatternExtractor {
 							highestRuns = fileRuns[i];
 						}
 					}
-				} 
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
-		
 		Collections.sort(extractor.list);
 		try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
 			for (Pattern pattern : extractor.getPatterns()) {
