@@ -17,8 +17,13 @@ import edu.lclark.orego.ui.Orego;
 /** Holds experiment-dependent settings, e.g., number of games per host. */
 enum ExperimentConfiguration {
 
-	EXPERIMENT; // Name of the instance
+	/** Name of the singleton instance. */
+	EXPERIMENT;
 
+	/**
+	 * Command line arguments to Orego for the various conditions in the
+	 * experiment.
+	 */
 	final List<String> conditions;
 
 	/**
@@ -27,10 +32,17 @@ enum ExperimentConfiguration {
 	 */
 	final int gamesPerColor;
 
+	/** Total number of games desired per condition. */
 	final int gamesPerCondition;
 
+	/**
+	 * Number of games to run simultaneously on each host. This should be no
+	 * more than the number of processor cores on each host. If Orego is being
+	 * run with multiple threads, it might be even smaller.
+	 */
 	final int gamesPerHost;
 
+	/** Full command to run GNUGo for this experiment. */
 	final String gnugo;
 
 	final Rules rules;

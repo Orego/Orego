@@ -15,14 +15,19 @@ import java.util.*;
 /** Holds system-dependent properties, e.g., classpath. */
 enum SystemConfiguration {
 
-	SYSTEM; // Name of the instance
+	/** Name of the singleton instance. */
+	SYSTEM;
 	
+	/** Command to run Java, including Orego classpath. */
 	final String javaWithOregoClasspath;
 
+	/** Command to run GNUGo. */
 	final String gnugoHome;
 	
+	/** List of hosts on which to run experiments. */
 	final List<String> hosts;
 	
+	/** Directory in which to store result files. */
 	final String resultsDirectory;
 	
 	/** Reads settings from config/system.properties. */
