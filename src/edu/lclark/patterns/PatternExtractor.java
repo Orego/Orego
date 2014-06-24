@@ -247,9 +247,9 @@ public final class PatternExtractor {
 	public static void main(String[] args) {
 		PatternExtractor extractor = new PatternExtractor();
 		int highestRuns = 0;
-		extractor
-				.buildPatternData(new File(
-						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+//		extractor
+//				.buildPatternData(new File(
+//						"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(
 					new FileInputStream("PatternData/Pro3x3PatternData.data"));
@@ -274,7 +274,7 @@ public final class PatternExtractor {
 		}
 		Collections.sort(extractor.list);
 		for(Pattern pattern : extractor.list){
-			if(pattern.getWinRate() < 0.3 && pattern.getWinRate() > 0.25){
+			if(pattern.getWinRate() > .99){
 				System.out.println(pattern);
 			}
 		}
