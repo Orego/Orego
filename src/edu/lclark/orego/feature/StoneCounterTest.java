@@ -6,26 +6,17 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 
 public class StoneCounterTest {
 
 	private Board board;
-	
-	private CoordinateSystem coords;
 	
 	private StoneCounter counter;
 	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(5);
-		coords = board.getCoordinateSystem();
 		counter = new StoneCounter(board);
-	}
-
-	/** Delegate method to call at on board. */
-	private short at(String label) {
-		return coords.at(label);
 	}
 
 	@Test
@@ -38,7 +29,7 @@ public class StoneCounterTest {
 				".#...",
 		};
 		board.setUpProblem(diagram, WHITE);
-		board.play(at("c5"));
+		board.play("c5");
 		assertEquals(2, counter.getCount(BLACK));
 		assertEquals(6, counter.getCount(WHITE));
 	}
@@ -53,7 +44,7 @@ public class StoneCounterTest {
 				".#...",
 		};
 		board.setUpProblem(diagram, WHITE);
-		board.play(at("c5"));
+		board.play("c5");
 		assertEquals(2, counter.getCount(BLACK));
 		assertEquals(6, counter.getCount(WHITE));
 		board.clear();
