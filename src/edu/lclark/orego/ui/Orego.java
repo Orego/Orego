@@ -518,10 +518,9 @@ public final class Orego {
 	}
 	
 	private void buildPlayer(int width){
-		final int milliseconds = 100;
-		final int threads = 4;
-		player = null;
-		player = new Player(threads, CopiableStructureFactory.feasible(width));
+		final int milliseconds = 1000;
+		final int threads = 2;
+		player = new Player(threads, CopiableStructureFactory.escapeCapturer(width));
 		Board board = player.getBoard();
 		coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
