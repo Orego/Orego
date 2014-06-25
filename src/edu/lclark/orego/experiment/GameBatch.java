@@ -63,10 +63,9 @@ public final class GameBatch implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Running batch " + batchNumber + " on " + host);
-		System.out.println("Conditions: " + EXPERIMENT.conditions.size());
 		for (String condition : EXPERIMENT.conditions) {
-			System.out.println("Running some games");
-			String orego = SYSTEM.javaWithOregoClasspath
+			System.out.println("Condition " + condition);
+			String orego = SYSTEM.java + " -cp " + SYSTEM.oregoClassPath
 					+ " -ea -Xmx1024M edu.lclark.orego.ui.Orego " + condition;
 			runGames(orego, EXPERIMENT.gnugo);
 			runGames(EXPERIMENT.gnugo, orego);

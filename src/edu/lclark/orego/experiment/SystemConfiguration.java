@@ -18,14 +18,17 @@ enum SystemConfiguration {
 	/** Name of the singleton instance. */
 	SYSTEM;
 	
-	/** Command to run Java, including Orego classpath. */
-	final String javaWithOregoClasspath;
+	/** Orego classpath. */
+	final String oregoClassPath;
 
 	/** Command to run GNUGo. */
 	final String gnugoHome;
 	
 	/** List of hosts on which to run experiments. */
 	final List<String> hosts;
+	
+	/** Command to run Java. */
+	final String java;
 	
 	/** Directory in which to store result files. */
 	final String resultsDirectory;
@@ -43,10 +46,11 @@ enum SystemConfiguration {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		javaWithOregoClasspath = properties
-				.getProperty("javaWithOregoClassPath");
+		oregoClassPath = properties
+				.getProperty("oregoClassPath");
 		gnugoHome = properties
 				.getProperty("gnugoHome");
+		java=properties.getProperty("java");
 		resultsDirectory = properties.getProperty("resultsDirectory");
 		hosts = new ArrayList<>();
 		for (String s : properties.stringPropertyNames()) {
