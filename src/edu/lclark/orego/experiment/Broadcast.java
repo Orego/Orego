@@ -73,7 +73,8 @@ public final class Broadcast {
 		try (Scanner s = new Scanner(new ProcessBuilder("git", "log", "--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
 			String commit = s.nextLine();
 			try (PrintWriter out = new PrintWriter(filename)) {
-				out.println(commit);
+				// substring to remove single quotes that would otherwise appear
+				out.println(commit.substring(1, commit.length() - 1));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
