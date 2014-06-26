@@ -57,6 +57,7 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 						if (child == node) {
 							System.out.println("They are the same");
 						}
+						
 						table.addChild(node, child);
 						// TODO Update priors if child is fresh
 						return;
