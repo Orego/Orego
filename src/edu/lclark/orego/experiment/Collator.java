@@ -18,7 +18,7 @@ public final class Collator {
 	private int fileCount;
 
 	public void collate() {
-		File folder = new File(SYSTEM.resultsDirectory);
+		File folder = new File(SYSTEM.resultsDirectory + File.separator);
 		if (folder.exists())
 		{
 			File[] files = folder.listFiles();
@@ -35,7 +35,7 @@ public final class Collator {
 	}
 	
 	public void collate(String filePath){
-		produceSummary(new File(SYSTEM.resultsDirectory + filePath));
+		produceSummary(new File(SYSTEM.resultsDirectory + File.separator + filePath));
 	}
 
 	private void produceSummary(File folder) {
