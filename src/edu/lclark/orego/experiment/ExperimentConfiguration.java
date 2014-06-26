@@ -63,7 +63,9 @@ enum ExperimentConfiguration {
 		gamesPerCondition = parseInt(properties
 				.getProperty("gamesPerCondition"));
 		gamesPerColor = gamesPerCondition / (2 * SYSTEM.hosts.size() * gamesPerHost);
-		assert 2 * SYSTEM.hosts.size() * gamesPerHost * gamesPerColor == gamesPerCondition : "Games per condition must be a multiple of 2 * <# of hosts> * <games per host>";
+		if (2 * SYSTEM.hosts.size() * gamesPerHost * gamesPerColor != gamesPerCondition) {
+			throw new IllegalArgumentException("Games per condition must be a multiple of 2 * <# of hosts> * <games per host>");
+		}
 		final int boardSize = parseInt(properties.getProperty("boardSize"));
 		final double komi = parseDouble(properties.getProperty("komi"));
 		rules = new Rules(boardSize,

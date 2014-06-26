@@ -1,6 +1,7 @@
 package edu.lclark.orego.experiment;
 
 import static edu.lclark.orego.experiment.SystemConfiguration.*;
+import static edu.lclark.orego.experiment.ExperimentConfiguration.*;
 import static edu.lclark.orego.experiment.GameBatch.*;
 import static java.io.File.separator;
 
@@ -18,9 +19,10 @@ public final class Broadcast {
 			+ ".." + File.separator;
 
 	public static void main(String[] args) throws Exception {
+		System.out.println("Preparing to launch " + (EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size()) + " games");
 		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp() + separator;
-		new File(resultsDirectory).mkdir();
 		System.out.println("Launching broadcast experiment. Results will be stored in " + resultsDirectory);
+		new File(resultsDirectory).mkdir();
 		copyFile(OREGO_ROOT + "config" + separator + "system.properties", resultsDirectory + "system.txt");
 		copyFile(OREGO_ROOT + "config" + separator + "experiment.properties", resultsDirectory + "experiment.txt");
 		List<String> hosts = SYSTEM.hosts;
@@ -28,7 +30,7 @@ public final class Broadcast {
 		for (int i = 0; i < hosts.size(); i++) {
 			String host = hosts.get(i);
 			// Do not insert spaces in the string "&>" -- bash treats that differently!
-			String command = SYSTEM.java + " -cp " + SYSTEM.oregoClassPath
+			String command = SYSTEM.java + " -ea -cp " + SYSTEM.oregoClassPath
 					+ " edu.lclark.orego.experiment.GameBatch " + host
 					+ " " + resultsDirectory + "&>"
 					+ resultsDirectory + host + ".batch";
