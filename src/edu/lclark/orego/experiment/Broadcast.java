@@ -60,7 +60,25 @@ public final class Broadcast {
 	 * not in a clean git state, throws an IllegalStateException.
 	 */
 	private static void writeGitCommit(String filename) {
-		
+		// Verify that we are in a clean git state
+		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s").start().getInputStream())) {
+			if (s.hasNextLine()) {
+				throw new IllegalStateException("Not in clean git state");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		// Write commit to a file
+		try (Scanner s = new Scanner(new ProcessBuilder("git", "log", "--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
+			String commit = s.nextLine();
+			try (PrintWriter out = new PrintWriter(filename)) {
+				out.println(commit);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 
 	public static void copyFile(String source, String destination) {
