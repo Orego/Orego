@@ -18,7 +18,7 @@ public final class Collator {
 	private int fileCount;
 
 	public void collate() {
-		File folder = new File(SYSTEM.resultsDirectory + File.separator);
+		File folder = new File(SYSTEM.resultsDirectory);
 		if (folder.exists())
 		{
 			File[] files = folder.listFiles();
@@ -29,13 +29,13 @@ public final class Collator {
 						mostRecent = file;
 					}
 				}
-				produceSummary(mostRecent);
+				collate(mostRecent.getPath());
 			}
 		}
 	}
 	
 	public void collate(String filePath){
-		produceSummary(new File(SYSTEM.resultsDirectory + File.separator + filePath));
+		produceSummary(new File(filePath));
 	}
 
 	private void produceSummary(File folder) {
@@ -45,7 +45,8 @@ public final class Collator {
 				fileCount++;
 			}
 		}
-		try(PrintWriter writer = new PrintWriter(new File(folder + "summary.txt"))){
+		try(PrintWriter writer = new PrintWriter(new File(folder + File.separator + "summary.txt"))){
+			writer.println("Total games played: " + runs);
 			writer.println("Orego win rate: " + ((float)oregoWins / (float)runs));
 			writer.println("Average moves per game: " + ((float)totalMoves / (float)fileCount));
 			writer.println("Games out of time: " + timeLosses);
