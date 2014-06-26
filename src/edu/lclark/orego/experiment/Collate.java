@@ -5,7 +5,8 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public final class Collator {
+/** Collates data during or after an experiment. */
+public final class Collate {
 
 	private int oregoWins;
 
@@ -108,7 +109,7 @@ public final class Collator {
 	}
 
 	public static void main(String[] args) {
-		new Collator().collate();
+		new Collate().collate();
 
 	}
 
