@@ -46,14 +46,20 @@ public final class Collator {
 			}
 		}
 		try(PrintWriter writer = new PrintWriter(new File(folder + File.separator + "summary.txt"))){
-			writer.println("Total games played: " + runs);
-			writer.println("Orego win rate: " + ((float)oregoWins / (float)runs));
-			writer.println("Average moves per game: " + ((float)totalMoves / (float)fileCount));
-			writer.println("Games out of time: " + timeLosses);
+			output(writer, "Total games played: " + runs);
+			output(writer, "Orego win rate: " + ((float)oregoWins / (float)runs));
+			output(writer, "Average moves per game: " + ((float)totalMoves / (float)fileCount));
+			output(writer, "Games out of time: " + timeLosses);
 		}catch(Exception e){
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+
+	/** Prints s both to writer and standard output. */
+	private static void output(PrintWriter writer, String s) {
+		writer.println(s);
+		System.out.println(s);
 	}
 
 	private void extractData(File file) {

@@ -18,8 +18,9 @@ bin
 user.properties
 config/system.properties
 
-# Fido-specific scripts
-build-all.sh
+# Fido-specific scripts and files
+/build-all.sh
+/lib
 
 ## generic files to ignore
 *~
