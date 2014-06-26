@@ -12,6 +12,7 @@ import edu.lclark.orego.ui.Orego;
 /** Runs GameBatch on each of several machines. */
 public final class Broadcast {
 
+	// TODO Does this belong somewhere else?
 	public static final String OREGO_ROOT = Orego.class
 			.getProtectionDomain().getCodeSource().getLocation().getFile()
 			+ ".." + File.separator;

@@ -9,7 +9,8 @@ import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import edu.lclark.orego.util.BitVector;
 import edu.lclark.orego.util.ShortSet;
-
+import static edu.lclark.orego.experiment.Broadcast.OREGO_ROOT;
+	
 @SuppressWarnings("serial")
 public final class PatternSuggester implements Suggester {
 	
@@ -31,7 +32,7 @@ public final class PatternSuggester implements Suggester {
 		this.history = history;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 		try(ObjectInputStream objectInputStream = new ObjectInputStream(
-				new FileInputStream("PatternData/Pro3x3PatternData.data"));) {
+				new FileInputStream(OREGO_ROOT + "PatternData/Pro3x3PatternData.data"));) {
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
 			goodPatterns = new BitVector(fileRuns.length);
