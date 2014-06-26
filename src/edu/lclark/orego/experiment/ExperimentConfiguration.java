@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Properties;
 
 import edu.lclark.orego.ui.Orego;
+import static edu.lclark.orego.experiment.Broadcast.*;
 
 /** Holds experiment-dependent settings, e.g., number of games per host. */
 enum ExperimentConfiguration {
@@ -50,11 +51,8 @@ enum ExperimentConfiguration {
 	/** Reads settings from config/system.properties. */
 	private ExperimentConfiguration() {
 		final Properties properties = new Properties();
-		final String oregoRoot = Orego.class
-				.getProtectionDomain().getCodeSource().getLocation().getFile()
-				+ ".." + File.separator;
 		try {
-			properties.load(new FileInputStream(oregoRoot
+			properties.load(new FileInputStream(OREGO_ROOT
 					+ separator + "config" + separator + "experiment.properties"));
 		} catch (final IOException e) {
 			e.printStackTrace();
