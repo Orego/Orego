@@ -19,6 +19,11 @@ public final class BestRateDescender implements TreeDescender {
 	}
 
 	@Override
+	public int getBiasDelay() {
+		return 0;
+	}
+
+	@Override
 	public short bestPlayMove() {
 		double best = 1;
 		short result = PASS;

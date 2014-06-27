@@ -22,4 +22,7 @@ public interface TreeDescender {
 	 */
 	public short bestPlayMove();
 	
+	/** Returns the number of runs a node must have before biases are applied. */
+	public int getBiasDelay();
+	
 }

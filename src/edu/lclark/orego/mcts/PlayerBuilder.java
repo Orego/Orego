@@ -50,17 +50,24 @@ public final class PlayerBuilder {
 		return this;
 	}
 
+	private int biasDelay;
+	
 	/** Creates the Player. */
 	public Player build() {
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
-		result.setTreeDescender(new UctDescender(board, table));
+		result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		return result;
+	}
+
+	public PlayerBuilder biasDelay(int biasDelay) {
+		this.biasDelay = biasDelay;
+		return this;
 	}
 
 }

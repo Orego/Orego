@@ -52,7 +52,7 @@ public final class TreeVisualizer extends JFrame {
 				board.getCoordinateSystem());
 		updater = new SimpleTreeUpdater(board, table, 0);
 		player.setTreeUpdater(updater);
-		player.setTreeDescender(new UctDescender(board, table));
+		player.setTreeDescender(new UctDescender(board, table, 75));
 	}
 
 	private void run() {

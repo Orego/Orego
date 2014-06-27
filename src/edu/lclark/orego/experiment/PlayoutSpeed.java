@@ -14,7 +14,7 @@ public final class PlayoutSpeed {
 		Board board = player.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
-		player.setTreeDescender(new UctDescender(board, table));
+		player.setTreeDescender(new UctDescender(board, table, 75));
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table, 0);
 		player.setTreeUpdater(updater);
 		player.setMsecPerMove(milliseconds);

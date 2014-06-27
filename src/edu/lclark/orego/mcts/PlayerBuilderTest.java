@@ -45,5 +45,11 @@ public class PlayerBuilderTest {
 		builder.gestation(23);
 		assertEquals(23, builder.build().getUpdater().getGestation());		
 	}
+	
+	@Test
+	public void testBiasDelay() {
+		builder.biasDelay(173);
+		assertEquals(173, builder.build().getDescender().getBiasDelay());				
+	}
 
 }

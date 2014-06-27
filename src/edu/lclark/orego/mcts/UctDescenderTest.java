@@ -42,7 +42,7 @@ public class UctDescenderTest {
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords),
 				coords);
-		descender = new UctDescender(player.getBoard(), table);
+		descender = new UctDescender(player.getBoard(), table, 75);
 		updater = new SimpleTreeUpdater(player.getBoard(), table, 12);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);

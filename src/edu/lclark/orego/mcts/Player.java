@@ -165,4 +165,8 @@ public final class Player {
 		return msecPerMove;
 	}
 
+	public TreeDescender getDescender() {
+		return descender;
+	}
+
 }

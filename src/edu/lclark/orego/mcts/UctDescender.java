@@ -16,15 +16,21 @@ import edu.lclark.orego.util.ShortSet;
 /** Uses UCT. */
 public final class UctDescender implements TreeDescender {
 
-	private static final int UPDATE_PRIORS_THRESHOLD = 75;
+	private final int biasDelay;
 
 	private final Board board;
 
 	private final TranspositionTable table;
 
-	public UctDescender(Board board, TranspositionTable table) {
+	@Override
+	public int getBiasDelay() {
+		return biasDelay;
+	}
+
+	public UctDescender(Board board, TranspositionTable table, int biasDelay) {
 		this.board = board;
 		this.table = table;
+		this.biasDelay = biasDelay;
 	}
 
 	@Override
@@ -151,7 +157,7 @@ public final class UctDescender implements TreeDescender {
 			if (child == null) {
 				return; // No child
 			}
-			if (child.getTotalRuns() > UPDATE_PRIORS_THRESHOLD && !child.priorsUpdated()) {
+			if (child.getTotalRuns() > biasDelay && !child.priorsUpdated()) {
 				updatePriors(child, runnable);
 			}
 			node = child;
@@ -172,7 +178,7 @@ public final class UctDescender implements TreeDescender {
 			if (child == null) {
 				return; // No child
 			}
-			if (child.getTotalRuns() > UPDATE_PRIORS_THRESHOLD && !child.priorsUpdated()) {
+			if (child.getTotalRuns() > biasDelay && !child.priorsUpdated()) {
 				updatePriors(child, runnable);
 			}
 		}

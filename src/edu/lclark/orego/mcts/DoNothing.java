@@ -31,4 +31,9 @@ public final class DoNothing implements TreeDescender, TreeUpdater {
 		return 0;
 	}
 
+	@Override
+	public int getBiasDelay() {
+		return 0;
+	}
+
 }

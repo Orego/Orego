@@ -417,7 +417,9 @@ public final class Orego {
 				right = "true";
 			}
 			// Handle properties
-			if (left.equals("boardsize")) {
+			if (left.equals("biasdelay")) {
+				playerBuilder.biasDelay(parseInt(right));
+			} else if (left.equals("boardsize")) {
 				playerBuilder.boardWidth(parseInt(right));
 			} else if (left.equals("gestation")) {
 				playerBuilder.gestation(parseInt(right));
