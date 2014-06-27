@@ -301,6 +301,7 @@ public final class SimpleSearchNode implements SearchNode {
 		return priorsUpdated;
 	}
 	
+	@Override
 	public void setPriorsUpdated(boolean value){
 		priorsUpdated = value;
 	}

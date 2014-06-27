@@ -178,17 +178,13 @@ public final class UctDescender implements TreeDescender {
 		}
 	}
 
-	private void updatePriors(SearchNode node, McRunnable runnable) {
-		System.out.println("Updating priors");
-		System.out.println(runnable.getBoard());
+	private static void updatePriors(SearchNode node, McRunnable runnable) {
 		Suggester[] suggesters = runnable.getSuggesters();
 		int[] weights = runnable.getWeights();
 		for (int i = 0; i < suggesters.length; i++) {
 			ShortSet moves = suggesters[i].getMoves();
-			System.out.println(moves.size());
 			for (int j = 0; j < moves.size(); j++) {
 				short p = moves.get(j);
-				System.out.println("Updating for " + board.getCoordinateSystem().toString(p));
 				node.update(p, weights[i], weights[i]);
 			}
 		}

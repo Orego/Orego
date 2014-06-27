@@ -1,14 +1,11 @@
 package edu.lclark.orego.mcts;
 
 import static edu.lclark.orego.core.StoneColor.BLACK;
-import static edu.lclark.orego.core.StoneColor.WHITE;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
-import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.Mover;
@@ -18,8 +15,6 @@ public class WideningTreeUpdaterTest {
 	private Player player;
 	
 	private WideningTreeUpdater updater;
-
-	private Board board;
 	
 	Mover mover;
 	
@@ -39,7 +34,6 @@ public class WideningTreeUpdaterTest {
 		mover = cp.get(Mover.class);
 		suggester = (EscapeSuggester) cp.get(Suggester[].class)[0];
 		player = new Player(1, cp);
-		board = cp.get(Board.class);
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
 		descender = new BestRateDescender(player.getBoard(), table);

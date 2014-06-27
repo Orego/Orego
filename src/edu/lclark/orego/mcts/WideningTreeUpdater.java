@@ -4,8 +4,6 @@ import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.feature.HistoryObserver;
-import edu.lclark.orego.feature.Suggester;
-import edu.lclark.orego.util.ShortSet;
 
 public class WideningTreeUpdater implements TreeUpdater {
 

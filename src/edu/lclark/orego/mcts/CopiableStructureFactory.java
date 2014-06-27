@@ -32,6 +32,8 @@ public final class CopiableStructureFactory {
 	public static CopiableStructure feasible(int width) {
 		CopiableStructure base = basicParts(width);
 		Board board = base.get(Board.class);
+		base.add(new Suggester[0]);
+		base.add(new int[0]);
 		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board))));
