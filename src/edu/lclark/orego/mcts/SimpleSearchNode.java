@@ -48,6 +48,9 @@ public final class SimpleSearchNode implements SearchNode {
 
 	/** Number of wins through each child of this node. */
 	private final float[] winRates;
+	
+	/** True if priors for this node have been set.*/
+	private boolean priorsUpdated;
 
 	public SimpleSearchNode(CoordinateSystem coords) {
 		runs = new int[coords.getFirstPointBeyondBoard()];
@@ -291,6 +294,15 @@ public final class SimpleSearchNode implements SearchNode {
 		totalRuns += n;
 		winRates[p] = (wins + winRates[p] * runs[p]) / (n + runs[p]);
 		runs[p] += n;
+	}
+
+	@Override
+	public boolean priorsUpdated() {
+		return priorsUpdated;
+	}
+	
+	public void setPriorsUpdated(boolean value){
+		priorsUpdated = value;
 	}
 
 }

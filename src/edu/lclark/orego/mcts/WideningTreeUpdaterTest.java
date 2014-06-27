@@ -7,7 +7,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.*;
+import edu.lclark.orego.move.Mover;
 
 public class WideningTreeUpdaterTest {
 
@@ -15,6 +19,12 @@ public class WideningTreeUpdaterTest {
 	
 	private WideningTreeUpdater updater;
 
+	private Board board;
+	
+	Mover mover;
+	
+	EscapeSuggester suggester;
+	
 	private TreeDescender descender;
 	
 	/** Delegate method to call at on board. */
@@ -24,11 +34,15 @@ public class WideningTreeUpdaterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new Player(1, CopiableStructureFactory.feasible(5));
+		CopiableStructure cp = CopiableStructureFactory.useWithPriors(5);
+		mover = cp.get(Mover.class);
+		suggester = (EscapeSuggester) cp.get(Suggester[].class)[0];
+		player = new Player(1, cp);
+		board = player.getBoard();
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
 		descender = new BestRateDescender(player.getBoard(), table);
-		updater = new WideningTreeUpdater(player.getBoard(), table);
+		updater = new WideningTreeUpdater(player.getBoard(), table, cp.get(Suggester[].class), cp.get(int[].class));
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
 	}
@@ -47,6 +61,42 @@ public class WideningTreeUpdaterTest {
 		}
 		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
 				updater.toString(5));
+		for(int i = 0; i<5; i++){
+			updater.updateTree(BLACK, runnable);
+		}
+		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
+				updater.toString(5));
+	}
+	
+	@Test
+	public void testUpdatePriors(){
+		assertEquals("Total runs: 60\n", updater.toString(5));
+		McRunnable runnable = player.getMcRunnable(0);
+		runnable.acceptMove(at("b1"));
+		runnable.acceptMove(at("a1"));
+		runnable.acceptMove(at("b2"));
+		updater.updateTree(BLACK, runnable);
+		assertEquals("Total runs: 61\n", updater.toString(5));
+		for(int i = 0; i<100; i++){
+			updater.updateTree(BLACK, runnable);
+		}
+		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
+				updater.toString(5));
+	}
+	
+	@Test
+	public void testSuggesters(){
+		String[] diagram = {
+				".....",
+				"....#",
+				"...#O",
+				".....",
+				".....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		assertEquals(1, suggester.getMoves().size());
+		assertTrue(suggester.getMoves().contains(at("e2")));
+		assertEquals("e2", board.getCoordinateSystem().toString(mover.selectAndPlayOneMove(new MersenneTwisterFast())));
 	}
 
 }

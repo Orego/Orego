@@ -34,5 +34,4 @@ public final class CaptureSuggester implements Suggester {
 		return movesToCapture;
 	}
 
-
 }

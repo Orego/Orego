@@ -3,6 +3,7 @@ package edu.lclark.orego.mcts;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.*;
 import edu.lclark.orego.move.MoverFactory;
+import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.*;
 
 /** Static methods for creating some particular, widely-used CopiableStructures. */
@@ -70,4 +71,29 @@ public final class CopiableStructureFactory {
 				historyObserver));
 	}
 
+	public static CopiableStructure useWithPriors(int width) {
+		CopiableStructure base = basicParts(width);
+		Board board = base.get(Board.class);
+
+		AtariObserver atariObserver = new AtariObserver(board);
+		HistoryObserver historyObserver = base.get(HistoryObserver.class);
+
+		EscapeSuggester escape = new EscapeSuggester(board, atariObserver);
+		PatternSuggester patterns = new PatternSuggester(board, historyObserver);
+		CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
+		
+		base.add(new Suggester[] { escape, patterns, capture });
+		base.add(new int[] { 20, 20, 20 });
+
+		SuggesterMover mover = new SuggesterMover(board, escape, new SuggesterMover(board,
+				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
+						new Conjunction(new NotEyeLike(board), new Disjunction(
+								OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+										.getWidth()), new NearAnotherStone(board)))))));
+
+		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
+		return base.add(mover);
+	}
 }

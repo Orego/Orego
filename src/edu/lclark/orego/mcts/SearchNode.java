@@ -132,4 +132,10 @@ public interface SearchNode {
 	 */
 	public void update(short p, int n, float wins);
 
+	/** Returns whether the priors have already been updated for this node. */
+	public boolean priorsUpdated();
+	
+	/** Sets whether the priors have already been updated for this node. */
+	public void setPriorsUpdated(boolean value);
+
 }
