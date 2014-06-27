@@ -1,6 +1,6 @@
 package edu.lclark.orego.sgf;
 
-import static orego.core.Coordinates.PASS;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
 
 import java.io.File;
 import java.io.FileNotFoundException;
