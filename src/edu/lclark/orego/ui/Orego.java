@@ -2,18 +2,19 @@ package edu.lclark.orego.ui;
 
 import java.io.*;
 import java.util.*;
+
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
-import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.SimpleSearchNodeBuilder;
 import edu.lclark.orego.mcts.SimpleTreeUpdater;
 import edu.lclark.orego.mcts.TranspositionTable;
+import edu.lclark.orego.mcts.TreeUpdater;
 import edu.lclark.orego.mcts.UctDescender;
+import edu.lclark.orego.mcts.WideningTreeUpdater;
 
 /**
  * Main class run by GTP front ends. Can also be run directly from the command
@@ -520,12 +521,12 @@ public final class Orego {
 	private void buildPlayer(int width){
 		final int milliseconds = 1000;
 		final int threads = 2;
-		player = new Player(threads, CopiableStructureFactory.escapePatternCapture(width));
+		player = new Player(threads, CopiableStructureFactory.useWithPriors(width));
 		Board board = player.getBoard();
 		coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
 		player.setTreeDescender(new UctDescender(board, table));
-		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table);
+		TreeUpdater updater = new WideningTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
 		player.setMillisecondsPerMove(milliseconds);
 	}

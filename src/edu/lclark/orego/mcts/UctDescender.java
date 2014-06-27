@@ -16,7 +16,7 @@ import edu.lclark.orego.util.ShortSet;
 /** Uses UCT. */
 public final class UctDescender implements TreeDescender {
 
-	private static final int UPDATE_PRIORS_THRESHOLD = 75;
+	private static final int UPDATE_PRIORS_THRESHOLD = 2;
 
 	private final Board board;
 
