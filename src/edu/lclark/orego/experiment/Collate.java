@@ -1,27 +1,30 @@
 package edu.lclark.orego.experiment;
 
 import static edu.lclark.orego.experiment.SystemConfiguration.*;
+
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
 /** Collates data during or after an experiment. */
 public final class Collate {
 
-	private int oregoWins;
+	private int[] oregoWins;
 
-	private int runs;
+	private int[] runs;
 
-	private int timeLosses;
+	private int[] timeLosses;
 
-	private int totalMoves;
+	private int[] totalMoves;
 
-	private int fileCount;
+	private int[] fileCount;
+
+	private String[] conditions;
 
 	public void collate() {
 		File folder = new File(SYSTEM.resultsDirectory);
-		if (folder.exists())
-		{
+		if (folder.exists()) {
 			File[] files = folder.listFiles();
 			if (files != null) {
 				File mostRecent = folder.listFiles()[0];
@@ -34,24 +37,56 @@ public final class Collate {
 			}
 		}
 	}
-	
-	public void collate(String filePath){
+
+	public void collate(String filePath) {
+		getConditions(new File(filePath));
 		produceSummary(new File(filePath));
+	}
+
+	public void getConditions(File folder) {
+		ArrayList<String> conditionList = new ArrayList<>();
+		File properties = new File(folder + File.separator + "experiment.txt");
+		try (Scanner s = new Scanner(properties)) {
+			while (s.hasNextLine()) {
+				String nextLine = s.nextLine();
+				if (nextLine.contains("condition")) {
+					int j = nextLine.indexOf('=');
+					if (j > 0) {
+						conditionList.add(nextLine.substring(j + 1));
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		int conditionCount = conditionList.size();
+		runs = new int[conditionCount];
+		oregoWins = new int[conditionCount];
+		timeLosses = new int[conditionCount];
+		totalMoves = new int[conditionCount];
+		fileCount = new int[conditionCount];
+		conditions = (String[]) conditionList.toArray();
 	}
 
 	private void produceSummary(File folder) {
 		for (File file : folder.listFiles()) {
 			if (file.getPath().endsWith(".sgf")) {
 				extractData(file);
-				fileCount++;
 			}
 		}
-		try(PrintWriter writer = new PrintWriter(new File(folder + File.separator + "summary.txt"))){
-			output(writer, "Total games played: " + runs);
-			output(writer, "Orego win rate: " + ((float)oregoWins / (float)runs));
-			output(writer, "Average moves per game: " + ((float)totalMoves / (float)fileCount));
-			output(writer, "Games out of time: " + timeLosses);
-		}catch(Exception e){
+		try (PrintWriter writer = new PrintWriter(new File(folder
+				+ File.separator + "summary.txt"))) {
+			for (int i = 0; i < conditions.length; i++) {
+				output(writer, "Condition: " + conditions[i]);
+				output(writer, "Total games played: " + runs[i]);
+				output(writer, "Orego win rate: "
+						+ ((float) oregoWins[i] / (float) runs[i]));
+				output(writer, "Average moves per game: "
+						+ ((float) totalMoves[i] / (float) fileCount[i]));
+				output(writer, "Games out of time: " + timeLosses[i]);
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -66,6 +101,7 @@ public final class Collate {
 	private void extractData(File file) {
 		char oregoColor = ' ';
 		String input = "";
+		int condition = -1;
 		try (Scanner s = new Scanner(file)) {
 			while (s.hasNextLine()) {
 				input += s.nextLine();
@@ -77,35 +113,47 @@ public final class Collate {
 					token = stoken.nextToken();
 					if (token.contains("Orego")) {
 						oregoColor = 'B';
+						for (int i = 0; i < conditions.length; i++) {
+							if (token.contains(conditions[i])) {
+								condition = i;
+							}
+						}
 					}
 				}
 				if (token.equals("PW")) { // If the player is white
 					token = stoken.nextToken();
 					if (token.contains("Orego")) {
 						oregoColor = 'W';
+						for (int i = 0; i < conditions.length; i++) {
+							if (token.contains(conditions[i])) {
+								condition = i;
+							}
+						}
 					}
 				}
 				if (token.equals("RE")) { // Find the winner
 					token = stoken.nextToken();
-					if(token.contains("Time")){
-						timeLosses++;
+					if (token.contains("Time")) {
+						timeLosses[condition]++;
 					}
 					if (token.charAt(0) == oregoColor) {
-						oregoWins++;
+						oregoWins[condition]++;
 					}
-					runs++;
+					runs[condition]++;
 				}
 				if (token.equals("C")) {
 					token = stoken.nextToken();
 					if (token.contains("moves")) {
-						totalMoves += (Long.parseLong(token.substring(6)));
+						totalMoves[condition] += (Long.parseLong(token
+								.substring(6)));
 					}
 				}
 			}
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		fileCount[condition]++;
 	}
 
 	public static void main(String[] args) {
