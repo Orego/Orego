@@ -66,7 +66,8 @@ public final class Collate {
 		timeLosses = new int[conditionCount];
 		totalMoves = new int[conditionCount];
 		fileCount = new int[conditionCount];
-		conditions = (String[]) conditionList.toArray();
+		conditions = new String[conditionCount];
+		conditions = conditionList.toArray(conditions);
 	}
 
 	private void produceSummary(File folder) {
@@ -85,6 +86,7 @@ public final class Collate {
 				output(writer, "Average moves per game: "
 						+ ((float) totalMoves[i] / (float) fileCount[i]));
 				output(writer, "Games out of time: " + timeLosses[i]);
+				output(writer, "\n");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
