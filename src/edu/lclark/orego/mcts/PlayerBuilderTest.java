@@ -22,4 +22,10 @@ public class PlayerBuilderTest {
 		assertEquals(19, builder.build().getBoard().getCoordinateSystem().getWidth());
 	}
 
+	@Test
+	public void testKomi() {
+		builder.komi(3.5);
+		assertEquals(3.5, builder.build().getFinalScorer().getKomi(), 0.001);
+	}
+
 }

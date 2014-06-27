@@ -33,7 +33,7 @@ public class UctDescenderTest {
 
 	@Before
 	public void setUp() throws Exception {
-		CopiableStructure cp = CopiableStructureFactory.useWithPriors(5);
+		CopiableStructure cp = CopiableStructureFactory.useWithPriors(5, 7.5);
 		cp = cp.copy();
 		mover = cp.get(Mover.class);
 		suggester = cp.get(Suggester[].class)[2];

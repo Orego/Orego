@@ -83,6 +83,11 @@ public final class Player {
 		return board;
 	}
 
+	/** Returns the scorer. */
+	public Scorer getFinalScorer() {
+		return finalScorer;
+	}
+
 	/** Returns the ith McRunnable. */
 	public McRunnable getMcRunnable(int i) {
 		return runnables[i];

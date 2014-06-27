@@ -9,8 +9,12 @@ public final class PlayerBuilder {
 
 	private int width;
 	
+	private double komi;
+	
 	public PlayerBuilder() {
-		
+		// Default values
+		width = 19;
+		komi = 7.5;
 	}
 	
 	public PlayerBuilder boardWidth(int width) {
@@ -18,11 +22,16 @@ public final class PlayerBuilder {
 		return this;
 	}
 
+	public PlayerBuilder komi(double komi) {
+		this.komi = komi;
+		return this;
+	}
+
 	/** Creates the Player. */
 	public Player build() {
 		final int milliseconds = 1000;
 		final int threads = 2;
-		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width));
+		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);

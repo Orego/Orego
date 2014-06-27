@@ -9,17 +9,17 @@ import edu.lclark.orego.score.*;
 /** Static methods for creating some particular, widely-used CopiableStructures. */
 public final class CopiableStructureFactory {
 
-	public static CopiableStructure basicParts(int width) {
+	public static CopiableStructure basicParts(int width, double komi) {
 		Board board = new Board(width);
 		return new CopiableStructure().add(board)
-				.add(new ChinesePlayoutScorer(board, 7.5))
+				.add(new ChinesePlayoutScorer(board, komi))
 				.add(new StoneCounter(board)).add(new HistoryObserver(board))
-				.add(new ChineseFinalScorer(board, 7.5));
+				.add(new ChineseFinalScorer(board, komi));
 	}
 
 	/** Plays randomly except for eyelike points. */
 	public static CopiableStructure simpleRandom(int width) {
-		CopiableStructure base = basicParts(width);
+		CopiableStructure base = basicParts(width, 7.5);
 		Board board = base.get(Board.class);
 		base.add(new NotEyeLike(board));
 		return base.add(MoverFactory.simpleRandom(board));
@@ -30,7 +30,7 @@ public final class CopiableStructureFactory {
 	 * or near another stone.
 	 */
 	public static CopiableStructure feasible(int width) {
-		CopiableStructure base = basicParts(width);
+		CopiableStructure base = basicParts(width, 7.5);
 		Board board = base.get(Board.class);
 		base.add(new Suggester[0]);
 		base.add(new int[0]);
@@ -42,7 +42,7 @@ public final class CopiableStructureFactory {
 
 	/** Like feasible, but captures when possible. */
 	public static CopiableStructure capturer(int width) {
-		CopiableStructure base = basicParts(width);
+		CopiableStructure base = basicParts(width, 7.5);
 		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
 		return base.add(MoverFactory.capturer(board, atariObserver));
@@ -52,7 +52,7 @@ public final class CopiableStructureFactory {
 	 * Uses an EscapeSuggester first, with a CaptureSuggester as a fallback.
 	 */
 	public static CopiableStructure escapeCapturer(int width) {
-		CopiableStructure base = basicParts(width);
+		CopiableStructure base = basicParts(width, 7.5);
 		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
 		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
@@ -62,7 +62,7 @@ public final class CopiableStructureFactory {
 	}
 
 	public static CopiableStructure escapePatternCapture(int width) {
-		CopiableStructure base = basicParts(width);
+		CopiableStructure base = basicParts(width, 7.5);
 		Board board = base.get(Board.class);
 		AtariObserver atariObserver = new AtariObserver(board);
 		HistoryObserver historyObserver = base.get(HistoryObserver.class);
@@ -73,8 +73,8 @@ public final class CopiableStructureFactory {
 				historyObserver));
 	}
 
-	public static CopiableStructure useWithPriors(int width) {
-		CopiableStructure base = basicParts(width);
+	public static CopiableStructure useWithPriors(int width, double komi) {
+		CopiableStructure base = basicParts(width, komi);
 		Board board = base.get(Board.class);
 
 		AtariObserver atariObserver = new AtariObserver(board);

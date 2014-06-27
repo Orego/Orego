@@ -27,6 +27,11 @@ public final class ChineseFinalScorer implements Scorer {
 	 */
 	private double komi;
 
+	@Override
+	public double getKomi() {
+		return -komi;
+	}
+
 	public ChineseFinalScorer(Board board, double komi) {
 		this.board = board;
 		this.komi = -komi;
