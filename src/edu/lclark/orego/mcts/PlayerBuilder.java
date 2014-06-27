@@ -7,18 +7,31 @@ import edu.lclark.orego.core.CoordinateSystem;
 @SuppressWarnings("hiding")
 public final class PlayerBuilder {
 
-	private int width;
+	private int biasDelay;
+	
+	private int gestation;
 	
 	private double komi;
 	
-	private int threads;
+	private int msecPerMove;
 	
+	private int threads;
+
+	private int width;
+
 	public PlayerBuilder() {
 		// Default values
-		width = 19;
+		biasDelay = 1;
+		gestation = 1;
 		komi = 7.5;
 		threads = 2;
 		msecPerMove = 1000;
+		width = 19;
+	}
+	
+	public PlayerBuilder biasDelay(int biasDelay) {
+		this.biasDelay = biasDelay;
+		return this;
 	}
 	
 	public PlayerBuilder boardWidth(int width) {
@@ -26,32 +39,6 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder komi(double komi) {
-		this.komi = komi;
-		return this;
-	}
-
-	public PlayerBuilder threads(int threads) {
-		this.threads = threads;
-		return this;
-	}
-	
-	private int msecPerMove;
-	
-	public PlayerBuilder msecPerMove(int msec) {
-		this.msecPerMove = msec;
-		return this;
-	}
-
-	private int gestation;
-	
-	public PlayerBuilder gestation(int gestation) {
-		this.gestation = gestation;
-		return this;
-	}
-
-	private int biasDelay;
-	
 	/** Creates the Player. */
 	public Player build() {
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
@@ -64,9 +51,24 @@ public final class PlayerBuilder {
 		result.setMsecPerMove(msecPerMove);
 		return result;
 	}
+	
+	public PlayerBuilder gestation(int gestation) {
+		this.gestation = gestation;
+		return this;
+	}
 
-	public PlayerBuilder biasDelay(int biasDelay) {
-		this.biasDelay = biasDelay;
+	public PlayerBuilder komi(double komi) {
+		this.komi = komi;
+		return this;
+	}
+	
+	public PlayerBuilder msecPerMove(int msec) {
+		this.msecPerMove = msec;
+		return this;
+	}
+
+	public PlayerBuilder threads(int threads) {
+		this.threads = threads;
 		return this;
 	}
 

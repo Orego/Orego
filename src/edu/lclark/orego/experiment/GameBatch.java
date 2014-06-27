@@ -66,7 +66,8 @@ public final class GameBatch implements Runnable {
 		for (String condition : EXPERIMENT.conditions) {
 			System.out.println("Batch " + batchNumber + " on " + host + " condition " + condition);
 			String orego = SYSTEM.java + " -cp " + SYSTEM.oregoClassPath
-					+ " -ea -Xmx1024M edu.lclark.orego.ui.Orego " + condition;
+					+ " -ea -Xmx1024M edu.lclark.orego.ui.Orego " + "boardsize=" + EXPERIMENT.rules.boardWidth + " komi=" + EXPERIMENT.rules.komi + " " + EXPERIMENT.always + " " + condition;
+			System.out.println("Orego is: " + orego);
 			runGames(orego, EXPERIMENT.gnugo);
 			runGames(EXPERIMENT.gnugo, orego);
 		}

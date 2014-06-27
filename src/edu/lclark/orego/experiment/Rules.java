@@ -3,7 +3,7 @@ package edu.lclark.orego.experiment;
 /** Holds player-independent rules, e.g., board size. */
 final class Rules {
 
-	final int boardSize;
+	final int boardWidth;
 
 	final double komi;
 
@@ -11,7 +11,7 @@ final class Rules {
 	final int time;
 
 	Rules(int boardSize, double komi, int time) {
-		this.boardSize = boardSize;
+		this.boardWidth = boardSize;
 		this.komi = komi;
 		this.time = time;
 	}

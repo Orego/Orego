@@ -5,14 +5,12 @@ import static java.io.File.separator;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import edu.lclark.orego.ui.Orego;
 import static edu.lclark.orego.experiment.Broadcast.*;
 
 /** Holds experiment-dependent settings, e.g., number of games per host. */
@@ -21,6 +19,9 @@ enum ExperimentConfiguration {
 	/** Name of the singleton instance. */
 	EXPERIMENT;
 
+	/** Command-line options used in all conditions. */
+	final String always;
+	
 	/**
 	 * Command line arguments to Orego for the various conditions in the
 	 * experiment.
@@ -76,6 +77,7 @@ enum ExperimentConfiguration {
 				+ boardSize
 				+ " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi " + komi;
 		System.out.println("Gnugo is " + gnugo);
+		always = properties.getProperty("always");
 		conditions = new ArrayList<>();
 		for (final String s : properties.stringPropertyNames()) {
 			if (s.startsWith("condition")) {

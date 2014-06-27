@@ -98,7 +98,7 @@ final class Game {
 		programs = new Process[2];
 		toPrograms = new PrintWriter[2];
 		players = new String[] { black, white };
-		board = new Board(rules.boardSize);
+		board = new Board(rules.boardWidth);
 		scorer = new ChineseFinalScorer(board, rules.komi);
 		try {
 			out = new PrintWriter(filename);
@@ -109,7 +109,7 @@ final class Game {
 			System.exit(1);
 		}
 		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM["
-				+ rules.komi + "]GM[1]RU[Chinese]SZ[" + rules.boardSize + "]");
+				+ rules.komi + "]GM[1]RU[Chinese]SZ[" + rules.boardWidth + "]");
 		out.println("PB[" + players[BLACK.index()] + "]");
 		out.println("PW[" + players[WHITE.index()] + "]");
 		out.flush();
