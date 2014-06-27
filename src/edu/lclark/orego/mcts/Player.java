@@ -151,4 +151,9 @@ public final class Player {
 		return finalScorer.score();
 	}
 
+	/** Returns the number of threads this Player runs. */
+	public int getNumberOfThreads() {
+		return runnables.length;
+	}
+
 }

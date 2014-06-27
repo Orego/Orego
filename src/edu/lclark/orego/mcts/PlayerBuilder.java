@@ -11,10 +11,13 @@ public final class PlayerBuilder {
 	
 	private double komi;
 	
+	private int threads;
+	
 	public PlayerBuilder() {
 		// Default values
 		width = 19;
 		komi = 7.5;
+		threads = 2;
 	}
 	
 	public PlayerBuilder boardWidth(int width) {
@@ -27,10 +30,14 @@ public final class PlayerBuilder {
 		return this;
 	}
 
+	public PlayerBuilder threads(int threads) {
+		this.threads = threads;
+		return this;
+	}
+
 	/** Creates the Player. */
 	public Player build() {
 		final int milliseconds = 1000;
-		final int threads = 2;
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();

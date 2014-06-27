@@ -28,4 +28,10 @@ public class PlayerBuilderTest {
 		assertEquals(3.5, builder.build().getFinalScorer().getKomi(), 0.001);
 	}
 
+	@Test
+	public void testThreads() {
+		builder.threads(3);
+		assertEquals(3, builder.build().getNumberOfThreads());
+	}
+	
 }
