@@ -419,9 +419,13 @@ public final class Orego {
 			}
 			// Handle properties
 			if (left.equals("boardsize")) {
-				playerBuilder = playerBuilder.boardWidth(parseInt(right));
+				playerBuilder.boardWidth(parseInt(right));
 			} else if (left.equals("komi")) {
-				playerBuilder = playerBuilder.komi(parseDouble(right));
+				playerBuilder.komi(parseDouble(right));
+			} else if (left.equals("threads")) {
+				playerBuilder.threads(parseInt(right));
+			} else if (left.equals("msec")) {
+				playerBuilder.msecPerMove(parseInt(right));				
 			}
 		}
 		player = playerBuilder.build();

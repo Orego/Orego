@@ -18,6 +18,7 @@ public final class PlayerBuilder {
 		width = 19;
 		komi = 7.5;
 		threads = 2;
+		msecPerMove = 1000;
 	}
 	
 	public PlayerBuilder boardWidth(int width) {
@@ -34,10 +35,16 @@ public final class PlayerBuilder {
 		this.threads = threads;
 		return this;
 	}
+	
+	private int msecPerMove;
+	
+	public PlayerBuilder msecPerMove(int msec) {
+		this.msecPerMove = msec;
+		return this;
+	}
 
 	/** Creates the Player. */
 	public Player build() {
-		final int milliseconds = 1000;
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
@@ -45,7 +52,7 @@ public final class PlayerBuilder {
 		result.setTreeDescender(new UctDescender(board, table));
 		TreeUpdater updater = new WideningTreeUpdater(board, table);
 		result.setTreeUpdater(updater);
-		result.setMillisecondsPerMove(milliseconds);
+		result.setMsecPerMove(msecPerMove);
 		return result;
 	}
 

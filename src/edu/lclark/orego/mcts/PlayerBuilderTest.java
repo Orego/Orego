@@ -34,4 +34,10 @@ public class PlayerBuilderTest {
 		assertEquals(3, builder.build().getNumberOfThreads());
 	}
 	
+	@Test
+	public void testMsecPerMove() {
+		builder.msecPerMove(8675309);
+		assertEquals(8675309, builder.build().getMsecPerMove());
+	}
+	
 }

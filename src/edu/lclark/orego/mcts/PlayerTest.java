@@ -30,7 +30,7 @@ public class PlayerTest {
 		player.setTreeDescender(new UctDescender(board, table));
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table);
 		player.setTreeUpdater(updater);
-		player.setMillisecondsPerMove(milliseconds);
+		player.setMsecPerMove(milliseconds);
 	}
 
 	@Test

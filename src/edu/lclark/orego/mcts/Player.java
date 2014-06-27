@@ -24,7 +24,7 @@ public final class Player {
 	private boolean keepRunning;
 	
 	/** Number of milliseconds to spend on the next move. */
-	private int millisecondsPerMove;
+	private int msecPerMove;
 
 	/** For running playouts. */
 	private final McRunnable[] runnables;
@@ -103,7 +103,7 @@ public final class Player {
 		}
 		executor.shutdown();
 		try {
-			Thread.sleep(millisecondsPerMove);
+			Thread.sleep(msecPerMove);
 			keepRunning = false;
 			executor.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
@@ -113,8 +113,8 @@ public final class Player {
 	}
 	
 	/** Sets the number of milliseconds to allocate per move. */
-	public void setMillisecondsPerMove(int milliseconds) {
-		millisecondsPerMove = milliseconds;
+	public void setMsecPerMove(int msec) {
+		msecPerMove = msec;
 	}
 
 	public void setTreeDescender(TreeDescender descender) {
@@ -154,6 +154,10 @@ public final class Player {
 	/** Returns the number of threads this Player runs. */
 	public int getNumberOfThreads() {
 		return runnables.length;
+	}
+
+	public int getMsecPerMove() {
+		return msecPerMove;
 	}
 
 }
