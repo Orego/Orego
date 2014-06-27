@@ -25,7 +25,7 @@ public class BestRateDescenderTest {
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
 		descender = new BestRateDescender(player.getBoard(), table);
-		updater = new SimpleTreeUpdater(player.getBoard(), table);
+		updater = new SimpleTreeUpdater(player.getBoard(), table, 0);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
 	}

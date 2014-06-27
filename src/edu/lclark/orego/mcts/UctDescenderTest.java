@@ -16,7 +16,7 @@ public class UctDescenderTest {
 
 	private Player player;
 
-	private WideningTreeUpdater updater;
+	private SimpleTreeUpdater updater;
 
 	private Board board;
 
@@ -43,7 +43,7 @@ public class UctDescenderTest {
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords),
 				coords);
 		descender = new UctDescender(player.getBoard(), table);
-		updater = new WideningTreeUpdater(player.getBoard(), table);
+		updater = new SimpleTreeUpdater(player.getBoard(), table, 12);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
 	}

@@ -27,4 +27,9 @@ public final class TextUpdater implements TreeUpdater {
 		return data.toString();
 	}
 
+	@Override
+	public int getGestation() {
+		return 0;
+	}
+
 }

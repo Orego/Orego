@@ -23,6 +23,11 @@ public final class Player {
 	/** True if the threads should keep running, e.g., because time has not run out. */
 	private boolean keepRunning;
 	
+	/** Returns the updater for this player. */
+	protected TreeUpdater getUpdater() {
+		return updater;
+	}
+
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
 

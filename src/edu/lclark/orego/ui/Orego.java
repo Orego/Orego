@@ -8,7 +8,6 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
-
 import static java.lang.Integer.parseInt;
 import static java.lang.Double.parseDouble;
 
@@ -420,12 +419,16 @@ public final class Orego {
 			// Handle properties
 			if (left.equals("boardsize")) {
 				playerBuilder.boardWidth(parseInt(right));
+			} else if (left.equals("gestation")) {
+				playerBuilder.gestation(parseInt(right));
 			} else if (left.equals("komi")) {
 				playerBuilder.komi(parseDouble(right));
-			} else if (left.equals("threads")) {
-				playerBuilder.threads(parseInt(right));
 			} else if (left.equals("msec")) {
 				playerBuilder.msecPerMove(parseInt(right));				
+			} else if (left.equals("threads")) {
+				playerBuilder.threads(parseInt(right));
+			} else {
+				throw new IllegalArgumentException("Unknown command line argument: " + left);
 			}
 		}
 		player = playerBuilder.build();

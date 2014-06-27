@@ -50,7 +50,7 @@ public final class TreeVisualizer extends JFrame {
 		table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(
 				board.getCoordinateSystem()),
 				board.getCoordinateSystem());
-		updater = new SimpleTreeUpdater(board, table);
+		updater = new SimpleTreeUpdater(board, table, 0);
 		player.setTreeUpdater(updater);
 		player.setTreeDescender(new UctDescender(board, table));
 	}

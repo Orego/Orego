@@ -26,4 +26,9 @@ public final class DoNothing implements TreeDescender, TreeUpdater {
 		// Does nothing
 	}
 
+	@Override
+	public int getGestation() {
+		return 0;
+	}
+
 }

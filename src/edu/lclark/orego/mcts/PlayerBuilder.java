@@ -43,6 +43,13 @@ public final class PlayerBuilder {
 		return this;
 	}
 
+	private int gestation;
+	
+	public PlayerBuilder gestation(int gestation) {
+		this.gestation = gestation;
+		return this;
+	}
+
 	/** Creates the Player. */
 	public Player build() {
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
@@ -50,7 +57,7 @@ public final class PlayerBuilder {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
 		result.setTreeDescender(new UctDescender(board, table));
-		TreeUpdater updater = new WideningTreeUpdater(board, table);
+		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		return result;

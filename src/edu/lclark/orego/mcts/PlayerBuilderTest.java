@@ -40,4 +40,10 @@ public class PlayerBuilderTest {
 		assertEquals(8675309, builder.build().getMsecPerMove());
 	}
 	
+	@Test
+	public void testGestation() {
+		builder.gestation(23);
+		assertEquals(23, builder.build().getUpdater().getGestation());		
+	}
+
 }

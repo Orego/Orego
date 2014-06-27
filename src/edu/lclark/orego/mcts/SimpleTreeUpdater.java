@@ -11,10 +11,11 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 	private final TranspositionTable table;
 
 	private final Board board;
-	
-	public SimpleTreeUpdater(Board board, TranspositionTable table) {
+
+	public SimpleTreeUpdater(Board board, TranspositionTable table, int gestation) {
 		this.board = board;
 		this.table = table;
+		this.gestation = gestation;
 	}
 
 	@Override
@@ -26,6 +27,12 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 	TranspositionTable getTable() {
 		return table;
 	}
+
+	/**
+	 * Number of runs required through a move before the corresponding child is
+	 * created.
+	 */
+	private final int gestation;
 
 	@Override
 	public void updateTree(Color winner, McRunnable runnable) {
@@ -44,22 +51,18 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 			if (child == null) {
 				synchronized (table) {
 					short p = history.get(t);
-					child = table.findOrAllocate(fancyHash);
-
-					// TODO We probably don't want to create a child on EVERY
-					// run
-					if (!node.hasChild(p)) {
-						if (child == null) {
-							return; // Table is full
+					if (node.getRuns(p) >= gestation) {
+						child = table.findOrAllocate(fancyHash);
+						if (!node.hasChild(p)) {
+							// TODO Currently if there are no node, the table crashes
+							if (child == null) {
+								return; // Table is full
+							}
+							node.setHasChild(p);
+							table.addChild(node, child);
+							return;
 						}
-
-						node.setHasChild(p);
-						if (child == node) {
-							System.out.println("They are the same");
-						}
-						
-						table.addChild(node, child);
-						// TODO Update priors if child is fresh
+					} else {
 						return;
 					}
 				}
@@ -77,6 +80,11 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 	/** Returns a human-readable representation of the tree, up to maxDepth. */
 	public String toString(int maxDepth) {
 		return getRoot().deepToString(board, table, maxDepth);
+	}
+
+	@Override
+	public int getGestation() {
+		return gestation;
 	}
 
 }
