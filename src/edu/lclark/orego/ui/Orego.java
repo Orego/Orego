@@ -9,12 +9,14 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
 import edu.lclark.orego.mcts.Player;
+import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.mcts.SimpleSearchNodeBuilder;
 import edu.lclark.orego.mcts.SimpleTreeUpdater;
 import edu.lclark.orego.mcts.TranspositionTable;
 import edu.lclark.orego.mcts.TreeUpdater;
 import edu.lclark.orego.mcts.UctDescender;
 import edu.lclark.orego.mcts.WideningTreeUpdater;
+import static java.lang.Integer.parseInt;
 
 /**
  * Main class run by GTP front ends. Can also be run directly from the command
@@ -57,8 +59,6 @@ public final class Orego {
 	/** String to return in response to version command. */
 	public static final String VERSION_STRING = "8.00";
 	
-	private CoordinateSystem coords;
-
 	/**
 	 * @param args
 	 *            Parameters for the player.
@@ -207,11 +207,12 @@ public final class Orego {
 		if (command.equals("boardsize")) {
 			if (arguments.countTokens() == 1) {
 				int width = Integer.parseInt(arguments.nextToken());
-				if (width == coords.getWidth()) {
+				if (width == player.getBoard().getCoordinateSystem().getWidth()) {
 					player.clear();
 					acknowledge();
 				} else if(width < 20){
-					buildPlayer(width);
+					playerBuilder = playerBuilder.boardWidth(width);
+					player = playerBuilder.build();
 					acknowledge();
 				} else {
 					error("unacceptable size");
@@ -372,7 +373,7 @@ public final class Orego {
 		else if ((command.equals("black")) || (command.equals("b"))
 				|| (command.equals("white")) || (command.equals("w"))) {
 			char color = command.charAt(0);
-			short point = coords.at(arguments.nextToken());
+			short point = player.getBoard().getCoordinateSystem().at(arguments.nextToken());
 			player.setColorToPlay(color == 'b' ? BLACK : WHITE);
 			if (player.acceptMove(point) == Legality.OK) {
 				acknowledge();
@@ -401,134 +402,26 @@ public final class Orego {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
+	private PlayerBuilder playerBuilder;
+	
 	private void handleCommandLineArguments(String[] args) {
-//		ArrayList<String> properties = new ArrayList<String>();
-//		ArrayList<String> values = new ArrayList<String>();
-//		// Default settings
-//		String playerClass = "Time";
-//		boolean heuristicsSet = false;
-//		// Parse arguments
-//		for (int i = 0; i < args.length; i++) {
-//			String argument = args[i];
-//			// Split argument at the equals sign
-//			int j = argument.indexOf('=');
-//			String left, right;
-//			if (j > 0) {
-//				left = argument.substring(0, j);
-//				right = argument.substring(j + 1);
-//			} else {
-//				left = argument;
-//				right = "true";
-//			}
-//			// Handle properties
-//			debug("property: " + left);
-//			debug("property value: " + right);
-//			if (left.equals("debug")) {
-//				assert right.equals("true");
-//				setDebugToStderr(true);
-//			} else if (left.equals("debugfile")) {
-//				setDebugFile(right);
-//			} else if(left.equals("boardsize")){
-//				StringTokenizer boardWidth = new StringTokenizer(right);
-//				if (boardWidth.countTokens() == 1) {
-//					int width = parseInt(boardWidth.nextToken());
-//					if (width == getBoardWidth()) {
-//						if(player != null) {							
-//							player.reset();
-//						}
-//					} else if(width > 0){
-//						try{
-//							setBoardWidth(width);
-//							if(player != null) {								
-//								player.getBoard().clear();
-//								player.reset();
-//							}
-//						}catch(IndexOutOfBoundsException e){
-//							error("unacceptable size");
-//						}
-//					}else{
-//						error("unacceptable size");
-//					}
-//				} else {
-//					error("unacceptable size");
-//				}
-//					
-//			} else if(left.equals("komi")) {
-//				komiArgument = Double.parseDouble(right);
-//			} else if(left.equals("cgtc")){//set to true if running with computer go test collection
-//				cgtc=Boolean.parseBoolean(right);
-//			}
-//			else if (left.equals("player")) {
-//				playerClass = right;
-//			} else { // Let the player set this property
-//				properties.add(left);
-//				values.add(right);
-//			}
-//		}
-//		try { // Create player from string
-//			if (!playerClass.endsWith("Player")) {
-//				playerClass += "Player";
-//			}
-//			for (String pkg : PLAYER_PACKAGES) {
-//				String qualifiedPlayerClass = playerClass;
-//				if (!qualifiedPlayerClass.startsWith("orego.")
-//						&& pkg.length() > 0) {
-//					qualifiedPlayerClass = pkg + "." + qualifiedPlayerClass;
-//				}
-//				Class<Playable> c;
-//				try {
-//					c = (Class<Playable>) Class.forName(qualifiedPlayerClass);
-//				} catch (ClassNotFoundException e) {
-//					continue;
-//				}
-//				Constructor<Playable> constructor = (Constructor<Playable>) c
-//						.getConstructor();
-//				player = constructor.newInstance();
-//				break;
-//			}
-//		} catch (Exception e) {
-//			System.err
-//					.println("Does the player class have only a zero-argument constructor? It must!");
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-//		if (player == null) {
-//			// We didn't manage to find a class for our player
-//			throw new IllegalArgumentException(String.format(
-//					"Could not create a player for class %s.", playerClass));
-//		}
-//		// Let the player set all other properties
-//		try {
-//			for (int i = 0; i < properties.size(); i++) {
-//				player.setProperty(properties.get(i), values.get(i));
-//				if (properties.get(i).equals("heuristics")) {
-//					heuristicsSet = true;
-//				}
-//			}
-//			// If the heuristics weren't set, use default values
-//			if (!heuristicsSet) {
-//				player.setProperty("heuristics",
-//						"Escape@20:Pattern@20:Capture@20");
-//			}
-//		} catch (UnknownPropertyException e) {
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-		buildPlayer(9);
+		playerBuilder = new PlayerBuilder();
+		for (String argument : args) {
+			int j = argument.indexOf('=');
+			String left, right;
+			if (j > 0) {
+				left = argument.substring(0, j);
+				right = argument.substring(j + 1);
+			} else {
+				left = argument;
+				right = "true";
+			}
+			// Handle properties
+			if(left.equals("boardsize")){
+				playerBuilder = playerBuilder.boardWidth(parseInt(right));
+			}
+		}
+		player = playerBuilder.build();
 	}
 	
-	private void buildPlayer(int width){
-		final int milliseconds = 1000;
-		final int threads = 2;
-		player = new Player(threads, CopiableStructureFactory.useWithPriors(width));
-		Board board = player.getBoard();
-		coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
-		player.setTreeDescender(new UctDescender(board, table));
-		TreeUpdater updater = new WideningTreeUpdater(board, table);
-		player.setTreeUpdater(updater);
-		player.setMillisecondsPerMove(milliseconds);
-	}
-
 }
