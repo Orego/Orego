@@ -9,16 +9,19 @@ import static java.lang.Math.min;
 import static java.lang.Math.sqrt;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.util.ShortSet;
 
 // TODO This is almost identical to BestRateDescender; should we consolidate?
 /** Uses UCT. */
 public final class UctDescender implements TreeDescender {
 
+	private static final int UPDATE_PRIORS_THRESHOLD = 75;
+
 	private final Board board;
-	
+
 	private final TranspositionTable table;
-	
+
 	public UctDescender(Board board, TranspositionTable table) {
 		this.board = board;
 		this.table = table;
@@ -38,7 +41,7 @@ public final class UctDescender implements TreeDescender {
 			if (result != PASS) {
 				root.exclude(result);
 				result = PASS;
-			}			
+			}
 			for (int i = 0; i < vacantPoints.size(); i++) {
 				short move = vacantPoints.get(i);
 				if (root.getWins(move) > best) {
@@ -48,10 +51,10 @@ public final class UctDescender implements TreeDescender {
 			}
 		} while ((result != PASS) && !board.isLegal(result));
 		// TODO Handle resignation
-//		// Consider resigning
-//		if (node.getWinRate(result) < RESIGN_PARAMETER) {
-//			return RESIGN;
-//		}
+		// // Consider resigning
+		// if (node.getWinRate(result) < RESIGN_PARAMETER) {
+		// return RESIGN;
+		// }
 		return result;
 	}
 
@@ -86,7 +89,8 @@ public final class UctDescender implements TreeDescender {
 			short move = vacantPoints.get(i);
 			double searchValue = searchValue(node, move);
 			if (searchValue > best) {
-				// TODO Would reversing the order here (and in bestPlayMove) be faster?
+				// TODO Would reversing the order here (and in bestPlayMove) be
+				// faster?
 				if (runnable.isFeasible(move) && runnableBoard.isLegal(move)) {
 					best = searchValue;
 					result = move;
@@ -147,8 +151,49 @@ public final class UctDescender implements TreeDescender {
 			if (child == null) {
 				return; // No child
 			}
+			if (child.getTotalRuns() > UPDATE_PRIORS_THRESHOLD && !child.priorsUpdated()) {
+				updatePriors(child, runnable);
+			}
 			node = child;
 		}
+	}
+
+	/**
+	 * A descend method for testing that takes a runnable partway through a
+	 * playout.
+	 */
+	void fakeDescend(McRunnable runnable, short... moves) {
+		runnable.copyDataFrom(board);
+		SearchNode node = getRoot();
+		assert node != null : "Fancy hash code: " + board.getFancyHash();
+		for (short move : moves) {
+			runnable.acceptMove(move);
+			SearchNode child = table.findIfPresent(runnable.getBoard().getFancyHash());
+			if (child == null) {
+				return; // No child
+			}
+			if (child.getTotalRuns() > UPDATE_PRIORS_THRESHOLD && !child.priorsUpdated()) {
+				updatePriors(child, runnable);
+			}
+		}
+	}
+
+	private void updatePriors(SearchNode node, McRunnable runnable) {
+		System.out.println("Updating priors");
+		System.out.println(runnable.getBoard());
+		Suggester[] suggesters = runnable.getSuggesters();
+		int[] weights = runnable.getWeights();
+		for (int i = 0; i < suggesters.length; i++) {
+			ShortSet moves = suggesters[i].getMoves();
+			System.out.println(moves.size());
+			for (int j = 0; j < moves.size(); j++) {
+				short p = moves.get(j);
+				System.out.println("Updating for " + board.getCoordinateSystem().toString(p));
+				node.update(p, weights[i], weights[i]);
+			}
+		}
+		node.setPriorsUpdated(true);
+
 	}
 
 	@Override

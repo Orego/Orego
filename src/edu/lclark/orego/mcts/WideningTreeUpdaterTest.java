@@ -35,14 +35,15 @@ public class WideningTreeUpdaterTest {
 	@Before
 	public void setUp() throws Exception {
 		CopiableStructure cp = CopiableStructureFactory.useWithPriors(5);
+		cp = cp.copy();
 		mover = cp.get(Mover.class);
 		suggester = (EscapeSuggester) cp.get(Suggester[].class)[0];
 		player = new Player(1, cp);
-		board = player.getBoard();
+		board = cp.get(Board.class);
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		TranspositionTable table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
 		descender = new BestRateDescender(player.getBoard(), table);
-		updater = new WideningTreeUpdater(player.getBoard(), table, cp.get(Suggester[].class), cp.get(int[].class));
+		updater = new WideningTreeUpdater(player.getBoard(), table);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
 	}
@@ -61,42 +62,6 @@ public class WideningTreeUpdaterTest {
 		}
 		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
 				updater.toString(5));
-		for(int i = 0; i<5; i++){
-			updater.updateTree(BLACK, runnable);
-		}
-		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
-				updater.toString(5));
-	}
-	
-	@Test
-	public void testUpdatePriors(){
-		assertEquals("Total runs: 60\n", updater.toString(5));
-		McRunnable runnable = player.getMcRunnable(0);
-		runnable.acceptMove(at("b1"));
-		runnable.acceptMove(at("a1"));
-		runnable.acceptMove(at("b2"));
-		updater.updateTree(BLACK, runnable);
-		assertEquals("Total runs: 61\n", updater.toString(5));
-		for(int i = 0; i<100; i++){
-			updater.updateTree(BLACK, runnable);
-		}
-		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
-				updater.toString(5));
-	}
-	
-	@Test
-	public void testSuggesters(){
-		String[] diagram = {
-				".....",
-				"....#",
-				"...#O",
-				".....",
-				".....",
-		};
-		board.setUpProblem(diagram, WHITE);
-		assertEquals(1, suggester.getMoves().size());
-		assertTrue(suggester.getMoves().contains(at("e2")));
-		assertEquals("e2", board.getCoordinateSystem().toString(mover.selectAndPlayOneMove(new MersenneTwisterFast())));
 	}
 
 }

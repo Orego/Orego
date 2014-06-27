@@ -13,19 +13,11 @@ public class WideningTreeUpdater implements TreeUpdater {
 
 	private final Board board;
 	
-	private final Suggester[] suggesters;
-	
-	private final int[] weights;
-
 	private static final int NEW_NODE_THRESHOLD = 12;
 
-	private static final int UPDATE_PRIORS_THRESHOLD = 75;
-
-	public WideningTreeUpdater(Board board, TranspositionTable table, Suggester[] suggesters, int[] weights) {
+	public WideningTreeUpdater(Board board, TranspositionTable table) {
 		this.board = board;
 		this.table = table;
-		this.suggesters = suggesters;
-		this.weights = weights;
 	}
 
 	@Override
@@ -50,9 +42,6 @@ public class WideningTreeUpdater implements TreeUpdater {
 		}
 		for (int t = board.getTurn(); t < turn; t++) {
 			node.recordPlayout(winProportion, runnable, t);
-			if (!node.priorsUpdated() && node.getTotalRuns() > UPDATE_PRIORS_THRESHOLD) {
-				updatePriors(node);
-			}
 			long fancyHash = fancyHashes[t + 1];
 			SearchNode child = table.findIfPresent(fancyHash);
 			if (child == null) {
@@ -66,20 +55,6 @@ public class WideningTreeUpdater implements TreeUpdater {
 			node = child;
 			winProportion = 1 - winProportion;
 		}
-	}
-
-	private void updatePriors(SearchNode node) {
-		System.out.println("Updating priors");
-		for(int i = 0; i < suggesters.length; i++){
-			ShortSet moves = suggesters[i].getMoves();
-			for(int j = 0; j < moves.size(); j++){
-				short p = moves.get(j);
-				System.out.println("Updating for " + board.getCoordinateSystem().toString(p));
-				node.update(p, weights[i], weights[i]);
-			}
-		}
-		node.setPriorsUpdated(true);
-
 	}
 
 	private void createChildNode(short p, SearchNode parent, long fancyHash) {
