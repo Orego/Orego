@@ -3,6 +3,7 @@ package edu.lclark.orego.mcts;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
+import edu.lclark.orego.feature.Suggester;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static java.util.Arrays.*;
 import static java.lang.String.*;
@@ -288,6 +289,20 @@ public final class SimpleSearchNode implements SearchNode {
 		totalRuns += n;
 		winRates[p] = (wins + winRates[p] * runs[p]) / (n + runs[p]);
 		runs[p] += n;
+	}
+
+	@Override
+	public void updatePriors(McRunnable runnable) {
+		final Suggester[] suggesters = runnable.getSuggesters();
+		final int[] weights = runnable.getWeights();
+		for (int i = 0; i < suggesters.length; i++) {
+			final ShortSet moves = suggesters[i].getMoves();
+			for (int j = 0; j < moves.size(); j++) {
+				final short p = moves.get(j);
+				update(p, weights[i], weights[i]);
+			}
+		}
+		setPriorsUpdated(true);
 	}
 
 	@Override

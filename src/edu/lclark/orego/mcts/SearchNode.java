@@ -125,11 +125,16 @@ public interface SearchNode {
 	public String toString(CoordinateSystem coords);
 
 	/**
-	 * Update the win rate for p, by adding n runs and the specified number of
+	 * Updates the win rate for p, by adding n runs and the specified number of
 	 * wins. Also updates the counts of total runs and runs.
 	 */
 	public void update(short p, int n, float wins);
 
+	/**
+	 * Provides extra wins for moves suggested by runnable's suggesters.
+	 */
+	public void updatePriors(McRunnable runnable);
+	
 	/** Returns whether the priors have already been updated for this node. */
 	public boolean priorsUpdated();
 	
