@@ -5,7 +5,7 @@ import static java.io.File.separator;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-
+import static java.lang.Integer.parseInt;
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
 /** Holds system-dependent properties, e.g., classpath. */
@@ -13,9 +13,6 @@ enum SystemConfiguration {
 
 	/** Name of the singleton instance. */
 	SYSTEM;
-
-	/** Orego classpath. */
-	final String oregoClassPath;
 
 	/** Command to run GNUGo. */
 	final String gnugoHome;
@@ -26,6 +23,12 @@ enum SystemConfiguration {
 	/** Command to run Java. */
 	final String java;
 
+	/** Megabytes of memory to allocate to Orego. */
+	final int megabytes;
+
+	/** Orego classpath. */
+	final String oregoClassPath;
+	
 	/** Directory in which to store result files. */
 	final String resultsDirectory;
 
@@ -40,6 +43,7 @@ enum SystemConfiguration {
 			System.exit(1);
 		}
 		oregoClassPath = properties.getProperty("oregoClassPath");
+		megabytes = parseInt(properties.getProperty("megabytes"));
 		gnugoHome = properties.getProperty("gnugoHome");
 		java = properties.getProperty("java");
 		resultsDirectory = properties.getProperty("resultsDirectory");
