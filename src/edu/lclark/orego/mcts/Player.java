@@ -56,8 +56,11 @@ public final class Player {
 
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
+		// TODO Stop threads
 		Legality legality = board.play(point);
 		assert legality == OK;
+		updater.updateForAcceptMove();
+		// TODO Start threads if pondering
 		return legality;
 	}
 

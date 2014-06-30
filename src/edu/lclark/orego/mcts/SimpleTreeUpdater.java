@@ -73,6 +73,7 @@ public class SimpleTreeUpdater implements TreeUpdater {
 	}
 
 	/** Returns the root node (creating it if necessary). */
+	@Override
 	public SearchNode getRoot() {
 		return table.findOrAllocate(board.getFancyHash());
 	}
@@ -85,6 +86,15 @@ public class SimpleTreeUpdater implements TreeUpdater {
 	@Override
 	public int getGestation() {
 		return gestation;
+	}
+
+	@Override
+	public void updateForAcceptMove() {
+		SearchNode root = getRoot();
+		table.markNodesReachableFrom(root);
+		table.sweep();
+		root = getRoot();
+		assert root != null;
 	}
 
 }

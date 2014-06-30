@@ -36,4 +36,14 @@ public final class DoNothing implements TreeDescender, TreeUpdater {
 		return 0;
 	}
 
+	@Override
+	public SearchNode getRoot() {
+		return null;
+	}
+
+	@Override
+	public void updateForAcceptMove() {
+		// Does nothing
+	}
+
 }

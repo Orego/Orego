@@ -104,7 +104,7 @@ public final class TranspositionTable {
 
 	/** Marks all nodes reachable from root, so they will survive sweep(). Returns the number of nodes marked. */
 	int markNodesReachableFrom(SearchNode root) {
-		if (root.isMarked()) {
+		if (root == null || root.isMarked()) {
 			return 0;
 		}
 		root.setMarked(true);
