@@ -11,21 +11,6 @@ import edu.lclark.orego.util.ShortSet;
 /** Always chooses the move with the best win rate, with no exploration. */
 public class BestRateDescender implements TreeDescender {
 
-	// TODO Maybe move this into SearchNode
-	/** Adds some extra wins from node, based on the suggesters in the runnable. */
-	static void updatePriors(SearchNode node, McRunnable runnable) {
-		final Suggester[] suggesters = runnable.getSuggesters();
-		final int[] weights = runnable.getWeights();
-		for (int i = 0; i < suggesters.length; i++) {
-			final ShortSet moves = suggesters[i].getMoves();
-			for (int j = 0; j < moves.size(); j++) {
-				final short p = moves.get(j);
-				node.update(p, weights[i], weights[i]);
-			}
-		}
-		node.setPriorsUpdated(true);
-	}
-
 	/** Priors are not updated unless there have been this many runs through a node. */
 	private final int biasDelay;
 
@@ -122,7 +107,7 @@ public class BestRateDescender implements TreeDescender {
 				return; // No child
 			}
 			if (child.getTotalRuns() > biasDelay && !child.priorsUpdated()) {
-				updatePriors(child, runnable);
+				child.updatePriors(runnable);
 			}
 			node = child;
 		}
@@ -143,7 +128,7 @@ public class BestRateDescender implements TreeDescender {
 				return; // No child
 			}
 			if (child.getTotalRuns() > biasDelay && !child.priorsUpdated()) {
-				updatePriors(child, runnable);
+				child.updatePriors(runnable);
 			}
 		}
 	}
