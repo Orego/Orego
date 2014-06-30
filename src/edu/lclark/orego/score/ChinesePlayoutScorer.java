@@ -6,15 +6,8 @@ import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
-/**
- * Computes the Chinese score for the board. Assumes that no territory is larger
- * than one point in size. Assumes that everything on the board is alive.
- * 
- * @author drake
- * 
- */
 @SuppressWarnings("serial")
-public final class ChinesePlayoutScorer implements Scorer {
+public final class ChinesePlayoutScorer implements PlayoutScorer {
 
 	private Board board;
 

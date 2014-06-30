@@ -3,7 +3,7 @@ package edu.lclark.orego.score;
 import java.io.Serializable;
 import edu.lclark.orego.core.Color;
 
-// TODO Create subinterfaces FinalScorer and PlayoutScorer
+/** Determines the score. */
 public interface Scorer extends Serializable {
 	
 	/** Returns the komi used by this scorer. */

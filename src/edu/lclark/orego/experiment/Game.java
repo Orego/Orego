@@ -23,7 +23,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.score.ChineseFinalScorer;
-import edu.lclark.orego.score.Scorer;
+import edu.lclark.orego.score.FinalScorer;
 
 /** Allows two independent GTP programs to play a game. */
 final class Game {
@@ -60,7 +60,7 @@ final class Game {
 	private final Rules rules;
 
 	/** For scoring games. */
-	private final Scorer scorer;
+	private final FinalScorer scorer;
 
 	/** System time (in milliseconds) when the game started. */
 	private long startTime;

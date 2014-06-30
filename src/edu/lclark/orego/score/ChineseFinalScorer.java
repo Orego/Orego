@@ -9,7 +9,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
-public final class ChineseFinalScorer implements Scorer {
+public final class ChineseFinalScorer implements FinalScorer {
 
 	private final Board board;
 

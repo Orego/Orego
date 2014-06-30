@@ -5,8 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.core.*;
-import edu.lclark.orego.score.ChineseFinalScorer;
-import edu.lclark.orego.score.Scorer;
+import edu.lclark.orego.score.FinalScorer;
 import static edu.lclark.orego.core.Legality.*;
 
 /** Runs playouts and chooses moves. */
@@ -37,7 +36,7 @@ public final class Player {
 	/** @see TreeUpdater */
 	private TreeUpdater updater;
 	
-	private Scorer finalScorer;
+	private FinalScorer finalScorer;
 	
 	/**
 	 * @param threads Number of threads to run.
@@ -46,9 +45,7 @@ public final class Player {
 	public Player(int threads, CopiableStructure stuff) {
 		CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
-		
-		//TODO Create separate interfaces for final and playout scorers. 
-		finalScorer = copy.get(ChineseFinalScorer.class);
+		finalScorer = copy.get(FinalScorer.class);
 		runnables = new McRunnable[threads];
 		for (int i = 0; i < runnables.length; i++) {
 			runnables[i] = new McRunnable(this, stuff);
@@ -89,7 +86,7 @@ public final class Player {
 	}
 
 	/** Returns the scorer. */
-	public Scorer getFinalScorer() {
+	public FinalScorer getFinalScorer() {
 		return finalScorer;
 	}
 
