@@ -75,8 +75,6 @@ public final class SgfParser {
 				token = stoken.nextToken();
 				int intToken = Integer.parseInt(token);
 				if (intToken != 19) {
-					// TODO Should we change the coordinate system here and not
-					// die if the size is not 19?
 					// Game is not the proper size, ignore.
 					return null;
 				}

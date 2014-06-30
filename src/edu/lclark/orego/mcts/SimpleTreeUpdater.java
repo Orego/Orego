@@ -54,7 +54,6 @@ public class SimpleTreeUpdater implements TreeUpdater {
 					if (node.getRuns(p) >= gestation) {
 						child = table.findOrAllocate(fancyHash);
 						if (!node.hasChild(p)) {
-							// TODO Currently if there are no node, the table crashes
 							if (child == null) {
 								return; // Table is full
 							}
