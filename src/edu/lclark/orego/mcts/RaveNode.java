@@ -286,6 +286,9 @@ public final class RaveNode implements SearchNode{
 		node.update(p, n, wins);
 	}
 	
-	
+	@Override
+	public void updatePriors(McRunnable runnable) {
+		node.updatePriors(runnable);
+	}
 
 }
