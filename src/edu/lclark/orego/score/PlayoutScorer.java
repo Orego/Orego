@@ -5,7 +5,7 @@ package edu.lclark.orego.score;
  * board is alive and that no territory is larger than one point in size.
  * 
  * @see PlayoutScorer
- **/
+ */
 public interface PlayoutScorer extends Scorer {
 	// No new methods
 }
