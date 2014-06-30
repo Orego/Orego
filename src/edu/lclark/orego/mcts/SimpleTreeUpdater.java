@@ -6,11 +6,11 @@ import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 /** Updates the tree with the results of runs. */
-public final class SimpleTreeUpdater implements TreeUpdater {
+public class SimpleTreeUpdater implements TreeUpdater {
 
-	private final TranspositionTable table;
+	protected final TranspositionTable table;
 
-	private final Board board;
+	protected final Board board;
 
 	public SimpleTreeUpdater(Board board, TranspositionTable table, int gestation) {
 		this.board = board;
@@ -32,7 +32,7 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 	 * Number of runs required through a move before the corresponding child is
 	 * created.
 	 */
-	private final int gestation;
+	protected final int gestation;
 
 	@Override
 	public void updateTree(Color winner, McRunnable runnable) {

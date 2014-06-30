@@ -56,7 +56,44 @@ public final class RaveNode implements SearchNode{
 	@Override
 	public String deepToString(Board board, TranspositionTable table,
 			int maxDepth) {
-		return node.deepToString(board, table, maxDepth);
+		return deepToString(board, table, maxDepth, 0);
+	}
+	
+	private String deepToString(Board board, TranspositionTable table, int maxDepth, int depth){
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if (maxDepth < depth) {
+			return "";
+		}
+		String indent = "";
+		for (int i = 0; i < depth; i++) {
+			indent += "  ";
+		}
+		String result = indent + "Total runs: "
+				+ getTotalRuns() + "\n";
+		Board childBoard = new Board(coords.getWidth());
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (hasChild(p)) {
+				result += indent + toString(p, coords);
+				childBoard.copyDataFrom(board);
+				childBoard.play(p);
+				// TODO Ugly cast
+				RaveNode child = (RaveNode)table.findIfPresent(childBoard.getFancyHash());
+				if (child != null) {
+					result += child.deepToString(childBoard, table, maxDepth, depth + 1);
+				}
+			}
+		}
+		short p = PASS;
+		if (hasChild(p)) {
+			result += indent + toString(p, coords);
+			childBoard.copyDataFrom(board);
+			childBoard.play(p);
+			SearchNode child = table.findIfPresent(childBoard.getFancyHash());
+			if (child != null) {
+				result += deepToString(childBoard, table, maxDepth, depth + 1);
+			}
+		}
+		return result;	
 	}
 
 	@Override
@@ -164,6 +201,7 @@ public final class RaveNode implements SearchNode{
 	}
 
 	public void recordPlayout(float winProportion, McRunnable runnable, int t, ShortSet playedPoints) {
+		playedPoints.clear();
 		node.recordPlayout(winProportion, runnable, t);
 		// The remaining moves in the sequence are recorded for RAVE
 				while (t < runnable.getTurn()) {
