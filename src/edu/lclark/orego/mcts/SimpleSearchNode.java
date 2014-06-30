@@ -67,12 +67,6 @@ public final class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public float bestWinRate(CoordinateSystem coords) {
-		short best = getMoveWithMostWins(coords);
-		return getWinRate(best);
-	}
-
-	@Override
 	public void exclude(short p) {
 		winRates[p] = -1;
 	}

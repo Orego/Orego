@@ -13,8 +13,6 @@ public interface SearchNode {
 	 */
 	public String bestWinCountReport(CoordinateSystem coords);
 
-	/** Returns the win rate of the best move. */
-	public float bestWinRate(CoordinateSystem coords);
 
 	/**
 	 * Returns a human-readable representation of the subtree rooted at this
