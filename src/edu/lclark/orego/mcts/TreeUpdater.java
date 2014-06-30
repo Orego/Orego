@@ -11,7 +11,13 @@ public interface TreeUpdater {
 	/** Returns the number of runs required before a child is created. */
 	public int getGestation();
 	
+	/** Returns the root node (creating it if necessary). */
+	public SearchNode getRoot();
+
 	/** Updates the tree based on the result of a run. */
 	public void updateTree(Color winner, McRunnable mcRunnable);
+
+	/** Updates the tree after accepting a move (e.g., throwing away unreachable nodes). */
+	public void updateForAcceptMove();
 
 }
