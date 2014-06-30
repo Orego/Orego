@@ -1,5 +1,6 @@
 package edu.lclark.orego.experiment;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 import static edu.lclark.orego.experiment.SystemConfiguration.*;
 import static edu.lclark.orego.experiment.ExperimentConfiguration.*;
 import static edu.lclark.orego.experiment.GameBatch.*;
@@ -8,15 +9,8 @@ import static java.io.File.separator;
 import java.io.*;
 import java.util.*;
 
-import edu.lclark.orego.ui.Orego;
-
 /** Runs GameBatch on each of several machines. */
 public final class Broadcast {
-
-	// TODO Does this belong somewhere else?
-	public static final String OREGO_ROOT = Orego.class.getProtectionDomain()
-			.getCodeSource().getLocation().getFile()
-			+ ".." + File.separator;
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Preparing to launch "

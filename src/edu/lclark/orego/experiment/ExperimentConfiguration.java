@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static edu.lclark.orego.experiment.Broadcast.*;
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
 /** Holds experiment-dependent settings, e.g., number of games per host. */
 enum ExperimentConfiguration {

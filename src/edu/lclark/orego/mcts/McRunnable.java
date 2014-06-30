@@ -47,7 +47,7 @@ public final class McRunnable implements Runnable {
 	private final MersenneTwisterFast random;
 
 	/** Determines winners of playouts. */
-	private final Scorer scorer;
+	private final PlayoutScorer scorer;
 	
 	/** An array of suggesters used for updating priors. */
 	private final Suggester[] suggesters;

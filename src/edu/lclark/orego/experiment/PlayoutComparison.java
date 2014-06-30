@@ -13,7 +13,7 @@ import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
-import edu.lclark.orego.score.Scorer;
+import edu.lclark.orego.score.PlayoutScorer;
 
 import java.util.*;
 
@@ -30,7 +30,7 @@ public final class PlayoutComparison {
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
-		Scorer scorer = new ChinesePlayoutScorer(board, 7.5);
+		PlayoutScorer scorer = new ChinesePlayoutScorer(board, 7.5);
 		StoneCounter mercyObserver = new StoneCounter(board);
 		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
 		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
@@ -40,7 +40,7 @@ public final class PlayoutComparison {
 
 	@SuppressWarnings("boxing")
 	private static void playGames(Mover black, Mover white,
-			Map<Mover, Integer> wins, Board board, Scorer scorer, StoneCounter mercyObserver) {
+			Map<Mover, Integer> wins, Board board, PlayoutScorer scorer, StoneCounter mercyObserver) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		final int runs = 100000;
 		CoordinateSystem coords = board.getCoordinateSystem();
