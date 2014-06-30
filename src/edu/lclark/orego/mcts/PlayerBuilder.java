@@ -8,16 +8,18 @@ import edu.lclark.orego.core.CoordinateSystem;
 public final class PlayerBuilder {
 
 	private int biasDelay;
-	
+
 	private int gestation;
-	
+
 	private double komi;
-	
+
 	private int msecPerMove;
-	
+
 	private int threads;
 
 	private int width;
+
+	private boolean rave;
 
 	public PlayerBuilder() {
 		// Default values
@@ -28,12 +30,12 @@ public final class PlayerBuilder {
 		msecPerMove = 1000;
 		width = 19;
 	}
-	
+
 	public PlayerBuilder biasDelay(int biasDelay) {
 		this.biasDelay = biasDelay;
 		return this;
 	}
-	
+
 	public PlayerBuilder boardWidth(int width) {
 		this.width = width;
 		return this;
@@ -44,14 +46,23 @@ public final class PlayerBuilder {
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
-		result.setTreeDescender(new UctDescender(board, table, biasDelay));
-		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
-		result.setTreeUpdater(updater);
+		if (!rave) {
+			TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
+					coords);
+			result.setTreeDescender(new UctDescender(board, table, biasDelay));
+			TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
+			result.setTreeUpdater(updater);
+		} else {
+			TranspositionTable table = new TranspositionTable(new RaveNodeBuilder(coords),
+					coords);
+			result.setTreeDescender(new RaveDescender(board, table, biasDelay));
+			TreeUpdater updater = new RaveTreeUpdater(board, table, gestation);
+			result.setTreeUpdater(updater);
+		}
 		result.setMsecPerMove(msecPerMove);
 		return result;
 	}
-	
+
 	public PlayerBuilder gestation(int gestation) {
 		this.gestation = gestation;
 		return this;
@@ -61,9 +72,14 @@ public final class PlayerBuilder {
 		this.komi = komi;
 		return this;
 	}
-	
+
 	public PlayerBuilder msecPerMove(int msec) {
 		this.msecPerMove = msec;
+		return this;
+	}
+
+	public PlayerBuilder rave() {
+		rave = true;
 		return this;
 	}
 
