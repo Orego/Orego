@@ -7,20 +7,68 @@ import static edu.lclark.orego.move.Mover.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 
 /** Always chooses the move with the best win rate, with no exploration. */
-public final class BestRateDescender implements TreeDescender {
+public class BestRateDescender implements TreeDescender {
+
+	/** Returns the best move to make from here during a playout. */
+	protected short bestSearchMove(SearchNode node, McRunnable runnable) {
+		Board runnableBoard = runnable.getBoard();
+		MersenneTwisterFast random = runnable.getRandom();
+		short result = node.getWinningMove();
+		if ((result != NO_POINT) && runnableBoard.isLegal(result)) {
+			// The isLegal() check is necessary to avoid superko violations
+			return result;
+		}
+		float best = searchValue(node, PASS);
+		result = PASS;
+		ShortSet vacantPoints = runnableBoard.getVacantPoints();
+		int start;
+		start = random.nextInt(vacantPoints.size());
+		int i = start;
+		int skip = PRIMES[random.nextInt(PRIMES.length)];
+		do {
+			short move = vacantPoints.get(i);
+			float searchValue = searchValue(node, move);
+			if (searchValue > best) {
+				if (runnable.isFeasible(move) && runnableBoard.isLegal(move)) {
+					best = searchValue;
+					result = move;
+				} else {
+					node.exclude(move);
+				}
+			}
+			// Advancing by a random prime skips through the array
+			// in a manner analogous to double hashing.
+			i = (i + skip) % vacantPoints.size();
+		} while (i != start);
+		return result;
+	}
+	
+	float searchValue(SearchNode node, short move) {
+		return node.getWinRate(move);
+	}
+	
+	protected Board getBoard() {
+		return board;
+	}
+
+	protected TranspositionTable getTable() {
+		return table;
+	}
+
+	/** Selects and plays one move in the search tree. */
+	short selectAndPlayMove(SearchNode node, McRunnable runnable) {
+		short move = bestSearchMove(node, runnable);
+		runnable.acceptMove(move);
+		return move;
+	}
 
 	private final Board board;
-	
+
 	private final TranspositionTable table;
-	
+
 	public BestRateDescender(Board board, TranspositionTable table) {
 		this.board = board;
 		this.table = table;
-	}
-
-	@Override
-	public int getBiasDelay() {
-		return 0;
 	}
 
 	@Override
@@ -59,57 +107,6 @@ public final class BestRateDescender implements TreeDescender {
 		// Nothing to do; the TreeUpdater clears the table
 	}
 
-	// TODO Should this method live in table?
-	/** Returns the root node (creating it if necessary). */
-	private SearchNode getRoot() {
-		return table.findOrAllocate(board.getFancyHash());
-	}
-
-	/** Returns the best move to make from here during a playout. */
-	private static short bestSearchMove(SearchNode node, Board runnableBoard,
-			MersenneTwisterFast random) {
-		short result = node.getWinningMove();
-		if ((result != NO_POINT) && runnableBoard.isLegal(result)) {
-			// The isLegal() check is necessary to avoid superko violations
-			return result;
-		}
-		double best = searchValue(node, PASS);
-		result = PASS;
-		ShortSet vacantPoints = runnableBoard.getVacantPoints();
-		int start;
-		start = random.nextInt(vacantPoints.size());
-		int i = start;
-		int skip = PRIMES[random.nextInt(PRIMES.length)];
-		do {
-			short move = vacantPoints.get(i);
-			double searchValue = searchValue(node, move);
-			if (searchValue > best) {
-				if (runnableBoard.isLegal(move)) {
-					best = searchValue;
-					result = move;
-				} else {
-					node.exclude(move);
-				}
-			}
-			// Advancing by a random prime skips through the array
-			// in a manner analogous to double hashing.
-			i = (i + skip) % vacantPoints.size();
-		} while (i != start);
-		return result;
-	}
-
-	private static float searchValue(SearchNode node, short move) {
-		return node.getWinRate(move);
-	}
-
-	/** Selects and plays one move in the search tree. */
-	private static short selectAndPlayMove(SearchNode node, McRunnable runnable) {
-		short move = bestSearchMove(node, runnable.getBoard(),
-				runnable.getRandom());
-		runnable.acceptMove(move);
-		return move;
-	}
-
 	@Override
 	public void descend(McRunnable runnable) {
 		SearchNode node = getRoot();
@@ -123,6 +120,22 @@ public final class BestRateDescender implements TreeDescender {
 			}
 			node = child;
 		}
+	}
+
+	@Override
+	public int getBiasDelay() {
+		return 0;
+	}
+
+	// TODO Should this method live in table?
+	/** Returns the root node (creating it if necessary). */
+	SearchNode getRoot() {
+		return table.findOrAllocate(board.getFancyHash());
+	}
+
+	@Override
+	public String toString() {
+		return getRoot().deepToString(board, table, 0);
 	}
 
 }
