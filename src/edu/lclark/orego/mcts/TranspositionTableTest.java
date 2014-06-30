@@ -50,11 +50,12 @@ public class TranspositionTableTest {
 		assertEquals(n, table.findIfPresent(1L));
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test
 	public void testAllocationFailsWhenNoNodesLeft() {
 		for (int i = 0; i <= TABLE_SIZE; i++) {
 			table.findOrAllocate(i);
 		}
+		assertNull(table.findOrAllocate(TABLE_SIZE + 1));
 	}
 
 	@Test

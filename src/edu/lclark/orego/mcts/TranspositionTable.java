@@ -94,7 +94,6 @@ public final class TranspositionTable {
 			}
 			slot = (slot + 1) % table.length;
 		} while (slot != start);
-		assert false : "Transposition table is full!";
 		return null;
 	}
 

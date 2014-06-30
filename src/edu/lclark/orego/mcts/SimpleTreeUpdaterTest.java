@@ -29,7 +29,7 @@ public class SimpleTreeUpdaterTest {
 		player = new Player(1, CopiableStructureFactory.feasible(5));
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
-		descender = new BestRateDescender(player.getBoard(), table);
+		descender = new BestRateDescender(player.getBoard(), table, 0);
 		updater = new SimpleTreeUpdater(player.getBoard(), table, 0);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
