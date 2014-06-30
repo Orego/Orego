@@ -26,6 +26,7 @@ public final class GameBatch implements Runnable {
 			results = SYSTEM.resultsDirectory + timeStamp()
 					+ separator;
 		}
+		// TODO Make subdirectories for year, month, and date
 		new File(results).mkdir();
 		try {
 			for (int i = 0; i < EXPERIMENT.gamesPerHost; i++) {
