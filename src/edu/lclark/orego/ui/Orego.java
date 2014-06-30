@@ -429,6 +429,8 @@ public final class Orego {
 				playerBuilder.msecPerMove(parseInt(right));				
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
+			} else if(left.equals("rave")){
+				playerBuilder.rave();
 			} else {
 				throw new IllegalArgumentException("Unknown command line argument: " + left);
 			}
