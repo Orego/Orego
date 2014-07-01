@@ -1,5 +1,7 @@
 package edu.lclark.orego.book;
 
+import static java.util.Arrays.sort;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,23 +15,9 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.sgf.SgfParser;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
+
 public class FusekiBookBuilder {
-
-	private SgfParser parser;
-
-	private SmallHashMap smallMap;
-
-	private BigHashMap<short[]> bigMap;
-
-	private int maxMoves;
-
-	private HashMap<Long, Integer> finalMap;
-
-	private final Board[] boards;
-
-	private final CoordinateSystem coords;
-
-	private final short[] transformations;
 
 	/**
 	 * At and below this number of responses, we store lists of responses. Above
@@ -38,64 +26,60 @@ public class FusekiBookBuilder {
 	public static final int SHORT_ARRAY_LIMIT = 50;
 
 	public static void main(String[] args) {
-		FusekiBookBuilder builder = new FusekiBookBuilder(10);
+		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1);
 		// Uncomment the next line to build the book from scratch.
-		builder.buildRawBook(builder.analyzeFile(new File("SgfFiles")));
-		builder.buildFinalBook("SgfFiles");
+		builder.analyzeFiles(new File("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"), "Books");
+		builder.buildFinalBook();
 	}
 
-	private void buildRawBook(List<List<Short>> games) {
-		for (List<Short> game : games) {
-			processGame(game);
-			for (Board board : boards) {
-				board.clear();
+	private BigHashMap<short[]> bigMap;
+
+	private final Board[] boards;
+
+	private final CoordinateSystem coords;
+
+	private HashMap<Long, Short> finalMap;
+
+	private final int maxMoves;
+
+	private final int requiredSeen;
+
+	private SmallHashMap smallMap;
+
+	private final short[] transformations;
+
+	public FusekiBookBuilder(int maxMoves, int requiredSeen) {
+		smallMap = new SmallHashMap();
+		bigMap = new BigHashMap<>();
+		finalMap = new HashMap<>();
+		this.maxMoves = maxMoves;
+		this.requiredSeen = requiredSeen;
+		boards = new Board[8];
+		coords = CoordinateSystem.forWidth(19);
+		transformations = new short[8];
+		for (int i = 0; i < boards.length; i++) {
+			boards[i] = new Board(coords.getWidth());
+		}
+	}
+
+	public void analyzeFiles(File file, String outputDirectory) {
+		File[] allFiles = file.listFiles();
+		if (allFiles != null) {
+			for (File tempFile : allFiles) {
+				analyzeFiles(tempFile, outputDirectory);
 			}
-		}
-
-		try (ObjectOutputStream out = new ObjectOutputStream(
-				new FileOutputStream("Books" + File.separator + "RawJosekiBook"
-						+ coords.getWidth() + ".data"))) {
-			out.writeObject(bigMap);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void buildFinalBook(String folder) throws IOException,
-			ClassNotFoundException {
-		String directory = OREGO_ROOT_DIRECTORY + folder + File.separator
-				+ getBoardWidth();
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-				"Books" + File.separator + "RawJosekiBook" + getBoardWidth()
-						+ ".data"));
-		debug("Reading raw book...");
-		// The next line would cause a warning
-		setBigMap((BigHashMap<short[]>) in.readObject());
-		in.close();
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
-				directory + File.separator + getFinalBookName() + getBoardWidth()
-						+ ".data"));
-		out.writeObject(computeFinalEntries());
-		out.close();
-	}
-
-	private void processGame(List<Short> game) {
-
-		for (short move : game) {
-			transformations[0] = move;
-			transformations[1] = reflectA(move);
-			transformations[2] = reflectB(move);
-			transformations[3] = reflectC(move);
-			transformations[4] = reflectD(move);
-			transformations[5] = rotate90(move);
-			transformations[6] = rotate180(move);
-			transformations[7] = rotate270(move);
-			for (int i = 0; i < transformations.length; i++) {
-				boards[i].play(transformations[i]);
-				analyzeMove(transformations[i], boards[i].getFancyHash());
+		} else {
+			if (file.getPath().endsWith(".sgf")) {
+				SgfParser parser = new SgfParser(coords);
+				List<List<Short>> games = parser.parseGamesFromFile(file,
+						maxMoves);
+				try {
+					buildRawBook(games, outputDirectory);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+					System.err.println(file.getPath());
+					System.exit(1);
+				}
 			}
 		}
 	}
@@ -137,6 +121,119 @@ public class FusekiBookBuilder {
 			smallMap.put(hash, move);
 		}
 
+	}
+
+	/** Calls buildFinalBook with the default input and output files. */
+	public void buildFinalBook() {
+		buildFinalBook("Books", "Books");
+	}
+	
+	@SuppressWarnings({ "unchecked", "boxing" })
+	public void buildFinalBook(String inputFileName, String outputFileName) {
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
+				OREGO_ROOT + inputFileName + File.separator + "RawFusekiBook"
+						+ coords.getWidth() + ".data"))) {
+			bigMap = (BigHashMap<short[]>) in.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		try (ObjectOutputStream out = new ObjectOutputStream(
+				new FileOutputStream(OREGO_ROOT + outputFileName + File.separator
+						+ "FusekiBook" + coords.getWidth() + ".data"))) {
+			findHighestCounts();
+			out.writeObject(maxMoves);
+			out.writeObject(finalMap);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private void buildRawBook(List<List<Short>> games, String fileName) {
+		for (List<Short> game : games) {
+			processGame(game);
+			for (Board board : boards) {
+				board.clear();
+			}
+		}
+		File directory = new File(fileName + File.separator);
+		directory.mkdir();
+		try (ObjectOutputStream out = new ObjectOutputStream(
+		new FileOutputStream(new File(OREGO_ROOT + directory + File.separator
+				+ "RawFusekiBook" + coords.getWidth() + ".data")))) {
+			out.writeObject(bigMap);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+	}
+
+	/**
+	 * Finds the most common move and returns it if it occurred at least
+	 * manyTimes times. Otherwise, returns NO_POINT.
+	 */
+	public short findHighest(short[] counts) {
+		short winner = CoordinateSystem.NO_POINT;
+		if (counts.length <= SHORT_ARRAY_LIMIT) {
+			sort(counts);
+			short[] frequency = new short[coords.getFirstPointBeyondBoard()];
+			short mostFrequent = 0;
+			for (short p = 0; p < counts.length; p++) {
+				frequency[counts[p]]++;
+				if (frequency[counts[p]] >= mostFrequent) {
+					mostFrequent = frequency[counts[p]];
+					if (mostFrequent >= requiredSeen) {
+						winner = counts[p];
+					}
+				}
+			}
+		} else {
+			for (short p : coords.getAllPointsOnBoard()) {
+				if (counts[p] >= requiredSeen && counts[p] >= counts[winner]) {
+					winner = p;
+				}
+			}
+		}
+		return winner;
+	}
+
+	/**
+	 * Finds the most popular next move for each board configuration and stores
+	 * it in finalMap.
+	 */
+	@SuppressWarnings("boxing")
+	public void findHighestCounts() {
+		for (long boardHash : bigMap.getKeys()) {
+			short[] inMap = bigMap.get(boardHash);
+			// This null check is necessary because bigMap.getKeys() returns
+			// the raw array from the hash table, which can contain null "keys"
+			if (inMap != null) {
+				short move = findHighest(inMap);
+				if (move != CoordinateSystem.NO_POINT) {
+					finalMap.put(boardHash, move);
+				}
+			}
+
+		}
+	}
+
+	private void processGame(List<Short> game) {
+		for (short move : game) {
+			transformations[0] = move;
+			transformations[1] = reflectA(move);
+			transformations[2] = reflectB(move);
+			transformations[3] = reflectC(move);
+			transformations[4] = reflectD(move);
+			transformations[5] = rotate90(move);
+			transformations[6] = rotate180(move);
+			transformations[7] = rotate270(move);
+			for (int i = 0; i < transformations.length; i++) {
+				analyzeMove(transformations[i], boards[i].getFancyHash());
+				boards[i].play(transformations[i]);
+			}
+		}
 	}
 
 	/**
@@ -211,20 +308,6 @@ public class FusekiBookBuilder {
 		int c2 = row;
 		short p = coords.at(r2, c2);
 		return p;
-	}
-
-	public FusekiBookBuilder(int maxMoves) {
-		smallMap = new SmallHashMap();
-		bigMap = new BigHashMap<>();
-		finalMap = new HashMap<>();
-		this.maxMoves = maxMoves;
-		boards = new Board[8];
-		coords = CoordinateSystem.forWidth(19);
-		transformations = new short[8];
-	}
-
-	private List<List<Short>> analyzeFile(File folder) {
-		return new SgfParser(coords).parseGamesFromFile(folder, maxMoves);
 	}
 
 }
