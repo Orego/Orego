@@ -1,6 +1,5 @@
 package edu.lclark.orego.book;
 
-import static java.lang.Math.*;
 import static orego.core.Coordinates.*;
 import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import java.io.*;

@@ -26,7 +26,7 @@ public class FusekiBookBuilder {
 	public static final int SHORT_ARRAY_LIMIT = 50;
 
 	public static void main(String[] args) {
-		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1);
+		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50);
 		// Uncomment the next line to build the book from scratch.
 		builder.analyzeFiles(new File("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"), "Books");
 		builder.buildFinalBook();
