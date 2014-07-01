@@ -12,16 +12,21 @@ import static edu.lclark.orego.core.Legality.*;
 public final class Player {
 
 	private final Board board;
-	
+
 	/** @see TreeDescender */
 	private TreeDescender descender;
-	
+
 	/** For managing threads. */
 	private ExecutorService executor;
-	
-	/** True if the threads should keep running, e.g., because time has not run out. */
+
+	/**
+	 * True if the threads should keep running, e.g., because time has not run
+	 * out.
+	 */
 	private boolean keepRunning;
-	
+
+	private boolean usePondering;
+
 	/** Returns the updater for this player. */
 	protected TreeUpdater getUpdater() {
 		return updater;
@@ -35,12 +40,14 @@ public final class Player {
 
 	/** @see TreeUpdater */
 	private TreeUpdater updater;
-	
+
 	private FinalScorer finalScorer;
-	
+
 	/**
-	 * @param threads Number of threads to run.
-	 * @param stuff The board and any associated BoardObservers, Mover, etc.
+	 * @param threads
+	 *            Number of threads to run.
+	 * @param stuff
+	 *            The board and any associated BoardObservers, Mover, etc.
 	 */
 	public Player(int threads, CopiableStructure stuff) {
 		CopiableStructure copy = stuff.copy();
@@ -56,23 +63,30 @@ public final class Player {
 
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
-		// TODO Stop threads
+		stopThreads();
 		Legality legality = board.play(point);
 		assert legality == OK;
 		updater.updateForAcceptMove();
-		// TODO Start threads if pondering
+		startThreads();
 		return legality;
 	}
 
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
-		runThreads();
+		startThreads();
+		try {
+			Thread.sleep(msecPerMove);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		stopThreads();
 		return descender.bestPlayMove();
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void clear() {
-		// If pondering, stop threads
+		stopThreads();
 		board.clear();
 		descender.clear();
 		updater.clear();
@@ -98,15 +112,26 @@ public final class Player {
 		return runnables[i];
 	}
 
-	// TODO Divide this into startThreads and stopThreads for pondering
 	/** Runs the threads. */
 	private void runThreads() {
+		startThreads();
+		stopThreads();
+	}
+
+	private void startThreads() {
 		keepRunning = true;
 		executor = Executors.newFixedThreadPool(runnables.length);
 		for (int i = 0; i < runnables.length; i++) {
 			executor.execute(runnables[i]);
 		}
 		executor.shutdown();
+	}
+
+	private void stopThreads() {
+		if(!keepRunning){
+			return; //If the threads were not running, don't bother to stop them
+		}
+		
 		try {
 			Thread.sleep(msecPerMove);
 			keepRunning = false;
@@ -116,7 +141,7 @@ public final class Player {
 			System.exit(1);
 		}
 	}
-	
+
 	/** Sets the number of milliseconds to allocate per move. */
 	public void setMsecPerMove(int msec) {
 		msecPerMove = msec;
@@ -124,13 +149,14 @@ public final class Player {
 
 	public void setTreeDescender(TreeDescender descender) {
 		this.descender = descender;
-		
+
 	}
+
 	/** @see TreeUpdater */
 	public void setTreeUpdater(TreeUpdater updater) {
 		this.updater = updater;
 	}
-	
+
 	/** True if McRunnables attached to this Player should keep running. */
 	boolean shouldKeepRunning() {
 		return keepRunning;
@@ -146,10 +172,13 @@ public final class Player {
 		updater.updateTree(winner, mcRunnable);
 	}
 
-	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
+	/**
+	 * Sets the color to play, used with programs like GoGui to set up initial
+	 * stones.
+	 */
 	public void setColorToPlay(StoneColor stoneColor) {
 		board.setColorToPlay(stoneColor);
-		
+
 	}
 
 	public double finalScore() {
