@@ -197,9 +197,10 @@ public final class Orego {
 	 * @return true if command is anything but "quit".
 	 */
 	private boolean handleCommand(String command, StringTokenizer arguments) {
+		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		if (command.equals("boardsize")) {
 			int width = Integer.parseInt(arguments.nextToken());
-			if (width == player.getBoard().getCoordinateSystem().getWidth()) {
+			if (width == coords.getWidth()) {
 				player.clear();
 				acknowledge();
 			} else if (width >= 2 && width <= 19) {
@@ -249,9 +250,7 @@ public final class Orego {
 				if (!command.equals("reg_genmove")) {
 					player.acceptMove(point);
 				}
-				// TODO Awkward
-				acknowledge(player.getBoard().getCoordinateSystem()
-						.toString(point));
+				acknowledge(coords.toString(point));
 			}
 		}
 		// else
@@ -372,8 +371,7 @@ public final class Orego {
 		else if ((command.equals("black")) || (command.equals("b"))
 				|| (command.equals("white")) || (command.equals("w"))) {
 			char color = command.charAt(0);
-			short point = player.getBoard().getCoordinateSystem()
-					.at(arguments.nextToken());
+			short point = coords.at(arguments.nextToken());
 			player.setColorToPlay(color == 'b' ? BLACK : WHITE);
 			if (player.acceptMove(point) == Legality.OK) {
 				acknowledge();

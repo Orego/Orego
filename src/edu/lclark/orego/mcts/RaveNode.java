@@ -42,7 +42,6 @@ public final class RaveNode implements SearchNode{
 
 	@Override
 	public String bestWinCountReport(CoordinateSystem coords) {
-		// TODO Should this do something other than delegation? Method is just for testing
 		return node.bestWinCountReport(coords);
 	}
 
@@ -76,7 +75,6 @@ public final class RaveNode implements SearchNode{
 				result += indent + toString(p, coords);
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
-				// TODO Ugly cast
 				RaveNode child = (RaveNode)table.findIfPresent(childBoard.getFancyHash());
 				if (child != null) {
 					result += child.deepToString(childBoard, table, maxDepth, depth + 1);
@@ -118,7 +116,6 @@ public final class RaveNode implements SearchNode{
 
 	@Override
 	public short getMoveWithMostWins(CoordinateSystem coords) {
-		// TODO Remove? Only used in testing for SimpleSearchNode
 		return node.getMoveWithMostWins(coords);
 	}
 
@@ -185,7 +182,6 @@ public final class RaveNode implements SearchNode{
 	@Override
 	public float overallWinRate(CoordinateSystem coords) {
 		return node.overallWinRate(coords);
-		//TODO Test this in RAVE node?
 	}
 	
 	@Override

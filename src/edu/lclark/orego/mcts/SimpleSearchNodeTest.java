@@ -35,16 +35,13 @@ public class SimpleSearchNodeTest {
 	@Test
 	public void testIsFresh() {
 		assertTrue(node.isFresh(coords));
-		node.recordPlayout(1, new short[] { PASS }, 0, 1, new ShortSet(
-				coords.getFirstPointBeyondBoard()));
+		node.recordPlayout(1, new short[] { PASS }, 0, 1);
 	}
 
 	@Test
 	public void testToString() {
-		node.recordPlayout(1, new short[] { at("a1") }, 0, 1, new ShortSet(
-				coords.getFirstPointBeyondBoard()));
-		node.recordPlayout(1, new short[] { PASS }, 0, 1, new ShortSet(
-				coords.getFirstPointBeyondBoard()));
+		node.recordPlayout(1, new short[] { at("a1") }, 0, 1);
+		node.recordPlayout(1, new short[] { PASS }, 0, 1);
 		int base = (2 * coords.getArea()) + 12;
 		assertEquals(
 				"Total runs: "
@@ -79,19 +76,16 @@ public class SimpleSearchNodeTest {
 	@Test
 	public void testGetWinningMove() {
 		assertEquals(NO_POINT, node.getWinningMove());
-		node.recordPlayout(1, new short[] { at("a1") }, 0, 1, new ShortSet(
-				coords.getFirstPointBeyondBoard()));
+		node.recordPlayout(1, new short[] { at("a1") }, 0, 1);
 		assertEquals(at("a1"), node.getWinningMove());
-		node.recordPlayout(0, new short[] { at("a1") }, 0, 1, new ShortSet(
-				coords.getFirstPointBeyondBoard()));
+		node.recordPlayout(0, new short[] { at("a1") }, 0, 1);
 		assertEquals(NO_POINT, node.getWinningMove());
 	}
 
 	@Test
 	public void testTieUpdate() {
 		node.clear(0L, coords);
-		node.recordPlayout((float) 0.5, new short[] { at("a1") }, 0, 1, new ShortSet(
-				coords.getFirstPointBeyondBoard()));
+		node.recordPlayout((float) 0.5, new short[] { at("a1") }, 0, 1);
 		assertEquals(3, node.getRuns(at("a1")));
 		assertEquals(1.5, node.getWins(at("a1")), 0.001);
 		assertEquals(0.5, node.getWinRate(at("a1")), 0.001);
