@@ -67,7 +67,6 @@ public final class Player {
 		Legality legality = board.play(point);
 		assert legality == OK;
 		updater.updateForAcceptMove();
-		startThreads();
 		return legality;
 	}
 
@@ -112,12 +111,6 @@ public final class Player {
 		return runnables[i];
 	}
 
-	/** Runs the threads. */
-	private void runThreads() {
-		startThreads();
-		stopThreads();
-	}
-
 	private void startThreads() {
 		keepRunning = true;
 		executor = Executors.newFixedThreadPool(runnables.length);
@@ -133,7 +126,6 @@ public final class Player {
 		}
 		
 		try {
-			Thread.sleep(msecPerMove);
 			keepRunning = false;
 			executor.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
