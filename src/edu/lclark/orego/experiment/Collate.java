@@ -26,20 +26,19 @@ public final class Collate {
 	}
 
 	public void collate(File file) {
-
-		File[] files = file.listFiles();
-		if (files != null) {
-			File mostRecent = file.listFiles()[0];
+		File mostRecent = file;
+		do {
+			file = mostRecent;
+			File[] files = file.listFiles();
+			mostRecent = file.listFiles()[0];
 			for (File f : files) {
 				if (file.getPath().compareTo(mostRecent.getPath()) > 0) {
 					mostRecent = f;
 				}
 			}
-			collate(mostRecent);
-		} else {
-			getConditions(file);
-			produceSummary(file);
-		}
+		} while (mostRecent.isDirectory());
+		getConditions(file);
+		produceSummary(file);
 	}
 
 	public void getConditions(File folder) {
