@@ -10,39 +10,39 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ListNode;
 import edu.lclark.orego.util.ShortSet;
 
-public final class RaveNode implements SearchNode{
-	
+public final class RaveNode implements SearchNode {
+
 	/** Underlying SearchNode to delegate methods to. */
 	private final SearchNode node;
-	
+
 	/** Number of RAVE runs through each child of this node. */
 	private final int[] raveRuns;
-	
+
 	/** RAVE winrate through the children of this node. */
 	private final float[] raveWinRates;
-	
-	public RaveNode(CoordinateSystem coords){
+
+	public RaveNode(CoordinateSystem coords) {
 		node = new SimpleSearchNode(coords);
 		raveRuns = new int[coords.getFirstPointBeyondBoard()];
 		raveWinRates = new float[coords.getFirstPointBeyondBoard()];
 	}
 
-	public void addRaveLoss(short p){
+	public void addRaveLoss(short p) {
 		addRaveRun(p, 0);
 	}
 
 	public void addRaveRun(int p, float w) {
-		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p]) / (1 + raveRuns[p]);
+		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p])
+				/ (1 + raveRuns[p]);
 		raveRuns[p]++;
 	}
 
-	public void addRaveWin(short p){
+	public void addRaveWin(short p) {
 		addRaveRun(p, 1);
 	}
 
 	@Override
 	public String bestWinCountReport(CoordinateSystem coords) {
-		// TODO Should this do something other than delegation? Method is just for testing
 		return node.bestWinCountReport(coords);
 	}
 
@@ -58,8 +58,9 @@ public final class RaveNode implements SearchNode{
 			int maxDepth) {
 		return deepToString(board, table, maxDepth, 0);
 	}
-	
-	private String deepToString(Board board, TranspositionTable table, int maxDepth, int depth){
+
+	private String deepToString(Board board, TranspositionTable table,
+			int maxDepth, int depth) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (maxDepth < depth) {
 			return "";
@@ -68,8 +69,7 @@ public final class RaveNode implements SearchNode{
 		for (int i = 0; i < depth; i++) {
 			indent += "  ";
 		}
-		String result = indent + "Total runs: "
-				+ getTotalRuns() + "\n";
+		String result = indent + "Total runs: " + getTotalRuns() + "\n";
 		Board childBoard = new Board(coords.getWidth());
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (hasChild(p)) {
@@ -77,9 +77,11 @@ public final class RaveNode implements SearchNode{
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
 				// TODO Ugly cast
-				RaveNode child = (RaveNode)table.findIfPresent(childBoard.getFancyHash());
+				RaveNode child = (RaveNode) table.findIfPresent(childBoard
+						.getFancyHash());
 				if (child != null) {
-					result += child.deepToString(childBoard, table, maxDepth, depth + 1);
+					result += child.deepToString(childBoard, table, maxDepth,
+							depth + 1);
 				}
 			}
 		}
@@ -93,7 +95,7 @@ public final class RaveNode implements SearchNode{
 				result += deepToString(childBoard, table, maxDepth, depth + 1);
 			}
 		}
-		return result;	
+		return result;
 	}
 
 	@Override
@@ -118,7 +120,6 @@ public final class RaveNode implements SearchNode{
 
 	@Override
 	public short getMoveWithMostWins(CoordinateSystem coords) {
-		// TODO Remove? Only used in testing for SimpleSearchNode
 		return node.getMoveWithMostWins(coords);
 	}
 
@@ -136,7 +137,7 @@ public final class RaveNode implements SearchNode{
 	public float getRaveWins(int p) {
 		return raveWinRates[p] * raveRuns[p];
 	}
-	
+
 	@Override
 	public int getRuns(short p) {
 		return node.getRuns(p);
@@ -185,44 +186,53 @@ public final class RaveNode implements SearchNode{
 	@Override
 	public float overallWinRate(CoordinateSystem coords) {
 		return node.overallWinRate(coords);
-		//TODO Test this in RAVE node?
+		// TODO Test this in RAVE node?
 	}
-	
+
 	@Override
 	public boolean priorsUpdated() {
 		return node.priorsUpdated();
 	}
 
-	/** This method is unsupported for RAVE node.
-	 * @see recordPlayout(float, McRunnable, int, ShortSet) */
+	/**
+	 * This method is unsupported for RAVE node.
+	 * 
+	 * @see recordPlayout(float, McRunnable, int, ShortSet)
+	 */
 	@Override
 	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
-		throw new UnsupportedOperationException("recordPlayout with 3 arguments is unsupported for RAVE nodes.");
+		throw new UnsupportedOperationException(
+				"recordPlayout with 3 arguments is unsupported for RAVE nodes.");
 	}
 
-	public void recordPlayout(float winProportion, McRunnable runnable, int t, ShortSet playedPoints) {
+	public void recordPlayout(float winProportion, McRunnable runnable, int t,
+			ShortSet playedPoints) {
 		playedPoints.clear();
 		node.recordPlayout(winProportion, runnable, t);
 		// The remaining moves in the sequence are recorded for RAVE
-				while (t < runnable.getTurn()) {
-					short move = runnable.getHistoryObserver().get(t);
-					if ((move != PASS) && !playedPoints.contains(move)) {
-						playedPoints.add(move);
-						addRaveRun(move, winProportion);
-					}
-					t++;
-					if (t >= runnable.getTurn()) {
-						return;
-					}
-					playedPoints.add(move);
-					t++;
-				}
+		while (t < runnable.getTurn()) {
+			short move = runnable.getHistoryObserver().get(t);
+			if ((move != PASS) && !playedPoints.contains(move)) {
+				assert runnable.getBoard().getCoordinateSystem()
+						.isOnBoard(move);
+				playedPoints.addKnownAbsent(move);
+				addRaveRun(move, winProportion);
+			}
+			t++;
+			if (t >= runnable.getTurn()) {
+				return;
+			}
+			playedPoints.add(move);
+			t++;
+		}
 	}
 
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.)
+	 * (Similar to the public version, but takes simpler pieces as arguments, to
+	 * simplify testing.)
 	 */
-	void recordPlayout(float winProportion, short[] moves, int t, int turn, ShortSet playedPoints) {
+	void recordPlayout(float winProportion, short[] moves, int t, int turn,
+			ShortSet playedPoints) {
 		assert t < turn;
 		short move = moves[t];
 		update(move, 1, winProportion);
@@ -245,22 +255,22 @@ public final class RaveNode implements SearchNode{
 	public void setChildren(ListNode<SearchNode> children) {
 		node.setChildren(children);
 	}
-	
+
 	@Override
 	public void setHasChild(short p) {
 		node.setHasChild(p);
 	}
-	
+
 	@Override
 	public void setMarked(boolean marked) {
 		node.setMarked(marked);
 	}
-	
+
 	@Override
 	public void setPriorsUpdated(boolean value) {
 		node.setPriorsUpdated(value);
 	}
-	
+
 	@Override
 	public String toString(CoordinateSystem coords) {
 		String result = "Total runs: " + node.getTotalRuns() + "\n";
@@ -274,18 +284,19 @@ public final class RaveNode implements SearchNode{
 		}
 		return result;
 	}
-	
+
 	@SuppressWarnings("boxing")
 	String toString(short p, CoordinateSystem coords) {
-		return format("%s: %7d/%7d (%1.4f) RAVE %d (%1.4f)\n", coords.toString(p),
-				(int) getWins(p), node.getRuns(p), node.getWinRate(p), raveRuns[p], raveWinRates[p]);
+		return format("%s: %7d/%7d (%1.4f) RAVE %d (%1.4f)\n",
+				coords.toString(p), (int) getWins(p), node.getRuns(p),
+				node.getWinRate(p), raveRuns[p], raveWinRates[p]);
 	}
 
 	@Override
 	public void update(short p, int n, float wins) {
 		node.update(p, n, wins);
 	}
-	
+
 	@Override
 	public void updatePriors(McRunnable runnable) {
 		node.updatePriors(runnable);

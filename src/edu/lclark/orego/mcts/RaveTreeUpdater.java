@@ -36,7 +36,6 @@ public class RaveTreeUpdater extends SimpleTreeUpdater{
 					if (node.getRuns(p) >= gestation) {
 						child = (RaveNode) table.findOrAllocate(fancyHash);
 						if (!node.hasChild(p)) {
-							// TODO Currently if there are no node, the table crashes
 							if (child == null) {
 								return; // Table is full
 							}

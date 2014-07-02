@@ -27,7 +27,7 @@ public final class McRunnable implements Runnable {
 
 	/** Moves not passing this filter should never be played. */
 	private final Predicate filter;
-	
+
 	/** Keeps track of moves played. */
 	private final HistoryObserver historyObserver;
 
@@ -48,13 +48,13 @@ public final class McRunnable implements Runnable {
 
 	/** Determines winners of playouts. */
 	private final PlayoutScorer scorer;
-	
+
 	/** An array of suggesters used for updating priors. */
 	private final Suggester[] suggesters;
-	
+
 	/** An array of weights for each suggester used for updating priors. */
 	private final int[] weights;
-	
+
 	public McRunnable(Player player, CopiableStructure stuff) {
 		CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
@@ -121,19 +121,22 @@ public final class McRunnable implements Runnable {
 	public MersenneTwisterFast getRandom() {
 		return random;
 	}
-	
+
 	/** Returns the list of suggesters used for updating priors. */
-	public Suggester[] getSuggesters(){
+	public Suggester[] getSuggesters() {
 		return suggesters;
 	}
-	
+
 	/** Returns the current turn number on this runnable's board. */
 	public int getTurn() {
 		return board.getTurn();
 	}
-	
-	/** Returns the weights associated with each suggester used for updating priors. */
-	public int[] getWeights(){
+
+	/**
+	 * Returns the weights associated with each suggester used for updating
+	 * priors.
+	 */
+	public int[] getWeights() {
 		return weights;
 	}
 
@@ -172,7 +175,7 @@ public final class McRunnable implements Runnable {
 			}
 			if (board.getPasses() < 2) {
 				selectAndPlayOneMove();
-		}
+			}
 			if (board.getPasses() >= 2) {
 				// Game ended
 				return scorer.winner();

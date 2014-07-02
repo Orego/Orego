@@ -18,8 +18,6 @@ public final class Collate {
 
 	private int[] totalMoves;
 
-	private int[] fileCount;
-
 	private String[] conditions;
 
 	public void collate() {
@@ -66,7 +64,6 @@ public final class Collate {
 		oregoWins = new int[conditionCount];
 		timeLosses = new int[conditionCount];
 		totalMoves = new int[conditionCount];
-		fileCount = new int[conditionCount];
 		conditions = new String[conditionCount];
 		conditions = conditionList.toArray(conditions);
 	}
@@ -81,11 +78,10 @@ public final class Collate {
 				+ File.separator + "summary.txt"))) {
 			for (int i = 0; i < conditions.length; i++) {
 				output(writer, "Condition: " + conditions[i]);
-				output(writer, "Total games played: " + runs[i]);
 				output(writer, "Orego win rate: "
-						+ ((float) oregoWins[i] / (float) runs[i]));
+						+ ((float) oregoWins[i] / (float) runs[i]) + " (" + oregoWins[i] + "/" + runs[i] + ")");
 				output(writer, "Average moves per game: "
-						+ ((float) totalMoves[i] / (float) fileCount[i]));
+						+ ((float) totalMoves[i] / (float) runs[i]));
 				output(writer, "Games out of time: " + timeLosses[i]);
 				output(writer, "\n");
 			}
@@ -110,6 +106,7 @@ public final class Collate {
 				input += s.nextLine();
 			}
 			StringTokenizer stoken = new StringTokenizer(input, "()[];");
+			boolean gameCompleted = false;
 			while (stoken.hasMoreTokens()) {
 				String token = stoken.nextToken();
 				if (token.equals("PB")) { // If the player is black
@@ -142,11 +139,12 @@ public final class Collate {
 					if (token.charAt(0) == oregoColor) {
 						oregoWins[condition]++;
 					}
+					gameCompleted = true;
 					runs[condition]++;
 				}
 				if (token.equals("C")) {
 					token = stoken.nextToken();
-					if (token.contains("moves")) {
+					if (gameCompleted && token.contains("moves")) {
 						totalMoves[condition] += (Long.parseLong(token
 								.substring(6)));
 					}
@@ -156,7 +154,6 @@ public final class Collate {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		fileCount[condition]++;
 	}
 
 	public static void main(String[] args) {
