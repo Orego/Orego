@@ -28,8 +28,8 @@ public class FusekiBookBuilder {
 	public static void main(String[] args) {
 		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50);
 		// Uncomment the next line to build the book from scratch.
-		builder.analyzeFiles(new File("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"), "Books");
-		builder.buildFinalBook();
+		builder.analyzeFiles(new File("/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"), "TestBooks");
+		builder.buildFinalBook("TestBooks", "TestBooks");
 	}
 
 	private BigHashMap<short[]> bigMap;
@@ -65,6 +65,7 @@ public class FusekiBookBuilder {
 	public void analyzeFiles(File file, String outputDirectory) {
 		File[] allFiles = file.listFiles();
 		if (allFiles != null) {
+			System.out.println("Analyzing files in " + file.getName());
 			for (File tempFile : allFiles) {
 				analyzeFiles(tempFile, outputDirectory);
 			}
