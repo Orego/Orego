@@ -246,6 +246,7 @@ public final class Orego {
 			short point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
+				player.clear(); // to stop threaded players
 			} else {
 				if (!command.equals("reg_genmove")) {
 					player.acceptMove(point);
