@@ -175,8 +175,7 @@ public final class SimpleSearchNode implements SearchNode {
 	/**
 	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.)
 	 */
-	void recordPlayout(float winProportion, short[] moves, int t, int turn, @SuppressWarnings("unused") ShortSet playedPoints) {
-		// TODO Is this unnecessarily redundant?
+	void recordPlayout(float winProportion, short[] moves, int t, int turn) {
 		assert t < turn;
 		short move = moves[t];
 		update(move, 1, winProportion);
@@ -264,7 +263,6 @@ public final class SimpleSearchNode implements SearchNode {
 				result += indent + toString(p, coords);
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
-				// TODO Ugly cast
 				SimpleSearchNode child = (SimpleSearchNode)table.findIfPresent(childBoard.getFancyHash());
 				if (child != null) {
 					result += child.deepToString(childBoard, table, maxDepth, depth + 1);

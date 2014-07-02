@@ -43,8 +43,6 @@ public final class RaveNode implements SearchNode {
 
 	@Override
 	public String bestWinCountReport(CoordinateSystem coords) {
-		// TODO Should this do something other than delegation? Method is just
-		// for testing
 		return node.bestWinCountReport(coords);
 	}
 
@@ -122,7 +120,6 @@ public final class RaveNode implements SearchNode {
 
 	@Override
 	public short getMoveWithMostWins(CoordinateSystem coords) {
-		// TODO Remove? Only used in testing for SimpleSearchNode
 		return node.getMoveWithMostWins(coords);
 	}
 
