@@ -1,22 +1,29 @@
 package edu.lclark.orego.feature;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 
-public class LgrfTable {
+@SuppressWarnings("serial")
+public final class LgrfTable implements Serializable{
 	
 	private final short[][] replies1;
 	
 	private final short[][][] replies2; 
 	
 	
-	@SuppressWarnings("boxing")
 	public void clear(){
-		Arrays.fill(replies1, NO_POINT);
-		Arrays.fill(replies2, NO_POINT);
+		for(short[] array : replies1){
+			Arrays.fill(array, NO_POINT);
+		}
+		for(short[][] array : replies2){
+			for(short[] array2 : array){
+				Arrays.fill(array2, NO_POINT);
+			}
+		}
 	}
 	
 	public LgrfTable(CoordinateSystem coords){

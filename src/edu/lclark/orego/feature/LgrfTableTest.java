@@ -28,5 +28,12 @@ public class LgrfTableTest {
 		assertEquals(NO_POINT, table.getFirstLevelReply(BLACK, coords.at("a1")));
 		assertEquals(coords.at("c1"), table.getSecondLevelReply(BLACK, coords.at("a1"), coords.at("b1")));
 	}
+	
+	@Test
+	public void testClear(){
+		table.update(BLACK, true, coords.at("a1"), coords.at("b1"), coords.at("c1"));
+		table.clear();
+		assertEquals(NO_POINT, table.getFirstLevelReply(BLACK, coords.at("b1")));
+	}
 
 }
