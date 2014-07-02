@@ -10,7 +10,7 @@ import static java.lang.String.*;
 import edu.lclark.orego.util.*;
 
 /** A node in the search tree / transposition table. */
-public final class SimpleSearchNode implements SearchNode {
+public class SimpleSearchNode implements SearchNode {
 
 	/**
 	 * When reset is called, a pass is given this many runs, only one of which

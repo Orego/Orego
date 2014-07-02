@@ -5,7 +5,6 @@ import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.move.Mover.PRIMES;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.util.ShortSet;
 
 /** Always chooses the move with the best win rate, with no exploration. */
