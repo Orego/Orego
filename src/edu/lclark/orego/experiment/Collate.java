@@ -80,9 +80,8 @@ public final class Collate {
 				+ File.separator + "summary.txt"))) {
 			for (int i = 0; i < conditions.length; i++) {
 				output(writer, "Condition: " + conditions[i]);
-				output(writer, "Total games played: " + runs[i]);
 				output(writer, "Orego win rate: "
-						+ ((float) oregoWins[i] / (float) runs[i]));
+						+ ((float) oregoWins[i] / (float) runs[i]) + " (" + oregoWins[i] + "/" + runs[i] + ")");
 				output(writer, "Average moves per game: "
 						+ ((float) totalMoves[i] / (float) fileCount[i]));
 				output(writer, "Games out of time: " + timeLosses[i]);
