@@ -31,7 +31,7 @@ public class FusekiBookBuilder {
 		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50, "Books");
 		// Uncomment the next line to build the book from scratch.
 		builder.analyzeFiles(new File(
-				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
+				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files/"));
 		builder.writeFile();
 		builder.buildFinalBook();
 	}
@@ -64,13 +64,13 @@ public class FusekiBookBuilder {
 		for (int i = 0; i < boards.length; i++) {
 			boards[i] = new Board(coords.getWidth());
 		}
-		objectFilePath = OREGO_ROOT + directoryName + File.separator + "RawFusekiBook"
-				+ coords.getWidth() + ".data";
+		objectFilePath = OREGO_ROOT + directoryName;
+		new File(objectFilePath).mkdir();
 	}
 
 	public void writeFile() {
-		File directory = new File(objectFilePath);
-		directory.mkdir();
+		File directory = new File(objectFilePath + File.separator + "RawFusekiBook19.data");
+		System.out.println(directory.getPath());
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(directory))) {
 			out.writeObject(bigMap);
 		} catch (IOException e) {
@@ -141,24 +141,17 @@ public class FusekiBookBuilder {
 
 	}
 
-	/** Calls buildFinalBook with the default input and output files. */
-	public void buildFinalBook() {
-		buildFinalBook("Books", "Books");
-	}
-
 	@SuppressWarnings({ "unchecked", "boxing" })
-	public void buildFinalBook(String inputFileName, String outputFileName) {
-		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-				OREGO_ROOT + inputFileName + File.separator + "RawFusekiBook"
-						+ coords.getWidth() + ".data"))) {
+	public void buildFinalBook() {
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(objectFilePath
+				+ File.separator + "RawFusekiBook19.data"))) {
 			bigMap = (BigHashMap<short[]>) in.readObject();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 		try (ObjectOutputStream out = new ObjectOutputStream(
-				new FileOutputStream(OREGO_ROOT + outputFileName + File.separator
-						+ "FusekiBook" + coords.getWidth() + ".data"))) {
+				new FileOutputStream(objectFilePath + File.separator + "FusekiBook19.data"))) {
 			findHighestCounts();
 			out.writeObject(maxMoves);
 			out.writeObject(finalMap);

@@ -20,10 +20,11 @@ public class FusekiBookTest {
 
 	@Before
 	public void setUp() {
-		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1);
+		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1, "TestBooks");
 		// Uncomment the next line to build the book from scratch.
-		builder.analyzeFiles(new File("SgfTestFiles/19"), "TestBooks");
-		builder.buildFinalBook("TestBooks", "TestBooks");
+		builder.analyzeFiles(new File("SgfTestFiles/19"));
+		builder.writeFile();
+		builder.buildFinalBook();
 		book = new FusekiBook("TestBooks");
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
