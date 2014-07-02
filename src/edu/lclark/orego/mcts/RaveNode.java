@@ -10,9 +10,6 @@ import edu.lclark.orego.util.ShortSet;
 
 public final class RaveNode extends SimpleSearchNode{
 	
-	/** Underlying SearchNode to delegate methods to. */
-	private final SearchNode node;
-	
 	/** Number of RAVE runs through each child of this node. */
 	private final int[] raveRuns;
 	
@@ -21,7 +18,6 @@ public final class RaveNode extends SimpleSearchNode{
 	
 	public RaveNode(CoordinateSystem coords){
 		super(coords);
-		node = new SimpleSearchNode(coords);
 		raveRuns = new int[coords.getFirstPointBeyondBoard()];
 		raveWinRates = new float[coords.getFirstPointBeyondBoard()];
 	}
@@ -41,7 +37,7 @@ public final class RaveNode extends SimpleSearchNode{
 
 	@Override
 	public void clear(long fancyHash, CoordinateSystem coords) {
-		node.clear(fancyHash, coords);
+		super.clear(fancyHash, coords);
 		Arrays.fill(raveRuns, 2);
 		Arrays.fill(raveWinRates, 0.5f);
 	}
@@ -70,8 +66,8 @@ public final class RaveNode extends SimpleSearchNode{
 	}
 
 	public void recordPlayout(float winProportion, McRunnable runnable, int t, ShortSet playedPoints) {
+		super.recordPlayout(winProportion, runnable, t);
 		playedPoints.clear();
-		node.recordPlayout(winProportion, runnable, t);
 		// The remaining moves in the sequence are recorded for RAVE
 				while (t < runnable.getTurn()) {
 					short move = runnable.getHistoryObserver().get(t);
@@ -112,13 +108,13 @@ public final class RaveNode extends SimpleSearchNode{
 	
 	@Override
 	public String toString(CoordinateSystem coords) {
-		String result = "Total runs: " + node.getTotalRuns() + "\n";
+		String result = "Total runs: " + super.getTotalRuns() + "\n";
 		for (short p : coords.getAllPointsOnBoard()) {
-			if (node.getRuns(p) > 2) {
+			if (super.getRuns(p) > 2) {
 				result += toString(p, coords);
 			}
 		}
-		if (node.getRuns(PASS) > 10) {
+		if (super.getRuns(PASS) > 10) {
 			result += toString(PASS, coords);
 		}
 		return result;
@@ -128,7 +124,7 @@ public final class RaveNode extends SimpleSearchNode{
 	@SuppressWarnings("boxing")
 	String toString(short p, CoordinateSystem coords) {
 		return format("%s: %7d/%7d (%1.4f) RAVE %d (%1.4f)\n", coords.toString(p),
-				(int) getWins(p), node.getRuns(p), node.getWinRate(p), raveRuns[p], raveWinRates[p]);
+				(int) getWins(p), super.getRuns(p), super.getWinRate(p), raveRuns[p], raveWinRates[p]);
 	}
 
 }
