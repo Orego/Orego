@@ -27,6 +27,7 @@ public final class HistoryObserver implements BoardObserver {
 	@Override
 	public void update(StoneColor color, short location,
 			ShortList capturedStones) {
+		assert location == CoordinateSystem.PASS || board.getCoordinateSystem().isOnBoard(location);
 		if (board.getTurn() > 0) {
 			history.add(location);
 		}
