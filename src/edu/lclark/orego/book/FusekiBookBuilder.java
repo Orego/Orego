@@ -25,11 +25,15 @@ public class FusekiBookBuilder {
 	 */
 	public static final int SHORT_ARRAY_LIMIT = 50;
 
+	private String objectFilePath;
+
 	public static void main(String[] args) {
-		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50);
+		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50, "Books");
 		// Uncomment the next line to build the book from scratch.
-		builder.analyzeFiles(new File("/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"), "TestBooks");
-		builder.buildFinalBook("TestBooks", "TestBooks");
+		builder.analyzeFiles(new File(
+				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
+		builder.writeFile();
+		builder.buildFinalBook();
 	}
 
 	private BigHashMap<short[]> bigMap;
@@ -48,7 +52,7 @@ public class FusekiBookBuilder {
 
 	private final short[] transformations;
 
-	public FusekiBookBuilder(int maxMoves, int requiredSeen) {
+	public FusekiBookBuilder(int maxMoves, int requiredSeen, String directoryName) {
 		smallMap = new SmallHashMap();
 		bigMap = new BigHashMap<>();
 		finalMap = new HashMap<>();
@@ -60,14 +64,27 @@ public class FusekiBookBuilder {
 		for (int i = 0; i < boards.length; i++) {
 			boards[i] = new Board(coords.getWidth());
 		}
+		objectFilePath = OREGO_ROOT + directoryName + File.separator + "RawFusekiBook"
+				+ coords.getWidth() + ".data";
 	}
 
-	public void analyzeFiles(File file, String outputDirectory) {
+	public void writeFile() {
+		File directory = new File(objectFilePath);
+		directory.mkdir();
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(directory))) {
+			out.writeObject(bigMap);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	public void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
 		if (allFiles != null) {
 			System.out.println("Analyzing files in " + file.getName());
 			for (File tempFile : allFiles) {
-				analyzeFiles(tempFile, outputDirectory);
+				analyzeFiles(tempFile);
 			}
 		} else {
 			if (file.getPath().endsWith(".sgf")) {
@@ -75,7 +92,7 @@ public class FusekiBookBuilder {
 				List<List<Short>> games = parser.parseGamesFromFile(file,
 						maxMoves);
 				try {
-					buildRawBook(games, outputDirectory);
+					buildRawBook(games);
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 					System.err.println(file.getPath());
@@ -128,7 +145,7 @@ public class FusekiBookBuilder {
 	public void buildFinalBook() {
 		buildFinalBook("Books", "Books");
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "boxing" })
 	public void buildFinalBook(String inputFileName, String outputFileName) {
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
@@ -151,22 +168,12 @@ public class FusekiBookBuilder {
 		}
 	}
 
-	private void buildRawBook(List<List<Short>> games, String fileName) {
+	private void buildRawBook(List<List<Short>> games) {
 		for (List<Short> game : games) {
 			processGame(game);
 			for (Board board : boards) {
 				board.clear();
 			}
-		}
-		File directory = new File(fileName + File.separator);
-		directory.mkdir();
-		try (ObjectOutputStream out = new ObjectOutputStream(
-		new FileOutputStream(new File(OREGO_ROOT + directory + File.separator
-				+ "RawFusekiBook" + coords.getWidth() + ".data")))) {
-			out.writeObject(bigMap);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 
 	}
