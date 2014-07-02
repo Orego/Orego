@@ -39,7 +39,7 @@ public final class GameBatch implements Runnable {
 
 	/** Returns a String representing the current date and time. */
 	public static String timeStamp() {
-		return new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss.SSS").format(new Date(
+		return new SimpleDateFormat("yyyy" + File.separator+ "MM" + File.separator + "dd" + File.separator + "HH:mm:ss.SSS").format(new Date(
 				System.currentTimeMillis()));
 	}
 

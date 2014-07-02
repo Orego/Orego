@@ -24,23 +24,24 @@ public final class Collate {
 
 	public void collate() {
 		File folder = new File(SYSTEM.resultsDirectory);
-		if (folder.exists()) {
-			File[] files = folder.listFiles();
-			if (files != null) {
-				File mostRecent = folder.listFiles()[0];
-				for (File file : folder.listFiles()) {
-					if (file.getPath().compareTo(mostRecent.getPath()) > 0) {
-						mostRecent = file;
-					}
-				}
-				collate(mostRecent.getPath());
-			}
-		}
+		collate(folder);
 	}
 
-	public void collate(String filePath) {
-		getConditions(new File(filePath));
-		produceSummary(new File(filePath));
+	public void collate(File file) {
+
+		File[] files = file.listFiles();
+		if (files != null) {
+			File mostRecent = file.listFiles()[0];
+			for (File f : files) {
+				if (file.getPath().compareTo(mostRecent.getPath()) > 0) {
+					mostRecent = f;
+				}
+			}
+			collate(mostRecent);
+		} else {
+			getConditions(file);
+			produceSummary(file);
+		}
 	}
 
 	public void getConditions(File folder) {
