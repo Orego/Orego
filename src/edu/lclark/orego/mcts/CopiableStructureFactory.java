@@ -109,6 +109,7 @@ public final class CopiableStructureFactory {
 		AtariObserver atariObserver = new AtariObserver(board);
 		HistoryObserver historyObserver = base.get(HistoryObserver.class);
 
+		LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table);
 		EscapeSuggester escape = new EscapeSuggester(board, atariObserver);
 		PatternSuggester patterns = new PatternSuggester(board, historyObserver);
 		CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
@@ -116,11 +117,11 @@ public final class CopiableStructureFactory {
 		base.add(new Suggester[] { escape, patterns, capture });
 		base.add(new int[] { 20, 20, 20 });
 
-		SuggesterMover mover = new SuggesterMover(board, escape, new SuggesterMover(board,
+		SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
 				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
 						new Conjunction(new NotEyeLike(board), new Disjunction(
 								OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-										.getWidth()), new NearAnotherStone(board)))))));
+										.getWidth()), new NearAnotherStone(board))))))));
 
 		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()

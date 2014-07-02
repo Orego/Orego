@@ -1,0 +1,42 @@
+package edu.lclark.orego.feature;
+
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.CoordinateSystem;
+
+public class LgrfSuggesterTest {
+
+	private CoordinateSystem coords;
+
+	private Board board;
+
+	private LgrfTable lgrfTable;
+
+	private LgrfSuggester suggester;
+
+	private HistoryObserver history;
+
+	@Before
+	public void setUp() throws Exception {
+		board = new Board(5);
+		coords = board.getCoordinateSystem();
+		history = new HistoryObserver(board);
+		lgrfTable = new LgrfTable(coords);
+		suggester = new LgrfSuggester(board, history, lgrfTable);
+	}
+
+	@Test
+	public void testLgrfSuggester() {
+		lgrfTable.update(BLACK, true, coords.at("a1"), coords.at("b1"),
+				coords.at("c1"));
+		board.play(coords.at("a1"));
+		board.play(coords.at("b1"));
+		assertEquals(coords.at("c1"), suggester.getMoves().get(0));
+	}
+
+}
