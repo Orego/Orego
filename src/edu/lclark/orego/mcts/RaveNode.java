@@ -194,19 +194,9 @@ public final class RaveNode implements SearchNode {
 		return node.priorsUpdated();
 	}
 
-	/**
-	 * This method is unsupported for RAVE node.
-	 * 
-	 * @see recordPlayout(float, McRunnable, int, ShortSet)
-	 */
 	@Override
 	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
-		throw new UnsupportedOperationException(
-				"recordPlayout with 3 arguments is unsupported for RAVE nodes.");
-	}
-
-	public void recordPlayout(float winProportion, McRunnable runnable, int t,
-			ShortSet playedPoints) {
+		ShortSet playedPoints = runnable.getPlayedPoints();
 		playedPoints.clear();
 		node.recordPlayout(winProportion, runnable, t);
 		// The remaining moves in the sequence are recorded for RAVE
@@ -222,13 +212,7 @@ public final class RaveNode implements SearchNode {
 			if (t >= runnable.getTurn()) {
 				return;
 			}
-			assert move == PASS
-					|| runnable.getBoard().getCoordinateSystem()
-							.isOnBoard(move) : "Offending move: " + move + " aka " + runnable.getBoard().getCoordinateSystem().toString(move);
 			move = runnable.getHistoryObserver().get(t);
-			assert move == PASS
-					|| runnable.getBoard().getCoordinateSystem()
-							.isOnBoard(move) : "Offending move: " + move + " aka " + runnable.getBoard().getCoordinateSystem().toString(move);
 			playedPoints.add(move);
 			t++;
 		}
