@@ -194,19 +194,9 @@ public final class RaveNode implements SearchNode {
 		return node.priorsUpdated();
 	}
 
-	/**
-	 * This method is unsupported for RAVE node.
-	 * 
-	 * @see recordPlayout(float, McRunnable, int, ShortSet)
-	 */
 	@Override
 	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
-		throw new UnsupportedOperationException(
-				"recordPlayout with 3 arguments is unsupported for RAVE nodes.");
-	}
-
-	public void recordPlayout(float winProportion, McRunnable runnable, int t,
-			ShortSet playedPoints) {
+		ShortSet playedPoints = runnable.getPlayedPoints();
 		playedPoints.clear();
 		node.recordPlayout(winProportion, runnable, t);
 		// The remaining moves in the sequence are recorded for RAVE
@@ -222,14 +212,15 @@ public final class RaveNode implements SearchNode {
 			if (t >= runnable.getTurn()) {
 				return;
 			}
+			move = runnable.getHistoryObserver().get(t);
 			playedPoints.add(move);
 			t++;
 		}
 	}
 
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to
-	 * simplify testing.)
+	 * Similar to the public version, but takes simpler pieces as arguments, to
+	 * simplify testing.
 	 */
 	void recordPlayout(float winProportion, short[] moves, int t, int turn,
 			ShortSet playedPoints) {
@@ -239,13 +230,14 @@ public final class RaveNode implements SearchNode {
 		while (t < turn) {
 			move = moves[t];
 			if ((move != PASS) && !playedPoints.contains(move)) {
-				playedPoints.add(move);
+				playedPoints.addKnownAbsent(move);
 				addRaveRun(move, winProportion);
 			}
 			t++;
 			if (t >= turn) {
 				return;
 			}
+			move = moves[t];
 			playedPoints.add(move);
 			t++;
 		}

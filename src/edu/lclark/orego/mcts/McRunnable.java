@@ -10,6 +10,7 @@ import edu.lclark.orego.core.Legality;
 import static edu.lclark.orego.core.Legality.*;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.*;
+import edu.lclark.orego.util.ShortSet;
 
 /**
  * Players use this class to perform multiple Monte Carlo runs in different
@@ -36,6 +37,12 @@ public final class McRunnable implements Runnable {
 
 	/** Generates moves beyond the tree. */
 	private final Mover mover;
+
+	/**
+	 * Used by RaveNode.recordPlayout. It is stored here rather than in RaveNode
+	 * to avoid creating millions of ShortSets.
+	 */
+	private final ShortSet playedPoints;
 
 	/** The Player that launches the thread wrapped around this McRunnable. */
 	private final Player player;
@@ -69,6 +76,7 @@ public final class McRunnable implements Runnable {
 		historyObserver = copy.get(HistoryObserver.class);
 		filter = copy.get(Predicate.class);
 		fancyHashes = new long[coords.getMaxMovesPerGame() + 1];
+		playedPoints = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
 
 	/**
@@ -107,6 +115,13 @@ public final class McRunnable implements Runnable {
 		return historyObserver;
 	}
 
+	/**
+	 * @return the playedMoves
+	 */
+	public ShortSet getPlayedPoints() {
+		return playedPoints;
+	}
+
 	/** @return the player associated with this runnable */
 	public Player getPlayer() {
 		return player;
@@ -138,6 +153,11 @@ public final class McRunnable implements Runnable {
 	 */
 	public int[] getWeights() {
 		return weights;
+	}
+
+	/** Returns true if p passes this McRunnable's filter. */
+	public boolean isFeasible(short p) {
+		return filter.at(p);
 	}
 
 	/**
@@ -201,11 +221,6 @@ public final class McRunnable implements Runnable {
 
 	private short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
-	}
-
-	/** Returns true if p passes this McRunnable's filter. */
-	public boolean isFeasible(short p) {
-		return filter.at(p);
 	}
 
 }

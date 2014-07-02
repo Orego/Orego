@@ -92,6 +92,7 @@ public class CoordinateSystemTest {
 	public void testGetFirstPointBeyondBoard() {
 		assertEquals((5 * 7) + 1, c5.getFirstPointBeyondBoard());
 		assertEquals((19 * 21) + 1, c19.getFirstPointBeyondBoard());
+		assertEquals(c19.getNeighbors(c19.at("t1"))[EAST_NEIGHBOR], c19.getFirstPointBeyondBoard());
 	}
 	
 	@Test
@@ -110,4 +111,8 @@ public class CoordinateSystemTest {
 		assertSame(c19, c19again);
 	}
 
+	@Test
+	public void testIsOnBoard() {
+		assertFalse(c19.isOnBoard(c19.getFirstPointBeyondBoard()));
+	}
 }
