@@ -9,7 +9,6 @@ import edu.lclark.orego.util.ShortSet;
 public class RaveTreeUpdater extends SimpleTreeUpdater{
 	
 	private final ShortSet playedMoves;
-	
 
 	public RaveTreeUpdater(Board board, TranspositionTable table, int gestation) {
 		super(board, table, gestation);

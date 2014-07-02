@@ -222,14 +222,21 @@ public final class RaveNode implements SearchNode {
 			if (t >= runnable.getTurn()) {
 				return;
 			}
+			assert move == PASS
+					|| runnable.getBoard().getCoordinateSystem()
+							.isOnBoard(move) : "Offending move: " + move + " aka " + runnable.getBoard().getCoordinateSystem().toString(move);
+			move = runnable.getHistoryObserver().get(t);
+			assert move == PASS
+					|| runnable.getBoard().getCoordinateSystem()
+							.isOnBoard(move) : "Offending move: " + move + " aka " + runnable.getBoard().getCoordinateSystem().toString(move);
 			playedPoints.add(move);
 			t++;
 		}
 	}
 
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to
-	 * simplify testing.)
+	 * Similar to the public version, but takes simpler pieces as arguments, to
+	 * simplify testing.
 	 */
 	void recordPlayout(float winProportion, short[] moves, int t, int turn,
 			ShortSet playedPoints) {
@@ -239,13 +246,14 @@ public final class RaveNode implements SearchNode {
 		while (t < turn) {
 			move = moves[t];
 			if ((move != PASS) && !playedPoints.contains(move)) {
-				playedPoints.add(move);
+				playedPoints.addKnownAbsent(move);
 				addRaveRun(move, winProportion);
 			}
 			t++;
 			if (t >= turn) {
 				return;
 			}
+			move = moves[t];
 			playedPoints.add(move);
 			t++;
 		}
