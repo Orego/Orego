@@ -109,6 +109,7 @@ public final class Collate {
 				input += s.nextLine();
 			}
 			StringTokenizer stoken = new StringTokenizer(input, "()[];");
+			boolean gameCompleted = false;
 			while (stoken.hasMoreTokens()) {
 				String token = stoken.nextToken();
 				if (token.equals("PB")) { // If the player is black
@@ -141,11 +142,12 @@ public final class Collate {
 					if (token.charAt(0) == oregoColor) {
 						oregoWins[condition]++;
 					}
+					gameCompleted = true;
 					runs[condition]++;
 				}
 				if (token.equals("C")) {
 					token = stoken.nextToken();
-					if (token.contains("moves")) {
+					if (gameCompleted && token.contains("moves")) {
 						totalMoves[condition] += (Long.parseLong(token
 								.substring(6)));
 					}
