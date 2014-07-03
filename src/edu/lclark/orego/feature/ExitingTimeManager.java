@@ -24,6 +24,7 @@ public class ExitingTimeManager implements TimeManager{
 	public ExitingTimeManager(Player player){
 		this.player = player;
 		this.board = player.getBoard();
+		setRemainingTime(60);
 	}
 
 	private int getMsecPerMove() {
@@ -47,7 +48,8 @@ public class ExitingTimeManager implements TimeManager{
 	
 	@Override
 	public int getTime(){
-		if(slices == 0 || confident){
+		//TODO Check if we are confident in this if statement.
+		if(slices == 0){
 			return 0;
 		}
 		slices--;

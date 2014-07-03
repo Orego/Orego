@@ -12,14 +12,19 @@ public class SimpleTimeManager implements TimeManager {
 	/** The constant C to use in the time management formula. */
 	private double timeC = 0.20;
 	
+	private boolean alreadyThought;
+	
 	public SimpleTimeManager(Board board){
 		this.board = board;
 	}
 
 	@Override
 	public int getTime() {
+		if(alreadyThought){
+			return 0;
+		}
 		int msec = getMsecPerMove();
-		setRemainingTime(0);
+		alreadyThought = true;
 		return msec;
 	}
 	
@@ -32,6 +37,7 @@ public class SimpleTimeManager implements TimeManager {
 
 	@Override
 	public void setRemainingTime(int seconds) {
+		alreadyThought = false;
 		timeRemaining = seconds;
 	}
 

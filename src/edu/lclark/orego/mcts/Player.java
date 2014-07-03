@@ -15,9 +15,9 @@ import static edu.lclark.orego.core.Legality.*;
 public final class Player {
 
 	private final Board board;
-	
+
 	private OpeningBook book;
-	
+
 	/** @see TreeDescender */
 	private TreeDescender descender;
 
@@ -38,11 +38,11 @@ public final class Player {
 	protected TreeUpdater getUpdater() {
 		return updater;
 	}
-	
+
 	/** Number of seconds left in the game, used for time management */
 	private int secondsLeft;
-	
-	/** Object used to calculate amount of time used in generating a move.*/
+
+	/** Object used to calculate amount of time used in generating a move. */
 	private ExitingTimeManager timeManager;
 
 	/** Number of milliseconds to spend on the next move. */
@@ -72,14 +72,14 @@ public final class Player {
 		updater = new DoNothing();
 		book = new DoNothing();
 	}
-	
+
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
 		stopThreads();
 		Legality legality = board.play(point);
 		assert legality == OK;
 		updater.updateForAcceptMove();
-		if(usePondering){
+		if (usePondering) {
 			startThreads();
 		}
 		return legality;
@@ -88,15 +88,22 @@ public final class Player {
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
 		short move = book.nextMove(board);
-		if(move != NO_POINT){
+		if (move != NO_POINT) {
 			return move;
 		}
 		startThreads();
 		try {
-			if(timeManager != null){
-			msecPerMove = timeManager.getMsecPerMove(secondsLeft);
+			if (timeManager != null) {
+				msecPerMove = timeManager.getTime();
+				do {
+					startThreads();
+					Thread.sleep(msecPerMove);
+					stopThreads();
+					msecPerMove = timeManager.getTime();
+				} while (msecPerMove > 0);
+			} else {
+				Thread.sleep(msecPerMove);
 			}
-			Thread.sleep(msecPerMove);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -104,8 +111,8 @@ public final class Player {
 		stopThreads();
 		return descender.bestPlayMove();
 	}
-	
-	public void setRemainingTime(int seconds){
+
+	public void setRemainingTime(int seconds) {
 		timeManager.setRemainingTime(seconds);
 	}
 
@@ -168,9 +175,9 @@ public final class Player {
 	public void setMsecPerMove(int msec) {
 		msecPerMove = msec;
 	}
-	
+
 	/** Sets which opening book to use. Default is DoNothing. */
-	public void setOpeningBook(OpeningBook book){
+	public void setOpeningBook(OpeningBook book) {
 		this.book = book;
 	}
 
@@ -226,7 +233,7 @@ public final class Player {
 	}
 
 	public void usePondering(boolean pondering) {
-		this.usePondering = pondering;		
+		this.usePondering = pondering;
 	}
 
 	public void setTimeManager(ExitingTimeManager time) {

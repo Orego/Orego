@@ -80,7 +80,7 @@ public final class PlayerBuilder {
 		}
 		
 		if(timeManagement){
-			result.setTimeManager(new ExitingTimeManager(board));
+			result.setTimeManager(new ExitingTimeManager(result));
 		}
 		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
