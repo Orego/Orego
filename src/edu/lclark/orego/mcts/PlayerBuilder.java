@@ -1,5 +1,6 @@
 package edu.lclark.orego.mcts;
 
+import edu.lclark.orego.book.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
@@ -21,6 +22,8 @@ public final class PlayerBuilder {
 	private int width;
 
 	private boolean rave;
+	
+	private OpeningBook book;
 
 	private boolean lgrf2;
 
@@ -32,6 +35,7 @@ public final class PlayerBuilder {
 		threads = 2;
 		msecPerMove = 1000;
 		width = 19;
+		book = new DoNothing();
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -67,6 +71,7 @@ public final class PlayerBuilder {
 		}else{
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
+		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		return result;
@@ -89,6 +94,11 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder msecPerMove(int msec) {
 		this.msecPerMove = msec;
+		return this;
+	}
+	
+	public PlayerBuilder openingBook(){
+		book = new FusekiBook();
 		return this;
 	}
 

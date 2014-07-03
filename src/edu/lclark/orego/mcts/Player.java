@@ -4,15 +4,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.score.FinalScorer;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 
 /** Runs playouts and chooses moves. */
 public final class Player {
 
 	private final Board board;
-
+	
+	private OpeningBook book;
+	
 	/** @see TreeDescender */
 	private TreeDescender descender;
 
@@ -52,8 +56,9 @@ public final class Player {
 		}
 		descender = new DoNothing();
 		updater = new DoNothing();
+		book = new DoNothing();
 	}
-
+	
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
 		// TODO Stop threads
@@ -66,6 +71,10 @@ public final class Player {
 
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
+		short move = book.nextMove(board);
+		if(move != NO_POINT){
+			return move;
+		}
 		runThreads();
 		return descender.bestPlayMove();
 	}
@@ -105,7 +114,7 @@ public final class Player {
 	public McRunnable getMcRunnable(int i) {
 		return runnables[i];
 	}
-
+	
 	public int getMsecPerMove() {
 		return msecPerMove;
 	}
@@ -145,12 +154,16 @@ public final class Player {
 	 */
 	public void setColorToPlay(StoneColor stoneColor) {
 		board.setColorToPlay(stoneColor);
-
 	}
 
 	/** Sets the number of milliseconds to allocate per move. */
 	public void setMsecPerMove(int msec) {
 		msecPerMove = msec;
+	}
+	
+	/** Sets which opening book to use. Default is DoNothing. */
+	public void setOpeningBook(OpeningBook book){
+		this.book = book;
 	}
 
 	public void setTreeDescender(TreeDescender descender) {
