@@ -37,9 +37,9 @@ public class Significance {
 		final double z = zScore(p1, p2, n);
 		System.out.println("Z score: " + z);
 		if (abs(z) > 1.96) {
-			System.out.println("The difference IS significant (p < 0.05)");
+			System.out.println("The difference is SIGNIFICANT (p < 0.05)");
 		} else {
-			System.out.println("The difference IS NOT significant");
+			System.out.println("The difference is NOT significant");
 		}
 		System.out.printf(
 				"The confidence interval for condition 1 is %1.3f +/- %1.3f\n",
