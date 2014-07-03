@@ -67,6 +67,9 @@ public final class Player {
 		Legality legality = board.play(point);
 		assert legality == OK;
 		updater.updateForAcceptMove();
+		if(usePondering){
+			startThreads();
+		}
 		return legality;
 	}
 
@@ -112,6 +115,10 @@ public final class Player {
 	}
 
 	private void startThreads() {
+		if (keepRunning) {
+			return; // If the threads were already running, don't start them
+					// again
+		}
 		keepRunning = true;
 		executor = Executors.newFixedThreadPool(runnables.length);
 		for (int i = 0; i < runnables.length; i++) {
@@ -121,10 +128,11 @@ public final class Player {
 	}
 
 	private void stopThreads() {
-		if(!keepRunning){
-			return; //If the threads were not running, don't bother to stop them
+		if (!keepRunning) {
+			return; // If the threads were not running, don't bother to stop
+					// them
 		}
-		
+
 		try {
 			keepRunning = false;
 			executor.awaitTermination(1, TimeUnit.SECONDS);
@@ -188,6 +196,10 @@ public final class Player {
 
 	public TreeDescender getDescender() {
 		return descender;
+	}
+
+	public void usePondering(boolean pondering) {
+		this.usePondering = pondering;		
 	}
 
 }

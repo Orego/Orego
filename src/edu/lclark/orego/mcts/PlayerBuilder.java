@@ -20,6 +20,8 @@ public final class PlayerBuilder {
 	private int width;
 
 	private boolean rave;
+	
+	private boolean usePondering;
 
 	public PlayerBuilder() {
 		// Default values
@@ -29,6 +31,7 @@ public final class PlayerBuilder {
 		threads = 2;
 		msecPerMove = 1000;
 		width = 19;
+		usePondering = false;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -59,6 +62,7 @@ public final class PlayerBuilder {
 		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
+		result.usePondering(usePondering);
 		return result;
 	}
 
@@ -85,6 +89,11 @@ public final class PlayerBuilder {
 	public PlayerBuilder threads(int threads) {
 		this.threads = threads;
 		return this;
+	}
+
+	public void pondering() {
+		usePondering = true;
+		
 	}
 
 }
