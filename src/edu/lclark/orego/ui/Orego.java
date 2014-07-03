@@ -18,26 +18,26 @@ import static java.lang.Double.parseDouble;
 public final class Orego {
 
 	private static final String[] DEFAULT_GTP_COMMANDS = { //
-	"boardsize", // comments keep the commands on
+			"boardsize", // comments keep the commands on
 			"clear_board", // separate lines in the event of a
 			"final_score", // source -> format in Eclipse
-			// "genmove", //
-			// "genmove_black", //
-			// "genmove_white", //
-			// "black", "white", //
-			// "known_command", //
-			// "komi", //
+			"genmove", //
+			"genmove_black", //
+			"genmove_white", //
+			"black", "white", //
+			"known_command", //
+			"komi", //
 			"list_commands", //
 			// "loadsgf", //
 			// "name", //
-			// "play", //
+			"play", //
 			// "playout_count", //
 			// "protocol_version", //
-			// "reg_genmove", //
+			"reg_genmove", //
 			"showboard", //
 			// "time_left", //
 			// "time_settings", //
-			// "quit", //
+			"quit", //
 			// "undo", //
 			// "version", //
 			// "kgs-genmove_cleanup", //
