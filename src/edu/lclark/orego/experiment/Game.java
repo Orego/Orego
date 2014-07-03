@@ -9,7 +9,6 @@ import static edu.lclark.orego.experiment.Game.State.REQUESTING_MOVE;
 import static edu.lclark.orego.experiment.Game.State.SENDING_MOVE;
 import static edu.lclark.orego.experiment.Game.State.SENDING_TIME_LEFT;
 import static edu.lclark.orego.sgf.SgfWriter.toSgf;
-import static edu.lclark.orego.ui.Orego.VERSION_STRING;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -108,7 +107,7 @@ final class Game {
 			out.close();
 			System.exit(1);
 		}
-		out.println("(;FF[4]CA[UTF-8]AP[Orego" + VERSION_STRING + "]KM["
+		out.println("(;FF[4]CA[UTF-8]AP[Orego8]KM["
 				+ rules.komi + "]GM[1]RU[Chinese]SZ[" + rules.boardWidth + "]");
 		out.println("PB[" + players[BLACK.index()] + "]");
 		out.println("PW[" + players[WHITE.index()] + "]");

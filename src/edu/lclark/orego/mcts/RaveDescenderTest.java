@@ -14,7 +14,7 @@ public class RaveDescenderTest {
 	McRunnable runnable;
 	TranspositionTable table;
 	RaveDescender descender;
-	RaveTreeUpdater updater;
+	SimpleTreeUpdater updater;
 
 	@Before
 	public void setUp() throws Exception {
@@ -23,7 +23,7 @@ public class RaveDescenderTest {
 		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		table = new TranspositionTable(100, new RaveNodeBuilder(coords), coords);
 		descender = new RaveDescender(player.getBoard(), table, 0);
-		updater = new RaveTreeUpdater(player.getBoard(), table, 0);
+		updater = new SimpleTreeUpdater(player.getBoard(), table, 0);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
 	}

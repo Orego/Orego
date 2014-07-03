@@ -32,8 +32,7 @@ public final class PatternSuggester implements Suggester {
 		this.history = history;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 		try(ObjectInputStream objectInputStream = new ObjectInputStream(
-				// TODO Rename this directory for consistency with config
-				new FileInputStream(OREGO_ROOT + "PatternData/Pro3x3PatternData.data"));) {
+				new FileInputStream(OREGO_ROOT + "patterns/Pro3x3PatternData.data"));) {
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
 			goodPatterns = new BitVector(fileRuns.length);

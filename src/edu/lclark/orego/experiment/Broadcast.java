@@ -12,16 +12,30 @@ import java.util.*;
 /** Runs GameBatch on each of several machines. */
 public final class Broadcast {
 
+	/** Copies all text from source to destination. */
+	public static void copyFile(String source, String destination) {
+		try (Scanner in = new Scanner(new FileInputStream(source));
+				PrintWriter out = new PrintWriter(destination)) {
+			while (in.hasNextLine()) {
+				out.println(in.nextLine());
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
+		verifyCleanGitState();
 		System.out.println("Preparing to launch "
 				+ (EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size())
 				+ " games");
-		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp()
+		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp(true)
 				+ separator;
 		System.out
 				.println("Launching broadcast experiment. Results will be stored in "
 						+ resultsDirectory);
-		new File(resultsDirectory).mkdir();
+		new File(resultsDirectory).mkdirs();
 		copyFile(OREGO_ROOT + "config" + separator + "system.properties",
 				resultsDirectory + "system.txt");
 		copyFile(OREGO_ROOT + "config" + separator + "experiment.properties",
@@ -49,12 +63,8 @@ public final class Broadcast {
 		System.out.println("Broadcast experiment launched.");
 	}
 
-	/**
-	 * Determines the current git commit and writes it to filename. If we are
-	 * not in a clean git state, throws an IllegalStateException.
-	 */
-	private static void writeGitCommit(String filename) {
-		// Verify that we are in a clean git state
+	/** Throws an IllegalStateException if we are not in a clean git state. */
+	private static void verifyCleanGitState() {
 		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s").start().getInputStream())) {
 			if (s.hasNextLine()) {
 				throw new IllegalStateException("Not in clean git state");
@@ -62,8 +72,13 @@ public final class Broadcast {
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
-		}
-		// Write commit to a file
+		}		
+	}
+
+	/**
+	 * Determines the current git commit and writes it to filename.
+	 */
+	private static void writeGitCommit(String filename) {
 		try (Scanner s = new Scanner(new ProcessBuilder("git", "log", "--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
 			String commit = s.nextLine();
 			try (PrintWriter out = new PrintWriter(filename)) {
@@ -71,18 +86,6 @@ public final class Broadcast {
 				out.println(commit.substring(1, commit.length() - 1));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-
-	public static void copyFile(String source, String destination) {
-		try (Scanner in = new Scanner(new FileInputStream(source));
-				PrintWriter out = new PrintWriter(destination)) {
-			while (in.hasNextLine()) {
-				out.println(in.nextLine());
-			}
-		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}

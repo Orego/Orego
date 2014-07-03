@@ -23,7 +23,7 @@ public final class GameBatch implements Runnable {
 		if (args.length >= 2) {
 			results = args[1];
 		} else {
-			results = SYSTEM.resultsDirectory + timeStamp()
+			results = SYSTEM.resultsDirectory + timeStamp(true)
 					+ separator;
 		}
 		new File(results).mkdir();
@@ -37,9 +37,19 @@ public final class GameBatch implements Runnable {
 		}
 	}
 
-	/** Returns a String representing the current date and time. */
-	public static String timeStamp() {
-		return new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss.SSS").format(new Date(
+	/**
+	 * Returns a String representing the current date and time.
+	 *
+	 * @param nest If true, use File.separator instead of dashes to separate year, month, date, and time.
+	 */
+	public static String timeStamp(boolean nest) {
+		String punctuation;
+		if (nest) {
+			punctuation = File.separator;
+		} else {
+			punctuation = "-";
+		}
+		return new SimpleDateFormat("yyyy" + punctuation+ "MM" + punctuation + "dd" + punctuation + "HH:mm:ss.SSS").format(new Date(
 				System.currentTimeMillis()));
 	}
 
@@ -79,7 +89,7 @@ public final class GameBatch implements Runnable {
 		int[] wins = new int[3];
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
 			String outFile = resultsDirectory + host + "-b" + batchNumber + "-"
-					+ timeStamp() + ".sgf";
+					+ timeStamp(false) + ".sgf";
 			Game game = new Game(outFile, EXPERIMENT.rules, black, white);
 			wins[game.play().index()]++;
 		}

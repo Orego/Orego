@@ -50,20 +50,19 @@ public final class PlayerBuilder {
 		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
+		TranspositionTable table;
 		if (rave) {
-			TranspositionTable table = new TranspositionTable(new RaveNodeBuilder(coords),
+			table = new TranspositionTable(new RaveNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new RaveDescender(board, table, biasDelay));
-			TreeUpdater updater = new RaveTreeUpdater(board, table, gestation);
-			result.setTreeUpdater(updater);
 		} else {
-			TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
+			table = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
-			TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
-			result.setTreeUpdater(updater);
 		}
 		result.setOpeningBook(book);
+		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
+		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		return result;
 	}
