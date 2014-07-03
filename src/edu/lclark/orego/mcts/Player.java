@@ -4,8 +4,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.score.FinalScorer;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 
 /** Runs playouts and chooses moves. */
@@ -13,20 +15,19 @@ public final class Player {
 
 	private final Board board;
 	
+	private OpeningBook book;
+	
 	/** @see TreeDescender */
 	private TreeDescender descender;
 	
 	/** For managing threads. */
 	private ExecutorService executor;
 	
+	private FinalScorer finalScorer;
+
 	/** True if the threads should keep running, e.g., because time has not run out. */
 	private boolean keepRunning;
 	
-	/** Returns the updater for this player. */
-	protected TreeUpdater getUpdater() {
-		return updater;
-	}
-
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
 
@@ -35,8 +36,6 @@ public final class Player {
 
 	/** @see TreeUpdater */
 	private TreeUpdater updater;
-	
-	private FinalScorer finalScorer;
 	
 	/**
 	 * @param threads Number of threads to run.
@@ -52,8 +51,9 @@ public final class Player {
 		}
 		descender = new DoNothing();
 		updater = new DoNothing();
+		book = new DoNothing();
 	}
-
+	
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
 		// TODO Stop threads
@@ -66,6 +66,10 @@ public final class Player {
 
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
+		short move = book.nextMove(board);
+		if(move != NO_POINT){
+			return move;
+		}
 		runThreads();
 		return descender.bestPlayMove();
 	}
@@ -83,9 +87,17 @@ public final class Player {
 		descender.descend(runnable);
 	}
 
+	public double finalScore() {
+		return finalScorer.score();
+	}
+
 	/** Returns the board associated with this player. */
 	public Board getBoard() {
 		return board;
+	}
+
+	public TreeDescender getDescender() {
+		return descender;
 	}
 
 	/** Returns the scorer. */
@@ -97,7 +109,20 @@ public final class Player {
 	public McRunnable getMcRunnable(int i) {
 		return runnables[i];
 	}
+	
+	public int getMsecPerMove() {
+		return msecPerMove;
+	}
 
+	/** Returns the number of threads this Player runs. */
+	public int getNumberOfThreads() {
+		return runnables.length;
+	}
+	/** Returns the updater for this player. */
+	protected TreeUpdater getUpdater() {
+		return updater;
+	}
+	
 	// TODO Divide this into startThreads and stopThreads for pondering
 	/** Runs the threads. */
 	private void runThreads() {
@@ -116,21 +141,33 @@ public final class Player {
 			System.exit(1);
 		}
 	}
-	
+
+	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
+	public void setColorToPlay(StoneColor stoneColor) {
+		board.setColorToPlay(stoneColor);
+		
+	}
+
 	/** Sets the number of milliseconds to allocate per move. */
 	public void setMsecPerMove(int msec) {
 		msecPerMove = msec;
+	}
+	
+	/** Sets which opening book to use. Default is DoNothing. */
+	public void setOpeningBook(OpeningBook book){
+		this.book = book;
 	}
 
 	public void setTreeDescender(TreeDescender descender) {
 		this.descender = descender;
 		
 	}
+
 	/** @see TreeUpdater */
 	public void setTreeUpdater(TreeUpdater updater) {
 		this.updater = updater;
 	}
-	
+
 	/** True if McRunnables attached to this Player should keep running. */
 	boolean shouldKeepRunning() {
 		return keepRunning;
@@ -144,29 +181,6 @@ public final class Player {
 	/** Incorporate the result of a run in the tree. */
 	public void updateTree(Color winner, McRunnable mcRunnable) {
 		updater.updateTree(winner, mcRunnable);
-	}
-
-	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
-	public void setColorToPlay(StoneColor stoneColor) {
-		board.setColorToPlay(stoneColor);
-		
-	}
-
-	public double finalScore() {
-		return finalScorer.score();
-	}
-
-	/** Returns the number of threads this Player runs. */
-	public int getNumberOfThreads() {
-		return runnables.length;
-	}
-
-	public int getMsecPerMove() {
-		return msecPerMove;
-	}
-
-	public TreeDescender getDescender() {
-		return descender;
 	}
 
 }

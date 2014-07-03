@@ -10,7 +10,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
-public class FusekiBook {
+public class FusekiBook implements OpeningBook {
 
 	/** The fuseki book proper. */
 	private Map<Long, Short> book;
@@ -31,8 +31,13 @@ public class FusekiBook {
 			System.exit(1);
 		}
 	}
+	
+	public FusekiBook() {
+		this("Books");
+	}
 
 	@SuppressWarnings("boxing")
+	@Override
 	public short nextMove(Board board) {
 		long boardHash = board.getFancyHash();
 		if (board.getTurn() < maxMoves) {

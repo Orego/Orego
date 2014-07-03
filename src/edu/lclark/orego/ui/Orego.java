@@ -431,7 +431,9 @@ public final class Orego {
 				playerBuilder.threads(parseInt(right));
 			} else if(left.equals("rave")){
 				playerBuilder.rave();
-			} else {
+			} else if(left.equals("book")){
+				playerBuilder.openingBook();
+			}else {
 				throw new IllegalArgumentException("Unknown command line argument: " + left);
 			}
 		}

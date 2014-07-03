@@ -1,9 +1,12 @@
 package edu.lclark.orego.mcts;
 
+import edu.lclark.orego.book.OpeningBook;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 
 /** Provides various methods specified by interfaces, but does nothing. */
-public final class DoNothing implements TreeDescender, TreeUpdater {
+public final class DoNothing implements TreeDescender, TreeUpdater, OpeningBook {
 
 	@Override
 	public short bestPlayMove() {
@@ -44,6 +47,11 @@ public final class DoNothing implements TreeDescender, TreeUpdater {
 	@Override
 	public void updateForAcceptMove() {
 		// Does nothing
+	}
+
+	@Override
+	public short nextMove(Board board) {
+		return NO_POINT;
 	}
 
 }
