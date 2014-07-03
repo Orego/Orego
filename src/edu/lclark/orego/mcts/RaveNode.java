@@ -12,7 +12,7 @@ public final class RaveNode extends SimpleSearchNode{
 	
 	/** Number of RAVE runs through each child of this node. */
 	private final int[] raveRuns;
-	
+
 	/** RAVE winrate through the children of this node. */
 	private final float[] raveWinRates;
 	
@@ -22,16 +22,17 @@ public final class RaveNode extends SimpleSearchNode{
 		raveWinRates = new float[coords.getFirstPointBeyondBoard()];
 	}
 
-	public void addRaveLoss(short p){
+	public void addRaveLoss(short p) {
 		addRaveRun(p, 0);
 	}
 
 	public void addRaveRun(int p, float w) {
-		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p]) / (1 + raveRuns[p]);
+		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p])
+				/ (1 + raveRuns[p]);
 		raveRuns[p]++;
 	}
 
-	public void addRaveWin(short p){
+	public void addRaveWin(short p) {
 		addRaveRun(p, 1);
 	}
 
@@ -55,8 +56,7 @@ public final class RaveNode extends SimpleSearchNode{
 	/** Returns the number of RAVE wins through move p. */
 	public float getRaveWins(int p) {
 		return raveWinRates[p] * raveRuns[p];
-	}
-	
+	}	
 	
 	/** This method is unsupported for RAVE node.
 	 * @see recordPlayout(float, McRunnable, int, ShortSet) */
@@ -69,38 +69,44 @@ public final class RaveNode extends SimpleSearchNode{
 		super.recordPlayout(winProportion, runnable, t);
 		playedPoints.clear();
 		// The remaining moves in the sequence are recorded for RAVE
-				while (t < runnable.getTurn()) {
-					short move = runnable.getHistoryObserver().get(t);
-					if ((move != PASS) && !playedPoints.contains(move)) {
-						playedPoints.add(move);
-						addRaveRun(move, winProportion);
-					}
-					t++;
-					if (t >= runnable.getTurn()) {
-						return;
-					}
-					playedPoints.add(move);
-					t++;
-				}
+		while (t < runnable.getTurn()) {
+			short move = runnable.getHistoryObserver().get(t);
+			if ((move != PASS) && !playedPoints.contains(move)) {
+				assert runnable.getBoard().getCoordinateSystem()
+						.isOnBoard(move);
+				playedPoints.addKnownAbsent(move);
+				addRaveRun(move, winProportion);
+			}
+			t++;
+			if (t >= runnable.getTurn()) {
+				return;
+			}
+			move = runnable.getHistoryObserver().get(t);
+			playedPoints.add(move);
+			t++;
+		}
 	}
 
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.)
+	 * Similar to the public version, but takes simpler pieces as arguments, to
+	 * simplify testing.
 	 */
-	void recordPlayout(float winProportion, short[] moves, int t, int turn, ShortSet playedPoints) {
+	void recordPlayout(float winProportion, short[] moves, int t, int turn,
+			ShortSet playedPoints) {
 		assert t < turn;
 		short move = moves[t];
 		update(move, 1, winProportion);
 		while (t < turn) {
 			move = moves[t];
 			if ((move != PASS) && !playedPoints.contains(move)) {
-				playedPoints.add(move);
+				playedPoints.addKnownAbsent(move);
 				addRaveRun(move, winProportion);
 			}
 			t++;
 			if (t >= turn) {
 				return;
 			}
+			move = moves[t];
 			playedPoints.add(move);
 			t++;
 		}
@@ -119,7 +125,7 @@ public final class RaveNode extends SimpleSearchNode{
 		}
 		return result;
 	}
-	
+
 	@Override
 	@SuppressWarnings("boxing")
 	String toString(short p, CoordinateSystem coords) {

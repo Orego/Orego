@@ -8,6 +8,7 @@ import org.junit.Test;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
 
 public class RaveNodeTest {
 
@@ -73,6 +74,24 @@ public class RaveNodeTest {
 		node.recordPlayout((float) 0.5, new short[] {at("a1"), at("b2"), at("a2")}, 0, 3, new ShortSet(coords.getFirstPointBeyondBoard()));
 		node.toString();
 		// The toString() function should not crash. (previous versions had it crash due to format not working right)
+	}
+	
+	@Test
+	public void testBug1() {
+		// The -2 below means we won't try to play the very last point, which would be suicide.
+		short[] moves = new short[coords.getArea() * 2 - 2];
+		// Addresses bug where playedMoves would overflow
+		int i = 0;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (i < moves.length) {
+				moves[i] = p;
+				i++;
+				moves[i] = p;
+				i++;
+			}
+		}
+		node.recordPlayout((float) 0.5, moves, 0, moves.length, new ShortSet(coords.getFirstPointBeyondBoard()));		
+		// If no exception has been thrown, we're good.
 	}
 
 }
