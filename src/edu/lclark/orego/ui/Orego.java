@@ -35,14 +35,14 @@ public final class Orego {
 			// "protocol_version", //
 			"reg_genmove", //
 			"showboard", //
-	// "time_left", //
+			// "time_left", //
 			// "time_settings", //
 			"quit", //
 			// "undo", //
 			"version", //
 	// "kgs-genmove_cleanup", //
-			// "gogui-analyze_commands", //
-			// "kgs-game_over", //
+	// "gogui-analyze_commands", //
+	// "kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -89,7 +89,7 @@ public final class Orego {
 
 	/** The Player object that selects moves. */
 	private Player player;
-	
+
 	private String commandLineArgs;
 
 	// /** The komi given on the command line. */
@@ -108,7 +108,7 @@ public final class Orego {
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
 		commandLineArgs = "";
-		for(String arg : args){
+		for (String arg : args) {
 			commandLineArgs += arg + " ";
 		}
 		commands = new ArrayList<>();
@@ -336,11 +336,10 @@ public final class Orego {
 			player.clear(); // to stop threaded players
 			System.exit(0);
 		} else if (command.equals("time_left")) {
-			// TODO Currently we're ignoring this
-			// arguments.nextToken(); // Throw one argument away -- it's
+			 arguments.nextToken(); // Throw one argument away -- it's
 			// irrelevant
-			// int secondsLeft = parseInt(arguments.nextToken());
-			// player.setRemainingTime(secondsLeft);
+			 int secondsLeft = parseInt(arguments.nextToken());
+			 player.setRemainingTime(secondsLeft);
 			acknowledge();
 		}
 		// else if (command.equals("kgs-game_over")) {
@@ -370,16 +369,16 @@ public final class Orego {
 		// }
 		else if (command.equals("version")) {
 			String git;
-			try{
+			try {
 				verifyCleanGitState();
 				git = getGitCommit();
-			}catch(IllegalStateException e){
+			} catch (IllegalStateException e) {
 				git = "git state unknown";
 			}
-			String version = "Orego8  Args: " + commandLineArgs + " Git commit: " + git;
+			String version = "Orego8  Args: " + commandLineArgs
+					+ " Git commit: " + git;
 			acknowledge(version);
-		}
-		else if ((command.equals("black")) || (command.equals("b"))
+		} else if ((command.equals("black")) || (command.equals("b"))
 				|| (command.equals("white")) || (command.equals("w"))) {
 			char color = command.charAt(0);
 			short point = coords.at(arguments.nextToken());
@@ -440,21 +439,25 @@ public final class Orego {
 				playerBuilder.threads(parseInt(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave();
-			} else if (left.equals("ponder")){
+			} else if (left.equals("ponder")) {
 				playerBuilder.pondering();
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2();
-			} else if(left.equals("book")){
+			} else if (left.equals("book")) {
 				playerBuilder.openingBook();
-			}else {
-				throw new IllegalArgumentException("Unknown command line argument: " + left);
+			} else if (left.equals("time-management")) {
+				playerBuilder.timeManagement();
+			} else {
+				throw new IllegalArgumentException(
+						"Unknown command line argument: " + left);
 			}
 		}
 		player = playerBuilder.build();
 	}
-	
+
 	private static void verifyCleanGitState() {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s").start().getInputStream())) {
+		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s")
+				.start().getInputStream())) {
 			if (s.hasNextLine()) {
 				throw new IllegalStateException("Not in clean git state");
 			}
@@ -463,15 +466,16 @@ public final class Orego {
 			System.exit(1);
 		}
 	}
-	
+
 	/**
 	 * Returns the current git commit string.
 	 */
 	private static String getGitCommit() {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "log", "--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
+		try (Scanner s = new Scanner(new ProcessBuilder("git", "log",
+				"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
 			String commit = s.nextLine();
-				// substring to remove single quotes that would otherwise appear
-				return commit.substring(1, commit.length() - 1);
+			// substring to remove single quotes that would otherwise appear
+			return commit.substring(1, commit.length() - 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);

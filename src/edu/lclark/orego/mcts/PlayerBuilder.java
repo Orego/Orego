@@ -4,6 +4,7 @@ import edu.lclark.orego.book.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
+import edu.lclark.orego.feature.TimeManager;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -28,6 +29,8 @@ public final class PlayerBuilder {
 	private OpeningBook book;
 
 	private boolean lgrf2;
+	
+	private boolean timeManagement;
 
 	public PlayerBuilder() {
 		// Default values
@@ -38,6 +41,7 @@ public final class PlayerBuilder {
 		msecPerMove = 1000;
 		width = 19;
 		usePondering = false;
+		timeManagement = false;
 		book = new DoNothing();
 	}
 
@@ -73,6 +77,10 @@ public final class PlayerBuilder {
 			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation), copyStructure.get(LgrfTable.class));
 		}else{
 			updater = new SimpleTreeUpdater(board, table, gestation);
+		}
+		
+		if(timeManagement){
+			result.setTimeManager(new TimeManager(board));
 		}
 		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
@@ -116,9 +124,14 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public void pondering() {
+	public PlayerBuilder pondering() {
 		usePondering = true;
-		
+		return this;
+	}
+	
+	public PlayerBuilder timeManagement(){
+		timeManagement = true;
+		return this;
 	}
 
 }
