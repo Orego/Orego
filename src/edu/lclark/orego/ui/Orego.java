@@ -21,36 +21,32 @@ public final class Orego {
 	"boardsize", // comments keep the commands on
 			"clear_board", // separate lines in the event of a
 			"final_score", // source -> format in Eclipse
-			// "genmove", //
-			// "genmove_black", //
-			// "genmove_white", //
-			// "black", "white", //
-			// "known_command", //
-			// "komi", //
+			"genmove", //
+			"genmove_black", //
+			"genmove_white", //
+			"black", "white", //
+			"known_command", //
+			"komi", //
 			"list_commands", //
 			// "loadsgf", //
 			// "name", //
-			// "play", //
+			"play", //
 			// "playout_count", //
 			// "protocol_version", //
-			// "reg_genmove", //
+			"reg_genmove", //
 			"showboard", //
 	// "time_left", //
 			// "time_settings", //
-			// "quit", //
+			"quit", //
 			// "undo", //
-			// "version", //
-			// "kgs-genmove_cleanup", //
+			"version", //
+	// "kgs-genmove_cleanup", //
 			// "gogui-analyze_commands", //
 			// "kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
 	private static final int GTP_VERSION = 2;
-
-	// TODO Can this be updated automatically?
-	/** String to return in response to version command. */
-	public static final String VERSION_STRING = "8.00";
 
 	/**
 	 * @param args
@@ -93,6 +89,8 @@ public final class Orego {
 
 	/** The Player object that selects moves. */
 	private Player player;
+	
+	private String commandLineArgs;
 
 	// /** The komi given on the command line. */
 	// private double komiArgument = -1;
@@ -109,6 +107,10 @@ public final class Orego {
 		in = new BufferedReader(new InputStreamReader(inStream));
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
+		commandLineArgs = "";
+		for(String arg : args){
+			commandLineArgs += arg + " ";
+		}
 		commands = new ArrayList<>();
 		for (String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
@@ -366,9 +368,17 @@ public final class Orego {
 		// } else {
 		// error("Cannot undo");
 		// }
-		// } else if (command.equals("version")) {
-		// acknowledge(VERSION_STRING + " " + player);
-		// }
+		else if (command.equals("version")) {
+			String git;
+			try{
+				verifyCleanGitState();
+				git = getGitCommit();
+			}catch(IllegalStateException e){
+				git = "git state unknown";
+			}
+			String version = "Orego8  Args: " + commandLineArgs + " Git commit: " + git;
+			acknowledge(version);
+		}
 		else if ((command.equals("black")) || (command.equals("b"))
 				|| (command.equals("white")) || (command.equals("w"))) {
 			char color = command.charAt(0);
@@ -437,6 +447,32 @@ public final class Orego {
 			}
 		}
 		player = playerBuilder.build();
+	}
+	
+	private static void verifyCleanGitState() {
+		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s").start().getInputStream())) {
+			if (s.hasNextLine()) {
+				throw new IllegalStateException("Not in clean git state");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	/**
+	 * Returns the current git commit string.
+	 */
+	private static String getGitCommit() {
+		try (Scanner s = new Scanner(new ProcessBuilder("git", "log", "--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
+			String commit = s.nextLine();
+				// substring to remove single quotes that would otherwise appear
+				return commit.substring(1, commit.length() - 1);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return "";
 	}
 
 }
