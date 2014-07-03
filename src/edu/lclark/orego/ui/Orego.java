@@ -111,7 +111,6 @@ public final class Orego {
 		for(String arg : args){
 			commandLineArgs += arg + " ";
 		}
-		System.out.println(commandLineArgs);
 		commands = new ArrayList<>();
 		for (String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
@@ -377,7 +376,7 @@ public final class Orego {
 			}catch(IllegalStateException e){
 				git = "git state unknown";
 			}
-			String version = "Orego8 Args: " + commandLineArgs + "Git commit: " + git;
+			String version = "Orego8  Args: " + commandLineArgs + " Git commit: " + git;
 			acknowledge(version);
 		}
 		else if ((command.equals("black")) || (command.equals("b"))
