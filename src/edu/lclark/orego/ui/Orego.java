@@ -35,7 +35,7 @@ public final class Orego {
 			// "protocol_version", //
 			"reg_genmove", //
 			"showboard", //
-			// "time_left", //
+	// "time_left", //
 			// "time_settings", //
 			"quit", //
 			// "undo", //
@@ -442,7 +442,11 @@ public final class Orego {
 				playerBuilder.rave();
 			} else if (left.equals("ponder")){
 				playerBuilder.pondering();
-			} else {
+			} else if (left.equals("lgrf2")) {
+				playerBuilder.lgrf2();
+			} else if(left.equals("book")){
+				playerBuilder.openingBook();
+			}else {
 				throw new IllegalArgumentException("Unknown command line argument: " + left);
 			}
 		}

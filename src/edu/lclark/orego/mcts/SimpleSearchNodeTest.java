@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.util.ShortSet;
 
 public class SimpleSearchNodeTest {
 

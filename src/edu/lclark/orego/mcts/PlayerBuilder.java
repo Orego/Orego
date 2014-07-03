@@ -1,7 +1,9 @@
 package edu.lclark.orego.mcts;
 
+import edu.lclark.orego.book.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.LgrfTable;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -23,6 +25,10 @@ public final class PlayerBuilder {
 	
 	private boolean usePondering;
 
+	private OpeningBook book;
+
+	private boolean lgrf2;
+
 	public PlayerBuilder() {
 		// Default values
 		biasDelay = 1;
@@ -32,6 +38,7 @@ public final class PlayerBuilder {
 		msecPerMove = 1000;
 		width = 19;
 		usePondering = false;
+		book = new DoNothing();
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -46,7 +53,9 @@ public final class PlayerBuilder {
 
 	/** Creates the Player. */
 	public Player build() {
-		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
+		CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
+				komi) : CopiableStructureFactory.useWithPriors(width, komi);
+		Player result = new Player(threads, copyStructure);
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table;
@@ -59,7 +68,13 @@ public final class PlayerBuilder {
 					coords);
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		}
-		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
+		TreeUpdater updater;
+		if(lgrf2){
+			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation), copyStructure.get(LgrfTable.class));
+		}else{
+			updater = new SimpleTreeUpdater(board, table, gestation);
+		}
+		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		result.usePondering(usePondering);
@@ -76,8 +91,18 @@ public final class PlayerBuilder {
 		return this;
 	}
 
+	public PlayerBuilder lgrf2() {
+		lgrf2 = true;
+		return this;
+	}
+
 	public PlayerBuilder msecPerMove(int msec) {
 		this.msecPerMove = msec;
+		return this;
+	}
+	
+	public PlayerBuilder openingBook(){
+		book = new FusekiBook();
 		return this;
 	}
 
