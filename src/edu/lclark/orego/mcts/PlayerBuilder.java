@@ -21,6 +21,8 @@ public final class PlayerBuilder {
 
 	private boolean rave;
 
+	private boolean lgrf2;
+
 	public PlayerBuilder() {
 		// Default values
 		biasDelay = 1;
@@ -43,15 +45,15 @@ public final class PlayerBuilder {
 
 	/** Creates the Player. */
 	public Player build() {
-		Player result = new Player(threads, CopiableStructureFactory.useWithPriors(width, komi));
+		CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
+				komi) : CopiableStructureFactory.useWithPriors(width, komi);
+		Player result = new Player(threads, copyStructure);
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (rave) {
 			TranspositionTable table = new TranspositionTable(new RaveNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new RaveDescender(board, table, biasDelay));
-			TreeUpdater updater = new RaveTreeUpdater(board, table, gestation);
-			result.setTreeUpdater(updater);
 		} else {
 			TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
 					coords);
@@ -70,6 +72,11 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder komi(double komi) {
 		this.komi = komi;
+		return this;
+	}
+
+	public PlayerBuilder lrgf2() {
+		lrgf2 = true;
 		return this;
 	}
 

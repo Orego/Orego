@@ -35,7 +35,7 @@ public final class Orego {
 			// "protocol_version", //
 			// "reg_genmove", //
 			"showboard", //
-			// "time_left", //
+	// "time_left", //
 			// "time_settings", //
 			// "quit", //
 			// "undo", //
@@ -424,11 +424,13 @@ public final class Orego {
 			} else if (left.equals("komi")) {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("msec")) {
-				playerBuilder.msecPerMove(parseInt(right));				
+				playerBuilder.msecPerMove(parseInt(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
-			} else if(left.equals("rave")){
+			} else if (left.equals("rave")) {
 				playerBuilder.rave();
+			} else if (left.equals("lgrf2")) {
+				playerBuilder.lgrf2();
 			} else {
 				throw new IllegalArgumentException("Unknown command line argument: " + left);
 			}
