@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.score.FinalScorer;
-import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 
 /** Runs playouts and chooses moves. */

@@ -8,7 +8,6 @@ import org.junit.Test;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
-import static edu.lclark.orego.core.CoordinateSystem.PASS;
 
 public class RaveNodeTest {
 
