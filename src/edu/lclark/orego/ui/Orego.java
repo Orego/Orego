@@ -107,9 +107,11 @@ public final class Orego {
 		in = new BufferedReader(new InputStreamReader(inStream));
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
+		commandLineArgs = "";
 		for(String arg : args){
 			commandLineArgs += arg + " ";
 		}
+		System.out.println(commandLineArgs);
 		commands = new ArrayList<>();
 		for (String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
