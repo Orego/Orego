@@ -2,6 +2,7 @@ package edu.lclark.orego.mcts;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.LgrfTable;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -60,7 +61,12 @@ public final class PlayerBuilder {
 					coords);
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		}
-		TreeUpdater updater = new SimpleTreeUpdater(board, table, gestation);
+		TreeUpdater updater;
+		if(lgrf2){
+			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation), copyStructure.get(LgrfTable.class));
+		}else{
+			updater = new SimpleTreeUpdater(board, table, gestation);
+		}
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		return result;

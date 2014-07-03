@@ -58,14 +58,9 @@ public final class RaveNode extends SimpleSearchNode{
 		return raveWinRates[p] * raveRuns[p];
 	}	
 	
-	/** This method is unsupported for RAVE node.
-	 * @see recordPlayout(float, McRunnable, int, ShortSet) */
 	@Override
 	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
-		throw new UnsupportedOperationException("recordPlayout with 3 arguments is unsupported for RAVE nodes.");
-	}
-
-	public void recordPlayout(float winProportion, McRunnable runnable, int t, ShortSet playedPoints) {
+		ShortSet playedPoints = runnable.getPlayedPoints();
 		super.recordPlayout(winProportion, runnable, t);
 		playedPoints.clear();
 		// The remaining moves in the sequence are recorded for RAVE
