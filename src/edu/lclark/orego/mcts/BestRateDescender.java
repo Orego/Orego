@@ -7,6 +7,7 @@ import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.util.ShortSet;
+import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 /** Always chooses the move with the best win rate, with no exploration. */
 public class BestRateDescender implements TreeDescender {
@@ -16,6 +17,9 @@ public class BestRateDescender implements TreeDescender {
 
 	private final Board board;
 
+	/** If our win rate falls below this, resign. */
+	public static final float RESIGN_PARAMETER = 0.1f;
+	
 	private final TranspositionTable table;
 
 	public BestRateDescender(Board board, TranspositionTable table, int biasDelay) {
@@ -47,11 +51,10 @@ public class BestRateDescender implements TreeDescender {
 				}
 			}
 		} while (result != PASS && !board.isLegal(result));
-		// TODO Handle resignation
-//		// Consider resigning
-//		if (node.getWinRate(result) < RESIGN_PARAMETER) {
-//			return RESIGN;
-//		}
+		// Consider resigning
+		if (root.getWinRate(result) < RESIGN_PARAMETER) {
+			return RESIGN;
+		}
 		return result;
 	}
 

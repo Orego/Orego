@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 public class PlayerTest {
 
@@ -63,6 +64,22 @@ public class PlayerTest {
 			// This move should not be chosen as it is eyelike for black
 			assertNotEquals(at("a5"), move);
 		}
+	}
+	
+	@Test
+	public void testResign() {
+		String[] before = {
+				".##OO",
+				"##OO.",
+				"##O.O",
+				".#OO.",
+				".##OO",
+		};
+		player.clear();
+		player.getBoard().setUpProblem(before, BLACK);
+		short move = player.bestMove();
+		// Black is doomed -- DOOMED! -- and therefore should resign
+		assertEquals(RESIGN, move);
 	}
 
 }

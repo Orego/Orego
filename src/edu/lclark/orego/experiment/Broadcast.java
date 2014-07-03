@@ -30,12 +30,12 @@ public final class Broadcast {
 		System.out.println("Preparing to launch "
 				+ (EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size())
 				+ " games");
-		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp()
+		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp(true)
 				+ separator;
 		System.out
 				.println("Launching broadcast experiment. Results will be stored in "
 						+ resultsDirectory);
-		new File(resultsDirectory).mkdir();
+		new File(resultsDirectory).mkdirs();
 		copyFile(OREGO_ROOT + "config" + separator + "system.properties",
 				resultsDirectory + "system.txt");
 		copyFile(OREGO_ROOT + "config" + separator + "experiment.properties",
