@@ -32,7 +32,7 @@ public final class Collate {
 			File[] files = file.listFiles();
 			mostRecent = file.listFiles()[0];
 			for (File f : files) {
-				if (file.getPath().compareTo(mostRecent.getPath()) > 0) {
+				if (f.getPath().compareTo(mostRecent.getPath()) > 0) {
 					mostRecent = f;
 				}
 			}
