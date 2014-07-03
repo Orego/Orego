@@ -5,6 +5,7 @@ import java.util.*;
 import static orego.experiment.ExperimentConfiguration.*;
 import static orego.core.Colors.*;
 
+
 // TODO There should be an easy way to dump these data into a graph
 /** Collates experimental results stored in many files. */
 public class Collate {

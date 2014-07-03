@@ -30,6 +30,12 @@ public class Game {
 	 */
 	public static final int SENDING_TIME_LEFT = 3;
 
+	/**
+	 * The amount of time to add to each player's timeUsedInMilliseconds[]
+	 * entry, for each move. Used to simulate network lag for KGS.
+	 */
+	private static final int LAG_PER_MOVE_IN_MS = 0;
+
 	/** The amount of time each player has used so far. */
 	private int[] timeUsedInMilliseconds;
 
@@ -144,7 +150,7 @@ public class Game {
 			if (mode == REQUESTING_MOVE) {
 				// accumulate the time the player spent their total
 				timeUsedInMilliseconds[getColorToPlay()] += System
-						.currentTimeMillis() - timeLastMoveWasRequested;
+						.currentTimeMillis() - timeLastMoveWasRequested + LAG_PER_MOVE_IN_MS;
 				double timeLeftForThisPlayer = GAME_TIME_IN_SECONDS	- timeUsedInMilliseconds[getColorToPlay()] / 1000.0;
 				String timeLeftIndicator = (getColorToPlay() == BLACK ? "BL" : "WL") + "[" + timeLeftForThisPlayer + "]";
 				String coordinates = line.substring(line.indexOf(' ') + 1);
