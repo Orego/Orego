@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
-import edu.lclark.orego.feature.TimeManager;
+import edu.lclark.orego.feature.ExitingTimeManager;
 import edu.lclark.orego.score.FinalScorer;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
@@ -43,7 +43,7 @@ public final class Player {
 	private int secondsLeft;
 	
 	/** Object used to calculate amount of time used in generating a move.*/
-	private TimeManager timeManager;
+	private ExitingTimeManager timeManager;
 
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
@@ -106,7 +106,7 @@ public final class Player {
 	}
 	
 	public void setRemainingTime(int seconds){
-		secondsLeft = seconds;
+		timeManager.setRemainingTime(seconds);
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
@@ -229,7 +229,7 @@ public final class Player {
 		this.usePondering = pondering;		
 	}
 
-	public void setTimeManager(TimeManager time) {
+	public void setTimeManager(ExitingTimeManager time) {
 		timeManager = time;
 	}
 

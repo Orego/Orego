@@ -4,7 +4,7 @@ import edu.lclark.orego.book.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
-import edu.lclark.orego.feature.TimeManager;
+import edu.lclark.orego.feature.ExitingTimeManager;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -80,7 +80,7 @@ public final class PlayerBuilder {
 		}
 		
 		if(timeManagement){
-			result.setTimeManager(new TimeManager(board));
+			result.setTimeManager(new ExitingTimeManager(board));
 		}
 		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
