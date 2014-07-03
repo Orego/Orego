@@ -49,8 +49,8 @@ public class SimpleSearchNode implements SearchNode {
 
 	/** Number of wins through each child of this node. */
 	private final float[] winRates;
-	
-	/** True if priors for this node have been set.*/
+
+	/** True if priors for this node have been set. */
 	private boolean priorsUpdated;
 
 	public SimpleSearchNode(CoordinateSystem coords) {
@@ -169,11 +169,12 @@ public class SimpleSearchNode implements SearchNode {
 			winningMove = move;
 		} else {
 			winningMove = NO_POINT;
-		}		
+		}
 	}
-	
+
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to simplify testing.)
+	 * (Similar to the public version, but takes simpler pieces as arguments, to
+	 * simplify testing.)
 	 */
 	void recordPlayout(float winProportion, short[] moves, int t, int turn) {
 		assert t < turn;
@@ -183,11 +184,12 @@ public class SimpleSearchNode implements SearchNode {
 			winningMove = move;
 		} else {
 			winningMove = NO_POINT;
-		}		
+		}
 	}
 
 	@Override
-	public void clear(@SuppressWarnings("hiding") long fancyHash, CoordinateSystem coords) {
+	public void clear(@SuppressWarnings("hiding") long fancyHash,
+			CoordinateSystem coords) {
 		this.fancyHash = fancyHash;
 		totalRuns = 2 * coords.getArea() + INITIAL_PASS_RUNS;
 		fill(runs, 2);
@@ -237,16 +239,18 @@ public class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public String deepToString(Board board, TranspositionTable table, int maxDepth) {
+	public String deepToString(Board board, TranspositionTable table,
+			int maxDepth) {
 		return deepToString(board, table, maxDepth, 0);
 	}
-	
+
 	/**
 	 * Recursive helper method.
 	 * 
 	 * @see #deepToString(Board, TranspositionTable, int)
 	 */
-	String deepToString(Board board, TranspositionTable table, int maxDepth, int depth) {
+	String deepToString(Board board, TranspositionTable table, int maxDepth,
+			int depth) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (maxDepth < depth) {
 			return "";
@@ -255,17 +259,18 @@ public class SimpleSearchNode implements SearchNode {
 		for (int i = 0; i < depth; i++) {
 			indent += "  ";
 		}
-		String result = indent + "Total runs: "
-				+ getTotalRuns() + "\n";
+		String result = indent + "Total runs: " + getTotalRuns() + "\n";
 		Board childBoard = new Board(coords.getWidth());
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (hasChild(p)) {
 				result += indent + toString(p, coords);
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
-				SimpleSearchNode child = (SimpleSearchNode)table.findIfPresent(childBoard.getFancyHash());
+				SimpleSearchNode child = (SimpleSearchNode) table
+						.findIfPresent(childBoard.getFancyHash());
 				if (child != null) {
-					result += child.deepToString(childBoard, table, maxDepth, depth + 1);
+					result += child.deepToString(childBoard, table, maxDepth,
+							depth + 1);
 				}
 			}
 		}
@@ -279,9 +284,9 @@ public class SimpleSearchNode implements SearchNode {
 				result += deepToString(childBoard, table, maxDepth, depth + 1);
 			}
 		}
-		return result;		
+		return result;
 	}
-	
+
 	@Override
 	public synchronized void update(short p, int n, float wins) {
 		totalRuns += n;
@@ -307,10 +312,21 @@ public class SimpleSearchNode implements SearchNode {
 	public boolean priorsUpdated() {
 		return priorsUpdated;
 	}
-	
+
 	@Override
-	public void setPriorsUpdated(boolean value){
+	public void setPriorsUpdated(boolean value) {
 		priorsUpdated = value;
+	}
+
+	@Override
+	public short getMoveWithNextMostWins(CoordinateSystem coords, short best) {
+		short nextBest = PASS;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getWins(p) >= getWins(nextBest) && p!=best) {
+				nextBest = p;
+			}
+		}
+		return nextBest;
 	}
 
 }

@@ -143,6 +143,10 @@ public final class Player {
 	public McRunnable getMcRunnable(int i) {
 		return runnables[i];
 	}
+	
+	public SearchNode getRoot(){
+		return updater.getRoot();
+	}
 
 	private void startThreads() {
 		if (keepRunning) {

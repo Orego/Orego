@@ -141,4 +141,8 @@ public interface SearchNode {
 	/** Sets whether the priors have already been updated for this node. */
 	public void setPriorsUpdated(boolean value);
 
+
+	public short getMoveWithNextMostWins(CoordinateSystem coordinateSystem,
+			short best);
+
 }

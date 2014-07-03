@@ -1,8 +1,10 @@
 package edu.lclark.orego.feature;
 
 import static java.lang.Math.max;
+import static edu.lclark.orego.util.Gaussian.Phi;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.mcts.Player;
+import edu.lclark.orego.mcts.SearchNode;
 
 public class ExitingTimeManager implements TimeManager{
 
@@ -48,11 +50,25 @@ public class ExitingTimeManager implements TimeManager{
 	
 	@Override
 	public int getTime(){
-		//TODO Check if we are confident in this if statement.
-		if(slices == 0){
+		SearchNode root = player.getRoot();
+		short best = root.getMoveWithMostWins(board.getCoordinateSystem());
+		short nextBest = root.getMoveWithNextMostWins(board.getCoordinateSystem(), best);
+		float winrateA = root.getWinRate(best);
+		double runsA = root.getWins(best);
+		float winrateB = root.getWinRate(nextBest);
+		double runsB = root.getRuns(nextBest);
+		if(slices == 0 || confidence(winrateA, runsA, winrateB, runsB) > .75){
 			return 0;
 		}
 		slices--;
 		return timePerSlice;
+	}
+	
+	protected static double confidence(float winrateA, double runsA, float winrateB,
+			double runsB) {
+		double z = (winrateA - winrateB)
+				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
+						* (1 - winrateB) / runsB);
+		return Phi(z);
 	}
 }
