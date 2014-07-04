@@ -57,7 +57,11 @@ public class ExitingTimeManager implements TimeManager{
 		double runsA = root.getWins(best);
 		float winrateB = root.getWinRate(nextBest);
 		double runsB = root.getRuns(nextBest);
+		System.err.println(confidence(winrateA, runsA, winrateB, runsB));
 		if(slices == 0 || confidence(winrateA, runsA, winrateB, runsB) > .75){
+			if(slices!=0){
+				System.err.println("Confident");
+			}
 			return 0;
 		}
 		slices--;
