@@ -113,7 +113,10 @@ public final class Collate {
 					if (token.contains("Orego")) {
 						oregoColor = 'B';
 						for (int i = 0; i < conditions.length; i++) {
-							if (token.contains(conditions[i])) {
+							// TODO Here and below, what if one condition is a suffix of another
+							// TODO What if multiple conditions have same name?
+							// TODO Why aren't conditions run and reported in order given in properties file?
+							if (token.endsWith(conditions[i])) {
 								condition = i;
 							}
 						}
@@ -124,7 +127,7 @@ public final class Collate {
 					if (token.contains("Orego")) {
 						oregoColor = 'W';
 						for (int i = 0; i < conditions.length; i++) {
-							if (token.contains(conditions[i])) {
+							if (token.endsWith(conditions[i])) {
 								condition = i;
 							}
 						}
