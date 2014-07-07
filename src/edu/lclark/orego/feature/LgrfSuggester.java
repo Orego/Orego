@@ -3,6 +3,7 @@ package edu.lclark.orego.feature;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.*;
+import static edu.lclark.orego.core.NonStoneColor.*;
 
 /** Suggests good replies stores in a Last Good Reply table. */
 @SuppressWarnings("serial")
@@ -10,8 +11,12 @@ public final class LgrfSuggester implements Suggester {
 	
 	private final HistoryObserver history;
 	
-	private final LgrfTable table;
+	private transient LgrfTable table;
 	
+	public void setTable(LgrfTable table) {
+		this.table = table;
+	}
+
 	private final Board board;
 	
 	private final ShortSet moves;
@@ -25,16 +30,17 @@ public final class LgrfSuggester implements Suggester {
 
 	@Override
 	public ShortSet getMoves() {
+		System.out.println("Getting moves from LGRF table " + table);
 		moves.clear();
 		short previousMove = history.get(board.getTurn()-1);
 		short reply = table.getSecondLevelReply(board.getColorToPlay(), history.get(board.getTurn()-2), previousMove);
-		if(reply != NO_POINT){
+		if(reply != NO_POINT && board.getColorAt(reply) == VACANT){
 			moves.add(reply);
 			System.out.println("Suggesting 2nd level");
 			return moves;
 		}
 		reply = table.getFirstLevelReply(board.getColorToPlay(), previousMove);
-		if(reply != NO_POINT){
+		if(reply != NO_POINT && board.getColorAt(reply) == VACANT){
 			moves.add(reply);
 			System.out.println("Suggesting 1st level");
 			return moves;

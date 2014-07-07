@@ -1,5 +1,6 @@
 package edu.lclark.orego.feature;
 
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static org.junit.Assert.*;
 
@@ -49,4 +50,14 @@ public class LgrfSuggesterTest {
 		assertEquals(coords.at("c1"), suggester.getMoves().get(0));
 	}
 
+	@Test
+	public void testOccupiedPoint() {
+		lgrfTable.update(BLACK, true, coords.at("a1"), coords.at("b1"),
+				coords.at("c1"));
+		board.play(coords.at("c1"));
+		board.play(coords.at("b1"));
+		// The tables say c1, but it's occupied
+		assertEquals(NO_POINT, suggester.getMoves().get(0));
+	}
+	
 }

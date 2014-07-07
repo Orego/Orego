@@ -110,6 +110,8 @@ public final class CopiableStructureFactory {
 		HistoryObserver historyObserver = base.get(HistoryObserver.class);
 
 		LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table);
+		// We'll need to modify this after a copy so that all LgrfSuggesters share the same table
+		base.add(lgrf);
 		EscapeSuggester escape = new EscapeSuggester(board, atariObserver);
 		PatternSuggester patterns = new PatternSuggester(board, historyObserver);
 		CaptureSuggester capture = new CaptureSuggester(board, atariObserver);

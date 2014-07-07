@@ -38,6 +38,7 @@ public final class LgrfUpdater implements TreeUpdater{
 	@Override
 	public void updateTree(Color winner, McRunnable runnable) {
 		updater.updateTree(winner, runnable);
+		System.out.println("Updating LGRF table " + table);
 		HistoryObserver history = runnable.getHistoryObserver();
 		if (winner != VACANT) {
 			Board playerBoard = runnable.getPlayer().getBoard();

@@ -63,6 +63,7 @@ public final class McRunnable implements Runnable {
 	private final int[] weights;
 
 	public McRunnable(Player player, CopiableStructure stuff) {
+		LgrfTable table = stuff.get(LgrfTable.class);
 		CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
@@ -71,6 +72,8 @@ public final class McRunnable implements Runnable {
 		this.player = player;
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);
+		LgrfSuggester lgrf = copy.get(LgrfSuggester.class);
+		lgrf.setTable(table);
 		scorer = copy.get(ChinesePlayoutScorer.class);
 		mercyObserver = copy.get(StoneCounter.class);
 		historyObserver = copy.get(HistoryObserver.class);
