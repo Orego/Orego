@@ -22,6 +22,8 @@ public class ExitingTimeManager implements TimeManager{
 	
 	private int timeRemaining;
 	
+	private int rollover;
+	
 	private static final int SLICE_COUNT = 10;
 	
 	public ExitingTimeManager(Player player){
@@ -39,8 +41,11 @@ public class ExitingTimeManager implements TimeManager{
 	
 	private void createSlices(){
 		slices = SLICE_COUNT;
-		timePerSlice = getMsecPerMove() / SLICE_COUNT;
-		
+		timePerSlice = (getMsecPerMove() + rollover) / SLICE_COUNT;
+	}
+	
+	protected int getRollover(){
+		return rollover;
 	}
 	
 	@Override
@@ -52,6 +57,11 @@ public class ExitingTimeManager implements TimeManager{
 	@Override
 	public int getTime(){
 		if(slices == 0 || confidenceBestVsRest() > .95){
+			if(slices != 0){
+				rollover = slices * timePerSlice;
+			} else{
+				rollover = 0;
+			}
 			return 0;
 		}
 		slices--;

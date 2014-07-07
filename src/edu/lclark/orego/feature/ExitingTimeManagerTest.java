@@ -49,5 +49,25 @@ public class ExitingTimeManagerTest {
 		assertEquals(0, manager.getTime(), .01);
 		
 	}
+	
+	@Test
+	public void testRollover(){
+		player.setRemainingTime(10);
+		SearchNode root = player.getRoot();
+		assertNotEquals(0, manager.getTime());
+		
+		root.update(coords.at("a5"), 1000, 1000);
+		assertEquals(0, manager.getTime(), .01);
+		assertNotEquals(0, manager.getRollover());
+		for(short p : coords.getAllPointsOnBoard()){
+			if(p != coords.at("a5")){
+				root.update(p, 1000, 1000);
+			}
+		}
+		while(manager.getTime() != 0){
+			manager.getTime();
+		}
+		assertEquals(0, manager.getRollover());
+	}
 
 }
