@@ -116,6 +116,7 @@ public final class CopiableStructureFactory {
 		PatternSuggester patterns = new PatternSuggester(board, historyObserver);
 		CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
 		
+		//Suggesters for updating biases
 		base.add(new Suggester[] { escape, patterns, capture });
 		base.add(new int[] { 20, 20, 20 });
 
