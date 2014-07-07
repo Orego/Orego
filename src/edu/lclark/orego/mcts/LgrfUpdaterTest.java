@@ -46,6 +46,8 @@ public class LgrfUpdaterTest {
 		runnable.acceptMove(coords.at("c1"));
 		updater.updateTree(BLACK, runnable);
 		assertEquals(coords.at("c1"), lgrfTable.getFirstLevelReply(BLACK, coords.at("b1")));
+		assertEquals(coords.at("a1"), lgrfTable.getFirstLevelReply(BLACK, NO_POINT));
+		assertEquals(coords.at("a1"), lgrfTable.getSecondLevelReply(BLACK, NO_POINT, NO_POINT));
 		assertEquals(NO_POINT, lgrfTable.getFirstLevelReply(BLACK, coords.at("a1")));
 		assertEquals(coords.at("c1"), lgrfTable.getSecondLevelReply(BLACK, coords.at("a1"), coords.at("b1")));
 	}

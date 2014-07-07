@@ -4,6 +4,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 
+/** Suggests good replies stores in a Last Good Reply table. */
 @SuppressWarnings("serial")
 public final class LgrfSuggester implements Suggester {
 	
@@ -25,16 +26,14 @@ public final class LgrfSuggester implements Suggester {
 	@Override
 	public ShortSet getMoves() {
 		moves.clear();
-		if(board.getTurn()<2){
-			return moves;
-		}
-		short move = history.get(board.getTurn()-1);
-		short reply = table.getSecondLevelReply(board.getColorToPlay(), history.get(board.getTurn()-2), move);
+		short previousMove = history.get(board.getTurn()-1);
+		short reply = table.getSecondLevelReply(board.getColorToPlay(), history.get(board.getTurn()-2), previousMove);
 		if(reply != NO_POINT){
 			moves.add(reply);
+			System.out.println("Suggesting 2nd level");
 			return moves;
 		}
-		reply = table.getFirstLevelReply(board.getColorToPlay(), move);
+		reply = table.getFirstLevelReply(board.getColorToPlay(), previousMove);
 		if(reply != NO_POINT){
 			moves.add(reply);
 			System.out.println("Suggesting 1st level");

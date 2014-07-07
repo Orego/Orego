@@ -39,4 +39,14 @@ public class LgrfSuggesterTest {
 		assertEquals(coords.at("c1"), suggester.getMoves().get(0));
 	}
 
+	@Test
+	public void testLevel1() {
+		lgrfTable.update(BLACK, true, coords.at("a1"), coords.at("b1"),
+				coords.at("c1"));
+		board.play(coords.at("d1"));
+		board.play(coords.at("b1"));
+		// There is no 2nd level reply, but there is a 1st level reply
+		assertEquals(coords.at("c1"), suggester.getMoves().get(0));
+	}
+
 }

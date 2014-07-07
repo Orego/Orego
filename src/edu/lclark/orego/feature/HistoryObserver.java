@@ -1,5 +1,6 @@
 package edu.lclark.orego.feature;
 
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.StoneColor;
@@ -38,8 +39,11 @@ public final class HistoryObserver implements BoardObserver {
 		history.clear();
 	}
 	
-	/** Returns the move played at time t. */
+	/** Returns the move played at time t. If t < 0, returns NO_POINT. */
 	public short get(int t) {
+		if (t < 0) {
+			return NO_POINT;
+		}
 		return history.get(t);
 	}
 
