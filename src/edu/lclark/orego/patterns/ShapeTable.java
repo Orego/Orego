@@ -2,7 +2,8 @@ package edu.lclark.orego.patterns;
 
 import java.util.Arrays;
 
-public class ShapeTable {
+/** A class for storing win rates for pattern hashes. */
+public final class ShapeTable {
 
 	private final float[][] winRateTables;
 
@@ -15,6 +16,7 @@ public class ShapeTable {
 		}
 	}
 
+	/** Update the table with new win data for the given pattern. */
 	public void update(long hash, boolean win) {
 		for (int i = 0; i < 4; i++) {
 			int index = (int) (hash >> (16 * i) & 65535);
@@ -23,6 +25,7 @@ public class ShapeTable {
 		}
 	}
 
+	/** Get the win rate for a given pattern. */
 	public float getWinRate(long hash) {
 		float result = 0;
 		for (int i = 0; i < 4; i++) {
