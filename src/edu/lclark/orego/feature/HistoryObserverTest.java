@@ -89,4 +89,9 @@ public class HistoryObserverTest {
 		assertEquals(at("a2"), copy.get(2));
 	}
 
+	@Test
+	public void testBeforeBeginningOfGame() {
+		assertEquals(NO_POINT, observer.get(-1));
+	}
+
 }

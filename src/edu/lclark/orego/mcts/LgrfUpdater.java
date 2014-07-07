@@ -7,6 +7,7 @@ import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfTable;
 
+/** Updates LGRF table after a playout. (Also updates tree.) */
 public final class LgrfUpdater implements TreeUpdater{
 	
 	private final TreeUpdater updater;
@@ -43,18 +44,15 @@ public final class LgrfUpdater implements TreeUpdater{
 			int turn = runnable.getTurn();
 			boolean win = winner == playerBoard.getColorToPlay();
 			StoneColor color = playerBoard.getColorToPlay();
-			for (int t = playerBoard.getTurn(); t < turn; t++) {
-				if(t<2){
-					t=1;
-					continue;
-				}
-				short move = history.get(t);
-				short antepenultimate = history.get(t-2);
-				short previous = history.get(t-1);
-				table.update(color, win, antepenultimate, previous, move);
+			int t = playerBoard.getTurn();
+			short penultimate = history.get(t-2);
+			short previous = history.get(t-1);
+			for ( ; t < turn; t++) {
+				short reply = history.get(t);
+				table.update(color, win, penultimate, previous, reply);
 				win = !win;
-				antepenultimate = previous;
-				previous = move;
+				penultimate = previous;
+				previous = reply;
 				color = color.opposite();
 			}
 		}
