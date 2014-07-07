@@ -148,7 +148,7 @@ public final class Collate {
 	}
 
 	private int getConditionIndex(String token) {
-		String condition = token.substring(token.indexOf(always) + always.length());
+		String condition = token.substring(token.indexOf(always) + always.length() + 1);
 		int i = 0;
 		for (String conditionName : conditions.keySet()) {
 			if (condition.equals(conditions.get(conditionName))) {
