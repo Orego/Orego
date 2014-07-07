@@ -12,6 +12,8 @@ public interface SearchNode {
 	 * most wins.
 	 */
 	public String bestWinCountReport(CoordinateSystem coords);
+	
+	public short bestWinRate(CoordinateSystem coords);
 
 
 	/**

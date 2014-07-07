@@ -329,4 +329,15 @@ public class SimpleSearchNode implements SearchNode {
 		return nextBest;
 	}
 
+	@Override
+	public short bestWinRate(CoordinateSystem coords) {
+		short best = PASS;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getWinRate(p) >= getWinRate(best)) {
+				best = p;
+			}
+		}
+		return best;
+	}
+
 }

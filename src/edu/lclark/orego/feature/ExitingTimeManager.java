@@ -3,6 +3,7 @@ package edu.lclark.orego.feature;
 import static java.lang.Math.max;
 import static edu.lclark.orego.util.Gaussian.Phi;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.SearchNode;
 
@@ -50,22 +51,39 @@ public class ExitingTimeManager implements TimeManager{
 	
 	@Override
 	public int getTime(){
-		SearchNode root = player.getRoot();
-		short best = root.getMoveWithMostWins(board.getCoordinateSystem());
-		short nextBest = root.getMoveWithNextMostWins(board.getCoordinateSystem(), best);
-		float winrateA = root.getWinRate(best);
-		double runsA = root.getWins(best);
-		float winrateB = root.getWinRate(nextBest);
-		double runsB = root.getRuns(nextBest);
-		System.err.println(confidence(winrateA, runsA, winrateB, runsB));
-		if(slices == 0 || confidence(winrateA, runsA, winrateB, runsB) > .75){
-			if(slices!=0){
-				System.err.println("Confident");
-			}
+		if(slices == 0 || confidenceBestVsRest() > .95){
 			return 0;
 		}
 		slices--;
 		return timePerSlice;
+	}
+	
+	/**
+	 * Returns how confident we are (from 0.0 to 1.0) that the best move has a
+	 * higher winrate than the rest of the legal moves.
+	 */
+	protected double confidenceBestVsRest() {
+		SearchNode root = player.getRoot();
+		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
+		// win rate and runs of the best move
+		short bestMove = root.getMoveWithMostWins(coords);
+		float bestWinRate = root.getWinRate(bestMove);
+		int bestRuns = root.getRuns(bestMove);
+
+		// runs and wins of the rest of the moves
+		int restRuns = 0;
+		int restWins = 0;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (p != bestMove && root.getWinRate(p) > 0.0) {
+				float w = root.getWins(p);
+				restWins += w;
+				restRuns += root.getRuns(p);
+			}
+		}
+
+		float restWinRate = restWins / (float) (restRuns);
+		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
+		return c;
 	}
 	
 	protected static double confidence(float winrateA, double runsA, float winrateB,
