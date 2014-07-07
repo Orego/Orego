@@ -1,4 +1,4 @@
-package edu.lclark.patterns;
+package edu.lclark.orego.patterns;
 
 import java.io.*;
 import java.util.ArrayList;
