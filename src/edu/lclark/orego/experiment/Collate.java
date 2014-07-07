@@ -3,9 +3,7 @@ package edu.lclark.orego.experiment;
 import static edu.lclark.orego.experiment.SystemConfiguration.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /** Collates data during or after an experiment. */
 public final class Collate {
@@ -18,7 +16,10 @@ public final class Collate {
 
 	private int[] totalMoves;
 
-	private String[] conditions;
+	/** Orego command-line arguments given in all conditions. */
+	private String always;
+	
+	private Map<String, String> conditions;
 
 	public void collate() {
 		File folder = new File(SYSTEM.resultsDirectory);
@@ -42,29 +43,26 @@ public final class Collate {
 	}
 
 	public void getConditions(File folder) {
-		ArrayList<String> conditionList = new ArrayList<>();
-		File properties = new File(folder + File.separator + "experiment.txt");
-		try (Scanner s = new Scanner(properties)) {
-			while (s.hasNextLine()) {
-				String nextLine = s.nextLine();
-				if (nextLine.contains("condition")) {
-					int j = nextLine.indexOf('=');
-					if (j > 0) {
-						conditionList.add(nextLine.substring(j + 1));
-					}
-				}
-			}
-		} catch (Exception e) {
+		final Properties properties = new Properties();
+		try {
+			properties.load(new FileInputStream(folder + File.separator + "experiment.txt"));
+		} catch (final IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		int conditionCount = conditionList.size();
-		runs = new int[conditionCount];
-		oregoWins = new int[conditionCount];
-		timeLosses = new int[conditionCount];
-		totalMoves = new int[conditionCount];
-		conditions = new String[conditionCount];
-		conditions = conditionList.toArray(conditions);
+		conditions = new TreeMap<>();
+		for (final String s : properties.stringPropertyNames()) {
+			if (s.startsWith("condition")) {
+				conditions.put(s, (String) properties.get(s));
+			} else if (s.equals("always")) {
+				always = (String) properties.get(s);
+			}
+		}
+		int n = conditions.size();
+		runs = new int[n];
+		oregoWins = new int[n];
+		timeLosses = new int[n];
+		totalMoves = new int[n];
 	}
 
 	private void produceSummary(File folder) {
@@ -75,14 +73,16 @@ public final class Collate {
 		}
 		try (PrintWriter writer = new PrintWriter(new File(folder
 				+ File.separator + "summary.txt"))) {
-			for (int i = 0; i < conditions.length; i++) {
-				output(writer, "Condition: " + conditions[i]);
+			int i = 0;
+			for (String conditionName : conditions.keySet()) {
+				output(writer, conditionName + ": " + conditions.get(conditionName));
 				output(writer, "Orego win rate: "
 						+ ((float) oregoWins[i] / (float) runs[i]) + " (" + oregoWins[i] + "/" + runs[i] + ")");
 				output(writer, "Average moves per game: "
 						+ ((float) totalMoves[i] / (float) runs[i]));
 				output(writer, "Games out of time: " + timeLosses[i]);
 				output(writer, "\n");
+				i++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -112,25 +112,14 @@ public final class Collate {
 					token = stoken.nextToken();
 					if (token.contains("Orego")) {
 						oregoColor = 'B';
-						for (int i = 0; i < conditions.length; i++) {
-							// TODO Here and below, what if one condition is a suffix of another
-							// TODO What if multiple conditions have same name?
-							// TODO Why aren't conditions run and reported in order given in properties file?
-							if (token.endsWith(conditions[i])) {
-								condition = i;
-							}
-						}
+						condition = getConditionIndex(token);
 					}
 				}
 				if (token.equals("PW")) { // If the player is white
 					token = stoken.nextToken();
 					if (token.contains("Orego")) {
 						oregoColor = 'W';
-						for (int i = 0; i < conditions.length; i++) {
-							if (token.endsWith(conditions[i])) {
-								condition = i;
-							}
-						}
+						condition = getConditionIndex(token);
 					}
 				}
 				if (token.equals("RE")) { // Find the winner
@@ -156,6 +145,18 @@ public final class Collate {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+
+	private int getConditionIndex(String token) {
+		String condition = token.substring(token.indexOf(always) + always.length());
+		int i = 0;
+		for (String conditionName : conditions.keySet()) {
+			if (condition.equals(conditions.get(conditionName))) {
+				return i;
+			}
+			i++;
+		}
+		return -1;
 	}
 
 	public static void main(String[] args) {

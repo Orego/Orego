@@ -7,9 +7,7 @@ import static java.lang.Integer.parseInt;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
@@ -23,10 +21,9 @@ enum ExperimentConfiguration {
 	final String always;
 	
 	/**
-	 * Command line arguments to Orego for the various conditions in the
-	 * experiment.
+	 * Maps condition names to Orego command-line arguments.
 	 */
-	final List<String> conditions;
+	final Map<String, String> conditions;
 
 	/**
 	 * Number of games to play with Orego as each color. The total number of
@@ -78,11 +75,15 @@ enum ExperimentConfiguration {
 				+ " --mode gtp --quiet --chinese-rules --capture-all-dead --positional-superko --komi " + komi;
 		System.out.println("Gnugo is " + gnugo);
 		always = properties.getProperty("always");
-		conditions = new ArrayList<>();
+		conditions = new TreeMap<>();
 		for (final String s : properties.stringPropertyNames()) {
 			if (s.startsWith("condition")) {
-				conditions.add((String) properties.get(s));
+				conditions.put(s, (String) properties.get(s));
 			}
+		}
+		System.out.println(conditions.size() + " conditions: ");
+		for (String name : conditions.keySet()) {
+			System.out.println(name + ": " + conditions.get(name));
 		}
 	}
 

@@ -204,12 +204,12 @@ public class TimePlayer extends Lgrf2Player {
 	@Override
 	public int bestMove() {
 
-		PrintWriter logFile = null;
-		try {		
-			logFile = new PrintWriter(new BufferedWriter(new FileWriter("leave-early-results.txt", true)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		PrintWriter logFile = null;
+//		try {		
+//			logFile = new PrintWriter(new BufferedWriter(new FileWriter("leave-early-results.txt", true)));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
 		// Get the start time and initial playouts before we run best move
 		long startTime = System.currentTimeMillis();
@@ -279,7 +279,7 @@ public class TimePlayer extends Lgrf2Player {
 						}
 						if (earlyMove == -1) {
 							earlyMove = best;
-							logFile.print(getTurn() + " TimeSaved: " + timeSavedInMsec);
+//							logFile.print(getTurn() + " TimeSaved: " + timeSavedInMsec);
 						}
 						// don't return best...
 						// return best;
@@ -291,15 +291,15 @@ public class TimePlayer extends Lgrf2Player {
 		int best = super.bestMove();
 		updatePlayoutsPerSecond(startTime, initialPlayouts);
 
-		if (earlyMove != -1) {
-			if (earlyMove == best) {
-				logFile.println(" SAME");
-			} else {
-				logFile.println(" DIFFERENT");
-			}
-		}
-		logFile.flush();
-		logFile.close();
+//		if (earlyMove != -1) {
+//			if (earlyMove == best) {
+//				logFile.println(" SAME");
+//			} else {
+//				logFile.println(" DIFFERENT");
+//			}
+//		}
+//		logFile.flush();
+//		logFile.close();
 		
 		// now our time is up. think longer if applicable.
 		double maxMultiple = 0.0;
