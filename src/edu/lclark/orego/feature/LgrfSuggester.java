@@ -30,19 +30,16 @@ public final class LgrfSuggester implements Suggester {
 
 	@Override
 	public ShortSet getMoves() {
-		System.out.println("Getting moves from LGRF table " + table);
 		moves.clear();
 		short previousMove = history.get(board.getTurn()-1);
 		short reply = table.getSecondLevelReply(board.getColorToPlay(), history.get(board.getTurn()-2), previousMove);
 		if(reply != NO_POINT && board.getColorAt(reply) == VACANT){
 			moves.add(reply);
-			System.out.println("Suggesting 2nd level");
 			return moves;
 		}
 		reply = table.getFirstLevelReply(board.getColorToPlay(), previousMove);
 		if(reply != NO_POINT && board.getColorAt(reply) == VACANT){
 			moves.add(reply);
-			System.out.println("Suggesting 1st level");
 			return moves;
 		}
 		return moves;
