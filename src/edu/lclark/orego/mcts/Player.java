@@ -113,7 +113,9 @@ public final class Player {
 	}
 
 	public void setRemainingTime(int seconds) {
-		timeManager.setRemainingTime(seconds);
+		if (timeManager != null) {
+			timeManager.setRemainingTime(seconds);
+		}
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
@@ -143,8 +145,8 @@ public final class Player {
 	public McRunnable getMcRunnable(int i) {
 		return runnables[i];
 	}
-	
-	public SearchNode getRoot(){
+
+	public SearchNode getRoot() {
 		return updater.getRoot();
 	}
 
