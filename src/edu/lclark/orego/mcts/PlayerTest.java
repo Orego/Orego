@@ -6,8 +6,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 public class PlayerTest {

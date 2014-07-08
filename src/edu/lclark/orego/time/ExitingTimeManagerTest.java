@@ -21,7 +21,7 @@ public class ExitingTimeManagerTest {
 	@Before
 	public void setUp() throws Exception {
 		// TODO Should we set a smaller transposition table size?
-		player = new PlayerBuilder().threads(1).timeManagement().build();
+		player = new PlayerBuilder().threads(1).timeManagement("exiting").build();
 		coords = player.getBoard().getCoordinateSystem();
 		manager = (ExitingTimeManager)player.getTimeManager();
 		player.setTimeManager(manager);

@@ -39,9 +39,6 @@ public final class Player {
 		return updater;
 	}
 
-	/** Number of seconds left in the game, used for time management */
-	private int secondsLeft;
-
 	/** Object used to calculate amount of time used in generating a move. */
 	private TimeManager timeManager;
 

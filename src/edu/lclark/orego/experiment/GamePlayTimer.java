@@ -2,9 +2,7 @@ package edu.lclark.orego.experiment;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
-import edu.lclark.orego.mcts.LgrfUpdater;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.SimpleSearchNodeBuilder;
 import edu.lclark.orego.mcts.SimpleTreeUpdater;
