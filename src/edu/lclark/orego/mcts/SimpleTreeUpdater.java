@@ -38,6 +38,7 @@ public class SimpleTreeUpdater implements TreeUpdater {
 	public void updateTree(Color winner, McRunnable runnable) {
 		int turn = runnable.getTurn();
 		SearchNode node = getRoot();
+		assert node != null;
 		HistoryObserver history = runnable.getHistoryObserver();
 		long[] fancyHashes = runnable.getFancyHashes();
 		float winProportion = (winner == board.getColorToPlay()) ? 1 : 0;
