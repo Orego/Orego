@@ -5,9 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.mcts.CopiableStructureFactory;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.mcts.SearchNode;
