@@ -91,6 +91,7 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
+//		System.err.println("About to start thinking");
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
 		do {
@@ -104,6 +105,8 @@ public final class Player {
 			stopThreads();
 			msecPerMove = timeManager.getTime();
 		} while (msecPerMove > 0);
+//		System.err.println("Done thinking");
+//		System.err.println("Move will be " + descender.bestPlayMove());
 		return descender.bestPlayMove();
 	}
 

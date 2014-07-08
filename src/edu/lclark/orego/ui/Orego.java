@@ -473,9 +473,11 @@ public final class Orego {
 	private static String getGitCommit() {
 		try (Scanner s = new Scanner(new ProcessBuilder("git", "log",
 				"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
-			String commit = s.nextLine();
-			// substring to remove single quotes that would otherwise appear
-			return commit.substring(1, commit.length() - 1);
+			if (s.hasNextLine()) {
+				String commit = s.nextLine();
+				// substring to remove single quotes that would otherwise appear
+				return commit.substring(1, commit.length() - 1);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);

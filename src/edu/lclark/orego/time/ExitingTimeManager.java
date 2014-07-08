@@ -35,7 +35,7 @@ public final class ExitingTimeManager implements TimeManager {
 	/** Used to find the root of the tree. */
 	private final Player player;
 
-	/** Time rolled over from previous turns. */
+	/** Time (in msec) rolled over from previous turns. */
 	private int rollover;
 
 	/** Number of time slices left in this turn. */
@@ -83,8 +83,10 @@ public final class ExitingTimeManager implements TimeManager {
 	}
 
 	private void createSlices() {
+//		System.err.println("Creating slices");
 		slicesRemaining = SLICE_COUNT;
 		timePerSlice = (getMsecPerMove() + rollover) / SLICE_COUNT;
+//		System.err.println("Allocated " + timePerSlice + " msec per slice");
 	}
 
 	private int getMsecPerMove() {
@@ -96,23 +98,27 @@ public final class ExitingTimeManager implements TimeManager {
 		return rollover;
 	}
 
+	// TODO Use seconds or msec instead of time in naming
 	@Override
 	public int getTime() {
 		if (slicesRemaining == 0) {
+//			System.err.println("Out of slices; stopping");
 			rollover = 0;
 			return 0;
 		}
-		if (confidenceBestVsRest() > 0.95) {
+		if (slicesRemaining < SLICE_COUNT && confidenceBestVsRest() > 0.95) {
+//			System.err.println("Confident in best move; stopping");
 			rollover = slicesRemaining * timePerSlice;
 			return 0;
 		}
+//		System.err.println("Starting slice " + slicesRemaining);
 		slicesRemaining--;
 		return timePerSlice;
 	}
 
 	@Override
 	public void setRemainingTime(int seconds) {
-		timeRemaining = seconds;
+		timeRemaining = seconds - (rollover / 1000);
 		createSlices();
 	}
 
