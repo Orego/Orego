@@ -15,7 +15,7 @@ import edu.lclark.orego.util.ShortSet;
 public final class ExitingTimeManager implements TimeManager {
 
 	/** Number of slices into which to divide each turn. */
-	private static final int SLICE_COUNT = 10;
+	private static final int SLICE_COUNT = 3;
 
 	/**
 	 * Returns the confidence (from 0.0 to 1.0) that case A is better than case
