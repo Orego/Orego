@@ -8,8 +8,6 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 
 public final class PatternFinder {
 
-	public static final int[] PATTERN_SIZES = { 3, 7, 11, 19, 23 };
-
 	public static final int[][] POINT_HASHES = new int[4][24];
 
 	public static final int[][] OFFSETS = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, -1 },
