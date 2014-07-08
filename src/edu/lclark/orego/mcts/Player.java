@@ -87,6 +87,7 @@ public final class Player {
 
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
+		stopThreads();
 		short move = book.nextMove(board);
 		if (move != NO_POINT) {
 			return move;
