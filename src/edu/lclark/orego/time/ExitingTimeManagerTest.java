@@ -9,11 +9,8 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
 import edu.lclark.orego.mcts.Player;
+import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.mcts.SearchNode;
-import edu.lclark.orego.mcts.SimpleSearchNodeBuilder;
-import edu.lclark.orego.mcts.SimpleTreeUpdater;
-import edu.lclark.orego.mcts.TranspositionTable;
-import edu.lclark.orego.mcts.UctDescender;
 
 public class ExitingTimeManagerTest {
 	
@@ -25,19 +22,11 @@ public class ExitingTimeManagerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		final int milliseconds = 10000;
-		final int threads = 1;
-		player = new Player(threads, CopiableStructureFactory.useWithPriors(19, 7.5));
+		// TODO Should we set a smaller transposition table size?
+		player = new PlayerBuilder().threads(1).timeManagement().build();
 		coords = player.getBoard().getCoordinateSystem();
-		Board board = player.getBoard();
-		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
-		player.setTreeDescender(new UctDescender(board, table, 75));
-		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table, 0);
-		player.setTreeUpdater(updater);
-		player.setMsecPerMove(milliseconds);
-		manager = new ExitingTimeManager(player);
+		manager = (ExitingTimeManager)player.getTimeManager();
 		player.setTimeManager(manager);
-		player.clear();		
 	}
 
 	@Test
@@ -47,7 +36,6 @@ public class ExitingTimeManagerTest {
 		assertNotEquals(0, manager.getTime());
 		root.update(coords.at("a5"), 1000, 1000);
 		assertEquals(0, manager.getTime(), .01);
-		
 	}
 	
 	@Test

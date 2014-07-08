@@ -107,6 +107,10 @@ public final class Player {
 		return descender.bestPlayMove();
 	}
 
+	public TimeManager getTimeManager() {
+		return timeManager;
+	}
+
 	public void setRemainingTime(int seconds) {
 		timeManager.setRemainingTime(seconds);
 	}
