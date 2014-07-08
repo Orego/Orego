@@ -23,6 +23,12 @@ public final class ExitingTimeManager implements TimeManager {
 	 */
 	private static double confidence(float winrateA, double runsA,
 			float winrateB, double runsB) {
+		assert winrateA > 0.0;
+		assert winrateA < 1.0;
+		assert winrateB > 0.0;
+		assert winrateB < 1.0;
+		assert runsA > 0;
+		assert runsB > 0;
 		double z = (winrateA - winrateB)
 				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
 						* (1 - winrateB) / runsB);
