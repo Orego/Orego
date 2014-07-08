@@ -4,7 +4,7 @@ import edu.lclark.orego.book.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
-import edu.lclark.orego.feature.ExitingTimeManager;
+import edu.lclark.orego.time.ExitingTimeManager;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")

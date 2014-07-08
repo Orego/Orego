@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
-import edu.lclark.orego.feature.ExitingTimeManager;
 import edu.lclark.orego.score.FinalScorer;
+import edu.lclark.orego.time.ExitingTimeManager;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 

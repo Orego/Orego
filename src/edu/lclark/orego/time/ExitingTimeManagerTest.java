@@ -1,4 +1,4 @@
-package edu.lclark.orego.feature;
+package edu.lclark.orego.time;
 
 import static org.junit.Assert.*;
 

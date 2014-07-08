@@ -1,4 +1,4 @@
-package edu.lclark.orego.feature;
+package edu.lclark.orego.time;
 
 import static java.lang.Math.max;
 import static edu.lclark.orego.util.Gaussian.Phi;
