@@ -41,8 +41,8 @@ public final class Orego {
 			// "undo", //
 			"version", //
 	// "kgs-genmove_cleanup", //
-	// "gogui-analyze_commands", //
-	// "kgs-game_over", //
+			// "gogui-analyze_commands", //
+			// "kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -336,10 +336,10 @@ public final class Orego {
 			player.clear(); // to stop threaded players
 			System.exit(0);
 		} else if (command.equals("time_left")) {
-			 arguments.nextToken(); // Throw one argument away -- it's
+			arguments.nextToken(); // Throw one argument away -- it's
 			// irrelevant
-			 int secondsLeft = parseInt(arguments.nextToken());
-			 player.setRemainingTime(secondsLeft);
+			int secondsLeft = parseInt(arguments.nextToken());
+			player.setRemainingTime(secondsLeft);
 			acknowledge();
 		}
 		// else if (command.equals("kgs-game_over")) {
@@ -446,7 +446,7 @@ public final class Orego {
 			} else if (left.equals("book")) {
 				playerBuilder.openingBook();
 			} else if (left.equals("time-management")) {
-				playerBuilder.timeManagement();
+				playerBuilder.timeManagement(right);
 			} else {
 				throw new IllegalArgumentException(
 						"Unknown command line argument: " + left);

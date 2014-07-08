@@ -4,8 +4,7 @@ import edu.lclark.orego.book.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
-import edu.lclark.orego.time.ExitingTimeManager;
-import edu.lclark.orego.time.SimpleTimeManager;
+import edu.lclark.orego.time.*;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -13,25 +12,25 @@ public final class PlayerBuilder {
 
 	private int biasDelay;
 
+	private OpeningBook book;
+
 	private int gestation;
 
 	private double komi;
 
+	private boolean lgrf2;
+
+	private String managerType;
+
 	private int msecPerMove;
+
+	private boolean rave;
 
 	private int threads;
 
-	private int width;
-
-	private boolean rave;
-	
 	private boolean usePondering;
 
-	private OpeningBook book;
-
-	private boolean lgrf2;
-	
-	private boolean timeManagement;
+	private int width;
 
 	public PlayerBuilder() {
 		// Default values
@@ -42,7 +41,6 @@ public final class PlayerBuilder {
 		msecPerMove = 1000;
 		width = 19;
 		usePondering = false;
-		timeManagement = false;
 		book = new DoNothing();
 	}
 
@@ -74,13 +72,16 @@ public final class PlayerBuilder {
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		}
 		TreeUpdater updater;
-		if(lgrf2){
-			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation), copyStructure.get(LgrfTable.class));
-		}else{
+		if (lgrf2) {
+			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation),
+					copyStructure.get(LgrfTable.class));
+		} else {
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
-		if(timeManagement){
+		if (managerType.equals("exiting")) {
 			result.setTimeManager(new ExitingTimeManager(result));
+		} else if (managerType.equals("uniform")) {
+			result.setTimeManager(new UniformTimeManager(result.getBoard()));
 		} else {
 			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
@@ -110,9 +111,14 @@ public final class PlayerBuilder {
 		this.msecPerMove = msec;
 		return this;
 	}
-	
-	public PlayerBuilder openingBook(){
+
+	public PlayerBuilder openingBook() {
 		book = new FusekiBook();
+		return this;
+	}
+
+	public PlayerBuilder pondering() {
+		usePondering = true;
 		return this;
 	}
 
@@ -126,13 +132,8 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder pondering() {
-		usePondering = true;
-		return this;
-	}
-	
-	public PlayerBuilder timeManagement(){
-		timeManagement = true;
+	public PlayerBuilder timeManagement(String managerType) {
+		this.managerType = managerType;
 		return this;
 	}
 
