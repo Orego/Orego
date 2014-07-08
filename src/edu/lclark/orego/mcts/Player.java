@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.score.FinalScorer;
-import edu.lclark.orego.time.ExitingTimeManager;
+import edu.lclark.orego.time.TimeManager;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 
@@ -43,7 +43,7 @@ public final class Player {
 	private int secondsLeft;
 
 	/** Object used to calculate amount of time used in generating a move. */
-	private ExitingTimeManager timeManager;
+	private TimeManager timeManager;
 
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
@@ -91,31 +91,24 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
-		startThreads();
-		try {
-			if (timeManager != null) {
-				msecPerMove = timeManager.getTime();
-				do {
-					startThreads();
-					Thread.sleep(msecPerMove);
-					stopThreads();
-					msecPerMove = timeManager.getTime();
-				} while (msecPerMove > 0);
-			} else {
+		timeManager.startNewTurn();
+		msecPerMove = timeManager.getTime();
+		do {
+			startThreads();
+			try {
 				Thread.sleep(msecPerMove);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.exit(1);
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		stopThreads();
+			stopThreads();
+			msecPerMove = timeManager.getTime();
+		} while (msecPerMove > 0);
 		return descender.bestPlayMove();
 	}
 
 	public void setRemainingTime(int seconds) {
-		if (timeManager != null) {
-			timeManager.setRemainingTime(seconds);
-		}
+		timeManager.setRemainingTime(seconds);
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
@@ -242,7 +235,7 @@ public final class Player {
 		this.usePondering = pondering;
 	}
 
-	public void setTimeManager(ExitingTimeManager time) {
+	public void setTimeManager(TimeManager time) {
 		timeManager = time;
 	}
 

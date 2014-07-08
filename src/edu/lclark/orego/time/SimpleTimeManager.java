@@ -1,21 +1,14 @@
 package edu.lclark.orego.time;
 
-import static java.lang.Math.max;
-import edu.lclark.orego.core.Board;
+/** Always allocates the same amount of time per move. */
+public final class SimpleTimeManager implements TimeManager {
 
-public class SimpleTimeManager implements TimeManager {
-	
-	private int timeRemaining;
-	
-	private final Board board;
-	
-	/** The constant C to use in the time management formula. */
-	private double timeC = 0.20;
-	
 	private boolean alreadyThought;
 	
-	public SimpleTimeManager(Board board){
-		this.board = board;
+	private int msecPerMove;
+	
+	public SimpleTimeManager(int msecPerMove){
+		this.msecPerMove = msecPerMove;
 	}
 
 	@Override
@@ -23,22 +16,18 @@ public class SimpleTimeManager implements TimeManager {
 		if(alreadyThought){
 			return 0;
 		}
-		int msec = getMsecPerMove();
 		alreadyThought = true;
-		return msec;
+		return msecPerMove;
 	}
 	
-	private int getMsecPerMove() {
-		int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
-		int msPerMove = max(1, (timeRemaining * 1000) / movesLeft);
-		msPerMove = max(1, msPerMove);
-		return msPerMove;
+	@Override
+	public void setRemainingTime(int seconds) {
+		// Does nothing
 	}
 
 	@Override
-	public void setRemainingTime(int seconds) {
+	public void startNewTurn() {
 		alreadyThought = false;
-		timeRemaining = seconds;
 	}
 
 }

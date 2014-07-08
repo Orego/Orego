@@ -21,17 +21,7 @@ public class PlayerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// TODO This is an awful lot of work, done (e.g.) here and in PlayoutSpeed. Encapsulate!
-		final int milliseconds = 100;
-		final int threads = 4;
-		player = new Player(threads, CopiableStructureFactory.feasible(5));
-		Board board = player.getBoard();
-		CoordinateSystem coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(coords), coords);
-		player.setTreeDescender(new UctDescender(board, table, 75));
-		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table, 0);
-		player.setTreeUpdater(updater);
-		player.setMsecPerMove(milliseconds);
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).build();
 	}
 
 	@Test

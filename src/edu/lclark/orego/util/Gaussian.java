@@ -1,6 +1,11 @@
 package edu.lclark.orego.util;
 
 /*************************************************************************
+ *
+ *  From Sedgewick and Wayne, Introduction to Programming in Java
+ *  http://introcs.cs.princeton.edu/java/code/
+ *  Used with permission
+ *
  *  Compilation:  javac Gaussian.java
  *  Execution:    java Gaussian x mu sigma
  *

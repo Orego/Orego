@@ -5,6 +5,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.time.ExitingTimeManager;
+import edu.lclark.orego.time.SimpleTimeManager;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -78,9 +79,10 @@ public final class PlayerBuilder {
 		}else{
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
-		
 		if(timeManagement){
 			result.setTimeManager(new ExitingTimeManager(result));
+		} else {
+			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
 		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
