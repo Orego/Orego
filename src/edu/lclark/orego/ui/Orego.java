@@ -29,10 +29,10 @@ public final class Orego {
 			"komi", //
 			"list_commands", //
 			// "loadsgf", //
-			// "name", //
+			"name", //
 			"play", //
 			// "playout_count", //
-			// "protocol_version", //
+			"protocol_version", //
 			"reg_genmove", //
 			"showboard", //
 			// "time_left", //
@@ -298,9 +298,10 @@ public final class Orego {
 		// player.setUpSgf(arguments.nextToken(), 0);
 		// }
 		// acknowledge();
-		// } else if (command.equals("name")) {
-		// acknowledge("Orego");
-		// } else
+		// }
+		else if (command.equals("name")) {
+		 acknowledge("Orego");
+		} 
 		else if (command.equals("showboard")) {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
@@ -326,9 +327,10 @@ public final class Orego {
 		// else {
 		// acknowledge("playout=null");
 		// }
-		// } else if (command.equals("protocol_version")) {
-		// acknowledge("2");
 		// }
+		else if (command.equals("protocol_version")) {
+		 acknowledge("2");
+		 }
 		else if (command.equals("quit")) {
 			acknowledge();
 			player.clear(); // to stop threaded players
