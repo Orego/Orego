@@ -9,6 +9,7 @@ import edu.lclark.orego.core.*;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
 import edu.lclark.orego.util.ShortSet;
+import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
@@ -19,12 +20,12 @@ public final class Player {
 	private final Board board;
 
 	private OpeningBook book;
-	
-	/** Indicates whether to search for opponent's dead stones and bias moves that kill them. */
+
+	/**
+	 * Indicates whether to search for opponent's dead stones and bias moves
+	 * that kill them.
+	 */
 	private boolean cleanupMode;
-	
-	/** A list of all the dead chains of the opponent. */
-	private ShortSet deadChains;
 
 	/** @see TreeDescender */
 	private TreeDescender descender;
@@ -71,7 +72,6 @@ public final class Player {
 		descender = new DoNothing();
 		updater = new DoNothing();
 		book = new DoNothing();
-		deadChains = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
 	}
 
 	/** Plays at p on this player's board. */
@@ -93,9 +93,13 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
-//		System.err.println("About to start thinking");
-		if(cleanupMode || board.getPasses() == 1){
+		// System.err.println("About to start thinking");
+		if (cleanupMode) {
 			cleanup();
+		} else if (board.getPasses() == 1) {
+			if(passIfAhead()){
+				return PASS;
+			}
 		}
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
@@ -110,25 +114,49 @@ public final class Player {
 			stopThreads();
 			msecPerMove = timeManager.getTime();
 		} while (msecPerMove > 0);
-//		System.err.println("Done thinking");
-//		System.err.println("Move will be " + descender.bestPlayMove());
+		// System.err.println("Done thinking");
+		// System.err.println("Move will be " + descender.bestPlayMove());
 		return descender.bestPlayMove();
 	}
-	
-	/** Biases moves that result in clearing opponent's dead chains off the board. */
-	private void cleanup(){
-		findDeadStones(1.0);
-		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
-		for(int i = 0; i < deadChains.size(); i++){
-			pointsToBias.addAll(board.getLiberties(deadChains.get(i)));
+
+	private boolean passIfAhead() {
+		double score = finalScorer.score();
+		int ourDead = findDeadStones(1.0, board.getColorToPlay()).size();
+		int opponentDead = findDeadStones(0.1, board.getColorToPlay().opposite()).size();
+		if(board.getColorToPlay() == WHITE){
+			score += (2 * ourDead) - (2 * opponentDead);
+			if(score < 0){
+				return true;
+			}
+		}else{
+			score += (2 * opponentDead) - (2 * ourDead);
+			if(score > 0){
+				return true;
+			}
 		}
-		for(int i = 0; i < pointsToBias.size(); i++){
+		return false;
+	}
+
+	/**
+	 * Biases moves that result in clearing opponent's dead chains off the
+	 * board.
+	 */
+	private void cleanup() {
+		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay().opposite());
+		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		for (int i = 0; i < enemyDeadChains.size(); i++) {
+			short p = enemyDeadChains.get(i);
+			if (p == board.getChainRoot(p)) {
+				pointsToBias.addAll(board.getLiberties(p));
+			}
+		}
+		for (int i = 0; i < pointsToBias.size(); i++) {
 			SearchNode root = getRoot();
-			int bias = (int)root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
-			root.update(pointsToBias.get(i), bias, bias);			
+			int bias = (int) root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
+			root.update(pointsToBias.get(i), bias, bias);
 		}
 	}
-	
+
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void clear() {
 		stopThreads();
@@ -145,37 +173,38 @@ public final class Player {
 	public double finalScore() {
 		return finalScorer.score();
 	}
-	
-	private void findDeadStones(double threshold){
-		deadChains.clear();
+
+	private ShortSet findDeadStones(double threshold, StoneColor color) {
 		boolean threadsWereRunning = keepRunning;
 		stopThreads();
-		
+
 		McRunnable runnable = getMcRunnable(0);
 		Board runnableBoard = runnable.getBoard();
 		int runs = 100;
+		ShortSet deadChains = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
 		int[] survivals = new int[board.getCoordinateSystem().getFirstPointBeyondBoard()];
-		for(int i = 0; i < runs; i++){
+		for (int i = 0; i < runs; i++) {
 			runnableBoard.copyDataFrom(board);
-			runnableBoard.setPasses((short)0);
+			runnableBoard.setPasses((short) 0);
 			runnable.playout();
-			for(short p : board.getCoordinateSystem().getAllPointsOnBoard()){
-				if(runnableBoard.getColorAt(p) == board.getColorAt(p)){
+			for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
 				}
 			}
 		}
-		
-		for(short p : board.getCoordinateSystem().getAllPointsOnBoard()){
-			if(board.getColorAt(p) != VACANT && board.getColorAt(p) != board.getColorToPlay() && board.getChainRoot(p) == p){
-				if(survivals[p] < runs * threshold){
+
+		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			if (board.getColorAt(p) != VACANT && board.getColorAt(p) != color) {
+				if (survivals[p] < runs * threshold) {
 					deadChains.add(p);
 				}
 			}
 		}
-		if(threadsWereRunning){
+		if (threadsWereRunning) {
 			startThreads();
 		}
+		return deadChains;
 	}
 
 	/** Returns the board associated with this player. */
@@ -218,8 +247,8 @@ public final class Player {
 	protected TreeUpdater getUpdater() {
 		return updater;
 	}
-	
-	public void setCleanupMode(boolean cleanup){
+
+	public void setCleanupMode(boolean cleanup) {
 		cleanupMode = cleanup;
 	}
 
