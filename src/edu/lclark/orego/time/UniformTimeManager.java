@@ -22,6 +22,7 @@ public final class UniformTimeManager implements TimeManager {
 	public int getTime() {
 		if (!alreadyThought) {
 			int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
+			alreadyThought = true;
 			return max(1, (secondsRemaining * 1000) / movesLeft);
 		}
 		return 0;
