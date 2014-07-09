@@ -8,7 +8,7 @@ public final class UniformTimeManager implements TimeManager {
 
 	private Board board;
 
-	private int secondsRemaining;
+	private int msecRemaining;
 
 	private boolean alreadyThought;
 
@@ -23,7 +23,7 @@ public final class UniformTimeManager implements TimeManager {
 		if (!alreadyThought) {
 			int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
 			alreadyThought = true;
-			return max(1, (secondsRemaining * 1000) / movesLeft);
+			return max(1, msecRemaining / movesLeft);
 		}
 		return 0;
 	}
@@ -31,13 +31,12 @@ public final class UniformTimeManager implements TimeManager {
 	@Override
 	public void startNewTurn() {
 		alreadyThought = false;
-
 	}
 
 	@Override
 	public void setRemainingTime(int seconds) {
-		secondsRemaining = seconds;
-
+		// The subtraction ensures that we don't run out of time due to lag
+		msecRemaining = max(1, (seconds - 10) * 1000);
 	}
 
 }

@@ -23,6 +23,10 @@ public final class ExitingTimeManager implements TimeManager {
 	 */
 	private static double confidence(float winrateA, double runsA,
 			float winrateB, double runsB) {
+		if (runsB == 0) {
+			// There are no other moves to consider, so this must be best
+			return 1.0;
+		}
 		assert winrateA > 0.0;
 		assert winrateA < 1.0;
 		assert winrateB > 0.0;
@@ -52,6 +56,7 @@ public final class ExitingTimeManager implements TimeManager {
 
 	private int timePerSlice;
 
+	// TODO This has to be changed to msec, as in UniformTimeManager
 	/** Time left for the rest of our moves, in seconds. */
 	private int timeRemaining;
 
@@ -84,6 +89,9 @@ public final class ExitingTimeManager implements TimeManager {
 			}
 		}
 		float restWinRate = restWins / (float) (restRuns);
+		if(restWinRate <= 0){
+			return 0;
+		}
 		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
 		return c;
 	}
