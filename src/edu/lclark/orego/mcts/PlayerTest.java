@@ -73,7 +73,7 @@ public class PlayerTest {
 
 	@Test
 	public void testCoupDeGrace() {
-		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace().build();
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -117,7 +117,7 @@ public class PlayerTest {
 
 	@Test
 	public void testDoNotCoupDeGraceTooEarly() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace().build();
 		String[] problem = new String[] {
 				"...................",// 19
 				"...................",// 18
@@ -159,8 +159,8 @@ public class PlayerTest {
 	}
 
 	@Test
-	public void testDoNotPassTooEarly() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).build();
+	public void testPassToWin() {
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace().build();
 		String[] problem = new String[] {
 				"...................",// 19
 				"...................",// 18

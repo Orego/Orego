@@ -445,7 +445,9 @@ public final class Orego {
 				playerBuilder.openingBook();
 			} else if (left.equals("time-management")) {
 				playerBuilder.timeManagement(right);
-			} else {
+			} else if(left.equals("coup")){
+				playerBuilder.coupDeGrace();
+			}else	{
 				throw new IllegalArgumentException(
 						"Unknown command line argument: " + left);
 			}
