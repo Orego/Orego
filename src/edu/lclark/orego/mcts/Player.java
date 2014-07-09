@@ -54,6 +54,8 @@ public final class Player {
 
 	private boolean usePondering;
 
+	private boolean coupDeGrace;
+
 	/**
 	 * @param threads
 	 *            Number of threads to run.
@@ -92,13 +94,15 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
-		if (cleanupMode) {
-			cleanup();
-		} else if (board.getPasses() == 1) {
-			if(passIfAhead()){
-				return PASS;
+		if (coupDeGrace) {
+			if (cleanupMode) {
+				cleanup();
+			} else if (board.getPasses() == 1) {
+				if (passIfAhead()) {
+					return PASS;
+				}
+				cleanup();
 			}
-			cleanup();
 		}
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
@@ -121,15 +125,16 @@ public final class Player {
 	private boolean passIfAhead() {
 		double score = finalScorer.score();
 		int ourDead = findDeadStones(1.0, board.getColorToPlay()).size();
-		int opponentDead = findDeadStones(0.1, board.getColorToPlay().opposite()).size();
-		if(board.getColorToPlay() == WHITE){
+		int opponentDead = findDeadStones(0.1,
+				board.getColorToPlay().opposite()).size();
+		if (board.getColorToPlay() == WHITE) {
 			score += (2 * ourDead) - (2 * opponentDead);
-			if(score < 0){
+			if (score < 0) {
 				return true;
 			}
-		}else{
+		} else {
 			score += (2 * opponentDead) - (2 * ourDead);
-			if(score > 0){
+			if (score > 0) {
 				return true;
 			}
 		}
@@ -141,8 +146,10 @@ public final class Player {
 	 * board.
 	 */
 	private void cleanup() {
-		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay().opposite());
-		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
+				.opposite());
+		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem()
+				.getFirstPointBeyondBoard());
 		for (int i = 0; i < enemyDeadChains.size(); i++) {
 			short p = enemyDeadChains.get(i);
 			if (p == board.getChainRoot(p)) {
@@ -150,9 +157,10 @@ public final class Player {
 			}
 		}
 		SearchNode root = getRoot();
-		int bias = (int) root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
+		int bias = (int) root.getWins(root.getMoveWithMostWins(board
+				.getCoordinateSystem()));
 		for (int i = 0; i < pointsToBias.size(); i++) {
-			//System.out.println(bias);
+			// System.out.println(bias);
 			root.update(pointsToBias.get(i), bias, bias);
 		}
 	}
@@ -182,8 +190,10 @@ public final class Player {
 		McRunnable runnable = getMcRunnable(0);
 		Board runnableBoard = runnable.getBoard();
 		int runs = 100;
-		ShortSet deadChains = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
-		int[] survivals = new int[board.getCoordinateSystem().getFirstPointBeyondBoard()];
+		ShortSet deadChains = new ShortSet(board.getCoordinateSystem()
+				.getFirstPointBeyondBoard());
+		int[] survivals = new int[board.getCoordinateSystem()
+				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
 			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
@@ -260,6 +270,10 @@ public final class Player {
 	public void setColorToPlay(StoneColor stoneColor) {
 		board.setColorToPlay(stoneColor);
 
+	}
+
+	public void setCoupDeGrace(boolean enabled) {
+		coupDeGrace = enabled;
 	}
 
 	/** Sets the number of milliseconds to allocate per move. */

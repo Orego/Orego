@@ -32,6 +32,8 @@ public final class PlayerBuilder {
 
 	private int width;
 
+	private boolean coupDeGrace;
+
 	public PlayerBuilder() {
 		// Default values
 		biasDelay = 1;
@@ -86,11 +88,17 @@ public final class PlayerBuilder {
 		} else {
 			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
+		result.setCoupDeGrace(coupDeGrace);
 		result.setOpeningBook(book);
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		result.usePondering(usePondering);
 		return result;
+	}
+	
+	public PlayerBuilder coupDeGrace(){
+		this.coupDeGrace = true;
+		return this;
 	}
 
 	public PlayerBuilder gestation(int gestation) {
