@@ -10,7 +10,6 @@ import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 

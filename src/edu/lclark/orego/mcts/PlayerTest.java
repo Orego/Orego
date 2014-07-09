@@ -138,7 +138,7 @@ public class PlayerTest {
 				"...................",// 3
 				"...................",// 2
 				"..................." // 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
