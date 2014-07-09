@@ -84,6 +84,9 @@ public final class ExitingTimeManager implements TimeManager {
 			}
 		}
 		float restWinRate = restWins / (float) (restRuns);
+		if(restWinRate <= 0){
+			return 0;
+		}
 		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
 		return c;
 	}
