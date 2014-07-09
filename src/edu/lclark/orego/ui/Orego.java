@@ -274,11 +274,9 @@ public final class Orego {
 			double komi = parseDouble(arguments.nextToken());
 			if (komi == player.getFinalScorer().getKomi()) {
 				player.clear();
-				acknowledge();
 			} else {
 				playerBuilder = playerBuilder.komi(komi);
 				player = playerBuilder.build();
-				acknowledge();
 			}
 			acknowledge();
 		} else if (command.equals("list_commands")) {
