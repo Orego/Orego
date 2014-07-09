@@ -93,7 +93,6 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
-		// System.err.println("About to start thinking");
 		if (cleanupMode) {
 			cleanup();
 		} else if (board.getPasses() == 1) {
@@ -151,9 +150,10 @@ public final class Player {
 				pointsToBias.addAll(board.getLiberties(p));
 			}
 		}
+		SearchNode root = getRoot();
+		int bias = (int) root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
 		for (int i = 0; i < pointsToBias.size(); i++) {
-			SearchNode root = getRoot();
-			int bias = (int) root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
+			//System.out.println(bias);
 			root.update(pointsToBias.get(i), bias, bias);
 		}
 	}
@@ -164,6 +164,7 @@ public final class Player {
 		board.clear();
 		descender.clear();
 		updater.clear();
+		cleanupMode = false;
 	}
 
 	/** Play any moves within the tree (or other structure). */
@@ -196,7 +197,7 @@ public final class Player {
 		}
 
 		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
-			if (board.getColorAt(p) != VACANT && board.getColorAt(p) != color) {
+			if (board.getColorAt(p) == color) {
 				if (survivals[p] < runs * threshold) {
 					deadChains.add(p);
 				}
