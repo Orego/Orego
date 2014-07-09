@@ -72,7 +72,7 @@ public final class Board implements Serializable {
 
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
-	
+
 	public Board(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
@@ -146,7 +146,7 @@ public final class Board implements Serializable {
 						mergeChains(ally, c);
 						c = ally;
 					}
-					
+
 				}
 			}
 			points[c].liberties.removeKnownPresent(p);
@@ -218,7 +218,7 @@ public final class Board implements Serializable {
 		vacantPoints.remove(p);
 		boolean surrounded = points[p].hasMaxNeighborsForColor(color.opposite());
 		short[] neighbors = coords.getNeighbors(p);
-		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++){
+		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			points[neighbors[i]].neighborCounts += Point.NEIGHBOR_INCREMENT[color.index()];
 		}
 		adjustFriendlyNeighbors(p);
@@ -229,14 +229,14 @@ public final class Board implements Serializable {
 			koPoint = NO_POINT;
 		}
 	}
-	
+
 	/** Returns the next point in this chain. */
 	public short getChainNextPoint(short p) {
 		return points[p].chainNextPoint;
 	}
 
 	/** Return the root of the chain that contains p. */
-	public short getChainRoot(short p){
+	public short getChainRoot(short p) {
 		return points[p].chainId;
 	}
 
@@ -274,12 +274,13 @@ public final class Board implements Serializable {
 	}
 
 	/**
-	 * Returns the Zobrist hash of the current board position. This is used in the superko table.
+	 * Returns the Zobrist hash of the current board position. This is used in
+	 * the superko table.
 	 */
 	public long getHash() {
 		return hash;
 	}
-	
+
 	/**
 	 * Returns the liberties of p.
 	 */
@@ -288,15 +289,15 @@ public final class Board implements Serializable {
 		assert points[p].color != VACANT;
 		return points[points[p].chainId].liberties;
 	}
-	
-	
+
 	/**
-	 * Returns the number of neighbors of a given color for the point p. Offboard points are considered both black and white.
+	 * Returns the number of neighbors of a given color for the point p.
+	 * Offboard points are considered both black and white.
 	 */
-	public int getNeighborsOfColor(short p, Color color){
+	public int getNeighborsOfColor(short p, Color color) {
 		return points[p].getNeighborCount(color);
 	}
-	
+
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
 	 */
@@ -517,7 +518,9 @@ public final class Board implements Serializable {
 	}
 
 	/**
-	 * Convenience method for specifying a move as a human-readable string, e.g., "c4" or "pass".
+	 * Convenience method for specifying a move as a human-readable string,
+	 * e.g., "c4" or "pass".
+	 * 
 	 * @see #play(short)
 	 */
 	public Legality play(String move) {
@@ -563,17 +566,32 @@ public final class Board implements Serializable {
 		capturedStones.add(p);
 	}
 
-	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
+	/**
+	 * Sets the color to play, used with programs like GoGui to set up initial
+	 * stones.
+	 */
 	public void setColorToPlay(StoneColor stoneColor) {
 		colorToPlay = stoneColor;
-		
+
+	}
+
+	/**
+	 * Sets the number of consecutive passes. Used with cleanup mode. Does not
+	 * adjust observers.
+	 */
+	public void setPasses(short passes) {
+		// TODO Is it a problem to have passes in the history observer, for
+		// example, but not here?
+		this.passes = passes;
 	}
 
 	/**
 	 * Places all of the stones indicated in diagram. These are set as initial
 	 * stones, not moves recorded in the board's history. The color to play next
 	 * is set as indicated.
-	 * @throws IllegalArgumentException if the diagram contains invalid characters
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the diagram contains invalid characters
 	 */
 	public void setUpProblem(String[] diagram, StoneColor colorToPlay) {
 		assert diagram.length == coords.getWidth();

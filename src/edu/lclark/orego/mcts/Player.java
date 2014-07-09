@@ -8,6 +8,8 @@ import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
+import edu.lclark.orego.util.ShortSet;
+import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.*;
 
@@ -17,6 +19,12 @@ public final class Player {
 	private final Board board;
 
 	private OpeningBook book;
+	
+	/** Indicates whether to search for opponent's dead stones and bias moves that kill them. */
+	private boolean cleanupMode;
+	
+	/** A list of all the dead chains of the opponent. */
+	private ShortSet deadChains;
 
 	/** @see TreeDescender */
 	private TreeDescender descender;
@@ -32,24 +40,19 @@ public final class Player {
 	 */
 	private boolean keepRunning;
 
-	private boolean usePondering;
-
-	/** Returns the updater for this player. */
-	protected TreeUpdater getUpdater() {
-		return updater;
-	}
-
-	/** Object used to calculate amount of time used in generating a move. */
-	private TimeManager timeManager;
-
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
 
 	/** For running playouts. */
 	private final McRunnable[] runnables;
 
+	/** Object used to calculate amount of time used in generating a move. */
+	private TimeManager timeManager;
+
 	/** @see TreeUpdater */
 	private TreeUpdater updater;
+
+	private boolean usePondering;
 
 	/**
 	 * @param threads
@@ -68,6 +71,7 @@ public final class Player {
 		descender = new DoNothing();
 		updater = new DoNothing();
 		book = new DoNothing();
+		deadChains = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
 	}
 
 	/** Plays at p on this player's board. */
@@ -90,9 +94,11 @@ public final class Player {
 			return move;
 		}
 //		System.err.println("About to start thinking");
+		if(cleanupMode || board.getPasses() == 1){
+			cleanup();
+		}
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
-		System.err.println("Initial msec = " + msecPerMove);
 		do {
 			startThreads();
 			try {
@@ -103,21 +109,26 @@ public final class Player {
 			}
 			stopThreads();
 			msecPerMove = timeManager.getTime();
-			System.err.println("msec = " + msecPerMove);
 		} while (msecPerMove > 0);
 //		System.err.println("Done thinking");
 //		System.err.println("Move will be " + descender.bestPlayMove());
 		return descender.bestPlayMove();
 	}
-
-	public TimeManager getTimeManager() {
-		return timeManager;
+	
+	/** Biases moves that result in clearing opponent's dead chains off the board. */
+	private void cleanup(){
+		findDeadStones(1.0);
+		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		for(int i = 0; i < deadChains.size(); i++){
+			pointsToBias.addAll(board.getLiberties(deadChains.get(i)));
+		}
+		for(int i = 0; i < pointsToBias.size(); i++){
+			SearchNode root = getRoot();
+			int bias = (int)root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
+			root.update(pointsToBias.get(i), bias, bias);			
+		}
 	}
-
-	public void setRemainingTime(int seconds) {
-		timeManager.setRemainingTime(seconds);
-	}
-
+	
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void clear() {
 		stopThreads();
@@ -131,9 +142,49 @@ public final class Player {
 		descender.descend(runnable);
 	}
 
+	public double finalScore() {
+		return finalScorer.score();
+	}
+	
+	private void findDeadStones(double threshold){
+		deadChains.clear();
+		boolean threadsWereRunning = keepRunning;
+		stopThreads();
+		
+		McRunnable runnable = getMcRunnable(0);
+		Board runnableBoard = runnable.getBoard();
+		int runs = 100;
+		int[] survivals = new int[board.getCoordinateSystem().getFirstPointBeyondBoard()];
+		for(int i = 0; i < runs; i++){
+			runnableBoard.copyDataFrom(board);
+			runnableBoard.setPasses((short)0);
+			runnable.playout();
+			for(short p : board.getCoordinateSystem().getAllPointsOnBoard()){
+				if(runnableBoard.getColorAt(p) == board.getColorAt(p)){
+					survivals[p]++;
+				}
+			}
+		}
+		
+		for(short p : board.getCoordinateSystem().getAllPointsOnBoard()){
+			if(board.getColorAt(p) != VACANT && board.getColorAt(p) != board.getColorToPlay() && board.getChainRoot(p) == p){
+				if(survivals[p] < runs * threshold){
+					deadChains.add(p);
+				}
+			}
+		}
+		if(threadsWereRunning){
+			startThreads();
+		}
+	}
+
 	/** Returns the board associated with this player. */
 	public Board getBoard() {
 		return board;
+	}
+
+	public TreeDescender getDescender() {
+		return descender;
 	}
 
 	/** Returns the scorer. */
@@ -146,8 +197,72 @@ public final class Player {
 		return runnables[i];
 	}
 
+	public int getMsecPerMove() {
+		return msecPerMove;
+	}
+
+	/** Returns the number of threads this Player runs. */
+	public int getNumberOfThreads() {
+		return runnables.length;
+	}
+
 	public SearchNode getRoot() {
 		return updater.getRoot();
+	}
+
+	public TimeManager getTimeManager() {
+		return timeManager;
+	}
+
+	/** Returns the updater for this player. */
+	protected TreeUpdater getUpdater() {
+		return updater;
+	}
+	
+	public void setCleanupMode(boolean cleanup){
+		cleanupMode = cleanup;
+	}
+
+	/**
+	 * Sets the color to play, used with programs like GoGui to set up initial
+	 * stones.
+	 */
+	public void setColorToPlay(StoneColor stoneColor) {
+		board.setColorToPlay(stoneColor);
+
+	}
+
+	/** Sets the number of milliseconds to allocate per move. */
+	public void setMsecPerMove(int msec) {
+		msecPerMove = msec;
+	}
+
+	/** Sets which opening book to use. Default is DoNothing. */
+	public void setOpeningBook(OpeningBook book) {
+		this.book = book;
+	}
+
+	public void setRemainingTime(int seconds) {
+		timeManager.setRemainingTime(seconds);
+	}
+
+	public void setTimeManager(TimeManager time) {
+		timeManager = time;
+	}
+
+	public void setTreeDescender(TreeDescender descender) {
+		this.descender = descender;
+
+	}
+
+	/** @see TreeUpdater */
+	public void setTreeUpdater(TreeUpdater updater) {
+		this.updater = updater;
+	}
+
+	/** True if McRunnables attached to this Player should keep running. */
+	boolean shouldKeepRunning() {
+		return keepRunning;
 	}
 
 	private void startThreads() {
@@ -177,31 +292,6 @@ public final class Player {
 		}
 	}
 
-	/** Sets the number of milliseconds to allocate per move. */
-	public void setMsecPerMove(int msec) {
-		msecPerMove = msec;
-	}
-
-	/** Sets which opening book to use. Default is DoNothing. */
-	public void setOpeningBook(OpeningBook book) {
-		this.book = book;
-	}
-
-	public void setTreeDescender(TreeDescender descender) {
-		this.descender = descender;
-
-	}
-
-	/** @see TreeUpdater */
-	public void setTreeUpdater(TreeUpdater updater) {
-		this.updater = updater;
-	}
-
-	/** True if McRunnables attached to this Player should keep running. */
-	boolean shouldKeepRunning() {
-		return keepRunning;
-	}
-
 	@Override
 	public String toString() {
 		return descender.toString();
@@ -212,38 +302,8 @@ public final class Player {
 		updater.updateTree(winner, mcRunnable);
 	}
 
-	/**
-	 * Sets the color to play, used with programs like GoGui to set up initial
-	 * stones.
-	 */
-	public void setColorToPlay(StoneColor stoneColor) {
-		board.setColorToPlay(stoneColor);
-
-	}
-
-	public double finalScore() {
-		return finalScorer.score();
-	}
-
-	/** Returns the number of threads this Player runs. */
-	public int getNumberOfThreads() {
-		return runnables.length;
-	}
-
-	public int getMsecPerMove() {
-		return msecPerMove;
-	}
-
-	public TreeDescender getDescender() {
-		return descender;
-	}
-
 	public void usePondering(boolean pondering) {
 		this.usePondering = pondering;
-	}
-
-	public void setTimeManager(TimeManager time) {
-		timeManager = time;
 	}
 
 }

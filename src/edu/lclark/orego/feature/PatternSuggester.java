@@ -48,11 +48,11 @@ public final class PatternSuggester implements Suggester {
 
 	@Override
 	public ShortSet getMoves() {
+		moves.clear();
 		int turn = board.getTurn();
 		if(turn==0){
 			return moves;
 		}
-		moves.clear();
 		short p = history.get(turn - 1);
 		if(p == CoordinateSystem.PASS){
 			return moves;
