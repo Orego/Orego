@@ -100,6 +100,7 @@ public final class Player {
 			if(passIfAhead()){
 				return PASS;
 			}
+			cleanup();
 		}
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
