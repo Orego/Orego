@@ -92,6 +92,7 @@ public final class Player {
 //		System.err.println("About to start thinking");
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
+		System.err.println("Initial msec = " + msecPerMove);
 		do {
 			startThreads();
 			try {
@@ -102,6 +103,7 @@ public final class Player {
 			}
 			stopThreads();
 			msecPerMove = timeManager.getTime();
+			System.err.println("msec = " + msecPerMove);
 		} while (msecPerMove > 0);
 //		System.err.println("Done thinking");
 //		System.err.println("Move will be " + descender.bestPlayMove());
