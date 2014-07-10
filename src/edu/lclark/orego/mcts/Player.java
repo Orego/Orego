@@ -253,6 +253,8 @@ public final class Player {
 		if(board.getTurn() == 0){
 			return false;
 		}
+		boolean alreadyRunning = keepRunning;
+		stopThreads();
 		ShortList movesList = new ShortList(board.getCoordinateSystem().getFirstPointBeyondBoard());
 		for(int i = 0; i<historyObserver.size() -1; i++){
 			movesList.add(historyObserver.get(i));
@@ -261,6 +263,9 @@ public final class Player {
 		board.clearPreservingInitialStones();
 		for(int i = 0; i<movesList.size(); i++){
 			board.play(movesList.get(i));
+		}
+		if(alreadyRunning){
+			startThreads();
 		}
 		return true;
 	}
