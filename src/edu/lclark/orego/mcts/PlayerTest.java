@@ -80,7 +80,7 @@ public class PlayerTest {
 				".##OO",
 		};
 		player.clear();
-		player.getBoard().setUpProblem(before, WHITE);
+		player.getBoard().setUpProblem(before, BLACK);
 		long fancyHash = player.getBoard().getFancyHash();
 		player.acceptMove(at("e3"));
 		assertTrue(player.undo());

@@ -366,7 +366,7 @@ public final class Orego {
 		 if (player.undo()) {
 		 acknowledge();
 		 } else {
-		 error("Cannot undo");
+				error("Cannot undo");
 		 }}
 		else if (command.equals("version")) {
 			String git;
