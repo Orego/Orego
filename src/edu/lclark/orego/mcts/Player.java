@@ -94,15 +94,15 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
-		if (coupDeGrace) {
-			if (cleanupMode) {
-				cleanup();
-			} else if (board.getPasses() == 1) {
-				if (passIfAhead()) {
-					return PASS;
-				}
-				cleanup();
+		if (cleanupMode) {
+			if (cleanup() == PASS) {
+				return PASS;
 			}
+		} else if (board.getPasses() == 1 && coupDeGrace) {
+			if (passIfAhead()) {
+				return PASS;
+			}
+			cleanup();
 		}
 		timeManager.startNewTurn();
 		msecPerMove = timeManager.getTime();
@@ -143,11 +143,15 @@ public final class Player {
 
 	/**
 	 * Biases moves that result in clearing opponent's dead chains off the
-	 * board.
+	 * board. Returns PASS if there are no moves to bias.
 	 */
-	private void cleanup() {
+	private short cleanup() {
 		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
 				.opposite());
+		if (enemyDeadChains.size() == 0) {
+			return PASS;
+		}
+		getRoot().exclude(PASS);
 		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
 		for (int i = 0; i < enemyDeadChains.size(); i++) {
@@ -163,6 +167,7 @@ public final class Player {
 			// System.out.println(bias);
 			root.update(pointsToBias.get(i), bias, bias);
 		}
+		return -1;
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */

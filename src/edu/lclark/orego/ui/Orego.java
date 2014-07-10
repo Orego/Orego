@@ -41,8 +41,8 @@ public final class Orego {
 			// "undo", //
 			"version", //
 	// "kgs-genmove_cleanup", //
-			// "gogui-analyze_commands", //
-			// "kgs-game_over", //
+	// "gogui-analyze_commands", //
+	// "kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -242,9 +242,9 @@ public final class Orego {
 			// } else {
 			assert color == player.getBoard().getColorToPlay();
 			// }
-			// if (command.equals("kgs-genmove_cleanup")) {
-			// player.setCleanUpMode(true);
-			// }
+			if (command.equals("kgs-genmove_cleanup")) {
+				player.setCleanupMode(true);
+			}
 			short point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
@@ -445,9 +445,9 @@ public final class Orego {
 				playerBuilder.openingBook();
 			} else if (left.equals("time-management")) {
 				playerBuilder.timeManagement(right);
-			} else if(left.equals("coup")){
+			} else if (left.equals("coup")) {
 				playerBuilder.coupDeGrace();
-			}else	{
+			} else {
 				throw new IllegalArgumentException(
 						"Unknown command line argument: " + left);
 			}
