@@ -38,7 +38,7 @@ public final class Orego {
 			// "time_left", //
 			// "time_settings", //
 			"quit", //
-			// "undo", //
+			 "undo", //
 			"version", //
 	// "kgs-genmove_cleanup", //
 			// "gogui-analyze_commands", //
@@ -359,12 +359,13 @@ public final class Orego {
 		// int secondsLeft = parseInt(arguments.nextToken());
 		// player.setRemainingTime(secondsLeft);
 		// acknowledge();
-		// } else if (command.equals("undo")) {
-		// if (player.undo()) {
-		// acknowledge();
-		// } else {
-		// error("Cannot undo");
 		// }
+		else if (command.equals("undo")) {
+		 if (player.undo()) {
+		 acknowledge();
+		 } else {
+		 error("Cannot undo");
+		 }}
 		else if (command.equals("version")) {
 			String git;
 			try {

@@ -69,5 +69,22 @@ public class PlayerTest {
 		// Black is doomed -- DOOMED! -- and therefore should resign
 		assertEquals(RESIGN, move);
 	}
+	
+	@Test
+	public void testUndo() {
+		String[] before = {
+				".##OO",
+				"##OO.",
+				"##O..",
+				".#OO.",
+				".##OO",
+		};
+		player.clear();
+		player.getBoard().setUpProblem(before, WHITE);
+		long fancyHash = player.getBoard().getFancyHash();
+		player.acceptMove(at("e3"));
+		assertTrue(player.undo());
+		assertEquals(fancyHash, player.getBoard().getFancyHash());
+	}
 
 }
