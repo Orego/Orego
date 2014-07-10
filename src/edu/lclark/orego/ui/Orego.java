@@ -8,6 +8,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
+import edu.lclark.orego.sgf.SgfParser;
 import static java.lang.Integer.parseInt;
 import static java.lang.Double.parseDouble;
 
@@ -28,7 +29,7 @@ public final class Orego {
 			"known_command", //
 			"komi", //
 			"list_commands", //
-			// "loadsgf", //
+			 "loadsgf", //
 			"name", //
 			"play", //
 			// "playout_count", //
@@ -288,17 +289,11 @@ public final class Orego {
 			response = response.substring(0, response.length() - 1);
 			acknowledge(response);
 		}
-		// else if (command.equals("loadsgf")) {
-		// if (arguments.countTokens() > 1) {
-		// System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
-		// player.setUpSgf(arguments.nextToken(),
-		// Integer.parseInt(arguments.nextToken()));
-		// } else {
-		// System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
-		// player.setUpSgf(arguments.nextToken(), 0);
-		// }
-		// acknowledge();
-		// }
+		 else if (command.equals("loadsgf")) {
+			 SgfParser parser = new SgfParser(player.getBoard().getCoordinateSystem());
+			 player.setUpSgfGame(parser.parseGameFromFile(new File(arguments.nextToken())));
+		 acknowledge();
+		 }
 		else if (command.equals("name")) {
 			acknowledge("Orego");
 		} else if (command.equals("showboard")) {

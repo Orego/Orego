@@ -1,5 +1,6 @@
 package edu.lclark.orego.mcts;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -268,6 +269,17 @@ public final class Player {
 			startThreads();
 		}
 		return true;
+	}
+
+	@SuppressWarnings("boxing")
+	public void setUpSgfGame(List<Short> moves) {
+		board.clear();
+		for(Short move : moves){
+			if(board.play(move) != OK){
+				throw new IllegalArgumentException("Sgf contained illegal move");
+			}
+		}
+		
 	}
 
 }
