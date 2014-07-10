@@ -268,9 +268,10 @@ public final class Orego {
 		// response = response.substring(0, response.length() - 1);
 		// }
 		// acknowledge(response);
-		// } else if (command.equals("known_command")) {
-		// acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
-		// }
+		// } 
+		else if (command.equals("known_command")) {
+		 acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
+		 }
 		else if (command.equals("komi")) {
 			double komi = parseDouble(arguments.nextToken());
 			if (komi == player.getFinalScorer().getKomi()) {
