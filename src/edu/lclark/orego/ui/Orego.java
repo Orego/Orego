@@ -29,20 +29,20 @@ public final class Orego {
 			"komi", //
 			"list_commands", //
 			// "loadsgf", //
-			// "name", //
+			 "name", //
 			"play", //
-			// "playout_count", //
-			// "protocol_version", //
+			 "playout_count", //
+			 "protocol_version", //
 			"reg_genmove", //
 			"showboard", //
-			// "time_left", //
-			// "time_settings", //
+			 "time_left", //
+			 "time_settings", //
 			"quit", //
 			// "undo", //
 			"version", //
 	 "kgs-genmove_cleanup", //
 	// "gogui-analyze_commands", //
-	// "kgs-game_over", //
+	 "kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -298,9 +298,10 @@ public final class Orego {
 		// player.setUpSgf(arguments.nextToken(), 0);
 		// }
 		// acknowledge();
-		// } else if (command.equals("name")) {
-		// acknowledge("Orego");
-		// } else
+		// } 
+		else if (command.equals("name")) {
+		 acknowledge("Orego");
+		 } 
 		else if (command.equals("showboard")) {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
@@ -312,23 +313,12 @@ public final class Orego {
 			// case insensitive.
 			handleCommand(arguments.nextToken().toLowerCase(), arguments);
 		}
-		// else if (command.equals("playout_count")) {
-		// if (player instanceof orego.mcts.McPlayer) {
-		// orego.mcts.McPlayer mctsPlayer = (orego.mcts.McPlayer)player;
-		// long playouts = 0;
-		// for (int i = 0; i < mctsPlayer.getNumberOfThreads(); i++) {
-		// orego.mcts.McRunnable mcRunnable =
-		// (orego.mcts.McRunnable)mctsPlayer.getRunnable(i);
-		// playouts += mcRunnable.getPlayoutsCompleted();
-		// }
-		// acknowledge("playout="+playouts);
-		// }
-		// else {
-		// acknowledge("playout=null");
-		// }
-		// } else if (command.equals("protocol_version")) {
-		// acknowledge("2");
-		// }
+		else if (command.equals("playout_count")) {
+			acknowledge("playout="+player.getPlayoutCount());
+			} 
+		else if (command.equals("protocol_version")) {
+			acknowledge("2");
+		}
 		else if (command.equals("quit")) {
 			acknowledge();
 			player.clear(); // to stop threaded players
@@ -340,26 +330,24 @@ public final class Orego {
 			player.setRemainingTime(secondsLeft);
 			acknowledge();
 		}
-		// else if (command.equals("kgs-game_over")) {
-		// try {
-		// Scanner scanner;
-		// acknowledge();
-		// player.endGame(); // to stop threaded players
-		// scanner = new Scanner(new File("QuitAfterGameOver.txt"));
-		// if (scanner.nextLine().equals("true")) {
-		// scanner.close();
-		// return false;
-		// } else {
-		// scanner.close();
-		// }
-		// } catch (FileNotFoundException e) {
-		// // The file was not found, so we continue to play.
-		// }
-		// } else if (command.equals("time_settings")) {
-		// int secondsLeft = parseInt(arguments.nextToken());
-		// player.setRemainingTime(secondsLeft);
-		// acknowledge();
-		// } else if (command.equals("undo")) {
+		else if (command.equals("kgs-game_over")) {
+			try (Scanner scanner = new Scanner(new File("QuitAfterGameOver.txt"))){
+				acknowledge();
+				player.endGame(); // to stop threaded players
+				if (scanner.nextLine().equals("true")) {
+					return false;
+				} 
+			} catch (FileNotFoundException e) {
+				// The file was not found, so we continue to play.
+			}
+		}
+		// } 
+		else if (command.equals("time_settings")) {
+		 int secondsLeft = parseInt(arguments.nextToken());
+		 player.setRemainingTime(secondsLeft);
+		 acknowledge();
+		 } 
+			//else if (command.equals("undo")) {
 		// if (player.undo()) {
 		// acknowledge();
 		// } else {

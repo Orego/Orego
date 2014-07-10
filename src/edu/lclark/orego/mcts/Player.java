@@ -183,6 +183,10 @@ public final class Player {
 	public void descend(McRunnable runnable) {
 		descender.descend(runnable);
 	}
+	
+	public void endGame(){
+		stopThreads();
+	}
 
 	public double finalScore() {
 		return finalScorer.score();
@@ -353,6 +357,14 @@ public final class Player {
 
 	public void usePondering(boolean pondering) {
 		this.usePondering = pondering;
+	}
+
+	public int getPlayoutCount() {
+		int playouts = 0;
+		for(McRunnable runnable : runnables){
+			playouts += runnable.getPlayoutsCompleted();
+		}
+		return playouts;
 	}
 
 }

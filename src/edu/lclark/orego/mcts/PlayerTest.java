@@ -211,5 +211,20 @@ public class PlayerTest {
 		move = player.bestMove();
 		assertEquals(PASS, move);
 	}
+	
+	@Test
+	public void testGetPlayouts(){
+		player.clear();
+		for(int i = 0; i<5; i++){
+		player.getMcRunnable(0).performMcRun();
+		}
+		for(int i = 0; i<8; i++){
+			player.getMcRunnable(2).performMcRun();
+		}
+		for(int i = 0; i<2; i++){
+			player.getMcRunnable(3).performMcRun();
+		}
+		assertEquals(15, player.getPlayoutCount());
+	}
 
 }
