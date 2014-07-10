@@ -3,6 +3,7 @@ package edu.lclark.orego.ui;
 import java.io.*;
 import java.util.*;
 
+import static edu.lclark.orego.experiment.Git.getGitCommit;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
@@ -18,37 +19,13 @@ import static java.lang.Double.parseDouble;
  */
 public final class Orego {
 
-	private static final String[] DEFAULT_GTP_COMMANDS = { //
-	"boardsize", // comments keep the commands on
-			"clear_board", // separate lines in the event of a
-			"final_score", // source -> format in Eclipse
-			"genmove", //
-			"genmove_black", //
-			"genmove_white", //
-			"black", "white", //
-			"known_command", //
-			"komi", //
-			"list_commands", //
-			"loadsgf", //
-			"name", //
-			"play", //
-			"playout_count", //
-			"protocol_version", //
-			"reg_genmove", //
-			"showboard", //
-			"time_left", //
-			"time_settings", //
-			"quit", //
-			"undo", //
-			"version", //
-			"kgs-genmove_cleanup", //
-			// "gogui-analyze_commands", //
-			"kgs-game_over", //
-			"fixed_handicap" //
-	};
-
-	/** The version of Go Text Protocol that Orego speaks. */
-	private static final int GTP_VERSION = 2;
+	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
+			"boardsize", "clear_board", "final_score", "fixed_handicap",
+			"genmove", "genmove_black", "genmove_white", "known_command",
+			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
+			"loadsgf", "name", "play", "playout_count", "protocol_version",
+			"quit", "reg_genmove", "showboard", "time_left", "time_settings",
+			"undo", "version", "white", };
 
 	/**
 	 * @param args
@@ -59,21 +36,10 @@ public final class Orego {
 		new Orego(args).run();
 	}
 
-	private void run() throws IOException {
-		String input;
-		do {
-			input = "";
-			while (input.equals("")) {
-				input = in.readLine();
-				if (input == null) {
-					return;
-				}
-			}
-		} while (handleCommand(input));
-	}
-
 	/** The id number of the current command. */
 	private int commandId;
+
+	private String commandLineArgs;
 
 	/** Known GTP commands. */
 	private List<String> commands;
@@ -89,13 +55,13 @@ public final class Orego {
 	/** The output stream. */
 	private final PrintStream out;
 
+	// /** The komi given on the command line. */
+	// private double komiArgument = -1;
+
 	/** The Player object that selects moves. */
 	private Player player;
 
-	private String commandLineArgs;
-
-	// /** The komi given on the command line. */
-	// private double komiArgument = -1;
+	private PlayerBuilder playerBuilder;
 
 	/**
 	 * @param inStream
@@ -346,14 +312,11 @@ public final class Orego {
 			}
 		} else if (command.equals("version")) {
 			String git;
-			try {
-				verifyCleanGitState();
-				git = getGitCommit();
-			} catch (IllegalStateException e) {
-				git = "git state unknown";
+			git = getGitCommit();
+			if (git.isEmpty()) {
+				git = "unknown";
 			}
-			String version = "Orego8  Args: " + commandLineArgs
-					+ " Git commit: " + git;
+			String version = "Orego 8 Git commit: " + git + " Args: " + commandLineArgs;
 			acknowledge(version);
 		} else if ((command.equals("black")) || (command.equals("b"))
 				|| (command.equals("white")) || (command.equals("w"))) {
@@ -384,8 +347,6 @@ public final class Orego {
 		}
 		return true;
 	}
-
-	private PlayerBuilder playerBuilder;
 
 	private void handleCommandLineArguments(String[] args) {
 		playerBuilder = new PlayerBuilder();
@@ -432,34 +393,17 @@ public final class Orego {
 		player = playerBuilder.build();
 	}
 
-	private static void verifyCleanGitState() {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s")
-				.start().getInputStream())) {
-			if (s.hasNextLine()) {
-				throw new IllegalStateException("Not in clean git state");
+	private void run() throws IOException {
+		String input;
+		do {
+			input = "";
+			while (input.equals("")) {
+				input = in.readLine();
+				if (input == null) {
+					return;
+				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-
-	/**
-	 * Returns the current git commit string.
-	 */
-	private static String getGitCommit() {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "log",
-				"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
-			if (s.hasNextLine()) {
-				String commit = s.nextLine();
-				// substring to remove single quotes that would otherwise appear
-				return commit.substring(1, commit.length() - 1);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return "";
+		} while (handleCommand(input));
 	}
 
 }
