@@ -1,6 +1,6 @@
 package edu.lclark.orego.book;
 
-import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
+import static edu.lclark.orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import java.io.*;
 
 /**

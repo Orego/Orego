@@ -28,7 +28,7 @@ public class FusekiBookBuilder {
 	private String objectFilePath;
 
 	public static void main(String[] args) {
-		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50, "Books");
+		FusekiBookBuilder builder = new FusekiBookBuilder(20, 50, "Books", true);
 		// Uncomment the next line to build the book from scratch.
 		builder.analyzeFiles(new File(
 				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files/"));
@@ -52,7 +52,10 @@ public class FusekiBookBuilder {
 
 	private final short[] transformations;
 
-	public FusekiBookBuilder(int maxMoves, int requiredSeen, String directoryName) {
+	/** If true, prints messages to stdout indicating progress. */
+	private final boolean verbose;
+	
+	public FusekiBookBuilder(int maxMoves, int requiredSeen, String directoryName, boolean verbose) {
 		smallMap = new SmallHashMap();
 		bigMap = new BigHashMap<>();
 		finalMap = new HashMap<>();
@@ -66,11 +69,11 @@ public class FusekiBookBuilder {
 		}
 		objectFilePath = OREGO_ROOT + directoryName;
 		new File(objectFilePath).mkdir();
+		this.verbose = verbose;
 	}
 
 	public void writeFile() {
 		File directory = new File(objectFilePath + File.separator + "RawFusekiBook19.data");
-		System.out.println(directory.getPath());
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(directory))) {
 			out.writeObject(bigMap);
 		} catch (IOException e) {
@@ -82,7 +85,9 @@ public class FusekiBookBuilder {
 	public void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
 		if (allFiles != null) {
-			System.out.println("Analyzing files in " + file.getName());
+			if (verbose) {
+				System.out.println("Analyzing files in " + file.getName());
+			}
 			for (File tempFile : allFiles) {
 				analyzeFiles(tempFile);
 			}

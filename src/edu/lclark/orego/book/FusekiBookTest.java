@@ -20,7 +20,7 @@ public class FusekiBookTest {
 
 	@Before
 	public void setUp() {
-		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1, "TestBooks");
+		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1, "TestBooks", false);
 		// Uncomment the next line to build the book from scratch.
 		builder.analyzeFiles(new File("SgfTestFiles/19"));
 		builder.writeFile();
