@@ -38,11 +38,11 @@ public final class Orego {
 			// "time_left", //
 			// "time_settings", //
 			"quit", //
-			 "undo", //
+			"undo", //
 			"version", //
 	// "kgs-genmove_cleanup", //
-			// "gogui-analyze_commands", //
-			// "kgs-game_over", //
+	// "gogui-analyze_commands", //
+	// "kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -300,9 +300,8 @@ public final class Orego {
 		// acknowledge();
 		// }
 		else if (command.equals("name")) {
-		 acknowledge("Orego");
-		} 
-		else if (command.equals("showboard")) {
+			acknowledge("Orego");
+		} else if (command.equals("showboard")) {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
 			acknowledge(s);
@@ -329,9 +328,8 @@ public final class Orego {
 		// }
 		// }
 		else if (command.equals("protocol_version")) {
-		 acknowledge("2");
-		 }
-		else if (command.equals("quit")) {
+			acknowledge("2");
+		} else if (command.equals("quit")) {
 			acknowledge();
 			player.clear(); // to stop threaded players
 			System.exit(0);
@@ -363,12 +361,12 @@ public final class Orego {
 		// acknowledge();
 		// }
 		else if (command.equals("undo")) {
-		 if (player.undo()) {
-		 acknowledge();
-		 } else {
+			if (player.undo()) {
+				acknowledge();
+			} else {
 				error("Cannot undo");
-		 }}
-		else if (command.equals("version")) {
+			}
+		} else if (command.equals("version")) {
 			String git;
 			try {
 				verifyCleanGitState();
