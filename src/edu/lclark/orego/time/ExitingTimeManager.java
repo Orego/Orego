@@ -56,9 +56,8 @@ public final class ExitingTimeManager implements TimeManager {
 
 	private int timePerSlice;
 
-	// TODO This has to be changed to msec, as in UniformTimeManager
-	/** Time left for the rest of our moves, in seconds. */
-	private int timeRemaining;
+	/** Time left for the rest of our moves, in msec. */
+	private int msecRemaining;
 
 	public ExitingTimeManager(Player player) {
 		this.player = player;
@@ -105,7 +104,7 @@ public final class ExitingTimeManager implements TimeManager {
 
 	private int getMsecPerMove() {
 		int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
-		return max(1, (timeRemaining * 1000) / movesLeft);
+		return max(1, msecRemaining / movesLeft);
 	}
 
 	protected int getRollover() {
@@ -132,7 +131,7 @@ public final class ExitingTimeManager implements TimeManager {
 
 	@Override
 	public void setRemainingTime(int seconds) {
-		timeRemaining = seconds - (rollover / 1000);
+		msecRemaining = (seconds - 10) * 1000 - (rollover / 1000);
 		createSlices();
 	}
 

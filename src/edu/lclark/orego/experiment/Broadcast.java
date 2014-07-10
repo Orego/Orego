@@ -25,6 +25,7 @@ public final class Broadcast {
 		}
 	}
 
+	// TODO Estimate time experiment will take
 	public static void main(String[] args) throws Exception {
 		verifyCleanGitState();
 		System.out.println("Preparing to launch "

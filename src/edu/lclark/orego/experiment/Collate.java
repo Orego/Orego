@@ -80,6 +80,7 @@ public final class Collate {
 						+ ((float) oregoWins[i] / (float) runs[i]) + " (" + oregoWins[i] + "/" + runs[i] + ")");
 				output(writer, "Average moves per game: "
 						+ ((float) totalMoves[i] / (float) runs[i]));
+				// TODO Yes, but did we lose or did gnugo?
 				output(writer, "Games out of time: " + timeLosses[i]);
 				output(writer, "\n");
 				i++;

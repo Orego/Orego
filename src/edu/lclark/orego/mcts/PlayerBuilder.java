@@ -42,6 +42,7 @@ public final class PlayerBuilder {
 		width = 19;
 		usePondering = false;
 		book = new DoNothing();
+		managerType = "";
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
