@@ -38,24 +38,26 @@ import static java.lang.Boolean.parseBoolean;
  * attempt to clear the board of enemy dead stones, or pass if it can win with
  * the current board state.</dd>
  * <dt>gestation</dt>
- * <dd>The amount of runs required through the child of a node before a node is
+ * <dd>The amount of runs required through a move before a child is
  * created for that move.</dd>
  * <dt>komi</dt>
  * <dd>Sets the komi for the game.</dd>
  * <dt>lgrf2</dt>
- * <dd>Toggles Last Good Replay with Forgetting 2. During playouts, Orego tracks
+ * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego tracks
  * successful replies to a move or a chain of two moves, for use in future
  * playouts.</dd>
  * <dt>msec</dt>
- * <dd>Sets the milliseconds that Orego takes to decide a move. Not relevant when using time management.</dd>
+ * <dd>Sets the milliseconds that Orego takes to decide a move. Not relevant
+ * when using time management.</dd>
  * <dt>pondering</dt>
- * <dd>Orego will think during the opponent's turn.</dd>
+ * <dd>Toggles whether Orego thinks during the opponent's turn.</dd>
  * <dt>rave</dt>
  * <dd>Toggles Rapid Action Value Estimation.</dd>
  * <dt>threads</dt>
  * <dd>The number of threads Orego uses to think.</dd>
  * <dt>time-management</dt>
- * <dd>Set the type of TimeManager to be used by Orego. If not specified, Orego will rely on msec.</dd>
+ * <dd>Set the type of time manager to be used by Orego. If not specified, Orego
+ * will rely on msec. Options are uniform and exiting.</dd>
  * </dl>
  */
 public final class Orego {
