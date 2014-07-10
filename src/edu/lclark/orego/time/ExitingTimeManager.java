@@ -99,7 +99,7 @@ public final class ExitingTimeManager implements TimeManager {
 //		System.err.println("Creating slices");
 		slicesRemaining = SLICE_COUNT;
 		timePerSlice = (getMsecPerMove() + rollover) / SLICE_COUNT;
-//		System.err.println("Allocated " + timePerSlice + " msec per slice");
+		System.err.println("Allocated " + timePerSlice + " msec per slice");
 	}
 
 	private int getMsecPerMove() {
@@ -115,12 +115,12 @@ public final class ExitingTimeManager implements TimeManager {
 	@Override
 	public int getTime() {
 		if (slicesRemaining == 0) {
-//			System.err.println("Out of slices; stopping");
+			System.err.println("Out of slices; stopping");
 			rollover = 0;
 			return 0;
 		}
 		if (slicesRemaining < SLICE_COUNT && confidenceBestVsRest() > 0.95) {
-//			System.err.println("Confident in best move; stopping");
+			System.err.println("Confident in best move; stopping");
 			rollover = slicesRemaining * timePerSlice;
 			return 0;
 		}
