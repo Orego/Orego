@@ -1,7 +1,7 @@
 package edu.lclark.orego.time;
 
 import static java.lang.Math.max;
-import static edu.lclark.orego.util.Gaussian.Phi;
+import static edu.lclark.orego.thirdparty.Gaussian.Phi;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.Player;

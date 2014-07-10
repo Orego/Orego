@@ -4,9 +4,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import ec.util.MersenneTwisterFast;
+
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.sgf.SgfParser;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.NonStoneColor.*;

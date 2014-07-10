@@ -3,8 +3,8 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.move.Mover.PRIMES;
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 

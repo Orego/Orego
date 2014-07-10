@@ -5,11 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.*;
-import edu.lclark.orego.feature.NotEyeLike;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.core.StoneColor.*;
 
 public class SuggesterMoverTest {

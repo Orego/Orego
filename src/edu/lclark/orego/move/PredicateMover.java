@@ -5,8 +5,8 @@ import static edu.lclark.orego.core.Legality.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.feature.Predicate;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.*;
-import ec.util.MersenneTwisterFast;
 
 /**
  * Makes random moves that satisfy some criterion.

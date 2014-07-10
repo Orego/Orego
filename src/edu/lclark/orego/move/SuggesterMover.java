@@ -2,9 +2,9 @@ package edu.lclark.orego.move;
 
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.Suggester;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
 /** This tries to play a move suggested by some suggester. */

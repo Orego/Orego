@@ -1,6 +1,5 @@
 package edu.lclark.orego.mcts;
 
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.feature.*;
@@ -10,6 +9,7 @@ import edu.lclark.orego.core.Legality;
 import static edu.lclark.orego.core.Legality.*;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.*;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
 /**

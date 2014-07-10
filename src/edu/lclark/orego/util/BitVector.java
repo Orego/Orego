@@ -1,6 +1,7 @@
 package edu.lclark.orego.util;
 
 import static java.util.Arrays.*;
+
 import java.io.Serializable;
 
 /**
@@ -9,12 +10,12 @@ import java.io.Serializable;
  * the universe is small; and space is of the essence. If it is necessary to
  * quickly compute the size of the set or traverse the elements, or if the set
  * is very sparse, ShortSet may be preferable.
+ * 
  * @see ShortSet
  * @see BitBoard
  */
+@SuppressWarnings("serial")
 public final class BitVector implements Serializable {
-
-	private static final long serialVersionUID = 1L;
 
 	/** The bits themselves, in 64-bit chunks. */
 	private final long[] data;

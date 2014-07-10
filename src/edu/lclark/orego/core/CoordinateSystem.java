@@ -4,7 +4,7 @@ import static java.lang.Math.*;
 
 import java.io.Serializable;
 
-import ec.util.MersenneTwisterFast;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /**
  * Coordinate system to convert between a short and other representations of a

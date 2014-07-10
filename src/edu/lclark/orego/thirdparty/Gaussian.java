@@ -1,4 +1,4 @@
-package edu.lclark.orego.util;
+package edu.lclark.orego.thirdparty;
 
 /*************************************************************************
  *

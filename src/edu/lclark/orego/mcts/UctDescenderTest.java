@@ -6,11 +6,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class UctDescenderTest {
 

@@ -4,7 +4,6 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.move.MoverFactory.*;
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
@@ -14,6 +13,7 @@ import edu.lclark.orego.feature.StoneCounter;
 import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 import java.util.*;
 

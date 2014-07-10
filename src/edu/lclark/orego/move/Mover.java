@@ -1,7 +1,8 @@
 package edu.lclark.orego.move;
 
 import java.io.Serializable;
-import ec.util.MersenneTwisterFast;
+
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /** Plays moves. */
 public interface Mover extends Serializable {
