@@ -40,7 +40,7 @@ public final class Orego {
 			"quit", //
 			// "undo", //
 			"version", //
-	// "kgs-genmove_cleanup", //
+	 "kgs-genmove_cleanup", //
 	// "gogui-analyze_commands", //
 	// "kgs-game_over", //
 	};
