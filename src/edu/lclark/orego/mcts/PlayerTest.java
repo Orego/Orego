@@ -190,5 +190,26 @@ public class PlayerTest {
 			assertEquals(PASS, player.bestMove());
 		}
 	}
+	
+	@Test
+	public void testCleanup() {
+		String[] before = {
+				".##O#",
+				"##OO.",
+				"##O.O",
+				".#OO.",
+				".##OO",
+		};
+		player.clear();
+		player.getBoard().setUpProblem(before, WHITE);
+		player.setCleanupMode(true);
+		short move = player.bestMove();
+		
+		assertEquals(at("e4"), move);
+		player.acceptMove(move);
+		player.acceptMove(at("a1"));
+		move = player.bestMove();
+		assertEquals(PASS, move);
+	}
 
 }
