@@ -24,12 +24,11 @@ public class ExitingTimeManagerTest {
 		player = new PlayerBuilder().threads(1).timeManagement("exiting").build();
 		coords = player.getBoard().getCoordinateSystem();
 		manager = (ExitingTimeManager)player.getTimeManager();
-		player.setTimeManager(manager);
 	}
 
 	@Test
 	public void testCompareRest() {
-		player.setRemainingTime(10);
+		player.setRemainingTime(10000);
 		SearchNode root = player.getRoot();
 		assertNotEquals(0, manager.getTime());
 		root.update(coords.at("a5"), 1000, 1000);
@@ -38,7 +37,7 @@ public class ExitingTimeManagerTest {
 	
 	@Test
 	public void testRollover(){
-		player.setRemainingTime(10);
+		player.setRemainingTime(10000);
 		SearchNode root = player.getRoot();
 		assertNotEquals(0, manager.getTime());
 		

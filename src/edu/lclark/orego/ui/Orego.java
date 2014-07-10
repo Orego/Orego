@@ -8,6 +8,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
+import edu.lclark.orego.sgf.SgfParser;
 import static java.lang.Integer.parseInt;
 import static java.lang.Double.parseDouble;
 
@@ -28,21 +29,21 @@ public final class Orego {
 			"known_command", //
 			"komi", //
 			"list_commands", //
-			// "loadsgf", //
-			 "name", //
+			"loadsgf", //
+			"name", //
 			"play", //
-			 "playout_count", //
-			 "protocol_version", //
+			"playout_count", //
+			"protocol_version", //
 			"reg_genmove", //
 			"showboard", //
-			 "time_left", //
-			 "time_settings", //
+			"time_left", //
+			"time_settings", //
 			"quit", //
-			// "undo", //
+			"undo", //
 			"version", //
-	 "kgs-genmove_cleanup", //
-	// "gogui-analyze_commands", //
-	 "kgs-game_over", //
+			"kgs-genmove_cleanup", //
+			// "gogui-analyze_commands", //
+			"kgs-game_over", //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -287,22 +288,15 @@ public final class Orego {
 			// Strip final return
 			response = response.substring(0, response.length() - 1);
 			acknowledge(response);
-		}
-		// else if (command.equals("loadsgf")) {
-		// if (arguments.countTokens() > 1) {
-		// System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
-		// player.setUpSgf(arguments.nextToken(),
-		// Integer.parseInt(arguments.nextToken()));
-		// } else {
-		// System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
-		// player.setUpSgf(arguments.nextToken(), 0);
-		// }
-		// acknowledge();
-		// } 
-		else if (command.equals("name")) {
-		 acknowledge("Orego");
-		 } 
-		else if (command.equals("showboard")) {
+		} else if (command.equals("loadsgf")) {
+			SgfParser parser = new SgfParser(player.getBoard()
+					.getCoordinateSystem());
+			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
+					.nextToken())));
+			acknowledge();
+		} else if (command.equals("name")) {
+			acknowledge("Orego");
+		} else if (command.equals("showboard")) {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
 			acknowledge(s);
@@ -312,14 +306,11 @@ public final class Orego {
 			// We lower case the command string because GTP defines colors as
 			// case insensitive.
 			handleCommand(arguments.nextToken().toLowerCase(), arguments);
-		}
-		else if (command.equals("playout_count")) {
-			acknowledge("playout="+player.getPlayoutCount());
-			} 
-		else if (command.equals("protocol_version")) {
+		} else if (command.equals("playout_count")) {
+			acknowledge("playout=" + player.getPlayoutCount());
+		} else if (command.equals("protocol_version")) {
 			acknowledge("2");
-		}
-		else if (command.equals("quit")) {
+		} else if (command.equals("quit")) {
 			acknowledge();
 			player.clear(); // to stop threaded players
 			System.exit(0);
@@ -329,31 +320,30 @@ public final class Orego {
 			int secondsLeft = parseInt(arguments.nextToken());
 			player.setRemainingTime(secondsLeft);
 			acknowledge();
-		}
-		else if (command.equals("kgs-game_over")) {
-			try (Scanner scanner = new Scanner(new File("QuitAfterGameOver.txt"))){
+		} else if (command.equals("kgs-game_over")) {
+			try (Scanner scanner = new Scanner(
+					new File("QuitAfterGameOver.txt"))) {
 				acknowledge();
 				player.endGame(); // to stop threaded players
 				if (scanner.nextLine().equals("true")) {
 					return false;
-				} 
+				}
 			} catch (FileNotFoundException e) {
 				// The file was not found, so we continue to play.
 			}
 		}
-		// } 
-		else if (command.equals("time_settings")) {
-		 int secondsLeft = parseInt(arguments.nextToken());
-		 player.setRemainingTime(secondsLeft);
-		 acknowledge();
-		 } 
-			//else if (command.equals("undo")) {
-		// if (player.undo()) {
-		// acknowledge();
-		// } else {
-		// error("Cannot undo");
 		// }
-		else if (command.equals("version")) {
+		else if (command.equals("time_settings")) {
+			int secondsLeft = parseInt(arguments.nextToken());
+			player.setRemainingTime(secondsLeft);
+			acknowledge();
+		} else if (command.equals("undo")) {
+			if (player.undo()) {
+				acknowledge();
+			} else {
+				error("Cannot undo");
+			}
+		} else if (command.equals("version")) {
 			String git;
 			try {
 				verifyCleanGitState();

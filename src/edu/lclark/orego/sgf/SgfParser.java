@@ -59,6 +59,31 @@ public final class SgfParser {
 		return null;
 	}
 	
+	public List<Short> parseGameFromFile(File file){
+		String input = "";
+		try (Scanner s = new Scanner(file)) {
+			while (s.hasNextLine()) {
+				input += s.nextLine();
+			}
+			input = input.replace("W[]", "W[tt]");
+			input = input.replace("B[]", "B[tt]");
+			StringTokenizer stoken = new StringTokenizer(input, ")[];");
+			while (stoken.hasMoreTokens()) {
+				String token = stoken.nextToken();
+				if (token.equals("(")) {
+					List<Short> game = parseGame(stoken, 500);
+					if (game != null) {
+						return game;
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found!");
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	@SuppressWarnings("boxing")
 	protected List<Short> parseGame(StringTokenizer stoken, int maxBookDepth) {
 		List<Short> game = new ArrayList<>();

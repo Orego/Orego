@@ -1,13 +1,16 @@
 package edu.lclark.orego.mcts;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.*;
+import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
+import edu.lclark.orego.util.ShortList;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
@@ -51,6 +54,8 @@ public final class Player {
 
 	/** @see TreeUpdater */
 	private TreeUpdater updater;
+	
+	private HistoryObserver historyObserver;
 
 	private boolean usePondering;
 
@@ -65,6 +70,7 @@ public final class Player {
 	public Player(int threads, CopiableStructure stuff) {
 		CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
+		historyObserver = copy.get(HistoryObserver.class);
 		finalScorer = copy.get(FinalScorer.class);
 		runnables = new McRunnable[threads];
 		for (int i = 0; i < runnables.length; i++) {
@@ -365,6 +371,38 @@ public final class Player {
 			playouts += runnable.getPlayoutsCompleted();
 		}
 		return playouts;
+	}
+
+	public boolean undo() {
+		if(board.getTurn() == 0){
+			return false;
+		}
+		boolean alreadyRunning = keepRunning;
+		stopThreads();
+		ShortList movesList = new ShortList(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		for(int i = 0; i<historyObserver.size() -1; i++){
+			movesList.add(historyObserver.get(i));
+		}
+		
+		board.clearPreservingInitialStones();
+		for(int i = 0; i<movesList.size(); i++){
+			board.play(movesList.get(i));
+		}
+		if(alreadyRunning){
+			startThreads();
+		}
+		return true;
+	}
+
+	@SuppressWarnings("boxing")
+	public void setUpSgfGame(List<Short> moves) {
+		board.clear();
+		for(Short move : moves){
+			if(board.play(move) != OK){
+				throw new IllegalArgumentException("Sgf contained illegal move");
+			}
+		}
+		
 	}
 
 }

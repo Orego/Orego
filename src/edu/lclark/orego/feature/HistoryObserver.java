@@ -39,6 +39,10 @@ public final class HistoryObserver implements BoardObserver {
 		history.clear();
 	}
 	
+	public int size(){
+		return history.size();
+	}
+	
 	/** Returns the move played at time t. If t < 0, returns NO_POINT. */
 	public short get(int t) {
 		if (t < 0) {
