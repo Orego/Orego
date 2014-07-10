@@ -12,7 +12,7 @@ public final class PlayerBuilder {
 
 	private int biasDelay;
 
-	private OpeningBook book;
+	private boolean book;
 
 	private int gestation;
 
@@ -43,7 +43,7 @@ public final class PlayerBuilder {
 		msecPerMove = 1000;
 		width = 19;
 		usePondering = false;
-		book = new DoNothing();
+		book = false;
 		managerType = "";
 	}
 
@@ -89,15 +89,19 @@ public final class PlayerBuilder {
 			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
 		result.setCoupDeGrace(coupDeGrace);
-		result.setOpeningBook(book);
+		if (book) {
+			result.setOpeningBook(new FusekiBook());
+		} else {
+			result.setOpeningBook(new DoNothing());
+		}
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		result.usePondering(usePondering);
 		return result;
 	}
 	
-	public PlayerBuilder coupDeGrace(){
-		this.coupDeGrace = true;
+	public PlayerBuilder coupDeGrace(boolean grace){
+		this.coupDeGrace = grace;
 		return this;
 	}
 
@@ -111,8 +115,8 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder lgrf2() {
-		lgrf2 = true;
+	public PlayerBuilder lgrf2(boolean lgrf2) {
+		this.lgrf2 = lgrf2;
 		return this;
 	}
 
@@ -121,18 +125,18 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder openingBook() {
-		book = new FusekiBook();
+	public PlayerBuilder openingBook(boolean book) {
+		this.book = book;
 		return this;
 	}
 
-	public PlayerBuilder pondering() {
-		usePondering = true;
+	public PlayerBuilder pondering(boolean ponder) {
+		usePondering = ponder;
 		return this;
 	}
 
-	public PlayerBuilder rave() {
-		rave = true;
+	public PlayerBuilder rave(boolean rave) {
+		this.rave = rave;
 		return this;
 	}
 

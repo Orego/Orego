@@ -128,6 +128,7 @@ public final class Collate {
 					if (token.contains("Time")) {
 						timeLosses[condition]++;
 					}
+					// TODO Deal with ties
 					if (token.charAt(0) == oregoColor) {
 						oregoWins[condition]++;
 					}

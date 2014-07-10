@@ -17,6 +17,7 @@ bin
 # we don't want machine specific paths
 user.properties
 config/system.properties
+config/quit.txt
 
 # Fido-specific scripts and files
 /build-all.sh
