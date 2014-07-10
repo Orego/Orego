@@ -44,6 +44,7 @@ public final class Orego {
 			"kgs-genmove_cleanup", //
 			// "gogui-analyze_commands", //
 			"kgs-game_over", //
+			"fixed_handicap" //
 	};
 
 	/** The version of Go Text Protocol that Orego speaks. */
@@ -268,11 +269,10 @@ public final class Orego {
 		// response = response.substring(0, response.length() - 1);
 		// }
 		// acknowledge(response);
-		// } 
+		// }
 		else if (command.equals("known_command")) {
-		 acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
-		 }
-		else if (command.equals("komi")) {
+			acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
+		} else if (command.equals("komi")) {
 			double komi = parseDouble(arguments.nextToken());
 			if (komi == player.getFinalScorer().getKomi()) {
 				player.clear();
@@ -365,19 +365,17 @@ public final class Orego {
 			} else {
 				error("illegal move");
 			}
-		}
-		// else if (command.equals("fixed_handicap")) {
-		// int handicapSize = parseInt(arguments.nextToken());
-		// if (handicapSize >= 2 && handicapSize <= 9) {
-		// player.getBoard().setUpHandicap(handicapSize);
-		// acknowledge();
-		// } else {
-		// error("Invalid handicap size");
-		// }
-		// }
-		else { // If Orego doesn't know how to handle this specific command,
-				// maybe the player will
-				// String result = player.handleCommand(command, arguments);
+		} else if (command.equals("fixed_handicap")) {
+			int handicapSize = parseInt(arguments.nextToken());
+			if (handicapSize >= 2 && handicapSize <= 9) {
+				player.setUpHandicap(handicapSize);
+				acknowledge();
+			} else {
+				error("Invalid handicap size");
+			}
+		} else { // If Orego doesn't know how to handle this specific command,
+					// maybe the player will
+					// String result = player.handleCommand(command, arguments);
 			// if (result == null) {
 			error("unknown command: " + command);
 			// } else {

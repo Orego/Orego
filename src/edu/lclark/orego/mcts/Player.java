@@ -405,4 +405,9 @@ public final class Player {
 		
 	}
 
+	public void setUpHandicap(int handicapSize) {
+		clear();
+		board.setUpHandicap(handicapSize);
+	}
+
 }

@@ -72,6 +72,8 @@ public final class Board implements Serializable {
 
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
+	
+	private final static String[] HANDICAP_LOCATIONS = {"d4", "q16", "q4", "d16", "k10", "d10", "q10", "k4", "k16"};
 
 	/**
 	 * Used for undoing move so that we have a record of the intial stones
@@ -648,5 +650,17 @@ public final class Board implements Serializable {
 				placeInitialStone(i == 0 ? BLACK : WHITE, tempInitial[i].get(j));
 			}
 		}
+	}
+
+	public void setUpHandicap(int handicapSize) {
+		clear();
+		for(int i = 0; i<handicapSize; i++){
+			if((handicapSize==6 || handicapSize==8) && i == 4){
+				i++;
+				handicapSize++;
+			}
+			placeInitialStone(BLACK, coords.at(HANDICAP_LOCATIONS[i]));
+		}
+		setColorToPlay(WHITE);
 	}
 }

@@ -12,6 +12,7 @@ import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.StoneCounter;
+import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.util.ShortSet;
@@ -428,6 +429,64 @@ public class BoardTest {
 		long fancyWhite = board.getFancyHash();
 		assertEquals(simpleBlack, simpleWhite);
 		assertNotEquals(fancyBlack, fancyWhite);
+	}
+	
+	@Test
+	public void testSetUpHandicap() {
+		
+		String[] problem = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...#...........#...",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				".........#.........",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...#...........#...",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		String[] problem2 = new String[] {
+				"...................",// 19
+				"...................",// 18
+				"...................",// 17
+				"...#.....#.....#...",// 16
+				"...................",// 15
+				"...................",// 14
+				"...................",// 13
+				"...................",// 12
+				"...................",// 11
+				"...#...........#...",// 10
+				"...................",// 9
+				"...................",// 8
+				"...................",// 7
+				"...................",// 6
+				"...................",// 5
+				"...#.....#.....#...",// 4
+				"...................",// 3
+				"...................",// 2
+				"..................." // 1
+		      // ABCDEFGHJKLMNOPQRST
+		};
+		Board board = new Board(19);
+		board.setUpProblem(problem, WHITE);
+		long hash = board.getFancyHash();
+		board.setUpHandicap(5);
+		assertEquals(hash, board.getFancyHash());
+		board.setUpProblem(problem2, WHITE);
+		hash = board.getFancyHash();
+		board.setUpHandicap(8);
+		assertEquals(hash, board.getFancyHash());
 	}
 
 }
