@@ -27,37 +27,37 @@ import static java.lang.Boolean.parseBoolean;
  * <dt>biasdelay</dt>
  * <dd>Number of runs required through a node before heuristic biases are added.
  * Because of initial wins and losses given to every move, any value less than
- * or equal to 732 results in immediate application of bias. Defaults to 1.</dd>
+ * or equal to 732 results in immediate application of bias. Defaults to 800.</dd>
  * <dt>boardsize</dt>
- * <dd>Width of board, e.g., 19.</dd>
+ * <dd>Width of board. Defaults to 19.</dd>
  * <dt>book</dt>
- * <dd>When set to true, Orego will play moves from a fuseki book at the
- * beginning of the game.</dd>
+ * <dd>Toggles whether Orego will play moves from a fuseki book at the
+ * beginning of the game. Defaults to true.</dd>
  * <dt>grace</dt>
  * <dd>Toggles coup de grace mode. When the opposing player passes, Orego will
  * attempt to clear the board of enemy dead stones, or pass if it can win with
- * the current board state.</dd>
+ * the current board state. Defaults to false.</dd>
  * <dt>gestation</dt>
  * <dd>The amount of runs required through a move before a child is
- * created for that move.</dd>
+ * created for that move. Defaults to 4.</dd>
  * <dt>komi</dt>
- * <dd>Sets the komi for the game.</dd>
+ * <dd>Sets the komi for the game. Defaults to 7.5.</dd>
  * <dt>lgrf2</dt>
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego tracks
  * successful replies to a move or a chain of two moves, for use in future
- * playouts.</dd>
+ * playouts. Defaults to true.</dd>
  * <dt>msec</dt>
  * <dd>Sets the milliseconds that Orego takes to decide a move. Not relevant
- * when using time management.</dd>
+ * when using time management. Defaults to 1000 milliseconds.</dd>
  * <dt>pondering</dt>
- * <dd>Toggles whether Orego thinks during the opponent's turn.</dd>
+ * <dd>Toggles whether Orego thinks during the opponent's turn. Defaults to false.</dd>
  * <dt>rave</dt>
- * <dd>Toggles Rapid Action Value Estimation.</dd>
+ * <dd>Toggles Rapid Action Value Estimation. Defaults to true.</dd>
  * <dt>threads</dt>
- * <dd>The number of threads Orego uses to think.</dd>
+ * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
  * <dt>time-management</dt>
  * <dd>Set the type of time manager to be used by Orego. If not specified, Orego
- * will rely on msec. Options are uniform and exiting.</dd>
+ * will rely on msec, which is the default state. Options are uniform and exiting.</dd>
  * </dl>
  */
 public final class Orego {

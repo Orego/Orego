@@ -36,15 +36,18 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder() {
 		// Default values
-		biasDelay = 1;
-		gestation = 1;
+		biasDelay = 800;
+		gestation = 4;
 		komi = 7.5;
 		threads = 2;
 		msecPerMove = 1000;
 		width = 19;
 		usePondering = false;
-		book = false;
+		book = true;
 		managerType = "";
+		coupDeGrace = false;
+		lgrf2 = false;
+		rave = true;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -81,6 +84,8 @@ public final class PlayerBuilder {
 		} else {
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
+		// TODO If time manager is set, but time left commands are not getting
+		// sent, we should use the default msecPerMove.
 		if (managerType.equals("exiting")) {
 			result.setTimeManager(new ExitingTimeManager(result));
 		} else if (managerType.equals("uniform")) {
@@ -99,8 +104,8 @@ public final class PlayerBuilder {
 		result.usePondering(usePondering);
 		return result;
 	}
-	
-	public PlayerBuilder coupDeGrace(boolean grace){
+
+	public PlayerBuilder coupDeGrace(boolean grace) {
 		this.coupDeGrace = grace;
 		return this;
 	}
