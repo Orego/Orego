@@ -1,2 +1,0 @@
-false
-# If the above is true, Orego will quit after receiving the kgs-game_over GTP command
