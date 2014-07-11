@@ -12,7 +12,9 @@ public final class Collate {
 
 	private int[] runs;
 
-	private int[] timeLosses;
+	private int[] timeLossesOrego;
+	
+	private int[] timeLossesOpponent;
 
 	private int[] totalMoves;
 	
@@ -63,7 +65,8 @@ public final class Collate {
 		int n = conditions.size();
 		runs = new int[n];
 		oregoWins = new int[n];
-		timeLosses = new int[n];
+		timeLossesOrego = new int[n];
+		timeLossesOpponent = new int[n];
 		totalMoves = new int[n];
 		ties = new int[n];
 	}
@@ -83,8 +86,8 @@ public final class Collate {
 						+ ((float) oregoWins[i] / (float) runs[i]) + " (" + oregoWins[i] + "/" + runs[i] + ")");
 				output(writer, "Average moves per game: "
 						+ ((float) totalMoves[i] / (float) runs[i]));
-				// TODO Yes, but did we lose or did gnugo?
-				output(writer, "Games out of time: " + timeLosses[i]);
+				output(writer, "Games Orego lost on time: " + timeLossesOrego[i]);
+				output(writer, "Games opponent lost on time: " + timeLossesOpponent[i]);
 				output(writer, "Tied games: " + ties[i]);
 				output(writer, "\n");
 				i++;
@@ -130,7 +133,11 @@ public final class Collate {
 				if (token.equals("RE")) { // Find the winner
 					token = stoken.nextToken();
 					if (token.contains("Time")) {
-						timeLosses[condition]++;
+						if((token.contains("B") && oregoColor == 'B') || (token.contains("W") && oregoColor == 'W')){
+							timeLossesOrego[condition]++;					
+						} else if((token.contains("W") && oregoColor != 'W') || (token.contains("B") && oregoColor != 'B')){
+							timeLossesOpponent[condition]++;
+						}
 					}
 					if(token.charAt(0) == '0'){
 						ties[condition]++;
