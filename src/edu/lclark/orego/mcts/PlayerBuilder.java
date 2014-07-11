@@ -98,7 +98,7 @@ public final class PlayerBuilder {
 			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
 		result.setCoupDeGrace(coupDeGrace);
-		if (book) {
+		if (book && width == 19) {
 			result.setOpeningBook(new FusekiBook());
 		} else {
 			result.setOpeningBook(new DoNothing());

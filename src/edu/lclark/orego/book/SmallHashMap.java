@@ -60,7 +60,7 @@ public class SmallHashMap implements Serializable {
 	}
 
 	/** Returns the raw key array. */
-	protected long[] getKeys() {
+	long[] getKeys() {
 		return keys;
 	}
 
@@ -78,7 +78,7 @@ public class SmallHashMap implements Serializable {
 	/**
 	 * Associates key with value. Does not check that this map is large enough.
 	 */
-	protected void putAfterTableKnownLargeEnough(long key, short value) {
+	private void putAfterTableKnownLargeEnough(long key, short value) {
 		int slot = ((int) key & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
 			// If this map already has the value, it doesn't do anything.
@@ -96,7 +96,7 @@ public class SmallHashMap implements Serializable {
 	/**
 	 * Copies the data into tables twice as large, stretching the map.
 	 */
-	protected void rehash() {
+	private void rehash() {
 		final long[] oldKeys = keys;
 		final short[] oldValues = values;
 		keys = new long[keys.length * 2];
@@ -109,11 +109,6 @@ public class SmallHashMap implements Serializable {
 				putAfterTableKnownLargeEnough(oldKeys[i], oldValues[i]);
 			}
 		}
-	}
-
-	/** Returns the number of keys currently in the map. */
-	public int size() {
-		return size;
 	}
 
 }

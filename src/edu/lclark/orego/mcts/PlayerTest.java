@@ -20,7 +20,7 @@ public class PlayerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64).openingBook(false).build();
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class PlayerTest {
 	// TODO Make a smaller, faster test
 	@Test
 	public void testCoupDeGrace() {
-		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace(true).memorySize(64).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace(true).memorySize(64).openingBook(false).build();
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -137,7 +137,7 @@ public class PlayerTest {
 	// TODO Fails nondetermistically
 	@Test
 	public void testDoNotCoupDeGraceTooEarly() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).openingBook(false).build();
 		String[] problem = new String[] {
 				"...................",// 19
 				"...................",// 18
@@ -180,7 +180,7 @@ public class PlayerTest {
 
 	@Test
 	public void testPassToWin() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).openingBook(false).build();
 		String[] problem = new String[] {
 				"...................",// 19
 				"...................",// 18

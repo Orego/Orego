@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Associates keys (longs, Zobrist hashes of board configurations) with values.
  * The underlying data structure is a hash table with linear probing.
- *
+ * 
  * This mimics java.util.HashMap<Long, V>, but it does not support removal and
  * is significantly more efficient.
  */
@@ -56,8 +56,8 @@ public final class BigHashMap<V> implements Serializable {
 	}
 
 	/**
-	 * Returns the raw key array for this hash map. This may contain many null
-	 * entries, which are NOT valid keys.
+	 * Returns the raw key array for this hash map. This may contain many false
+	 * entries where the corresponding value is null.
 	 */
 	public long[] getKeys() {
 		return keys;
@@ -106,11 +106,6 @@ public final class BigHashMap<V> implements Serializable {
 				putAfterTableKnownLargeEnough(oldKeys[i], oldValues[i]);
 			}
 		}
-	}
-
-	/** Returns the number of keys currently in the map. */
-	public int size() {
-		return size;
 	}
 
 }

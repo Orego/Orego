@@ -1,6 +1,7 @@
 package edu.lclark.orego.book;
 
-import static org.junit.Assert.*;
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
@@ -11,21 +12,24 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 
 public class FusekiBookTest {
-	
+
 	private FusekiBook book;
-	
+
 	private Board board;
-	
+
 	private CoordinateSystem coords;
 
 	@Before
 	public void setUp() {
-		FusekiBookBuilder builder = new FusekiBookBuilder(20, 1, "TestBooks", false);
-		// Uncomment the next line to build the book from scratch.
-		builder.analyzeFiles(new File("SgfTestFiles/19"));
-		builder.writeFile();
+		final FusekiBookBuilder builder = new FusekiBookBuilder(20, 2, "test-books",
+				false);
+		// We process the files twice because FusekiBookBuilder requires that a
+		// move be seen at least twice
+		builder.processFiles(new File("sgf-test-files/19"));
+		builder.processFiles(new File("sgf-test-files/19"));
+		builder.writeRawBook();
 		builder.buildFinalBook();
-		book = new FusekiBook("TestBooks");
+		book = new FusekiBook("test-books");
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
 	}
@@ -33,11 +37,14 @@ public class FusekiBookTest {
 	@Test
 	public void testFusekiBook1() {
 		String[] correct;
-			correct = new String[] { "Q4", "D16", "C4" };
-		for (String move : correct) {
-			short m = book.nextMove(board);
+		correct = new String[] { "Q4", "D16", "C4" };
+		for (final String move : correct) {
+			final short m = book.nextMove(board);
 			assertEquals(move, coords.toString(m));
 			board.play(m);
 		}
+		board.play("h8");
+		assertEquals(NO_POINT, book.nextMove(board));
 	}
+
 }

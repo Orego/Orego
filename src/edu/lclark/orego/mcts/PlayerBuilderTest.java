@@ -11,7 +11,7 @@ public class PlayerBuilderTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		builder = new PlayerBuilder();
+		builder = new PlayerBuilder().openingBook(false);
 	}
 
 	@Test

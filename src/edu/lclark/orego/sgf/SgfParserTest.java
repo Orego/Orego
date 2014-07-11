@@ -42,7 +42,7 @@ public class SgfParserTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testSgfToMoves(){
-		List<List<Short>> games = parser.parseGamesFromFile(new File("SgfTestFiles/19/1977-02-27.sgf"), 500);
+		List<List<Short>> games = parser.parseGamesFromFile(new File("sgf-test-files/19/1977-02-27.sgf"), 500);
 		assertEquals(1, games.size());
 		List<Short> game = games.get(0);
 		assertEquals(180, game.size());

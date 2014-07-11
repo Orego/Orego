@@ -24,7 +24,7 @@ public final class SgfParser {
 	public static void main(String[] args) {
 		SgfParser parser = new SgfParser(CoordinateSystem.forWidth(19));
 		List<List<Short>> games = parser.parseGamesFromFile(new File(
-				"SgfTestFiles/19/1977-02-27.sgf"), 179);
+				"sgf-test-files/19/1977-02-27.sgf"), 179);
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				System.out.println(parser.coords.toString(move));
