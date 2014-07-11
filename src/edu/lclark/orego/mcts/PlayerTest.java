@@ -134,6 +134,7 @@ public class PlayerTest {
 		assertTrue(successes >= 5);
 	}
 
+	// TODO Fails nondetermistically
 	@Test
 	public void testDoNotCoupDeGraceTooEarly() {
 		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).build();

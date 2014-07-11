@@ -1,36 +1,49 @@
 package edu.lclark.orego.score;
 
-import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
+import static edu.lclark.orego.core.CoordinateSystem.FIRST_ORTHOGONAL_NEIGHBOR;
+import static edu.lclark.orego.core.CoordinateSystem.LAST_ORTHOGONAL_NEIGHBOR;
+import static edu.lclark.orego.core.NonStoneColor.OFF_BOARD;
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
 
+/**
+ * Scores using Chinese rules (area scoring). Assumes that everything on the
+ * board is alive.
+ */
 @SuppressWarnings("serial")
 public final class ChineseFinalScorer implements FinalScorer {
 
 	private final Board board;
 
-	private final CoordinateSystem coords;
-
+	/**
+	 * The color of the territory currently being explored, or VACANT if no
+	 * neighboring stones have yet been found.
+	 */
 	private Color colorToScore;
 
-	private final ShortSet visitedPoints;
-	
-	private boolean validTerritory;
+	private final CoordinateSystem coords;
 
 	/**
 	 * The amount of komi that white gets. For speed this is stored as a
 	 * negative number
 	 */
-	private double komi;
+	private final double komi;
 
-	@Override
-	public double getKomi() {
-		return -komi;
-	}
+	/**
+	 * True if the territory currently being explored is potentially valid,
+	 * i.e., does not have neighboring stones of two different colors.
+	 */
+	private boolean validTerritory;
+
+	/**
+	 * Used in recursive depth-first search of territories.
+	 */
+	private final ShortSet visitedPoints;
 
 	public ChineseFinalScorer(Board board, double komi) {
 		this.board = board;
@@ -40,11 +53,16 @@ public final class ChineseFinalScorer implements FinalScorer {
 	}
 
 	@Override
+	public double getKomi() {
+		return -komi;
+	}
+
+	@Override
 	public double score() {
 		double result = komi;
 		visitedPoints.clear();
-		for (short p : coords.getAllPointsOnBoard()) {
-			Color color = board.getColorAt(p);
+		for (final short p : coords.getAllPointsOnBoard()) {
+			final Color color = board.getColorAt(p);
 			if (color == BLACK) {
 				result++;
 			} else if (color == WHITE) {
@@ -52,22 +70,20 @@ public final class ChineseFinalScorer implements FinalScorer {
 			}
 
 		}
-		
-		ShortSet vacantPoints = board.getVacantPoints();
+		final ShortSet vacantPoints = board.getVacantPoints();
 		for (int i = 0; i < vacantPoints.size(); i++) {
-			short p = vacantPoints.get(i);
-			if(visitedPoints.contains(p)){
+			final short p = vacantPoints.get(i);
+			if (visitedPoints.contains(p)) {
 				continue;
 			}
 			colorToScore = VACANT;
 			validTerritory = true;
 			visitedPoints.add(p);
-			int territory = searchNeighbors(p);
-			if(validTerritory){
-				if(colorToScore == WHITE){
+			final int territory = searchNeighbors(p);
+			if (validTerritory) {
+				if (colorToScore == WHITE) {
 					result -= territory;
-				}
-				else{
+				} else {
 					result += territory;
 				}
 			}
@@ -75,37 +91,41 @@ public final class ChineseFinalScorer implements FinalScorer {
 		return result;
 	}
 
+	/**
+	 * Searches for the contiguous territory around p. Returns the number of
+	 * vacant points in this territory. Also modifies visitedPoints,
+	 * colorToScore, and validTerritory.
+	 */
 	private int searchNeighbors(short p) {
 		int result = 1;
-		short[] neighbors = coords.getNeighbors(p);
+		final short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			Color nColor = board.getColorAt(n);
-			if(nColor == OFF_BOARD){
+			final short n = neighbors[i];
+			final Color neighborColor = board.getColorAt(n);
+			if (neighborColor == OFF_BOARD) {
 				continue;
 			}
-			
-			if(colorToScore == VACANT){
-				colorToScore = nColor;
+
+			if (colorToScore == VACANT) {
+				colorToScore = neighborColor;
 			}
-			if (nColor == VACANT) {
+			if (neighborColor == VACANT) {
 				if (!visitedPoints.contains(n)) {
 					visitedPoints.add(n);
 					result += searchNeighbors(n);
 				}
-			} else if (nColor == colorToScore) {
+			} else if (neighborColor == colorToScore) {
 				continue;
 			} else {
 				validTerritory = false;
 			}
 		}
 		return result;
-
 	}
 
 	@Override
 	public Color winner() {
-		double score = score();
+		final double score = score();
 		if (score > 0) {
 			return BLACK;
 		} else if (score < 0) {

@@ -1,26 +1,25 @@
 package edu.lclark.orego.score;
 
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.NonStoneColor.*;
 
+/**
+ * Scores using Chinese rules (area scoring).
+ */
 @SuppressWarnings("serial")
 public final class ChinesePlayoutScorer implements PlayoutScorer {
 
-	private Board board;
+	private final Board board;
 
 	/**
 	 * The amount of komi that white gets. For speed this is stored as a
 	 * negative number
 	 */
-	private double komi;
-
-	@Override
-	public double getKomi() {
-		return -komi;
-	}
+	private final double komi;
 
 	public ChinesePlayoutScorer(Board board, double komi) {
 		this.board = board;
@@ -28,11 +27,16 @@ public final class ChinesePlayoutScorer implements PlayoutScorer {
 	}
 
 	@Override
+	public double getKomi() {
+		return -komi;
+	}
+
+	@Override
 	public double score() {
-		CoordinateSystem coords = board.getCoordinateSystem();
+		final CoordinateSystem coords = board.getCoordinateSystem();
 		double result = komi;
-		for (short p : coords.getAllPointsOnBoard()) {
-			Color color = board.getColorAt(p);
+		for (final short p : coords.getAllPointsOnBoard()) {
+			final Color color = board.getColorAt(p);
 			if (color == BLACK) {
 				result++;
 			} else if (color == WHITE) {
@@ -50,7 +54,7 @@ public final class ChinesePlayoutScorer implements PlayoutScorer {
 
 	@Override
 	public Color winner() {
-		double score = score();
+		final double score = score();
 		if (score > 0) {
 			return BLACK;
 		} else if (score < 0) {
