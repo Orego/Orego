@@ -80,7 +80,7 @@ public final class ShortList implements Serializable {
 
 	/**
 	 * Removes and returns the last element of this list.
-	 * 
+	 *
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if this list is empty.
 	 */

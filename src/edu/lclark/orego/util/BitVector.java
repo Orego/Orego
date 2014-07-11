@@ -1,6 +1,6 @@
 package edu.lclark.orego.util;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.fill;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
  * the universe is small; and space is of the essence. If it is necessary to
  * quickly compute the size of the set or traverse the elements, or if the set
  * is very sparse, ShortSet may be preferable.
- * 
+ *
  * @see ShortSet
  * @see BitBoard
  */
@@ -36,15 +36,15 @@ public final class BitVector implements Serializable {
 
 	/** Returns true if i is in this set. */
 	public boolean get(int i) {
-		return (data[i / 64] & (1L << (i % 64))) != 0;
+		return (data[i / 64] & 1L << i % 64) != 0;
 	}
 
 	/** Sets whether i is in this set. */
 	public void set(int i, boolean value) {
 		if (value) {
-			data[i / 64] |= (1L << (i % 64));
+			data[i / 64] |= 1L << i % 64;
 		} else {
-			data[i / 64] &= ~(1L << (i % 64));
+			data[i / 64] &= ~(1L << i % 64);
 		}
 	}
 

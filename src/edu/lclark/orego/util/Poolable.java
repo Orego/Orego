@@ -2,7 +2,7 @@ package edu.lclark.orego.util;
 
 /**
  * Something that can be included in a pool.
- * 
+ *
  * @see Pool
  */
 public interface Poolable<T> {

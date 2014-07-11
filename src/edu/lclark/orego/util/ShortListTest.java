@@ -131,4 +131,16 @@ public class ShortListTest {
 		assertEquals("(E2, B1)", list.toString(coords));
 	}
 
+	@Test(expected=AssertionError.class)
+	public void testInvalidGetIndex() {
+		list.add((short)5);
+		list.get(1);
+	}
+	
+	@Test(expected=AssertionError.class)
+	public void testInvalidSetIndex() {
+		list.add((short)5);
+		list.set(1, (short)8);
+	}
+
 }
