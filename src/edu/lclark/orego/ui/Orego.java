@@ -60,6 +60,10 @@ import edu.lclark.orego.sgf.SgfParser;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
+ * <dt>memory</dt>
+ * <dd>Megabytes of memory used by Orego. The transposition table is scaled
+ * accordingly. Should match the memory allocated to the Java virtual machine
+ * with a command-line argument like -Xmx1024M. Defaults to 1024.
  * <dt>msec</dt>
  * <dd>Sets the milliseconds that Orego takes to decide a move. Not relevant
  * when using time management. Defaults to 1000 milliseconds.</dd>
@@ -169,7 +173,7 @@ public final class Orego {
 
 	/**
 	 * Processes a GTP command.
-	 *
+	 * 
 	 * @return true if command is anything but "quit".
 	 */
 	private boolean handleCommand(String command) {
@@ -194,7 +198,7 @@ public final class Orego {
 
 	/**
 	 * Helper method for handleCommand(String).
-	 *
+	 * 
 	 * @return true if command is anything but "quit".
 	 * @param arguments
 	 *            contains arguments to command, e.g., color to play
@@ -383,6 +387,8 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
+			} else if (left.equals("memory")) {
+				playerBuilder.memorySize(parseInt(right));
 			} else if (left.equals("msec")) {
 				playerBuilder.msecPerMove(parseInt(right));
 			} else if (left.equals("ponder")) {

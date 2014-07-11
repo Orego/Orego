@@ -13,7 +13,7 @@ public final class PlayoutSpeed {
 		Player player = new Player(threads, CopiableStructureFactory.useWithPriors(19, 7.5));
 		Board board = player.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(new SimpleSearchNodeBuilder(coords), coords);
+		TranspositionTable table = new TranspositionTable(1024, new SimpleSearchNodeBuilder(coords), coords);
 		player.setTreeDescender(new UctDescender(board, table, 75));
 		SimpleTreeUpdater updater = new SimpleTreeUpdater(board, table, 0);
 		player.setTreeUpdater(updater);

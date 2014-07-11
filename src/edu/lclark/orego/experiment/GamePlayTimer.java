@@ -19,9 +19,9 @@ public class GamePlayTimer {
 		Board board1 = player1.getBoard();
 		Board board2 = player2.getBoard();
 		CoordinateSystem coords = board1.getCoordinateSystem();
-		TranspositionTable table1 = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
+		TranspositionTable table1 = new TranspositionTable(1024, new SimpleSearchNodeBuilder(coords),
 				coords);
-		TranspositionTable table2 = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
+		TranspositionTable table2 = new TranspositionTable(1024, new SimpleSearchNodeBuilder(coords),
 				coords);
 		player1.setTreeDescender(new UctDescender(board1, table1, 1000));
 		player2.setTreeDescender(new UctDescender(board2, table2, 1));

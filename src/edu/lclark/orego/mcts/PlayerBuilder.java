@@ -34,12 +34,16 @@ public final class PlayerBuilder {
 
 	private boolean coupDeGrace;
 
+	/** Amount of memory allocated to Orego, in megabytes. The transposition table is scaled accordingly. */
+	private int memorySize;
+
 	public PlayerBuilder() {
 		// Default values
 		biasDelay = 800;
 		gestation = 4;
 		komi = 7.5;
 		threads = 2;
+		memorySize = 1024;
 		msecPerMove = 1000;
 		width = 19;
 		usePondering = false;
@@ -69,11 +73,11 @@ public final class PlayerBuilder {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table;
 		if (rave) {
-			table = new TranspositionTable(new RaveNodeBuilder(coords),
+			table = new TranspositionTable(memorySize, new RaveNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new RaveDescender(board, table, biasDelay));
 		} else {
-			table = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
+			table = new TranspositionTable(memorySize, new SimpleSearchNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		}
@@ -122,6 +126,11 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder lgrf2(boolean lgrf2) {
 		this.lgrf2 = lgrf2;
+		return this;
+	}
+
+	public PlayerBuilder memorySize(int megabytes) {
+		memorySize = megabytes;
 		return this;
 	}
 

@@ -15,6 +15,9 @@ import static edu.lclark.orego.core.Point.*;
 @SuppressWarnings("serial")
 public final class Board implements Serializable {
 
+	private final static String[] HANDICAP_LOCATIONS = { "d4", "q16", "q4",
+			"d16", "k10", "d10", "q10", "k4", "k16" };
+
 	/** Stones captured by the last move. */
 	private final ShortList capturedStones;
 
@@ -39,6 +42,12 @@ public final class Board implements Serializable {
 	 * @see #getHash()
 	 */
 	private long hash;
+
+	/**
+	 * Used for undoing move so that we have a record of the intial stones
+	 * played.
+	 */
+	private final ShortSet[] initialStones;
 
 	/** The point, if any, where the simple ko rule prohibits play. */
 	private short koPoint;
@@ -72,14 +81,6 @@ public final class Board implements Serializable {
 
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
-	
-	private final static String[] HANDICAP_LOCATIONS = {"d4", "q16", "q4", "d16", "k10", "d10", "q10", "k4", "k16"};
-
-	/**
-	 * Used for undoing move so that we have a record of the intial stones
-	 * played.
-	 */
-	private final ShortSet[] initialStones;
 
 	public Board(int width) {
 		coords = CoordinateSystem.forWidth(width);
@@ -194,6 +195,21 @@ public final class Board implements Serializable {
 		}
 		for (BoardObserver observer : observers) {
 			observer.clear();
+		}
+	}
+
+	public void clearPreservingInitialStones() {
+		ShortSet[] tempInitial = new ShortSet[] {
+				new ShortSet(coords.getFirstPointBeyondBoard()),
+				new ShortSet(coords.getFirstPointBeyondBoard()) };
+		for (int i = 0; i < 2; i++) {
+			tempInitial[i].addAll(initialStones[i]);
+		}
+		clear();
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < tempInitial[i].size(); j++) {
+				placeInitialStone(i == 0 ? BLACK : WHITE, tempInitial[i].get(j));
+			}
 		}
 	}
 
@@ -591,13 +607,24 @@ public final class Board implements Serializable {
 	}
 
 	/**
-	 * Sets the number of consecutive passes. Used with cleanup mode. Does not
-	 * adjust observers.
+	 * Sets the number of consecutive passes. Does not adjust observers. (This
+	 * is used when running special beyond-the-end-of-the-game playouts to
+	 * determine which stones are alive.)
 	 */
 	public void setPasses(short passes) {
-		// TODO Is it a problem to have passes in the history observer, for
-		// example, but not here?
 		this.passes = passes;
+	}
+
+	public void setUpHandicap(int handicapSize) {
+		clear();
+		for (int i = 0; i < handicapSize; i++) {
+			if ((handicapSize == 6 || handicapSize == 8) && i == 4) {
+				i++;
+				handicapSize++;
+			}
+			placeInitialStone(BLACK, coords.at(HANDICAP_LOCATIONS[i]));
+		}
+		setColorToPlay(WHITE);
 	}
 
 	/**
@@ -635,32 +662,5 @@ public final class Board implements Serializable {
 			result += "\n";
 		}
 		return result;
-	}
-
-	public void clearPreservingInitialStones() {
-		ShortSet[] tempInitial = new ShortSet[] {
-				new ShortSet(coords.getFirstPointBeyondBoard()),
-				new ShortSet(coords.getFirstPointBeyondBoard()) };
-		for (int i = 0; i < 2; i++) {
-			tempInitial[i].addAll(initialStones[i]);
-		}
-		clear();
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < tempInitial[i].size(); j++) {
-				placeInitialStone(i == 0 ? BLACK : WHITE, tempInitial[i].get(j));
-			}
-		}
-	}
-
-	public void setUpHandicap(int handicapSize) {
-		clear();
-		for(int i = 0; i<handicapSize; i++){
-			if((handicapSize==6 || handicapSize==8) && i == 4){
-				i++;
-				handicapSize++;
-			}
-			placeInitialStone(BLACK, coords.at(HANDICAP_LOCATIONS[i]));
-		}
-		setColorToPlay(WHITE);
 	}
 }

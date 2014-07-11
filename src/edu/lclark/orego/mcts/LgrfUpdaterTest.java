@@ -30,7 +30,7 @@ public class LgrfUpdaterTest {
 		player = new Player(threads, copy);
 		Board board = player.getBoard();
 		coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(coords), coords);
+		TranspositionTable table = new TranspositionTable(64, new SimpleSearchNodeBuilder(coords), coords);
 		player.setTreeDescender(new UctDescender(board, table, 75));
 		lgrfTable = copy.get(LgrfTable.class);
 		updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, 0), lgrfTable);

@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.StoneCounter;
-import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -478,7 +477,7 @@ public class BoardTest {
 				"..................." // 1
 		      // ABCDEFGHJKLMNOPQRST
 		};
-		Board board = new Board(19);
+		board = new Board(19);
 		board.setUpProblem(problem, WHITE);
 		long hash = board.getFancyHash();
 		board.setUpHandicap(5);

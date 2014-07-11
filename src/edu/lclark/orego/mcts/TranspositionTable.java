@@ -15,8 +15,9 @@ public final class TranspositionTable {
 
 	private final CoordinateSystem coords;
 
-	public TranspositionTable(int size, SearchNodeBuilder builder,
+	public TranspositionTable(int megabytes, SearchNodeBuilder builder,
 			CoordinateSystem coords) {
+		int size = megabytes * 1024 * 32 / Math.max(81, coords.getArea());
 		table = new SearchNode[size];
 		for (int i = 0; i < size; i++) {
 			table[i] = builder.build();
@@ -28,20 +29,17 @@ public final class TranspositionTable {
 		this.coords = coords;
 	}
 
-	public TranspositionTable(SearchNodeBuilder builder, CoordinateSystem coords) {
-		/**
-		 * The calculation here is for the number of nodes to allocate in
-		 * general
-		 */
-		this(1024 * 1024 * 32 / Math.max(81, coords.getArea()), builder, coords);
-	}
-
 	/** Adds child as a child of parent. */
 	void addChild(SearchNode parent, SearchNode child) {
 		ListNode<SearchNode> node = listNodes.allocate();
 		node.setKey(child);
 		node.setNext(parent.getChildren());
 		parent.setChildren(node);
+	}
+
+	/** Returns the number of nodes in the table. For testing. */
+	int getCapacity() {
+		return table.length;
 	}
 
 	/**
