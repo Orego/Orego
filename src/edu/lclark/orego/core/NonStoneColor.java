@@ -9,10 +9,19 @@ public enum NonStoneColor implements Color {
 	/** Color of an unoccupied point. */
 	VACANT('.', 2);
 
+	public static NonStoneColor forChar(char c) {
+		if (c == OFF_BOARD.toChar()) {
+			return OFF_BOARD;
+		} else if (c == VACANT.toChar()) {
+			return VACANT;
+		}
+		return null;
+	}
+
 	private char glyph;
 
 	private int index;
-	
+
 	private NonStoneColor(char c, int index) {
 		glyph = c;
 		this.index = index;
@@ -26,15 +35,6 @@ public enum NonStoneColor implements Color {
 	@Override
 	public char toChar() {
 		return glyph;
-	}
-
-	public static NonStoneColor forChar(char c) {
-		if (c == OFF_BOARD.toChar()) {
-			return OFF_BOARD;
-		} else if (c == VACANT.toChar()) {
-			return VACANT;
-		}
-		return null;
 	}
 
 }

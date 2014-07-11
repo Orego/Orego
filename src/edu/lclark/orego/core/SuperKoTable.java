@@ -33,7 +33,7 @@ public final class SuperKoTable implements Serializable {
 	/** Adds key to this table. */
 	public void add(long key) {
 		if (key != EMPTY) {
-			int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
+			int slot = ((int) key & IGNORE_SIGN_BIT) % data.length;
 			while (data[slot] != EMPTY) {
 				if (data[slot] == key) {
 					return;
@@ -42,6 +42,11 @@ public final class SuperKoTable implements Serializable {
 			}
 			data[slot] = key;
 		}
+	}
+
+	/** Returns the number of slots in the table. */
+	int capacity() {
+		return data.length;
 	}
 
 	/** Removes all elements from this table. */
@@ -54,7 +59,7 @@ public final class SuperKoTable implements Serializable {
 		if (key == EMPTY) {
 			return true;
 		}
-		int slot = (((int) key) & IGNORE_SIGN_BIT) % data.length;
+		int slot = ((int) key & IGNORE_SIGN_BIT) % data.length;
 		while (data[slot] != EMPTY) {
 			if (data[slot] == key) {
 				return true;
@@ -70,11 +75,6 @@ public final class SuperKoTable implements Serializable {
 	 */
 	public void copyDataFrom(SuperKoTable that) {
 		System.arraycopy(that.data, 0, data, 0, data.length);
-	}
-
-	/** Returns the number of slots in the table. */
-	int capacity() {
-		return data.length;
 	}
 
 }
