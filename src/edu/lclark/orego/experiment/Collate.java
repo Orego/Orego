@@ -15,6 +15,8 @@ public final class Collate {
 	private int[] timeLosses;
 
 	private int[] totalMoves;
+	
+	private int[] ties;
 
 	/** Orego command-line arguments given in all conditions. */
 	private String always;
@@ -63,6 +65,7 @@ public final class Collate {
 		oregoWins = new int[n];
 		timeLosses = new int[n];
 		totalMoves = new int[n];
+		ties = new int[n];
 	}
 
 	private void produceSummary(File folder) {
@@ -82,6 +85,7 @@ public final class Collate {
 						+ ((float) totalMoves[i] / (float) runs[i]));
 				// TODO Yes, but did we lose or did gnugo?
 				output(writer, "Games out of time: " + timeLosses[i]);
+				output(writer, "Tied games: " + ties[i]);
 				output(writer, "\n");
 				i++;
 			}
@@ -128,7 +132,9 @@ public final class Collate {
 					if (token.contains("Time")) {
 						timeLosses[condition]++;
 					}
-					// TODO Deal with ties
+					if(token.charAt(0) == '0'){
+						ties[condition]++;
+					}
 					if (token.charAt(0) == oregoColor) {
 						oregoWins[condition]++;
 					}

@@ -23,7 +23,7 @@ public class LgrfUpdaterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// TODO This is an awful lot of work, done (e.g.) here and in PlayoutSpeed. Encapsulate!
+		// Cannot use the PlayerBuilder here because test requires acces to hidden, optional features of the player.
 		final int milliseconds = 100;
 		final int threads = 4;
 		CopiableStructure copy = CopiableStructureFactory.lgrfWithPriors(5, 7.5);
