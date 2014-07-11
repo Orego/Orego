@@ -35,6 +35,10 @@ public final class Broadcast {
 		System.out.println("Preparing to launch "
 				+ (EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size())
 				+ " games");
+		System.out
+				.println("Estimated time (hours) : "
+						+ ((EXPERIMENT.gamesPerCondition
+								* EXPERIMENT.conditions.size() * EXPERIMENT.timePerGame) / (EXPERIMENT.gamesPerHost * 3600.0)));
 		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp(true)
 				+ separator;
 		System.out
