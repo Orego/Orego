@@ -324,7 +324,7 @@ public final class Player {
 	}
 
 	public void setRemainingTime(int seconds) {
-		timeLeftSent = true;
+		timeLeftWasSent = true;
 		timeManager.setRemainingTime(seconds);
 	}
 
