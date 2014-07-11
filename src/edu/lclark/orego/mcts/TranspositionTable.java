@@ -95,11 +95,6 @@ public final class TranspositionTable {
 		return null;
 	}
 
-	/** Returns the pool of ListNodes. For testing only. */
-	Pool<ListNode<SearchNode>> getListNodes() {
-		return listNodes;
-	}
-
 	/** Marks all nodes reachable from root, so they will survive sweep(). Returns the number of nodes marked. */
 	int markNodesReachableFrom(SearchNode root) {
 		if (root == null || root.isMarked()) {
