@@ -114,6 +114,7 @@ public final class ExitingTimeManager implements TimeManager {
 	// TODO Use seconds or msec instead of time in naming
 	@Override
 	public int getTime() {
+		assert player.shouldKeepRunning() == false;
 		if (slicesRemaining == 0) {
 //			System.err.println("Out of slices; stopping");
 			rollover = 0;

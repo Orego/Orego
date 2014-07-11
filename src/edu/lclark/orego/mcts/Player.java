@@ -320,7 +320,7 @@ public final class Player {
 	}
 
 	/** True if McRunnables attached to this Player should keep running. */
-	boolean shouldKeepRunning() {
+	public boolean shouldKeepRunning() {
 		return keepRunning;
 	}
 
