@@ -45,6 +45,8 @@ enum ExperimentConfiguration {
 	final String gnugo;
 
 	final Rules rules;
+	
+	final int timePerGame;
 
 	/** Reads settings from config/system.properties. */
 	private ExperimentConfiguration() {
@@ -66,6 +68,7 @@ enum ExperimentConfiguration {
 		}
 		final int boardSize = parseInt(properties.getProperty("boardSize"));
 		final double komi = parseDouble(properties.getProperty("komi"));
+		timePerGame = parseInt(properties.getProperty("time")) * 2;
 		rules = new Rules(boardSize,
 				komi,
 				parseInt(properties.getProperty("time")));
