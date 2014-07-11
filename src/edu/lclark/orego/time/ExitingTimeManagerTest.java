@@ -20,8 +20,7 @@ public class ExitingTimeManagerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		// TODO Should we set a smaller transposition table size?
-		player = new PlayerBuilder().threads(1).timeManagement("exiting").openingBook(false).build();
+		player = new PlayerBuilder().threads(1).timeManagement("exiting").openingBook(false).memorySize(64).build();
 		coords = player.getBoard().getCoordinateSystem();
 		manager = (ExitingTimeManager)player.getTimeManager();
 	}
@@ -30,27 +29,27 @@ public class ExitingTimeManagerTest {
 	public void testCompareRest() {
 		player.setRemainingTime(10000);
 		SearchNode root = player.getRoot();
-		assertNotEquals(0, manager.getTime());
+		assertNotEquals(0, manager.getMsec());
 		root.update(coords.at("a5"), 1000, 1000);
-		assertEquals(0, manager.getTime(), .01);
+		assertEquals(0, manager.getMsec(), .01);
 	}
 	
 	@Test
 	public void testRollover(){
 		player.setRemainingTime(10000);
 		SearchNode root = player.getRoot();
-		assertNotEquals(0, manager.getTime());
+		assertNotEquals(0, manager.getMsec());
 		
 		root.update(coords.at("a5"), 1000, 1000);
-		assertEquals(0, manager.getTime(), .01);
+		assertEquals(0, manager.getMsec(), .01);
 		assertNotEquals(0, manager.getRollover());
 		for(short p : coords.getAllPointsOnBoard()){
 			if(p != coords.at("a5")){
 				root.update(p, 1000, 1000);
 			}
 		}
-		while(manager.getTime() != 0){
-			manager.getTime();
+		while(manager.getMsec() != 0){
+			manager.getMsec();
 		}
 		assertEquals(0, manager.getRollover());
 	}

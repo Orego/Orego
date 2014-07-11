@@ -16,10 +16,10 @@ public class SimpleTimeManagerTest {
 
 	@Test
 	public void testGetTime() {
-		assertEquals(123, manager.getTime());
-		assertEquals(0, manager.getTime());
+		assertEquals(123, manager.getMsec());
+		assertEquals(0, manager.getMsec());
 		manager.startNewTurn();
-		assertEquals(123, manager.getTime());
+		assertEquals(123, manager.getMsec());
 	}
 
 }

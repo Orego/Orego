@@ -111,7 +111,7 @@ public final class Player {
 			cleanup();
 		}
 		timeManager.startNewTurn();
-		msecPerMove = timeManager.getTime();
+		msecPerMove = timeManager.getMsec();
 		do {
 			startThreads();
 			try {
@@ -121,7 +121,7 @@ public final class Player {
 				System.exit(1);
 			}
 			stopThreads();
-			msecPerMove = timeManager.getTime();
+			msecPerMove = timeManager.getMsec();
 		} while (msecPerMove > 0);
 		// System.err.println("Done thinking");
 		// System.err.println("Move will be " + descender.bestPlayMove());
@@ -131,15 +131,13 @@ public final class Player {
 	private boolean passIfAhead() {
 		double score = finalScorer.score();
 		int ourDead = findDeadStones(1.0, board.getColorToPlay()).size();
-		int opponentDead = findDeadStones(0.1,
-				board.getColorToPlay().opposite()).size();
 		if (board.getColorToPlay() == WHITE) {
-			score += (2 * ourDead) - (2 * opponentDead);
+			score += 2 * ourDead;
 			if (score < 0) {
 				return true;
 			}
 		} else {
-			score += (2 * opponentDead) - (2 * ourDead);
+			score -= 2 * ourDead;
 			if (score > 0) {
 				return true;
 			}

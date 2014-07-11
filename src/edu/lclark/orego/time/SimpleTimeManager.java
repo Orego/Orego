@@ -12,7 +12,7 @@ public final class SimpleTimeManager implements TimeManager {
 	}
 
 	@Override
-	public int getTime() {
+	public int getMsec() {
 		if(alreadyThought){
 			return 0;
 		}

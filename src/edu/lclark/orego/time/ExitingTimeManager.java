@@ -54,7 +54,7 @@ public final class ExitingTimeManager implements TimeManager {
 	/** The constant C to use in the time management formula. */
 	private double timeC = 0.20;
 
-	private int timePerSlice;
+	private int msecPerSlice;
 
 	/** Time left for the rest of our moves, in msec. */
 	private int msecRemaining;
@@ -98,7 +98,7 @@ public final class ExitingTimeManager implements TimeManager {
 	private void createSlices() {
 //		System.err.println("Creating slices");
 		slicesRemaining = SLICE_COUNT;
-		timePerSlice = (getMsecPerMove() + rollover) / SLICE_COUNT;
+		msecPerSlice = (getMsecPerMove() + rollover) / SLICE_COUNT;
 //		System.err.println("Allocated " + timePerSlice + " msec per slice");
 	}
 
@@ -111,23 +111,19 @@ public final class ExitingTimeManager implements TimeManager {
 		return rollover;
 	}
 
-	// TODO Use seconds or msec instead of time in naming
 	@Override
-	public int getTime() {
+	public int getMsec() {
 		assert player.shouldKeepRunning() == false;
 		if (slicesRemaining == 0) {
-//			System.err.println("Out of slices; stopping");
 			rollover = 0;
 			return 0;
 		}
 		if (slicesRemaining < SLICE_COUNT && confidenceBestVsRest() > 0.95) {
-//			System.err.println("Confident in best move; stopping");
-			rollover = slicesRemaining * timePerSlice;
+			rollover = slicesRemaining * msecPerSlice;
 			return 0;
 		}
-//		System.err.println("Starting slice " + slicesRemaining);
 		slicesRemaining--;
-		return timePerSlice;
+		return msecPerSlice;
 	}
 
 	@Override

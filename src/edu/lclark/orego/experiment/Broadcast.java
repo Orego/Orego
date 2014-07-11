@@ -70,21 +70,4 @@ public final class Broadcast {
 		}
 		System.out.println("Broadcast experiment launched.");
 	}
-
-	/**
-	 * Determines the current git commit and writes it to filename.
-	 */
-	private static void writeGitCommit(String filename) {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "log", "--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
-			String commit = s.nextLine();
-			try (PrintWriter out = new PrintWriter(filename)) {
-				// substring to remove single quotes that would otherwise appear
-				out.println(commit.substring(1, commit.length() - 1));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-
 }

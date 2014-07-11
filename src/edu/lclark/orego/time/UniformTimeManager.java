@@ -19,7 +19,7 @@ public final class UniformTimeManager implements TimeManager {
 	}
 
 	@Override
-	public int getTime() {
+	public int getMsec() {
 		if (!alreadyThought) {
 			int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
 			alreadyThought = true;

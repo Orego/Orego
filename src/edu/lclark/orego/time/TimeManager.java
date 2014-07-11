@@ -7,7 +7,7 @@ public interface TimeManager {
 	 * Gets the amount of time (in msec) to think before asking again. Returns 0
 	 * if no more thinking should be done this turn.
 	 */
-	public int getTime();
+	public int getMsec();
 
 	/** Resets state to start a new turn. */
 	public void startNewTurn();
