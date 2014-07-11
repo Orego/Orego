@@ -29,6 +29,8 @@ public final class Player {
 	 */
 	private boolean cleanupMode;
 
+	private boolean coupDeGrace;
+
 	/** @see TreeDescender */
 	private TreeDescender descender;
 
@@ -36,6 +38,8 @@ public final class Player {
 	private ExecutorService executor;
 
 	private FinalScorer finalScorer;
+
+	private HistoryObserver historyObserver;
 
 	/**
 	 * True if the threads should keep running, e.g., because time has not run
@@ -49,17 +53,19 @@ public final class Player {
 	/** For running playouts. */
 	private final McRunnable[] runnables;
 
+	/**
+	 * True if the setTimeRemaining method has been called, because a time_left
+	 * command was received. If true, use the time manager. Otherwise just allocate msecPerMove for each move.
+	 */
+	private boolean timeLeftWasSent;
+
 	/** Object used to calculate amount of time used in generating a move. */
 	private TimeManager timeManager;
 
 	/** @see TreeUpdater */
 	private TreeUpdater updater;
-	
-	private HistoryObserver historyObserver;
 
 	private boolean usePondering;
-
-	private boolean coupDeGrace;
 
 	/**
 	 * @param threads
@@ -79,6 +85,7 @@ public final class Player {
 		descender = new DoNothing();
 		updater = new DoNothing();
 		book = new DoNothing();
+		timeLeftWasSent = false;
 	}
 
 	/** Plays at p on this player's board. */
@@ -110,9 +117,7 @@ public final class Player {
 			}
 			cleanup();
 		}
-		timeManager.startNewTurn();
-		msecPerMove = timeManager.getMsec();
-		do {
+		if (!timeLeftWasSent) {
 			startThreads();
 			try {
 				Thread.sleep(msecPerMove);
@@ -121,28 +126,22 @@ public final class Player {
 				System.exit(1);
 			}
 			stopThreads();
-			msecPerMove = timeManager.getMsec();
-		} while (msecPerMove > 0);
-		// System.err.println("Done thinking");
-		// System.err.println("Move will be " + descender.bestPlayMove());
-		return descender.bestPlayMove();
-	}
-
-	private boolean passIfAhead() {
-		double score = finalScorer.score();
-		int ourDead = findDeadStones(1.0, board.getColorToPlay()).size();
-		if (board.getColorToPlay() == WHITE) {
-			score += 2 * ourDead;
-			if (score < 0) {
-				return true;
-			}
 		} else {
-			score -= 2 * ourDead;
-			if (score > 0) {
-				return true;
-			}
+			timeManager.startNewTurn();
+			msecPerMove = timeManager.getMsec();
+			do {
+				startThreads();
+				try {
+					Thread.sleep(msecPerMove);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
+				stopThreads();
+				msecPerMove = timeManager.getMsec();
+			} while (msecPerMove > 0);
 		}
-		return false;
+		return descender.bestPlayMove();
 	}
 
 	/**
@@ -187,8 +186,8 @@ public final class Player {
 	public void descend(McRunnable runnable) {
 		descender.descend(runnable);
 	}
-	
-	public void endGame(){
+
+	public void endGame() {
 		stopThreads();
 	}
 
@@ -259,6 +258,14 @@ public final class Player {
 		return runnables.length;
 	}
 
+	public int getPlayoutCount() {
+		int playouts = 0;
+		for (McRunnable runnable : runnables) {
+			playouts += runnable.getPlayoutsCompleted();
+		}
+		return playouts;
+	}
+
 	public SearchNode getRoot() {
 		return updater.getRoot();
 	}
@@ -270,6 +277,23 @@ public final class Player {
 	/** Returns the updater for this player. */
 	protected TreeUpdater getUpdater() {
 		return updater;
+	}
+
+	private boolean passIfAhead() {
+		double score = finalScorer.score();
+		int ourDead = findDeadStones(1.0, board.getColorToPlay()).size();
+		if (board.getColorToPlay() == WHITE) {
+			score += 2 * ourDead;
+			if (score < 0) {
+				return true;
+			}
+		} else {
+			score -= 2 * ourDead;
+			if (score > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void setCleanupMode(boolean cleanup) {
@@ -300,6 +324,7 @@ public final class Player {
 	}
 
 	public void setRemainingTime(int seconds) {
+		timeLeftSent = true;
 		timeManager.setRemainingTime(seconds);
 	}
 
@@ -315,6 +340,22 @@ public final class Player {
 	/** @see TreeUpdater */
 	public void setTreeUpdater(TreeUpdater updater) {
 		this.updater = updater;
+	}
+
+	public void setUpHandicap(int handicapSize) {
+		clear();
+		board.setUpHandicap(handicapSize);
+	}
+
+	@SuppressWarnings("boxing")
+	public void setUpSgfGame(List<Short> moves) {
+		board.clear();
+		for (Short move : moves) {
+			if (board.play(move) != OK) {
+				throw new IllegalArgumentException("Sgf contained illegal move");
+			}
+		}
+
 	}
 
 	/** True if McRunnables attached to this Player should keep running. */
@@ -354,6 +395,27 @@ public final class Player {
 		return descender.toString();
 	}
 
+	public boolean undo() {
+		if (board.getTurn() == 0) {
+			return false;
+		}
+		boolean alreadyRunning = keepRunning;
+		stopThreads();
+		ShortList movesList = new ShortList(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		for (int i = 0; i < historyObserver.size() - 1; i++) {
+			movesList.add(historyObserver.get(i));
+		}
+
+		board.clearPreservingInitialStones();
+		for (int i = 0; i < movesList.size(); i++) {
+			board.play(movesList.get(i));
+		}
+		if (alreadyRunning) {
+			startThreads();
+		}
+		return true;
+	}
+
 	/** Incorporate the result of a run in the tree. */
 	public void updateTree(Color winner, McRunnable mcRunnable) {
 		updater.updateTree(winner, mcRunnable);
@@ -361,51 +423,6 @@ public final class Player {
 
 	public void usePondering(boolean pondering) {
 		this.usePondering = pondering;
-	}
-
-	public int getPlayoutCount() {
-		int playouts = 0;
-		for(McRunnable runnable : runnables){
-			playouts += runnable.getPlayoutsCompleted();
-		}
-		return playouts;
-	}
-
-	public boolean undo() {
-		if(board.getTurn() == 0){
-			return false;
-		}
-		boolean alreadyRunning = keepRunning;
-		stopThreads();
-		ShortList movesList = new ShortList(board.getCoordinateSystem().getFirstPointBeyondBoard());
-		for(int i = 0; i<historyObserver.size() -1; i++){
-			movesList.add(historyObserver.get(i));
-		}
-		
-		board.clearPreservingInitialStones();
-		for(int i = 0; i<movesList.size(); i++){
-			board.play(movesList.get(i));
-		}
-		if(alreadyRunning){
-			startThreads();
-		}
-		return true;
-	}
-
-	@SuppressWarnings("boxing")
-	public void setUpSgfGame(List<Short> moves) {
-		board.clear();
-		for(Short move : moves){
-			if(board.play(move) != OK){
-				throw new IllegalArgumentException("Sgf contained illegal move");
-			}
-		}
-		
-	}
-
-	public void setUpHandicap(int handicapSize) {
-		clear();
-		board.setUpHandicap(handicapSize);
 	}
 
 }

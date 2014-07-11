@@ -88,8 +88,6 @@ public final class PlayerBuilder {
 		} else {
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
-		// TODO If time manager is set, but time left commands are not getting
-		// sent, we should use the default msecPerMove.
 		if (managerType.equals("exiting")) {
 			result.setTimeManager(new ExitingTimeManager(result));
 		} else if (managerType.equals("uniform")) {
