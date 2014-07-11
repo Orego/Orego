@@ -54,7 +54,7 @@ public final class OnThirdOrFourthLine implements Predicate {
 
 	/**
 	 * Used so that serialization, as used in CopiableStructure, does not create
-	 * redundant CoordinateSystems.
+	 * redundant OnThirdOrFourthLine objects.
 	 *
 	 * @see edu.lclark.orego.mcts.CopiableStructure
 	 */
