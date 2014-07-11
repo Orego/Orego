@@ -20,7 +20,8 @@ public class PlayerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64).openingBook(false).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64)
+				.openingBook(false).build();
 	}
 
 	@Test
@@ -70,7 +71,7 @@ public class PlayerTest {
 		// Black is doomed -- DOOMED! -- and therefore should resign
 		assertEquals(RESIGN, move);
 	}
-	
+
 	@Test
 	public void testUndo() {
 		String[] before = {
@@ -88,10 +89,49 @@ public class PlayerTest {
 		assertEquals(fancyHash, player.getBoard().getFancyHash());
 	}
 
-	// TODO Make a smaller, faster test
+	@Test
+	public void testGetPlayouts() {
+		player.clear();
+		for (int i = 0; i < 5; i++) {
+			player.getMcRunnable(0).performMcRun();
+		}
+		for (int i = 0; i < 8; i++) {
+			player.getMcRunnable(2).performMcRun();
+		}
+		for (int i = 0; i < 2; i++) {
+			player.getMcRunnable(3).performMcRun();
+		}
+		assertEquals(15, player.getPlayoutCount());
+	}
+
+	@Test
+	public void testCleanup() {
+		String[] before = {
+				".##O#",
+				"##OO.",
+				"##O.O",
+				".#OO.",
+				".##OO",
+		};
+		player.clear();
+		player.getBoard().setUpProblem(before, WHITE);
+		player.setCleanupMode(true);
+		short move = player.bestMove();
+
+		assertEquals(at("e4"), move);
+		player.acceptMove(move);
+		player.acceptMove(at("a1"));
+		move = player.bestMove();
+		assertEquals(PASS, move);
+	}
+
+	// Coup De Grace tests use a 19x19 board because options are so limited on
+	// smaller boards and regular MCTS works so well. This makes it hard to
+	// distinguish whether our biasing is actually working on small boards.
 	@Test
 	public void testCoupDeGrace() {
-		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace(true).memorySize(64).openingBook(false).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace(true)
+				.memorySize(64).openingBook(false).build();
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -112,7 +152,7 @@ public class PlayerTest {
 				".OO.O.#O##OOOOO##..",// 3
 				"O.O.O.#OOO##O######",// 2
 				"..O.O.##O.#.######." // 1
-			  // ABCDEFGHJKLMNOPQRST
+		// ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
@@ -134,7 +174,8 @@ public class PlayerTest {
 
 	@Test
 	public void testDoNotCoupDeGraceTooEarly() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).openingBook(false).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true)
+				.memorySize(64).openingBook(false).build();
 		String[] problem = new String[] {
 				"...................",// 19
 				"...................",// 18
@@ -155,7 +196,7 @@ public class PlayerTest {
 				"...................",// 3
 				"...................",// 2
 				"..................." // 1
-		      // ABCDEFGHJKLMNOPQRST
+		// ABCDEFGHJKLMNOPQRST
 		};
 		int failures = 0;
 		for (int i = 0; i < 10; i++) {
@@ -166,14 +207,15 @@ public class PlayerTest {
 			int move = player.bestMove();
 			if (move == at("a2") || move == at("b1")) {
 				failures++;
-			} 
+			}
 		}
 		assertTrue(failures <= 2);
 	}
 
 	@Test
 	public void testPassToWin() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true).memorySize(64).openingBook(false).build();
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true)
+				.memorySize(64).openingBook(false).build();
 		String[] problem = new String[] {
 				"...................",// 19
 				"...................",// 18
@@ -202,42 +244,6 @@ public class PlayerTest {
 			player.acceptMove(PASS);
 			assertEquals(PASS, player.bestMove());
 		}
-	}
-	
-	@Test
-	public void testCleanup() {
-		String[] before = {
-				".##O#",
-				"##OO.",
-				"##O.O",
-				".#OO.",
-				".##OO",
-		};
-		player.clear();
-		player.getBoard().setUpProblem(before, WHITE);
-		player.setCleanupMode(true);
-		short move = player.bestMove();
-		
-		assertEquals(at("e4"), move);
-		player.acceptMove(move);
-		player.acceptMove(at("a1"));
-		move = player.bestMove();
-		assertEquals(PASS, move);
-	}
-	
-	@Test
-	public void testGetPlayouts(){
-		player.clear();
-		for(int i = 0; i<5; i++){
-		player.getMcRunnable(0).performMcRun();
-		}
-		for(int i = 0; i<8; i++){
-			player.getMcRunnable(2).performMcRun();
-		}
-		for(int i = 0; i<2; i++){
-			player.getMcRunnable(3).performMcRun();
-		}
-		assertEquals(15, player.getPlayoutCount());
 	}
 
 }
