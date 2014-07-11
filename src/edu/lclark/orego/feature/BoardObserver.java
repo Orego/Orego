@@ -17,8 +17,8 @@ public interface BoardObserver extends Serializable {
 
 	/**
 	 * Copies data from that, which is assumed to be of the same type as this.
-	 * (We can't use generics for type safety because a Board will need tell a
-	 * variety of observers to copy data from their originals.
+	 * (We can't use generics for type safety because a Board contains a variety
+	 * of BoardObservers in the same list.)
 	 */
 	public void copyDataFrom(BoardObserver that);
 

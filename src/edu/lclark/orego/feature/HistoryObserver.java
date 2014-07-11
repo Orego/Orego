@@ -14,35 +14,28 @@ import edu.lclark.orego.util.ShortList;
 public final class HistoryObserver implements BoardObserver {
 
 	private final Board board;
-		
+
 	/** The sequence of moves. */
 	private final ShortList history;
-	
+
 	public HistoryObserver(Board board) {
 		this.board = board;
-		CoordinateSystem coords = board.getCoordinateSystem();
+		final CoordinateSystem coords = board.getCoordinateSystem();
 		history = new ShortList(coords.getMaxMovesPerGame());
 		board.addObserver(this);
-	}
-
-	@Override
-	public void update(StoneColor color, short location,
-			ShortList capturedStones) {
-		assert location == CoordinateSystem.PASS || board.getCoordinateSystem().isOnBoard(location);
-		if (board.getTurn() > 0) {
-			history.add(location);
-		}
 	}
 
 	@Override
 	public void clear() {
 		history.clear();
 	}
-	
-	public int size(){
-		return history.size();
+
+	@Override
+	public void copyDataFrom(BoardObserver that) {
+		final HistoryObserver original = (HistoryObserver) that;
+		history.copyDataFrom(original.history);
 	}
-	
+
 	/** Returns the move played at time t. If t < 0, returns NO_POINT. */
 	public short get(int t) {
 		if (t < 0) {
@@ -51,16 +44,14 @@ public final class HistoryObserver implements BoardObserver {
 		return history.get(t);
 	}
 
-	@Override
-	public void copyDataFrom(BoardObserver that) {
-		HistoryObserver original = (HistoryObserver)that;
-		history.copyDataFrom(original.history);
+	public int size() {
+		return history.size();
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder result = new StringBuilder();
-		CoordinateSystem coords = board.getCoordinateSystem();
+		final StringBuilder result = new StringBuilder();
+		final CoordinateSystem coords = board.getCoordinateSystem();
 		result.append("[");
 		if (history.size() > 0) {
 			result.append(coords.toString(history.get(0)));
@@ -71,6 +62,16 @@ public final class HistoryObserver implements BoardObserver {
 		}
 		result.append("]");
 		return result.toString();
+	}
+
+	@Override
+	public void update(StoneColor color, short location,
+			ShortList capturedStones) {
+		assert location == CoordinateSystem.PASS
+				|| board.getCoordinateSystem().isOnBoard(location);
+		if (board.getTurn() > 0) {
+			history.add(location);
+		}
 	}
 
 }

@@ -1,4 +1,4 @@
-package edu.lclark.patterns;
+package edu.lclark.orego.patterns;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -202,7 +202,7 @@ public final class PatternExtractor {
 	@SuppressWarnings("unused")
 	private void buildPatternData(File file) {
 		analyzeFiles(file);
-		try (FileOutputStream out = new FileOutputStream("PatternData/Pro3x3PatternData.data");
+		try (FileOutputStream out = new FileOutputStream("patterns/patterns3x3.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(runs);
 			oos.writeObject(wins);
@@ -241,7 +241,7 @@ public final class PatternExtractor {
 		// .buildPatternData(new File(
 		// "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 		try (ObjectInputStream objectInputStream = new ObjectInputStream(
-				new FileInputStream("PatternData/Pro3x3PatternData.data"))) {
+				new FileInputStream("patterns/patterns3x3.data"))) {
 			int[] fileRuns = (int[]) objectInputStream.readObject();
 			int[] fileWins = (int[]) objectInputStream.readObject();
 			objectInputStream.close();
@@ -268,21 +268,6 @@ public final class PatternExtractor {
 			}
 		}
 
-
-		//This is used to generate an output file with data that can be graphed in Mathematica.
-//		private static final String OUTPUT_FILE = "PatternData/Pro3x3PatternData.csv";
-		// try (PrintWriter writer = new PrintWriter(OUTPUT_FILE, "UTF-8")) {
-		// for (Pattern pattern : extractor.getPatterns()) {
-		// writer.println(pattern.getWinRate() + ","
-		// + (float) pattern.getRuns() / highestRuns);
-		// if (pattern.getWinRate() > .79 && pattern.getWinRate() < .81) {
-		// System.out.println(pattern);
-		// }
-		// }
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// System.exit(1);
-		// }
 	}
 
 }

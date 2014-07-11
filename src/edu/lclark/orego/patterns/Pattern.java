@@ -1,4 +1,4 @@
-package edu.lclark.patterns;
+package edu.lclark.orego.patterns;
 
 public class Pattern implements Comparable<Pattern>{
 	

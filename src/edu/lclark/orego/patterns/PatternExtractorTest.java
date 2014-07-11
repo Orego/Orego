@@ -1,4 +1,4 @@
-package edu.lclark.patterns;
+package edu.lclark.orego.patterns;
 
 import static org.junit.Assert.*;
 
