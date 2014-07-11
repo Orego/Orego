@@ -69,7 +69,7 @@ public final class CopiableStructureFactory {
 		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board))));
-		return base.add(MoverFactory.escapePatternCapture(board, atariObserver,
+		return base.add(MoverFactory.escapePatternCapturer(board, atariObserver,
 				historyObserver));
 	}
 

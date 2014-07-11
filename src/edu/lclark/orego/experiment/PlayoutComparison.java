@@ -25,7 +25,7 @@ public final class PlayoutComparison {
 		Board board = new Board(19);
 		AtariObserver atariObserver = new AtariObserver(board);
 		HistoryObserver historyObserver = new HistoryObserver(board);
-		Mover mover1 = escapePatternCapture(board, atariObserver, historyObserver);
+		Mover mover1 = escapePatternCapturer(board, atariObserver, historyObserver);
 		Mover mover2 = escapeCapturer(board, atariObserver);
 		Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
