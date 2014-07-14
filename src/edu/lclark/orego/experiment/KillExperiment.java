@@ -17,6 +17,10 @@ public final class KillExperiment {
 			for (int i = 0; i < hosts.length; i++) {
 				// TODO Can we be a little less extreme about this?
 				ProcessBuilder builder = new ProcessBuilder("ssh", hosts[i],
+						"kill `ps -ef | grep gnugo | awk '{print $2}'`", "&");
+				processes[i] = builder.start();
+				new Thread(new ProcessTattler(processes[i])).start();
+				builder = new ProcessBuilder("ssh", hosts[i],
 						"kill `ps -ef | grep java | awk '{print $2}'`", "&");
 				processes[i] = builder.start();
 				new Thread(new ProcessTattler(processes[i])).start();
