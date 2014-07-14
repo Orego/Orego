@@ -7,7 +7,7 @@ import static java.lang.Math.sqrt;
 import edu.lclark.orego.core.Board;
 
 /** Uses UCT. */
-public final class UctDescender extends BestRateDescender {
+public final class UctDescender extends AbstractDescender {
 
 	public UctDescender(Board board, TranspositionTable table, int biasDelay) {
 		super(board, table, biasDelay);

@@ -49,6 +49,26 @@ public class UctDescenderTest {
 	}
 
 	@Test
+	public void testDescend() {
+		McRunnable runnable = player.getMcRunnable(0);
+		runnable.acceptMove(at("b1"));
+		runnable.acceptMove(at("c4"));
+		runnable.acceptMove(at("a2"));
+		updater.updateTree(BLACK, runnable);
+		runnable.copyDataFrom(player.getBoard());
+		descender.descend(runnable);
+		assertEquals(at("b1"), runnable.getHistoryObserver().get(0));
+		for (int i = 0; i < 2; i++) {
+			runnable.copyDataFrom(player.getBoard());
+			runnable.acceptMove(at("d2"));
+			updater.updateTree(BLACK, runnable);
+		}
+		runnable.copyDataFrom(player.getBoard());
+		descender.descend(runnable);
+		assertEquals(at("d2"), runnable.getHistoryObserver().get(0));
+	}
+
+	@Test
 	public void testUpdatePriors() {
 		assertEquals("Total runs: 60\n", updater.toString(5));
 		McRunnable runnable = player.getMcRunnable(0);
