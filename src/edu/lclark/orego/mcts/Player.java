@@ -383,7 +383,8 @@ public final class Player {
 		}
 		try {
 			keepRunning = false;
-			executor.awaitTermination(1, TimeUnit.SECONDS);
+			boolean timeout = executor.awaitTermination(1, TimeUnit.SECONDS);
+			assert !timeout;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
