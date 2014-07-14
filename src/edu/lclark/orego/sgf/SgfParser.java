@@ -73,6 +73,9 @@ public final class SgfParser {
 					// Weird early pass when reading for book; discard game
 					return null;
 				}
+				if(move == PASS){
+					return game;
+				}
 				game.add(move);
 				turn++;
 			} else if (token.equals(")")) {

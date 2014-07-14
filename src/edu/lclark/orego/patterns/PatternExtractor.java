@@ -222,7 +222,7 @@ public final class PatternExtractor {
 		} else {
 			if (file.getPath().endsWith(".sgf")) {
 
-				List<List<Short>> games = parser.parseGamesFromFile(file, 500);
+				List<List<Short>> games = parser.parseGamesFromFile(file, Integer.MAX_VALUE);
 				try {
 					analyzeGames(games);
 				} catch (IllegalArgumentException e) {
@@ -237,36 +237,36 @@ public final class PatternExtractor {
 	public static void main(String[] args) {
 		PatternExtractor extractor = new PatternExtractor();
 		int highestRuns = 0;
-		// extractor
-		// .buildPatternData(new File(
-		// "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
-		try (ObjectInputStream objectInputStream = new ObjectInputStream(
-				new FileInputStream("patterns/patterns3x3.data"))) {
-			int[] fileRuns = (int[]) objectInputStream.readObject();
-			int[] fileWins = (int[]) objectInputStream.readObject();
-			objectInputStream.close();
-
-			for (int i = 0; i < PATTERN_COUNT; i++) {
-				if (fileRuns[i] != 0) {
-					extractor.list.add(new Pattern(i, (float) fileWins[i]
-							/ (float) fileRuns[i], fileRuns[i]));
-					if (fileRuns[i] > highestRuns) {
-						if (i != 43690) {
-							highestRuns = fileRuns[i];
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		Collections.sort(extractor.list);
-		for (Pattern pattern : extractor.list) {
-			if (pattern.getWinRate() > .99) {
-				System.out.println(pattern);
-			}
-		}
+		 extractor
+		 .buildPatternData(new File(
+		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+//		try (ObjectInputStream objectInputStream = new ObjectInputStream(
+//				new FileInputStream("patterns/patterns3x3.data"))) {
+//			int[] fileRuns = (int[]) objectInputStream.readObject();
+//			int[] fileWins = (int[]) objectInputStream.readObject();
+//			objectInputStream.close();
+//
+//			for (int i = 0; i < PATTERN_COUNT; i++) {
+//				if (fileRuns[i] != 0) {
+//					extractor.list.add(new Pattern(i, (float) fileWins[i]
+//							/ (float) fileRuns[i], fileRuns[i]));
+//					if (fileRuns[i] > highestRuns) {
+//						if (i != 43690) {
+//							highestRuns = fileRuns[i];
+//						}
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+//		Collections.sort(extractor.list);
+//		for (Pattern pattern : extractor.list) {
+//			if (pattern.getWinRate() > .99) {
+//				System.out.println(pattern);
+//			}
+//		}
 
 	}
 
