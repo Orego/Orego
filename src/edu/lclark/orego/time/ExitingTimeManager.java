@@ -118,7 +118,7 @@ public final class ExitingTimeManager implements TimeManager {
 			rollover = 0;
 			return 0;
 		}
-		if (slicesRemaining < SLICE_COUNT && confidenceBestVsRest() > 0.95) {
+		if (slicesRemaining < SLICE_COUNT && confidenceBestVsRest() > 0.99) {
 			rollover = slicesRemaining * msecPerSlice;
 			return 0;
 		}
