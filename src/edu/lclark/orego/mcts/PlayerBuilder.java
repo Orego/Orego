@@ -67,7 +67,7 @@ public final class PlayerBuilder {
 	/** Creates the Player. */
 	public Player build() {
 		CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
-				komi) : CopiableStructureFactory.useWithPriors(width, komi);
+				komi) : CopiableStructureFactory.useWithBias(width, komi);
 		Player result = new Player(threads, copyStructure);
 		Board board = result.getBoard();
 		CoordinateSystem coords = board.getCoordinateSystem();

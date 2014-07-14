@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.lclark.orego.feature.NotEyeLike;
-import edu.lclark.orego.feature.StoneCounter;
+import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -325,8 +325,8 @@ public class BoardTest {
 	public void testCopyDataFrom() {
 		board = new Board(19);
 		Board copy = new Board(19);
-		StoneCounter counter = new StoneCounter(board);
-		StoneCounter copyCounter = new StoneCounter(copy);
+		StoneCountObserver counter = new StoneCountObserver(board);
+		StoneCountObserver copyCounter = new StoneCountObserver(copy);
 		Mover mover = new PredicateMover(board, new NotEyeLike(board));
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for (int i = 0; i < 50; i++) {

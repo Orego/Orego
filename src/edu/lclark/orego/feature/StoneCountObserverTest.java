@@ -7,16 +7,16 @@ import org.junit.Before;
 import org.junit.Test;
 import edu.lclark.orego.core.Board;
 
-public class StoneCounterTest {
+public class StoneCountObserverTest {
 
 	private Board board;
 	
-	private StoneCounter counter;
+	private StoneCountObserver counter;
 	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(5);
-		counter = new StoneCounter(board);
+		counter = new StoneCountObserver(board);
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class StoneCounterTest {
 	
 	@Test
 	public void testMercy(){
-		StoneCounter mercyCounter = new StoneCounter(board);
+		StoneCountObserver mercyCounter = new StoneCountObserver(board);
 		assertEquals(null, mercyCounter.mercyWinner());
 		String[] diagram = {
 				"###..",

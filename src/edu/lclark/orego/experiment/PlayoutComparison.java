@@ -9,7 +9,7 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.HistoryObserver;
-import edu.lclark.orego.feature.StoneCounter;
+import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.move.*;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
@@ -31,7 +31,7 @@ public final class PlayoutComparison {
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
 		PlayoutScorer scorer = new ChinesePlayoutScorer(board, 7.5);
-		StoneCounter mercyObserver = new StoneCounter(board);
+		StoneCountObserver mercyObserver = new StoneCountObserver(board);
 		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
 		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
 		System.out.println("Version 1 wins: " + wins.get(mover1));
@@ -40,7 +40,7 @@ public final class PlayoutComparison {
 
 	@SuppressWarnings("boxing")
 	private static void playGames(Mover black, Mover white,
-			Map<Mover, Integer> wins, Board board, PlayoutScorer scorer, StoneCounter mercyObserver) {
+			Map<Mover, Integer> wins, Board board, PlayoutScorer scorer, StoneCountObserver mercyObserver) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		final int runs = 100000;
 		CoordinateSystem coords = board.getCoordinateSystem();

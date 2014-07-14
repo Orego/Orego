@@ -5,7 +5,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.mcts.RaveNode;
 import edu.lclark.orego.core.Board;
 
-public final class RaveDescender extends BestRateDescender{
+public final class RaveDescender extends AbstractDescender{
 	
 	/**
 	 * This corresponds to b^2/(0.5*0.5) in Silver's formula. The higher this
