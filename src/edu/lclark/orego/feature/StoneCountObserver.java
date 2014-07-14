@@ -9,14 +9,14 @@ import edu.lclark.orego.util.ShortList;
 
 /** Keeps track of how many stones there are of each color. */
 @SuppressWarnings("serial")
-public final class StoneCounter implements BoardObserver {
+public final class StoneCountObserver implements BoardObserver {
 
 	private final int[] counts;
 
 	/** If one side has this many more stones, it can be declared the winner. */
 	private final int mercyThreshold;
 
-	public StoneCounter(Board board) {
+	public StoneCountObserver(Board board) {
 		counts = new int[2];
 		mercyThreshold = board.getCoordinateSystem().getArea() / 8;
 		board.addObserver(this);
@@ -30,7 +30,7 @@ public final class StoneCounter implements BoardObserver {
 
 	@Override
 	public void copyDataFrom(BoardObserver that) {
-		final StoneCounter original = (StoneCounter) that;
+		final StoneCountObserver original = (StoneCountObserver) that;
 		counts[0] = original.counts[0];
 		counts[1] = original.counts[1];
 	}

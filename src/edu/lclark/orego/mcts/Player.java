@@ -24,14 +24,16 @@ public final class Player {
 	private OpeningBook book;
 
 	/**
-	 * Indicates whether to search for opponent's dead stones and bias moves
-	 * that kill them.
+	 * True if we should search for opponent's dead stones and bias moves that
+	 * kill them.
 	 */
 	private boolean cleanupMode;
 
+	/**
+	 * True if the polite coup de grace feature is turned on.
+	 */
 	private boolean coupDeGrace;
 
-	/** @see TreeDescender */
 	private TreeDescender descender;
 
 	/** For managing threads. */
@@ -55,16 +57,17 @@ public final class Player {
 
 	/**
 	 * True if the setTimeRemaining method has been called, because a time_left
-	 * command was received. If true, use the time manager. Otherwise just allocate msecPerMove for each move.
+	 * command was received. If true, use the time manager. Otherwise just
+	 * allocate msecPerMove for each move.
 	 */
 	private boolean timeLeftWasSent;
 
 	/** Object used to calculate amount of time used in generating a move. */
 	private TimeManager timeManager;
 
-	/** @see TreeUpdater */
 	private TreeUpdater updater;
 
+	/** True if we should think during the opponent's turn. */
 	private boolean usePondering;
 
 	/**
@@ -108,16 +111,17 @@ public final class Player {
 			return move;
 		}
 		if (cleanupMode) {
-			if (cleanup() == PASS) {
+			if (!findCleanupMoves()) {
 				return PASS;
 			}
 		} else if (board.getPasses() == 1 && coupDeGrace) {
 			if (passIfAhead()) {
 				return PASS;
 			}
-			cleanup();
+			findCleanupMoves();
 		}
 		if (!timeLeftWasSent) {
+			// No time left signal was received
 			startThreads();
 			try {
 				Thread.sleep(msecPerMove);
@@ -127,6 +131,7 @@ public final class Player {
 			}
 			stopThreads();
 		} else {
+			// Time left signal was received
 			timeManager.startNewTurn();
 			msecPerMove = timeManager.getMsec();
 			do {
@@ -144,35 +149,6 @@ public final class Player {
 		return descender.bestPlayMove();
 	}
 
-	/**
-	 * Biases moves that result in clearing opponent's dead chains off the
-	 * board. Returns PASS if there are no moves to bias.
-	 */
-	private short cleanup() {
-		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
-				.opposite());
-		if (enemyDeadChains.size() == 0) {
-			return PASS;
-		}
-		getRoot().exclude(PASS);
-		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem()
-				.getFirstPointBeyondBoard());
-		for (int i = 0; i < enemyDeadChains.size(); i++) {
-			short p = enemyDeadChains.get(i);
-			if (p == board.getChainRoot(p)) {
-				pointsToBias.addAll(board.getLiberties(p));
-			}
-		}
-		SearchNode root = getRoot();
-		int bias = (int) root.getWins(root.getMoveWithMostWins(board
-				.getCoordinateSystem()));
-		for (int i = 0; i < pointsToBias.size(); i++) {
-			// System.out.println(bias);
-			root.update(pointsToBias.get(i), bias, bias);
-		}
-		return -1;
-	}
-
 	/** Clears the board and does anything else necessary to start a new game. */
 	public void clear() {
 		stopThreads();
@@ -187,22 +163,61 @@ public final class Player {
 		descender.descend(runnable);
 	}
 
+	/** Stops any running threads. */
 	public void endGame() {
 		stopThreads();
 	}
 
+	/** @see edu.lclark.orego.score.FinalScorer.score */
 	public double finalScore() {
 		return finalScorer.score();
 	}
 
+	/**
+	 * Biases moves that result in clearing opponent's dead chains off the
+	 * board. Returns true if any such moves were found.
+	 */
+	private boolean findCleanupMoves() {
+		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
+				.opposite());
+		if (enemyDeadChains.size() == 0) {
+			return false;
+		}
+		getRoot().exclude(PASS);
+		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem()
+				.getFirstPointBeyondBoard());
+		for (int i = 0; i < enemyDeadChains.size(); i++) {
+			short p = enemyDeadChains.get(i);
+			if (p == board.getChainRoot(p)) {
+				pointsToBias.addAll(board.getLiberties(p));
+			}
+		}
+		SearchNode root = getRoot();
+		int bias = (int) root.getWins(root.getMoveWithMostWins(board
+				.getCoordinateSystem()));
+		for (int i = 0; i < pointsToBias.size(); i++) {
+			root.update(pointsToBias.get(i), bias, bias);
+		}
+		return true;
+	}
+
+	/**
+	 * Returns a list of stones that don't survive many random playouts.
+	 * 
+	 * @param threshold
+	 *            Portion of games a stone has to survive to be considered
+	 *            alive.
+	 * @param color
+	 *            Color of stones we're examining.
+	 */
 	private ShortSet findDeadStones(double threshold, StoneColor color) {
 		boolean threadsWereRunning = keepRunning;
 		stopThreads();
-
+		// Perform a bunch of runs to see which stones survive
 		McRunnable runnable = getMcRunnable(0);
 		Board runnableBoard = runnable.getBoard();
 		int runs = 100;
-		ShortSet deadChains = new ShortSet(board.getCoordinateSystem()
+		ShortSet deadStones = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
 		int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
@@ -216,18 +231,20 @@ public final class Player {
 				}
 			}
 		}
-
+		// Gather all of the dead stones into a list to return
 		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == color) {
 				if (survivals[p] < runs * threshold) {
-					deadChains.add(p);
+					deadStones.add(p);
 				}
 			}
 		}
+		// Restart the threads if appropriate
 		if (threadsWereRunning) {
 			startThreads();
 		}
-		return deadChains;
+		// Return the list of dead stones
+		return deadStones;
 	}
 
 	/** Returns the board associated with this player. */
@@ -235,7 +252,7 @@ public final class Player {
 		return board;
 	}
 
-	public TreeDescender getDescender() {
+	TreeDescender getDescender() {
 		return descender;
 	}
 
@@ -249,12 +266,12 @@ public final class Player {
 		return runnables[i];
 	}
 
-	public int getMsecPerMove() {
+	int getMsecPerMove() {
 		return msecPerMove;
 	}
 
 	/** Returns the number of threads this Player runs. */
-	public int getNumberOfThreads() {
+	int getNumberOfThreads() {
 		return runnables.length;
 	}
 
@@ -275,7 +292,7 @@ public final class Player {
 	}
 
 	/** Returns the updater for this player. */
-	protected TreeUpdater getUpdater() {
+	TreeUpdater getUpdater() {
 		return updater;
 	}
 
@@ -402,7 +419,8 @@ public final class Player {
 		}
 		boolean alreadyRunning = keepRunning;
 		stopThreads();
-		ShortList movesList = new ShortList(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		ShortList movesList = new ShortList(board.getCoordinateSystem()
+				.getFirstPointBeyondBoard());
 		for (int i = 0; i < historyObserver.size() - 1; i++) {
 			movesList.add(historyObserver.get(i));
 		}

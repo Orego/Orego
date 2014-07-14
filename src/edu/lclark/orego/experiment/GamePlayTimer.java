@@ -14,8 +14,8 @@ public class GamePlayTimer {
 	public static void main(String[] args) {
 		final int milliseconds = 1000;
 		final int threads = 1;
-		Player player1 = new Player(threads, CopiableStructureFactory.useWithPriors(19, 7.5));
-		Player player2 = new Player(threads, CopiableStructureFactory.useWithPriors(19, 7.5));
+		Player player1 = new Player(threads, CopiableStructureFactory.useWithBias(19, 7.5));
+		Player player2 = new Player(threads, CopiableStructureFactory.useWithBias(19, 7.5));
 		Board board1 = player1.getBoard();
 		Board board2 = player2.getBoard();
 		CoordinateSystem coords = board1.getCoordinateSystem();
