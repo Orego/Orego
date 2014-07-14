@@ -20,7 +20,7 @@ import edu.lclark.orego.util.ShortSet;
 @SuppressWarnings("serial")
 public final class PatternSuggester implements Suggester {
 
-	/** Patterns are considered good if its "win rate" is at least this high. */ 
+	/** Patterns are considered good if its "win rate" is at least this high. */
 	private static final float THRESHOLD = 0.8f;
 
 	private final Board board;
