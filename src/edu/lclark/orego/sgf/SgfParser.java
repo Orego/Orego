@@ -1,7 +1,6 @@
 package edu.lclark.orego.sgf;
 
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
-import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import static java.lang.Integer.MAX_VALUE;
 
 import edu.lclark.orego.core.CoordinateSystem;
 
+/** Parses SGF files. */
 public final class SgfParser {
 
 	@SuppressWarnings("boxing")
@@ -32,8 +33,16 @@ public final class SgfParser {
 		this.coords = coords;
 	}
 
+	/**
+	 * Parses moves from a StringTokenizer.
+	 * 
+	 * @param maxBookDepth
+	 *            Only look at this many moves. For no limit, use
+	 *            Integer.MAX_VALUE;
+	 * @return
+	 */
 	@SuppressWarnings("boxing")
-	protected List<Short> parseGame(StringTokenizer stoken, int maxBookDepth) {
+	private List<Short> parseGame(StringTokenizer stoken, int maxBookDepth) {
 		final List<Short> game = new ArrayList<>();
 		int turn = 0;
 		while (turn <= maxBookDepth) {
@@ -42,31 +51,30 @@ public final class SgfParser {
 			}
 			String token = stoken.nextToken();
 			if (token.equals("HA")) {
-				// Handicap game, ignore.
+				// Handicap game, discard it.
 				return null;
 			} else if (token.equals("SZ")) {
 				token = stoken.nextToken();
 				final int intToken = Integer.parseInt(token);
 				if (intToken != 19) {
-					// Game is not the proper size, ignore.
+					// Game is not the proper size, discard it.
 					return null;
 				}
 			} else if (token.equals("AB") || token.equals("AW")) {
-				// Game has added stones, ignore.
+				// Game has added stones, discard it.
 				return null;
 			} else if (token.equals("PL")) {
-				// Game changes color to play, ignore.
+				// Game changes color to play, discard it.
 				return null;
 			} else if (token.equals("B") || token.equals("W")) {
 				token = stoken.nextToken();
 				final short move = sgfToPoint(token);
-				if (move > RESIGN) { // Also excludes NO_POINT and PASS
-					game.add(move);
-					turn++;
-				} else {
-					// Game has an early pass or bogus move, ignore.
+				if (maxBookDepth != MAX_VALUE && move == PASS) {
+					// Weird early pass when reading for book; discard game
 					return null;
 				}
+				game.add(move);
+				turn++;
 			} else if (token.equals(")")) {
 				return game;
 			}
@@ -74,31 +82,20 @@ public final class SgfParser {
 		return game;
 	}
 
+	/**
+	 * Parses one game and returns it. Used to read in one game in response to a
+	 * GTP command.
+	 */
 	public List<Short> parseGameFromFile(File file) {
-		String input = "";
-		try (Scanner s = new Scanner(file)) {
-			while (s.hasNextLine()) {
-				input += s.nextLine();
-			}
-			input = input.replace("W[]", "W[tt]");
-			input = input.replace("B[]", "B[tt]");
-			final StringTokenizer stoken = new StringTokenizer(input, ")[];");
-			while (stoken.hasMoreTokens()) {
-				final String token = stoken.nextToken();
-				if (token.equals("(")) {
-					final List<Short> game = parseGame(stoken, 500);
-					if (game != null) {
-						return game;
-					}
-				}
-			}
-		} catch (final FileNotFoundException e) {
-			System.err.println("File not found!");
-			e.printStackTrace();
-		}
-		return null;
+		final List<List<Short>> games = parseGamesFromFile(file, MAX_VALUE);
+		return games.get(0);
 	}
 
+	/**
+	 * Reads in all games from file and returns them in a list. Each element of the list is a list of moves (shorts).
+	 * 
+	 * @param maxBookDepth The maximum number of moves to examine in each game, or Integer.MAX_VALUE for no limit.
+	 */
 	public List<List<Short>> parseGamesFromFile(File file, int maxBookDepth) {
 		final List<List<Short>> games = new ArrayList<>();
 		String input = "";
@@ -122,6 +119,7 @@ public final class SgfParser {
 		} catch (final FileNotFoundException e) {
 			System.err.println("File not found!");
 			e.printStackTrace();
+			System.exit(1);
 		}
 		return null;
 	}
@@ -133,6 +131,9 @@ public final class SgfParser {
 		}
 		final int c = label.charAt(0) - 'a';
 		final int r = label.charAt(1) - 'a';
-		return coords.at(r, c);
+		short result = coords.at(r, c);
+		assert coords.isOnBoard(result);
+		return result;
 	}
+
 }
