@@ -104,6 +104,7 @@ public final class PlayerBuilder {
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
 		result.usePondering(usePondering);
+		result.clear();
 		return result;
 	}
 
