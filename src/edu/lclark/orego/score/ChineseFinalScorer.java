@@ -59,36 +59,7 @@ public final class ChineseFinalScorer implements FinalScorer {
 
 	@Override
 	public double score() {
-		double result = komi;
-		visitedPoints.clear();
-		for (final short p : coords.getAllPointsOnBoard()) {
-			final Color color = board.getColorAt(p);
-			if (color == BLACK) {
-				result++;
-			} else if (color == WHITE) {
-				result--;
-			}
-
-		}
-		final ShortSet vacantPoints = board.getVacantPoints();
-		for (int i = 0; i < vacantPoints.size(); i++) {
-			final short p = vacantPoints.get(i);
-			if (visitedPoints.contains(p)) {
-				continue;
-			}
-			colorToScore = VACANT;
-			validTerritory = true;
-			visitedPoints.add(p);
-			final int territory = searchNeighbors(p);
-			if (validTerritory) {
-				if (colorToScore == WHITE) {
-					result -= territory;
-				} else {
-					result += territory;
-				}
-			}
-		}
-		return result;
+		return score(board);
 	}
 
 	/**
@@ -96,12 +67,12 @@ public final class ChineseFinalScorer implements FinalScorer {
 	 * vacant points in this territory. Also modifies visitedPoints,
 	 * colorToScore, and validTerritory.
 	 */
-	private int searchNeighbors(short p) {
+	private int searchNeighbors(short p, Board boardToScore) {
 		int result = 1;
 		final short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
 			final short n = neighbors[i];
-			final Color neighborColor = board.getColorAt(n);
+			final Color neighborColor = boardToScore.getColorAt(n);
 			if (neighborColor == OFF_BOARD) {
 				continue;
 			}
@@ -112,7 +83,7 @@ public final class ChineseFinalScorer implements FinalScorer {
 			if (neighborColor == VACANT) {
 				if (!visitedPoints.contains(n)) {
 					visitedPoints.add(n);
-					result += searchNeighbors(n);
+					result += searchNeighbors(n, boardToScore);
 				}
 			} else if (neighborColor == colorToScore) {
 				continue;
@@ -132,6 +103,40 @@ public final class ChineseFinalScorer implements FinalScorer {
 			return WHITE;
 		}
 		return VACANT;
+	}
+
+	@Override
+	public double score(Board boardToScore) {
+		double result = komi;
+		visitedPoints.clear();
+		for (final short p : coords.getAllPointsOnBoard()) {
+			final Color color = boardToScore.getColorAt(p);
+			if (color == BLACK) {
+				result++;
+			} else if (color == WHITE) {
+				result--;
+			}
+
+		}
+		final ShortSet vacantPoints = boardToScore.getVacantPoints();
+		for (int i = 0; i < vacantPoints.size(); i++) {
+			final short p = vacantPoints.get(i);
+			if (visitedPoints.contains(p)) {
+				continue;
+			}
+			colorToScore = VACANT;
+			validTerritory = true;
+			visitedPoints.add(p);
+			final int territory = searchNeighbors(p, boardToScore);
+			if (validTerritory) {
+				if (colorToScore == WHITE) {
+					result -= territory;
+				} else {
+					result += territory;
+				}
+			}
+		}
+		return result;
 	}
 
 }

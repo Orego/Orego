@@ -106,6 +106,8 @@ public class PlayerTest {
 
 	@Test
 	public void testCleanup() {
+		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(5).memorySize(64)
+				.openingBook(false).komi(0).build();
 		String[] before = {
 				".##O#",
 				"##OO.",
@@ -117,7 +119,6 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(before, WHITE);
 		player.setCleanupMode(true);
 		short move = player.bestMove();
-
 		assertEquals(at("e4"), move);
 		player.acceptMove(move);
 		player.acceptMove(at("a1"));
@@ -214,36 +215,33 @@ public class PlayerTest {
 
 	@Test
 	public void testPassToWin() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).coupDeGrace(true)
-				.memorySize(64).openingBook(false).build();
-		String[] problem = new String[] {
-				"...................",// 19
-				"...................",// 18
-				"...#...........#...",// 17
-				"...................",// 16
-				"...................",// 15
-				"...................",// 14
-				"...................",// 13
-				"...................",// 12
-				"...................",// 11
-				"...................",// 10
-				"...................",// 9
-				"...................",// 8
-				"...................",// 7
-				"...................",// 6
-				"...................",// 5
-				"...#...........#...",// 4
-				"...................",// 3
-				"...................",// 2
-				".........O........." // 1
-		// ABCDEFGHJKLMNOPQRST
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64)
+				.openingBook(false).komi(0).coupDeGrace(true).build();
+		String[] diagram = {
+				"###O#",
+				"##OO.",
+				"##OO.",
+				".##OO",
+				"#.#O.",
 		};
-		for (int i = 0; i < 10; i++) {
-			player.clear();
-			player.getBoard().setUpProblem(problem, BLACK);
-			player.acceptMove(PASS);
-			assertEquals(PASS, player.bestMove());
-		}
+		player.getBoard().setUpProblem(diagram, WHITE);
+		player.acceptMove(PASS);
+		assertEquals(PASS, player.bestMove());
+	}
+
+	@Test
+	public void testDontPassIfBehind() {
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64)
+				.openingBook(false).komi(0).build();
+		String[] diagram = {
+				"##O.#",
+				"##OO.",
+				"##OO.",
+				".##OO",
+				"#.#O.",
+		};
+		player.getBoard().setUpProblem(diagram, BLACK);
+		assertFalse(player.passIfAhead());
 	}
 
 }

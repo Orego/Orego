@@ -120,6 +120,7 @@ public final class Player {
 			}
 			findCleanupMoves();
 		}
+		
 		if (!timeLeftWasSent) {
 			// No time left signal was received
 			startThreads();
@@ -193,11 +194,11 @@ public final class Player {
 			}
 		}
 		SearchNode root = getRoot();
-		int bias = (int) root.getWins(root.getMoveWithMostWins(board
-				.getCoordinateSystem()));
+		int bias = (int)root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
 		for (int i = 0; i < pointsToBias.size(); i++) {
 			root.update(pointsToBias.get(i), bias, bias);
 		}
+		root.setWinningMove(NO_POINT);
 		return true;
 	}
 
@@ -224,7 +225,7 @@ public final class Player {
 		for (int i = 0; i < runs; i++) {
 			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
-			runnable.playout();
+			runnable.performMcRun();
 			for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
@@ -296,16 +297,17 @@ public final class Player {
 		return updater;
 	}
 
-	private boolean passIfAhead() {
-		double score = finalScorer.score();
-		int ourDead = findDeadStones(1.0, board.getColorToPlay()).size();
+	boolean passIfAhead() {
+		ShortSet ourDead = findDeadStones(1.0, board.getColorToPlay());
+		Board stonesRemoved = getMcRunnable(0).getBoard();
+		stonesRemoved.copyDataFrom(board);
+        stonesRemoved.removeStones(ourDead);
+		double score = finalScorer.score(stonesRemoved);
 		if (board.getColorToPlay() == WHITE) {
-			score += 2 * ourDead;
 			if (score < 0) {
 				return true;
 			}
 		} else {
-			score -= 2 * ourDead;
 			if (score > 0) {
 				return true;
 			}

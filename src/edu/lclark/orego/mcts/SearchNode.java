@@ -122,6 +122,9 @@ public interface SearchNode {
 
 	/** Sets the mark of this node for garbage collection. */
 	public void setMarked(boolean marked);
+	
+	/** Sets the winning move for this node. */
+	public void setWinningMove(short move);
 
 	/** Returns a human-readable representation of this node. */
 	public String toString(CoordinateSystem coords);
