@@ -120,6 +120,7 @@ public final class Player {
 			}
 			findCleanupMoves();
 		}
+		
 		if (!timeLeftWasSent) {
 			// No time left signal was received
 			startThreads();
@@ -146,7 +147,6 @@ public final class Player {
 				msecPerMove = timeManager.getMsec();
 			} while (msecPerMove > 0);
 		}
-		System.out.println(getRoot().getWins(descender.bestPlayMove()));
 		return descender.bestPlayMove();
 	}
 
@@ -194,12 +194,11 @@ public final class Player {
 			}
 		}
 		SearchNode root = getRoot();
-		int bias = 100000 / board.getCoordinateSystem().getArea();
-		System.out.println(bias);
+		int bias = (int)root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
 		for (int i = 0; i < pointsToBias.size(); i++) {
-			System.out.println(pointsToBias.get(i));
 			root.update(pointsToBias.get(i), bias, bias);
 		}
+		root.setWinningMove(NO_POINT);
 		return true;
 	}
 

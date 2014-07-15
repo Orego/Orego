@@ -106,7 +106,7 @@ public class PlayerTest {
 
 	@Test
 	public void testCleanup() {
-		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64)
+		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(5).memorySize(64)
 				.openingBook(false).komi(0).build();
 		String[] before = {
 				".##O#",
@@ -119,7 +119,6 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(before, WHITE);
 		player.setCleanupMode(true);
 		short move = player.bestMove();
-		System.out.println(player.getBoard().getCoordinateSystem().toString(move));
 		assertEquals(at("e4"), move);
 		player.acceptMove(move);
 		player.acceptMove(at("a1"));

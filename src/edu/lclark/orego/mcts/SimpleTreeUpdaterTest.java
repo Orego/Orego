@@ -13,8 +13,6 @@ public class SimpleTreeUpdaterTest {
 	
 	private SimpleTreeUpdater updater;
 	
-	private TranspositionTable table;
-	
 	/** Delegate method to call at on board. */
 	private short at(String label) {
 		return player.getBoard().getCoordinateSystem().at(label);
