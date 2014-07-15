@@ -10,7 +10,11 @@ import static java.io.File.separator;
 import java.io.*;
 import java.util.*;
 
-/** Runs GameBatch on each of several machines. */
+/**
+ * Runs GameBatch on each of several machines. NOTE: Begins by running KillExperiment.
+ * 
+ * @see KillExperiment
+ */
 public final class Broadcast {
 
 	/** Copies all text from source to destination. */
@@ -38,7 +42,8 @@ public final class Broadcast {
 		System.out
 				.println("Estimated time (hours) : "
 						+ ((EXPERIMENT.gamesPerCondition
-								* EXPERIMENT.conditions.size() * EXPERIMENT.timePerGame) / (SYSTEM.hosts.size() *EXPERIMENT.gamesPerHost * 3600.0)));
+								* EXPERIMENT.conditions.size() * EXPERIMENT.timePerGame) / (SYSTEM.hosts
+								.size() * EXPERIMENT.gamesPerHost * 3600.0)));
 		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp(true)
 				+ separator;
 		System.out
