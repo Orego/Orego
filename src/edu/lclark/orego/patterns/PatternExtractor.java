@@ -20,13 +20,13 @@ public final class PatternExtractor {
 	private final static int PATTERN_COUNT = Character.MAX_VALUE + 1;
 
 	public static void main(String[] args) {
-		// Uncomment the code below to rebuild the pattern database
-		// PatternExtractor extractor = new PatternExtractor(true);
-		// extractor
-		// .buildPatternData(new File(
-		// "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+//		 Uncomment the code below to rebuild the pattern database
+		 PatternExtractor extractor = new PatternExtractor(true);
+		 extractor
+		 .buildPatternData(new File(
+		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 		// Uncomment the line below to print the patterns
-		printPatterns(0.98, 1.00);
+//		printPatterns(0.98, 1.00);
 	}
 
 	/**
