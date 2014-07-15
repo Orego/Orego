@@ -141,8 +141,9 @@ public final class Collate {
 
 	/** Returns the index of the condition with name. */
 	private int getConditionIndex(String name) {
-		final String condition = name.substring(name.indexOf(always)
-				+ always.length() + 1);
+		String lastThingBeforeAlways = "memory=" + SYSTEM.megabytes;
+		String condition = name.substring(name.indexOf(lastThingBeforeAlways) + lastThingBeforeAlways.length() + 1);
+		condition = condition.substring(always.length() + 1);
 		int i = 0;
 		for (final String conditionName : conditions.keySet()) {
 			if (condition.equals(conditions.get(conditionName))) {
@@ -169,7 +170,6 @@ public final class Collate {
 		conditions = new TreeMap<>();
 		for (final String s : properties.stringPropertyNames()) {
 			if (s.startsWith("condition")) {
-				System.out.println("Mapping <" + s + "> to <" + properties.get(s));
 				conditions.put(s, (String) properties.get(s));
 			} else if (s.equals("always")) {
 				always = (String) properties.get(s);
