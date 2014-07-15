@@ -43,14 +43,14 @@ final class Game {
 	/** The board on which this game is played. */
 	private final Board board;
 
-	/** Shell commands to start the two players. */
-	private final String[] players;
-
 	/** File to which the results of this game are sent. */
 	private final String filename;
 
 	/** Prints to the file specified by filename. */
 	private PrintWriter out;
+
+	/** Shell commands to start the two players. */
+	private final String[] players;
 
 	/** Processes running the competing programs. */
 	private final Process[] programs;
@@ -84,7 +84,7 @@ final class Game {
 
 	/**
 	 * @param outputFilename
-	 *            File where output should be sent.
+	 *            File where SGF output should be sent.
 	 * @param black
 	 *            Shell command to start black player.
 	 * @param white
@@ -107,16 +107,16 @@ final class Game {
 			out.close();
 			System.exit(1);
 		}
-		out.println("(;FF[4]CA[UTF-8]AP[Orego8]KM["
-				+ rules.komi + "]GM[1]RU[Chinese]SZ[" + rules.boardWidth + "]");
+		out.println("(;FF[4]CA[UTF-8]AP[Orego8]KM[" + rules.komi
+				+ "]GM[1]RU[Chinese]SZ[" + rules.boardWidth + "]");
 		out.println("PB[" + players[BLACK.index()] + "]");
 		out.println("PW[" + players[WHITE.index()] + "]");
 		out.flush();
 	}
 
 	/**
-	 * Something happened that prevents the game from continuing. Tell the
-	 * players to shut down and then crash.
+	 * Something happened that prevents the game from continuing. Tells the
+	 * players to shut down and then crashes.
 	 */
 	private void die(String line, Scanner s, String message) {
 		endPrograms();
@@ -132,9 +132,8 @@ final class Game {
 	}
 
 	/**
-	 * Sends the quit command to both players, so that the processes will
-	 * end. Also adds start and end time comments to the end of the output SGF
-	 * file.
+	 * Sends the quit command to both players, so that the processes will end.
+	 * Also adds start and end time comments to the end of the output SGF file.
 	 */
 	private void endPrograms() {
 		out.println(";C[starttime:" + new Date(startTime) + "]");
@@ -208,7 +207,7 @@ final class Game {
 	}
 
 	/**
-	 * Plays the game.
+	 * Plays the game and writes an SGF file.
 	 *
 	 * @return the winner of the game.
 	 */
@@ -322,8 +321,8 @@ final class Game {
 					+ timeLeftIndicator);
 			out.flush();
 		}
-		if (coordinates.toLowerCase().equals("resign")
-				|| rules.time > 0 && timeLeftForThisPlayer <= 0) {
+		if (coordinates.toLowerCase().equals("resign") || rules.time > 0
+				&& timeLeftForThisPlayer <= 0) {
 			winner = getColorToPlay().opposite();
 			out.print(";RE[" + (winner == BLACK ? "B" : "W") + "+");
 			out.print(rules.time > 0 && timeLeftForThisPlayer <= 0 ? "Time"

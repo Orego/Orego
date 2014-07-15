@@ -1,17 +1,21 @@
 package edu.lclark.orego.experiment;
 
+import static edu.lclark.orego.experiment.ExperimentConfiguration.EXPERIMENT;
+import static edu.lclark.orego.experiment.GameBatch.timeStamp;
 import static edu.lclark.orego.experiment.Git.getGitCommit;
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
-import static edu.lclark.orego.experiment.SystemConfiguration.*;
-import static edu.lclark.orego.experiment.ExperimentConfiguration.*;
-import static edu.lclark.orego.experiment.GameBatch.*;
+import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 import static java.io.File.separator;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Scanner;
 
 /**
- * Runs GameBatch on each of several machines
+ * Runs GameBatch on each of several machines.
  */
 public final class Broadcast {
 
@@ -22,27 +26,28 @@ public final class Broadcast {
 			while (in.hasNextLine()) {
 				out.println(in.nextLine());
 			}
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		String gitCommit = getGitCommit();
+		final String gitCommit = getGitCommit();
 		if (gitCommit.isEmpty()) {
 			throw new IllegalStateException("Not in clean git state");
 		}
 		System.out.println("Preparing to launch "
-				+ (EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size())
+				+ EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size()
 				+ " games");
-		System.out
-				.println("Estimated time (hours) : "
-						+ ((EXPERIMENT.gamesPerCondition
-								* EXPERIMENT.conditions.size() * EXPERIMENT.timePerGame) / (SYSTEM.hosts
-								.size() * EXPERIMENT.gamesPerHost * 3600.0)));
-		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp(true)
-				+ separator;
+		// The 0.65 below is an empirical factor to get us a more accurate
+		// estimate of how long the experiment will take
+		System.out.println("Estimated time (hours) : " + 0.65
+				* EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size()
+				* EXPERIMENT.rules.time * 2
+				/ (SYSTEM.hosts.size() * EXPERIMENT.gamesPerHost * 3600.0));
+		final String resultsDirectory = SYSTEM.resultsDirectory
+				+ timeStamp(true) + separator;
 		System.out
 				.println("Launching broadcast experiment. Results will be stored in "
 						+ resultsDirectory);
@@ -55,23 +60,24 @@ public final class Broadcast {
 			// substring to remove single quotes that would otherwise appear
 			out.println(gitCommit.substring(1, gitCommit.length() - 1));
 		}
-		List<String> hosts = SYSTEM.hosts;
-		Process[] processes = new Process[hosts.size()];
+		final List<String> hosts = SYSTEM.hosts;
+		final Process[] processes = new Process[hosts.size()];
 		for (int i = 0; i < hosts.size(); i++) {
-			String host = hosts.get(i);
+			final String host = hosts.get(i);
 			// Do not insert spaces in the string "&>" -- bash treats that
 			// differently!
-			String command = SYSTEM.java + " -ea -cp " + SYSTEM.oregoClassPath
+			final String command = SYSTEM.java + " -ea -cp "
+					+ SYSTEM.oregoClassPath
 					+ " edu.lclark.orego.experiment.GameBatch " + host + " "
 					+ resultsDirectory + "&>" + resultsDirectory + host
 					+ ".batch";
-			ProcessBuilder builder = new ProcessBuilder("nohup", "ssh", host,
-					command, "&");
+			final ProcessBuilder builder = new ProcessBuilder("nohup", "ssh",
+					host, command, "&");
 			builder.redirectErrorStream(true);
 			processes[i] = builder.start();
 			new Thread(new ProcessTattler(processes[i])).start();
 		}
-		for (Process p : processes) {
+		for (final Process p : processes) {
 			p.waitFor();
 		}
 		System.out.println("Broadcast experiment launched.");

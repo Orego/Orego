@@ -1,7 +1,7 @@
 package edu.lclark.orego.experiment;
 
+import java.io.InputStream;
 import java.util.Scanner;
-import java.io.*;
 
 /**
  * Listens to a GTP player running in another process. Whenever that player
@@ -10,10 +10,10 @@ import java.io.*;
 final class PlayerListener implements Runnable {
 
 	/** Input from the other program. */
-	private InputStream fromProgram;
+	private final InputStream fromProgram;
 
 	/** The Game being played. */
-	private Game game;
+	private final Game game;
 
 	public PlayerListener(InputStream input, Game game) {
 		this.fromProgram = input;
@@ -27,7 +27,7 @@ final class PlayerListener implements Runnable {
 			while (s.hasNextLine()) {
 				// s is passed in in case there is a multi-line error message,
 				// so game can dump all of the message to the output file
-				String line = s.nextLine();
+				final String line = s.nextLine();
 				if (!line.isEmpty()) {
 					finishedNormally = game.handleResponse(line, s);
 				}

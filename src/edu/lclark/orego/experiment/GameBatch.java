@@ -23,15 +23,14 @@ public final class GameBatch implements Runnable {
 		if (args.length >= 2) {
 			results = args[1];
 		} else {
-			results = SYSTEM.resultsDirectory + timeStamp(true)
-					+ separator;
+			results = SYSTEM.resultsDirectory + timeStamp(true) + separator;
 		}
 		new File(results).mkdir();
 		try {
 			for (int i = 0; i < EXPERIMENT.gamesPerHost; i++) {
 				new Thread(new GameBatch(i, args[0], results)).start();
 			}
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace(System.out);
 			System.exit(1);
 		}
@@ -40,7 +39,9 @@ public final class GameBatch implements Runnable {
 	/**
 	 * Returns a String representing the current date and time.
 	 *
-	 * @param nest If true, use File.separator instead of dashes to separate year, month, date, and time.
+	 * @param nest
+	 *            If true, use File.separator instead of dashes to separate
+	 *            year, month, date, and time.
 	 */
 	public static String timeStamp(boolean nest) {
 		String punctuation;
@@ -49,8 +50,9 @@ public final class GameBatch implements Runnable {
 		} else {
 			punctuation = "-";
 		}
-		return new SimpleDateFormat("yyyy" + punctuation+ "MM" + punctuation + "dd" + punctuation + "HH:mm:ss.SSS").format(new Date(
-				System.currentTimeMillis()));
+		return new SimpleDateFormat("yyyy" + punctuation + "MM" + punctuation
+				+ "dd" + punctuation + "HH:mm:ss.SSS").format(new Date(System
+				.currentTimeMillis()));
 	}
 
 	/** Number of the batch (used as part of the filename). */
@@ -60,7 +62,7 @@ public final class GameBatch implements Runnable {
 	 * First part (before the first period) of the hostname (used as part of the
 	 * filename).
 	 */
-	private String host;
+	private final String host;
 
 	private final String resultsDirectory;
 
@@ -73,11 +75,16 @@ public final class GameBatch implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Running batch " + batchNumber + " on " + host);
-		for (String conditionName : EXPERIMENT.conditions.keySet()) {
-			String condition = EXPERIMENT.conditions.get(conditionName);
-			System.out.println("Batch " + batchNumber + " on " + host + " " + conditionName + ": " + condition);
-			String orego = SYSTEM.java + " -cp " + SYSTEM.oregoClassPath
-					+ " -ea -Xmx" + SYSTEM.megabytes + "M edu.lclark.orego.ui.Orego " + "boardsize=" + EXPERIMENT.rules.boardWidth + " komi=" + EXPERIMENT.rules.komi + " " + EXPERIMENT.always + " " + condition;
+		for (final String conditionName : EXPERIMENT.conditions.keySet()) {
+			final String condition = EXPERIMENT.conditions.get(conditionName);
+			System.out.println("Batch " + batchNumber + " on " + host + " "
+					+ conditionName + ": " + condition);
+			final String orego = SYSTEM.java + " -cp " + SYSTEM.oregoClassPath
+					+ " -ea -Xmx" + SYSTEM.megabytes
+					+ "M edu.lclark.orego.ui.Orego " + "boardsize="
+					+ EXPERIMENT.rules.boardWidth + " komi="
+					+ EXPERIMENT.rules.komi + " memory=" + SYSTEM.megabytes
+					+ " " + EXPERIMENT.always + " " + condition;
 			System.out.println("Orego is: " + orego);
 			runGames(orego, EXPERIMENT.gnugo);
 			runGames(EXPERIMENT.gnugo, orego);
@@ -87,11 +94,11 @@ public final class GameBatch implements Runnable {
 
 	/** Runs several games with the specified black and white players. */
 	public void runGames(String black, String white) {
-		int[] wins = new int[3];
+		final int[] wins = new int[3];
 		for (int i = 0; i < EXPERIMENT.gamesPerColor; i++) {
-			String outFile = resultsDirectory + host + "-b" + batchNumber + "-"
+			final String outFile = resultsDirectory + host + "-b" + batchNumber + "-"
 					+ timeStamp(false) + ".sgf";
-			Game game = new Game(outFile, EXPERIMENT.rules, black, white);
+			final Game game = new Game(outFile, EXPERIMENT.rules, black, white);
 			wins[game.play().index()]++;
 		}
 	}
