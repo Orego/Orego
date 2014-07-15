@@ -4,6 +4,8 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 
+import static edu.lclark.orego.util.TestingTools.asOneString;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -75,18 +77,28 @@ public class PlayerTest {
 	@Test
 	public void testUndo() {
 		String[] before = {
-				".##OO",
-				"##OO.",
-				"##O..",
-				".#OO.",
-				".##OO",
+				".....",
+				"..O..",
+				".....",
+				"..#..",
+				".....",
 		};
 		player.clear();
+		assertFalse(player.undo());
 		player.getBoard().setUpProblem(before, BLACK);
-		long fancyHash = player.getBoard().getFancyHash();
 		player.acceptMove(at("e3"));
+		long fancyHash = player.getBoard().getFancyHash();
+		player.acceptMove(at("e1"));
 		assertTrue(player.undo());
 		assertEquals(fancyHash, player.getBoard().getFancyHash());
+		String[] after = {
+				".....",
+				"..O..",
+				"....#",
+				"..#..",
+				".....",
+		};
+		assertEquals(asOneString(after), player.getBoard().toString());
 	}
 
 	@Test

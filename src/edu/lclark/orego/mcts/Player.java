@@ -341,7 +341,6 @@ public final class Player {
 	 */
 	public void setColorToPlay(StoneColor stoneColor) {
 		board.setColorToPlay(stoneColor);
-
 	}
 
 	/**
@@ -397,7 +396,6 @@ public final class Player {
 				throw new IllegalArgumentException("Sgf contained illegal move");
 			}
 		}
-
 	}
 
 	/** True if McRunnables attached to this Player should keep running. */
