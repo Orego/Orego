@@ -169,6 +169,7 @@ public final class Collate {
 		conditions = new TreeMap<>();
 		for (final String s : properties.stringPropertyNames()) {
 			if (s.startsWith("condition")) {
+				System.out.println("Mapping <" + s + "> to <" + properties.get(s));
 				conditions.put(s, (String) properties.get(s));
 			} else if (s.equals("always")) {
 				always = (String) properties.get(s);
