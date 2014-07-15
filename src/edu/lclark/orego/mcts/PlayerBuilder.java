@@ -50,7 +50,7 @@ public final class PlayerBuilder {
 		width = 19;
 		ponder = false;
 		book = true;
-		managerType = "";
+		managerType = "uniform";
 		coupDeGrace = false;
 		lgrf2 = true;
 		rave = true;

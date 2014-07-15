@@ -364,7 +364,7 @@ public final class Player {
 	/** Handles a time left signal from GTP. */
 	public void setRemainingTime(int seconds) {
 		timeLeftWasSent = true;
-		timeManager.setRemainingTime(seconds);
+		timeManager.setRemainingSeconds(seconds);
 	}
 
 	public void setTimeManager(TimeManager time) {

@@ -39,7 +39,6 @@ public class ExitingTimeManagerTest {
 		player.setRemainingTime(10000);
 		SearchNode root = player.getRoot();
 		assertNotEquals(0, manager.getMsec());
-		
 		root.update(coords.at("a5"), 1000, 1000);
 		assertEquals(0, manager.getMsec(), .01);
 		assertNotEquals(0, manager.getRollover());

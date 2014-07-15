@@ -76,8 +76,7 @@ import edu.lclark.orego.sgf.SgfParser;
  * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
  * <dt>time-management</dt>
  * <dd>Set the type of time manager to be used by Orego. If not specified, Orego
- * will rely on msec, which is the default state. Options are uniform and
- * exiting.</dd>
+ * will rely on msec. Options are uniform (the default) and exiting.</dd>
  * </dl>
  */
 public final class Orego {

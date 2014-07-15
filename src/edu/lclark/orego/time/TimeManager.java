@@ -9,10 +9,10 @@ public interface TimeManager {
 	 */
 	public int getMsec();
 
+	/** Sets the amount of time left in the game for this player. */
+	public void setRemainingSeconds(int seconds);
+
 	/** Resets state to start a new turn. */
 	public void startNewTurn();
-
-	/** Sets the amount of time left in the game for this player. */
-	public void setRemainingTime(int seconds);
 
 }

@@ -1,7 +1,7 @@
 package edu.lclark.orego.time;
 
-import static java.lang.Math.max;
 import static edu.lclark.orego.thirdparty.Gaussian.Phi;
+import static java.lang.Math.max;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.Player;
@@ -17,6 +17,9 @@ public final class ExitingTimeManager implements TimeManager {
 	/** Number of slices into which to divide each turn. */
 	private static final int SLICE_COUNT = 3;
 
+	/** The constant C to use in the time management formula. */
+	private static final double TIME_CONSTANT = 0.20;
+
 	/**
 	 * Returns the confidence (from 0.0 to 1.0) that case A is better than case
 	 * B.
@@ -27,13 +30,7 @@ public final class ExitingTimeManager implements TimeManager {
 			// There are no other moves to consider, so this must be best
 			return 1.0;
 		}
-		assert winrateA > 0.0;
-		assert winrateA < 1.0;
-		assert winrateB > 0.0;
-		assert winrateB < 1.0;
-		assert runsA > 0;
-		assert runsB > 0;
-		double z = (winrateA - winrateB)
+		final double z = (winrateA - winrateB)
 				/ Math.sqrt(winrateA * (1 - winrateA) / runsA + winrateB
 						* (1 - winrateB) / runsB);
 		return Phi(z);
@@ -41,6 +38,11 @@ public final class ExitingTimeManager implements TimeManager {
 
 	/** Used to determine the number of remaining vacant points. */
 	private final Board board;
+
+	private int msecPerSlice;
+
+	/** Time left for the rest of our moves, in msec. */
+	private int msecRemaining;
 
 	/** Used to find the root of the tree. */
 	private final Player player;
@@ -50,14 +52,6 @@ public final class ExitingTimeManager implements TimeManager {
 
 	/** Number of time slices left in this turn. */
 	private int slicesRemaining;
-
-	/** The constant C to use in the time management formula. */
-	private double timeC = 0.20;
-
-	private int msecPerSlice;
-
-	/** Time left for the rest of our moves, in msec. */
-	private int msecRemaining;
 
 	public ExitingTimeManager(Player player) {
 		this.player = player;
@@ -69,46 +63,36 @@ public final class ExitingTimeManager implements TimeManager {
 	 * higher winrate than the rest of the legal moves.
 	 */
 	private double confidenceBestVsRest() {
-		SearchNode root = player.getRoot();
-		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
+		final SearchNode root = player.getRoot();
+		final CoordinateSystem coords = player.getBoard().getCoordinateSystem();
 		// win rate and runs of the best move
-		short bestMove = root.getMoveWithMostWins(coords);
-		float bestWinRate = root.getWinRate(bestMove);
-		int bestRuns = root.getRuns(bestMove);
+		final short bestMove = root.getMoveWithMostWins(coords);
+		final float bestWinRate = root.getWinRate(bestMove);
+		final int bestRuns = root.getRuns(bestMove);
 		// runs and wins of the rest of the moves
 		int restRuns = 0;
 		int restWins = 0;
-		ShortSet vacant = board.getVacantPoints();
+		final ShortSet vacant = board.getVacantPoints();
 		for (int i = 0; i < vacant.size(); i++) {
-			short p = vacant.get(i);
+			final short p = vacant.get(i);
 			if (p != bestMove && root.getWinRate(p) > 0.0) {
-				float w = root.getWins(p);
+				final float w = root.getWins(p);
 				restWins += w;
 				restRuns += root.getRuns(p);
 			}
 		}
-		float restWinRate = restWins / (float) (restRuns);
-		if(restWinRate <= 0){
+		final float restWinRate = restWins / (float) restRuns;
+		if (restWinRate <= 0) {
 			return 0;
 		}
-		double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
+		final double c = confidence(bestWinRate, bestRuns, restWinRate, restRuns);
 		return c;
 	}
 
+	/** Sets the number and size of time slices to use. */
 	private void createSlices() {
-//		System.err.println("Creating slices");
 		slicesRemaining = SLICE_COUNT;
 		msecPerSlice = (getMsecPerMove() + rollover) / SLICE_COUNT;
-//		System.err.println("Allocated " + timePerSlice + " msec per slice");
-	}
-
-	private int getMsecPerMove() {
-		int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
-		return max(1, msecRemaining / movesLeft);
-	}
-
-	protected int getRollover() {
-		return rollover;
 	}
 
 	@Override
@@ -126,9 +110,20 @@ public final class ExitingTimeManager implements TimeManager {
 		return msecPerSlice;
 	}
 
+	/** Computes the total time to allocate to the next move. */
+	private int getMsecPerMove() {
+		final int movesLeft = max(10, (int) (board.getVacantPoints().size() * TIME_CONSTANT));
+		return max(1, msecRemaining / movesLeft);
+	}
+
+	/** Returns the number of msecs to be rolled over into the next turn. */
+	int getRollover() {
+		return rollover;
+	}
+
 	@Override
-	public void setRemainingTime(int seconds) {
-		msecRemaining = (seconds - 10) * 1000 - (rollover / 1000);
+	public void setRemainingSeconds(int seconds) {
+		msecRemaining = (seconds - 10) * 1000 - rollover / 1000;
 		createSlices();
 	}
 

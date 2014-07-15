@@ -6,13 +6,16 @@ import edu.lclark.orego.core.Board;
 /** Manages time based on the estimation of how many moves are left in the game. */
 public final class UniformTimeManager implements TimeManager {
 
-	private Board board;
+	/** Constant used in getMsec. */
+	private static final double TIME_CONSTANT = 0.2;
 
-	private int msecRemaining;
-
+	/** True if we've already thought this turn. */
 	private boolean alreadyThought;
 
-	private final double timeC = 0.2;
+	private final Board board;
+
+	/** Time remaining for the entire game. */
+	private int msecRemaining;
 
 	public UniformTimeManager(Board board) {
 		this.board = board;
@@ -21,7 +24,8 @@ public final class UniformTimeManager implements TimeManager {
 	@Override
 	public int getMsec() {
 		if (!alreadyThought) {
-			int movesLeft = max(10, (int) (board.getVacantPoints().size() * timeC));
+			final int movesLeft = max(10,
+					(int) (board.getVacantPoints().size() * TIME_CONSTANT));
 			alreadyThought = true;
 			return max(1, msecRemaining / movesLeft);
 		}
@@ -29,14 +33,14 @@ public final class UniformTimeManager implements TimeManager {
 	}
 
 	@Override
-	public void startNewTurn() {
-		alreadyThought = false;
+	public void setRemainingSeconds(int seconds) {
+		// The subtraction ensures that we don't run out of time due to lag
+		msecRemaining = max(1, (seconds - 10) * 1000);
 	}
 
 	@Override
-	public void setRemainingTime(int seconds) {
-		// The subtraction ensures that we don't run out of time due to lag
-		msecRemaining = max(1, (seconds - 10) * 1000);
+	public void startNewTurn() {
+		alreadyThought = false;
 	}
 
 }
