@@ -11,9 +11,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Runs GameBatch on each of several machines. NOTE: Begins by running KillExperiment.
- * 
- * @see KillExperiment
+ * Runs GameBatch on each of several machines
  */
 public final class Broadcast {
 
@@ -31,7 +29,6 @@ public final class Broadcast {
 	}
 
 	public static void main(String[] args) throws Exception {
-		KillExperiment.main(args);
 		String gitCommit = getGitCommit();
 		if (gitCommit.isEmpty()) {
 			throw new IllegalStateException("Not in clean git state");
