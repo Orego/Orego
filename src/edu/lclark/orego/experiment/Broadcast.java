@@ -27,6 +27,7 @@ public final class Broadcast {
 	}
 
 	public static void main(String[] args) throws Exception {
+		KillExperiment.main(args);
 		String gitCommit = getGitCommit();
 		if (gitCommit.isEmpty()) {
 			throw new IllegalStateException("Not in clean git state");
