@@ -20,7 +20,7 @@ public class SimpleTreeUpdaterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().threads(1).memorySize(1).boardWidth(5).rave(false).gestation(0).biasDelay(0).build();
+		player = new PlayerBuilder().threads(1).memorySize(1).boardWidth(5).rave(false).gestation(0).biasDelay(0).lgrf2(false).build();
 		updater = (SimpleTreeUpdater)player.getUpdater();
 	}
 
@@ -74,7 +74,7 @@ public class SimpleTreeUpdaterTest {
 
 	@Test
 	public void testGestation() {		
-		player = new PlayerBuilder().threads(1).memorySize(1).boardWidth(5).rave(false).gestation(12).biasDelay(0).build();
+		player = new PlayerBuilder().threads(1).memorySize(1).boardWidth(5).rave(false).gestation(12).biasDelay(0).lgrf2(false).build();
 		updater = (SimpleTreeUpdater)player.getUpdater();
 		assertEquals("Total runs: 60\n", updater.toString(5));
 		McRunnable runnable = player.getMcRunnable(0);

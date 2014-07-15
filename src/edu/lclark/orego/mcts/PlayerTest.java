@@ -153,7 +153,7 @@ public class PlayerTest {
 				".OO.O.#O##OOOOO##..",// 3
 				"O.O.O.#OOO##O######",// 2
 				"..O.O.##O.#.######." // 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		int successes = 0;
 		int failures = 0;
@@ -197,7 +197,7 @@ public class PlayerTest {
 				"...................",// 3
 				"...................",// 2
 				"..................." // 1
-		// ABCDEFGHJKLMNOPQRST
+		      // ABCDEFGHJKLMNOPQRST
 		};
 		int failures = 0;
 		for (int i = 0; i < 10; i++) {
@@ -241,7 +241,7 @@ public class PlayerTest {
 				"#.#O.",
 		};
 		player.getBoard().setUpProblem(diagram, BLACK);
-		assertFalse(player.passIfAhead());
+		assertFalse(player.canWinByPassing());
 	}
 
 }

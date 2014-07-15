@@ -1,20 +1,25 @@
 package edu.lclark.orego.mcts;
 
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
+import static edu.lclark.orego.core.Legality.OK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.book.OpeningBook;
-import edu.lclark.orego.core.*;
+import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.Legality;
+import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
 import edu.lclark.orego.util.ShortList;
 import edu.lclark.orego.util.ShortSet;
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import static edu.lclark.orego.core.Legality.*;
 
 /** Runs playouts and chooses moves. */
 public final class Player {
@@ -39,9 +44,9 @@ public final class Player {
 	/** For managing threads. */
 	private ExecutorService executor;
 
-	private FinalScorer finalScorer;
+	private final FinalScorer finalScorer;
 
-	private HistoryObserver historyObserver;
+	private final HistoryObserver historyObserver;
 
 	/**
 	 * True if the threads should keep running, e.g., because time has not run
@@ -51,6 +56,9 @@ public final class Player {
 
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
+
+	/** True if we should think during the opponent's turn. */
+	private boolean ponder;
 
 	/** For running playouts. */
 	private final McRunnable[] runnables;
@@ -67,9 +75,6 @@ public final class Player {
 
 	private TreeUpdater updater;
 
-	/** True if we should think during the opponent's turn. */
-	private boolean usePondering;
-
 	/**
 	 * @param threads
 	 *            Number of threads to run.
@@ -77,7 +82,7 @@ public final class Player {
 	 *            The board and any associated BoardObservers, Mover, etc.
 	 */
 	public Player(int threads, CopiableStructure stuff) {
-		CopiableStructure copy = stuff.copy();
+		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		historyObserver = copy.get(HistoryObserver.class);
 		finalScorer = copy.get(FinalScorer.class);
@@ -94,10 +99,10 @@ public final class Player {
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
 		stopThreads();
-		Legality legality = board.play(point);
+		final Legality legality = board.play(point);
 		assert legality == OK;
 		updater.updateForAcceptMove();
-		if (usePondering) {
+		if (ponder) {
 			startThreads();
 		}
 		return legality;
@@ -106,7 +111,7 @@ public final class Player {
 	/** Runs the McRunnables for some time and then returns the best move. */
 	public short bestMove() {
 		stopThreads();
-		short move = book.nextMove(board);
+		final short move = book.nextMove(board);
 		if (move != NO_POINT) {
 			return move;
 		}
@@ -115,18 +120,18 @@ public final class Player {
 				return PASS;
 			}
 		} else if (board.getPasses() == 1 && coupDeGrace) {
-			if (passIfAhead()) {
+			if (canWinByPassing()) {
 				return PASS;
 			}
 			findCleanupMoves();
 		}
-		
+
 		if (!timeLeftWasSent) {
 			// No time left signal was received
 			startThreads();
 			try {
 				Thread.sleep(msecPerMove);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
@@ -139,7 +144,7 @@ public final class Player {
 				startThreads();
 				try {
 					Thread.sleep(msecPerMove);
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					e.printStackTrace();
 					System.exit(1);
 				}
@@ -148,6 +153,28 @@ public final class Player {
 			} while (msecPerMove > 0);
 		}
 		return descender.bestPlayMove();
+	}
+
+	/**
+	 * Returns true if we can win by passing, assuming that all of our dead
+	 * stones are removed and all enemy stones are alive.
+	 */
+	boolean canWinByPassing() {
+		final ShortSet ourDead = findDeadStones(1.0, board.getColorToPlay());
+		final Board stonesRemoved = getMcRunnable(0).getBoard();
+		stonesRemoved.copyDataFrom(board);
+		stonesRemoved.removeStones(ourDead);
+		final double score = finalScorer.score(stonesRemoved);
+		if (board.getColorToPlay() == WHITE) {
+			if (score < 0) {
+				return true;
+			}
+		} else {
+			if (score > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Clears the board and does anything else necessary to start a new game. */
@@ -179,22 +206,23 @@ public final class Player {
 	 * board. Returns true if any such moves were found.
 	 */
 	private boolean findCleanupMoves() {
-		ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
+		final ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
 				.opposite());
 		if (enemyDeadChains.size() == 0) {
 			return false;
 		}
 		getRoot().exclude(PASS);
-		ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem()
+		final ShortSet pointsToBias = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
 		for (int i = 0; i < enemyDeadChains.size(); i++) {
-			short p = enemyDeadChains.get(i);
+			final short p = enemyDeadChains.get(i);
 			if (p == board.getChainRoot(p)) {
 				pointsToBias.addAll(board.getLiberties(p));
 			}
 		}
-		SearchNode root = getRoot();
-		int bias = (int)root.getWins(root.getMoveWithMostWins(board.getCoordinateSystem()));
+		final SearchNode root = getRoot();
+		final int bias = (int) root.getWins(root.getMoveWithMostWins(board
+				.getCoordinateSystem()));
 		for (int i = 0; i < pointsToBias.size(); i++) {
 			root.update(pointsToBias.get(i), bias, bias);
 		}
@@ -204,7 +232,7 @@ public final class Player {
 
 	/**
 	 * Returns a list of stones that don't survive many random playouts.
-	 * 
+	 *
 	 * @param threshold
 	 *            Portion of games a stone has to survive to be considered
 	 *            alive.
@@ -212,28 +240,28 @@ public final class Player {
 	 *            Color of stones we're examining.
 	 */
 	private ShortSet findDeadStones(double threshold, StoneColor color) {
-		boolean threadsWereRunning = keepRunning;
+		final boolean threadsWereRunning = keepRunning;
 		stopThreads();
 		// Perform a bunch of runs to see which stones survive
-		McRunnable runnable = getMcRunnable(0);
-		Board runnableBoard = runnable.getBoard();
-		int runs = 100;
-		ShortSet deadStones = new ShortSet(board.getCoordinateSystem()
+		final McRunnable runnable = getMcRunnable(0);
+		final Board runnableBoard = runnable.getBoard();
+		final int runs = 100;
+		final ShortSet deadStones = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
-		int[] survivals = new int[board.getCoordinateSystem()
+		final int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
 			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
 			runnable.performMcRun();
-			for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			for (final short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
 				}
 			}
 		}
 		// Gather all of the dead stones into a list to return
-		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+		for (final short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == color) {
 				if (survivals[p] < runs * threshold) {
 					deadStones.add(p);
@@ -278,7 +306,7 @@ public final class Player {
 
 	public int getPlayoutCount() {
 		int playouts = 0;
-		for (McRunnable runnable : runnables) {
+		for (final McRunnable runnable : runnables) {
 			playouts += runnable.getPlayoutsCompleted();
 		}
 		return playouts;
@@ -297,24 +325,12 @@ public final class Player {
 		return updater;
 	}
 
-	boolean passIfAhead() {
-		ShortSet ourDead = findDeadStones(1.0, board.getColorToPlay());
-		Board stonesRemoved = getMcRunnable(0).getBoard();
-		stonesRemoved.copyDataFrom(board);
-        stonesRemoved.removeStones(ourDead);
-		double score = finalScorer.score(stonesRemoved);
-		if (board.getColorToPlay() == WHITE) {
-			if (score < 0) {
-				return true;
-			}
-		} else {
-			if (score > 0) {
-				return true;
-			}
-		}
-		return false;
+	/** Sets whether we think during the opponent's turn. */
+	public void ponder(boolean pondering) {
+		this.ponder = pondering;
 	}
 
+	/** Sets cleanup mode, as specified in the GTP standard. */
 	public void setCleanupMode(boolean cleanup) {
 		cleanupMode = cleanup;
 	}
@@ -328,6 +344,10 @@ public final class Player {
 
 	}
 
+	/**
+	 * Sets whether we should try to capture dead enemy stones after opponent
+	 * passes.
+	 */
 	public void setCoupDeGrace(boolean enabled) {
 		coupDeGrace = enabled;
 	}
@@ -342,6 +362,7 @@ public final class Player {
 		this.book = book;
 	}
 
+	/** Handles a time left signal from GTP. */
 	public void setRemainingTime(int seconds) {
 		timeLeftWasSent = true;
 		timeManager.setRemainingTime(seconds);
@@ -361,15 +382,17 @@ public final class Player {
 		this.updater = updater;
 	}
 
+	/** Places standard handicap stones. */
 	public void setUpHandicap(int handicapSize) {
 		clear();
 		board.setUpHandicap(handicapSize);
 	}
 
+	/** Places moves read from an SGF game. */
 	@SuppressWarnings("boxing")
 	public void setUpSgfGame(List<Short> moves) {
 		board.clear();
-		for (Short move : moves) {
+		for (final Short move : moves) {
 			if (board.play(move) != OK) {
 				throw new IllegalArgumentException("Sgf contained illegal move");
 			}
@@ -382,6 +405,7 @@ public final class Player {
 		return keepRunning;
 	}
 
+	/** Starts the McRunnables' threads. */
 	private void startThreads() {
 		if (keepRunning) {
 			return; // If the threads were already running, don't start them
@@ -395,6 +419,7 @@ public final class Player {
 		executor.shutdown();
 	}
 
+	/** Stops the McRunnables' threads. */
 	private void stopThreads() {
 		if (!keepRunning) {
 			return; // If the threads were not running, don't bother to stop
@@ -402,9 +427,9 @@ public final class Player {
 		}
 		try {
 			keepRunning = false;
-			boolean finished = executor.awaitTermination(1, TimeUnit.SECONDS);
+			final boolean finished = executor.awaitTermination(1, TimeUnit.SECONDS);
 			assert finished;
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -415,18 +440,25 @@ public final class Player {
 		return descender.toString();
 	}
 
+	/**
+	 * Undoes the last move. This is done by clearing the board and replaying
+	 * all moves but the last.
+	 *
+	 * @return true if undoing succeeded (i.e., it was not the beginning of the
+	 *         game).
+	 */
 	public boolean undo() {
 		if (board.getTurn() == 0) {
 			return false;
 		}
-		boolean alreadyRunning = keepRunning;
+		final boolean alreadyRunning = keepRunning;
 		stopThreads();
-		ShortList movesList = new ShortList(board.getCoordinateSystem()
+		final ShortList movesList = new ShortList(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
 		for (int i = 0; i < historyObserver.size() - 1; i++) {
 			movesList.add(historyObserver.get(i));
 		}
-
+		// Now replay the moves
 		board.clearPreservingInitialStones();
 		for (int i = 0; i < movesList.size(); i++) {
 			board.play(movesList.get(i));
@@ -440,10 +472,6 @@ public final class Player {
 	/** Incorporate the result of a run in the tree. */
 	public void updateTree(Color winner, McRunnable mcRunnable) {
 		updater.updateTree(winner, mcRunnable);
-	}
-
-	public void usePondering(boolean pondering) {
-		this.usePondering = pondering;
 	}
 
 }

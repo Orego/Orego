@@ -1,10 +1,12 @@
 package edu.lclark.orego.mcts;
 
-import edu.lclark.orego.book.*;
+import edu.lclark.orego.book.FusekiBook;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
-import edu.lclark.orego.time.*;
+import edu.lclark.orego.time.ExitingTimeManager;
+import edu.lclark.orego.time.SimpleTimeManager;
+import edu.lclark.orego.time.UniformTimeManager;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -14,6 +16,8 @@ public final class PlayerBuilder {
 
 	private boolean book;
 
+	private boolean coupDeGrace;
+
 	private int gestation;
 
 	private double komi;
@@ -22,20 +26,18 @@ public final class PlayerBuilder {
 
 	private String managerType;
 
+	/** Amount of memory allocated to Orego, in megabytes. The transposition table is scaled accordingly. */
+	private int memorySize;
+
 	private int msecPerMove;
 
 	private boolean rave;
 
 	private int threads;
 
-	private boolean usePondering;
+	private boolean ponder;
 
 	private int width;
-
-	private boolean coupDeGrace;
-
-	/** Amount of memory allocated to Orego, in megabytes. The transposition table is scaled accordingly. */
-	private int memorySize;
 
 	public PlayerBuilder() {
 		// Default values
@@ -46,11 +48,11 @@ public final class PlayerBuilder {
 		memorySize = 1024;
 		msecPerMove = 1000;
 		width = 19;
-		usePondering = false;
+		ponder = false;
 		book = true;
 		managerType = "";
 		coupDeGrace = false;
-		lgrf2 = false;
+		lgrf2 = true;
 		rave = true;
 	}
 
@@ -66,11 +68,11 @@ public final class PlayerBuilder {
 
 	/** Creates the Player. */
 	public Player build() {
-		CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
+		final CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
 				komi) : CopiableStructureFactory.useWithBias(width, komi);
-		Player result = new Player(threads, copyStructure);
-		Board board = result.getBoard();
-		CoordinateSystem coords = board.getCoordinateSystem();
+		final Player result = new Player(threads, copyStructure);
+		final Board board = result.getBoard();
+		final CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table;
 		if (rave) {
 			table = new TranspositionTable(memorySize, new RaveNodeBuilder(coords),
@@ -103,7 +105,7 @@ public final class PlayerBuilder {
 		}
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
-		result.usePondering(usePondering);
+		result.ponder(ponder);
 		result.clear();
 		return result;
 	}
@@ -143,8 +145,8 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder pondering(boolean ponder) {
-		usePondering = ponder;
+	public PlayerBuilder ponder(boolean ponder) {
+		this.ponder = ponder;
 		return this;
 	}
 
@@ -158,6 +160,7 @@ public final class PlayerBuilder {
 		return this;
 	}
 
+	/** Sets the type of time manager to use, e.g., "exiting" or "uniform". */
 	public PlayerBuilder timeManagement(String managerType) {
 		this.managerType = managerType;
 		return this;

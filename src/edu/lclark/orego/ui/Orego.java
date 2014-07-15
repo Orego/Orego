@@ -392,7 +392,7 @@ public final class Orego {
 			} else if (left.equals("msec")) {
 				playerBuilder.msecPerMove(parseInt(right));
 			} else if (left.equals("ponder")) {
-				playerBuilder.pondering(parseBoolean(right));
+				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave(parseBoolean(right));
 			} else if (left.equals("threads")) {
