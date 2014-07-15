@@ -670,4 +670,11 @@ public final class Board implements Serializable {
 		}
 		return result;
 	}
+
+	public void removeStones(ShortSet ourDead) {
+		for(int i = 0; i < ourDead.size(); i++){
+			points[ourDead.get(i)].color = VACANT;
+			vacantPoints.addKnownAbsent(ourDead.get(i));
+		}
+	}
 }
