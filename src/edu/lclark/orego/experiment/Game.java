@@ -321,12 +321,15 @@ final class Game {
 					+ timeLeftIndicator);
 			out.flush();
 		}
-		if (coordinates.toLowerCase().equals("resign") || rules.time > 0
-				&& timeLeftForThisPlayer <= 0) {
+		if (coordinates.toLowerCase().equals("resign")
+//				|| rules.time > 0
+//				&& timeLeftForThisPlayer <= 0
+				) {
 			winner = getColorToPlay().opposite();
 			out.print(";RE[" + (winner == BLACK ? "B" : "W") + "+");
-			out.print(rules.time > 0 && timeLeftForThisPlayer <= 0 ? "Time"
-					: "Resign");
+//			out.print(rules.time > 0 && timeLeftForThisPlayer <= 0 ? "Time"
+//					: "Resign");
+			out.print("Resign");
 			out.println("]");
 			out.println(";C[moves:" + board.getTurn() + "]");
 			endPrograms();
