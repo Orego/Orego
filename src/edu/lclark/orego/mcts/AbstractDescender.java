@@ -112,8 +112,8 @@ public abstract class AbstractDescender implements TreeDescender {
 			if (child == null) {
 				return; // No child
 			}
-			if (child.getTotalRuns() > biasDelay && !child.priorsUpdated()) {
-				child.updatePriors(runnable);
+			if (child.getTotalRuns() > biasDelay && !child.biasUpdated()) {
+				child.updateBias(runnable);
 			}
 			node = child;
 		}
@@ -134,8 +134,8 @@ public abstract class AbstractDescender implements TreeDescender {
 			if (child == null) {
 				return; // No child
 			}
-			if (child.getTotalRuns() > biasDelay && !child.priorsUpdated()) {
-				child.updatePriors(runnable);
+			if (child.getTotalRuns() > biasDelay && !child.biasUpdated()) {
+				child.updateBias(runnable);
 			}
 		}
 	}

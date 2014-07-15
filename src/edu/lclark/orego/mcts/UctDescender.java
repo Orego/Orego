@@ -39,7 +39,7 @@ public final class UctDescender extends AbstractDescender {
 		final double factor1 = logParentRunCount / node.getRuns(move);
 		final double factor2 = min(0.25, v);
 		final double uncertainty = 0.4 * sqrt(factor1 * factor2);
-		return (float)(uncertainty + barX);
+		return (float) (uncertainty + barX);
 	}
 
 }

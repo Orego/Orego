@@ -1,13 +1,16 @@
 package edu.lclark.orego.mcts;
 
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
+import static java.lang.String.format;
+import static java.util.Arrays.fill;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.Suggester;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import static java.util.Arrays.*;
-import static java.lang.String.*;
-import edu.lclark.orego.util.*;
+import edu.lclark.orego.util.BitVector;
+import edu.lclark.orego.util.ListNode;
+import edu.lclark.orego.util.ShortSet;
 
 /** A node in the search tree / transposition table. */
 public class SimpleSearchNode implements SearchNode {
@@ -17,6 +20,9 @@ public class SimpleSearchNode implements SearchNode {
 	 * is a win, to discourage passing unless all other moves are awful.
 	 */
 	private static final int INITIAL_PASS_RUNS = 10;
+
+	/** True if bias for this node has been set. */
+	private boolean biasUpdated;
 
 	/** Children of this node. */
 	private ListNode<SearchNode> children;
@@ -34,9 +40,6 @@ public class SimpleSearchNode implements SearchNode {
 	 * necessary.
 	 */
 	private final BitVector hasChild;
-
-	/** True if priors for this node have been set. */
-	private boolean priorsUpdated;
 
 	/** Number of runs through each child of this node. */
 	private final int[] runs;
@@ -62,7 +65,7 @@ public class SimpleSearchNode implements SearchNode {
 
 	@Override
 	public String bestWinCountReport(CoordinateSystem coords) {
-		short best = getMoveWithMostWins(coords);
+		final short best = getMoveWithMostWins(coords);
 		return coords.toString(best) + " wins " + winRates[best] * runs[best]
 				+ "/" + runs[best] + " = " + getWinRate(best);
 	}
@@ -70,12 +73,17 @@ public class SimpleSearchNode implements SearchNode {
 	@Override
 	public short bestWinRate(CoordinateSystem coords) {
 		short best = PASS;
-		for (short p : coords.getAllPointsOnBoard()) {
+		for (final short p : coords.getAllPointsOnBoard()) {
 			if (getWinRate(p) >= getWinRate(best)) {
 				best = p;
 			}
 		}
 		return best;
+	}
+
+	@Override
+	public boolean biasUpdated() {
+		return biasUpdated;
 	}
 
 	@Override
@@ -102,12 +110,12 @@ public class SimpleSearchNode implements SearchNode {
 
 	/**
 	 * Recursive helper method.
-	 * 
+	 *
 	 * @see #deepToString(Board, TranspositionTable, int)
 	 */
 	String deepToString(Board board, TranspositionTable table, int maxDepth,
 			int depth) {
-		CoordinateSystem coords = board.getCoordinateSystem();
+		final CoordinateSystem coords = board.getCoordinateSystem();
 		if (maxDepth < depth) {
 			return "";
 		}
@@ -116,13 +124,13 @@ public class SimpleSearchNode implements SearchNode {
 			indent += "  ";
 		}
 		String result = indent + "Total runs: " + getTotalRuns() + "\n";
-		Board childBoard = new Board(coords.getWidth());
-		for (short p : coords.getAllPointsOnBoard()) {
+		final Board childBoard = new Board(coords.getWidth());
+		for (final short p : coords.getAllPointsOnBoard()) {
 			if (hasChild(p)) {
 				result += indent + toString(p, coords);
 				childBoard.copyDataFrom(board);
 				childBoard.play(p);
-				SimpleSearchNode child = (SimpleSearchNode) table
+				final SimpleSearchNode child = (SimpleSearchNode) table
 						.findIfPresent(childBoard.getFancyHash());
 				if (child != null) {
 					result += child.deepToString(childBoard, table, maxDepth,
@@ -130,12 +138,12 @@ public class SimpleSearchNode implements SearchNode {
 				}
 			}
 		}
-		short p = PASS;
+		final short p = PASS;
 		if (hasChild(p)) {
 			result += indent + toString(p, coords);
 			childBoard.copyDataFrom(board);
 			childBoard.play(p);
-			SearchNode child = table.findIfPresent(childBoard.getFancyHash());
+			final SearchNode child = table.findIfPresent(childBoard.getFancyHash());
 			if (child != null) {
 				result += deepToString(childBoard, table, maxDepth, depth + 1);
 			}
@@ -166,23 +174,12 @@ public class SimpleSearchNode implements SearchNode {
 	@Override
 	public short getMoveWithMostWins(CoordinateSystem coords) {
 		short best = PASS;
-		for (short p : coords.getAllPointsOnBoard()) {
+		for (final short p : coords.getAllPointsOnBoard()) {
 			if (getWins(p) >= getWins(best)) {
 				best = p;
 			}
 		}
 		return best;
-	}
-
-	@Override
-	public short getMoveWithNextMostWins(CoordinateSystem coords, short best) {
-		short nextBest = PASS;
-		for (short p : coords.getAllPointsOnBoard()) {
-			if (getWins(p) >= getWins(nextBest) && p!=best) {
-				nextBest = p;
-			}
-		}
-		return nextBest;
 	}
 
 	@Override
@@ -234,7 +231,7 @@ public class SimpleSearchNode implements SearchNode {
 	public float overallWinRate(CoordinateSystem coords) {
 		int r = 0; // Runs
 		int w = 0; // Wins
-		for (short p : coords.getAllPointsOnBoard()) {
+		for (final short p : coords.getAllPointsOnBoard()) {
 			if (getWins(p) > 0) {
 				w += getWins(p);
 				r += getRuns(p);
@@ -246,16 +243,11 @@ public class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public boolean priorsUpdated() {
-		return priorsUpdated;
-	}
-
-	@Override
 	public void recordPlayout(float winProportion, McRunnable runnable, int t) {
-		int turn = runnable.getTurn();
-		HistoryObserver history = runnable.getHistoryObserver();
+		final int turn = runnable.getTurn();
+		final HistoryObserver history = runnable.getHistoryObserver();
 		assert t < turn : "t = " + t + " >= turn = " + turn;
-		short move = history.get(t);
+		final short move = history.get(t);
 		update(move, 1, winProportion);
 		if (winProportion == 1) {
 			winningMove = move;
@@ -270,13 +262,18 @@ public class SimpleSearchNode implements SearchNode {
 	 */
 	void recordPlayout(float winProportion, short[] moves, int t, int turn) {
 		assert t < turn;
-		short move = moves[t];
+		final short move = moves[t];
 		update(move, 1, winProportion);
 		if (winProportion == 1) {
 			winningMove = move;
 		} else {
 			winningMove = NO_POINT;
 		}
+	}
+
+	@Override
+	public void setBiasUpdated(boolean value) {
+		biasUpdated = value;
 	}
 
 	@Override
@@ -295,19 +292,14 @@ public class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public void setPriorsUpdated(boolean value) {
-		priorsUpdated = value;
-	}
-
-	@Override
 	public void setWinningMove(short move) {
-		winningMove = move;		
+		winningMove = move;
 	}
 
 	@Override
 	public String toString(CoordinateSystem coords) {
 		String result = "Total runs: " + totalRuns + "\n";
-		for (short p : coords.getAllPointsOnBoard()) {
+		for (final short p : coords.getAllPointsOnBoard()) {
 			if (runs[p] > 2) {
 				result += toString(p, coords);
 			}
@@ -332,7 +324,7 @@ public class SimpleSearchNode implements SearchNode {
 	}
 
 	@Override
-	public void updatePriors(McRunnable runnable) {
+	public void updateBias(McRunnable runnable) {
 		final Suggester[] suggesters = runnable.getSuggesters();
 		final int[] weights = runnable.getWeights();
 		for (int i = 0; i < suggesters.length; i++) {
@@ -342,7 +334,7 @@ public class SimpleSearchNode implements SearchNode {
 				update(p, weights[i], weights[i]);
 			}
 		}
-		setPriorsUpdated(true);
+		setBiasUpdated(true);
 	}
 
 }

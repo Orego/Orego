@@ -1,11 +1,14 @@
 package edu.lclark.orego.mcts;
 
-import static edu.lclark.orego.core.SuperKoTable.*;
+import static edu.lclark.orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.util.*;
+import edu.lclark.orego.util.ListNode;
+import edu.lclark.orego.util.Pool;
 
 /** A hash table of nodes representing board configurations. */
 public final class TranspositionTable {
+
+	private final CoordinateSystem coords;
 
 	/** ListNodes used to build child lists for SearchNodes. */
 	private final Pool<ListNode<SearchNode>> listNodes;
@@ -13,11 +16,9 @@ public final class TranspositionTable {
 	/** The hash table itself. */
 	private final SearchNode[] table;
 
-	private final CoordinateSystem coords;
-
 	public TranspositionTable(int megabytes, SearchNodeBuilder builder,
 			CoordinateSystem coords) {
-		int size = megabytes * 1024 * 32 / Math.max(81, coords.getArea());
+		final int size = megabytes * 1024 * 32 / Math.max(81, coords.getArea());
 		table = new SearchNode[size];
 		for (int i = 0; i < size; i++) {
 			table[i] = builder.build();
@@ -31,15 +32,10 @@ public final class TranspositionTable {
 
 	/** Adds child as a child of parent. */
 	void addChild(SearchNode parent, SearchNode child) {
-		ListNode<SearchNode> node = listNodes.allocate();
+		final ListNode<SearchNode> node = listNodes.allocate();
 		node.setKey(child);
 		node.setNext(parent.getChildren());
 		parent.setChildren(node);
-	}
-
-	/** Returns the number of nodes in the table. For testing. */
-	int getCapacity() {
-		return table.length;
 	}
 
 	/**
@@ -47,7 +43,7 @@ public final class TranspositionTable {
 	 * root.
 	 */
 	public int dagSize(SearchNode root) {
-		int result = markNodesReachableFrom(root);
+		final int result = markNodesReachableFrom(root);
 		for (int i = 0; i < table.length; i++) {
 			table[i].setMarked(false);
 		}
@@ -56,10 +52,10 @@ public final class TranspositionTable {
 
 	/** Returns the node associated with hash, or null if there is no such node. */
 	public synchronized SearchNode findIfPresent(long fancyHash) {
-		int start = (((int) fancyHash) & IGNORE_SIGN_BIT) % table.length;
+		final int start = ((int) fancyHash & IGNORE_SIGN_BIT) % table.length;
 		int slot = start;
 		do {
-			SearchNode n = table[slot];
+			final SearchNode n = table[slot];
 			if (n.isInUse()) {
 				if (n.getFancyHash() == fancyHash) {
 					return n;
@@ -78,10 +74,10 @@ public final class TranspositionTable {
 	 * in the pool, returns null.
 	 */
 	synchronized SearchNode findOrAllocate(long fancyHash) {
-		int start = (((int) fancyHash) & IGNORE_SIGN_BIT) % table.length;
+		final int start = ((int) fancyHash & IGNORE_SIGN_BIT) % table.length;
 		int slot = start;
 		do {
-			SearchNode n = table[slot];
+			final SearchNode n = table[slot];
 			if (n.isInUse()) {
 				if (n.getFancyHash() == fancyHash) {
 					return n;
@@ -95,7 +91,15 @@ public final class TranspositionTable {
 		return null;
 	}
 
-	/** Marks all nodes reachable from root, so they will survive sweep(). Returns the number of nodes marked. */
+	/** Returns the number of nodes in the table. For testing. */
+	int getCapacity() {
+		return table.length;
+	}
+
+	/**
+	 * Marks all nodes reachable from root, so they will survive sweep().
+	 * Returns the number of nodes marked.
+	 */
 	int markNodesReachableFrom(SearchNode root) {
 		if (root == null || root.isMarked()) {
 			return 0;
@@ -117,7 +121,7 @@ public final class TranspositionTable {
 	 */
 	void sweep() {
 		for (int i = 0; i < table.length; i++) {
-			SearchNode node = table[i];
+			final SearchNode node = table[i];
 			if (node.isInUse()) {
 				if (node.isMarked()) {
 					node.setMarked(false);
