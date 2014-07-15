@@ -2,7 +2,7 @@ package edu.lclark.orego.experiment;
 
 import static edu.lclark.orego.experiment.SystemConfiguration.*;
 
-/** Kills all processes on all hosts listed in system.properties. */
+/** Kills all java and gnugo processes on all hosts listed in system.properties. */
 public final class KillExperiment {
 
 	public static void main(String[] args) {
