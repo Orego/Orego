@@ -133,7 +133,7 @@ public final class PatternExtractor {
 
 	/**
 	 * Processes file, updating counts of patterns encountered. If file is a
-	 * folder, recursively descends into it.
+	 * directory, recursively descends into it.
 	 */
 	private void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();

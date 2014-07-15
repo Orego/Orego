@@ -69,7 +69,7 @@ public class UctDescenderTest {
 	}
 
 	@Test
-	public void testUpdatePriors() {
+	public void testUpdateBias() {
 		assertEquals("Total runs: 60\n", updater.toString(5));
 		McRunnable runnable = player.getMcRunnable(0);
 		for (int i = 0; i < 100; i++) {

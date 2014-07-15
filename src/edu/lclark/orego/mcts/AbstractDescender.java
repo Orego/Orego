@@ -15,8 +15,7 @@ public abstract class AbstractDescender implements TreeDescender {
 	public static final float RESIGN_PARAMETER = 0.1f;
 
 	/**
-	 * Priors are not updated unless there have been this many runs through a
-	 * node.
+	 * Bias is not updated unless there have been this many runs through a node.
 	 */
 	private final int biasDelay;
 
@@ -100,7 +99,7 @@ public abstract class AbstractDescender implements TreeDescender {
 		// Nothing to do; the TreeUpdater clears the table
 	}
 
-	/** Some nodes may have their priors updated. */
+	/** Some nodes may have their biases updated. */
 	@Override
 	public void descend(McRunnable runnable) {
 		SearchNode node = getRoot();
@@ -158,7 +157,9 @@ public abstract class AbstractDescender implements TreeDescender {
 		return table;
 	}
 
-	/** Returns the search value of this move, e.g., best win rate, UCT, or RAVE. */
+	/**
+	 * Returns the search value of this move, e.g., best win rate, UCT, or RAVE.
+	 */
 	abstract float searchValue(SearchNode node, short move);
 
 	/** Selects and plays one move in the search tree. */

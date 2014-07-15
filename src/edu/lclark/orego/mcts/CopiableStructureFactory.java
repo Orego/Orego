@@ -84,8 +84,8 @@ public final class CopiableStructureFactory {
 		return base.add(MoverFactory.feasible(board));
 	}
 
-	/** Similar to useWithPriors, but incorporates LGRF2. */
-	public static CopiableStructure lgrfWithPriors(int width, double komi){
+	/** Similar to useWithBias, but incorporates LGRF2. */
+	public static CopiableStructure lgrfWithBias(int width, double komi){
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);		
 		// Observers
@@ -127,7 +127,7 @@ public final class CopiableStructureFactory {
 	}
 
 	/**
-	 * Similar to escapePatternCapture, but also updates priors.
+	 * Similar to escapePatternCapture, but also updates bias.
 	 */
 	public static CopiableStructure useWithBias(int width, double komi) {
 		final CopiableStructure base = basicParts(width, komi);

@@ -7,7 +7,7 @@ import edu.lclark.orego.mcts.PlayerBuilder;
  * Plays a game between two Players. Prints out each's playouts per second.
  * Modify the code to change the particular players.
  */
-public class FullGameComparison {
+public final class FullGameComparison {
 
 	public static void main(String[] args) {
 		// Modify this to change the players in question
