@@ -1,18 +1,9 @@
 #java specific
 *.class
 
-# we also don't want the SGF files from the scripts folder
-scripts/cgtc/cgtc-2.0.1/sgf/
-
 bin
 
-# but we want *some* sgf files
-!SgfTestFiles/9/*sgf
-!SgfTestFiles/19/*sgf
-!testFiles/*sgf
-
 # we don't want machine specific paths
-user.properties
 config/system.properties
 config/quit.txt
 
