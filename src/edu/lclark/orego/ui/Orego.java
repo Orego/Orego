@@ -241,11 +241,11 @@ public final class Orego {
 		} else if(command.equals("final_status_list")){
 			String status = arguments.nextToken();
 			if(status.equals("dead")){
-				ShortSet deadStones = player.findDeadStones(0.25, WHITE);
-				deadStones.addAll(player.findDeadStones(0.25, BLACK));
+				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+				deadStones.addAll(player.findDeadStones(0.75, BLACK));
 				acknowledge(produceVerticesString(deadStones));
 			} else if(status.equals("alive")){
-				acknowledge(produceVerticesString(player.getLiveStones(0.25)));
+				acknowledge(produceVerticesString(player.getLiveStones(0.75)));
 			}
 		} else if (command.equals("fixed_handicap")) {
 			final int handicapSize = parseInt(arguments.nextToken());

@@ -3,12 +3,16 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
-
 import static edu.lclark.orego.util.TestingTools.asOneString;
+
+import java.io.File;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.lclark.orego.sgf.SgfParser;
+import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 public class PlayerTest {
@@ -182,6 +186,7 @@ public class PlayerTest {
 			}
 		}
 		assertEquals(0, failures);
+		System.out.println(successes);
 		assertTrue(successes >= 5);
 	}
 
@@ -257,16 +262,36 @@ public class PlayerTest {
 	}
 	
 	@Test
-	public void testGetLiveStones(){
+	public void testGetDeadStones(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
 		String[] diagram = {
-				"OO.OO",
-				".OOO.",
-				".O.OO",
-				"##OO.",
-				".##OO",
+				"...O....O.O#.......",
+				"..OOO...O.O#..#....",
+				".O..O.OOO.O##......",
+				".OOO.OOOOOOO##.####",
+				".OO.OO.O.OOO#####O.",
+				"#O###OOOO...OOOOOO.",
+				"##..##OOO..OOOOO.OO",
+				"..#.#OO.OOO.OO..O..",
+				"....##.OO..........",
+				"...#.##O.O...OOO...",
+				"...O#.#O......O.OOO",
+				"....###OO...O..OO.O",
+				"......##O.O...OOOO#",
+				"....#.#OO.....O####",
+				"..#..#O.O.O.OO#..#.",
+				"...###O.O...O#.##..",
+				"...O###O....OO#.#..",
+				"......#OO.OOO##.#..",
+				"......###.O#####...",
 		};
 		player.getBoard().setUpProblem(diagram, WHITE);
-		assertEquals(14, player.getLiveStones(0.5).size());
+		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+		assertEquals(2, deadStones.size());
+		assertTrue(deadStones.contains(player.getBoard().getCoordinateSystem().at("D3")));
+		assertTrue(deadStones.contains(player.getBoard().getCoordinateSystem().at("D9")));
+
 	}
 
 }
