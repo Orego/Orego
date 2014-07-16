@@ -94,5 +94,4 @@ public final class PatternSuggester implements Suggester {
 		}
 		return moves;
 	}
-
 }
