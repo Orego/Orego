@@ -7,17 +7,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.lclark.orego.core.CoordinateSystem;
-
 public class SimpleTreeUpdaterTest {
 
 	private Player player;
 	
 	private SimpleTreeUpdater updater;
-
-	private TreeDescender descender;
-	
-	private TranspositionTable table;
 	
 	/** Delegate method to call at on board. */
 	private short at(String label) {
@@ -26,13 +20,9 @@ public class SimpleTreeUpdaterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new Player(1, CopiableStructureFactory.feasible(5));
-		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
-		table = new TranspositionTable(100, new SimpleSearchNodeBuilder(coords), coords);
-		descender = new BestRateDescender(player.getBoard(), table, 0);
-		updater = new SimpleTreeUpdater(player.getBoard(), table, 0);
-		player.setTreeDescender(descender);
-		player.setTreeUpdater(updater);
+		player = new PlayerBuilder().threads(1).memorySize(1).boardWidth(5)
+				.rave(false).gestation(0).biasDelay(0).lgrf2(false).build();
+		updater = (SimpleTreeUpdater) player.getUpdater();
 	}
 
 	@Test
@@ -84,9 +74,10 @@ public class SimpleTreeUpdaterTest {
 	}
 
 	@Test
-	public void testGestation() {		
-		updater = new SimpleTreeUpdater(player.getBoard(), table, 12);
-		player.setTreeUpdater(updater);
+	public void testGestation() {
+		player = new PlayerBuilder().threads(1).memorySize(1).boardWidth(5)
+				.rave(false).gestation(12).biasDelay(0).lgrf2(false).build();
+		updater = (SimpleTreeUpdater) player.getUpdater();
 		assertEquals("Total runs: 60\n", updater.toString(5));
 		McRunnable runnable = player.getMcRunnable(0);
 		runnable.acceptMove(at("b1"));
@@ -94,10 +85,11 @@ public class SimpleTreeUpdaterTest {
 		runnable.acceptMove(at("a2"));
 		updater.updateTree(BLACK, runnable);
 		assertEquals("Total runs: 61\n", updater.toString(5));
-		for(int i = 0; i<9; i++){
+		for (int i = 0; i < 9; i++) {
 			updater.updateTree(BLACK, runnable);
 		}
-		assertEquals("Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
+		assertEquals(
+				"Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
 				updater.toString(5));
 	}
 

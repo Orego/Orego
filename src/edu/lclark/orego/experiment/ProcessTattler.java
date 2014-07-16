@@ -6,7 +6,7 @@ import java.util.Scanner;
 public final class ProcessTattler implements Runnable {
 
 	private final Process process;
-	
+
 	public ProcessTattler(Process process) {
 		this.process = process;
 	}

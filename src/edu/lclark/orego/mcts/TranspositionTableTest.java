@@ -10,14 +10,12 @@ import edu.lclark.orego.util.ListNode;
 
 public class TranspositionTableTest {
 
-	public static final int TABLE_SIZE = 17;
-
 	private TranspositionTable table;
 
 	@Before
 	public void setUp() throws Exception {
 		CoordinateSystem coords = CoordinateSystem.forWidth(5);
-		table = new TranspositionTable(TABLE_SIZE, new SimpleSearchNodeBuilder(coords), coords);
+		table = new TranspositionTable(1, new SimpleSearchNodeBuilder(coords), coords);
 	}
 
 	@Test
@@ -33,9 +31,9 @@ public class TranspositionTableTest {
 	@Test
 	public void testFindOrAllocate2() {
 		SearchNode a = table.findOrAllocate(1);
-		SearchNode b = table.findOrAllocate(1 + TABLE_SIZE);
+		SearchNode b = table.findOrAllocate(1 + table.getCapacity());
 		SearchNode c = table.findOrAllocate(1);
-		SearchNode d = table.findOrAllocate(1 + TABLE_SIZE);
+		SearchNode d = table.findOrAllocate(1 + table.getCapacity());
 		assertEquals(a, c);
 		assertEquals(b, d);
 		assertFalse(a == b);
@@ -52,10 +50,10 @@ public class TranspositionTableTest {
 
 	@Test
 	public void testAllocationFailsWhenNoNodesLeft() {
-		for (int i = 0; i <= TABLE_SIZE; i++) {
+		for (int i = 0; i <= table.getCapacity(); i++) {
 			table.findOrAllocate(i);
 		}
-		assertNull(table.findOrAllocate(TABLE_SIZE + 1));
+		assertNull(table.findOrAllocate(table.getCapacity() + 1));
 	}
 
 	@Test

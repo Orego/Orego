@@ -1,10 +1,12 @@
 package edu.lclark.orego.mcts;
 
-import edu.lclark.orego.book.*;
+import edu.lclark.orego.book.FusekiBook;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
-import edu.lclark.orego.feature.ExitingTimeManager;
+import edu.lclark.orego.time.ExitingTimeManager;
+import edu.lclark.orego.time.SimpleTimeManager;
+import edu.lclark.orego.time.UniformTimeManager;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -12,37 +14,46 @@ public final class PlayerBuilder {
 
 	private int biasDelay;
 
+	private boolean book;
+
+	private boolean coupDeGrace;
+
 	private int gestation;
 
 	private double komi;
 
+	private boolean lgrf2;
+
+	private String managerType;
+
+	/** Amount of memory allocated to Orego, in megabytes. The transposition table is scaled accordingly. */
+	private int memorySize;
+
 	private int msecPerMove;
+
+	private boolean rave;
 
 	private int threads;
 
+	private boolean ponder;
+
 	private int width;
-
-	private boolean rave;
-	
-	private boolean usePondering;
-
-	private OpeningBook book;
-
-	private boolean lgrf2;
-	
-	private boolean timeManagement;
 
 	public PlayerBuilder() {
 		// Default values
-		biasDelay = 1;
-		gestation = 1;
+		biasDelay = 800;
+		gestation = 4;
 		komi = 7.5;
 		threads = 2;
+		memorySize = 1024;
 		msecPerMove = 1000;
 		width = 19;
-		usePondering = false;
-		timeManagement = false;
-		book = new DoNothing();
+		ponder = false;
+		book = true;
+		managerType = "uniform";
+		coupDeGrace = false;
+		lgrf2 = true;
+		rave = true;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -57,36 +68,51 @@ public final class PlayerBuilder {
 
 	/** Creates the Player. */
 	public Player build() {
-		CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
-				komi) : CopiableStructureFactory.useWithPriors(width, komi);
-		Player result = new Player(threads, copyStructure);
-		Board board = result.getBoard();
-		CoordinateSystem coords = board.getCoordinateSystem();
+		final CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithPriors(width,
+				komi) : CopiableStructureFactory.useWithBias(width, komi);
+		final Player result = new Player(threads, copyStructure);
+		final Board board = result.getBoard();
+		final CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table;
 		if (rave) {
-			table = new TranspositionTable(new RaveNodeBuilder(coords),
+			table = new TranspositionTable(memorySize, new RaveNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new RaveDescender(board, table, biasDelay));
 		} else {
-			table = new TranspositionTable(new SimpleSearchNodeBuilder(coords),
+			table = new TranspositionTable(memorySize, new SimpleSearchNodeBuilder(coords),
 					coords);
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		}
 		TreeUpdater updater;
-		if(lgrf2){
-			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation), copyStructure.get(LgrfTable.class));
-		}else{
+		if (lgrf2) {
+			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation),
+					copyStructure.get(LgrfTable.class));
+		} else {
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
-		
-		if(timeManagement){
+		if (managerType.equals("exiting")) {
 			result.setTimeManager(new ExitingTimeManager(result));
+		} else if (managerType.equals("uniform")) {
+			result.setTimeManager(new UniformTimeManager(result.getBoard()));
+		} else {
+			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
-		result.setOpeningBook(book);
+		result.setCoupDeGrace(coupDeGrace);
+		if (book && width == 19) {
+			result.setOpeningBook(new FusekiBook());
+		} else {
+			result.setOpeningBook(new DoNothing());
+		}
 		result.setTreeUpdater(updater);
 		result.setMsecPerMove(msecPerMove);
-		result.usePondering(usePondering);
+		result.ponder(ponder);
+		result.clear();
 		return result;
+	}
+
+	public PlayerBuilder coupDeGrace(boolean grace) {
+		this.coupDeGrace = grace;
+		return this;
 	}
 
 	public PlayerBuilder gestation(int gestation) {
@@ -99,8 +125,13 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder lgrf2() {
-		lgrf2 = true;
+	public PlayerBuilder lgrf2(boolean lgrf2) {
+		this.lgrf2 = lgrf2;
+		return this;
+	}
+
+	public PlayerBuilder memorySize(int megabytes) {
+		memorySize = megabytes;
 		return this;
 	}
 
@@ -108,14 +139,19 @@ public final class PlayerBuilder {
 		this.msecPerMove = msec;
 		return this;
 	}
-	
-	public PlayerBuilder openingBook(){
-		book = new FusekiBook();
+
+	public PlayerBuilder openingBook(boolean book) {
+		this.book = book;
 		return this;
 	}
 
-	public PlayerBuilder rave() {
-		rave = true;
+	public PlayerBuilder ponder(boolean ponder) {
+		this.ponder = ponder;
+		return this;
+	}
+
+	public PlayerBuilder rave(boolean rave) {
+		this.rave = rave;
 		return this;
 	}
 
@@ -124,13 +160,9 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder pondering() {
-		usePondering = true;
-		return this;
-	}
-	
-	public PlayerBuilder timeManagement(){
-		timeManagement = true;
+	/** Sets the type of time manager to use, e.g., "exiting" or "uniform". */
+	public PlayerBuilder timeManagement(String managerType) {
+		this.managerType = managerType;
 		return this;
 	}
 

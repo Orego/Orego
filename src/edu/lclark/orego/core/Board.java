@@ -1,19 +1,32 @@
 package edu.lclark.orego.core;
 
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import static edu.lclark.orego.core.Legality.*;
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.NonStoneColor.*;
+import static edu.lclark.orego.core.CoordinateSystem.FIRST_ORTHOGONAL_NEIGHBOR;
+import static edu.lclark.orego.core.CoordinateSystem.LAST_ORTHOGONAL_NEIGHBOR;
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
+import static edu.lclark.orego.core.Legality.GAME_TOO_LONG;
+import static edu.lclark.orego.core.Legality.KO_VIOLATION;
+import static edu.lclark.orego.core.Legality.OCCUPIED;
+import static edu.lclark.orego.core.Legality.OK;
+import static edu.lclark.orego.core.Legality.SUICIDE;
+import static edu.lclark.orego.core.NonStoneColor.OFF_BOARD;
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
+import static edu.lclark.orego.core.Point.EDGE_INCREMENT;
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
 
 import java.io.Serializable;
 
 import edu.lclark.orego.feature.BoardObserver;
-import edu.lclark.orego.util.ShortSet;
 import edu.lclark.orego.util.ShortList;
-import static edu.lclark.orego.core.Point.*;
+import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
 public final class Board implements Serializable {
+
+	/** Locations for handicap stones. */
+	private final static String[] HANDICAP_LOCATIONS = { "d4", "q16", "q4",
+			"d16", "k10", "d10", "q10", "k4", "k16" };
 
 	/** Stones captured by the last move. */
 	private final ShortList capturedStones;
@@ -35,10 +48,16 @@ public final class Board implements Serializable {
 
 	/**
 	 * Zobrist hash of the current board position.
-	 * 
+	 *
 	 * @see #getHash()
 	 */
 	private long hash;
+
+	/**
+	 * Used for undoing move so that we have a record of the initial stones
+	 * played.
+	 */
+	private final ShortSet[] initialStones;
 
 	/** The point, if any, where the simple ko rule prohibits play. */
 	private short koPoint;
@@ -72,14 +91,14 @@ public final class Board implements Serializable {
 
 	/** The set of vacant points. */
 	private final ShortSet vacantPoints;
-	
+
 	public Board(int width) {
 		coords = CoordinateSystem.forWidth(width);
 		points = new Point[coords.getFirstPointBeyondExtendedBoard()];
 		friendlyNeighboringChainIds = new ShortList(4);
 		enemyNeighboringChainIds = new ShortList(4);
 		capturedStones = new ShortList(coords.getArea());
-		int n = coords.getFirstPointBeyondBoard();
+		final int n = coords.getFirstPointBeyondBoard();
 		lastPlayLiberties = new ShortSet(n);
 		superKoTable = new SuperKoTable(coords);
 		vacantPoints = new ShortSet(n);
@@ -88,6 +107,7 @@ public final class Board implements Serializable {
 		}
 		neighborsOfCapturedStone = new ShortList(4);
 		observers = new BoardObserver[0];
+		initialStones = new ShortSet[] { new ShortSet(n), new ShortSet(n) };
 		clear();
 	}
 
@@ -98,7 +118,6 @@ public final class Board implements Serializable {
 		// The assertions check that nothing has happened on this board
 		assert hash == SuperKoTable.EMPTY;
 		assert turn == 0;
-		// Defensive copy
 		observers = java.util.Arrays.copyOf(observers, observers.length + 1);
 		observers[observers.length - 1] = observer;
 	}
@@ -110,7 +129,7 @@ public final class Board implements Serializable {
 	private void adjustEnemyNeighbors(short p) {
 		capturedStones.clear();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
-			short enemy = enemyNeighboringChainIds.get(i);
+			final short enemy = enemyNeighboringChainIds.get(i);
 			if (points[enemy].isInAtari()) {
 				short s = enemy;
 				do {
@@ -138,7 +157,7 @@ public final class Board implements Serializable {
 			if (friendlyNeighboringChainIds.size() > 1) {
 				// If there are several friendly neighbors, merge them
 				for (int i = 1; i < friendlyNeighboringChainIds.size(); i++) {
-					short ally = friendlyNeighboringChainIds.get(i);
+					final short ally = friendlyNeighboringChainIds.get(i);
 					if (points[c].liberties.size() >= points[ally].liberties
 							.size()) {
 						mergeChains(c, ally);
@@ -146,7 +165,7 @@ public final class Board implements Serializable {
 						mergeChains(ally, c);
 						c = ally;
 					}
-					
+
 				}
 			}
 			points[c].liberties.removeKnownPresent(p);
@@ -167,21 +186,39 @@ public final class Board implements Serializable {
 		superKoTable.clear();
 		turn = 0;
 		vacantPoints.clear();
-		for (short p : coords.getAllPointsOnBoard()) {
+		for (final ShortSet stones : initialStones) {
+			stones.clear();
+		}
+		for (final short p : coords.getAllPointsOnBoard()) {
 			points[p].clear();
 			vacantPoints.addKnownAbsent(p);
 			int edgeCount = 0;
-			short[] neighbors = coords.getNeighbors(p);
+			final short[] neighbors = coords.getNeighbors(p);
 			for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-				short n = neighbors[i];
+				final short n = neighbors[i];
 				if (!coords.isOnBoard(n)) {
 					edgeCount++;
 				}
 			}
 			points[p].neighborCounts += edgeCount * EDGE_INCREMENT;
 		}
-		for (BoardObserver observer : observers) {
+		for (final BoardObserver observer : observers) {
 			observer.clear();
+		}
+	}
+
+	public void clearPreservingInitialStones() {
+		final ShortSet[] tempInitial = new ShortSet[] {
+				new ShortSet(coords.getFirstPointBeyondBoard()),
+				new ShortSet(coords.getFirstPointBeyondBoard()) };
+		for (int i = 0; i < 2; i++) {
+			tempInitial[i].addAll(initialStones[i]);
+		}
+		clear();
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < tempInitial[i].size(); j++) {
+				placeInitialStone(i == 0 ? BLACK : WHITE, tempInitial[i].get(j));
+			}
 		}
 	}
 
@@ -196,7 +233,7 @@ public final class Board implements Serializable {
 			observers[i].copyDataFrom(that.observers[i]);
 		}
 		passes = that.passes;
-		for (short p : coords.getAllPointsOnBoard()) {
+		for (final short p : coords.getAllPointsOnBoard()) {
 			points[p].copyDataFrom(that.points[p]);
 		}
 		superKoTable.copyDataFrom(that.superKoTable);
@@ -206,37 +243,39 @@ public final class Board implements Serializable {
 
 	/**
 	 * Updates data structures at the end of a play.
-	 * 
+	 *
 	 * @param color
 	 *            The color of the stone played.
 	 * @param p
 	 *            The location where the stone was played.
 	 */
 	private void finalizePlay(StoneColor color, short p) {
-		int lastVacantPointCount = vacantPoints.size();
+		final int lastVacantPointCount = vacantPoints.size();
 		points[p].color = color;
 		vacantPoints.remove(p);
-		boolean surrounded = points[p].hasMaxNeighborsForColor(color.opposite());
-		short[] neighbors = coords.getNeighbors(p);
-		for(int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++){
-			points[neighbors[i]].neighborCounts += Point.NEIGHBOR_INCREMENT[color.index()];
+		final boolean surrounded = points[p]
+				.hasMaxNeighborsForColor(color.opposite());
+		final short[] neighbors = coords.getNeighbors(p);
+		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
+			points[neighbors[i]].neighborCounts += Point.NEIGHBOR_INCREMENT[color
+					.index()];
 		}
 		adjustFriendlyNeighbors(p);
 		adjustEnemyNeighbors(p);
-		if ((lastVacantPointCount == vacantPoints.size()) & surrounded) {
+		if (lastVacantPointCount == vacantPoints.size() & surrounded) {
 			koPoint = vacantPoints.get((short) (vacantPoints.size() - 1));
 		} else {
 			koPoint = NO_POINT;
 		}
 	}
-	
+
 	/** Returns the next point in this chain. */
 	public short getChainNextPoint(short p) {
 		return points[p].chainNextPoint;
 	}
 
 	/** Return the root of the chain that contains p. */
-	public short getChainRoot(short p){
+	public short getChainRoot(short p) {
 		return points[p].chainId;
 	}
 
@@ -274,12 +313,13 @@ public final class Board implements Serializable {
 	}
 
 	/**
-	 * Returns the Zobrist hash of the current board position. This is used in the superko table.
+	 * Returns the Zobrist hash of the current board position. This is used in
+	 * the superko table.
 	 */
 	public long getHash() {
 		return hash;
 	}
-	
+
 	/**
 	 * Returns the liberties of p.
 	 */
@@ -288,15 +328,15 @@ public final class Board implements Serializable {
 		assert points[p].color != VACANT;
 		return points[points[p].chainId].liberties;
 	}
-	
-	
+
 	/**
-	 * Returns the number of neighbors of a given color for the point p. Offboard points are considered both black and white.
+	 * Returns the number of neighbors of a given color for the point p.
+	 * Offboard points are considered both black and white.
 	 */
-	public int getNeighborsOfColor(short p, Color color){
+	public int getNeighborsOfColor(short p, Color color) {
 		return points[p].getNeighborCount(color);
 	}
-	
+
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
 	 */
@@ -321,7 +361,7 @@ public final class Board implements Serializable {
 	/**
 	 * Returns the hash value that would result if the captured stones were
 	 * removed. Used by play() to detect superko.
-	 * 
+	 *
 	 * @param color
 	 *            Color of the stone to be played.
 	 * @param p
@@ -330,9 +370,9 @@ public final class Board implements Serializable {
 	private long hashAfterRemovingCapturedStones(StoneColor color, short p) {
 		long result = hash;
 		result ^= coords.getHash(color, p);
-		StoneColor enemy = color.opposite();
+		final StoneColor enemy = color.opposite();
 		for (int i = 0; i < enemyNeighboringChainIds.size(); i++) {
-			short c = enemyNeighboringChainIds.get(i);
+			final short c = enemyNeighboringChainIds.get(i);
 			if (points[c].isInAtari()) {
 				short active = c;
 				do {
@@ -367,7 +407,7 @@ public final class Board implements Serializable {
 	 * with the new stone. As a side effect, loads the fields
 	 * friendlyNeighboringChainIds, enemyNeighboringChainIds, and
 	 * lastPlayLiberties, used by finalizePlay.
-	 * 
+	 *
 	 * @return true if playing at p would be suicidal.
 	 */
 	private boolean isSuicidal(StoneColor color, short p) {
@@ -375,21 +415,21 @@ public final class Board implements Serializable {
 		enemyNeighboringChainIds.clear();
 		lastPlayLiberties.clear();
 		boolean suicide = true;
-		short[] neighbors = coords.getNeighbors(p);
+		final short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			Color neighborColor = points[n].color;
+			final short n = neighbors[i];
+			final Color neighborColor = points[n].color;
 			if (neighborColor == VACANT) { // Vacant point
 				lastPlayLiberties.add(n);
 				suicide = false;
 			} else if (neighborColor == color) { // Friendly neighbor
-				short chainId = points[n].chainId;
+				final short chainId = points[n].chainId;
 				friendlyNeighboringChainIds.addIfNotPresent(chainId);
 				suicide &= points[chainId].isInAtari();
 			} else if (neighborColor != OFF_BOARD) { // Enemy neighbor
-				short chainId = points[n].chainId;
+				final short chainId = points[n].chainId;
 				enemyNeighboringChainIds.addIfNotPresent(chainId);
-				suicide &= !(points[chainId].isInAtari());
+				suicide &= !points[chainId].isInAtari();
 			}
 		}
 		return suicide;
@@ -442,7 +482,7 @@ public final class Board implements Serializable {
 	/**
 	 * Merges the stones in appendage into the chain at base. Each parameter is
 	 * a stone in one of the chains to be merged.
-	 * 
+	 *
 	 * @param base
 	 *            If not too expensive to compute, base should be the larger of
 	 *            the two chains.
@@ -454,16 +494,14 @@ public final class Board implements Serializable {
 			points[active].chainId = points[base].chainId;
 			active = points[active].chainNextPoint;
 		} while (active != appendage);
-		short temp = points[base].chainNextPoint;
+		final short temp = points[base].chainNextPoint;
 		points[base].chainNextPoint = points[appendage].chainNextPoint;
 		points[appendage].chainNextPoint = temp;
 	}
 
 	/** Notify the observers about what has changed. */
 	private void notifyObservers(StoneColor color, short p) {
-		for (BoardObserver observer : observers) {
-			// Note that we have to flip colorToPlay because it has already been
-			// flipped as the move was completed
+		for (final BoardObserver observer : observers) {
 			observer.update(color, p, capturedStones);
 		}
 	}
@@ -485,6 +523,7 @@ public final class Board implements Serializable {
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);
 		finalizePlay(color, p);
+		initialStones[color.index()].add(p);
 		hash = proposedHash;
 		superKoTable.add(hash);
 		// To ensure that the board is in a stable state, this must be done last
@@ -500,7 +539,7 @@ public final class Board implements Serializable {
 			pass();
 			return OK;
 		}
-		Legality result = legality(colorToPlay, p);
+		final Legality result = legality(colorToPlay, p);
 		if (result != OK) {
 			return result;
 		}
@@ -517,7 +556,9 @@ public final class Board implements Serializable {
 	}
 
 	/**
-	 * Convenience method for specifying a move as a human-readable string, e.g., "c4" or "pass".
+	 * Convenience method for specifying a move as a human-readable string,
+	 * e.g., "c4" or "pass".
+	 *
 	 * @see #play(short)
 	 */
 	public Legality play(String move) {
@@ -529,7 +570,7 @@ public final class Board implements Serializable {
 	 * maintain hash or check superko.
 	 */
 	public Legality playFast(short p) {
-		Legality result = legalityFast(colorToPlay, p);
+		final Legality result = legalityFast(colorToPlay, p);
 		if (result != OK) {
 			return result;
 		}
@@ -548,32 +589,58 @@ public final class Board implements Serializable {
 		points[p].color = VACANT;
 		vacantPoints.addKnownAbsent(p);
 		neighborsOfCapturedStone.clear();
-		short[] neighbors = coords.getNeighbors(p);
+		final short[] neighbors = coords.getNeighbors(p);
 		for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i <= LAST_ORTHOGONAL_NEIGHBOR; i++) {
-			short n = neighbors[i];
-			points[n].neighborCounts -= Point.NEIGHBOR_INCREMENT[colorToPlay.opposite().index()];
+			final short n = neighbors[i];
+			points[n].neighborCounts -= Point.NEIGHBOR_INCREMENT[colorToPlay
+					.opposite().index()];
 			if (points[n].color == BLACK | points[n].color == WHITE) {
 				neighborsOfCapturedStone.addIfNotPresent(points[n].chainId);
 			}
 		}
 		for (int k = 0; k < neighborsOfCapturedStone.size(); k++) {
-			int c = neighborsOfCapturedStone.get(k);
+			final int c = neighborsOfCapturedStone.get(k);
 			points[c].liberties.addKnownAbsent(p);
 		}
 		capturedStones.add(p);
 	}
 
-	/** Sets the color to play, used with programs like GoGui to set up initial stones. */
+	/**
+	 * Sets the color to play, used with programs like GoGui to set up initial
+	 * stones.
+	 */
 	public void setColorToPlay(StoneColor stoneColor) {
 		colorToPlay = stoneColor;
-		
+	}
+
+	/**
+	 * Sets the number of consecutive passes. Does not adjust observers. (This
+	 * is used when running special beyond-the-end-of-the-game playouts to
+	 * determine which stones are alive.)
+	 */
+	public void setPasses(short passes) {
+		this.passes = passes;
+	}
+
+	public void setUpHandicap(int handicapSize) {
+		clear();
+		for (int i = 0; i < handicapSize; i++) {
+			if ((handicapSize == 6 || handicapSize == 8) && i == 4) {
+				i++;
+				handicapSize++;
+			}
+			placeInitialStone(BLACK, coords.at(HANDICAP_LOCATIONS[i]));
+		}
+		setColorToPlay(WHITE);
 	}
 
 	/**
 	 * Places all of the stones indicated in diagram. These are set as initial
 	 * stones, not moves recorded in the board's history. The color to play next
 	 * is set as indicated.
-	 * @throws IllegalArgumentException if the diagram contains invalid characters
+	 *
+	 * @throws IllegalArgumentException
+	 *             if the diagram contains invalid characters
 	 */
 	public void setUpProblem(String[] diagram, StoneColor colorToPlay) {
 		assert diagram.length == coords.getWidth();
@@ -581,7 +648,7 @@ public final class Board implements Serializable {
 		for (int r = 0; r < coords.getWidth(); r++) {
 			assert diagram[r].length() == coords.getWidth();
 			for (int c = 0; c < coords.getWidth(); c++) {
-				StoneColor color = StoneColor.forChar(diagram[r].charAt(c));
+				final StoneColor color = StoneColor.forChar(diagram[r].charAt(c));
 				if (color != null) {
 					placeInitialStone(color, coords.at(r, c));
 				} else if (NonStoneColor.forChar(diagram[r].charAt(c)) != VACANT) {
@@ -604,4 +671,10 @@ public final class Board implements Serializable {
 		return result;
 	}
 
+	public void removeStones(ShortSet ourDead) {
+		for(int i = 0; i < ourDead.size(); i++){
+			points[ourDead.get(i)].color = VACANT;
+			vacantPoints.addKnownAbsent(ourDead.get(i));
+		}
+	}
 }

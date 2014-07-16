@@ -50,7 +50,7 @@ public final class ShortSet implements Serializable {
 	 */
 	public void addKnownAbsent(short key) {
 		data[size] = key;
-		locations[key] = (short)size;
+		locations[key] = (short) size;
 		size++;
 	}
 
@@ -61,8 +61,8 @@ public final class ShortSet implements Serializable {
 
 	/** Returns true if key is in this set. */
 	public boolean contains(short key) {
-		int location = locations[key];
-		return (location < size) & (data[locations[key]] == key);
+		final int location = locations[key];
+		return location < size & data[locations[key]] == key;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public final class ShortSet implements Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		ShortSet that = (ShortSet) obj;
+		final ShortSet that = (ShortSet) obj;
 		if (that.data.length != data.length) {
 			// If we have different universes, we're not equal.
 			return false;
@@ -126,8 +126,8 @@ public final class ShortSet implements Serializable {
 	 */
 	public void removeKnownPresent(int key) {
 		size--;
-		short location = locations[key];
-		short replacement = data[size];
+		final short location = locations[key];
+		final short replacement = data[size];
 		data[location] = replacement;
 		locations[replacement] = location;
 	}

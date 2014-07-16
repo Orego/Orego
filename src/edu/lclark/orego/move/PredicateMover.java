@@ -1,25 +1,26 @@
 package edu.lclark.orego.move;
 
-import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.core.Legality.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import edu.lclark.orego.core.*;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
+import static edu.lclark.orego.core.Legality.OK;
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.Predicate;
-import edu.lclark.orego.util.*;
-import ec.util.MersenneTwisterFast;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import edu.lclark.orego.util.ShortSet;
 
 /**
- * Makes random moves that satisfy some criterion.
+ * Makes random moves that satisfy some predicate.
  */
 @SuppressWarnings("serial")
 public final class PredicateMover implements Mover {
 
 	private final Board board;
-	
+
 	private final Predicate filter;
-	
+
 	/**
-	 * @param filter Only moves with this feature will be considered.
+	 * @param filter
+	 *            Only moves satisfying filter will be considered.
 	 */
 	public PredicateMover(Board board, Predicate filter) {
 		this.board = board;
@@ -27,22 +28,21 @@ public final class PredicateMover implements Mover {
 	}
 
 	@Override
-	public short selectAndPlayOneMove(
-			MersenneTwisterFast random) {
-		ShortSet vacantPoints = board.getVacantPoints();
-		short start = (short)(random.nextInt(vacantPoints.size()));
+	public short selectAndPlayOneMove(MersenneTwisterFast random) {
+		final ShortSet vacantPoints = board.getVacantPoints();
+		final short start = (short) random.nextInt(vacantPoints.size());
 		short i = start;
-		short skip = PRIMES[random.nextInt(PRIMES.length)];
+		final short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
-			short p = vacantPoints.get(i);
-			if ((board.getColorAt(p) == VACANT) && filter.at(p)) {
+			final short p = vacantPoints.get(i);
+			if (board.getColorAt(p) == VACANT && filter.at(p)) {
 				if (board.playFast(p) == OK) {
 					return p;
 				}
 			}
 			// Advancing by a random prime skips through the array
 			// in a manner analogous to double hashing.
-			i = (short)((i + skip) % vacantPoints.size());
+			i = (short) ((i + skip) % vacantPoints.size());
 		} while (i != start);
 		board.pass();
 		return PASS;

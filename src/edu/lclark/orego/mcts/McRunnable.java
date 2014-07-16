@@ -1,15 +1,21 @@
 package edu.lclark.orego.mcts;
 
-import ec.util.MersenneTwisterFast;
+import static edu.lclark.orego.core.Legality.OK;
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
-import edu.lclark.orego.feature.*;
-import static edu.lclark.orego.core.NonStoneColor.*;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
-import static edu.lclark.orego.core.Legality.*;
+import edu.lclark.orego.feature.HistoryObserver;
+import edu.lclark.orego.feature.LgrfSuggester;
+import edu.lclark.orego.feature.LgrfTable;
+import edu.lclark.orego.feature.Predicate;
+import edu.lclark.orego.feature.StoneCountObserver;
+import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
-import edu.lclark.orego.score.*;
+import edu.lclark.orego.score.ChinesePlayoutScorer;
+import edu.lclark.orego.score.PlayoutScorer;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
 /**
@@ -33,7 +39,7 @@ public final class McRunnable implements Runnable {
 	private final HistoryObserver historyObserver;
 
 	/** Counts stones for fast mercy cutoffs of playouts. */
-	private final StoneCounter mercyObserver;
+	private final StoneCountObserver mercyObserver;
 
 	/** Generates moves beyond the tree. */
 	private final Mover mover;
@@ -66,10 +72,10 @@ public final class McRunnable implements Runnable {
 		LgrfTable table = null;
 		try {
 			table = stuff.get(LgrfTable.class);
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// If we get here, we're not using LGRF
 		}
-		CopiableStructure copy = stuff.copy();
+		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
 		suggesters = copy.get(Suggester[].class);
@@ -78,11 +84,11 @@ public final class McRunnable implements Runnable {
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);
 		if (table != null) {
-			LgrfSuggester lgrf = copy.get(LgrfSuggester.class);
+			final LgrfSuggester lgrf = copy.get(LgrfSuggester.class);
 			lgrf.setTable(table);
 		}
 		scorer = copy.get(ChinesePlayoutScorer.class);
-		mercyObserver = copy.get(StoneCounter.class);
+		mercyObserver = copy.get(StoneCountObserver.class);
 		historyObserver = copy.get(HistoryObserver.class);
 		filter = copy.get(Predicate.class);
 		fancyHashes = new long[coords.getMaxMovesPerGame() + 1];
@@ -91,11 +97,11 @@ public final class McRunnable implements Runnable {
 
 	/**
 	 * Accepts (plays on on this McRunnable's own board) the given move.
-	 * 
+	 *
 	 * @see edu.lclark.orego.core.Board#play(int)
 	 */
 	public void acceptMove(short p) {
-		Legality legality = board.play(p);
+		final Legality legality = board.play(p);
 		assert legality == OK : "Legality " + legality + " for move "
 				+ coords.toString(p) + "\n" + board;
 		fancyHashes[board.getTurn()] = board.getFancyHash();
@@ -147,7 +153,7 @@ public final class McRunnable implements Runnable {
 		return random;
 	}
 
-	/** Returns the list of suggesters used for updating priors. */
+	/** Returns the list of suggesters used for updating biases. */
 	public Suggester[] getSuggesters() {
 		return suggesters;
 	}
@@ -175,7 +181,7 @@ public final class McRunnable implements Runnable {
 	 * search tree. The player should generate moves to the frontier of the
 	 * known tree and then return. The McRunnable performs the actual playout
 	 * beyond the tree, then calls incorporateRun on the player.
-	 * 
+	 *
 	 * @return The winning color, although this is only used in tests.
 	 */
 	public Color performMcRun() {
@@ -194,7 +200,7 @@ public final class McRunnable implements Runnable {
 
 	/**
 	 * Plays moves to the end of the game and returns the winner: BLACK, WHITE,
-	 * or (in rare event where the playout is canceled because it hits the
+	 * or (in rare event of a tie or a playout canceled because it hits the
 	 * maximum number of moves) VACANT.
 	 */
 	public Color playout() {
@@ -210,7 +216,7 @@ public final class McRunnable implements Runnable {
 				// Game ended
 				return scorer.winner();
 			}
-			Color mercyWinner = mercyObserver.mercyWinner();
+			final Color mercyWinner = mercyObserver.mercyWinner();
 			if (mercyWinner != null) {
 				// One player has far more stones on the board
 				return mercyWinner;

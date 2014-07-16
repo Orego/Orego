@@ -1,83 +1,106 @@
 package edu.lclark.orego.ui;
 
-import java.io.*;
-import java.util.*;
+import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.experiment.Git.getGitCommit;
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
+import static java.io.File.separator;
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import edu.lclark.orego.core.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.Legality;
+import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
-import static java.lang.Integer.parseInt;
-import static java.lang.Double.parseDouble;
+import edu.lclark.orego.sgf.SgfParser;
 
 /**
  * Main class run by GTP front ends. Can also be run directly from the command
  * line. Responds to GTP commands like "showboard" and "genmove black".
+ * <p>
+ * Command-line arguments take the form <code>feature=value</code>. For
+ * convenience, a boolean feature can be set to true simply as
+ * <code>feature</code>.
+ * <dl>
+ * <dt>biasdelay</dt>
+ * <dd>Number of runs required through a node before heuristic biases are added.
+ * Because of initial wins and losses given to every move, any value less than
+ * or equal to 732 results in immediate application of bias. Defaults to 800.</dd>
+ * <dt>boardsize</dt>
+ * <dd>Width of board. Defaults to 19.</dd>
+ * <dt>book</dt>
+ * <dd>Toggles whether Orego will play moves from a fuseki book at the beginning
+ * of the game. Defaults to true.</dd>
+ * <dt>grace</dt>
+ * <dd>Toggles coup de grace mode. When the opposing player passes, Orego will
+ * attempt to clear the board of enemy dead stones, or pass if it can win with
+ * the current board state. Defaults to false.</dd>
+ * <dt>gestation</dt>
+ * <dd>The amount of runs required through a move before a child is created for
+ * that move. Defaults to 4.</dd>
+ * <dt>komi</dt>
+ * <dd>Sets the komi for the game. Defaults to 7.5.</dd>
+ * <dt>lgrf2</dt>
+ * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
+ * tracks successful replies to a move or a chain of two moves, for use in
+ * future playouts. Defaults to true.</dd>
+ * <dt>memory</dt>
+ * <dd>Megabytes of memory used by Orego. The transposition table is scaled
+ * accordingly. Should match the memory allocated to the Java virtual machine
+ * with a command-line argument like -Xmx1024M. Defaults to 1024.
+ * <dt>msec</dt>
+ * <dd>Sets the milliseconds that Orego takes to decide a move. Not relevant
+ * when using time management. Defaults to 1000 milliseconds.</dd>
+ * <dt>pondering</dt>
+ * <dd>Toggles whether Orego thinks during the opponent's turn. Defaults to
+ * false.</dd>
+ * <dt>rave</dt>
+ * <dd>Toggles Rapid Action Value Estimation. Defaults to true.</dd>
+ * <dt>threads</dt>
+ * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
+ * <dt>time-management</dt>
+ * <dd>Set the type of time manager to be used by Orego. If not specified, Orego
+ * will rely on msec. Options are uniform (the default) and exiting.</dd>
+ * </dl>
  */
 public final class Orego {
 
-	private static final String[] DEFAULT_GTP_COMMANDS = { //
-	"boardsize", // comments keep the commands on
-			"clear_board", // separate lines in the event of a
-			"final_score", // source -> format in Eclipse
-			"genmove", //
-			"genmove_black", //
-			"genmove_white", //
-			"black", "white", //
-			"known_command", //
-			"komi", //
-			"list_commands", //
-			// "loadsgf", //
-			// "name", //
-			"play", //
-			// "playout_count", //
-			// "protocol_version", //
-			"reg_genmove", //
-			"showboard", //
-			// "time_left", //
-			// "time_settings", //
-			"quit", //
-			// "undo", //
-			"version", //
-	// "kgs-genmove_cleanup", //
-	// "gogui-analyze_commands", //
-	// "kgs-game_over", //
-	};
+	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
+			"boardsize", "clear_board", "final_score", "fixed_handicap",
+			"genmove", "genmove_black", "genmove_white", "known_command",
+			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
+			"loadsgf", "name", "play", "playout_count", "protocol_version",
+			"quit", "reg_genmove", "showboard", "time_left", "time_settings",
+			"undo", "version", "white", };
 
-	/** The version of Go Text Protocol that Orego speaks. */
-	private static final int GTP_VERSION = 2;
-
-	/**
-	 * @param args
-	 *            Parameters for the player.
-	 * @throws IOException
-	 */
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
 	}
 
-	private void run() throws IOException {
-		String input;
-		do {
-			input = "";
-			while (input.equals("")) {
-				input = in.readLine();
-				if (input == null) {
-					return;
-				}
-			}
-		} while (handleCommand(input));
-	}
-
-	/** The id number of the current command. */
+	/** The GTP id number of the current command. */
 	private int commandId;
 
-	/** Known GTP commands. */
-	private List<String> commands;
+	/** Command line argument for reporting version. */
+	private String commandLineArgs;
 
-	/** Known GoGui commands. */
-	private List<String> goguiCommands;
+	/** Known GTP commands. */
+	private final List<String> commands;
 
 	/**
 	 * The input stream.
@@ -90,34 +113,27 @@ public final class Orego {
 	/** The Player object that selects moves. */
 	private Player player;
 
-	private String commandLineArgs;
-
-	// /** The komi given on the command line. */
-	// private double komiArgument = -1;
+	/** Builds the player. */
+	private PlayerBuilder playerBuilder;
 
 	/**
 	 * @param inStream
 	 *            The input stream that drives the program (usually System.in)
 	 * @param outStream
 	 *            The output stream to print responses to (usually System.out)
-	 * @param args
-	 * @see Orego#main(String[])
 	 */
 	private Orego(InputStream inStream, OutputStream outStream, String[] args) {
 		in = new BufferedReader(new InputStreamReader(inStream));
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
 		commandLineArgs = "";
-		for (String arg : args) {
+		for (final String arg : args) {
 			commandLineArgs += arg + " ";
 		}
 		commands = new ArrayList<>();
-		for (String s : DEFAULT_GTP_COMMANDS) {
+		for (final String s : DEFAULT_GTP_COMMANDS) {
 			commands.add(s);
 		}
-		// commands.addAll(player.getCommands());
-		// goguiCommands = new ArrayList<>();
-		// goguiCommands.addAll(player.getGoguiCommands());
 	}
 
 	private Orego(String[] args) {
@@ -154,21 +170,6 @@ public final class Orego {
 		out.println(response + "\n");
 	}
 
-	/** @return list of commands in string form */
-	private List<String> getCommands() {
-		return commands;
-	}
-
-	/** @return list of gogui commands in string form */
-	private List<String> getGoguiCommands() {
-		return goguiCommands;
-	}
-
-	/** @return Orego's player */
-	private Player getPlayer() {
-		return player;
-	}
-
 	/**
 	 * Processes a GTP command.
 	 * 
@@ -176,20 +177,21 @@ public final class Orego {
 	 */
 	private boolean handleCommand(String command) {
 		// Remove any comment
-		int commentStart = command.indexOf("#");
+		final int commentStart = command.indexOf("#");
 		if (commentStart >= 0) {
 			command = command.substring(0, command.indexOf('#'));
 		}
 		// Parse the string into optional id number, command, and arguments
-		StringTokenizer arguments = new StringTokenizer(command);
-		String token1 = arguments.nextToken();
+		final StringTokenizer arguments = new StringTokenizer(command);
+		final String token1 = arguments.nextToken();
 		try {
 			commandId = Integer.parseInt(token1);
 			command = arguments.nextToken().toLowerCase();
-		} catch (NumberFormatException exception) {
+		} catch (final NumberFormatException exception) {
 			commandId = -1;
 			command = token1.toLowerCase();
 		}
+		// Call lengthier handleCommand method
 		return handleCommand(command, arguments);
 	}
 
@@ -197,11 +199,22 @@ public final class Orego {
 	 * Helper method for handleCommand(String).
 	 * 
 	 * @return true if command is anything but "quit".
+	 * @param arguments
+	 *            contains arguments to command, e.g., color to play
 	 */
 	private boolean handleCommand(String command, StringTokenizer arguments) {
-		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
-		if (command.equals("boardsize")) {
-			int width = Integer.parseInt(arguments.nextToken());
+		final CoordinateSystem coords = player.getBoard().getCoordinateSystem();
+		if (command.equals("black") || command.equals("b")
+				|| command.equals("white") || command.equals("w")) {
+			final short point = coords.at(arguments.nextToken());
+			player.setColorToPlay(command.charAt(0) == 'b' ? BLACK : WHITE);
+			if (player.acceptMove(point) == Legality.OK) {
+				acknowledge();
+			} else {
+				error("Illegal move");
+			}
+		} else if (command.equals("boardsize")) {
+			final int width = Integer.parseInt(arguments.nextToken());
 			if (width == coords.getWidth()) {
 				player.clear();
 				acknowledge();
@@ -216,11 +229,21 @@ public final class Orego {
 			player.clear();
 			acknowledge();
 		} else if (command.equals("final_score")) {
-			double score = player.finalScore();
+			final double score = player.finalScore();
 			if (score > 0) {
 				acknowledge("B+" + score);
+			} else if (score < 0) {
+				acknowledge("W+" + -score);
 			} else {
-				acknowledge("W+" + (-score));
+				acknowledge("0");
+			}
+		} else if (command.equals("fixed_handicap")) {
+			final int handicapSize = parseInt(arguments.nextToken());
+			if (handicapSize >= 2 && handicapSize <= 9) {
+				player.setUpHandicap(handicapSize);
+				acknowledge();
+			} else {
+				error("Invalid handicap size");
 			}
 		} else if (command.equals("genmove") || command.equals("genmove_black")
 				|| command.equals("genmove_white")
@@ -230,22 +253,16 @@ public final class Orego {
 			if (command.equals("genmove")
 					|| command.equals("kgs-genmove_cleanup")
 					|| command.equals("reg_genmove")) {
-				color = (arguments.nextToken().toLowerCase().charAt(0) == 'b' ? BLACK
-						: WHITE);
+				color = arguments.nextToken().toLowerCase().charAt(0) == 'b' ? BLACK
+						: WHITE;
 			} else {
-				color = (command.equals("genmove_black") ? BLACK : WHITE);
+				color = command.equals("genmove_black") ? BLACK : WHITE;
 			}
-			// //this assertion to fails when running with CGTC, so skip it if
-			// command line option set to true
-			// if(cgtc){
-			// player.getBoard().setColorToPlay(color);
-			// } else {
 			assert color == player.getBoard().getColorToPlay();
-			// }
-			// if (command.equals("kgs-genmove_cleanup")) {
-			// player.setCleanUpMode(true);
-			// }
-			short point = player.bestMove();
+			if (command.equals("kgs-genmove_cleanup")) {
+				player.setCleanupMode(true);
+			}
+			final short point = player.bestMove();
 			if (point == RESIGN) {
 				acknowledge("resign");
 				player.clear(); // to stop threaded players
@@ -255,55 +272,45 @@ public final class Orego {
 				}
 				acknowledge(coords.toString(point));
 			}
-		}
-		// else
-		// if (command.equals("gogui-analyze_commands")) {
-		// String response = "";
-		// for (String s : goguiCommands) {
-		// response += s + "\n";
-		// }
-		// // strip final return
-		// if (response.endsWith("\n")) {
-		// response = response.substring(0, response.length() - 1);
-		// }
-		// acknowledge(response);
-		// } else if (command.equals("known_command")) {
-		// acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
-		// }
-		else if (command.equals("komi")) {
-			double komi = parseDouble(arguments.nextToken());
+		} else if (command.equals("kgs-game_over")) {
+			try (Scanner scanner = new Scanner(new File(OREGO_ROOT + separator
+					+ "config" + separator + "quit.txt"))) {
+				acknowledge();
+				player.endGame(); // to stop threaded players
+				if (scanner.nextLine().equals("true")) {
+					return false;
+				}
+			} catch (final FileNotFoundException e) {
+				// The file was not found, so we continue to play.
+			}
+		} else if (command.equals("known_command")) {
+			acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
+		} else if (command.equals("komi")) {
+			final double komi = parseDouble(arguments.nextToken());
 			if (komi == player.getFinalScorer().getKomi()) {
 				player.clear();
-				acknowledge();
 			} else {
 				playerBuilder = playerBuilder.komi(komi);
 				player = playerBuilder.build();
-				acknowledge();
 			}
 			acknowledge();
 		} else if (command.equals("list_commands")) {
 			String response = "";
-			for (String s : commands) {
+			for (final String s : commands) {
 				response += s + "\n";
 			}
-			// Strip final return
+			// Strip final newline
 			response = response.substring(0, response.length() - 1);
 			acknowledge(response);
-		}
-		// else if (command.equals("loadsgf")) {
-		// if (arguments.countTokens() > 1) {
-		// System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
-		// player.setUpSgf(arguments.nextToken(),
-		// Integer.parseInt(arguments.nextToken()));
-		// } else {
-		// System.err.println("the load sgf command recieved "+arguments.countTokens()+"arguments");
-		// player.setUpSgf(arguments.nextToken(), 0);
-		// }
-		// acknowledge();
-		// } else if (command.equals("name")) {
-		// acknowledge("Orego");
-		// } else
-		else if (command.equals("showboard")) {
+		} else if (command.equals("loadsgf")) {
+			final SgfParser parser = new SgfParser(player.getBoard()
+					.getCoordinateSystem());
+			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
+					.nextToken())));
+			acknowledge();
+		} else if (command.equals("name")) {
+			acknowledge("Orego");
+		} else if (command.equals("showboard")) {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
 			acknowledge(s);
@@ -313,109 +320,49 @@ public final class Orego {
 			// We lower case the command string because GTP defines colors as
 			// case insensitive.
 			handleCommand(arguments.nextToken().toLowerCase(), arguments);
-		}
-		// else if (command.equals("playout_count")) {
-		// if (player instanceof orego.mcts.McPlayer) {
-		// orego.mcts.McPlayer mctsPlayer = (orego.mcts.McPlayer)player;
-		// long playouts = 0;
-		// for (int i = 0; i < mctsPlayer.getNumberOfThreads(); i++) {
-		// orego.mcts.McRunnable mcRunnable =
-		// (orego.mcts.McRunnable)mctsPlayer.getRunnable(i);
-		// playouts += mcRunnable.getPlayoutsCompleted();
-		// }
-		// acknowledge("playout="+playouts);
-		// }
-		// else {
-		// acknowledge("playout=null");
-		// }
-		// } else if (command.equals("protocol_version")) {
-		// acknowledge("2");
-		// }
-		else if (command.equals("quit")) {
+		} else if (command.equals("playout_count")) {
+			acknowledge("playout count: " + player.getPlayoutCount());
+		} else if (command.equals("protocol_version")) {
+			acknowledge("2");
+		} else if (command.equals("quit")) {
 			acknowledge();
-			player.clear(); // to stop threaded players
-			System.exit(0);
+			player.endGame(); // to stop threaded players
+			return false;
 		} else if (command.equals("time_left")) {
-			 arguments.nextToken(); // Throw one argument away -- it's
-			// irrelevant
-			 int secondsLeft = parseInt(arguments.nextToken());
-			 player.setRemainingTime(secondsLeft);
+			arguments.nextToken(); // Throw away color argument
+			final int secondsLeft = parseInt(arguments.nextToken());
+			player.setRemainingTime(secondsLeft);
 			acknowledge();
-		}
-		// else if (command.equals("kgs-game_over")) {
-		// try {
-		// Scanner scanner;
-		// acknowledge();
-		// player.endGame(); // to stop threaded players
-		// scanner = new Scanner(new File("QuitAfterGameOver.txt"));
-		// if (scanner.nextLine().equals("true")) {
-		// scanner.close();
-		// return false;
-		// } else {
-		// scanner.close();
-		// }
-		// } catch (FileNotFoundException e) {
-		// // The file was not found, so we continue to play.
-		// }
-		// } else if (command.equals("time_settings")) {
-		// int secondsLeft = parseInt(arguments.nextToken());
-		// player.setRemainingTime(secondsLeft);
-		// acknowledge();
-		// } else if (command.equals("undo")) {
-		// if (player.undo()) {
-		// acknowledge();
-		// } else {
-		// error("Cannot undo");
-		// }
-		else if (command.equals("version")) {
-			String git;
-			try {
-				verifyCleanGitState();
-				git = getGitCommit();
-			} catch (IllegalStateException e) {
-				git = "git state unknown";
-			}
-			String version = "Orego8  Args: " + commandLineArgs
-					+ " Git commit: " + git;
-			acknowledge(version);
-		} else if ((command.equals("black")) || (command.equals("b"))
-				|| (command.equals("white")) || (command.equals("w"))) {
-			char color = command.charAt(0);
-			short point = coords.at(arguments.nextToken());
-			player.setColorToPlay(color == 'b' ? BLACK : WHITE);
-			if (player.acceptMove(point) == Legality.OK) {
+		} else if (command.equals("time_settings")) {
+			final int secondsLeft = parseInt(arguments.nextToken());
+			player.setRemainingTime(secondsLeft);
+			acknowledge();
+		} else if (command.equals("undo")) {
+			if (player.undo()) {
 				acknowledge();
 			} else {
-				error("illegal move");
+				error("Cannot undo");
 			}
-		}
-		// else if (command.equals("fixed_handicap")) {
-		// int handicapSize = parseInt(arguments.nextToken());
-		// if (handicapSize >= 2 && handicapSize <= 9) {
-		// player.getBoard().setUpHandicap(handicapSize);
-		// acknowledge();
-		// } else {
-		// error("Invalid handicap size");
-		// }
-		// }
-		else { // If Orego doesn't know how to handle this specific command,
-				// maybe the player will
-				// String result = player.handleCommand(command, arguments);
-			// if (result == null) {
+		} else if (command.equals("version")) {
+			String git;
+			git = getGitCommit();
+			if (git.isEmpty()) {
+				git = "unknown";
+			}
+			final String version = "Orego 8 Git commit: " + git + " Args: "
+					+ commandLineArgs;
+			acknowledge(version);
+		} else {
 			error("unknown command: " + command);
-			// } else {
-			// acknowledge(result);
-			// }
 		}
 		return true;
 	}
 
-	private PlayerBuilder playerBuilder;
-
+	/** Updates playerBuilder with command-line arguments. */
 	private void handleCommandLineArguments(String[] args) {
 		playerBuilder = new PlayerBuilder();
-		for (String argument : args) {
-			int j = argument.indexOf('=');
+		for (final String argument : args) {
+			final int j = argument.indexOf('=');
 			String left, right;
 			if (j > 0) {
 				left = argument.substring(0, j);
@@ -429,24 +376,28 @@ public final class Orego {
 				playerBuilder.biasDelay(parseInt(right));
 			} else if (left.equals("boardsize")) {
 				playerBuilder.boardWidth(parseInt(right));
+			} else if (left.equals("book")) {
+				playerBuilder.openingBook(parseBoolean(right));
+			} else if (left.equals("grace")) {
+				playerBuilder.coupDeGrace(parseBoolean(right));
 			} else if (left.equals("gestation")) {
 				playerBuilder.gestation(parseInt(right));
 			} else if (left.equals("komi")) {
 				playerBuilder.komi(parseDouble(right));
+			} else if (left.equals("lgrf2")) {
+				playerBuilder.lgrf2(parseBoolean(right));
+			} else if (left.equals("memory")) {
+				playerBuilder.memorySize(parseInt(right));
 			} else if (left.equals("msec")) {
 				playerBuilder.msecPerMove(parseInt(right));
+			} else if (left.equals("ponder")) {
+				playerBuilder.ponder(parseBoolean(right));
+			} else if (left.equals("rave")) {
+				playerBuilder.rave(parseBoolean(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
-			} else if (left.equals("rave")) {
-				playerBuilder.rave();
-			} else if (left.equals("ponder")) {
-				playerBuilder.pondering();
-			} else if (left.equals("lgrf2")) {
-				playerBuilder.lgrf2();
-			} else if (left.equals("book")) {
-				playerBuilder.openingBook();
 			} else if (left.equals("time-management")) {
-				playerBuilder.timeManagement();
+				playerBuilder.timeManagement(right);
 			} else {
 				throw new IllegalArgumentException(
 						"Unknown command line argument: " + left);
@@ -455,32 +406,18 @@ public final class Orego {
 		player = playerBuilder.build();
 	}
 
-	private static void verifyCleanGitState() {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "status", "-s")
-				.start().getInputStream())) {
-			if (s.hasNextLine()) {
-				throw new IllegalStateException("Not in clean git state");
+	/** Receives and handles GTP commands until told to quit. */
+	private void run() throws IOException {
+		String input;
+		do {
+			input = "";
+			while (input.equals("")) {
+				input = in.readLine();
+				if (input == null) {
+					return;
+				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-
-	/**
-	 * Returns the current git commit string.
-	 */
-	private static String getGitCommit() {
-		try (Scanner s = new Scanner(new ProcessBuilder("git", "log",
-				"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
-			String commit = s.nextLine();
-			// substring to remove single quotes that would otherwise appear
-			return commit.substring(1, commit.length() - 1);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return "";
+		} while (handleCommand(input));
 	}
 
 }

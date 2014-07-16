@@ -1,15 +1,16 @@
 package edu.lclark.orego.book;
 
-import static orego.core.Coordinates.*;
-import static orego.core.SuperKoTable.IGNORE_SIGN_BIT;
-import java.io.*;
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static edu.lclark.orego.core.SuperKoTable.IGNORE_SIGN_BIT;
+
+import java.io.Serializable;
 
 /**
- * Maps longs to ints.
- * 
+ * Maps longs to shorts.
+ *
  * The underlying data structure is a hash table with linear probing.
- * 
- * This mimics java.util.HashMap<Long, Integer>, but it does not support removal
+ *
+ * This mimics java.util.HashMap<Long, Short>, but it does not support removal
  * and is significantly more space-efficient.
  */
 public class SmallHashMap implements Serializable {
@@ -19,24 +20,24 @@ public class SmallHashMap implements Serializable {
 
 	/** Keys. */
 	private long[] keys;
-	
+
 	/** How many keys are currently in the map. */
 	private int size;
-	
+
 	/** Values. */
-	private int[] values;
-	
+	private short[] values;
+
 	public SmallHashMap() {
 		keys = new long[1];
-		values = new int[1];
+		values = new short[1];
 		values[0] = NO_POINT;
 	}
 
 	/** Returns true if this map contains key. */
 	public boolean containsKey(long key) {
-		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
+		int slot = ((int) key & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
-			if ((keys[slot] == key) && (values[slot] != NO_POINT)) {
+			if (keys[slot] == key && values[slot] != NO_POINT) {
 				return true;
 			} else if (values[slot] == NO_POINT) {
 				return false;
@@ -46,10 +47,10 @@ public class SmallHashMap implements Serializable {
 	}
 
 	/** Returns the value associated with key. */
-	public int get(long key) {
-		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
+	public short get(long key) {
+		int slot = ((int) key & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
-			if ((keys[slot] == key) && (values[slot] != NO_POINT)) {
+			if (keys[slot] == key && values[slot] != NO_POINT) {
 				return values[slot];
 			} else if (values[slot] == NO_POINT) {
 				return NO_POINT;
@@ -59,12 +60,12 @@ public class SmallHashMap implements Serializable {
 	}
 
 	/** Returns the raw key array. */
-	protected long[] getKeys() {
+	long[] getKeys() {
 		return keys;
 	}
 
 	/** Associates key with value, stretching the map if it is too full. */
-	public void put(long key, int value) {
+	public void put(long key, short value) {
 		assert value != NO_POINT;
 		size++;
 		// The maximum load factor is 0.5
@@ -73,15 +74,15 @@ public class SmallHashMap implements Serializable {
 		}
 		putAfterTableKnownLargeEnough(key, value);
 	}
-	
+
 	/**
 	 * Associates key with value. Does not check that this map is large enough.
 	 */
-	protected void putAfterTableKnownLargeEnough(long key, int value) {
-		int slot = (((int) key) & IGNORE_SIGN_BIT) % keys.length;
+	private void putAfterTableKnownLargeEnough(long key, short value) {
+		int slot = ((int) key & IGNORE_SIGN_BIT) % keys.length;
 		while (true) {
-			//If this map already has the value, it doesn't do anything.
-			if ((keys[slot] == key) && (values[slot] != NO_POINT)) {
+			// If this map already has the value, it doesn't do anything.
+			if (keys[slot] == key && values[slot] != NO_POINT) {
 				return;
 			} else if (values[slot] == NO_POINT) {
 				keys[slot] = key;
@@ -95,12 +96,12 @@ public class SmallHashMap implements Serializable {
 	/**
 	 * Copies the data into tables twice as large, stretching the map.
 	 */
-	protected void rehash() {
-		long[] oldKeys = keys;
-		int[] oldValues = values;
+	private void rehash() {
+		final long[] oldKeys = keys;
+		final short[] oldValues = values;
 		keys = new long[keys.length * 2];
-		values = new int[values.length * 2];
-		for(int i=0;i<values.length;i++){
+		values = new short[values.length * 2];
+		for (int i = 0; i < values.length; i++) {
 			values[i] = NO_POINT;
 		}
 		for (int i = 0; i < oldKeys.length; i++) {
@@ -108,11 +109,6 @@ public class SmallHashMap implements Serializable {
 				putAfterTableKnownLargeEnough(oldKeys[i], oldValues[i]);
 			}
 		}
-	}
-	
-	/** Returns the number of keys currently in the map. */
-	public int size() {
-		return size;
 	}
 
 }

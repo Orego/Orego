@@ -1,9 +1,10 @@
 package edu.lclark.orego.patterns;
 
-import ec.util.MersenneTwisterFast;
+
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 public final class PatternFinder {

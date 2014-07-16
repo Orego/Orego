@@ -23,19 +23,11 @@ public class LgrfUpdaterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// TODO This is an awful lot of work, done (e.g.) here and in PlayoutSpeed. Encapsulate!
-		final int milliseconds = 100;
-		final int threads = 4;
-		CopiableStructure copy = CopiableStructureFactory.lgrfWithPriors(5, 7.5);
-		player = new Player(threads, copy);
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).lgrf2(true).memorySize(1).rave(false).build();
 		Board board = player.getBoard();
 		coords = board.getCoordinateSystem();
-		TranspositionTable table = new TranspositionTable(1024 * 1024, new SimpleSearchNodeBuilder(coords), coords);
-		player.setTreeDescender(new UctDescender(board, table, 75));
-		lgrfTable = copy.get(LgrfTable.class);
-		updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, 0), lgrfTable);
-		player.setTreeUpdater(updater);
-		player.setMsecPerMove(milliseconds);
+		updater = (LgrfUpdater)player.getUpdater();
+		lgrfTable = updater.getTable();
 	}
 	
 	@Test

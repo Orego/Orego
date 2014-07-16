@@ -11,9 +11,13 @@ import edu.lclark.orego.core.CoordinateSystem;
 public class RaveDescenderTest {
 	
 	Player player;
+	
 	McRunnable runnable;
+	
 	TranspositionTable table;
+	
 	RaveDescender descender;
+	
 	SimpleTreeUpdater updater;
 
 	@Before

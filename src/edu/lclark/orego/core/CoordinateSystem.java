@@ -1,10 +1,10 @@
 package edu.lclark.orego.core;
 
-import static java.lang.Math.*;
+import static java.lang.Math.abs;
 
 import java.io.Serializable;
 
-import ec.util.MersenneTwisterFast;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /**
  * Coordinate system to convert between a short and other representations of a
@@ -16,15 +16,15 @@ import ec.util.MersenneTwisterFast;
  * points around the edges.
  * <p>
  * The standard idiom for accessing all points on the board is:
- * 
+ *
  * <pre>
  * for (short p : getAllPointsOnBoard()) {
  * 	// Do something with p
  * }
  * </pre>
- * 
+ *
  * The standard idiom for traversing all orthogonal neighbors of point p is:
- * 
+ *
  * <pre>
  * short[] neighbors = getNeighbors(p);
  * for (int i = FIRST_ORTHOGONAL_NEIGHBOR; i &lt;= LAST_ORTHOGONAL_NEIGHBOR; i++) {
@@ -32,7 +32,7 @@ import ec.util.MersenneTwisterFast;
  * 	// Do something with n, which might be an off-board point
  * }
  * </pre>
- * 
+ *
  * To traverse diagonal neighbors, do the same, but with DIAGONAL substituted
  * for ORTHOGONAL. To traverse both, use a for-each loop on neighbors.
  * <p>
@@ -42,67 +42,70 @@ import ec.util.MersenneTwisterFast;
 @SuppressWarnings("serial")
 public final class CoordinateSystem implements Serializable {
 
-	/** Index into an array returned by getNeighbors. */
-	public static final int NORTH_NEIGHBOR = 0;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int WEST_NEIGHBOR = 1;
+	/** Added to a point to find the one to the east. */
+	private static final short EAST = 1;
 
 	/** Index into an array returned by getNeighbors. */
 	public static final int EAST_NEIGHBOR = 2;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int SOUTH_NEIGHBOR = 3;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int NORTHWEST_NEIGHBOR = 4;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int NORTHEAST_NEIGHBOR = 5;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int SOUTHWEST_NEIGHBOR = 6;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int SOUTHEAST_NEIGHBOR = 7;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int FIRST_ORTHOGONAL_NEIGHBOR = NORTH_NEIGHBOR;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int LAST_ORTHOGONAL_NEIGHBOR = SOUTH_NEIGHBOR;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int FIRST_DIAGONAL_NEIGHBOR = NORTHWEST_NEIGHBOR;
-
-	/** Index into an array returned by getNeighbors. */
-	public static final int LAST_DIAGONAL_NEIGHBOR = SOUTHEAST_NEIGHBOR;
-
-	/** Added to a point to find the one to the east. */
-	private static final short EAST = 1;
 
 	/**
 	 * Orego doesn't support larger board sizes. This is a constant to avoid
 	 * magic numbers.
 	 */
 	public static final int MAX_POSSIBLE_BOARD_WIDTH = 19;
-	
-	/** Instances for various board widths. */
-	private static final CoordinateSystem[] INSTANCES = new CoordinateSystem[MAX_POSSIBLE_BOARD_WIDTH + 1];
-
-	/**
-	 * @see #getMaxMovesPerGame()
-	 */
-	private final short maxMovesPerGame;
 
 	/** Special value for no point. */
 	public static final short NO_POINT = 0;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int NORTH_NEIGHBOR = 0;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int NORTHEAST_NEIGHBOR = 5;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int NORTHWEST_NEIGHBOR = 4;
 
 	/** Special value for passing. */
 	public static final short PASS = 1;
 
 	/** Special value for resigning. */
 	public static final short RESIGN = 2;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int SOUTH_NEIGHBOR = 3;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int SOUTHEAST_NEIGHBOR = 7;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int SOUTHWEST_NEIGHBOR = 6;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int WEST_NEIGHBOR = 1;
+
+	// The remaining constants are out of order because they are defined in
+	// terms of others
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int FIRST_DIAGONAL_NEIGHBOR = NORTHWEST_NEIGHBOR;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int FIRST_ORTHOGONAL_NEIGHBOR = NORTH_NEIGHBOR;
+
+	/** Instances for various board widths. */
+	private static final CoordinateSystem[] INSTANCES = new CoordinateSystem[MAX_POSSIBLE_BOARD_WIDTH + 1];
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int LAST_DIAGONAL_NEIGHBOR = SOUTHEAST_NEIGHBOR;
+
+	/** Index into an array returned by getNeighbors. */
+	public static final int LAST_ORTHOGONAL_NEIGHBOR = SOUTH_NEIGHBOR;
+
+	/** Returns a String representation of column c. */
+	public static String columnToString(int column) {
+		return "" + "ABCDEFGHJKLMNOPQRST".charAt(column);
+	}
 
 	/** Returns the unique CoordinateSystem for the specified width. */
 	public static CoordinateSystem forWidth(int width) {
@@ -116,6 +119,11 @@ public final class CoordinateSystem implements Serializable {
 	 * @see #getAllPointsOnBoard()
 	 */
 	private final short[] allPointsOnBoard;
+
+	/**
+	 * @see #getMaxMovesPerGame()
+	 */
+	private final short maxMovesPerGame;
 
 	/**
 	 * @see #getNeighbors(int)
@@ -133,24 +141,24 @@ public final class CoordinateSystem implements Serializable {
 	 * row is for the simple ko point.
 	 */
 	private final long[][] zobristHashes;
-	
+
 	/** Other classes should use forWidth to get an instance. */
 	private CoordinateSystem(int width) {
 		this.width = width;
 		south = (short) (width + 1);
-		short boardArea = (short)(width * width);
+		final short boardArea = (short) (width * width);
 		allPointsOnBoard = new short[boardArea];
 		for (int r = 0, i = 0; r < width; r++) {
 			for (int c = 0; c < width; c++, i++) {
 				allPointsOnBoard[i] = at(r, c);
 			}
 		}
-		maxMovesPerGame = (short)(boardArea * 3);
-		int extended = getFirstPointBeyondExtendedBoard();
+		maxMovesPerGame = (short) (boardArea * 3);
+		final int extended = getFirstPointBeyondExtendedBoard();
 		neighbors = new short[extended][];
 		zobristHashes = new long[2][extended];
-		MersenneTwisterFast random = new MersenneTwisterFast(0L);
-		for (short p : allPointsOnBoard) {
+		final MersenneTwisterFast random = new MersenneTwisterFast(0L);
+		for (final short p : allPointsOnBoard) {
 			neighbors[p] = new short[] { (short) (p - south),
 					(short) (p - EAST), (short) (p + EAST),
 					(short) (p + south), (short) (p - south - EAST),
@@ -184,7 +192,7 @@ public final class CoordinateSystem implements Serializable {
 		int r = Integer.parseInt(label.substring(1));
 		r = width - r;
 		int c;
-		char letter = label.charAt(0);
+		final char letter = label.charAt(0);
 		if (letter <= 'H') {
 			c = letter - 'A';
 		} else {
@@ -198,16 +206,11 @@ public final class CoordinateSystem implements Serializable {
 		return p % south - 1;
 	}
 
-	/** Returns a String representation of column c. */
-	public static String columnToString(int column) {
-		return "" + "ABCDEFGHJKLMNOPQRST".charAt(column);
-	}
-
 	/** Returns an array of all the points on the board, for iterating through. */
 	public short[] getAllPointsOnBoard() {
 		return allPointsOnBoard;
 	}
-	
+
 	/** Returns the number of points on the board. */
 	public int getArea() {
 		return width * width;
@@ -251,7 +254,7 @@ public final class CoordinateSystem implements Serializable {
 	 * its neighbors are off-board points. The neighbors of an off-board point
 	 * are not defined.
 	 * <p>
-	 * 
+	 *
 	 * @see edu.lclark.orego.core.CoordinateSystem
 	 */
 	public short[] getNeighbors(short p) {
@@ -271,33 +274,20 @@ public final class CoordinateSystem implements Serializable {
 
 	/** Returns true if c is a valid row or column index. */
 	public boolean isValidOneDimensionalCoordinate(int c) {
-		return (c >= 0) & (c < width);
+		return c >= 0 & c < width;
 	}
 
 	/** Returns the Manhattan distance from p to q. */
 	public int manhattanDistance(short p, short q) {
-		int rowd = abs(row(p) - row(q));
-		int cold = abs(column(p) - column(q));
+		final int rowd = abs(row(p) - row(q));
+		final int cold = abs(column(p) - column(q));
 		return rowd + cold;
-	}
-
-	/** Returns a String representation of p. */
-	public String toString(short p) {
-		if (p == PASS) {
-			return "PASS";
-		} else if (p == NO_POINT) {
-			return "NO_POINT";
-		} else if (p == RESIGN) {
-			return "RESIGN";
-		} else {
-			return columnToString(column(p)) + rowToString(row(p));
-		}
 	}
 
 	/**
 	 * Used so that serialization, as used in CopiableStructure, does not create
 	 * redundant CoordinateSystems.
-	 * 
+	 *
 	 * @see edu.lclark.orego.mcts.CopiableStructure
 	 */
 	private Object readResolve() {
@@ -312,6 +302,19 @@ public final class CoordinateSystem implements Serializable {
 	/** Returns a String representation of row r. */
 	public String rowToString(int row) {
 		return "" + (width - row);
+	}
+
+	/** Returns a String representation of p. */
+	public String toString(short p) {
+		if (p == PASS) {
+			return "PASS";
+		} else if (p == NO_POINT) {
+			return "NO_POINT";
+		} else if (p == RESIGN) {
+			return "RESIGN";
+		} else {
+			return columnToString(column(p)) + rowToString(row(p));
+		}
 	}
 
 }

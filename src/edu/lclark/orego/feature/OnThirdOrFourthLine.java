@@ -1,8 +1,8 @@
 package edu.lclark.orego.feature;
 
+import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 import static java.lang.Math.min;
 import edu.lclark.orego.core.CoordinateSystem;
-import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 
 /** True if p is on the third or fourth line. */
 @SuppressWarnings("serial")
@@ -13,32 +13,11 @@ public final class OnThirdOrFourthLine implements Predicate {
 
 	/** Returns the unique OnThirdOrFourthLine for the width of board. */
 	public static OnThirdOrFourthLine forWidth(int width) {
-		CoordinateSystem coords = CoordinateSystem.forWidth(width);
+		final CoordinateSystem coords = CoordinateSystem.forWidth(width);
 		if (INSTANCES[width] == null) {
 			INSTANCES[width] = new OnThirdOrFourthLine(coords);
 		}
 		return INSTANCES[width];
-	}
-	
-	/** True for points on third or fourth line. */
-	private final boolean[] bits;
-
-	private final int width;
-	
-	private OnThirdOrFourthLine(CoordinateSystem coords){
-		width = coords.getWidth();
-		bits = new boolean[coords.getFirstPointBeyondBoard()];
-		for (short p : coords.getAllPointsOnBoard()) {
-			int line = line(p, coords);
-			if (line == 3 | line == 4) {
-				bits[p] = true;
-			}
-		}
-	}
-
-	@Override
-	public boolean at(short p) {
-		return bits[p];
 	}
 
 	/**
@@ -52,10 +31,31 @@ public final class OnThirdOrFourthLine implements Predicate {
 		return 1 + min(r, c);
 	}
 
+	/** True for points on third or fourth line. */
+	private final boolean[] bits;
+
+	private final int width;
+
+	private OnThirdOrFourthLine(CoordinateSystem coords) {
+		width = coords.getWidth();
+		bits = new boolean[coords.getFirstPointBeyondBoard()];
+		for (final short p : coords.getAllPointsOnBoard()) {
+			final int line = line(p, coords);
+			if (line == 3 | line == 4) {
+				bits[p] = true;
+			}
+		}
+	}
+
+	@Override
+	public boolean at(short p) {
+		return bits[p];
+	}
+
 	/**
 	 * Used so that serialization, as used in CopiableStructure, does not create
-	 * redundant CoordinateSystems.
-	 * 
+	 * redundant OnThirdOrFourthLine objects.
+	 *
 	 * @see edu.lclark.orego.mcts.CopiableStructure
 	 */
 	private Object readResolve() {

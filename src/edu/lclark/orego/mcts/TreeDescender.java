@@ -1,11 +1,16 @@
 package edu.lclark.orego.mcts;
 
-import edu.lclark.orego.mcts.McRunnable;
 
 /**
  * Generates moves within a MC search tree (or analogous structure).
  */
 public interface TreeDescender {
+
+	/**
+	 * Returns the best move to make from here when actually playing (as opposed
+	 * to during a playout). We choose the move with the most wins.
+	 */
+	public short bestPlayMove();
 
 	/** Returns this object to its original state. */
 	public void clear();
@@ -16,13 +21,7 @@ public interface TreeDescender {
 	 */
 	public void descend(McRunnable runnable);
 
-	/**
-	 * Returns the best move to make from here when actually playing (as opposed
-	 * to during a playout). We choose the move with the most wins.
-	 */
-	public short bestPlayMove();
-	
 	/** Returns the number of runs a node must have before biases are applied. */
 	public int getBiasDelay();
-	
+
 }

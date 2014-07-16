@@ -12,7 +12,7 @@ import java.util.Scanner;
  * required values (total number of games and number of wins in each condition)
  * can be entered on the command line or interactively.
  */
-public class Significance {
+public final class Significance {
 
 	@SuppressWarnings("boxing")
 	public static void main(String[] args) {

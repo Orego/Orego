@@ -12,9 +12,20 @@ public interface SearchNode {
 	 * most wins.
 	 */
 	public String bestWinCountReport(CoordinateSystem coords);
-	
+
+	/**
+	 * Returns the win rate of the move with the highest win rate.
+	 */
 	public short bestWinRate(CoordinateSystem coords);
 
+	/** Returns whether the bias has already been updated for this node. */
+	public boolean biasUpdated();
+
+	/**
+	 * Resets this node as a "new" node for the board situation represented by
+	 * boardHash.
+	 */
+	public void clear(long fancyHash, CoordinateSystem coords);
 
 	/**
 	 * Returns a human-readable representation of the subtree rooted at this
@@ -93,11 +104,11 @@ public interface SearchNode {
 
 	/**
 	 * Increments the counts for a move sequence resulting from a playout.
-	 * 
+	 *
 	 * NOTE: Since this method is not synchronized, two simultaneous calls on
 	 * the same node might result in a race condition affecting which one sets
 	 * the winningMove field.
-	 * 
+	 *
 	 * @param winProportion
 	 *            1.0 if this is a winning playout for the player to play at
 	 *            this node, 0.0 otherwise.
@@ -108,11 +119,8 @@ public interface SearchNode {
 	 */
 	public void recordPlayout(float winProportion, McRunnable runnable, int t);
 
-	/**
-	 * Resets this node as a "new" node for the board situation represented by
-	 * boardHash.
-	 */
-	public void clear(long fancyHash, CoordinateSystem coords);
+	/** Sets whether the bias has already been updated for this node. */
+	public void setBiasUpdated(boolean value);
 
 	/** Sets the child list for this node. */
 	public void setChildren(ListNode<SearchNode> children);
@@ -122,6 +130,9 @@ public interface SearchNode {
 
 	/** Sets the mark of this node for garbage collection. */
 	public void setMarked(boolean marked);
+
+	/** Sets the winning move for this node. */
+	public void setWinningMove(short move);
 
 	/** Returns a human-readable representation of this node. */
 	public String toString(CoordinateSystem coords);
@@ -135,16 +146,6 @@ public interface SearchNode {
 	/**
 	 * Provides extra wins for moves suggested by runnable's suggesters.
 	 */
-	public void updatePriors(McRunnable runnable);
-	
-	/** Returns whether the priors have already been updated for this node. */
-	public boolean priorsUpdated();
-	
-	/** Sets whether the priors have already been updated for this node. */
-	public void setPriorsUpdated(boolean value);
-
-
-	public short getMoveWithNextMostWins(CoordinateSystem coordinateSystem,
-			short best);
+	public void updateBias(McRunnable runnable);
 
 }

@@ -6,11 +6,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class UctDescenderTest {
 
@@ -33,7 +33,7 @@ public class UctDescenderTest {
 
 	@Before
 	public void setUp() throws Exception {
-		CopiableStructure cp = CopiableStructureFactory.useWithPriors(5, 7.5);
+		CopiableStructure cp = CopiableStructureFactory.useWithBias(5, 7.5);
 		cp = cp.copy();
 		mover = cp.get(Mover.class);
 		suggester = cp.get(Suggester[].class)[2];
@@ -46,6 +46,26 @@ public class UctDescenderTest {
 		updater = new SimpleTreeUpdater(player.getBoard(), table, 12);
 		player.setTreeDescender(descender);
 		player.setTreeUpdater(updater);
+	}
+
+	@Test
+	public void testDescend() {
+		McRunnable runnable = player.getMcRunnable(0);
+		runnable.acceptMove(at("b1"));
+		runnable.acceptMove(at("c4"));
+		runnable.acceptMove(at("a2"));
+		updater.updateTree(BLACK, runnable);
+		runnable.copyDataFrom(player.getBoard());
+		descender.descend(runnable);
+		assertEquals(at("b1"), runnable.getHistoryObserver().get(0));
+		for (int i = 0; i < 2; i++) {
+			runnable.copyDataFrom(player.getBoard());
+			runnable.acceptMove(at("d2"));
+			updater.updateTree(BLACK, runnable);
+		}
+		runnable.copyDataFrom(player.getBoard());
+		descender.descend(runnable);
+		assertEquals(at("d2"), runnable.getHistoryObserver().get(0));
 	}
 
 	@Test

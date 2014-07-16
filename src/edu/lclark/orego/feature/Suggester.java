@@ -1,6 +1,7 @@
 package edu.lclark.orego.feature;
 
 import java.io.Serializable;
+
 import edu.lclark.orego.util.ShortSet;
 
 /**

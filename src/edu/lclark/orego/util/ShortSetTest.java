@@ -247,5 +247,10 @@ public class ShortSetTest {
 		assertFalse(set.equals(other));
 		assertFalse(other.equals(set));
 	}
+	
+	@Test(expected=UnsupportedOperationException.class)
+	public void testHashCode() {
+		set.hashCode();
+	}
 
 }

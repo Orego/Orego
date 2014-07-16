@@ -2,9 +2,9 @@ package edu.lclark.orego.move;
 
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.Suggester;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
 /** This tries to play a move suggested by some suggester. */
@@ -13,9 +13,10 @@ public final class SuggesterMover implements Mover {
 
 	private final Board board;
 
-	private final Suggester suggester;
-
+	/** If suggester doesn't suggest anything, fall back to this. */
 	private final Mover fallbackMover;
+
+	private final Suggester suggester;
 
 	/**
 	 * @param fallbackMover
@@ -30,13 +31,13 @@ public final class SuggesterMover implements Mover {
 
 	@Override
 	public short selectAndPlayOneMove(MersenneTwisterFast random) {
-		ShortSet suggestedMoves = suggester.getMoves();
+		final ShortSet suggestedMoves = suggester.getMoves();
 		if (suggestedMoves.size() > 0) {
-			short start = (short) (random.nextInt(suggestedMoves.size()));
+			final short start = (short) random.nextInt(suggestedMoves.size());
 			short i = start;
-			short skip = PRIMES[random.nextInt(PRIMES.length)];
+			final short skip = PRIMES[random.nextInt(PRIMES.length)];
 			do {
-				short p = suggestedMoves.get(i);
+				final short p = suggestedMoves.get(i);
 				assert board.getColorAt(p) == VACANT;
 				if (board.playFast(p) == OK) {
 					return p;

@@ -1,11 +1,12 @@
 package edu.lclark.orego.move;
 
 import java.io.Serializable;
-import ec.util.MersenneTwisterFast;
+
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /** Plays moves. */
 public interface Mover extends Serializable {
-	
+
 	/**
 	 * These are 361 primes greater than 361 used to skip randomly through a set
 	 * of possible moves.

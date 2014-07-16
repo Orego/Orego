@@ -20,7 +20,7 @@ public final class Pool<T extends Poolable<T>> {
 		if (free == null) {
 			return null;
 		}
-		T result = free;
+		final T result = free;
 		free = free.getNext();
 		return result;
 	}
@@ -29,11 +29,11 @@ public final class Pool<T extends Poolable<T>> {
 	 * Adds element to those available in this pool. This works even if element
 	 * was not previously in this pool. In fact, this is how elements are added
 	 * to a pool in the first place.
-	 * 
+	 *
 	 * @return the T to which element's next pointer used to point.
 	 */
 	public T free(T element) {
-		T result = element.getNext();
+		final T result = element.getNext();
 		element.setNext(free);
 		free = element;
 		return result;
@@ -47,8 +47,8 @@ public final class Pool<T extends Poolable<T>> {
 	}
 
 	/**
-	 * Returns the number of elements in the pool. This take time linear
-	 * in the size of the pool.
+	 * Returns the number of elements in the pool. This take time linear in the
+	 * size of the pool.
 	 */
 	public int size() {
 		int count = 0;

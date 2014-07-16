@@ -5,9 +5,9 @@ package edu.lclark.orego.feature;
 public final class Disjunction implements Predicate {
 
 	private final Predicate a;
-	
+
 	private final Predicate b;
-	
+
 	public Disjunction(Predicate a, Predicate b) {
 		this.a = a;
 		this.b = b;

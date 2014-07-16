@@ -2,23 +2,24 @@ package edu.lclark.orego.visuals;
 
 import java.util.LinkedList;
 
-public class TreeNode {
+/** Easier to work with than the nodes in the TranspositionTable. */
+final class TreeNode {
 
-	private LinkedList<TreeNode> children;
+	private final LinkedList<TreeNode> children;
 
-	boolean isSelected;
+	private boolean isSelected;
 
-	private String move;
+	private final String move;
 
 	private TreeNode next;
 
-	private TreeNode parent;
+	private final TreeNode parent;
 
 	private TreeNode previous;
 
-	private int runs;
+	private final int runs;
 
-	private float winRate;
+	private final float winRate;
 
 	public TreeNode(float winRate, int runs, TreeNode parent, String move) {
 		this.winRate = winRate;
@@ -61,12 +62,20 @@ public class TreeNode {
 		return winRate;
 	}
 
+	public boolean isSelected() {
+		return isSelected;
+	}
+
 	public void setNext(TreeNode next) {
 		this.next = next;
 	}
 
 	public void setPrevious(TreeNode previous) {
 		this.previous = previous;
+	}
+
+	public void setSelected(boolean selected) {
+		isSelected = selected;
 	}
 
 }

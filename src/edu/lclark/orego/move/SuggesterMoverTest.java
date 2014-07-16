@@ -5,12 +5,13 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import ec.util.MersenneTwisterFast;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.*;
-import edu.lclark.orego.feature.NotEyeLike;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.StoneColor.*;
+import static edu.lclark.orego.move.MoverFactory.*;
 
 public class SuggesterMoverTest {
 
@@ -18,7 +19,7 @@ public class SuggesterMoverTest {
 	
 	private CoordinateSystem coords;
 
-	private SuggesterMover mover;
+	private Mover mover;
 	
 	/** Delegate method to call at on board. */
 	private short at(String label) {
@@ -29,8 +30,7 @@ public class SuggesterMoverTest {
 	public void setUp() throws Exception {
 		board = new Board(5);
 		coords = board.getCoordinateSystem();
-		mover = new SuggesterMover(board, new CaptureSuggester(board, new AtariObserver(board)),
-				new PredicateMover(board, new NotEyeLike(board)));
+		mover = capturer(board, new AtariObserver(board));
 	}
 
 	@Test
@@ -70,8 +70,12 @@ public class SuggesterMoverTest {
 			short p = mover.selectAndPlayOneMove(random);
 			counts[p]++;
 		}
+		final ShortSet invalidPoints = new ShortSet(coords.getFirstPointBeyondBoard());
+		for (String s : new String[] {"a4", "a5", "b5", "c1", "d1", "d2", "e1", "e2", "e3"}) {
+			invalidPoints.add(at(s));
+		}
 		for(short p : coords.getAllPointsOnBoard()){
-			if(p != at("a5") && p != at("b5") && p != at("a4")){
+			if(!invalidPoints.contains(p)){
 				assertTrue(counts[p] > 20);
 			}
 		}

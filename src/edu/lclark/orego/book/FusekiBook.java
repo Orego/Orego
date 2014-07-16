@@ -1,48 +1,52 @@
 package edu.lclark.orego.book;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
-public class FusekiBook implements OpeningBook {
+/**
+ * Produces moves from a book extracted from strong players' games.
+ * 
+ * @see FusekiBookBuilder
+ */
+public final class FusekiBook implements OpeningBook {
 
 	/** The fuseki book proper. */
-	private Map<Long, Short> book;
-	
+	private SmallHashMap book;
+
+	/** Don't bother looking in the book after this many moves into the game. */
 	private int maxMoves;
 
+	public FusekiBook() {
+		this("books");
+	}
+
 	/** Gets the hashMap out of the file. */
-	@SuppressWarnings({ "unchecked", "boxing" })
-	public FusekiBook(String inputFileName) {
-		File file = new File(OREGO_ROOT + inputFileName + File.separator + "FusekiBook"
-				+ "19" + ".data");
+	@SuppressWarnings("boxing")
+	public FusekiBook(String directory) {
+		final File file = new File(OREGO_ROOT + directory + File.separator
+				+ "fuseki19.data");
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 				file))) {
-			maxMoves = (Integer) (in.readObject());
-			book = (HashMap<Long, Short>) (in.readObject());
-		} catch (Exception e) {
+			maxMoves = (Integer) in.readObject();
+			book = (SmallHashMap) in.readObject();
+		} catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
-	public FusekiBook() {
-		this("Books");
-	}
 
-	@SuppressWarnings("boxing")
 	@Override
 	public short nextMove(Board board) {
-		long boardHash = board.getFancyHash();
+		final long fancyHash = board.getFancyHash();
 		if (board.getTurn() < maxMoves) {
-			if (book.containsKey(boardHash)) {
-				short move = book.get(boardHash);
+			if (book.containsKey(fancyHash)) {
+				final short move = book.get(fancyHash);
 				if (board.isLegal(move)) {
 					return move;
 				}

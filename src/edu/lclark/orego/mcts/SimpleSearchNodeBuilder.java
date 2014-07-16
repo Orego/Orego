@@ -4,8 +4,8 @@ import edu.lclark.orego.core.CoordinateSystem;
 
 public final class SimpleSearchNodeBuilder implements SearchNodeBuilder {
 
-	private CoordinateSystem coords;
-	
+	private final CoordinateSystem coords;
+
 	public SimpleSearchNodeBuilder(CoordinateSystem coords) {
 		this.coords = coords;
 	}

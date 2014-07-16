@@ -1,6 +1,6 @@
 package edu.lclark.orego.sgf;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.List;
@@ -13,17 +13,19 @@ import edu.lclark.orego.core.CoordinateSystem;
 
 public class SgfParserTest {
 
-	SgfParser parser;
-	Board board;
-	CoordinateSystem coords;
-	
+	private SgfParser parser;
+
+	private Board board;
+
+	private CoordinateSystem coords;
+
 	@Before
 	public void setUp() {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
 		parser = new SgfParser(coords);
 	}
-	
+
 	/** Delegate method to call at on coords. */
 	private short at(String label) {
 		return coords.at(label);
@@ -38,16 +40,17 @@ public class SgfParserTest {
 		assertEquals(at("t19"), parser.sgfToPoint("sa"));
 		assertEquals(at("a1"), parser.sgfToPoint("as"));
 	}
-	
+
 	@SuppressWarnings("boxing")
 	@Test
-	public void testSgfToMoves(){
-		List<List<Short>> games = parser.parseGamesFromFile(new File("SgfTestFiles/19/1977-02-27.sgf"), 500);
+	public void testSgfToMoves() {
+		final List<List<Short>> games = parser.parseGamesFromFile(new File(
+				"sgf-test-files/19/1977-02-27.sgf"), 500);
 		assertEquals(1, games.size());
-		List<Short> game = games.get(0);
+		final List<Short> game = games.get(0);
 		assertEquals(180, game.size());
-		assertEquals(coords.at("R16"), (short)game.get(0));
-		assertEquals(coords.at("N11"), (short)game.get(179));
+		assertEquals(coords.at("R16"), (short) game.get(0));
+		assertEquals(coords.at("N11"), (short) game.get(179));
 	}
 
 }
