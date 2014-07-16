@@ -5,29 +5,29 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 import static edu.lclark.orego.util.TestingTools.asOneString;
 
-import java.io.File;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.lclark.orego.sgf.SgfParser;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 public class PlayerTest {
 
 	private Player player;
+	
+	private CoordinateSystem coords;
 
 	/** Delegate method to call at on board. */
 	private short at(String label) {
-		return player.getBoard().getCoordinateSystem().at(label);
+		return coords.at(label);
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64)
 				.openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
 	}
 
 	@Test
@@ -149,6 +149,7 @@ public class PlayerTest {
 	public void testCoupDeGrace() {
 		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace(true)
 				.memorySize(64).openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -186,7 +187,6 @@ public class PlayerTest {
 			}
 		}
 		assertEquals(0, failures);
-		System.out.println(successes);
 		assertTrue(successes >= 5);
 	}
 
@@ -265,6 +265,7 @@ public class PlayerTest {
 	public void testGetDeadStones(){
 		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
 				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
 		String[] diagram = {
 				"...O....O.O#.......",
 				"..OOO...O.O#..#....",
@@ -289,9 +290,44 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(diagram, WHITE);
 		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 		assertEquals(2, deadStones.size());
-		assertTrue(deadStones.contains(player.getBoard().getCoordinateSystem().at("D3")));
-		assertTrue(deadStones.contains(player.getBoard().getCoordinateSystem().at("D9")));
+		assertTrue(deadStones.contains(coords.at("D3")));
+		assertTrue(deadStones.contains(coords.at("D9")));
 
+	}
+	
+	@Test
+	public void testGetDeadStones2(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				"..##.OOO...#.......",
+				".###.##O...O.......",
+				"..###.#O.....O.....",
+				"..#..#OO....#..O...",
+				"...###O.....O......",
+				"..#.##O............",
+				".###.#O..OO........",
+				".#..##OOO##O.......",
+				".####.##O.O........",
+				".#...##OOO.....O...",
+				".#.##.#OOOOOO......",
+				".#.#.#####O...O.OOO",
+				"...#..#.#.#O...OO.O",
+				"...#.#..#.#OOO.O#OO",
+				"#..##.##O###OOOO###",
+				"####.#OOO.#OOO##.#.",
+				"...#..###.#O###.###",
+				"#.#.#########...#..",
+				"................##.",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(4, deadStones.size());
+		assertTrue(deadStones.contains(coords.at("k12")));
+		assertTrue(deadStones.contains(coords.at("l12")));
+		assertTrue(deadStones.contains(coords.at("m19")));
+		assertTrue(deadStones.contains(coords.at("n16")));
 	}
 
 }

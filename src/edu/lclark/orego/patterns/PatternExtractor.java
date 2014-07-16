@@ -127,7 +127,7 @@ public class PatternExtractor {
 		runs = new int[PATTERN_COUNT];
 		wins = new int[PATTERN_COUNT];
 		random = new MersenneTwisterFast();
-		parser = new SgfParser(coords);
+		parser = new SgfParser(coords, true);
 		this.verbose = verbose;
 	}
 

@@ -314,7 +314,7 @@ public final class Orego {
 			acknowledge(response);
 		} else if (command.equals("loadsgf")) {
 			final SgfParser parser = new SgfParser(player.getBoard()
-					.getCoordinateSystem());
+					.getCoordinateSystem(), false);
 			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
 					.nextToken())));
 			acknowledge();
