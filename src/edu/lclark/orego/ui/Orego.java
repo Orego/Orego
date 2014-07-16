@@ -371,7 +371,7 @@ public final class Orego {
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
 		for(int i = 0; i < deadStones.size(); i++){
-			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + "\n";
+			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
 		}
 		return vertices;
 	}
