@@ -1,9 +1,11 @@
 package edu.lclark.orego.patterns;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /** A class for storing win rates for pattern hashes. */
-public final class ShapeTable {
+@SuppressWarnings("serial")
+public final class ShapeTable implements Serializable{
 
 	private final float[][] winRateTables;
 

@@ -13,7 +13,7 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.move.Mover.*;
 
-public final class PatternExtractor {
+public class PatternExtractor {
 
 	private final static int PATTERN_COUNT = 65536;
 
@@ -22,7 +22,7 @@ public final class PatternExtractor {
 		int highestRuns = 0;
 		// extractor
 		// .buildPatternData(new File(
-		// "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+		// "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"), "patterns/3x3patterns.data");
 		try (ObjectInputStream objectInputStream = new ObjectInputStream(
 				new FileInputStream("PatternData/Pro3x3PatternData.data"))) {
 			int[] fileRuns = (int[]) objectInputStream.readObject();
@@ -129,7 +129,7 @@ public final class PatternExtractor {
 	 * Processes file, updating counts of patterns encountered. If file is a
 	 * directory, recursively descends into it.
 	 */
-	private void analyzeFiles(File file) {
+	protected void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
 		if (allFiles != null) {
 			for (File tempFile : allFiles) {
@@ -179,9 +179,9 @@ public final class PatternExtractor {
 	}
 
 	@SuppressWarnings("unused")
-	private void buildPatternData(File file) {
-		analyzeFiles(file);
-		try (FileOutputStream out = new FileOutputStream("PatternData/Pro3x3PatternData.data");
+	protected void buildPatternData(File inputFile, String outputFileName) {
+		analyzeFiles(inputFile);
+		try (FileOutputStream out = new FileOutputStream(outputFileName);
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(runs);
 			oos.writeObject(wins);
@@ -274,7 +274,7 @@ public final class PatternExtractor {
 	 * considered good, winner is true and the wins for the slot are updated. If
 	 * not, only runs is updated.
 	 */
-	private void updateTables(boolean winner, short move) {
+	protected void updateTables(boolean winner, short move) {
 		short[] neighbors = coords.getNeighbors(move);
 		int[] hashPieces = new int[8];
 		for (int i = 0; i < neighbors.length; i++) {
