@@ -9,20 +9,21 @@ public class ShapeExtractor extends PatternExtractor{
 	private ShapeTable shapeTable;
 	
 	public static void main(String[] args) {
-		ShapeExtractor extractor = new ShapeExtractor();
+		ShapeExtractor extractor = new ShapeExtractor(true);
 		 extractor.buildPatternData(new File(
-		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"), "patterns/patterns5x5");
+		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 		 
 	}
 	
-	public ShapeExtractor(){
+	public ShapeExtractor(boolean verbose){
+		super(verbose);
 		shapeTable = new ShapeTable();
 	}
 	
 	@Override
-	protected void buildPatternData(File inputFile, String outputFileName) {
+	protected void buildPatternData(File inputFile) {
 		analyzeFiles(inputFile);
-		try (FileOutputStream out = new FileOutputStream(outputFileName);
+		try (FileOutputStream out = new FileOutputStream("patterns/patterns5x5.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable);
 		} catch (Exception e) {
@@ -33,7 +34,7 @@ public class ShapeExtractor extends PatternExtractor{
 	
 	@Override
 	protected void updateTables(boolean winner, short move){
-		long hash = PatternFinder.getHash(getBoard(), move, 25);
+		long hash = PatternFinder.getHash(getBoard(), move, 24);
 		shapeTable.update(hash, winner);
 	}
 

@@ -18,7 +18,7 @@ public class PatternExtractorTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		extractor = new PatternExtractor();
+		extractor = new PatternExtractor(false);
 		coords = CoordinateSystem.forWidth(19);
 		board = extractor.getBoard();
 	}
