@@ -141,8 +141,9 @@ public final class Collate {
 
 	/** Returns the index of the condition with name. */
 	private int getConditionIndex(String name) {
-		final String condition = name.substring(name.indexOf(always)
-				+ always.length() + 1);
+		String lastThingBeforeAlways = "memory=" + SYSTEM.megabytes;
+		String condition = name.substring(name.indexOf(lastThingBeforeAlways) + lastThingBeforeAlways.length() + 1);
+		condition = condition.substring(always.length() + 1);
 		int i = 0;
 		for (final String conditionName : conditions.keySet()) {
 			if (condition.equals(conditions.get(conditionName))) {
@@ -155,12 +156,12 @@ public final class Collate {
 
 	/**
 	 * Reads conditions and initializes fields to begin reading SGF files from
-	 * folder.
+	 * directory.
 	 */
-	private void prepare(File folder) {
+	private void prepare(File directory) {
 		final Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream(folder + File.separator
+			properties.load(new FileInputStream(directory + File.separator
 					+ "experiment.txt"));
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -183,14 +184,14 @@ public final class Collate {
 		ties = new int[n];
 	}
 
-	/** Writes summary information to summary.txt in folder and to stdout. */
-	private void produceSummary(File folder) {
-		for (final File file : folder.listFiles()) {
+	/** Writes summary information to summary.txt in directory and to stdout. */
+	private void produceSummary(File directory) {
+		for (final File file : directory.listFiles()) {
 			if (file.getPath().endsWith(".sgf")) {
 				extractData(file);
 			}
 		}
-		try (PrintWriter writer = new PrintWriter(new File(folder
+		try (PrintWriter writer = new PrintWriter(new File(directory
 				+ File.separator + "summary.txt"))) {
 			int i = 0;
 			for (final String conditionName : conditions.keySet()) {

@@ -62,10 +62,10 @@ public final class McRunnable implements Runnable {
 	/** Determines winners of playouts. */
 	private final PlayoutScorer scorer;
 
-	/** An array of suggesters used for updating priors. */
+	/** An array of suggesters used for updating bias. */
 	private final Suggester[] suggesters;
 
-	/** An array of weights for each suggester used for updating priors. */
+	/** An array of weights for each suggester used for updating bias. */
 	private final int[] weights;
 
 	public McRunnable(Player player, CopiableStructure stuff) {
@@ -165,7 +165,7 @@ public final class McRunnable implements Runnable {
 
 	/**
 	 * Returns the weights associated with each suggester used for updating
-	 * priors.
+	 * bias.
 	 */
 	public int[] getWeights() {
 		return weights;

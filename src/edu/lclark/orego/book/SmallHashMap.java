@@ -13,7 +13,7 @@ import java.io.Serializable;
  * This mimics java.util.HashMap<Long, Short>, but it does not support removal
  * and is significantly more space-efficient.
  */
-public class SmallHashMap implements Serializable {
+public final class SmallHashMap implements Serializable {
 
 	/** For serialization. */
 	private static final long serialVersionUID = 1L;

@@ -125,6 +125,10 @@ public final class PatternExtractor {
 		parser = new SgfParser(coords);
 	}
 
+	/**
+	 * Processes file, updating counts of patterns encountered. If file is a
+	 * directory, recursively descends into it.
+	 */
 	private void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
 		if (allFiles != null) {
