@@ -29,6 +29,7 @@ import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.sgf.SgfParser;
+import edu.lclark.orego.util.ShortSet;
 
 /**
  * Main class run by GTP front ends. Can also be run directly from the command
@@ -82,7 +83,7 @@ import edu.lclark.orego.sgf.SgfParser;
 public final class Orego {
 
 	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
-			"boardsize", "clear_board", "final_score", "fixed_handicap",
+			"boardsize", "clear_board", "final_score", "final_status_list", "fixed_handicap",
 			"genmove", "genmove_black", "genmove_white", "known_command",
 			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
 			"loadsgf", "name", "play", "playout_count", "protocol_version",
@@ -237,6 +238,15 @@ public final class Orego {
 			} else {
 				acknowledge("0");
 			}
+		} else if(command.equals("final_status_list")){
+			String status = arguments.nextToken();
+			if(status == "dead"){
+				ShortSet deadStones = player.findDeadStones(0.25, WHITE);
+				deadStones.addAll(player.findDeadStones(0.25, BLACK));
+				acknowledge(produceVerticesString(deadStones));
+			} else if(status == "alive"){
+				acknowledge(produceVerticesString(player.getLiveStones(0.25)));
+			}
 		} else if (command.equals("fixed_handicap")) {
 			final int handicapSize = parseInt(arguments.nextToken());
 			if (handicapSize >= 2 && handicapSize <= 9) {
@@ -356,6 +366,14 @@ public final class Orego {
 			error("unknown command: " + command);
 		}
 		return true;
+	}
+
+	private String produceVerticesString(ShortSet deadStones) {
+		String vertices = "";
+		for(int i = 0; i < deadStones.size(); i++){
+			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + "\n";
+		}
+		return vertices;
 	}
 
 	/** Updates playerBuilder with command-line arguments. */

@@ -255,5 +255,18 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(diagram, BLACK);
 		assertFalse(player.canWinByPassing());
 	}
+	
+	@Test
+	public void testGetLiveStones(){
+		String[] diagram = {
+				"OO.OO",
+				".OOO.",
+				".O.OO",
+				"##OO.",
+				".##OO",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		assertEquals(14, player.getLiveStones(0.5).size());
+	}
 
 }
