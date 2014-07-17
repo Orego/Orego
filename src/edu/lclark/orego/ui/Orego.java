@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.sgf.SgfParser;
@@ -404,6 +405,8 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
+			} else if (left.equals("logfile")){
+				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
 			} else if (left.equals("msec")) {

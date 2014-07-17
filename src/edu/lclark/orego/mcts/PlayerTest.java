@@ -5,10 +5,14 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 import static edu.lclark.orego.util.TestingTools.asOneString;
 
+import java.io.File;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
@@ -328,6 +332,52 @@ public class PlayerTest {
 		assertTrue(deadStones.contains(coords.at("l12")));
 		assertTrue(deadStones.contains(coords.at("m19")));
 		assertTrue(deadStones.contains(coords.at("n16")));
+	}
+	
+	@Test
+	public void testGetDeadStones3(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+//		SgfParser parser = new SgfParser(coords, false);
+//		List<Short> moves = parser.parseGameFromFile(new File("/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/Orego4-Magisus-3.sgf"));
+//		for(short move : moves){
+//			player.getBoard().play(move);
+//		}
+//		System.out.println(player.getBoard());
+		String[] diagram = {
+				"OOOO.OOO####.OO#.#O",
+				"OO.OOO.OOO#.#####.O",
+				".OOOO.OO.OO#.##.#.O",
+				"OOOOOOOOOO####.#.#O",
+				"O.O.O.O.OO##.O#.#.#",
+				"OOOOO..O.O###.###..",
+				".OO.O.OOO##.#.#.O##",
+				".OOOOOOOOO##.O#####",
+				"OOOO.OOO.OO###..##.",
+				"OO.OO.O.O.O##..#.O#",
+				"O.OO.OOOOOO#..#.#O#",
+				"OOOOOO.O.O##...#.#.",
+				".O....OOO##.##.##.#",
+				"OO.O.O.OO###.####.#",
+				"OO...OOOO##.###.#..",
+				".OOOOO.OOO###.###..",
+				"OOOO.OOOO##.##.##.#",
+				".OOOO.OO##O##.#.##.",
+				"O.O.OO.O##.O##.##.#",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+		assertEquals(13, deadStones.size());
+		System.out.println(produceVerticesString(deadStones));
+	}
+	
+	private String produceVerticesString(ShortSet deadStones) {
+		String vertices = "";
+		for(int i = 0; i < deadStones.size(); i++){
+			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
+		}
+		return vertices;
 	}
 
 }
