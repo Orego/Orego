@@ -232,6 +232,7 @@ final class Game {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		assert winner != OFF_BOARD : board.toString();
 		return winner;
 	}
 
