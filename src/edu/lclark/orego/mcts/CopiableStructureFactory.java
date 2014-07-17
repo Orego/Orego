@@ -161,7 +161,7 @@ public final class CopiableStructureFactory {
 		return base.add(mover);
 	}
 	
-	public static CopiableStructure shape5(int width, double komi){
+	public static CopiableStructure shape5(int width, double komi, double shapeThreshold){
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);		
 		// Observers
@@ -181,7 +181,7 @@ public final class CopiableStructureFactory {
 		// Shape
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns5x5.data");
-		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable);
+		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable, shapeThreshold);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias
