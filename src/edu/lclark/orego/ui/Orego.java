@@ -328,6 +328,7 @@ public final class Orego {
 					.getCoordinateSystem(), false);
 			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
 					.nextToken())));
+			log("Setting up sgf");
 			acknowledge();
 		} else if (command.equals("name")) {
 			acknowledge("Orego");

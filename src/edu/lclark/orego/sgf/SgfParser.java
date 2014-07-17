@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import static java.lang.Integer.MAX_VALUE;
 
+import static java.lang.Integer.MAX_VALUE;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.experiment.Logging;
 
 /** Parses SGF files. */
 public final class SgfParser {
@@ -93,7 +94,9 @@ public final class SgfParser {
 	 * GTP command.
 	 */
 	public List<Short> parseGameFromFile(File file) {
+		Logging.log("BEFORE");
 		final List<List<Short>> games = parseGamesFromFile(file, MAX_VALUE);
+		Logging.log("" + games.size());
 		return games.get(0);
 	}
 
