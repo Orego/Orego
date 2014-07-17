@@ -233,7 +233,7 @@ final class Game {
 			System.exit(1);
 		}
 		if(winner == OFF_BOARD){
-			System.err.println(board.toString());
+			System.err.println("Winner was off board.\n" + board.toString());
 		}
 		return winner;
 	}
