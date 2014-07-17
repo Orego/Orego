@@ -226,7 +226,7 @@ public final class Player {
 		}
 		final SearchNode root = getRoot();
 		final int bias = (int) root.getWins(root.getMoveWithMostWins(board
-				.getCoordinateSystem())) * 2;
+				.getCoordinateSystem()));
 		for (int i = 0; i < pointsToBias.size(); i++) {
 			root.update(pointsToBias.get(i), bias, bias);
 		}
@@ -255,8 +255,9 @@ public final class Player {
 		final int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
+			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
-			runnable.performMcRun(false);
+			runnable.performMcRun(false, runnableBoard);
 			for (final short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
