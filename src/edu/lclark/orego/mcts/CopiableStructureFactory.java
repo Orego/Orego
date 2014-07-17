@@ -182,9 +182,11 @@ public final class CopiableStructureFactory {
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns5x5.data");
 		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable);
+		base.add(shapeTable);
+		base.add(shape);
 		// Bias
-		base.add(new Suggester[] {shape, escape, patterns, capture });
-		base.add(new int[] {20, 20, 20, 20 });
+		base.add(new Suggester[] {null, escape, patterns, capture });
+		base.add(new int[] { 20, 20, 20, 20 });
 		// Mover
 		final SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
 				patterns, new SuggesterMover(board, capture, new PredicateMover(board,

@@ -80,34 +80,20 @@ public final class McRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
-		Suggester[] tempSuggesters = copy.get(Suggester[].class);
 		ShapeTable shapeTable = null;
 		ShapeSuggester shape = null;
 		try {
 			shapeTable = stuff.get(ShapeTable.class);
-			shape = stuff.get(ShapeSuggester.class);
+			shape = copy.get(ShapeSuggester.class);
 			shape.setTable(shapeTable);
 		} catch (final IllegalArgumentException e) {
 			// If we get here, we're not using shape
 		}
-		int[] tempWeights = copy.get(int[].class);
+		weights = copy.get(int[].class);
+		suggesters = copy.get(Suggester[].class);
 		if(shape != null){
-			Suggester[] suggestersWithShape = new Suggester[tempSuggesters.length+1];
-			int[] weightsWithShape = new int[tempWeights.length + 1];
-			for(int i = 0; i<tempSuggesters.length; i++){
-				suggestersWithShape[i] = tempSuggesters[i];
-				weightsWithShape[i] = tempWeights[i];
-			}
-			suggestersWithShape[tempSuggesters.length] = shape; 
-			tempSuggesters = suggestersWithShape;
-			weightsWithShape[tempSuggesters.length] = 20; 
-			tempWeights = weightsWithShape;
+			suggesters[0] = shape;
 		}
-		
-		
-		suggesters = tempSuggesters;
-		
-		weights = tempWeights;
 		this.player = player;
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);
