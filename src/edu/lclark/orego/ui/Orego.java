@@ -10,6 +10,8 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
+import static edu.lclark.orego.experiment.Logging.*;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -62,6 +64,9 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
+ * <dt>logfile</dt>
+ * <dd>Specifies the destination file for any logging activity. If not
+ * specified, the program will not log any data.</dd>
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -158,6 +163,7 @@ public final class Orego {
 		} else {
 			response = "= " + message;
 		}
+//		log("Sent: " + response);
 		out.println(response + "\n");
 	}
 
@@ -169,6 +175,7 @@ public final class Orego {
 		} else {
 			response = "? " + message;
 		}
+//		log("Sent: " + response);
 		out.println(response + "\n");
 	}
 
@@ -178,6 +185,7 @@ public final class Orego {
 	 * @return true if command is anything but "quit".
 	 */
 	private boolean handleCommand(String command) {
+//		log("Received command: " + command);
 		// Remove any comment
 		final int commentStart = command.indexOf("#");
 		if (commentStart >= 0) {
@@ -239,13 +247,13 @@ public final class Orego {
 			} else {
 				acknowledge("0");
 			}
-		} else if(command.equals("final_status_list")){
+		} else if (command.equals("final_status_list")) {
 			String status = arguments.nextToken();
-			if(status.equals("dead")){
+			if (status.equals("dead")) {
 				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 				deadStones.addAll(player.findDeadStones(0.75, BLACK));
 				acknowledge(produceVerticesString(deadStones));
-			} else if(status.equals("alive")){
+			} else if (status.equals("alive")) {
 				acknowledge(produceVerticesString(player.getLiveStones(0.75)));
 			}
 		} else if (command.equals("fixed_handicap")) {
@@ -371,7 +379,7 @@ public final class Orego {
 
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
-		for(int i = 0; i < deadStones.size(); i++){
+		for (int i = 0; i < deadStones.size(); i++) {
 			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
 		}
 		return vertices;
@@ -405,7 +413,7 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
-			} else if (left.equals("logfile")){
+			} else if (left.equals("logfile")) {
 				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
@@ -415,8 +423,6 @@ public final class Orego {
 				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave(parseBoolean(right));
-			} else if (left.equals("shape")) {
-				playerBuilder.shape(parseBoolean(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
 			} else if (left.equals("time-management")) {

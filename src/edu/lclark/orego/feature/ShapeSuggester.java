@@ -32,11 +32,12 @@ public class ShapeSuggester implements Suggester {
 		for(short p : coords.getAllPointsOnBoard()){
 			if(board.getColorAt(p) == VACANT){
 				long hash = PatternFinder.getHash(board, p, 24);
-				if(shapeTable.getWinRate(hash) > 0.8f){
+				if(shapeTable.getWinRate(hash) > 0.65f){
 					moves.add(p);
 				}
 			}
 		}
+		System.out.println(moves);
 		return moves;
 	}
 
