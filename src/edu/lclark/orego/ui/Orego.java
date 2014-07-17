@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
