@@ -1,10 +1,9 @@
 package edu.lclark.orego.experiment;
 
-import java.io.IOException;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
-import java.util.logging.Handler;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class Logging {
@@ -17,8 +16,9 @@ public class Logging {
 		logFilePath = filePath;
 		try {
 			FileHandler handler = new FileHandler(filePath);
-			handler.setFormatter(new PlainTextFormatter());
+			handler.setFormatter(new PlanTextFormatter());
 			logger.addHandler(handler);
+			logger.setLevel(Level.ALL);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -28,5 +28,17 @@ public class Logging {
 	public static String getFilePath() {
 		return logFilePath;
 	}
+	
+	public static Logger getLogger(){
+		return logger;
+	}
+}
 
+class PlanTextFormatter extends Formatter{
+
+	@Override
+	public String format(LogRecord record) {
+		return record.getMessage();
+	}
+	
 }
