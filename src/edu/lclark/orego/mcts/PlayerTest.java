@@ -389,7 +389,7 @@ public class PlayerTest {
 				"...#O...#",
 		};
 		player.getBoard().setUpProblem(diagram, WHITE);
-		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
 		assertEquals(2, deadStones.size());
 		System.out.println(deadStones.toString(player.getBoard().getCoordinateSystem()));		
 		assertTrue(deadStones.contains(at("j1")));
