@@ -32,13 +32,21 @@ public class Logging {
 	public static Logger getLogger(){
 		return logger;
 	}
+	
+	public static void log(String message){
+		logger.log(Level.INFO, message);
+	}
+	
+	public static void log(Level level, String message){
+		logger.log(level, message);
+	}
 }
 
 class PlanTextFormatter extends Formatter{
 
 	@Override
 	public String format(LogRecord record) {
-		return record.getMessage();
+		return record.getMessage() + "\n";
 	}
 	
 }
