@@ -116,6 +116,8 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
+		log("Board passes: " + board.getPasses());
+		log("Coup de grace: " + coupDeGrace);
 		if (cleanupMode) {
 			if (!findCleanupMoves()) {
 				return PASS;
@@ -126,7 +128,6 @@ public final class Player {
 			}
 			findCleanupMoves();
 		}
-
 		if (!timeLeftWasSent) {
 			// No time left signal was received
 			startThreads();

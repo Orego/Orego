@@ -184,7 +184,7 @@ public final class Orego {
 	 * @return true if command is anything but "quit".
 	 */
 	private boolean handleCommand(String command) {
-		log("Received command: " + command);
+		log("Received: " + command);
 		// Remove any comment
 		final int commentStart = command.indexOf("#");
 		if (commentStart >= 0) {
@@ -247,6 +247,7 @@ public final class Orego {
 				acknowledge("0");
 			}
 		} else if(command.equals("final_status_list")){
+			log("Finding final status list");
 			String status = arguments.nextToken();
 			if(status.equals("dead")){
 				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
