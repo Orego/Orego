@@ -412,6 +412,8 @@ public final class Orego {
 				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave(parseBoolean(right));
+			} else if (left.equals("shape")) {
+				playerBuilder.shape(parseBoolean(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
 			} else if (left.equals("time-management")) {

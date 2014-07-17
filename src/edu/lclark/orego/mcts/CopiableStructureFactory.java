@@ -162,29 +162,33 @@ public final class CopiableStructureFactory {
 	
 	public static CopiableStructure shape5(int width, double komi){
 		final CopiableStructure base = basicParts(width, komi);
-		final Board board = base.get(Board.class);
+		final Board board = base.get(Board.class);		
 		// Observers
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// LGRF
+		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
+		base.add(table);
+		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table);
+		// This is added to the structure to that every LgrfSuggester can point to
+		// the same table. This is handled in the McRunnable constructor.
+		base.add(lgrf);
 		// Suggesters
 		final EscapeSuggester escape = new EscapeSuggester(board, atariObserver);
 		final PatternSuggester patterns = new PatternSuggester(board, historyObserver);
 		final CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
-		
+		// Shape
 		final ShapeTable shapeTable = new ShapeTable("patterns/patterns5x5.data");
 		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable);
 		// Bias
 		base.add(new Suggester[] {shape, escape, patterns, capture });
 		base.add(new int[] {20, 20, 20, 20 });
 		// Mover
-		final SuggesterMover mover = new SuggesterMover(board, escape,
-				new SuggesterMover(board, patterns, new SuggesterMover(board,
-						capture, new PredicateMover(board, new Conjunction(
-								new NotEyeLike(board), new Disjunction(
-										OnThirdOrFourthLine.forWidth(board
-												.getCoordinateSystem()
-												.getWidth()),
-										new NearAnotherStone(board)))))));
+		final SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
+				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
+						new Conjunction(new NotEyeLike(board), new Disjunction(
+								OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+										.getWidth()), new NearAnotherStone(board))))))));
 		// Filter
 		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
