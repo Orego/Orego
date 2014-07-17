@@ -10,6 +10,8 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
+import static edu.lclark.orego.experiment.Logging.*;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
@@ -159,6 +160,7 @@ public final class Orego {
 		} else {
 			response = "= " + message;
 		}
+		log("Sent: " + response);
 		out.println(response + "\n");
 	}
 
@@ -170,6 +172,7 @@ public final class Orego {
 		} else {
 			response = "? " + message;
 		}
+		log("Sent: " + response);
 		out.println(response + "\n");
 	}
 
@@ -179,6 +182,7 @@ public final class Orego {
 	 * @return true if command is anything but "quit".
 	 */
 	private boolean handleCommand(String command) {
+		log("Received command: " + command);
 		// Remove any comment
 		final int commentStart = command.indexOf("#");
 		if (commentStart >= 0) {
