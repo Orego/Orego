@@ -5,7 +5,7 @@ import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.StoneColor.*;
-
+import static edu.lclark.orego.experiment.Logging.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -116,6 +116,8 @@ public final class Player {
 		if (move != NO_POINT) {
 			return move;
 		}
+		log("Board passes: " + board.getPasses());
+		log("Coup de grace: " + coupDeGrace);
 		if (cleanupMode) {
 			if (!findCleanupMoves()) {
 				return PASS;
@@ -126,7 +128,6 @@ public final class Player {
 			}
 			findCleanupMoves();
 		}
-
 		if (!timeLeftWasSent) {
 			// No time left signal was received
 			startThreads();
@@ -207,8 +208,10 @@ public final class Player {
 	 * board. Returns true if any such moves were found.
 	 */
 	private boolean findCleanupMoves() {
+		log("Finding cleanup moves");
 		final ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
 				.opposite());
+		log("Dead stones: " + enemyDeadChains.toString(board.getCoordinateSystem()));
 		if (enemyDeadChains.size() == 0) {
 			return false;
 		}
@@ -252,8 +255,9 @@ public final class Player {
 		final int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
+			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
-			runnable.performMcRun(false);
+			runnable.performMcRun(false, runnableBoard);
 			for (final short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
@@ -273,6 +277,7 @@ public final class Player {
 			startThreads();
 		}
 		// Return the list of dead stones
+		log("Dead stones: " + deadStones.toString(board.getCoordinateSystem()));
 		return deadStones;
 	}
 
@@ -485,6 +490,7 @@ public final class Player {
 				liveStones.add(p);
 			}
 		}
+		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
 		return liveStones;
 	}
 
