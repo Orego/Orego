@@ -369,15 +369,31 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(diagram, WHITE);
 		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 		assertEquals(13, deadStones.size());
-		System.out.println(produceVerticesString(deadStones));
+		System.out.println(deadStones.toString(player.getBoard().getCoordinateSystem()));
 	}
 	
-	private String produceVerticesString(ShortSet deadStones) {
-		String vertices = "";
-		for(int i = 0; i < deadStones.size(); i++){
-			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
-		}
-		return vertices;
+	@Test
+	public void testGetDeadStones4() {
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(9).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				"...#O....",
+				"...#O....",
+				"...#OOO..",
+				"...#O.O..",
+				"...#OOO..",
+				"...#O.O..",
+				"...#OOOOO",
+				"...#O...#",
+				"...#O...#",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+		assertEquals(2, deadStones.size());
+		System.out.println(deadStones.toString(player.getBoard().getCoordinateSystem()));		
+		assertTrue(deadStones.contains(at("j1")));
+		assertTrue(deadStones.contains(at("j2")));
 	}
 
 }
