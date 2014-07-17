@@ -226,7 +226,7 @@ public final class Player {
 		}
 		final SearchNode root = getRoot();
 		final int bias = (int) root.getWins(root.getMoveWithMostWins(board
-				.getCoordinateSystem()));
+				.getCoordinateSystem())) * 2;
 		for (int i = 0; i < pointsToBias.size(); i++) {
 			root.update(pointsToBias.get(i), bias, bias);
 		}
