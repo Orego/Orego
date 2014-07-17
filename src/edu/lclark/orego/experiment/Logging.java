@@ -6,19 +6,21 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-public class Logging {
+public final class Logging {
 
 	private static String logFilePath;
 
-	private static Logger logger = Logger.getLogger("orego-default");
+	private static Logger logger = null;
 
 	public static void setFilePath(String filePath) {
+		logger = Logger.getLogger("orego-default");
 		logFilePath = filePath;
 		try {
 			FileHandler handler = new FileHandler(filePath);
 			handler.setFormatter(new PlanTextFormatter());
 			logger.addHandler(handler);
 			logger.setLevel(Level.ALL);
+			logger.setUseParentHandlers(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -34,11 +36,13 @@ public class Logging {
 	}
 	
 	public static void log(String message){
-		logger.log(Level.INFO, message);
+		log(Level.INFO, message);
 	}
 	
 	public static void log(Level level, String message){
-		logger.log(level, message);
+		if (logger != null) {
+			logger.log(level, message);
+		}
 	}
 }
 
