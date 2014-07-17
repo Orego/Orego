@@ -178,7 +178,7 @@ public final class FusekiBookBuilder {
 				processFiles(tempFile);
 			}
 		} else if (file.getPath().endsWith(".sgf")) {
-			final SgfParser parser = new SgfParser(coords);
+			final SgfParser parser = new SgfParser(coords, true);
 			final List<List<Short>> games = parser.parseGamesFromFile(file,
 					maxMoves);
 			processGames(games);

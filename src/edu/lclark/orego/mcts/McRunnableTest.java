@@ -31,7 +31,7 @@ public class McRunnableTest {
 		runnable.acceptMove(PASS);
 		runnable.acceptMove(PASS);
 		assertEquals(2, runnable.getTurn());
-		assertEquals(WHITE, runnable.playout());
+		assertEquals(WHITE, runnable.playout(true));
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class McRunnableTest {
 			runnable.acceptMove(PASS);
 		}
 		// Playing out from here should run up against the max game length
-		assertEquals(VACANT, runnable.playout());
+		assertEquals(VACANT, runnable.playout(true));
 	}
 
 	@Test

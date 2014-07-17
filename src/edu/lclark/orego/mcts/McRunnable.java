@@ -6,6 +6,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
+import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
@@ -183,15 +184,24 @@ public final class McRunnable implements Runnable {
 	 * beyond the tree, then calls incorporateRun on the player.
 	 *
 	 * @return The winning color, although this is only used in tests.
-	 */
-	public Color performMcRun() {
+	 */	
+	public Color performMcRun(){
+		return performMcRun(true);
+	}
+	
+	/** @param mercy True if we should abandon the playout when one color has many more stones than the other. */
+	public Color performMcRun(boolean mercy) {
 		copyDataFrom(player.getBoard());
+		return performMcRun(mercy, board);
+	}
+	
+	public Color performMcRun(boolean mercy, Board originalBoard){
 		player.descend(this);
 		Color winner;
-		if (board.getPasses() == 2) {
+		if (originalBoard.getPasses() == 2) {
 			winner = scorer.winner();
 		} else {
-			winner = playout();
+			winner = playout(mercy);
 		}
 		player.updateTree(winner, this);
 		playoutsCompleted++;
@@ -202,8 +212,10 @@ public final class McRunnable implements Runnable {
 	 * Plays moves to the end of the game and returns the winner: BLACK, WHITE,
 	 * or (in rare event of a tie or a playout canceled because it hits the
 	 * maximum number of moves) VACANT.
+	 * 
+	 * @param mercy True if we should abandon the playout when one color has many more stones than the other.
 	 */
-	public Color playout() {
+	public Color playout(boolean mercy) {
 		do {
 			if (board.getTurn() >= coords.getMaxMovesPerGame()) {
 				// Playout ran out of moves, probably due to superko
@@ -217,7 +229,7 @@ public final class McRunnable implements Runnable {
 				return scorer.winner();
 			}
 			final Color mercyWinner = mercyObserver.mercyWinner();
-			if (mercyWinner != null) {
+			if (mercy && mercyWinner != null) {
 				// One player has far more stones on the board
 				return mercyWinner;
 			}

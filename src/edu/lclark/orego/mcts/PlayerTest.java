@@ -3,27 +3,35 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
-
 import static edu.lclark.orego.util.TestingTools.asOneString;
+
+import java.io.File;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.sgf.SgfParser;
+import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 
 public class PlayerTest {
 
 	private Player player;
+	
+	private CoordinateSystem coords;
 
 	/** Delegate method to call at on board. */
 	private short at(String label) {
-		return player.getBoard().getCoordinateSystem().at(label);
+		return coords.at(label);
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(5).memorySize(64)
 				.openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
 	}
 
 	@Test
@@ -145,6 +153,7 @@ public class PlayerTest {
 	public void testCoupDeGrace() {
 		player = new PlayerBuilder().msecPerMove(100).threads(1).boardWidth(19).coupDeGrace(true)
 				.memorySize(64).openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
 		String[] problem = new String[] {
 				"..O.O.#..#O#######.",// 19
 				".OO.O#####O#######.",// 18
@@ -257,16 +266,165 @@ public class PlayerTest {
 	}
 	
 	@Test
-	public void testGetLiveStones(){
+	public void testGetDeadStones(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
 		String[] diagram = {
-				"OO.OO",
-				".OOO.",
-				".O.OO",
-				"##OO.",
-				".##OO",
+				"...O....O.O#.......",
+				"..OOO...O.O#..#....",
+				".O..O.OOO.O##......",
+				".OOO.OOOOOOO##.####",
+				".OO.OO.O.OOO#####O.",
+				"#O###OOOO...OOOOOO.",
+				"##..##OOO..OOOOO.OO",
+				"..#.#OO.OOO.OO..O..",
+				"....##.OO..........",
+				"...#.##O.O...OOO...",
+				"...O#.#O......O.OOO",
+				"....###OO...O..OO.O",
+				"......##O.O...OOOO#",
+				"....#.#OO.....O####",
+				"..#..#O.O.O.OO#..#.",
+				"...###O.O...O#.##..",
+				"...O###O....OO#.#..",
+				"......#OO.OOO##.#..",
+				"......###.O#####...",
 		};
 		player.getBoard().setUpProblem(diagram, WHITE);
-		assertEquals(14, player.getLiveStones(0.5).size());
+		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+		assertEquals(2, deadStones.size());
+		assertTrue(deadStones.contains(coords.at("D3")));
+		assertTrue(deadStones.contains(coords.at("D9")));
+
 	}
+	
+	@Test
+	public void testGetDeadStones2(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				"..##.OOO...#.......",
+				".###.##O...O.......",
+				"..###.#O.....O.....",
+				"..#..#OO....#..O...",
+				"...###O.....O......",
+				"..#.##O............",
+				".###.#O..OO........",
+				".#..##OOO##O.......",
+				".####.##O.O........",
+				".#...##OOO.....O...",
+				".#.##.#OOOOOO......",
+				".#.#.#####O...O.OOO",
+				"...#..#.#.#O...OO.O",
+				"...#.#..#.#OOO.O#OO",
+				"#..##.##O###OOOO###",
+				"####.#OOO.#OOO##.#.",
+				"...#..###.#O###.###",
+				"#.#.#########...#..",
+				"................##.",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(4, deadStones.size());
+		assertTrue(deadStones.contains(coords.at("k12")));
+		assertTrue(deadStones.contains(coords.at("l12")));
+		assertTrue(deadStones.contains(coords.at("m19")));
+		assertTrue(deadStones.contains(coords.at("n16")));
+	}
+	
+	@Test
+	public void testGetDeadStones3(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				"OOOO.OOO####.OO#.#O",
+				"OO.OOO.OOO#.#####.O",
+				".OOOO.OO.OO#.##.#.O",
+				"OOOOOOOOOO####.#.#O",
+				"O.O.O.O.OO##.O#.#.#",
+				"OOOOO..O.O###.###..",
+				".OO.O.OOO##.#.#.O##",
+				".OOOOOOOOO##.O#####",
+				"OOOO.OOO.OO###..##.",
+				"OO.OO.O.O.O##..#.O#",
+				"O.OO.OOOOOO#..#.#O#",
+				"OOOOOO.O.O##...#.#.",
+				".O....OOO##.##.##.#",
+				"OO.O.O.OO###.####.#",
+				"OO...OOOO##.###.#..",
+				".OOOOO.OOO###.###..",
+				"OOOO.OOOO##.##.##.#",
+				".OOOO.OO##O##.#.##.",
+				"O.O.OO.O##.O##.##.#",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+		assertEquals(13, deadStones.size());
+	}
+	
+	@Test
+	public void testGetDeadStones4() {
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(9).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				"...#O....",
+				"...#O....",
+				"...#OOO..",
+				"...#O.O..",
+				"...#OOO..",
+				"...#O.O..",
+				"...#OOOOO",
+				"...#O...#",
+				"...#O...#",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(2, deadStones.size());
+		assertTrue(deadStones.contains(at("j1")));
+		assertTrue(deadStones.contains(at("j2")));
+	}
+	
+	@Test
+	public void testGetDeadStones5(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+//		SgfParser parser = new SgfParser(coords, false);
+//		List<Short> moves = parser.parseGameFromFile(new File("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/mundungus-Orego4-4.sgf"));
+//		for(short move : moves){
+//			player.getBoard().play(move);
+//		}
+//		System.out.println(player.getBoard());
+		String[] diagram = {
+				".OOOO#........#....",
+				".O##O#...##....##..",
+				".OO#O##...###..#.#.",
+				".O########..#..##.#",
+				".OOOOOOOO#.....#.##",
+				"..O#..O.O#...#..##.",
+				".O.O.O.OO##..#.....",
+				"...O...OOO#..###...",
+				"..O..O..O.O#.......",
+				"........OOO#.....#.",
+				"#........O##...###.",
+				"......O.OO#........",
+				".........O###..###.",
+				".#O....O.OOO##...#.",
+				"...........O#.#....",
+				"...O......OO##.###.",
+				".......O..OO#O#..#.",
+				"...........O#O###..",
+				"...........OOOO#...",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(3, deadStones.size());
+	}
+	
+	
 
 }

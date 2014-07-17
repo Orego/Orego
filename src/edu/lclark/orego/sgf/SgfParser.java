@@ -17,7 +17,7 @@ public final class SgfParser {
 
 	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
-		final SgfParser parser = new SgfParser(CoordinateSystem.forWidth(19));
+		final SgfParser parser = new SgfParser(CoordinateSystem.forWidth(19), true);
 		final List<List<Short>> games = parser.parseGamesFromFile(new File(
 				"sgf-test-files/19/1977-02-27.sgf"), 179);
 		for (final List<Short> game : games) {
@@ -28,9 +28,12 @@ public final class SgfParser {
 	}
 
 	private final CoordinateSystem coords;
+	
+	private boolean breakOnFirstPass;
 
-	public SgfParser(CoordinateSystem coords) {
+	public SgfParser(CoordinateSystem coords, boolean breakOnFirstPass) {
 		this.coords = coords;
+		this.breakOnFirstPass = breakOnFirstPass;
 	}
 
 	/**
@@ -73,7 +76,7 @@ public final class SgfParser {
 					// Weird early pass when reading for book; discard game
 					return null;
 				}
-				if(move == PASS){
+				if(breakOnFirstPass && move == PASS){
 					return game;
 				}
 				game.add(move);

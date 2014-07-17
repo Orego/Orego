@@ -1,7 +1,9 @@
 package edu.lclark.orego.patterns;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class ShapeExtractor extends PatternExtractor{
@@ -9,15 +11,19 @@ public class ShapeExtractor extends PatternExtractor{
 	private ShapeTable shapeTable;
 	
 	public static void main(String[] args) {
-		ShapeExtractor extractor = new ShapeExtractor(true);
-		 extractor.buildPatternData(new File(
-		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
-		 
+//		ShapeExtractor extractor = new ShapeExtractor(true);
+//		 extractor.buildPatternData(new File(
+//		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
+		
+		ShapeTable table = new ShapeTable("patterns/patterns5x5.data");
+		table.getRates();
 	}
 	
 	public ShapeExtractor(boolean verbose){
 		super(verbose);
 		shapeTable = new ShapeTable();
+		
+		
 	}
 	
 	@Override
@@ -25,7 +31,7 @@ public class ShapeExtractor extends PatternExtractor{
 		analyzeFiles(inputFile);
 		try (FileOutputStream out = new FileOutputStream("patterns/patterns5x5.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
-			oos.writeObject(shapeTable);
+			oos.writeObject(shapeTable.getWinRateTables());
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
