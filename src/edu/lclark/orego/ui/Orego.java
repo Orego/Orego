@@ -250,8 +250,10 @@ public final class Orego {
 			log("Finding final status list");
 			String status = arguments.nextToken();
 			if(status.equals("dead")){
+				log("Finding dead stones");
 				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 				deadStones.addAll(player.findDeadStones(0.75, BLACK));
+				log(deadStones.toString());
 				acknowledge(produceVerticesString(deadStones));
 			} else if(status.equals("alive")){
 				acknowledge(produceVerticesString(player.getLiveStones(0.75)));
