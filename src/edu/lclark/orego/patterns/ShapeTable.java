@@ -33,11 +33,14 @@ public final class ShapeTable implements Serializable{
 	}
 	
 	public void getRates(){
+		int counter=0;
 		for (int i = 0; i < Character.MAX_VALUE + 1; i++) {
 			if(winRateTables[0][i]>.8f){
 				System.out.println(winRateTables[0][i]);
+				counter++;
 			}
 		}
+		System.out.println(counter);
 	}
 	
 	public double testGetRate(int index){

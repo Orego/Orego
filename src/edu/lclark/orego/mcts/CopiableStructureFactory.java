@@ -1,5 +1,6 @@
 package edu.lclark.orego.mcts;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.CaptureSuggester;
@@ -178,7 +179,8 @@ public final class CopiableStructureFactory {
 		final PatternSuggester patterns = new PatternSuggester(board, historyObserver);
 		final CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
 		// Shape
-		final ShapeTable shapeTable = new ShapeTable("patterns/patterns5x5.data");
+		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
+				+ "patterns/patterns5x5.data");
 		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable);
 		// Bias
 		base.add(new Suggester[] {shape, escape, patterns, capture });
