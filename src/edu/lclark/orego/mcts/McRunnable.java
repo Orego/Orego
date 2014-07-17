@@ -199,7 +199,6 @@ public final class McRunnable implements Runnable {
 		player.descend(this);
 		Color winner;
 		if (originalBoard.getPasses() == 2) {
-			Logging.log("Passes are 2 in perform mcrun");
 			winner = scorer.winner();
 		} else {
 			winner = playout(mercy);
@@ -217,7 +216,6 @@ public final class McRunnable implements Runnable {
 	 * @param mercy True if we should abandon the playout when one color has many more stones than the other.
 	 */
 	public Color playout(boolean mercy) {
-		Logging.log("Playing out");
 		do {
 			if (board.getTurn() >= coords.getMaxMovesPerGame()) {
 				// Playout ran out of moves, probably due to superko
@@ -228,7 +226,6 @@ public final class McRunnable implements Runnable {
 			}
 			if (board.getPasses() >= 2) {
 				// Game ended
-				Logging.log("2 passes");
 				return scorer.winner();
 			}
 			final Color mercyWinner = mercyObserver.mercyWinner();
