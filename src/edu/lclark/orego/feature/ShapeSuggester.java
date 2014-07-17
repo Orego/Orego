@@ -16,7 +16,7 @@ public class ShapeSuggester implements Suggester {
 	
 	private final ShortSet moves;
 	
-	private final ShapeTable shapeTable;
+	private ShapeTable shapeTable;
 	
 	public ShapeSuggester(Board board, ShapeTable shapeTable){
 		this.board = board;
@@ -24,6 +24,7 @@ public class ShapeSuggester implements Suggester {
 		this.shapeTable = shapeTable;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
+	
 
 	@Override
 	public ShortSet getMoves() {
@@ -39,4 +40,7 @@ public class ShapeSuggester implements Suggester {
 		return moves;
 	}
 
+	public void setTable(ShapeTable shapeTable){
+		this.shapeTable = shapeTable;
+	}
 }

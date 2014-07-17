@@ -10,9 +10,11 @@ import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.Predicate;
+import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -78,8 +80,34 @@ public final class McRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
-		suggesters = copy.get(Suggester[].class);
-		weights = copy.get(int[].class);
+		Suggester[] tempSuggesters = copy.get(Suggester[].class);
+		ShapeTable shapeTable = null;
+		ShapeSuggester shape = null;
+		try {
+			shapeTable = stuff.get(ShapeTable.class);
+			shape = stuff.get(ShapeSuggester.class);
+			shape.setTable(shapeTable);
+		} catch (final IllegalArgumentException e) {
+			// If we get here, we're not using shape
+		}
+		int[] tempWeights = copy.get(int[].class);
+		if(shape != null){
+			Suggester[] suggestersWithShape = new Suggester[tempSuggesters.length+1];
+			int[] weightsWithShape = new int[tempWeights.length + 1];
+			for(int i = 0; i<tempSuggesters.length; i++){
+				suggestersWithShape[i] = tempSuggesters[i];
+				weightsWithShape[i] = tempWeights[i];
+			}
+			suggestersWithShape[tempSuggesters.length] = shape; 
+			tempSuggesters = suggestersWithShape;
+			weightsWithShape[tempSuggesters.length] = 20; 
+			tempWeights = weightsWithShape;
+		}
+		
+		
+		suggesters = tempSuggesters;
+		
+		weights = tempWeights;
 		this.player = player;
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);
