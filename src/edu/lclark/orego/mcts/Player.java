@@ -3,7 +3,8 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.Legality.OK;
-import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.core.NonStoneColor.*;
+import static edu.lclark.orego.core.StoneColor.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -239,7 +240,7 @@ public final class Player {
 	 * @param color
 	 *            Color of stones we're examining.
 	 */
-	private ShortSet findDeadStones(double threshold, StoneColor color) {
+	public ShortSet findDeadStones(double threshold, StoneColor color) {
 		final boolean threadsWereRunning = keepRunning;
 		stopThreads();
 		// Perform a bunch of runs to see which stones survive
@@ -470,6 +471,19 @@ public final class Player {
 	/** Incorporate the result of a run in the tree. */
 	public void updateTree(Color winner, McRunnable mcRunnable) {
 		updater.updateTree(winner, mcRunnable);
+	}
+
+	/** Gets all the stones on the board that live with at least probability threshold. */
+	public ShortSet getLiveStones(double threshold) {
+		ShortSet deadStones = findDeadStones(threshold, WHITE);
+		deadStones.addAll(findDeadStones(threshold, BLACK));
+		ShortSet liveStones = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		for(short p : board.getCoordinateSystem().getAllPointsOnBoard()){
+			if(board.getColorAt(p) != VACANT && !deadStones.contains(p)){
+				liveStones.add(p);
+			}
+		}
+		return liveStones;
 	}
 
 }
