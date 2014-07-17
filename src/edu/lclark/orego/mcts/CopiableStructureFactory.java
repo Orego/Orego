@@ -179,6 +179,7 @@ public final class CopiableStructureFactory {
 		final PatternSuggester patterns = new PatternSuggester(board, historyObserver);
 		final CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
 		// Shape
+//		System.err.println("5x5 patterns file: " + OREGO_ROOT + "patterns/patterns5x5.data");
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns5x5.data");
 		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable, shapeThreshold);

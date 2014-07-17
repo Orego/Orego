@@ -233,7 +233,7 @@ public final class Player {
 
 	/**
 	 * Returns a list of stones that don't survive many random playouts.
-	 *
+	 * 
 	 * @param threshold
 	 *            Portion of games a stone has to survive to be considered
 	 *            alive.
@@ -252,9 +252,8 @@ public final class Player {
 		final int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
-			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
-			runnable.performMcRun();
+			runnable.performMcRun(false);
 			for (final short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
@@ -442,7 +441,7 @@ public final class Player {
 	/**
 	 * Undoes the last move. This is done by clearing the board and replaying
 	 * all moves but the last.
-	 *
+	 * 
 	 * @return true if undoing succeeded (i.e., it was not the beginning of the
 	 *         game).
 	 */
@@ -473,13 +472,16 @@ public final class Player {
 		updater.updateTree(winner, mcRunnable);
 	}
 
-	/** Gets all the stones on the board that live with at least probability threshold. */
+	/**
+	 * Gets all the stones on the board that live with at least probability
+	 * threshold.
+	 */
 	public ShortSet getLiveStones(double threshold) {
 		ShortSet deadStones = findDeadStones(threshold, WHITE);
 		deadStones.addAll(findDeadStones(threshold, BLACK));
 		ShortSet liveStones = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
-		for(short p : board.getCoordinateSystem().getAllPointsOnBoard()){
-			if(board.getColorAt(p) != VACANT && !deadStones.contains(p)){
+		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			if (board.getColorAt(p) != VACANT && !deadStones.contains(p)) {
 				liveStones.add(p);
 			}
 		}

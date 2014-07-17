@@ -23,7 +23,7 @@ public class SgfParserTest {
 	public void setUp() {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
-		parser = new SgfParser(coords);
+		parser = new SgfParser(coords, true);
 	}
 
 	/** Delegate method to call at on coords. */
@@ -51,6 +51,15 @@ public class SgfParserTest {
 		assertEquals(180, game.size());
 		assertEquals(coords.at("R16"), (short) game.get(0));
 		assertEquals(coords.at("N11"), (short) game.get(179));
+	}
+	
+	@Test
+	public void testBreakOnPass(){
+		List<Short> moves = parser.parseGameFromFile(new File("sgf-test-files/19/Orego4-Magisus.sgf"));
+		assertEquals(174, moves.size());
+		parser = new SgfParser(coords, false);
+		moves = parser.parseGameFromFile(new File("sgf-test-files/19/Orego4-Magisus.sgf"));
+		assertEquals(254, moves.size());
 	}
 
 }

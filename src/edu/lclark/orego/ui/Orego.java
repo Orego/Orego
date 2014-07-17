@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.mcts.Player;
 import edu.lclark.orego.mcts.PlayerBuilder;
 import edu.lclark.orego.sgf.SgfParser;
@@ -244,12 +245,12 @@ public final class Orego {
 			}
 		} else if(command.equals("final_status_list")){
 			String status = arguments.nextToken();
-			if(status == "dead"){
-				ShortSet deadStones = player.findDeadStones(0.25, WHITE);
-				deadStones.addAll(player.findDeadStones(0.25, BLACK));
+			if(status.equals("dead")){
+				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
+				deadStones.addAll(player.findDeadStones(0.75, BLACK));
 				acknowledge(produceVerticesString(deadStones));
-			} else if(status == "alive"){
-				acknowledge(produceVerticesString(player.getLiveStones(0.25)));
+			} else if(status.equals("alive")){
+				acknowledge(produceVerticesString(player.getLiveStones(0.75)));
 			}
 		} else if (command.equals("fixed_handicap")) {
 			final int handicapSize = parseInt(arguments.nextToken());
@@ -318,7 +319,7 @@ public final class Orego {
 			acknowledge(response);
 		} else if (command.equals("loadsgf")) {
 			final SgfParser parser = new SgfParser(player.getBoard()
-					.getCoordinateSystem());
+					.getCoordinateSystem(), false);
 			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
 					.nextToken())));
 			acknowledge();
@@ -375,7 +376,7 @@ public final class Orego {
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
 		for(int i = 0; i < deadStones.size(); i++){
-			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + "\n";
+			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
 		}
 		return vertices;
 	}
@@ -408,6 +409,8 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
+			} else if (left.equals("logfile")){
+				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
 			} else if (left.equals("msec")) {

@@ -39,6 +39,18 @@ public class PatternSuggesterTest {
 		assertFalse(patterns.getMoves().contains(board.getCoordinateSystem().at("b2")));
 	}
 	
-	
+	@Test
+	public void testTigersMouth() {
+		String[] diagram = {
+				".....",
+				"..O#.",
+				"...O.",
+				".....",
+				".....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		board.play("b3");
+		assertFalse(patterns.getMoves().contains(board.getCoordinateSystem().at("c3")));
+	}
 
 }
