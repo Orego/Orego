@@ -1,5 +1,7 @@
 package edu.lclark.orego.patterns;
 
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -16,6 +18,34 @@ public final class ShapeTable implements Serializable{
 		for (float[] table : winRateTables) {
 			Arrays.fill(table, 0.5f);
 		}
+	}
+	
+	public ShapeTable(String filePath){
+		float[][] fake = null;
+		 try (ObjectInputStream objectInputStream = new ObjectInputStream(
+					new FileInputStream(filePath))) {
+				fake = (float[][]) objectInputStream.readObject();
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		 winRateTables = fake;
+	}
+	
+	public void getRates(){
+		for (int i = 0; i < Character.MAX_VALUE + 1; i++) {
+			if(winRateTables[0][i]>.8f){
+				System.out.println(winRateTables[0][i]);
+			}
+		}
+	}
+	
+	public double testGetRate(int index){
+		return winRateTables[1][index];
+	}
+	
+	public float[][] getWinRateTables(){
+		return winRateTables;
 	}
 
 	/** Update the table with new win data for the given pattern. */
