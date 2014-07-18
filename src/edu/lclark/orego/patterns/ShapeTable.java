@@ -1,8 +1,6 @@
 package edu.lclark.orego.patterns;
 
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Arrays;
 
 /** A class for storing win rates for pattern hashes. */
@@ -33,10 +31,13 @@ public final class ShapeTable implements Serializable{
 	}
 	
 	public void getRates(){
-		for (int i = 0; i < Character.MAX_VALUE + 1; i++) {
-			if(winRateTables[0][i]>.8f){
-				System.out.println(winRateTables[0][i]);
+		try(PrintWriter writer = new PrintWriter(new File("test-books/patterns5x5.csv"))){
+			for(float winRate : winRateTables[0]){
+				writer.println(winRate + ",");
 			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 	
