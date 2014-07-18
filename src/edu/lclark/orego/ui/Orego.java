@@ -98,7 +98,10 @@ public final class Orego {
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
 	}
-
+	
+	/** True if running through the Computer Go Test Collection program. */
+	private boolean cgtc;
+	
 	/** The GTP id number of the current command. */
 	private int commandId;
 
@@ -279,7 +282,11 @@ public final class Orego {
 			} else {
 				color = command.equals("genmove_black") ? BLACK : WHITE;
 			}
-			assert color == player.getBoard().getColorToPlay();
+			if(!cgtc){
+				assert color == player.getBoard().getColorToPlay();
+			} else {
+				player.getBoard().setColorToPlay(color);
+			}
 			if (command.equals("kgs-genmove_cleanup")) {
 				player.setCleanupMode(true);
 			}
@@ -408,6 +415,8 @@ public final class Orego {
 				playerBuilder.boardWidth(parseInt(right));
 			} else if (left.equals("book")) {
 				playerBuilder.openingBook(parseBoolean(right));
+			} else if (left.equals("cgtc")){
+				cgtc = parseBoolean(right);
 			} else if (left.equals("grace")) {
 				playerBuilder.coupDeGrace(parseBoolean(right));
 			} else if (left.equals("gestation")) {
