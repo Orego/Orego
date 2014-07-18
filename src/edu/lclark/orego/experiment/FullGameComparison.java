@@ -11,6 +11,7 @@ public final class FullGameComparison {
 
 	public static void main(String[] args) {
 		// Modify this to change the players in question
+		Logging.setFilePath("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/results.txt");
 		final Player player1 = new PlayerBuilder().threads(1).build();
 		final Player player2 = new PlayerBuilder().threads(1).build();
 		long runs1 = 0;
