@@ -22,7 +22,7 @@ public class ShapeSuggesterTest {
 	public void setUp() throws Exception {
 		board = new Board(9);
 		shapeTable = new ShapeTable();
-		suggester = new ShapeSuggester(board, shapeTable);
+		suggester = new ShapeSuggester(board, shapeTable, .8);
 	}
 
 	@Test
@@ -40,11 +40,9 @@ public class ShapeSuggesterTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		long hash = PatternFinder.getHash(board, board.getCoordinateSystem().at("c8"), 24);
-		System.out.println(hash);
 		for(int i = 0; i < 500; i++){
 			shapeTable.update(hash, true);
 		}
-		System.out.println(shapeTable.getWinRate(hash));
 		assertEquals(board.getCoordinateSystem().at("c8"), suggester.getMoves().get(0));
 	}
 

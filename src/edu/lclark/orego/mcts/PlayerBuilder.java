@@ -36,6 +36,8 @@ public final class PlayerBuilder {
 	private boolean shape;
 
 	private int threads;
+	
+	private double shapeThreshold;
 
 	private boolean ponder;
 
@@ -56,6 +58,7 @@ public final class PlayerBuilder {
 		coupDeGrace = false;
 		lgrf2 = true;
 		rave = true;
+		shapeThreshold = .5;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -72,7 +75,7 @@ public final class PlayerBuilder {
 	public Player build() {
 		CopiableStructure copyStructure;
 		if(shape){
-			copyStructure = CopiableStructureFactory.shape5(width, komi);
+			copyStructure = CopiableStructureFactory.shape5(width, komi, shapeThreshold);
 		} else if(lgrf2){
 			copyStructure = CopiableStructureFactory.lgrfWithBias(width,
 					komi);
@@ -177,6 +180,11 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder shape(boolean shape) {
 		this.shape = shape;
+		return this;
+	}
+
+	public PlayerBuilder shapeThreshold(double threshold) {
+		this.shapeThreshold = threshold;
 		return this;
 	}
 

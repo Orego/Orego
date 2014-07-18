@@ -339,12 +339,6 @@ public class PlayerTest {
 		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
 				.openingBook(false).komi(0).build();
 		coords = player.getBoard().getCoordinateSystem();
-//		SgfParser parser = new SgfParser(coords, false);
-//		List<Short> moves = parser.parseGameFromFile(new File("/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/Orego4-Magisus-3.sgf"));
-//		for(short move : moves){
-//			player.getBoard().play(move);
-//		}
-//		System.out.println(player.getBoard());
 		String[] diagram = {
 				"OOOO.OOO####.OO#.#O",
 				"OO.OOO.OOO#.#####.O",
@@ -369,15 +363,68 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(diagram, WHITE);
 		ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 		assertEquals(13, deadStones.size());
-		System.out.println(produceVerticesString(deadStones));
 	}
 	
-	private String produceVerticesString(ShortSet deadStones) {
-		String vertices = "";
-		for(int i = 0; i < deadStones.size(); i++){
-			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
-		}
-		return vertices;
+	@Test
+	public void testGetDeadStones4() {
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(9).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				"...#O....",
+				"...#O....",
+				"...#OOO..",
+				"...#O.O..",
+				"...#OOO..",
+				"...#O.O..",
+				"...#OOOOO",
+				"...#O...#",
+				"...#O...#",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(2, deadStones.size());	
+		assertTrue(deadStones.contains(at("j1")));
+		assertTrue(deadStones.contains(at("j2")));
 	}
+	
+	@Test
+	public void testGetDeadStones5(){
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+//		SgfParser parser = new SgfParser(coords, false);
+//		List<Short> moves = parser.parseGameFromFile(new File("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/mundungus-Orego4-4.sgf"));
+//		for(short move : moves){
+//			player.getBoard().play(move);
+//		}
+//		System.out.println(player.getBoard());
+		String[] diagram = {
+				".OOOO#........#....",
+				".O##O#...##....##..",
+				".OO#O##...###..#.#.",
+				".O########..#..##.#",
+				".OOOOOOOO#.....#.##",
+				"..O#..O.O#...#..##.",
+				".O.O.O.OO##..#.....",
+				"...O...OOO#..###...",
+				"..O..O..O.O#.......",
+				"........OOO#.....#.",
+				"#........O##...###.",
+				"......O.OO#........",
+				".........O###..###.",
+				".#O....O.OOO##...#.",
+				"...........O#.#....",
+				"...O......OO##.###.",
+				".......O..OO#O#..#.",
+				"...........O#O###..",
+				"...........OOOO#...",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(3, deadStones.size());
+	}
+	
+	
 
 }

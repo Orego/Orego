@@ -18,7 +18,10 @@ public class ShapeSuggester implements Suggester {
 	
 	private ShapeTable shapeTable;
 	
-	public ShapeSuggester(Board board, ShapeTable shapeTable){
+	private double shapeThreshold;
+	
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold){
+		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
 		this.shapeTable = shapeTable;
@@ -32,7 +35,7 @@ public class ShapeSuggester implements Suggester {
 		for(short p : coords.getAllPointsOnBoard()){
 			if(board.getColorAt(p) == VACANT){
 				long hash = PatternFinder.getHash(board, p, 24);
-				if(shapeTable.getWinRate(hash) > 0.65f){
+				if(shapeTable.getWinRate(hash) > shapeThreshold){
 					moves.add(p);
 				}
 			}
