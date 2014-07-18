@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.util.TestingTools;
 
 public class SgfParserTest {
 
@@ -60,6 +62,34 @@ public class SgfParserTest {
 		parser = new SgfParser(coords, false);
 		moves = parser.parseGameFromFile(new File("sgf-test-files/19/Orego4-Magisus.sgf"));
 		assertEquals(254, moves.size());
+	}
+	
+	@Test
+	public void testCgtc(){
+		String[] diagram = {
+				"...................",
+				"..........#........",
+				".....O......#.#....",
+				"...O....O.O....#...",
+				"...................",
+				"...#............#..",
+				"...............O#..",
+				"..O.............O..",
+				"...............#...",
+				"..O................",
+				"..............#.#..",
+				"...O...............",
+				"...................",
+				"...................",
+				"..O................",
+				"......O.......#.#..",
+				"...O....O..#.......",
+				"...................",
+				"...................",
+		};
+		parser.sgfToBoard("sgf-test-files/19/blunder.1.sgf", board);
+		assertEquals(StoneColor.BLACK, board.getColorToPlay());
+		assertEquals(TestingTools.asOneString(diagram), board.toString());
 	}
 
 }
