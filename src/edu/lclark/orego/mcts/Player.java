@@ -17,7 +17,6 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
-import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
@@ -395,7 +394,6 @@ public final class Player {
 	/** Places moves read from an SGF game. */
 	@SuppressWarnings("boxing")
 	public void setUpSgfGame(List<Short> moves) {
-		Logging.log("Setting up");
 		board.clear();
 		for (final Short move : moves) {
 			if (board.play(move) != OK) {

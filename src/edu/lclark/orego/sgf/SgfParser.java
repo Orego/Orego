@@ -13,7 +13,6 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static java.lang.Integer.MAX_VALUE;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.experiment.Logging;
 
 /** Parses SGF files. */
 public final class SgfParser {
@@ -67,6 +66,7 @@ public final class SgfParser {
 	 * 				the board which the sgf file will be converted to.
 	 */
 	public void sgfToBoard(File file, Board board) {
+		board.clear();
 		String input = "";
 		try (Scanner s=new Scanner(file)){
 			while (s.hasNextLine()) {
@@ -172,9 +172,7 @@ public final class SgfParser {
 	 * GTP command.
 	 */
 	public List<Short> parseGameFromFile(File file) {
-		Logging.log("BEFORE");
 		final List<List<Short>> games = parseGamesFromFile(file, MAX_VALUE);
-		Logging.log("" + games.size());
 		return games.get(0);
 	}
 

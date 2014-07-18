@@ -65,7 +65,8 @@ import edu.lclark.orego.util.ShortSet;
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
  * <dt>logfile</dt>
- * <dd>Specifies the destination file for any logging activity. If not specified, the program will not log any data.</dd>
+ * <dd>Specifies the destination file for any logging activity. If not
+ * specified, the program will not log any data.</dd>
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -88,20 +89,20 @@ import edu.lclark.orego.util.ShortSet;
 public final class Orego {
 
 	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
-			"boardsize", "clear_board", "final_score", "final_status_list", "fixed_handicap",
-			"genmove", "genmove_black", "genmove_white", "known_command",
-			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
-			"loadsgf", "name", "play", "playout_count", "protocol_version",
-			"quit", "reg_genmove", "showboard", "time_left", "time_settings",
-			"undo", "version", "white", };
+			"boardsize", "clear_board", "final_score", "final_status_list",
+			"fixed_handicap", "genmove", "genmove_black", "genmove_white",
+			"known_command", "kgs-game_over", "kgs-genmove_cleanup", "komi",
+			"list_commands", "loadsgf", "name", "play", "playout_count",
+			"protocol_version", "quit", "reg_genmove", "showboard",
+			"time_left", "time_settings", "undo", "version", "white", };
 
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
 	}
-	
+
 	/** True if running through the Computer Go Test Collection program. */
 	private boolean cgtc;
-	
+
 	/** The GTP id number of the current command. */
 	private int commandId;
 
@@ -132,6 +133,7 @@ public final class Orego {
 	 *            The output stream to print responses to (usually System.out)
 	 */
 	private Orego(InputStream inStream, OutputStream outStream, String[] args) {
+		log("Starting");
 		in = new BufferedReader(new InputStreamReader(inStream));
 		out = new PrintStream(outStream);
 		handleCommandLineArguments(args);
@@ -249,16 +251,16 @@ public final class Orego {
 			} else {
 				acknowledge("0");
 			}
-		} else if(command.equals("final_status_list")){
+		} else if (command.equals("final_status_list")) {
 			log("Finding final status list");
 			String status = arguments.nextToken();
-			if(status.equals("dead")){
+			if (status.equals("dead")) {
 				log("Finding dead stones");
 				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 				deadStones.addAll(player.findDeadStones(0.75, BLACK));
 				log(deadStones.toString());
 				acknowledge(produceVerticesString(deadStones));
-			} else if(status.equals("alive")){
+			} else if (status.equals("alive")) {
 				acknowledge(produceVerticesString(player.getLiveStones(0.75)));
 			}
 		} else if (command.equals("fixed_handicap")) {
@@ -282,7 +284,7 @@ public final class Orego {
 			} else {
 				color = command.equals("genmove_black") ? BLACK : WHITE;
 			}
-			if(!cgtc){
+			if (!cgtc) {
 				assert color == player.getBoard().getColorToPlay();
 			} else {
 				player.getBoard().setColorToPlay(color);
@@ -333,8 +335,13 @@ public final class Orego {
 		} else if (command.equals("loadsgf")) {
 			final SgfParser parser = new SgfParser(player.getBoard()
 					.getCoordinateSystem(), false);
-			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
-					.nextToken())));
+			if (cgtc) {
+				player.clear();
+				parser.sgfToBoard(arguments.nextToken(), player.getBoard());
+			} else {
+				player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
+						.nextToken())));
+			}
 			log("Setting up sgf");
 			acknowledge();
 		} else if (command.equals("name")) {
@@ -389,14 +396,17 @@ public final class Orego {
 
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
-		for(int i = 0; i < deadStones.size(); i++){
-			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
+		for (int i = 0; i < deadStones.size(); i++) {
+			vertices += player.getBoard().getCoordinateSystem()
+					.toString(deadStones.get(i))
+					+ " ";
 		}
 		return vertices;
 	}
 
 	/** Updates playerBuilder with command-line arguments. */
 	private void handleCommandLineArguments(String[] args) {
+		log("Handling Command line");
 		playerBuilder = new PlayerBuilder();
 		for (final String argument : args) {
 			final int j = argument.indexOf('=');
@@ -415,7 +425,7 @@ public final class Orego {
 				playerBuilder.boardWidth(parseInt(right));
 			} else if (left.equals("book")) {
 				playerBuilder.openingBook(parseBoolean(right));
-			} else if (left.equals("cgtc")){
+			} else if (left.equals("cgtc")) {
 				cgtc = parseBoolean(right);
 			} else if (left.equals("grace")) {
 				playerBuilder.coupDeGrace(parseBoolean(right));
@@ -425,7 +435,7 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
-			} else if (left.equals("logfile")){
+			} else if (left.equals("logfile")) {
 				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
