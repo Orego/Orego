@@ -430,7 +430,7 @@ public final class Player {
 		}
 		try {
 			keepRunning = false;
-			final boolean finished = executor.awaitTermination(1, TimeUnit.SECONDS);
+			final boolean finished = executor.awaitTermination(5, TimeUnit.SECONDS);
 			assert finished;
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
