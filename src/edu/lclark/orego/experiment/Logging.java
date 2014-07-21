@@ -14,6 +14,7 @@ public final class Logging {
 	public static void setFilePath(String filePath) {
 		logger = Logger.getLogger("orego-default");
 		new File(filePath).mkdir();
+		//TODO If two games are started at exactly the same time, one of the log files will be overwritten
 		filePath += File.separator + GameBatch.timeStamp(false) + ".log";
 		try {
 			FileHandler handler = new FileHandler(filePath);
