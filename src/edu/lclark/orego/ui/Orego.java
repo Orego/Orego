@@ -65,7 +65,12 @@ import edu.lclark.orego.util.ShortSet;
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
  * <dt>logfile</dt>
+<<<<<<< HEAD
+ * <dd>Specifies the destination file for any logging activity. If not
+ * specified, the program will not log any data.</dd>
+=======
  * <dd>Specifies the destination file for any logging activity. If not specified, the program will not log any data.</dd>
+>>>>>>> 7cbd48a53827bdbd71a059ec9d35aeea0c7e0882
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -259,7 +264,7 @@ public final class Orego {
 				deadStones.addAll(player.findDeadStones(0.75, BLACK));
 				log(deadStones.toString());
 				acknowledge(produceVerticesString(deadStones));
-			} else if(status.equals("alive")){
+			} else if (status.equals("alive")) {
 				acknowledge(produceVerticesString(player.getLiveStones(0.75)));
 			}
 		} else if (command.equals("fixed_handicap")) {
@@ -385,7 +390,7 @@ public final class Orego {
 
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
-		for(int i = 0; i < deadStones.size(); i++){
+		for (int i = 0; i < deadStones.size(); i++) {
 			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
 		}
 		return vertices;
@@ -419,7 +424,7 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
-			} else if (left.equals("logfile")){
+			} else if (left.equals("logfile")) {
 				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
@@ -429,7 +434,7 @@ public final class Orego {
 				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave(parseBoolean(right));
-			} else if (left.equals("shape")) {
+			} else if(left.equals("shape")){
 				playerBuilder.shape(parseBoolean(right));
 			} else if (left.equals("shape-threshold")) {
 				playerBuilder.shapeThreshold(parseDouble(right));

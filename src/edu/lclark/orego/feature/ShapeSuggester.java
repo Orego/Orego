@@ -40,6 +40,7 @@ public class ShapeSuggester implements Suggester {
 				}
 			}
 		}
+//		System.out.println(moves);
 		return moves;
 	}
 
