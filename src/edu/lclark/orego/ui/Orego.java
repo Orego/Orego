@@ -91,10 +91,11 @@ public final class Orego {
 	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
 			"boardsize", "clear_board", "final_score", "final_status_list",
 			"fixed_handicap", "genmove", "genmove_black", "genmove_white",
-			"known_command", "kgs-game_over", "kgs-genmove_cleanup", "komi",
-			"list_commands", "loadsgf", "name", "play", "playout_count",
-			"protocol_version", "quit", "reg_genmove", "showboard",
-			"time_left", "time_settings", "undo", "version", "white", };
+			"gogui-analyze_commands", "gogui-search-value", "known_command",
+			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
+			"loadsgf", "name", "play", "playout_count", "protocol_version",
+			"quit", "reg_genmove", "showboard", "time_left", "time_settings",
+			"undo", "version", "white", };
 
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
@@ -301,6 +302,12 @@ public final class Orego {
 				}
 				acknowledge(coords.toString(point));
 			}
+		} else if (command.equals("gogui-analyze_commands")) {
+			acknowledge("gfx/Search values/gogui-search-values\n");
+		} else if (command.equals("gogui-search-values")) {
+			player.getMcRunnable(0).copyDataFrom(player.getBoard());
+			player.getRoot().updateBias(player.getMcRunnable(0));
+			acknowledge(player.goguiSearchValues());
 		} else if (command.equals("kgs-game_over")) {
 			try (Scanner scanner = new Scanner(new File(OREGO_ROOT + separator
 					+ "config" + separator + "quit.txt"))) {
