@@ -7,20 +7,25 @@ import edu.lclark.orego.mcts.SearchNode;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
 
+/**
+ * This class updates the children of each node with biases based on the 5x5
+ * pattern data.
+ */
 @SuppressWarnings("serial")
 public class ShapeRater implements Rater {
-	
+
 	private final Board board;
-	
+
 	private final CoordinateSystem coords;
-	
+
 	private ShapeTable shapeTable;
-	
+
+	/** Patterns with winrate better than this will cause biases to be updated. */
 	private double shapeThreshold;
-	
+
 	private final int bias;
-	
-	public ShapeRater(Board board, ShapeTable shapeTable, double shapeThreshold, int bias){
+
+	public ShapeRater(Board board, ShapeTable shapeTable, double shapeThreshold, int bias) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
@@ -30,20 +35,20 @@ public class ShapeRater implements Rater {
 
 	@Override
 	public void updateNode(SearchNode node) {
-		for(short p : coords.getAllPointsOnBoard()){
-			if(board.getColorAt(p) == VACANT){
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (board.getColorAt(p) == VACANT) {
 				long hash = PatternFinder.getHash(board, p, 24);
 				float winRate = shapeTable.getWinRate(hash);
-				if(shapeTable.getWinRate(hash) > shapeThreshold){
+				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					float winsToAdd = bias * winRate * winRate;
-					node.update(p, (int)winsToAdd, winsToAdd);
+					node.update(p, (int) winsToAdd, winsToAdd);
 				}
 			}
 		}
 	}
 
 	public void setTable(ShapeTable table) {
-		shapeTable = table;		
+		shapeTable = table;
 	}
 
 }
