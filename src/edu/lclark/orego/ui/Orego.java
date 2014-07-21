@@ -82,7 +82,8 @@ import edu.lclark.orego.util.ShortSet;
  * <dt>shape</dt>
  * <dd>Toggles the SHAPE pattern suggester for 5x5 patterns.</dd>
  * <dt>shape-threshold</dt>
- * <dd>Sets the threshold for a pattern winrate that is required to suggest a pattern in the SHAPE suggester. Defaults to 0.</dd>
+ * <dd>Sets the threshold for a pattern winrate that is required to suggest a
+ * pattern in the SHAPE suggester. Defaults to 0.</dd>
  * <dt>threads</dt>
  * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
  * <dt>time-management</dt>
@@ -251,10 +252,10 @@ public final class Orego {
 			} else {
 				acknowledge("0");
 			}
-		} else if(command.equals("final_status_list")){
+		} else if (command.equals("final_status_list")) {
 			log("Finding final status list");
 			String status = arguments.nextToken();
-			if(status.equals("dead")){
+			if (status.equals("dead")) {
 				log("Finding dead stones");
 				ShortSet deadStones = player.findDeadStones(0.75, WHITE);
 				deadStones.addAll(player.findDeadStones(0.75, BLACK));
@@ -430,7 +431,7 @@ public final class Orego {
 				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave(parseBoolean(right));
-			} else if(left.equals("shape")){
+			} else if (left.equals("shape")) {
 				playerBuilder.shape(parseBoolean(right));
 			} else if (left.equals("shape-threshold")) {
 				playerBuilder.shapeThreshold(parseDouble(right));
