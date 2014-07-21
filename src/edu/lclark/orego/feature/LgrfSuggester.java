@@ -9,10 +9,12 @@ import edu.lclark.orego.util.ShortSet;
 @SuppressWarnings("serial")
 public final class LgrfSuggester implements Suggester {
 
+	private final int bias;
+
 	private final Board board;
 
 	private final HistoryObserver history;
-
+	
 	private final ShortSet moves;
 
 	/**
@@ -20,13 +22,23 @@ public final class LgrfSuggester implements Suggester {
 	 * McRunnables to share the same table.
 	 */
 	private transient LgrfTable table;
+	
+	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table){
+		this(board, history, table, 0);
+	}
 
-	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table) {
+	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table, int bias) {
+		this.bias = bias;
 		this.board = board;
 		this.history = history;
 		this.table = table;
 		moves = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
+	}
+
+	@Override
+	public int getBias() {
+		return bias;
 	}
 
 	@Override

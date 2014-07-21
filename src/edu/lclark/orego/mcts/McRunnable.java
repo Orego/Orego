@@ -10,7 +10,8 @@ import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.Predicate;
-import edu.lclark.orego.feature.ShapeSuggester;
+import edu.lclark.orego.feature.Rater;
+import edu.lclark.orego.feature.ShapeRater;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
@@ -65,10 +66,10 @@ public final class McRunnable implements Runnable {
 	private final PlayoutScorer scorer;
 
 	/** An array of suggesters used for updating bias. */
-	private final Suggester[] suggesters;
-
-	/** An array of weights for each suggester used for updating bias. */
-	private final int[] weights;
+	private Suggester[] suggesters;
+	
+	/** An array of raters used for updating bias. */
+	private Rater[] raters;
 
 	public McRunnable(Player player, CopiableStructure stuff) {
 		LgrfTable table = null;
@@ -81,18 +82,18 @@ public final class McRunnable implements Runnable {
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
 		ShapeTable shapeTable = null;
-		ShapeSuggester shape = null;
+		ShapeRater shape = null;
 		try {
 			shapeTable = stuff.get(ShapeTable.class);
-			shape = copy.get(ShapeSuggester.class);
+			shape = copy.get(ShapeRater.class);
 			shape.setTable(shapeTable);
 		} catch (final IllegalArgumentException e) {
 			// If we get here, we're not using shape
-		}
-		weights = copy.get(int[].class);
+		}			
 		suggesters = copy.get(Suggester[].class);
+		raters = copy.get(Rater[].class);
 		if(shape != null){
-			suggesters[0] = shape;
+			raters[0] = shape;
 		}
 		this.player = player;
 		random = new MersenneTwisterFast();
@@ -177,14 +178,6 @@ public final class McRunnable implements Runnable {
 		return board.getTurn();
 	}
 
-	/**
-	 * Returns the weights associated with each suggester used for updating
-	 * bias.
-	 */
-	public int[] getWeights() {
-		return weights;
-	}
-
 	/** Returns true if p passes this McRunnable's filter. */
 	public boolean isFeasible(short p) {
 		return filter.at(p);
@@ -262,6 +255,10 @@ public final class McRunnable implements Runnable {
 
 	private short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
+	}
+
+	public Rater[] getRaters() {
+		return raters;
 	}
 
 }

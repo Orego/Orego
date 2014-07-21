@@ -1,60 +1,54 @@
 package edu.lclark.orego.feature;
 
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.mcts.SearchNode;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
-import edu.lclark.orego.util.ShortSet;
-import static edu.lclark.orego.core.NonStoneColor.*;
 
+/**
+ * This class updates the children of each node with biases based on the 5x5
+ * pattern data.
+ */
 @SuppressWarnings("serial")
-public class ShapeSuggester implements Suggester {
-
-	private final int bias;
+public class ShapeRater implements Rater {
 
 	private final Board board;
 
 	private final CoordinateSystem coords;
 
-	private final ShortSet moves;
-
 	private ShapeTable shapeTable;
 
+	/** Patterns with winrate better than this will cause biases to be updated. */
 	private double shapeThreshold;
 
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold) {
-		this(board, shapeTable, shapeThreshold, 0);
-	}
+	private final int bias;
 
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias) {
+	public ShapeRater(Board board, ShapeTable shapeTable, double shapeThreshold, int bias) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
 		this.shapeTable = shapeTable;
-		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
 
 	@Override
-	public int getBias() {
-		return bias;
-	}
-
-	@Override
-	public ShortSet getMoves() {
-		moves.clear();
+	public void updateNode(SearchNode node) {
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
 				long hash = PatternFinder.getHash(board, p, 24);
+				float winRate = shapeTable.getWinRate(hash);
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
-					moves.add(p);
+					float winsToAdd = bias * winRate * winRate;
+					node.update(p, bias, winsToAdd);
 				}
 			}
 		}
-		return moves;
 	}
 
-	public void setTable(ShapeTable shapeTable) {
-		this.shapeTable = shapeTable;
+	public void setTable(ShapeTable table) {
+		shapeTable = table;
 	}
+
 }

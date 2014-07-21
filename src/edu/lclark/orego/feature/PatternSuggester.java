@@ -22,6 +22,8 @@ public final class PatternSuggester implements Suggester {
 
 	/** Patterns are considered good if its "win rate" is at least this high. */
 	private static final float THRESHOLD = 0.8f;
+	
+	private final int bias;
 
 	private final Board board;
 
@@ -32,8 +34,13 @@ public final class PatternSuggester implements Suggester {
 	private final HistoryObserver history;
 
 	private final ShortSet moves;
-
+	
 	public PatternSuggester(Board board, HistoryObserver history) {
+		this(board, history, 0);
+	}
+
+	public PatternSuggester(Board board, HistoryObserver history, int bias) {
+		this.bias = bias;
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		this.history = history;
@@ -70,6 +77,11 @@ public final class PatternSuggester implements Suggester {
 			} // else do nothing, no need to OR 0 with 0
 		}
 		return pattern;
+	}
+
+	@Override
+	public int getBias() {
+		return bias;
 	}
 
 	@Override

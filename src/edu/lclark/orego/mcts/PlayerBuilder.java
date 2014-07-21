@@ -58,7 +58,7 @@ public final class PlayerBuilder {
 		coupDeGrace = false;
 		lgrf2 = true;
 		rave = true;
-		shapeThreshold = .5;
+		shapeThreshold = 0.0;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {

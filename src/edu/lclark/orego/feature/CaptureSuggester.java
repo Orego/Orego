@@ -9,6 +9,8 @@ public final class CaptureSuggester implements Suggester {
 
 	private final AtariObserver atari;
 
+	private final int bias;
+
 	private final Board board;
 
 	/**
@@ -18,10 +20,20 @@ public final class CaptureSuggester implements Suggester {
 	private final ShortSet movesToCapture;
 
 	public CaptureSuggester(Board board, AtariObserver atari) {
+		this(board, atari, 0);
+	}
+
+	public CaptureSuggester(Board board, AtariObserver atari, int bias) {
+		this.bias = bias;
 		this.board = board;
 		this.atari = atari;
 		movesToCapture = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
+	}
+
+	@Override
+	public int getBias() {
+		return bias;
 	}
 
 	@Override
