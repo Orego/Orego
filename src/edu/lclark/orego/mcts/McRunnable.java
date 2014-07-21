@@ -10,9 +10,11 @@ import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.Predicate;
+import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -78,8 +80,20 @@ public final class McRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
-		suggesters = copy.get(Suggester[].class);
+		ShapeTable shapeTable = null;
+		ShapeSuggester shape = null;
+		try {
+			shapeTable = stuff.get(ShapeTable.class);
+			shape = copy.get(ShapeSuggester.class);
+			shape.setTable(shapeTable);
+		} catch (final IllegalArgumentException e) {
+			// If we get here, we're not using shape
+		}
 		weights = copy.get(int[].class);
+		suggesters = copy.get(Suggester[].class);
+		if(shape != null){
+			suggesters[0] = shape;
+		}
 		this.player = player;
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);

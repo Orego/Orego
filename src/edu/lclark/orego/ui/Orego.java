@@ -64,9 +64,19 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
+<<<<<<< HEAD
  * <dt>log-file</dt>
  * <dd>Toggles logging, which records logs in the specified folder. If not set,
  * nothing will be logged.</dd>
+=======
+ * <dt>logfile</dt>
+<<<<<<< HEAD
+ * <dd>Specifies the destination file for any logging activity. If not
+ * specified, the program will not log any data.</dd>
+=======
+ * <dd>Specifies the destination file for any logging activity. If not specified, the program will not log any data.</dd>
+>>>>>>> 7cbd48a53827bdbd71a059ec9d35aeea0c7e0882
+>>>>>>> ShapeExperiment
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -79,6 +89,10 @@ import edu.lclark.orego.util.ShortSet;
  * false.</dd>
  * <dt>rave</dt>
  * <dd>Toggles Rapid Action Value Estimation. Defaults to true.</dd>
+ * <dt>shape</dt>
+ * <dd>Toggles the SHAPE pattern suggester for 5x5 patterns.</dd>
+ * <dt>shape-threshold</dt>
+ * <dd>Sets the threshold for a pattern winrate that is required to suggest a pattern in the SHAPE suggester.</dd>
  * <dt>threads</dt>
  * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
  * <dt>time-management</dt>
@@ -449,6 +463,10 @@ public final class Orego {
 				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
 				playerBuilder.rave(parseBoolean(right));
+			} else if(left.equals("shape")){
+				playerBuilder.shape(parseBoolean(right));
+			} else if (left.equals("shape-threshold")) {
+				playerBuilder.shapeThreshold(parseDouble(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
 			} else if (left.equals("time-management")) {

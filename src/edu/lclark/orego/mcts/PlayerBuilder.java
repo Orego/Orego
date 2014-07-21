@@ -32,8 +32,12 @@ public final class PlayerBuilder {
 	private int msecPerMove;
 
 	private boolean rave;
+	
+	private boolean shape;
 
 	private int threads;
+	
+	private double shapeThreshold;
 
 	private boolean ponder;
 
@@ -54,6 +58,7 @@ public final class PlayerBuilder {
 		coupDeGrace = false;
 		lgrf2 = true;
 		rave = true;
+		shapeThreshold = .5;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
@@ -68,8 +73,15 @@ public final class PlayerBuilder {
 
 	/** Creates the Player. */
 	public Player build() {
-		final CopiableStructure copyStructure = lgrf2 ? CopiableStructureFactory.lgrfWithBias(width,
-				komi) : CopiableStructureFactory.useWithBias(width, komi);
+		CopiableStructure copyStructure;
+		if(shape){
+			copyStructure = CopiableStructureFactory.shape5(width, komi, shapeThreshold);
+		} else if(lgrf2){
+			copyStructure = CopiableStructureFactory.lgrfWithBias(width,
+					komi);
+		}else {
+			copyStructure = CopiableStructureFactory.useWithBias(width, komi);
+		}
 		final Player result = new Player(threads, copyStructure);
 		final Board board = result.getBoard();
 		final CoordinateSystem coords = board.getCoordinateSystem();
@@ -163,6 +175,16 @@ public final class PlayerBuilder {
 	/** Sets the type of time manager to use, e.g., "exiting" or "uniform". */
 	public PlayerBuilder timeManagement(String managerType) {
 		this.managerType = managerType;
+		return this;
+	}
+
+	public PlayerBuilder shape(boolean shape) {
+		this.shape = shape;
+		return this;
+	}
+
+	public PlayerBuilder shapeThreshold(double threshold) {
+		this.shapeThreshold = threshold;
 		return this;
 	}
 

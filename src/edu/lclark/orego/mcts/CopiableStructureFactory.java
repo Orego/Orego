@@ -1,5 +1,6 @@
 package edu.lclark.orego.mcts;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.CaptureSuggester;
@@ -13,11 +14,13 @@ import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.PatternSuggester;
+import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.MoverFactory;
 import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.move.SuggesterMover;
+import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChineseFinalScorer;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 
@@ -151,6 +154,46 @@ public final class CopiableStructureFactory {
 												.getCoordinateSystem()
 												.getWidth()),
 										new NearAnotherStone(board)))))));
+		// Filter
+		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
+		return base.add(mover);
+	}
+	
+	public static CopiableStructure shape5(int width, double komi, double shapeThreshold){
+		final CopiableStructure base = basicParts(width, komi);
+		final Board board = base.get(Board.class);		
+		// Observers
+		final AtariObserver atariObserver = new AtariObserver(board);
+		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// LGRF
+		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
+		base.add(table);
+		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table);
+		// This is added to the structure to that every LgrfSuggester can point to
+		// the same table. This is handled in the McRunnable constructor.
+		base.add(lgrf);
+		// Suggesters
+		final EscapeSuggester escape = new EscapeSuggester(board, atariObserver);
+		final PatternSuggester patterns = new PatternSuggester(board, historyObserver);
+		final CaptureSuggester capture = new CaptureSuggester(board, atariObserver);
+		// Shape
+//		System.err.println("5x5 patterns file: " + OREGO_ROOT + "patterns/patterns5x5.data");
+		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
+				+ "patterns/patterns5x5.data");
+		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable, shapeThreshold);
+		base.add(shapeTable);
+		base.add(shape);
+		// Bias
+		base.add(new Suggester[] {null, escape, patterns, capture });
+		base.add(new int[] { 20, 20, 20, 20 });
+		// Mover
+		final SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
+				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
+						new Conjunction(new NotEyeLike(board), new Disjunction(
+								OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+										.getWidth()), new NearAnotherStone(board))))))));
 		// Filter
 		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()

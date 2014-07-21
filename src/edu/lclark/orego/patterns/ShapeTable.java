@@ -5,11 +5,11 @@ import java.util.Arrays;
 
 /** A class for storing win rates for pattern hashes. */
 @SuppressWarnings("serial")
-public final class ShapeTable implements Serializable{
+public final class ShapeTable implements Serializable {
 
 	private final float[][] winRateTables;
 
-	private final float scalingFactor = 0.99f;
+	private final float scalingFactor = 0.95f;
 
 	public ShapeTable() {
 		winRateTables = new float[4][65536];
@@ -17,35 +17,36 @@ public final class ShapeTable implements Serializable{
 			Arrays.fill(table, 0.5f);
 		}
 	}
-	
-	public ShapeTable(String filePath){
+
+	public ShapeTable(String filePath) {
 		float[][] fake = null;
-		 try (ObjectInputStream objectInputStream = new ObjectInputStream(
-					new FileInputStream(filePath))) {
-				fake = (float[][]) objectInputStream.readObject();
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		 winRateTables = fake;
+		try (ObjectInputStream objectInputStream = new ObjectInputStream(
+				new FileInputStream(filePath))) {
+			fake = (float[][]) objectInputStream.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		winRateTables = fake;
 	}
 	
 	public void getRates(){
 		try(PrintWriter writer = new PrintWriter(new File("test-books/patterns5x5.csv"))){
 			for(float winRate : winRateTables[0]){
 				writer.println(winRate + ",");
+
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
-	public double testGetRate(int index){
+
+	public double testGetRate(int index) {
 		return winRateTables[1][index];
 	}
-	
-	public float[][] getWinRateTables(){
+
+	public float[][] getWinRateTables() {
 		return winRateTables;
 	}
 

@@ -16,14 +16,18 @@ public class ShapeSuggester implements Suggester {
 	
 	private final ShortSet moves;
 	
-	private final ShapeTable shapeTable;
+	private ShapeTable shapeTable;
 	
-	public ShapeSuggester(Board board, ShapeTable shapeTable){
+	private double shapeThreshold;
+	
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold){
+		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
 		this.shapeTable = shapeTable;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
+	
 
 	@Override
 	public ShortSet getMoves() {
@@ -31,12 +35,16 @@ public class ShapeSuggester implements Suggester {
 		for(short p : coords.getAllPointsOnBoard()){
 			if(board.getColorAt(p) == VACANT){
 				long hash = PatternFinder.getHash(board, p, 24);
-				if(shapeTable.getWinRate(hash) > 0.8f){
+				if(shapeTable.getWinRate(hash) > shapeThreshold){
 					moves.add(p);
 				}
 			}
 		}
+//		System.out.println(moves);
 		return moves;
 	}
 
+	public void setTable(ShapeTable shapeTable){
+		this.shapeTable = shapeTable;
+	}
 }
