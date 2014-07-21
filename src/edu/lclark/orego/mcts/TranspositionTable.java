@@ -2,6 +2,7 @@ package edu.lclark.orego.mcts;
 
 import static edu.lclark.orego.core.SuperKoTable.IGNORE_SIGN_BIT;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.util.ListNode;
 import edu.lclark.orego.util.Pool;
 
@@ -15,11 +16,14 @@ public final class TranspositionTable {
 
 	/** The hash table itself. */
 	private final SearchNode[] table;
+	
+	private int nodesInUse;
 
 	public TranspositionTable(int megabytes, SearchNodeBuilder builder,
 			CoordinateSystem coords) {
 		final int size = megabytes * 1024 * 32 / Math.max(81, coords.getArea());
 		table = new SearchNode[size];
+		nodesInUse = 0;
 		for (int i = 0; i < size; i++) {
 			table[i] = builder.build();
 		}
@@ -84,6 +88,7 @@ public final class TranspositionTable {
 				}
 			} else {
 				n.clear(fancyHash, coords);
+				nodesInUse++;
 				return n;
 			}
 			slot = (slot + 1) % table.length;
@@ -120,6 +125,7 @@ public final class TranspositionTable {
 	 * pool).
 	 */
 	void sweep() {
+		Logging.log("Nodes in use " + nodesInUse + "/" + table.length + " (" + (nodesInUse* 100)/table.length  + "%)");
 		for (int i = 0; i < table.length; i++) {
 			final SearchNode node = table[i];
 			if (node.isInUse()) {
@@ -131,6 +137,7 @@ public final class TranspositionTable {
 						n = listNodes.free(n);
 					}
 					node.free();
+					nodesInUse--;
 				}
 			}
 		}
