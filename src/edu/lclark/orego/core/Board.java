@@ -518,7 +518,7 @@ public final class Board implements Serializable {
 	}
 
 	/** Places a stone of color at point p. */
-	private void placeInitialStone(StoneColor color, short p) {
+	public void placeInitialStone(StoneColor color, short p) {
 		// Initial stones will always be legal, but the legality method
 		// also sets up some fields called by finalizePlay.
 		legality(color, p);

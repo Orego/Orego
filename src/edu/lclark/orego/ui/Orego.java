@@ -64,9 +64,15 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
+<<<<<<< HEAD
  * <dt>logfile</dt>
  * <dd>Specifies the destination file for any logging activity. If not
  * specified, the program will not log any data.</dd>
+=======
+ * <dt>log-file</dt>
+ * <dd>Toggles logging, which records logs in the specified folder. If not set,
+ * nothing will be logged.</dd>
+>>>>>>> orego8
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -94,16 +100,19 @@ import edu.lclark.orego.util.ShortSet;
 public final class Orego {
 
 	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
-			"boardsize", "clear_board", "final_score", "final_status_list", "fixed_handicap",
-			"genmove", "genmove_black", "genmove_white", "known_command",
-			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
-			"loadsgf", "name", "play", "playout_count", "protocol_version",
-			"quit", "reg_genmove", "showboard", "time_left", "time_settings",
-			"undo", "version", "white", };
+			"boardsize", "clear_board", "final_score", "final_status_list",
+			"fixed_handicap", "genmove", "genmove_black", "genmove_white",
+			"known_command", "kgs-game_over", "kgs-genmove_cleanup", "komi",
+			"list_commands", "loadsgf", "name", "play", "playout_count",
+			"protocol_version", "quit", "reg_genmove", "showboard",
+			"time_left", "time_settings", "undo", "version", "white", };
 
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
 	}
+
+	/** True if running through the Computer Go Test Collection program. */
+	private boolean cgtc;
 
 	/** The GTP id number of the current command. */
 	private int commandId;
@@ -285,7 +294,11 @@ public final class Orego {
 			} else {
 				color = command.equals("genmove_black") ? BLACK : WHITE;
 			}
-			assert color == player.getBoard().getColorToPlay();
+			if (!cgtc) {
+				assert color == player.getBoard().getColorToPlay();
+			} else {
+				player.getBoard().setColorToPlay(color);
+			}
 			if (command.equals("kgs-genmove_cleanup")) {
 				player.setCleanupMode(true);
 			}
@@ -332,8 +345,13 @@ public final class Orego {
 		} else if (command.equals("loadsgf")) {
 			final SgfParser parser = new SgfParser(player.getBoard()
 					.getCoordinateSystem(), false);
-			player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
-					.nextToken())));
+			if (cgtc) {
+				player.clear();
+				parser.sgfToBoard(arguments.nextToken(), player.getBoard());
+			} else {
+				player.setUpSgfGame(parser.parseGameFromFile(new File(arguments
+						.nextToken())));
+			}
 			acknowledge();
 		} else if (command.equals("name")) {
 			acknowledge("Orego");
@@ -413,6 +431,8 @@ public final class Orego {
 				playerBuilder.boardWidth(parseInt(right));
 			} else if (left.equals("book")) {
 				playerBuilder.openingBook(parseBoolean(right));
+			} else if (left.equals("cgtc")) {
+				cgtc = parseBoolean(right);
 			} else if (left.equals("grace")) {
 				playerBuilder.coupDeGrace(parseBoolean(right));
 			} else if (left.equals("gestation")) {
@@ -421,7 +441,7 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
-			} else if (left.equals("logfile")) {
+			} else if (left.equals("log-file")) {
 				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
