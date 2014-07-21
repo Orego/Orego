@@ -7,36 +7,14 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
-
 public final class Logging {
 
 	private static Logger logger = null;
 
-	public static void setFilePath() {
-		logger = Logger.getLogger("orego-default");
-		String logFilePath = SYSTEM.resultsDirectory;
-		logFilePath += "logs";
-		new File(logFilePath).mkdir();
-		logFilePath += File.separator + GameBatch.timeStamp(false) + ".log";
-		setFilePath(logFilePath);
-	}
-	
-	public static Logger getLogger(){
-		return logger;
-	}
-	
-	public static void log(String message){
-		log(Level.INFO, message);
-	}
-	
-	public static void log(Level level, String message){
-		if (logger != null) {
-			logger.log(level, message);
-		}
-	}
-
 	public static void setFilePath(String filePath) {
+		logger = Logger.getLogger("orego-default");
+		new File(filePath).mkdir();
+		filePath += File.separator + GameBatch.timeStamp(false) + ".log";
 		try {
 			FileHandler handler = new FileHandler(filePath);
 			handler.setFormatter(new PlanTextFormatter());
@@ -48,13 +26,27 @@ public final class Logging {
 			System.exit(1);
 		}
 	}
+
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static void log(String message) {
+		log(Level.INFO, message);
+	}
+
+	public static void log(Level level, String message) {
+		if (logger != null) {
+			logger.log(level, message);
+		}
+	}
 }
 
-class PlanTextFormatter extends Formatter{
+class PlanTextFormatter extends Formatter {
 
 	@Override
 	public String format(LogRecord record) {
 		return record.getMessage() + "\n";
 	}
-	
+
 }

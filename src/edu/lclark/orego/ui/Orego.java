@@ -64,9 +64,9 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
- * <dt>log</dt>
- * <dd>Toggles logging, which records logs in the results folder within a folder
- * called "logs".</dd>
+ * <dt>log-file</dt>
+ * <dd>Toggles logging, which records logs in the specified folder. If not set,
+ * nothing will be logged.</dd>
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -432,8 +432,8 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
-			} else if (left.equals("log")) {
-				Logging.setFilePath();
+			} else if (left.equals("log-file")) {
+				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
 				playerBuilder.memorySize(parseInt(right));
 			} else if (left.equals("msec")) {
