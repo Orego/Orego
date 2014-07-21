@@ -453,7 +453,10 @@ public final class Orego {
 				playerBuilder.rave(parseBoolean(right));
 			} else if (left.equals("shape")) {
 				playerBuilder.shape(parseBoolean(right));
-			} else if (left.equals("shape-threshold")) {
+			}else if (left.equals("shape-bias")){
+				playerBuilder.shapeBias(parseInt(right));
+			}
+			else if (left.equals("shape-threshold")) {
 				playerBuilder.shapeThreshold(parseDouble(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
