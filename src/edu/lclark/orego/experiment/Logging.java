@@ -11,28 +11,15 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 
 public final class Logging {
 
-	private static String logFilePath;
-
 	private static Logger logger = null;
 
 	public static void setFilePath() {
 		logger = Logger.getLogger("orego-default");
-		logFilePath = SYSTEM.resultsDirectory;
-		logFilePath += "logs" + GameBatch.timeStamp(false) + ".log";
-		try {
-			FileHandler handler = new FileHandler(logFilePath);
-			handler.setFormatter(new PlanTextFormatter());
-			logger.addHandler(handler);
-			logger.setLevel(Level.ALL);
-			logger.setUseParentHandlers(false);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-
-	public static String getFilePath() {
-		return logFilePath;
+		String logFilePath = SYSTEM.resultsDirectory;
+		logFilePath += "logs";
+		new File(logFilePath).mkdir();
+		logFilePath += File.separator + GameBatch.timeStamp(false) + ".log";
+		setFilePath(logFilePath);
 	}
 	
 	public static Logger getLogger(){
@@ -46,6 +33,19 @@ public final class Logging {
 	public static void log(Level level, String message){
 		if (logger != null) {
 			logger.log(level, message);
+		}
+	}
+
+	public static void setFilePath(String filePath) {
+		try {
+			FileHandler handler = new FileHandler(filePath);
+			handler.setFormatter(new PlanTextFormatter());
+			logger.addHandler(handler);
+			logger.setLevel(Level.ALL);
+			logger.setUseParentHandlers(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 }
