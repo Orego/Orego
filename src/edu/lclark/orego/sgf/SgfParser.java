@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import static java.lang.Integer.MAX_VALUE;
 
+import static edu.lclark.orego.core.StoneColor.*;
+import static java.lang.Integer.MAX_VALUE;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 
 /** Parses SGF files. */
@@ -34,6 +36,83 @@ public final class SgfParser {
 	public SgfParser(CoordinateSystem coords, boolean breakOnFirstPass) {
 		this.coords = coords;
 		this.breakOnFirstPass = breakOnFirstPass;
+	}
+	
+	/**
+	 * Builds board from the given sgf file. AB and AW commands are handled using
+	 * placeInitialStone(), while B and W commands are handled using play().
+	 * 
+	 * @param filepath
+	 * 				the name of the sgf file.
+	 * @param board
+	 * 				the board which the sgf file will be converted to.
+	 */
+	public void sgfToBoard(String filepath, Board board) {
+		if (!filepath.toLowerCase().endsWith(".sgf")) {
+			System.err.println(filepath + " is not an sgf file!");
+		} else {
+			File file = new File(filepath);
+			sgfToBoard(file, board);
+		}
+	}
+	
+	/**
+	 * Builds board from the given sgf file. AB and AW commands are handled using
+	 * placeInitialStone(), while B and W commands are handled using play().
+	 * 
+	 * @param file
+	 * 				the sgf file.
+	 * @param board
+	 * 				the board which the sgf file will be converted to.
+	 */
+	public void sgfToBoard(File file, Board board) {
+		board.clear();
+		String input = "";
+		try (Scanner s=new Scanner(file)){
+			while (s.hasNextLine()) {
+				input += s.nextLine();
+			}
+			input = input.replace("W[]", "W[tt]");
+			input = input.replace("B[]", "B[tt]");
+			StringTokenizer stoken = new StringTokenizer(input, ")[];");
+			int addStoneState = 0;
+			// Ignores AE
+			while (stoken.hasMoreTokens()) {
+				String token = stoken.nextToken();
+				if (token.equals("AW")) {
+					addStoneState = 1;
+					token = stoken.nextToken();
+				} else if (token.equals("AB")) {
+					addStoneState = 2;
+					token = stoken.nextToken();
+				} else if (token.equals("W") || token.equals("B")) {
+					if(token.equals("W")){
+						board.setColorToPlay(WHITE);
+					}else{
+						board.setColorToPlay(BLACK);
+					}
+					addStoneState = 0;
+					token = stoken.nextToken();
+					if (token.equals("tt")) {
+						board.play(PASS);
+					} else {
+						board.play(sgfToPoint(token));
+					}
+				}
+				if(token.charAt(0) >= 'a') {						
+					if (addStoneState == 1) {
+						board.placeInitialStone(WHITE, sgfToPoint(token));
+					} else if (addStoneState == 2) {
+						board.placeInitialStone(BLACK, sgfToPoint(token));
+					}
+				} else {
+					addStoneState = 0;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found!");
+			e.printStackTrace();
+		}
 	}
 
 	/**

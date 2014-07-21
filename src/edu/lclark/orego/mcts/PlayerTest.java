@@ -5,14 +5,11 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 import static edu.lclark.orego.util.TestingTools.asOneString;
 
-import java.io.File;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 

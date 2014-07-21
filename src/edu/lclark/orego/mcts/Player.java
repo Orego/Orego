@@ -6,6 +6,7 @@ import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.experiment.Logging.*;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -428,7 +429,7 @@ public final class Player {
 		}
 		try {
 			keepRunning = false;
-			final boolean finished = executor.awaitTermination(1, TimeUnit.SECONDS);
+			final boolean finished = executor.awaitTermination(5, TimeUnit.SECONDS);
 			assert finished;
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
