@@ -65,12 +65,8 @@ import edu.lclark.orego.util.ShortSet;
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
  * <dt>logfile</dt>
-<<<<<<< HEAD
  * <dd>Specifies the destination file for any logging activity. If not
  * specified, the program will not log any data.</dd>
-=======
- * <dd>Specifies the destination file for any logging activity. If not specified, the program will not log any data.</dd>
->>>>>>> 7cbd48a53827bdbd71a059ec9d35aeea0c7e0882
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -86,7 +82,7 @@ import edu.lclark.orego.util.ShortSet;
  * <dt>shape</dt>
  * <dd>Toggles the SHAPE pattern suggester for 5x5 patterns.</dd>
  * <dt>shape-threshold</dt>
- * <dd>Sets the threshold for a pattern winrate that is required to suggest a pattern in the SHAPE suggester.</dd>
+ * <dd>Sets the threshold for a pattern winrate that is required to suggest a pattern in the SHAPE suggester. Defaults to 0.</dd>
  * <dt>threads</dt>
  * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
  * <dt>time-management</dt>

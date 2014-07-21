@@ -9,11 +9,11 @@ import edu.lclark.orego.util.ShortSet;
 @SuppressWarnings("serial")
 public final class LgrfSuggester implements Suggester {
 
+	private final int bias;
+
 	private final Board board;
 
 	private final HistoryObserver history;
-
-	private final int bias;
 	
 	private final ShortSet moves;
 
@@ -37,6 +37,11 @@ public final class LgrfSuggester implements Suggester {
 	}
 
 	@Override
+	public int getBias() {
+		return bias;
+	}
+
+	@Override
 	public ShortSet getMoves() {
 		moves.clear();
 		final short previousMove = history.get(board.getTurn() - 1);
@@ -56,11 +61,6 @@ public final class LgrfSuggester implements Suggester {
 
 	public void setTable(LgrfTable table) {
 		this.table = table;
-	}
-
-	@Override
-	public int getBias() {
-		return bias;
 	}
 
 }

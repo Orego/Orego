@@ -16,13 +16,13 @@ import edu.lclark.orego.util.ShortSet;
 @SuppressWarnings("serial")
 public final class EscapeSuggester implements Suggester {
 
-	private final Board board;
-
 	private final AtariObserver atariObserver;
 
-	private final CoordinateSystem coords;
-	
 	private final int bias;
+
+	private final Board board;
+	
+	private final CoordinateSystem coords;
 
 	/**
 	 * A list of all of the moves for the current player to play that will allow
@@ -47,24 +47,6 @@ public final class EscapeSuggester implements Suggester {
 		final int n = coords.getFirstPointBeyondBoard();
 		tempLiberties = new ShortSet(n);
 		movesToEscape = new ShortSet(n);
-	}
-
-	@Override
-	public ShortSet getMoves() {
-		movesToEscape.clear();
-		final StoneColor colorToPlay = board.getColorToPlay();
-		final ShortSet chainsInAtari = atariObserver.getChainsInAtari(colorToPlay);
-		for (int i = 0; i < chainsInAtari.size(); i++) {
-			final short chain = chainsInAtari.get(i);
-			final short p = board.getLiberties(chain).get(0);
-			if (board.getNeighborsOfColor(p, VACANT) >= 2) {
-				movesToEscape.add(p);
-			} else if (board.getNeighborsOfColor(p, colorToPlay) > 0) {
-				escapeByMerging(p);
-			}
-			escapeByCapturing(chain);
-		}
-		return movesToEscape;
 	}
 
 	/**
@@ -128,6 +110,24 @@ public final class EscapeSuggester implements Suggester {
 	@Override
 	public int getBias() {
 		return bias;
+	}
+
+	@Override
+	public ShortSet getMoves() {
+		movesToEscape.clear();
+		final StoneColor colorToPlay = board.getColorToPlay();
+		final ShortSet chainsInAtari = atariObserver.getChainsInAtari(colorToPlay);
+		for (int i = 0; i < chainsInAtari.size(); i++) {
+			final short chain = chainsInAtari.get(i);
+			final short p = board.getLiberties(chain).get(0);
+			if (board.getNeighborsOfColor(p, VACANT) >= 2) {
+				movesToEscape.add(p);
+			} else if (board.getNeighborsOfColor(p, colorToPlay) > 0) {
+				escapeByMerging(p);
+			}
+			escapeByCapturing(chain);
+		}
+		return movesToEscape;
 	}
 
 }

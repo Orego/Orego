@@ -36,6 +36,11 @@ public class ShapeSuggester implements Suggester {
 	}
 
 	@Override
+	public int getBias() {
+		return bias;
+	}
+
+	@Override
 	public ShortSet getMoves() {
 		moves.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
@@ -51,10 +56,5 @@ public class ShapeSuggester implements Suggester {
 
 	public void setTable(ShapeTable shapeTable) {
 		this.shapeTable = shapeTable;
-	}
-
-	@Override
-	public int getBias() {
-		return bias;
 	}
 }
