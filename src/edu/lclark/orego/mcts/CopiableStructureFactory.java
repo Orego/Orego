@@ -187,7 +187,7 @@ public final class CopiableStructureFactory {
 		// "patterns/patterns5x5.data");
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns5x5.data");
-		final ShapeRater shape = new ShapeRater(board, shapeTable, shapeThreshold, 20);
+		final ShapeRater shape = new ShapeRater(board, shapeTable, shapeThreshold, 100);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias;
