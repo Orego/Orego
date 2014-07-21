@@ -21,6 +21,8 @@ public final class EscapeSuggester implements Suggester {
 	private final AtariObserver atariObserver;
 
 	private final CoordinateSystem coords;
+	
+	private final int bias;
 
 	/**
 	 * A list of all of the moves for the current player to play that will allow
@@ -32,8 +34,13 @@ public final class EscapeSuggester implements Suggester {
 	 * Keeps track of the liberties of a chain that is possible to merge with.
 	 */
 	private final ShortSet tempLiberties;
+	
+	public EscapeSuggester(Board board, AtariObserver atariObserver){
+		this(board, atariObserver, 0);
+	}
 
-	public EscapeSuggester(Board board, AtariObserver atariObserver) {
+	public EscapeSuggester(Board board, AtariObserver atariObserver, int bias) {
+		this.bias = bias;
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		this.atariObserver = atariObserver;
@@ -116,6 +123,11 @@ public final class EscapeSuggester implements Suggester {
 				}
 			}
 		}
+	}
+
+	@Override
+	public int getBias() {
+		return bias;
 	}
 
 }
