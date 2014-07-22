@@ -13,7 +13,7 @@ public final class Git {
 	 */
 	public static String getGitCommit() {
 		try {
-			try (Scanner s = new Scanner(new ProcessBuilder("git", "-C", OREGO_ROOT, "status",
+			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir=" + OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT, "status",
 					"-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
 					return "";
