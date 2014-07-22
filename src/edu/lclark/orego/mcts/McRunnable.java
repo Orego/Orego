@@ -113,7 +113,7 @@ public final class McRunnable implements Runnable {
 	/**
 	 * Accepts (plays on on this McRunnable's own board) the given move.
 	 *
-	 * @see edu.lclark.orego.core.Board#play(int)
+	 * @see edu.lclark.orego.core.Board#play(short)
 	 */
 	public void acceptMove(short p) {
 		final Legality legality = board.play(p);

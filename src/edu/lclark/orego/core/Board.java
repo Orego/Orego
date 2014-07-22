@@ -21,6 +21,7 @@ import edu.lclark.orego.feature.BoardObserver;
 import edu.lclark.orego.util.ShortList;
 import edu.lclark.orego.util.ShortSet;
 
+/** Manages the board, detecting legal moves, etc. */
 @SuppressWarnings("serial")
 public final class Board implements Serializable {
 

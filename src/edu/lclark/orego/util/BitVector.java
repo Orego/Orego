@@ -12,7 +12,6 @@ import java.io.Serializable;
  * is very sparse, ShortSet may be preferable.
  *
  * @see ShortSet
- * @see BitBoard
  */
 @SuppressWarnings("serial")
 public final class BitVector implements Serializable {

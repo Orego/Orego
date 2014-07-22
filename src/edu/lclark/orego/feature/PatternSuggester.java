@@ -15,7 +15,7 @@ import edu.lclark.orego.util.ShortSet;
 /**
  * Suggests moves matching "good" patterns that are orthogonal or diagonal to the last move played.
  *
- * @see edu.lclark.orego.patterns.PatternExtracor
+ * @see edu.lclark.orego.patterns.PatternExtractor
  */
 @SuppressWarnings("serial")
 public final class PatternSuggester implements Suggester {

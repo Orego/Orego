@@ -7,6 +7,7 @@ import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
+/** Suggests moves based on SHAPE tables. */
 @SuppressWarnings("serial")
 public class ShapeSuggester implements Suggester {
 
