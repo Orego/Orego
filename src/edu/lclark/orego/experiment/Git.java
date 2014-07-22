@@ -1,5 +1,6 @@
 package edu.lclark.orego.experiment;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public final class Git {
 	 */
 	public static String getGitCommit() {
 		try {
-			try (Scanner s = new Scanner(new ProcessBuilder("git", "status",
+			try (Scanner s = new Scanner(new ProcessBuilder("git", "-C", OREGO_ROOT, "status",
 					"-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
 					return "";
