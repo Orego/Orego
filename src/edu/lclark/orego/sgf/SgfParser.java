@@ -121,7 +121,7 @@ public final class SgfParser {
 	 * @param maxBookDepth
 	 *            Only look at this many moves. For no limit, use
 	 *            Integer.MAX_VALUE;
-	 * @return
+	 * @return The list of moves (as shorts).
 	 */
 	@SuppressWarnings("boxing")
 	private List<Short> parseGame(StringTokenizer stoken, int maxBookDepth) {
