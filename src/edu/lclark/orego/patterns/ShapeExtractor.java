@@ -24,7 +24,7 @@ public class ShapeExtractor extends PatternExtractor{
 	@Override
 	protected void buildPatternData(File inputFile) {
 		analyzeFiles(inputFile);
-		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns9x9-SHAPE-sf90.data");
+		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns3x3-SHAPE-sf90.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable.getWinRateTables());
 		} catch (Exception e) {
@@ -35,7 +35,7 @@ public class ShapeExtractor extends PatternExtractor{
 	
 	@Override
 	protected void updateTables(boolean winner, short move){
-		long hash = PatternFinder.getHash(getBoard(), move, 80);
+		long hash = PatternFinder.getHash(getBoard(), move, 8);
 		shapeTable.update(hash, winner);
 	}
 
