@@ -27,7 +27,7 @@ public final class Git {
 			System.out.println("A");
 			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
 					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
-					"status", "log", "--pretty=format:'%H'", "-n", "1").start()
+					"log", "--pretty=format:'%H'", "-n", "1").start()
 					.getInputStream())) {
 				System.out.println("B");
 				System.out.println(s.hasNextLine());
