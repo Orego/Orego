@@ -1,10 +1,16 @@
 package edu.lclark.orego.patterns;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 public final class PatternFinder {
@@ -24,6 +30,65 @@ public final class PatternFinder {
 			}
 		}
 	}
+	
+	public static void main(String[] args) {
+		HashMap<String, Float> map = new HashMap<>();
+		Board board = new Board(19);
+		ShapeTable table = new ShapeTable();
+		int centerColumn = 4;
+		int centerRow = 4;
+		int patternRadius = 2;
+		int stoneCount = 3;
+		ArrayList<Short> stones = new ArrayList<>();
+		generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn, patternRadius);
+		System.out.println(map.size());
+	}
+
+	@SuppressWarnings("boxing")
+	private static void generatePatternMap(Board board, HashMap<String, Float> map, ShapeTable table, ArrayList<Short> stones, int stoneCount,
+			int centerRow, int centerColumn, int patternRadius) {
+		int topRow = centerRow - patternRadius;
+		int bottomRow = centerRow + patternRadius;
+		int leftColumn = centerColumn - patternRadius;
+		int rightColumn = centerColumn + patternRadius;
+		if (stones.size() == stoneCount) {
+			board.clear();
+			for (short p : stones) {
+				board.play(p);
+			}
+			long hash = getHash(board, board.getCoordinateSystem().at(centerRow, centerColumn), 1 + (patternRadius * 2));
+			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
+			System.out.println(pattern);
+			map.put(pattern, table.getWinRate(hash));
+		} else {
+			for(int row = topRow; row <= bottomRow; row++){
+				for(int column = leftColumn; column <= rightColumn; column++){
+					if(column == centerColumn && row == centerRow){
+						continue;
+					}
+					short p = board.getCoordinateSystem().at(row, column);
+					if(!stones.contains(p)){
+						stones.add(p);
+						generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn, patternRadius);
+						stones.remove(new Short(p));
+					}
+				}
+			}
+		}
+	}
+
+	private static String getPatternString(Board board, int topRow, int bottomRow, int leftColumn,
+			int rightColumn) {
+		String pattern = "";
+		for (int row = topRow; row <= bottomRow; row++) {
+			for (int column = leftColumn; column <= rightColumn; column++) {
+				Color pointColor = board.getColorAt(board.getCoordinateSystem().at(row, column));
+				pattern += pointColor.toChar();
+			}
+			pattern += "\n";
+		}
+		return pattern;
+	}
 
 	public static long getHash(Board board, short p, int patternSize) {
 		CoordinateSystem coords = board.getCoordinateSystem();
@@ -36,12 +101,13 @@ public final class PatternFinder {
 			if ((newRow < 0 || newRow >= coords.getWidth())
 					|| (newColumn < 0 || newColumn >= coords.getWidth())) {
 				result ^= POINT_HASHES[3][i];
-			}else{
+			} else {
 				Color color = board.getColorAt(coords.at(newRow, newColumn));
-				if(color == VACANT){
+				if (color == VACANT) {
 					result ^= POINT_HASHES[2][i];
-				}else{
-					result ^= board.getColorToPlay() == color ? POINT_HASHES[1][i] : POINT_HASHES[0][i];
+				} else {
+					result ^= board.getColorToPlay() == color ? POINT_HASHES[1][i]
+							: POINT_HASHES[0][i];
 				}
 			}
 		}
