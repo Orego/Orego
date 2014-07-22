@@ -30,6 +30,7 @@ public final class Git {
 					"status", "log", "--pretty=format:'%H'", "-n", "1").start()
 					.getInputStream())) {
 				System.out.println("B");
+				System.out.println(s.hasNextLine());
 				if (s.hasNextLine()) {
 					final String commit = s.nextLine();
 					System.out.println("Commit: " + commit);
