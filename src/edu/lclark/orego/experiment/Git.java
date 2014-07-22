@@ -30,6 +30,7 @@ public final class Git {
 					.getInputStream())) {
 				if (s.hasNextLine()) {
 					final String commit = s.nextLine();
+					System.out.println("Commit: " + commit);
 					// substring to remove single quotes that would otherwise
 					// appear
 					return commit.substring(1, commit.length() - 1);
