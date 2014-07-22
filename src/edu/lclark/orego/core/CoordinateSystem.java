@@ -126,7 +126,7 @@ public final class CoordinateSystem implements Serializable {
 	private final short maxMovesPerGame;
 
 	/**
-	 * @see #getNeighbors(int)
+	 * @see #getNeighbors(short)
 	 */
 	private final short[][] neighbors;
 
