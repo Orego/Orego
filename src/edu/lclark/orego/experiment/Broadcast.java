@@ -42,7 +42,7 @@ public final class Broadcast {
 				+ " games");
 		// The 0.65 below is an empirical factor to get us a more accurate
 		// estimate of how long the experiment will take
-		System.out.println("Estimated time (hours) : " + 0.65
+		System.out.println("Estimated time (hours) : " + 0.70
 				* EXPERIMENT.gamesPerCondition * EXPERIMENT.conditions.size()
 				* EXPERIMENT.rules.time * 2
 				/ (SYSTEM.hosts.size() * EXPERIMENT.gamesPerHost * 3600.0));
