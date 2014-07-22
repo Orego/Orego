@@ -16,12 +16,16 @@ public class ShapeTableTest {
 
 	@Test
 	public void test() {
+		float f = table.getScalingFactor();
 		table.update(1, true);
-		assertEquals(0.505f, table.getWinRate(1), 0.0001f);
+		assertEquals(f * 0.5 + 1 * (1 - f), table.getWinRate(1), 0.0001f);
 		table.update(375299968947541L, false);
-		assertEquals(0.495f, table.getWinRate(375299968947541L), 0.0001f);
+		assertEquals(f * 0.5 + 0 * (1 - f), table.getWinRate(375299968947541L), 0.0001f);
+		// This number overlaps with the first one in 2 of the 4 tables
 		table.update(70000, true);
-		assertEquals(0.507475f, table.getWinRate(70000), 0.0001f);
+		float a = f * 0.5f + 1 * (1 - f);
+		float b = f * a + 1 * (1 - f);
+		assertEquals((a + b) / 2, table.getWinRate(70000), 0.0001f);
 	}
 
 }

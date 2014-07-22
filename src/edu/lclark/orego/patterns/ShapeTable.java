@@ -7,9 +7,9 @@ import java.util.Arrays;
 @SuppressWarnings("serial")
 public final class ShapeTable implements Serializable{
 
-	private final float[][] winRateTables;
-
 	private final float scalingFactor = 0.99f;
+
+	private final float[][] winRateTables;
 
 	public ShapeTable() {
 		winRateTables = new float[4][65536];
@@ -29,7 +29,7 @@ public final class ShapeTable implements Serializable{
 			}
 		 winRateTables = fake;
 	}
-	
+
 	public void getRates(){
 		try(PrintWriter writer = new PrintWriter(new File("test-books/patterns5x5.csv"))){
 			for(float winRate : winRateTables[0]){
@@ -41,12 +41,26 @@ public final class ShapeTable implements Serializable{
 		}
 	}
 	
-	public double testGetRate(int index){
-		return winRateTables[1][index];
+	float getScalingFactor() {
+		return scalingFactor;
+	}
+	
+	/** Get the win rate for a given pattern. */
+	public float getWinRate(long hash) {
+		float result = 0;
+		for (int i = 0; i < 4; i++) {
+			int index = (int) (hash >> (16 * i) & 65535);
+			result += winRateTables[i][index];
+		}
+		return result / 4;
 	}
 	
 	public float[][] getWinRateTables(){
 		return winRateTables;
+	}
+
+	public double testGetRate(int index){
+		return winRateTables[1][index];
 	}
 
 	/** Update the table with new win data for the given pattern. */
@@ -56,15 +70,5 @@ public final class ShapeTable implements Serializable{
 			winRateTables[i][index] = win ? scalingFactor * winRateTables[i][index]
 					+ (1 - scalingFactor) : scalingFactor * winRateTables[i][index];
 		}
-	}
-
-	/** Get the win rate for a given pattern. */
-	public float getWinRate(long hash) {
-		float result = 0;
-		for (int i = 0; i < 4; i++) {
-			int index = (int) (hash >> (16 * i) & 65535);
-			result += winRateTables[i][index];
-		}
-		return result / 4;
 	}
 }
