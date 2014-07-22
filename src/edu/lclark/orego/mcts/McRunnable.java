@@ -91,7 +91,11 @@ public final class McRunnable implements Runnable {
 			// If we get here, we're not using shape
 		}			
 		suggesters = copy.get(Suggester[].class);
-		raters = copy.get(Rater[].class);
+		try {
+			raters = copy.get(Rater[].class);
+		} catch (final IllegalArgumentException e) {
+			raters = new Rater[0];
+		}
 		if(shape != null){
 			raters[0] = shape;
 		}

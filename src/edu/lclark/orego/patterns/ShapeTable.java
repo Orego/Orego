@@ -11,6 +11,10 @@ public final class ShapeTable implements Serializable {
 
 	private final float scalingFactor = 0.95f;
 
+	float getScalingFactor() {
+		return scalingFactor;
+	}
+
 	public ShapeTable() {
 		winRateTables = new float[4][65536];
 		for (float[] table : winRateTables) {
