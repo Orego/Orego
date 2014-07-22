@@ -15,32 +15,40 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 
 public final class PatternFinder {
 
-	public static final int[][] POINT_HASHES = new int[4][24];
+	public static final int[][] POINT_HASHES = new int[4][80];
 
 	public static final int[][] OFFSETS = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, -1 },
 			{ -1, 1 }, { 1, 1 }, { 1, -1 }, { -2, 0 }, { 0, 2 }, { 2, 0 }, { 0, -2 }, { -2, -1 },
 			{ -2, 1 }, { -1, 2 }, { 1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { -1, -2 }, { -2, -2 },
-			{ -2, 2 }, { 2, 2 }, { 2, -2 } };
+			{ -2, 2 }, { 2, 2 }, { 2, -2 }, { -3, -3 }, { -3, -2 }, { -3, -1 }, { -3, 0 },
+			{ -3, 1 }, { -3, 2 }, { -3, 3 }, { -2, 3 }, { -1, 3 }, { 0, 3 }, { 1, 3 }, { 2, 3 },
+			{ 3, 3 }, { 3, 2 }, { 3, 1 }, { 3, 0 }, { 3, -1 }, { 3, -2 }, { 3, -3 }, { 2, -3 },
+			{ 1, -3 }, { 0, -3 }, { -1, -3 }, { -2, -3 }, { -4, -4 }, { -4, -3 }, { -4, -2 },
+			{ -4, -1 }, { -4, 0 }, { -4, 1 }, { -4, 2 }, { -4, 3 }, { -4, 4 }, { -3, 4 },
+			{ -2, 4 }, { -1, 4 }, { 0, 4 }, { 1, 4 }, { 2, 4 }, { 3, 4 }, { 4, 4 }, { 4, 3 },
+			{ 4, 2 }, { 4, 1 }, { 4, 0 }, { 4, -1 }, { 4, -2 }, { 4, -3 }, { 4, -4 }, { 3, -4 },
+			{ 2, -4 }, { 1, -4 }, { 0, -4 }, { -1, -4 }, { -2, -4 }, { -3, -4 } };
 
 	static {
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 24; j++) {
+			for (int j = 0; j < 80; j++) {
 				POINT_HASHES[i][j] = random.nextInt();
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		HashMap<String, Float> map = new HashMap<>();
 		Board board = new Board(19);
-		ShapeTable table = new ShapeTable("patterns" + File.separator + "patterns5x5.data");
+		ShapeTable table = new ShapeTable("patterns" + File.separator + "patterns3x3-SHAPE-sf90.data");
 		int centerColumn = 4;
 		int centerRow = 4;
-		int patternRadius = 2;
+		int patternRadius = 1;
 		int stoneCount = 5;
 		ArrayList<Short> stones = new ArrayList<>();
-		generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn, patternRadius);
+		generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn,
+				patternRadius);
 		System.out.println(map.size());
 		ArrayList<Entry<String, Float>> entries = new ArrayList<>();
 		entries.addAll(map.entrySet());
@@ -49,29 +57,30 @@ public final class PatternFinder {
 			@SuppressWarnings("boxing")
 			@Override
 			public int compare(Entry<String, Float> entry1, Entry<String, Float> entry2) {
-				if(entry1.getValue() > entry2.getValue()){
+				if (entry1.getValue() > entry2.getValue()) {
 					return 1;
-				}else if(entry1.getValue() < entry2.getValue()){
+				} else if (entry1.getValue() < entry2.getValue()) {
 					return -1;
-				}else{
+				} else {
 					return 0;
 				}
 			}
 		});
-		System.out.println("Bottom Ten\n");
-		for(int i = 0; i < 20; i++){
+		System.out.println("Bottom Twenty\n");
+		for (int i = 0; i < 20; i++) {
 			System.out.println(entries.get(i).getValue());
 			System.out.println(entries.get(i).getKey());
 		}
-		System.out.println("Top Ten\n");
-		for(int i = entries.size() - 20; i < entries.size(); i++){
+		System.out.println("Top Twenty\n");
+		for (int i = entries.size() - 20; i < entries.size(); i++) {
 			System.out.println(entries.get(i).getValue());
 			System.out.println(entries.get(i).getKey());
 		}
 	}
 
 	@SuppressWarnings("boxing")
-	private static void generatePatternMap(Board board, HashMap<String, Float> map, ShapeTable table, ArrayList<Short> stones, int stoneCount,
+	private static void generatePatternMap(Board board, HashMap<String, Float> map,
+			ShapeTable table, ArrayList<Short> stones, int stoneCount,
 			int centerRow, int centerColumn, int patternRadius) {
 		int topRow = centerRow - patternRadius;
 		int bottomRow = centerRow + patternRadius;
@@ -82,19 +91,21 @@ public final class PatternFinder {
 			for (short p : stones) {
 				board.play(p);
 			}
-			long hash = getHash(board, board.getCoordinateSystem().at(centerRow, centerColumn), 1 + (patternRadius * 2));
+			long hash = getHash(board, board.getCoordinateSystem().at(centerRow, centerColumn),
+					1 + (patternRadius * 2));
 			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
 		} else {
-			for(int row = topRow; row <= bottomRow; row++){
-				for(int column = leftColumn; column <= rightColumn; column++){
-					if(column == centerColumn && row == centerRow){
+			for (int row = topRow; row <= bottomRow; row++) {
+				for (int column = leftColumn; column <= rightColumn; column++) {
+					if (column == centerColumn && row == centerRow) {
 						continue;
 					}
 					short p = board.getCoordinateSystem().at(row, column);
-					if(!stones.contains(p)){
+					if (!stones.contains(p)) {
 						stones.add(p);
-						generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn, patternRadius);
+						generatePatternMap(board, map, table, stones, stoneCount, centerRow,
+								centerColumn, patternRadius);
 						stones.remove(new Short(p));
 					}
 				}

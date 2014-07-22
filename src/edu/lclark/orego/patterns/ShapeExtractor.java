@@ -4,16 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
+
 public class ShapeExtractor extends PatternExtractor{
 	
 	private ShapeTable shapeTable;
 	
 	public static void main(String[] args) {
-		ShapeExtractor extractor = new ShapeExtractor(true, 0.99f);
+		ShapeExtractor extractor = new ShapeExtractor(true, 0.90f);
 		 extractor.buildPatternData(new File(
-		 "/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));	
-		ShapeTable table = new ShapeTable("patterns/patterns3x3-SHAPE-sf99.data");
-		table.getRates();
+		 "/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
 	}
 	
 	public ShapeExtractor(boolean verbose, float scalingFactor){
@@ -24,7 +24,7 @@ public class ShapeExtractor extends PatternExtractor{
 	@Override
 	protected void buildPatternData(File inputFile) {
 		analyzeFiles(inputFile);
-		try (FileOutputStream out = new FileOutputStream("patterns/patterns5x5.data");
+		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns9x9-SHAPE-sf90.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable.getWinRateTables());
 		} catch (Exception e) {
@@ -35,7 +35,7 @@ public class ShapeExtractor extends PatternExtractor{
 	
 	@Override
 	protected void updateTables(boolean winner, short move){
-		long hash = PatternFinder.getHash(getBoard(), move, 8);
+		long hash = PatternFinder.getHash(getBoard(), move, 80);
 		shapeTable.update(hash, winner);
 	}
 
