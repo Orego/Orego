@@ -4,6 +4,7 @@ import static java.lang.Math.abs;
 
 import java.io.Serializable;
 
+import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /**
@@ -288,7 +289,7 @@ public final class CoordinateSystem implements Serializable {
 	 * Used so that serialization, as used in CopiableStructure, does not create
 	 * redundant CoordinateSystems.
 	 *
-	 * @see edu.lclark.orego.mcts.CopiableStructure
+	 * @see CopiableStructure
 	 */
 	private Object readResolve() {
 		return forWidth(width);
