@@ -17,23 +17,18 @@ public final class Git {
 					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
 					"status", "-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
-					System.out.println("There is a next line");
 					while (s.hasNextLine()) {
 						System.out.println(s.nextLine());
 					}
 					return "";
 				}
 			}
-			System.out.println("A");
 			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
 					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
 					"log", "--pretty=format:'%H'", "-n", "1").start()
 					.getInputStream())) {
-				System.out.println("B");
-				System.out.println(s.hasNextLine());
 				if (s.hasNextLine()) {
 					final String commit = s.nextLine();
-					System.out.println("Commit: " + commit);
 					// substring to remove single quotes that would otherwise
 					// appear
 					return commit.substring(1, commit.length() - 1);
