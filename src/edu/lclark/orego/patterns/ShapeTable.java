@@ -11,6 +11,7 @@ public final class ShapeTable implements Serializable{
 
 	private final float scalingFactor = 0.99f;
 
+	/** This creates a blank Shape Table with every entry equal to 0.5. */
 	public ShapeTable() {
 		winRateTables = new float[4][65536];
 		for (float[] table : winRateTables) {
@@ -18,6 +19,7 @@ public final class ShapeTable implements Serializable{
 		}
 	}
 	
+	/** This creates a ShapeTable filled with data from the specified file. */
 	public ShapeTable(String filePath){
 		float[][] fake = null;
 		 try (ObjectInputStream objectInputStream = new ObjectInputStream(

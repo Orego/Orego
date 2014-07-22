@@ -1,16 +1,16 @@
 package edu.lclark.orego.patterns;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Map.Entry;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.NonStoneColor.*;
 
 public final class PatternFinder {
@@ -34,14 +34,40 @@ public final class PatternFinder {
 	public static void main(String[] args) {
 		HashMap<String, Float> map = new HashMap<>();
 		Board board = new Board(19);
-		ShapeTable table = new ShapeTable();
+		ShapeTable table = new ShapeTable("patterns" + File.separator + "patterns5x5.data");
 		int centerColumn = 4;
 		int centerRow = 4;
 		int patternRadius = 2;
-		int stoneCount = 3;
+		int stoneCount = 5;
 		ArrayList<Short> stones = new ArrayList<>();
 		generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn, patternRadius);
 		System.out.println(map.size());
+		ArrayList<Entry<String, Float>> entries = new ArrayList<>();
+		entries.addAll(map.entrySet());
+		Collections.sort(entries, new Comparator<Entry<String, Float>>() {
+
+			@SuppressWarnings("boxing")
+			@Override
+			public int compare(Entry<String, Float> entry1, Entry<String, Float> entry2) {
+				if(entry1.getValue() > entry2.getValue()){
+					return 1;
+				}else if(entry1.getValue() < entry2.getValue()){
+					return -1;
+				}else{
+					return 0;
+				}
+			}
+		});
+		System.out.println("Bottom Ten\n");
+		for(int i = 0; i < 20; i++){
+			System.out.println(entries.get(i).getValue());
+			System.out.println(entries.get(i).getKey());
+		}
+		System.out.println("Top Ten\n");
+		for(int i = entries.size() - 20; i < entries.size(); i++){
+			System.out.println(entries.get(i).getValue());
+			System.out.println(entries.get(i).getKey());
+		}
 	}
 
 	@SuppressWarnings("boxing")
@@ -58,7 +84,6 @@ public final class PatternFinder {
 			}
 			long hash = getHash(board, board.getCoordinateSystem().at(centerRow, centerColumn), 1 + (patternRadius * 2));
 			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
-			System.out.println(pattern);
 			map.put(pattern, table.getWinRate(hash));
 		} else {
 			for(int row = topRow; row <= bottomRow; row++){
