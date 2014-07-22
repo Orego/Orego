@@ -16,6 +16,9 @@ public final class Git {
 			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir=" + OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT, "status",
 					"-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
+					while (s.hasNextLine()) {
+						System.out.println(s.nextLine());
+					}
 					return "";
 				}
 			}
