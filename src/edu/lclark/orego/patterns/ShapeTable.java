@@ -64,8 +64,8 @@ public final class ShapeTable implements Serializable {
 	public void update(long hash, boolean win) {
 		for (int i = 0; i < 4; i++) {
 			int index = (int) (hash >> (16 * i) & 65535);
-			winRateTables[i][index] = win ? scalingFactor * winRateTables[i][index]
-					+ (1 - scalingFactor) : scalingFactor * winRateTables[i][index];
+			winRateTables[i][index] = scalingFactor * winRateTables[i][index]
+					+ (win ? (1 - scalingFactor) : 0);
 		}
 	}
 

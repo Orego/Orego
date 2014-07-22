@@ -12,6 +12,7 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.core.NonStoneColor.*;
+import static edu.lclark.orego.core.StoneColor.*;
 
 public final class PatternFinder {
 
@@ -45,9 +46,10 @@ public final class PatternFinder {
 		int centerColumn = 4;
 		int centerRow = 4;
 		int patternRadius = 1;
-		int stoneCount = 5;
+		int minStoneCount = 3;
+		int maxStoneCount = 5;
 		ArrayList<Short> stones = new ArrayList<>();
-		generatePatternMap(board, map, table, stones, stoneCount, centerRow, centerColumn,
+		generatePatternMap(board, map, table, stones, minStoneCount, maxStoneCount, centerRow, centerColumn,
 				patternRadius);
 		System.out.println(map.size());
 		ArrayList<Entry<String, Float>> entries = new ArrayList<>();
@@ -80,13 +82,13 @@ public final class PatternFinder {
 
 	@SuppressWarnings("boxing")
 	private static void generatePatternMap(Board board, HashMap<String, Float> map,
-			ShapeTable table, ArrayList<Short> stones, int stoneCount,
+			ShapeTable table, ArrayList<Short> stones, int minStoneCount, int maxStoneCount,
 			int centerRow, int centerColumn, int patternRadius) {
 		int topRow = centerRow - patternRadius;
 		int bottomRow = centerRow + patternRadius;
 		int leftColumn = centerColumn - patternRadius;
 		int rightColumn = centerColumn + patternRadius;
-		if (stones.size() == stoneCount) {
+		if (stones.size() >= minStoneCount) {
 			board.clear();
 			for (short p : stones) {
 				board.play(p);
@@ -95,7 +97,7 @@ public final class PatternFinder {
 					1 + (patternRadius * 2));
 			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
-		} else {
+		} else if (stones.size() < maxStoneCount){
 			for (int row = topRow; row <= bottomRow; row++) {
 				for (int column = leftColumn; column <= rightColumn; column++) {
 					if (column == centerColumn && row == centerRow) {
@@ -104,7 +106,7 @@ public final class PatternFinder {
 					short p = board.getCoordinateSystem().at(row, column);
 					if (!stones.contains(p)) {
 						stones.add(p);
-						generatePatternMap(board, map, table, stones, stoneCount, centerRow,
+						generatePatternMap(board, map, table, stones, minStoneCount, maxStoneCount, centerRow,
 								centerColumn, patternRadius);
 						stones.remove(new Short(p));
 					}
@@ -126,6 +128,7 @@ public final class PatternFinder {
 		return pattern;
 	}
 
+	// TODO Comments? What is patternSize?
 	public static long getHash(Board board, short p, int patternSize) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		long result = 0L;
@@ -134,17 +137,15 @@ public final class PatternFinder {
 		for (int i = 0; i < patternSize; i++) {
 			int newRow = row + OFFSETS[i][0];
 			int newColumn = column + OFFSETS[i][1];
-			if ((newRow < 0 || newRow >= coords.getWidth())
-					|| (newColumn < 0 || newColumn >= coords.getWidth())) {
-				result ^= POINT_HASHES[3][i];
-			} else {
+			if (coords.isValidOneDimensionalCoordinate(newRow) && coords.isValidOneDimensionalCoordinate(newColumn)) {
 				Color color = board.getColorAt(coords.at(newRow, newColumn));
-				if (color == VACANT) {
-					result ^= POINT_HASHES[2][i];
-				} else {
-					result ^= board.getColorToPlay() == color ? POINT_HASHES[1][i]
-							: POINT_HASHES[0][i];
+				if (color != VACANT) {
+					// We represent friendly as white, enemy as black
+					result ^= board.getColorToPlay() == color ? POINT_HASHES[WHITE.index()][i]
+							: POINT_HASHES[BLACK.index()][i];
 				}
+			} else {
+				result ^= POINT_HASHES[OFF_BOARD.index()][i];
 			}
 		}
 		return result;

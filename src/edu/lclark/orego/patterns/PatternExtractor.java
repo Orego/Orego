@@ -135,7 +135,7 @@ public class PatternExtractor {
 	 * Processes file, updating counts of patterns encountered. If file is a
 	 * folder, recursively descends into it.
 	 */
-	protected void analyzeFiles(File file) {
+	void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
 		if (file.isDirectory()) {
 			if (verbose) {
@@ -273,7 +273,7 @@ public class PatternExtractor {
 	 * considered good, winner is true and the wins for the slot are updated. If
 	 * not, only runs is updated.
 	 */
-	protected void updateTables(boolean winner, short move) {
+	void updateTables(boolean winner, short move) {
 		short[] neighbors = coords.getNeighbors(move);
 		int[] colors = new int[8];
 		for (int i = 0; i < neighbors.length; i++) {
