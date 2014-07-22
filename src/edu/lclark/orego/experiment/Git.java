@@ -13,8 +13,9 @@ public final class Git {
 	 */
 	public static String getGitCommit() {
 		try {
-			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir=" + OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT, "status",
-					"-s").start().getInputStream())) {
+			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
+					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
+					"status", "-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
 					while (s.hasNextLine()) {
 						System.out.println(s.nextLine());
@@ -22,8 +23,10 @@ public final class Git {
 					return "";
 				}
 			}
-			try (Scanner s = new Scanner(new ProcessBuilder("git", "log",
-					"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
+			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
+					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
+					"status", "log", "--pretty=format:'%H'", "-n", "1").start()
+					.getInputStream())) {
 				if (s.hasNextLine()) {
 					final String commit = s.nextLine();
 					// substring to remove single quotes that would otherwise
