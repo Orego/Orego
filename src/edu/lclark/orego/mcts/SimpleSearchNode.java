@@ -7,6 +7,7 @@ import static java.util.Arrays.fill;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
+import edu.lclark.orego.feature.Rater;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.util.BitVector;
 import edu.lclark.orego.util.ListNode;
@@ -326,13 +327,17 @@ public class SimpleSearchNode implements SearchNode {
 	@Override
 	public void updateBias(McRunnable runnable) {
 		final Suggester[] suggesters = runnable.getSuggesters();
-		final int[] weights = runnable.getWeights();
 		for (int i = 0; i < suggesters.length; i++) {
+			int bias = suggesters[i].getBias();
 			final ShortSet moves = suggesters[i].getMoves();
 			for (int j = 0; j < moves.size(); j++) {
 				final short p = moves.get(j);
-				update(p, weights[i], weights[i]);
+				update(p, bias, bias);
 			}
+		}
+		Rater[] raters = runnable.getRaters();
+		for(Rater rater : raters){
+			rater.updateNode(this);
 		}
 		setBiasUpdated(true);
 	}

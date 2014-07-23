@@ -11,21 +11,31 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 @SuppressWarnings("serial")
 public class ShapeSuggester implements Suggester {
 
+	private final int bias;
+
 	private final Board board;
 
 	private final CoordinateSystem coords;
 
 	private final ShortSet moves;
 
-	private final ShapeTable shapeTable;
+	private ShapeTable shapeTable;
 
+	private double shapeThreshold;
+	
 	private final int patternSize;
-
+	
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int patternSize) {
+		this(board, shapeTable, shapeThreshold, 0, patternSize);
+	}
+	
 	/**
 	 * Takes a patternSize that is the area of the desired pattern -1 (for the
 	 * middle point) e.g. a 3x3 pattern would have patternSize 8.
 	 */
-	public ShapeSuggester(Board board, ShapeTable shapeTable, int patternSize) {
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int patternSize) {
+		this.bias = bias;
+		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
 		this.patternSize = patternSize;
@@ -34,12 +44,17 @@ public class ShapeSuggester implements Suggester {
 	}
 
 	@Override
+	public int getBias() {
+		return bias;
+	}
+
+	@Override
 	public ShortSet getMoves() {
 		moves.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
 				long hash = PatternFinder.getHash(board, p, patternSize);
-				if (shapeTable.getWinRate(hash) > 0.8f) {
+				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					moves.add(p);
 				}
 			}
@@ -47,4 +62,7 @@ public class ShapeSuggester implements Suggester {
 		return moves;
 	}
 
+	public void setTable(ShapeTable shapeTable) {
+		this.shapeTable = shapeTable;
+	}
 }

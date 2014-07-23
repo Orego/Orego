@@ -9,7 +9,7 @@ public final class PlayoutSpeed {
 	public static void main(String[] args) {
 		final int threads = 1;
 		final int msec = 10000;
-		final Player player = new PlayerBuilder().threads(threads).msecPerMove(msec).openingBook(false).build();
+		final Player player = new PlayerBuilder().threads(threads).msecPerMove(msec).openingBook(false).shape(true).build();
 		player.bestMove();
 		long runs = 0;
 		for (int i = 0; i < threads; i++) {

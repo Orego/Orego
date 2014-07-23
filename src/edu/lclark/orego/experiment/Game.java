@@ -232,6 +232,9 @@ final class Game {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		if(winner == OFF_BOARD){
+			System.err.println("Winner was off board.\n" + board.toString());
+		}
 		return winner;
 	}
 

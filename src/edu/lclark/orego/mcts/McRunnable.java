@@ -10,9 +10,12 @@ import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.Predicate;
+import edu.lclark.orego.feature.Rater;
+import edu.lclark.orego.feature.ShapeRater;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -63,10 +66,10 @@ public final class McRunnable implements Runnable {
 	private final PlayoutScorer scorer;
 
 	/** An array of suggesters used for updating bias. */
-	private final Suggester[] suggesters;
-
-	/** An array of weights for each suggester used for updating bias. */
-	private final int[] weights;
+	private Suggester[] suggesters;
+	
+	/** An array of raters used for updating bias. */
+	private Rater[] raters;
 
 	public McRunnable(Player player, CopiableStructure stuff) {
 		LgrfTable table = null;
@@ -78,8 +81,24 @@ public final class McRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
+		ShapeTable shapeTable = null;
+		ShapeRater shape = null;
+		try {
+			shapeTable = stuff.get(ShapeTable.class);
+			shape = copy.get(ShapeRater.class);
+			shape.setTable(shapeTable);
+		} catch (final IllegalArgumentException e) {
+			// If we get here, we're not using shape
+		}			
 		suggesters = copy.get(Suggester[].class);
-		weights = copy.get(int[].class);
+		try {
+			raters = copy.get(Rater[].class);
+		} catch (final IllegalArgumentException e) {
+			raters = new Rater[0];
+		}
+		if(shape != null){
+			raters[0] = shape;
+		}
 		this.player = player;
 		random = new MersenneTwisterFast();
 		mover = copy.get(Mover.class);
@@ -163,14 +182,6 @@ public final class McRunnable implements Runnable {
 		return board.getTurn();
 	}
 
-	/**
-	 * Returns the weights associated with each suggester used for updating
-	 * bias.
-	 */
-	public int[] getWeights() {
-		return weights;
-	}
-
 	/** Returns true if p passes this McRunnable's filter. */
 	public boolean isFeasible(short p) {
 		return filter.at(p);
@@ -248,6 +259,10 @@ public final class McRunnable implements Runnable {
 
 	private short selectAndPlayOneMove() {
 		return mover.selectAndPlayOneMove(random);
+	}
+
+	public Rater[] getRaters() {
+		return raters;
 	}
 
 }

@@ -51,6 +51,10 @@ public final class ShapeTable implements Serializable {
 			System.exit(1);
 		}
 	}
+	
+	public float getScalingFactor(){
+		return scalingFactor;
+	}
 
 	public double testGetRate(int index) {
 		return winRateTables[1][index];

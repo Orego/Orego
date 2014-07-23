@@ -13,5 +13,8 @@ public interface Suggester extends Serializable {
 	 * Returns the suggested moves.
 	 */
 	public ShortSet getMoves();
+	
+	/** Returns the bias that this suggester should add to moves it suggests. */
+	public int getBias();
 
 }
