@@ -24,9 +24,9 @@ public class ShapeSuggester implements Suggester {
 	private double shapeThreshold;
 	
 	private final int patternSize;
-
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold) {
-		this(board, shapeTable, shapeThreshold, 0, 24);
+	
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int patternSize) {
+		this(board, shapeTable, shapeThreshold, 0, patternSize);
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class ShapeSuggester implements Suggester {
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
 				long hash = PatternFinder.getHash(board, p, patternSize);
-				if (shapeTable.getWinRate(hash) > 0.8f) {
+				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					moves.add(p);
 				}
 			}

@@ -45,12 +45,15 @@ public final class ShapeTable implements Serializable {
 		try (PrintWriter writer = new PrintWriter(new File("test-books/patterns5x5.csv"))) {
 			for (float winRate : winRateTables[0]) {
 				writer.println(winRate + ",");
-
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	public float getScalingFactor(){
+		return scalingFactor;
 	}
 
 	public double testGetRate(int index) {
