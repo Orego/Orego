@@ -2,14 +2,8 @@ package edu.lclark.orego.patterns;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import edu.lclark.orego.core.Board;
 
 public class ShapeTableTest {
 
