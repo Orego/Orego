@@ -39,6 +39,7 @@ public final class PatternFinder {
 		}
 	}
 
+	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
 		HashMap<String, Float> map = new HashMap<>();
 		HashMap<String, Long> hashMap = new HashMap<>();
@@ -48,16 +49,14 @@ public final class PatternFinder {
 		int centerColumn = 11;
 		int centerRow = 11;
 		int patternRadius = 1;
-		int minStoneCount = 1;
-		int maxStoneCount = 5;
+		int minStoneCount = 0;
+		int maxStoneCount = 8;
 		ArrayList<Short> stones = new ArrayList<>();
-		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount, centerRow,
-				centerColumn,
-				patternRadius);
+		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
+				centerRow, centerColumn, patternRadius);
 		System.out.println(map.size());
 		ArrayList<Entry<String, Float>> entries = new ArrayList<>(map.entrySet());
 		Collections.sort(entries, new Comparator<Entry<String, Float>>() {
-			@SuppressWarnings("boxing")
 			@Override
 			public int compare(Entry<String, Float> entry1, Entry<String, Float> entry2) {
 				if (entry1.getValue() > entry2.getValue()) {
@@ -84,7 +83,7 @@ public final class PatternFinder {
 	}
 
 	@SuppressWarnings("boxing")
-	private static void generatePatternMap(Board board, HashMap<String, Float> map,
+	static void generatePatternMap(Board board, HashMap<String, Float> map,
 			HashMap<String, Long> hashMap, ShapeTable table, ArrayList<Short> stones,
 			int minStoneCount, int maxStoneCount,
 			int centerRow, int centerColumn, int patternRadius) {
@@ -112,7 +111,8 @@ public final class PatternFinder {
 					short p = board.getCoordinateSystem().at(row, column);
 					if (!stones.contains(p)) {
 						stones.add(p);
-						generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
+						generatePatternMap(board, map, hashMap, table, stones, minStoneCount,
+								maxStoneCount,
 								centerRow,
 								centerColumn, patternRadius);
 						stones.remove(new Short(p));
@@ -135,7 +135,10 @@ public final class PatternFinder {
 		return pattern;
 	}
 
-	// TODO Comments? What is patternSize?
+	/**
+	 * Gets the Zobrist hash for a pattern around a point. patternSize is the
+	 * area of the pattern - 1 (exclude the center point).
+	 */
 	public static long getHash(Board board, short p, int patternSize) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		long result = 0L;
