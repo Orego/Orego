@@ -45,12 +45,12 @@ public final class PatternFinder {
 		HashMap<String, Long> hashMap = new HashMap<>();
 		Board board = new Board(19);
 		ShapeTable table = new ShapeTable("patterns" + File.separator
-				+ "patterns5x5-SHAPE-sf90.data");
+				+ "patterns9x9-SHAPE-sf99.data");
 		int centerColumn = 11;
-		int centerRow = 11;
-		int patternRadius = 2;
-		int minStoneCount = 6;
-		int maxStoneCount = 6;
+		int centerRow = 16;
+		int patternRadius = 4;
+		int minStoneCount = 4;
+		int maxStoneCount = 4;
 		ArrayList<Short> stones = new ArrayList<>();
 		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
 				centerRow, centerColumn, patternRadius);
@@ -99,7 +99,7 @@ public final class PatternFinder {
 				board.play(p);
 			}
 			long hash = getHash(board, board.getCoordinateSystem().at(centerRow, centerColumn),
-					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) + 1);
+					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) - 1);
 			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
 			hashMap.put(pattern, hash);
@@ -108,6 +108,10 @@ public final class PatternFinder {
 			for (int row = topRow; row <= bottomRow; row++) {
 				for (int column = leftColumn; column <= rightColumn; column++) {
 					if (column == centerColumn && row == centerRow) {
+						continue;
+					}
+					if (!board.getCoordinateSystem().isValidOneDimensionalCoordinate(row)
+							|| !board.getCoordinateSystem().isValidOneDimensionalCoordinate(column)) {
 						continue;
 					}
 					short p = board.getCoordinateSystem().at(row, column);
@@ -129,8 +133,14 @@ public final class PatternFinder {
 		String pattern = "";
 		for (int row = topRow; row <= bottomRow; row++) {
 			for (int column = leftColumn; column <= rightColumn; column++) {
-				Color pointColor = board.getColorAt(board.getCoordinateSystem().at(row, column));
-				pattern += pointColor.toChar();
+				if (!board.getCoordinateSystem().isValidOneDimensionalCoordinate(row)
+						|| !board.getCoordinateSystem().isValidOneDimensionalCoordinate(column)) {
+					pattern += OFF_BOARD.toChar();
+				} else {
+					Color pointColor = board
+							.getColorAt(board.getCoordinateSystem().at(row, column));
+					pattern += pointColor.toChar();
+				}
 			}
 			pattern += "\n";
 		}
