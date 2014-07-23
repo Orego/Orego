@@ -40,14 +40,18 @@ public class ShapeExtractor extends PatternExtractor {
 		updateTables(true, move, board);
 		updateTables(false, selectRandomMove(move), board);
 	}
-
+	
 	@Override
-	void buildPatternData(File inputFile) {
-		analyzeFiles(inputFile);
+	void buildPatternData(File inputFile){
 		int patternDiameter = (int) Math.sqrt(patternSize + 1);
-		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns"
+		buildPatternData(inputFile.getPath(), OREGO_ROOT + "patterns/patterns"
 				+ patternDiameter + "x" + patternDiameter + "-SHAPE-sf"
 				+ (int) (scalingFactor * 100) + ".data");
+	}
+
+	void buildPatternData(String inputFile, String outputFile) {
+		analyzeFiles(new File(inputFile));
+		try (FileOutputStream out = new FileOutputStream(outputFile);
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable.getWinRateTables());
 		} catch (Exception e) {
