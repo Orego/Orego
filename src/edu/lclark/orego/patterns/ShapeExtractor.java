@@ -11,9 +11,9 @@ public class ShapeExtractor extends PatternExtractor {
 	private ShapeTable shapeTable;
 	
 	public static void main(String[] args) {
-		ShapeExtractor extractor = new ShapeExtractor(true, 0.99f);
+		ShapeExtractor extractor = new ShapeExtractor(true, 0.90f);
 		 extractor.buildPatternData(new File(
-		 "/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
+		 "/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles"));
 	}
 	
 	public ShapeExtractor(boolean verbose, float scalingFactor){
@@ -24,7 +24,7 @@ public class ShapeExtractor extends PatternExtractor {
 	@Override
 	void buildPatternData(File inputFile) {
 		analyzeFiles(inputFile);
-		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns3x3-SHAPE-sf99.data");
+		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns3x3-SHAPE-sf90.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable.getWinRateTables());
 		} catch (Exception e) {
