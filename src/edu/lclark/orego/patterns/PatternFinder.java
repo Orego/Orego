@@ -16,7 +16,7 @@ import static edu.lclark.orego.core.StoneColor.*;
 
 public final class PatternFinder {
 
-	public static final int[][] POINT_HASHES = new int[4][80];
+	public static final long[][] POINT_HASHES = new long[4][80];
 
 	public static final int[][] OFFSETS = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, -1 },
 			{ -1, 1 }, { 1, 1 }, { 1, -1 }, { -2, 0 }, { 0, 2 }, { 2, 0 }, { 0, -2 }, { -2, -1 },
@@ -34,7 +34,7 @@ public final class PatternFinder {
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 80; j++) {
-				POINT_HASHES[i][j] = random.nextInt();
+				POINT_HASHES[i][j] = random.nextLong();
 			}
 		}
 	}
@@ -44,21 +44,19 @@ public final class PatternFinder {
 		HashMap<String, Long> hashMap = new HashMap<>();
 		Board board = new Board(19);
 		ShapeTable table = new ShapeTable("patterns" + File.separator
-				+ "patterns9x9-SHAPE-sf90.data");
+				+ "patterns3x3-SHAPE-sf90.data");
 		int centerColumn = 11;
 		int centerRow = 11;
-		int patternRadius = 4;
-		int minStoneCount = 5;
+		int patternRadius = 1;
+		int minStoneCount = 1;
 		int maxStoneCount = 5;
 		ArrayList<Short> stones = new ArrayList<>();
 		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount, centerRow,
 				centerColumn,
 				patternRadius);
 		System.out.println(map.size());
-		ArrayList<Entry<String, Float>> entries = new ArrayList<>();
-		entries.addAll(map.entrySet());
+		ArrayList<Entry<String, Float>> entries = new ArrayList<>(map.entrySet());
 		Collections.sort(entries, new Comparator<Entry<String, Float>>() {
-
 			@SuppressWarnings("boxing")
 			@Override
 			public int compare(Entry<String, Float> entry1, Entry<String, Float> entry2) {
