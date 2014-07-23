@@ -201,7 +201,7 @@ public final class Player {
 		stopThreads();
 	}
 
-	/** @see edu.lclark.orego.score.FinalScorer.score */
+	/** @see edu.lclark.orego.score.FinalScorer#score */
 	public double finalScore() {
 		return finalScorer.score();
 	}

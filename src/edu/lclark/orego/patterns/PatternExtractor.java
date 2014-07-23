@@ -95,7 +95,7 @@ public class PatternExtractor {
 	/** Used to play moves. */
 	private final Board board;
 
-	private final CoordinateSystem coords;
+	final CoordinateSystem coords;
 
 	private final SgfParser parser;
 
@@ -135,7 +135,7 @@ public class PatternExtractor {
 	 * Processes file, updating counts of patterns encountered. If file is a
 	 * folder, recursively descends into it.
 	 */
-	protected void analyzeFiles(File file) {
+	void analyzeFiles(File file) {
 		File[] allFiles = file.listFiles();
 		if (file.isDirectory()) {
 			if (verbose) {
@@ -161,7 +161,7 @@ public class PatternExtractor {
 
 	/** Analyzes all the games in one SGF file. */
 	@SuppressWarnings("boxing")
-	private void analyzeGames(List<List<Short>> games) {
+	void analyzeGames(List<List<Short>> games) {
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				analyzeMove(move);
@@ -224,7 +224,7 @@ public class PatternExtractor {
 	 * Selects a random legal move. Used to help balance the table with losses
 	 * for points not played in the game being analyzed.
 	 */
-	private short selectRandomMove(short move) {
+	short selectRandomMove(short move) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short) (random.nextInt(vacantPoints.size()));
 		short i = start;
@@ -273,7 +273,7 @@ public class PatternExtractor {
 	 * considered good, winner is true and the wins for the slot are updated. If
 	 * not, only runs is updated.
 	 */
-	protected void updateTables(boolean winner, short move) {
+	void updateTables(boolean winner, short move) {
 		short[] neighbors = coords.getNeighbors(move);
 		int[] colors = new int[8];
 		for (int i = 0; i < neighbors.length; i++) {

@@ -28,6 +28,7 @@ import edu.lclark.orego.mcts.TranspositionTable;
 import edu.lclark.orego.mcts.UctDescender;
 import edu.lclark.orego.util.ListNode;
 
+/** Interactive graphic representation of Monte Carlo tree search. */
 @SuppressWarnings("serial")
 public final class TreeVisualizer extends JFrame {
 

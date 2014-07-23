@@ -66,7 +66,6 @@ public final class Significance {
 	 *            Win rate for condition 2.
 	 * @param n
 	 *            Number of games.
-	 * @return
 	 */
 	public static double zScore(double p1, double p2, int n) {
 		final double p = (p1 + p2) / 2;
