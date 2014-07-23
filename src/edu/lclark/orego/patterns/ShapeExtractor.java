@@ -24,7 +24,7 @@ public class ShapeExtractor extends PatternExtractor {
 	@Override
 	void buildPatternData(File inputFile) {
 		analyzeFiles(inputFile);
-		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns3x3-SHAPE-sf90.data");
+		try (FileOutputStream out = new FileOutputStream(OREGO_ROOT + "patterns/patterns5x5-SHAPE-sf90.data");
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable.getWinRateTables());
 		} catch (Exception e) {
@@ -37,7 +37,7 @@ public class ShapeExtractor extends PatternExtractor {
 	void updateTables(boolean winner, short move){
 		// TODO Handle rotations and reflections
 		// TODO Get rid of magic number
-		long hash = PatternFinder.getHash(getBoard(), move, 8);
+		long hash = PatternFinder.getHash(getBoard(), move, 24);
 		shapeTable.update(hash, winner);
 	}
 
