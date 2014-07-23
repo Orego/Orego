@@ -66,7 +66,7 @@ public final class PlayerBuilder {
 		rave = true;
 		shapeThreshold = 0.0;
 		shapeScalingFactor = .95f;
-		shapePatternSize = 24;
+		shapePatternSize = 5;
 	}
 
 	public PlayerBuilder biasDelay(int biasDelay) {
