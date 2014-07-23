@@ -45,12 +45,12 @@ public final class PatternFinder {
 		HashMap<String, Long> hashMap = new HashMap<>();
 		Board board = new Board(19);
 		ShapeTable table = new ShapeTable("patterns" + File.separator
-				+ "patterns3x3-SHAPE-sf90.data");
+				+ "patterns5x5-SHAPE-sf90.data");
 		int centerColumn = 11;
 		int centerRow = 11;
-		int patternRadius = 1;
-		int minStoneCount = 0;
-		int maxStoneCount = 8;
+		int patternRadius = 2;
+		int minStoneCount = 4;
+		int maxStoneCount = 4;
 		ArrayList<Short> stones = new ArrayList<>();
 		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
 				centerRow, centerColumn, patternRadius);
@@ -71,12 +71,14 @@ public final class PatternFinder {
 		System.out.println("Bottom Twenty\n");
 		for (int i = 0; i < 20; i++) {
 			System.out.println(entries.get(i).getValue());
+			System.out.println(hashMap.get(entries.get(i).getKey()));
 			table.printIndividualWinRates(hashMap.get(entries.get(i).getKey()));
 			System.out.println(entries.get(i).getKey());
 		}
 		System.out.println("Top Twenty\n");
 		for (int i = entries.size() - 20; i < entries.size(); i++) {
 			System.out.println(entries.get(i).getValue());
+			System.out.println(hashMap.get(entries.get(i).getKey()));
 			table.printIndividualWinRates(hashMap.get(entries.get(i).getKey()));
 			System.out.println(entries.get(i).getKey());
 		}
@@ -97,7 +99,7 @@ public final class PatternFinder {
 				board.play(p);
 			}
 			long hash = getHash(board, board.getCoordinateSystem().at(centerRow, centerColumn),
-					1 + (patternRadius * 2));
+					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) + 1);
 			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
 			hashMap.put(pattern, hash);

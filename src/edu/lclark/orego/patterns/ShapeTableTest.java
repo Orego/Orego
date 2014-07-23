@@ -29,21 +29,5 @@ public class ShapeTableTest {
 		table.update(70000, true);
 		assertEquals(0.507475f, table.getWinRate(70000), 0.0001f);
 	}
-	
-	public void testCollisions(){
-		HashMap<String, Float> map = new HashMap<>();
-		HashMap<String, Long> hashMap = new HashMap<>();
-		Board board = new Board(19);
-		table = new ShapeTable("patterns" + File.separator
-				+ "patterns3x3-SHAPE-sf90.data");
-		int centerColumn = 11;
-		int centerRow = 11;
-		int patternRadius = 1;
-		int minStoneCount = 0;
-		int maxStoneCount = 8;
-		ArrayList<Short> stones = new ArrayList<>();
-		PatternFinder.generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
-				centerRow, centerColumn, patternRadius);
-	}
 
 }

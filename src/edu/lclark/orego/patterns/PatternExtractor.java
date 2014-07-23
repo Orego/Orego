@@ -95,7 +95,7 @@ public class PatternExtractor {
 	/** Used to play moves. */
 	private final Board board;
 
-	private final CoordinateSystem coords;
+	final CoordinateSystem coords;
 
 	private final SgfParser parser;
 
@@ -161,7 +161,7 @@ public class PatternExtractor {
 
 	/** Analyzes all the games in one SGF file. */
 	@SuppressWarnings("boxing")
-	private void analyzeGames(List<List<Short>> games) {
+	void analyzeGames(List<List<Short>> games) {
 		for (List<Short> game : games) {
 			for (Short move : game) {
 				analyzeMove(move);
@@ -224,7 +224,7 @@ public class PatternExtractor {
 	 * Selects a random legal move. Used to help balance the table with losses
 	 * for points not played in the game being analyzed.
 	 */
-	private short selectRandomMove(short move) {
+	short selectRandomMove(short move) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short) (random.nextInt(vacantPoints.size()));
 		short i = start;

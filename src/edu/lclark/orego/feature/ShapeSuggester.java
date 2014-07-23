@@ -19,9 +19,12 @@ public class ShapeSuggester implements Suggester {
 	
 	private final ShapeTable shapeTable;
 	
-	public ShapeSuggester(Board board, ShapeTable shapeTable){
+	private final int patternSize;
+	
+	public ShapeSuggester(Board board, ShapeTable shapeTable, int patternSize){
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
+		this.patternSize = patternSize;
 		this.shapeTable = shapeTable;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
@@ -31,7 +34,7 @@ public class ShapeSuggester implements Suggester {
 		moves.clear();
 		for(short p : coords.getAllPointsOnBoard()){
 			if(board.getColorAt(p) == VACANT){
-				long hash = PatternFinder.getHash(board, p, 24);
+				long hash = PatternFinder.getHash(board, p, patternSize);
 				if(shapeTable.getWinRate(hash) > 0.8f){
 					moves.add(p);
 				}
