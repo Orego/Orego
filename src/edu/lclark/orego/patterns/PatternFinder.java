@@ -49,8 +49,8 @@ public final class PatternFinder {
 		int centerColumn = 11;
 		int centerRow = 11;
 		int patternRadius = 2;
-		int minStoneCount = 4;
-		int maxStoneCount = 4;
+		int minStoneCount = 6;
+		int maxStoneCount = 6;
 		ArrayList<Short> stones = new ArrayList<>();
 		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
 				centerRow, centerColumn, patternRadius);

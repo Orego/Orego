@@ -9,6 +9,7 @@ import static java.io.File.separator;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
+import static java.lang.Float.parseFloat;
 
 import static edu.lclark.orego.experiment.Logging.*;
 
@@ -64,15 +65,15 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
-<<<<<<< HEAD
+ * <<<<<<< HEAD
  * <dt>logfile</dt>
  * <dd>Specifies the destination file for any logging activity. If not
  * specified, the program will not log any data.</dd>
-=======
+ * =======
  * <dt>log-file</dt>
  * <dd>Toggles logging, which records logs in the specified folder. If not set,
  * nothing will be logged.</dd>
->>>>>>> orego8
+ * >>>>>>> orego8
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -406,7 +407,9 @@ public final class Orego {
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
 		for (int i = 0; i < deadStones.size(); i++) {
-			vertices += player.getBoard().getCoordinateSystem().toString(deadStones.get(i)) + " ";
+			vertices += player.getBoard().getCoordinateSystem()
+					.toString(deadStones.get(i))
+					+ " ";
 		}
 		return vertices;
 	}
@@ -453,10 +456,13 @@ public final class Orego {
 				playerBuilder.rave(parseBoolean(right));
 			} else if (left.equals("shape")) {
 				playerBuilder.shape(parseBoolean(right));
-			}else if (left.equals("shape-bias")){
+			} else if (left.equals("shape-bias")) {
 				playerBuilder.shapeBias(parseInt(right));
-			}
-			else if (left.equals("shape-threshold")) {
+			} else if (left.equals("shape-pattern-size")) {
+				playerBuilder.shapePatternSize(parseInt(right));
+			} else if (left.equals("shape-scaling-factor")) {
+				playerBuilder.shapeScalingFactor(parseFloat(right));
+			} else if (left.equals("shape-threshold")) {
 				playerBuilder.shapeThreshold(parseDouble(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));

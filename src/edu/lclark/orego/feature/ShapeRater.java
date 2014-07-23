@@ -24,20 +24,23 @@ public class ShapeRater implements Rater {
 	private double shapeThreshold;
 
 	private final int bias;
+	
+	private final int shapePatternSize;
 
-	public ShapeRater(Board board, ShapeTable shapeTable, double shapeThreshold, int bias) {
+	public ShapeRater(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int shapePatternSize) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
 		this.shapeTable = shapeTable;
+		this.shapePatternSize = shapePatternSize;
 	}
 
 	@Override
 	public void updateNode(SearchNode node) {
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
-				long hash = PatternFinder.getHash(board, p, 24);
+				long hash = PatternFinder.getHash(board, p, shapePatternSize);
 				float winRate = shapeTable.getWinRate(hash);
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					float winsToAdd = bias * winRate;
