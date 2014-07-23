@@ -45,12 +45,12 @@ public final class PatternFinder {
 		HashMap<String, Long> hashMap = new HashMap<>();
 		Board board = new Board(19);
 		ShapeTable table = new ShapeTable("patterns" + File.separator
-				+ "patterns7x7-SHAPE-sf99.data");
+				+ "patterns9x9-SHAPE-sf99.data");
 		int centerColumn = 11;
 		int centerRow = 16;
-		int patternRadius = 3;
-		int minStoneCount = 5;
-		int maxStoneCount = 5;
+		int patternRadius = 4;
+		int minStoneCount = 4;
+		int maxStoneCount = 4;
 		ArrayList<Short> stones = new ArrayList<>();
 		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
 				centerRow, centerColumn, patternRadius);
