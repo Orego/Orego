@@ -72,13 +72,13 @@ public final class PatternFinder {
 		System.out.println("Bottom Twenty\n");
 		for (int i = 0; i < 20; i++) {
 			System.out.println(entries.get(i).getValue());
-			System.out.println(hashMap.get(entries.get(i).getKey()));
+			table.printIndividualWinRates(hashMap.get(entries.get(i).getKey()));
 			System.out.println(entries.get(i).getKey());
 		}
 		System.out.println("Top Twenty\n");
 		for (int i = entries.size() - 20; i < entries.size(); i++) {
 			System.out.println(entries.get(i).getValue());
-			System.out.println(hashMap.get(entries.get(i).getKey()));
+			table.printIndividualWinRates(hashMap.get(entries.get(i).getKey()));
 			System.out.println(entries.get(i).getKey());
 		}
 	}

@@ -78,4 +78,12 @@ public final class ShapeTable implements Serializable {
 		}
 		return result / 4;
 	}
+	
+	/** Prints the win rate stored in each section of the table. */
+	public void printIndividualWinRates(long hash){
+		for (int i = 0; i < 4; i++) {
+			int index = (int) (hash >> (16 * i) & 65535);
+			System.out.println("Section " + i + ": " + winRateTables[i][index]);
+		}
+	}
 }
