@@ -41,15 +41,18 @@ public final class PatternFinder {
 
 	public static void main(String[] args) {
 		HashMap<String, Float> map = new HashMap<>();
+		HashMap<String, Long> hashMap = new HashMap<>();
 		Board board = new Board(19);
-		ShapeTable table = new ShapeTable("patterns" + File.separator + "patterns3x3-SHAPE-sf90.data");
-		int centerColumn = 4;
-		int centerRow = 4;
-		int patternRadius = 1;
-		int minStoneCount = 3;
+		ShapeTable table = new ShapeTable("patterns" + File.separator
+				+ "patterns9x9-SHAPE-sf90.data");
+		int centerColumn = 11;
+		int centerRow = 11;
+		int patternRadius = 4;
+		int minStoneCount = 5;
 		int maxStoneCount = 5;
 		ArrayList<Short> stones = new ArrayList<>();
-		generatePatternMap(board, map, table, stones, minStoneCount, maxStoneCount, centerRow, centerColumn,
+		generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount, centerRow,
+				centerColumn,
 				patternRadius);
 		System.out.println(map.size());
 		ArrayList<Entry<String, Float>> entries = new ArrayList<>();
@@ -71,18 +74,21 @@ public final class PatternFinder {
 		System.out.println("Bottom Twenty\n");
 		for (int i = 0; i < 20; i++) {
 			System.out.println(entries.get(i).getValue());
+			System.out.println(hashMap.get(entries.get(i).getKey()));
 			System.out.println(entries.get(i).getKey());
 		}
 		System.out.println("Top Twenty\n");
 		for (int i = entries.size() - 20; i < entries.size(); i++) {
 			System.out.println(entries.get(i).getValue());
+			System.out.println(hashMap.get(entries.get(i).getKey()));
 			System.out.println(entries.get(i).getKey());
 		}
 	}
 
 	@SuppressWarnings("boxing")
 	private static void generatePatternMap(Board board, HashMap<String, Float> map,
-			ShapeTable table, ArrayList<Short> stones, int minStoneCount, int maxStoneCount,
+			HashMap<String, Long> hashMap, ShapeTable table, ArrayList<Short> stones,
+			int minStoneCount, int maxStoneCount,
 			int centerRow, int centerColumn, int patternRadius) {
 		int topRow = centerRow - patternRadius;
 		int bottomRow = centerRow + patternRadius;
@@ -97,7 +103,9 @@ public final class PatternFinder {
 					1 + (patternRadius * 2));
 			String pattern = getPatternString(board, topRow, bottomRow, leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
-		} else if (stones.size() < maxStoneCount){
+			hashMap.put(pattern, hash);
+		}
+		if (stones.size() < maxStoneCount) {
 			for (int row = topRow; row <= bottomRow; row++) {
 				for (int column = leftColumn; column <= rightColumn; column++) {
 					if (column == centerColumn && row == centerRow) {
@@ -106,7 +114,8 @@ public final class PatternFinder {
 					short p = board.getCoordinateSystem().at(row, column);
 					if (!stones.contains(p)) {
 						stones.add(p);
-						generatePatternMap(board, map, table, stones, minStoneCount, maxStoneCount, centerRow,
+						generatePatternMap(board, map, hashMap, table, stones, minStoneCount, maxStoneCount,
+								centerRow,
 								centerColumn, patternRadius);
 						stones.remove(new Short(p));
 					}
@@ -137,7 +146,8 @@ public final class PatternFinder {
 		for (int i = 0; i < patternSize; i++) {
 			int newRow = row + OFFSETS[i][0];
 			int newColumn = column + OFFSETS[i][1];
-			if (coords.isValidOneDimensionalCoordinate(newRow) && coords.isValidOneDimensionalCoordinate(newColumn)) {
+			if (coords.isValidOneDimensionalCoordinate(newRow)
+					&& coords.isValidOneDimensionalCoordinate(newColumn)) {
 				Color color = board.getColorAt(coords.at(newRow, newColumn));
 				if (color != VACANT) {
 					// We represent friendly as white, enemy as black
