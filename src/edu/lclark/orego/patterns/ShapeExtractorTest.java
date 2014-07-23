@@ -2,7 +2,6 @@ package edu.lclark.orego.patterns;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
