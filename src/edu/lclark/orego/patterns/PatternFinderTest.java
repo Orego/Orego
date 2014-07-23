@@ -31,12 +31,8 @@ public class PatternFinderTest {
 		long correctHash = 0;
 		correctHash ^= PatternFinder.POINT_HASHES[1][0];
 		correctHash ^= PatternFinder.POINT_HASHES[0][1];
-		correctHash ^= PatternFinder.POINT_HASHES[2][2];
-		correctHash ^= PatternFinder.POINT_HASHES[2][3];
 		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("c3"), 4));
 		correctHash = 0;
-		correctHash ^= PatternFinder.POINT_HASHES[2][0];
-		correctHash ^= PatternFinder.POINT_HASHES[2][1];
 		correctHash ^= PatternFinder.POINT_HASHES[3][2];
 		correctHash ^= PatternFinder.POINT_HASHES[3][3];
 		correctHash ^= PatternFinder.POINT_HASHES[3][4];
@@ -73,14 +69,6 @@ public class PatternFinderTest {
 		board = new Board(19);
 		board.setUpProblem(problem, BLACK);
 		long correctHash = 0;
-		correctHash ^= PatternFinder.POINT_HASHES[2][0];
-		correctHash ^= PatternFinder.POINT_HASHES[2][1];
-		correctHash ^= PatternFinder.POINT_HASHES[2][2];
-		correctHash ^= PatternFinder.POINT_HASHES[2][3];
-		correctHash ^= PatternFinder.POINT_HASHES[2][4];
-		correctHash ^= PatternFinder.POINT_HASHES[2][5];
-		correctHash ^= PatternFinder.POINT_HASHES[2][6];
-		correctHash ^= PatternFinder.POINT_HASHES[2][7];
 		correctHash ^= PatternFinder.POINT_HASHES[1][8];
 		correctHash ^= PatternFinder.POINT_HASHES[0][9];
 		correctHash ^= PatternFinder.POINT_HASHES[1][10];

@@ -22,16 +22,23 @@ public class ShapeSuggester implements Suggester {
 	private ShapeTable shapeTable;
 
 	private double shapeThreshold;
-
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold) {
-		this(board, shapeTable, shapeThreshold, 0);
+	
+	private final int patternSize;
+	
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int patternSize) {
+		this(board, shapeTable, shapeThreshold, 0, patternSize);
 	}
-
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias) {
+	
+	/**
+	 * Takes a patternSize that is the area of the desired pattern -1 (for the
+	 * middle point) e.g. a 3x3 pattern would have patternSize 8.
+	 */
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int patternSize) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
+		this.patternSize = patternSize;
 		this.shapeTable = shapeTable;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
@@ -46,7 +53,7 @@ public class ShapeSuggester implements Suggester {
 		moves.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
-				long hash = PatternFinder.getHash(board, p, 24);
+				long hash = PatternFinder.getHash(board, p, patternSize);
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					moves.add(p);
 				}
