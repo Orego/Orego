@@ -8,9 +8,9 @@ import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.experiment.Logging.*;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.Board;
@@ -55,6 +55,9 @@ public final class Player {
 	 * out.
 	 */
 	private boolean keepRunning;
+
+	/** Used to verify that all McRunnables have stopped. */
+	private CountDownLatch latch;
 
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
@@ -294,6 +297,23 @@ public final class Player {
 		return finalScorer;
 	}
 
+	/**
+	 * Gets all the stones on the board that live with at least probability
+	 * threshold.
+	 */
+	public ShortSet getLiveStones(double threshold) {
+		ShortSet deadStones = findDeadStones(threshold, WHITE);
+		deadStones.addAll(findDeadStones(threshold, BLACK));
+		ShortSet liveStones = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			if (board.getColorAt(p) != VACANT && !deadStones.contains(p)) {
+				liveStones.add(p);
+			}
+		}
+		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
+		return liveStones;
+	}
+
 	/** Returns the ith McRunnable. */
 	public McRunnable getMcRunnable(int i) {
 		return runnables[i];
@@ -327,6 +347,11 @@ public final class Player {
 	/** Returns the updater for this player. */
 	TreeUpdater getUpdater() {
 		return updater;
+	}
+
+	/** Indicate that one McRunnable has stopped. */
+	void notifyMcRunnableDone() {
+		latch.countDown();
 	}
 
 	/** Sets whether we think during the opponent's turn. */
@@ -390,7 +415,7 @@ public final class Player {
 		clear();
 		board.setUpHandicap(handicapSize);
 	}
-
+	
 	/** Places moves read from an SGF game. */
 	@SuppressWarnings("boxing")
 	public void setUpSgfGame(List<Short> moves) {
@@ -410,12 +435,13 @@ public final class Player {
 	/** Starts the McRunnables' threads. */
 	private void startThreads() {
 		if (keepRunning) {
-			return; // If the threads were already running, don't start them
-					// again
+			return; // If the threads were already running, do nothing
 		}
 		keepRunning = true;
-		executor = Executors.newFixedThreadPool(runnables.length);
-		for (int i = 0; i < runnables.length; i++) {
+		int n = runnables.length; // # of threads
+		latch = new CountDownLatch(n);
+		executor = Executors.newFixedThreadPool(n);
+		for (int i = 0; i < n; i++) {
 			executor.execute(runnables[i]);
 		}
 		executor.shutdown();
@@ -424,13 +450,11 @@ public final class Player {
 	/** Stops the McRunnables' threads. */
 	private void stopThreads() {
 		if (!keepRunning) {
-			return; // If the threads were not running, don't bother to stop
-					// them
+			return; // If the threads were not running, do nothing
 		}
 		try {
 			keepRunning = false;
-			final boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
-			assert finished;
+			latch.await();
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -474,23 +498,6 @@ public final class Player {
 	/** Incorporate the result of a run in the tree. */
 	public void updateTree(Color winner, McRunnable mcRunnable) {
 		updater.updateTree(winner, mcRunnable);
-	}
-
-	/**
-	 * Gets all the stones on the board that live with at least probability
-	 * threshold.
-	 */
-	public ShortSet getLiveStones(double threshold) {
-		ShortSet deadStones = findDeadStones(threshold, WHITE);
-		deadStones.addAll(findDeadStones(threshold, BLACK));
-		ShortSet liveStones = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
-		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
-			if (board.getColorAt(p) != VACANT && !deadStones.contains(p)) {
-				liveStones.add(p);
-			}
-		}
-		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
-		return liveStones;
 	}
 
 }

@@ -244,6 +244,7 @@ public final class McRunnable implements Runnable {
 		while (getPlayer().shouldKeepRunning()) {
 			performMcRun();
 		}
+		player.notifyMcRunnableDone();
 	}
 
 	private short selectAndPlayOneMove() {
