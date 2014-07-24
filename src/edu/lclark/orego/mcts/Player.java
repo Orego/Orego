@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.HistoryObserver;
@@ -35,6 +36,8 @@ public final class Player {
 	 * kill them.
 	 */
 	private boolean cleanupMode;
+	
+	private final CoordinateSystem coords;
 
 	/**
 	 * True if the polite coup de grace feature is turned on.
@@ -86,6 +89,7 @@ public final class Player {
 	public Player(int threads, CopiableStructure stuff) {
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
+		coords = board.getCoordinateSystem();
 		historyObserver = copy.get(HistoryObserver.class);
 		finalScorer = copy.get(FinalScorer.class);
 		runnables = new McRunnable[threads];
@@ -429,7 +433,7 @@ public final class Player {
 		}
 		try {
 			keepRunning = false;
-			final boolean finished = executor.awaitTermination(5, TimeUnit.SECONDS);
+			final boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
 			assert finished;
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
@@ -491,6 +495,40 @@ public final class Player {
 		}
 		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
 		return liveStones;
+	}
+	
+	/** Returns GoGui information showing search values. */
+	@SuppressWarnings("boxing")
+	public String goguiSearchValues() {
+		// TODO Encapsulate this normalization in a single place, called by all
+		// the various gogui methods
+		double min = 1.0;
+		double max = 0.0;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (board.getColorAt(p) == VACANT) {
+				double winRate = getRoot().getWinRate(p);
+				if(winRate>0){
+					min = Math.min(min, winRate);
+					max = Math.max(max, winRate);
+			}
+			}
+		}
+		String result = "";
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getBoard().getColorAt(p) == VACANT) {
+				double winRate = getRoot().getWinRate(p);
+				if (winRate > 0) {
+					if (result.length() > 0) {
+						result += "\n";
+					}
+					int green = (int) (255*(winRate - min) / (max - min));
+					result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
+							String.format("#%02x%02x00",  255-green, green),
+							coords.toString(p), coords.toString(p), winRate * 100);
+				}
+			}
+		}
+		return result;
 	}
 
 }

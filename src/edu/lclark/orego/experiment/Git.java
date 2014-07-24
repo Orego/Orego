@@ -1,5 +1,6 @@
 package edu.lclark.orego.experiment;
 
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -12,14 +13,20 @@ public final class Git {
 	 */
 	public static String getGitCommit() {
 		try {
-			try (Scanner s = new Scanner(new ProcessBuilder("git", "status",
-					"-s").start().getInputStream())) {
+			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
+					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
+					"status", "-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
+					while (s.hasNextLine()) {
+						System.out.println(s.nextLine());
+					}
 					return "";
 				}
 			}
-			try (Scanner s = new Scanner(new ProcessBuilder("git", "log",
-					"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
+			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
+					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
+					"log", "--pretty=format:'%H'", "-n", "1").start()
+					.getInputStream())) {
 				if (s.hasNextLine()) {
 					final String commit = s.nextLine();
 					// substring to remove single quotes that would otherwise

@@ -65,15 +65,9 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Last Good Reply with Forgetting (level 2). During playouts, Orego
  * tracks successful replies to a move or a chain of two moves, for use in
  * future playouts. Defaults to true.</dd>
- * <<<<<<< HEAD
- * <dt>logfile</dt>
- * <dd>Specifies the destination file for any logging activity. If not
- * specified, the program will not log any data.</dd>
- * =======
  * <dt>log-file</dt>
  * <dd>Toggles logging, which records logs in the specified folder. If not set,
  * nothing will be logged.</dd>
- * >>>>>>> orego8
  * <dt>memory</dt>
  * <dd>Megabytes of memory used by Orego. The transposition table is scaled
  * accordingly. Should match the memory allocated to the Java virtual machine
@@ -103,10 +97,11 @@ public final class Orego {
 	private static final String[] DEFAULT_GTP_COMMANDS = { "black",
 			"boardsize", "clear_board", "final_score", "final_status_list",
 			"fixed_handicap", "genmove", "genmove_black", "genmove_white",
-			"known_command", "kgs-game_over", "kgs-genmove_cleanup", "komi",
-			"list_commands", "loadsgf", "name", "play", "playout_count",
-			"protocol_version", "quit", "reg_genmove", "showboard",
-			"time_left", "time_settings", "undo", "version", "white", };
+			"gogui-analyze_commands", "gogui-search-value", "known_command",
+			"kgs-game_over", "kgs-genmove_cleanup", "komi", "list_commands",
+			"loadsgf", "name", "play", "playout_count", "protocol_version",
+			"quit", "reg_genmove", "showboard", "time_left", "time_settings",
+			"undo", "version", "white", };
 
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
@@ -313,6 +308,12 @@ public final class Orego {
 				}
 				acknowledge(coords.toString(point));
 			}
+		} else if (command.equals("gogui-analyze_commands")) {
+			acknowledge("gfx/Search values/gogui-search-values\n");
+		} else if (command.equals("gogui-search-values")) {
+			player.getMcRunnable(0).copyDataFrom(player.getBoard());
+			player.getRoot().updateBias(player.getMcRunnable(0));
+			acknowledge(player.goguiSearchValues());
 		} else if (command.equals("kgs-game_over")) {
 			try (Scanner scanner = new Scanner(new File(OREGO_ROOT + separator
 					+ "config" + separator + "quit.txt"))) {
