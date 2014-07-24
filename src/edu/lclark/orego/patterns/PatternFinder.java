@@ -202,7 +202,6 @@ public final class PatternFinder {
 					}
 				} else {
 					result ^= POINT_HASHES[4][j];
-					stoneCounter++;
 				}
 			}
 			if (stoneCounter >= minStones) {
