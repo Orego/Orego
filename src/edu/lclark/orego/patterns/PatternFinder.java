@@ -177,8 +177,8 @@ public final class PatternFinder {
 		int row = coords.row(p);
 		int column = coords.column(p);
 		int stoneCounter = 0;
-		for (int i = 0; i < 5; i++) {
-			for (int j = PATTERN_SIZES[i - 1]; j < PATTERN_SIZES[i]; j++) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = PATTERN_SIZES[i]; j < PATTERN_SIZES[i + 1]; j++) {
 				int newRow = row + OFFSETS[j][0];
 				int newColumn = column + OFFSETS[j][1];
 				if (coords.isValidOneDimensionalCoordinate(newRow)
