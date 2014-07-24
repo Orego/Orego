@@ -15,7 +15,7 @@ public class ShapeExtractor extends PatternExtractor {
 
 	private float scalingFactor;
 
-	private int patternSize;
+	private int minStones;
 
 	private Board[] boards;
 
@@ -25,9 +25,9 @@ public class ShapeExtractor extends PatternExtractor {
 				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
 	}
 
-	public ShapeExtractor(boolean verbose, float scalingFactor, int patternSize) {
+	public ShapeExtractor(boolean verbose, float scalingFactor, int minStones) {
 		super(verbose);
-		this.patternSize = patternSize;
+		this.minStones = minStones;
 		this.scalingFactor = scalingFactor;
 		shapeTable = new ShapeTable(scalingFactor);
 		boards = new Board[8];
@@ -43,9 +43,8 @@ public class ShapeExtractor extends PatternExtractor {
 	
 	@Override
 	void buildPatternData(File inputFile){
-		int patternDiameter = (int) Math.sqrt(patternSize + 1);
 		buildPatternData(inputFile.getPath(), OREGO_ROOT + "patterns/patterns"
-				+ patternDiameter + "x" + patternDiameter + "-SHAPE-sf"
+				+ minStones + "stones-SHAPE-sf"
 				+ (int) (scalingFactor * 100) + ".data");
 	}
 
@@ -118,7 +117,7 @@ public class ShapeExtractor extends PatternExtractor {
 	}
 
 	void updateTables(boolean winner, short move, Board board) {
-		long hash = PatternFinder.getHash(board, move, patternSize);
+		long hash = PatternFinder.getHash(board, move, minStones);
 		shapeTable.update(hash, winner);
 	}
 

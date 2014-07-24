@@ -201,7 +201,7 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder shapePatternSize(int shapePatternSize) {
+	public PlayerBuilder shapeMinStones(int shapePatternSize) {
 		this.shapePatternSize = shapePatternSize;
 		return this;
 	}

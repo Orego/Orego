@@ -182,7 +182,7 @@ public final class CopiableStructureFactory {
 	}
 
 	public static CopiableStructure shape(int width, double komi,
-			double shapeThreshold, int shapeBias, int shapePatternSize,
+			double shapeThreshold, int shapeBias, int minStones,
 			float shapeScalingFactor) {
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);
@@ -209,11 +209,10 @@ public final class CopiableStructureFactory {
 		// System.err.println("5x5 patterns file: " + OREGO_ROOT +
 		// "patterns/patterns5x5.data");
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
-				+ "patterns/patterns" + shapePatternSize + "x"
-				+ shapePatternSize + "-SHAPE-sf"
+				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
 				+ (int) (shapeScalingFactor * 100) + ".data");
 		final ShapeRater shape = new ShapeRater(board, shapeTable,
-				shapeThreshold, shapeBias, (shapePatternSize*shapePatternSize) - 1);
+				shapeThreshold, shapeBias, minStones);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias;

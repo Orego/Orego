@@ -458,8 +458,8 @@ public final class Orego {
 				playerBuilder.shape(parseBoolean(right));
 			} else if (left.equals("shape-bias")) {
 				playerBuilder.shapeBias(parseInt(right));
-			} else if (left.equals("shape-pattern-size")) {
-				playerBuilder.shapePatternSize(parseInt(right));
+			} else if (left.equals("shape-minstones")) {
+				playerBuilder.shapeMinStones(parseInt(right));
 			} else if (left.equals("shape-scaling-factor")) {
 				playerBuilder.shapeScalingFactor(parseFloat(right));
 			} else if (left.equals("shape-threshold")) {
