@@ -20,7 +20,7 @@ public class ShapeExtractor extends PatternExtractor {
 	private Board[] boards;
 
 	public static void main(String[] args) {
-		ShapeExtractor extractor = new ShapeExtractor(true, 0.99f, 80);
+		ShapeExtractor extractor = new ShapeExtractor(true, Float.parseFloat(args[0]), Integer.parseInt(args[1]));
 		extractor.buildPatternData(new File(
 				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
 	}
