@@ -185,14 +185,14 @@ public final class PatternFinder {
 						&& coords.isValidOneDimensionalCoordinate(newColumn)) {
 					short point = coords.at(newRow, newColumn);
 					Color color = board.getColorAt(point);
-					if (color == BLACK) {
+					if (color == board.getColorToPlay()) {
 						if (board.getLiberties(point).size() == 1) {
 							result ^= POINT_HASHES[0][j];
 						} else {
 							result ^= POINT_HASHES[1][j];
 						}
 						stoneCounter++;
-					} else if (color == WHITE) {
+					} else if (color == board.getColorToPlay().opposite()) {
 						if (board.getLiberties(point).size() == 1) {
 							result ^= POINT_HASHES[2][j];
 						} else {

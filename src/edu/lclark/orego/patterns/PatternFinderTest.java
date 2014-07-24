@@ -27,7 +27,7 @@ public class PatternFinderTest {
 				".O.#.",
 				".....",
 		};
-		board.setUpProblem(diagram, WHITE);
+		board.setUpProblem(diagram, BLACK);
 		long correctHash = 0;
 		correctHash ^= PatternFinder.POINT_HASHES[2][0];
 		correctHash ^= PatternFinder.POINT_HASHES[1][1];
@@ -45,7 +45,7 @@ public class PatternFinderTest {
 		correctHash ^= PatternFinder.POINT_HASHES[4][5];
 		correctHash ^= PatternFinder.POINT_HASHES[0][6];
 		correctHash ^= PatternFinder.POINT_HASHES[4][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a5"), 8));
+		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a5"), 3));
 		
 	}
 	
