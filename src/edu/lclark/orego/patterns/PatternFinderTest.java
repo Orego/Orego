@@ -41,7 +41,7 @@ public class PatternFinderTest {
 		correctHash ^= PatternFinder.POINT_HASHES[1][5];
 		correctHash ^= PatternFinder.POINT_HASHES[3][6];
 		correctHash ^= PatternFinder.POINT_HASHES[3][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a1"), 6));
+		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a1"), 1));
 	}
 	
 	@Test

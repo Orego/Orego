@@ -14,7 +14,7 @@ public class ShapeExtractorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		extractor = new ShapeExtractor(false, 0.9f, 8);
+		extractor = new ShapeExtractor(false, 0.9f, 2);
 	}
 
 	@Test
@@ -27,8 +27,8 @@ public class ShapeExtractorTest {
 		board.play("a1");
 		board.play("f5");
 		assertTrue(table.getWinRate(PatternFinder.getHash(board,
-				board.getCoordinateSystem().at("e4"), 8)) > 0.5);
+				board.getCoordinateSystem().at("e4"), 2)) > 0.5);
 		assertTrue(table.getWinRate(PatternFinder.getHash(board,
-				board.getCoordinateSystem().at("e6"), 8)) > 0.5);
+				board.getCoordinateSystem().at("e6"), 2)) > 0.5);
 	}
 }

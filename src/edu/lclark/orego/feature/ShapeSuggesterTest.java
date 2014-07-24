@@ -22,7 +22,7 @@ public class ShapeSuggesterTest {
 	public void setUp() throws Exception {
 		board = new Board(9);
 		shapeTable = new ShapeTable();
-		suggester = new ShapeSuggester(board, shapeTable, 0.0, 24);
+		suggester = new ShapeSuggester(board, shapeTable, 0.8, 24);
 	}
 
 	@Test
