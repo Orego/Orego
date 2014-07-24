@@ -25,7 +25,7 @@ public class ShapeTableTest {
 		table.update(70000, true);
 		float a = f * 0.5f + 1 * (1 - f);
 		float b = f * a + 1 * (1 - f);
-		assertEquals((a + b) / 2, table.getWinRate(70000), 0.0001f);
+		assertEquals((a + (b*2)) / 3, table.getWinRate(70000), 0.0001f);
 	}
 
 }

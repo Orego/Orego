@@ -19,29 +19,34 @@ public class PatternFinderTest {
 	}
 
 	@Test
-	public void test() {
+	public void testAtariDetection() {
 		String[] diagram = {
-				".....",
-				"..O..",
+				".O#..",
+				"O#O#.",
 				"...#.",
 				".O.#.",
 				".....",
 		};
 		board.setUpProblem(diagram, WHITE);
 		long correctHash = 0;
-		correctHash ^= PatternFinder.POINT_HASHES[1][0];
-		correctHash ^= PatternFinder.POINT_HASHES[0][1];
-		correctHash ^= PatternFinder.POINT_HASHES[0][6];
-		correctHash ^= PatternFinder.POINT_HASHES[1][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("c3"), 4));
-		correctHash = 0;
-		correctHash ^= PatternFinder.POINT_HASHES[3][2];
-		correctHash ^= PatternFinder.POINT_HASHES[3][3];
-		correctHash ^= PatternFinder.POINT_HASHES[3][4];
+		correctHash ^= PatternFinder.POINT_HASHES[2][0];
+		correctHash ^= PatternFinder.POINT_HASHES[1][1];
+		correctHash ^= PatternFinder.POINT_HASHES[0][4];
 		correctHash ^= PatternFinder.POINT_HASHES[1][5];
-		correctHash ^= PatternFinder.POINT_HASHES[3][6];
+		correctHash ^= PatternFinder.POINT_HASHES[1][6];
 		correctHash ^= PatternFinder.POINT_HASHES[3][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a1"), 6));
+		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("c3"), 6));
+		correctHash=0;
+		correctHash ^= PatternFinder.POINT_HASHES[4][0];
+		correctHash ^= PatternFinder.POINT_HASHES[2][1];
+		correctHash ^= PatternFinder.POINT_HASHES[3][2];
+		correctHash ^= PatternFinder.POINT_HASHES[4][3];
+		correctHash ^= PatternFinder.POINT_HASHES[4][4];
+		correctHash ^= PatternFinder.POINT_HASHES[4][5];
+		correctHash ^= PatternFinder.POINT_HASHES[0][6];
+		correctHash ^= PatternFinder.POINT_HASHES[4][7];
+		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a5"), 8));
+		
 	}
 	
 	@Test
