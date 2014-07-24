@@ -16,7 +16,7 @@ import static edu.lclark.orego.core.StoneColor.*;
 
 public final class PatternFinder {
 
-	public static final long[][] POINT_HASHES = new long[4][80];
+	public static final long[][] POINT_HASHES = new long[5][120];
 
 	public static final int[] PATTERN_SIZES = { 0, 8, 24, 48, 80, 120 };
 
@@ -45,8 +45,8 @@ public final class PatternFinder {
 
 	static {
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 80; j++) {
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 120; j++) {
 				POINT_HASHES[i][j] = random.nextLong();
 			}
 		}
@@ -183,20 +183,29 @@ public final class PatternFinder {
 				int newColumn = column + OFFSETS[j][1];
 				if (coords.isValidOneDimensionalCoordinate(newRow)
 						&& coords.isValidOneDimensionalCoordinate(newColumn)) {
-					Color color = board
-							.getColorAt(coords.at(newRow, newColumn));
-					if (color != VACANT) {
-						// We represent friendly as white, enemy as black
-						result ^= board.getColorToPlay() == color ? POINT_HASHES[WHITE
-								.index()][j] : POINT_HASHES[BLACK.index()][j];
+					short point = coords.at(newRow, newColumn);
+					Color color = board.getColorAt(point);
+					if (color == BLACK) {
+						if (board.getLiberties(point).size() == 1) {
+							result ^= POINT_HASHES[0][j];
+						} else {
+							result ^= POINT_HASHES[1][j];
+						}
+						stoneCounter++;
+					} else if (color == WHITE) {
+						if (board.getLiberties(point).size() == 1) {
+							result ^= POINT_HASHES[2][j];
+						} else {
+							result ^= POINT_HASHES[3][j];
+						}
 						stoneCounter++;
 					}
 				} else {
-					result ^= POINT_HASHES[OFF_BOARD.index()][j];
+					result ^= POINT_HASHES[4][j];
 					stoneCounter++;
 				}
 			}
-			if(stoneCounter>=minStones){
+			if (stoneCounter >= minStones) {
 				return result;
 			}
 		}
