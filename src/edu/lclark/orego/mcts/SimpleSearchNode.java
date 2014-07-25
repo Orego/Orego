@@ -56,12 +56,24 @@ public class SimpleSearchNode implements SearchNode {
 
 	/** Number of wins through each child of this node. */
 	private final float[] winRates;
+	
+	private short mostBiased;
 
 	public SimpleSearchNode(CoordinateSystem coords) {
 		runs = new int[coords.getFirstPointBeyondBoard()];
 		winRates = new float[coords.getFirstPointBeyondBoard()];
 		hasChild = new BitVector(coords.getFirstPointBeyondBoard());
 		totalRuns = -1; // Indicates this node is not in use
+	}
+	
+	@Override
+	public short getMostBiased(){
+		return mostBiased;
+	}
+	
+	@Override
+	public void setMostBiased(short most){
+		mostBiased = most;
 	}
 
 	@Override

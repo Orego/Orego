@@ -20,6 +20,10 @@ public interface SearchNode {
 
 	/** Returns whether the bias has already been updated for this node. */
 	public boolean biasUpdated();
+	
+	public void setMostBiased(short most);
+	
+	public short getMostBiased();
 
 	/**
 	 * Resets this node as a "new" node for the board situation represented by
