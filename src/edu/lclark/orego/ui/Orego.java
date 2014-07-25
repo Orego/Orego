@@ -309,14 +309,18 @@ public final class Orego {
 				acknowledge(coords.toString(point));
 			}
 		} else if (command.equals("gogui-analyze_commands")) {
-			acknowledge("gfx/Search values/gogui-search-values\ngfx/Get wins/gogui-get-wins\n");
+			acknowledge("gfx/Perform bias/gogui-perform-bias\ngfx/Search values/gogui-search-values\ngfx/Get wins/gogui-get-wins\ngfx/Get runs/gogui-get-runs\ngfx/Get winrate/gogui-get-winrate\n");
+		} else if (command.equals("gogui-get-runs")) {
+			acknowledge(player.goguiGetRuns());
+		} else if (command.equals("gogui-get-winrate")) {
+			acknowledge(player.goguiGetWinrate());
 		} else if (command.equals("gogui-get-wins")) {
-			player.getMcRunnable(0).copyDataFrom(player.getBoard());
-			player.getRoot().updateBias(player.getMcRunnable(0));
 			acknowledge(player.goguiGetWins());
-		} else if (command.equals("gogui-search-values")) {
+		} else if (command.equals("gogui-perform-bias")) {
 			player.getMcRunnable(0).copyDataFrom(player.getBoard());
 			player.getRoot().updateBias(player.getMcRunnable(0));
+			acknowledge();
+		} else if (command.equals("gogui-search-values")) {
 			acknowledge(player.goguiSearchValues());
 		} else if (command.equals("kgs-game_over")) {
 			try (Scanner scanner = new Scanner(new File(OREGO_ROOT + separator
