@@ -44,7 +44,7 @@ public class ShapeExtractor extends PatternExtractor {
 	@Override
 	void buildPatternData(File inputFile){
 		String sfString = Float.toString(scalingFactor);
-		sfString = sfString.substring(sfString.indexOf('.'));
+		sfString = sfString.substring(sfString.indexOf('.') + 1);
 		buildPatternData(inputFile.getPath(), OREGO_ROOT + "patterns/patterns"
 				+ minStones + "stones-SHAPE-sf"
 				+ sfString + ".data");
