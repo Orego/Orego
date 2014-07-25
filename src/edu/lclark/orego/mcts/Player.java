@@ -419,6 +419,7 @@ public final class Player {
 		}
 		SearchNode root = getRoot();
 		if(!root.biasUpdated()){
+			getMcRunnable(0).copyDataFrom(board);
 			root.updateBias(getMcRunnable(0));
 		}
 		keepRunning = true;
