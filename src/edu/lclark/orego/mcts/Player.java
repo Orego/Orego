@@ -353,7 +353,6 @@ public final class Player {
 	void notifyMcRunnableDone() {
 		log("Counting down latch");
 		latch.countDown();
-		log("Done counting down latch");
 	}
 
 	/** Sets whether we think during the opponent's turn. */
