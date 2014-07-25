@@ -530,5 +530,38 @@ public final class Player {
 		}
 		return result;
 	}
+	
+	@SuppressWarnings("boxing")
+	public String goguiGetWins(){
+		// TODO Encapsulate this normalization in a single place, called by all
+				// the various gogui methods
+				float min = Float.MAX_VALUE;
+				float max = 0.0f;
+				for (short p : coords.getAllPointsOnBoard()) {
+					if (board.getColorAt(p) == VACANT) {
+						float wins = getRoot().getWins(p);
+						if(wins>0){
+							min = Math.min(min, wins);
+							max = Math.max(max, wins);
+					}
+					}
+				}
+				String result = "";
+				for (short p : coords.getAllPointsOnBoard()) {
+					if (getBoard().getColorAt(p) == VACANT) {
+						float wins= getRoot().getWins(p);
+						if (wins > 0) {
+							if (result.length() > 0) {
+								result += "\n";
+							}
+							int green = (int) (255*(wins - min) / (max - min));
+							result += String.format("COLOR %s %s\nLABEL %s %.0f",
+									String.format("#%02x%02x00",  255-green, green),
+									coords.toString(p), coords.toString(p), wins);
+						}
+					}
+				}
+				return result;
+	}
 
 }
