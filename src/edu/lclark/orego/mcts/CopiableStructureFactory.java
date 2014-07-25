@@ -206,11 +206,11 @@ public final class CopiableStructureFactory {
 		final CaptureSuggester capture = new CaptureSuggester(board,
 				atariObserver, 20);
 		// Shape
-		// System.err.println("5x5 patterns file: " + OREGO_ROOT +
-		// "patterns/patterns5x5.data");
+		String sfString = Float.toString(shapeScalingFactor);
+		sfString = sfString.substring(sfString.indexOf('.'));
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
-				+ (int) (shapeScalingFactor * 100) + ".data");
+				+ sfString + ".data");
 		final ShapeRater shape = new ShapeRater(board, shapeTable,
 				shapeThreshold, shapeBias, minStones);
 		base.add(shapeTable);
