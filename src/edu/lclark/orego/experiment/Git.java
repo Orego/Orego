@@ -17,9 +17,6 @@ public final class Git {
 					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
 					"status", "-s").start().getInputStream())) {
 				if (s.hasNextLine()) {
-					while (s.hasNextLine()) {
-						System.out.println(s.nextLine());
-					}
 					return "";
 				}
 			}
