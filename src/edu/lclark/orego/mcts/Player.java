@@ -438,6 +438,11 @@ public final class Player {
 		if (keepRunning) {
 			return; // If the threads were already running, do nothing
 		}
+		SearchNode root = getRoot();
+		if(!root.biasUpdated()){
+			getMcRunnable(0).copyDataFrom(board);
+			root.updateBias(getMcRunnable(0));
+		}
 		keepRunning = true;
 		int n = runnables.length; // # of threads
 		log("Creating CountDownLatch with count " + n);
