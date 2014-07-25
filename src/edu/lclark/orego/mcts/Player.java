@@ -417,6 +417,10 @@ public final class Player {
 			return; // If the threads were already running, don't start them
 					// again
 		}
+		SearchNode root = getRoot();
+		if(!root.biasUpdated()){
+			root.updateBias(getMcRunnable(0));
+		}
 		keepRunning = true;
 		executor = Executors.newFixedThreadPool(runnables.length);
 		for (int i = 0; i < runnables.length; i++) {
