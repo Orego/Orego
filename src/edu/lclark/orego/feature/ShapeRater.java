@@ -43,8 +43,8 @@ public class ShapeRater implements Rater {
 				long hash = PatternFinder.getHash(board, p, minStones);
 				float winRate = shapeTable.getWinRate(hash);
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
-					float winsToAdd = bias * winRate;
-					node.update(p, bias, winsToAdd);
+					int winsToAdd = (int)(bias * winRate);
+					node.update(p, winsToAdd, winsToAdd);
 				}
 			}
 		}
