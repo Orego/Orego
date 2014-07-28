@@ -8,6 +8,10 @@ import java.util.Arrays;
 public final class ShapeTable implements Serializable {
 
 	private final float[][] winRateTables;
+	
+	private long[][] wins;
+	
+	private long[][] runs;
 
 	private float scalingFactor;
 
@@ -36,6 +40,8 @@ public final class ShapeTable implements Serializable {
 	public ShapeTable(float scalingFactor) {
 		this.scalingFactor = scalingFactor;
 		winRateTables = new float[3][2097152];
+		wins = new long[3][2097152];
+		runs = new long[3][2097152];
 		for (float[] table : winRateTables) {
 			Arrays.fill(table, 0.5f);
 		}
@@ -61,6 +67,11 @@ public final class ShapeTable implements Serializable {
 	}
 
 	public float[][] getWinRateTables() {
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j<wins[0].length; j++){
+			winRateTables[i][j] = (float)wins[i][j]/(float)runs[i][j];
+			}	
+		}
 		return winRateTables;
 	}
 
@@ -68,8 +79,10 @@ public final class ShapeTable implements Serializable {
 	public void update(long hash, boolean win) {
 		for (int i = 0; i < 3; i++) {
 			int index = (int) (hash >> (21 * i) & 2097151);
-			winRateTables[i][index] = scalingFactor * winRateTables[i][index]
-					+ (win ? (1 - scalingFactor) : 0);
+			runs[i][index]++;
+			if(win){
+				wins[i][index]++;
+			}
 		}
 	}
 
