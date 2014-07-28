@@ -72,6 +72,7 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 			winProportion = 0.5f;
 		}
 		for (int t = board.getTurn(); t < turn; t++) {
+		    assert node != null : "Board turn " + board.getTurn() + ", runnable turn: " + turn + ", t: " + t;
 			node.recordPlayout(winProportion, runnable, t);
 			final long fancyHash = fancyHashes[t + 1];
 			SearchNode child = table.findIfPresent(fancyHash);
