@@ -3,6 +3,7 @@ package edu.lclark.orego.patterns;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.lclark.orego.core.Board;
@@ -18,11 +19,13 @@ public class ShapeExtractor extends PatternExtractor {
 	private int minStones;
 
 	private Board[] boards;
+	
+	private HashMap<Long, Float> realData;
 
 	public static void main(String[] args) {
 		ShapeExtractor extractor = new ShapeExtractor(true, Float.parseFloat(args[0]), Integer.parseInt(args[1]));
 		extractor.buildPatternData(new File(
-				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/KGS Files"));
+				"/Network/Servers/maccsserver.lclark.edu/Users/slevenick/Desktop/patternfiles/kgs-19-2006"));
 	}
 
 	public ShapeExtractor(boolean verbose, float scalingFactor, int minStones) {
@@ -34,6 +37,7 @@ public class ShapeExtractor extends PatternExtractor {
 		for (int i = 0; i < 8; i++) {
 			boards[i] = new Board(19);
 		}
+		realData = new HashMap<>();
 	}
 	
 	void analyzeMove(short move, Board board) {
@@ -55,6 +59,13 @@ public class ShapeExtractor extends PatternExtractor {
 		try (FileOutputStream out = new FileOutputStream(outputFile);
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			oos.writeObject(shapeTable.getWinRateTables());
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		try (FileOutputStream out = new FileOutputStream(outputFile + ".real");
+				ObjectOutputStream oos = new ObjectOutputStream(out)) {
+			oos.writeObject(realData);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -118,8 +129,16 @@ public class ShapeExtractor extends PatternExtractor {
 		}
 	}
 
+	@SuppressWarnings("boxing")
 	void updateTables(boolean winner, short move, Board board) {
 		long hash = PatternFinder.getHash(board, move, minStones);
+		if(realData.containsKey(hash)){
+			realData.put(hash, scalingFactor * realData.get(hash)
+					+ (winner ? (1 - scalingFactor) : 0));
+		}
+		else if(realData.size()<160000){
+			realData.put(hash, 0.5f);
+		}
 		shapeTable.update(hash, winner);
 	}
 

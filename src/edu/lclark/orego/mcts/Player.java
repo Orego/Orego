@@ -158,11 +158,6 @@ public final class Player {
 				msecPerMove = timeManager.getMsec();
 			} while (msecPerMove > 0);
 		}
-		long playouts = 0;
-		for(McRunnable runnable : runnables){
-			playouts += runnable.getPlayoutsCompleted();
-		}
-		Logging.log("Turn : " + board.getTurn() + " Playouts : " + playouts);
 		return descender.bestPlayMove();
 	}
 
