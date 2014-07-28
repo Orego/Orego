@@ -6,6 +6,8 @@ import static java.lang.String.format;
 import java.util.Arrays;
 
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.Rater;
+import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.util.ShortSet;
 
 /** Incorporates RAVE information. */
@@ -37,6 +39,17 @@ public final class RaveNode extends SimpleSearchNode {
 		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p])
 				/ (1 + raveRuns[p]);
 		raveRuns[p]++;
+	}
+	
+	/**
+	 * Adds multiple RAVE playouts for p.
+	 * 
+	 * @param w The number of wins to add for this move.
+	 */
+	public void addRaveRuns(int p, float w, int runs) {
+		raveWinRates[p] = (w + raveWinRates[p] * raveRuns[p])
+				/ (runs + raveRuns[p]);
+		raveRuns[p] += runs;
 	}
 
 	/** Adds a RAVE win for p. */
@@ -135,6 +148,12 @@ public final class RaveNode extends SimpleSearchNode {
 		return format("%s: %7d/%7d (%1.4f) RAVE %d (%1.4f)\n",
 				coords.toString(p), (int) getWins(p), super.getRuns(p),
 				super.getWinRate(p), raveRuns[p], raveWinRates[p]);
+	}
+	
+	@Override
+	public void updateRates(short p, int n, float wins){
+		super.updateRates(p, n, wins);
+		addRaveRuns(p, wins, n);
 	}
 
 }

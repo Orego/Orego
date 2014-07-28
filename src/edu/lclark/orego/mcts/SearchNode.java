@@ -147,5 +147,12 @@ public interface SearchNode {
 	 * Provides extra wins for moves suggested by runnable's suggesters.
 	 */
 	public void updateBias(McRunnable runnable);
+	
+	/**
+	 * Updates the win rate for p, by adding n runs and the specified number of
+	 * wins. Also updates the counts of total runs and runs. Used in the rater
+	 * to also update RAVE rates.
+	 */
+	public void updateRates(short p, int n, float wins);
 
 }

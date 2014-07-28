@@ -332,7 +332,7 @@ public class SimpleSearchNode implements SearchNode {
 			final ShortSet moves = suggesters[i].getMoves();
 			for (int j = 0; j < moves.size(); j++) {
 				final short p = moves.get(j);
-				update(p, bias, bias);
+				updateRates(p, bias, bias);
 			}
 		}
 		Rater[] raters = runnable.getRaters();
@@ -340,6 +340,11 @@ public class SimpleSearchNode implements SearchNode {
 			rater.updateNode(this);
 		}
 		setBiasUpdated(true);
+	}
+
+	@Override
+	public void updateRates(short p, int n, float wins) {
+		update(p, n, wins);
 	}
 
 }

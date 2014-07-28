@@ -44,7 +44,7 @@ public class ShapeRater implements Rater {
 				float winRate = shapeTable.getWinRate(hash);
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					int winsToAdd = (int)(bias * winRate);
-					node.update(p, winsToAdd, winsToAdd);
+					node.updateRates(p, winsToAdd, winsToAdd);
 				}
 			}
 		}
