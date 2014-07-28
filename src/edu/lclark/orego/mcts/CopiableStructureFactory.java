@@ -16,6 +16,7 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.PatternSuggester;
 import edu.lclark.orego.feature.Rater;
 import edu.lclark.orego.feature.ShapeRater;
+import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.MoverFactory;
@@ -198,7 +199,13 @@ public final class CopiableStructureFactory {
 		// to
 		// the same table. This is handled in the McRunnable constructor.
 		base.add(lgrf);
+		String sfString = Float.toString(shapeScalingFactor);
+		sfString = sfString.substring(sfString.indexOf('.') + 1);
+		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
+				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
+				+ sfString + ".data");
 		// Suggesters
+		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable, shapeThreshold, minStones, shapeBias);
 		final EscapeSuggester escape = new EscapeSuggester(board,
 				atariObserver, 20);
 		final PatternSuggester patterns = new PatternSuggester(board,
@@ -206,17 +213,10 @@ public final class CopiableStructureFactory {
 		final CaptureSuggester capture = new CaptureSuggester(board,
 				atariObserver, 20);
 		// Shape
-		String sfString = Float.toString(shapeScalingFactor);
-		sfString = sfString.substring(sfString.indexOf('.') + 1);
-		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
-				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
-				+ sfString + ".data");
-		final ShapeRater shape = new ShapeRater(board, shapeTable,
-				shapeThreshold, shapeBias, minStones);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias;
-		base.add(new Suggester[] { escape, patterns, capture });
+		base.add(new Suggester[] { null, escape, patterns, capture });
 		// First argument is null because the ShapeTable needs to be
 		// added to the ShapeRater on the outside, and this avoids resizing
 		// the array; when using this copiable structure, add the ShapeRater
