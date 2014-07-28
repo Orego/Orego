@@ -18,6 +18,7 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
@@ -157,6 +158,11 @@ public final class Player {
 				msecPerMove = timeManager.getMsec();
 			} while (msecPerMove > 0);
 		}
+		long playouts = 0;
+		for(McRunnable runnable : runnables){
+			playouts += runnable.getPlayoutsCompleted();
+		}
+		Logging.log("Turn : " + board.getTurn() + " Playouts : " + playouts);
 		return descender.bestPlayMove();
 	}
 
