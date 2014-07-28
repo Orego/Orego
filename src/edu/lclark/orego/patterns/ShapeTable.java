@@ -39,9 +39,9 @@ public final class ShapeTable implements Serializable {
 	 */
 	public ShapeTable(float scalingFactor) {
 		this.scalingFactor = scalingFactor;
-		winRateTables = new float[3][2097152];
-		wins = new long[3][2097152];
-		runs = new long[3][2097152];
+		winRateTables = new float[4][65536];
+		wins = new long[4][65536];
+		runs = new long[4][65536];
 		for (float[] table : winRateTables) {
 			Arrays.fill(table, 0.5f);
 		}
@@ -67,7 +67,7 @@ public final class ShapeTable implements Serializable {
 	}
 
 	public float[][] getWinRateTables() {
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 4; i++){
 			for(int j = 0; j<wins[0].length; j++){
 			winRateTables[i][j] = (float)wins[i][j]/(float)runs[i][j];
 			}	
@@ -77,8 +77,8 @@ public final class ShapeTable implements Serializable {
 
 	/** Update the table with new win data for the given pattern. */
 	public void update(long hash, boolean win) {
-		for (int i = 0; i < 3; i++) {
-			int index = (int) (hash >> (21 * i) & 2097151);
+		for (int i = 0; i < 4; i++) {
+			int index = (int) (hash >> (16 * i) & 65535);
 			runs[i][index]++;
 			if(win){
 				wins[i][index]++;
@@ -89,17 +89,17 @@ public final class ShapeTable implements Serializable {
 	/** Get the win rate for a given pattern. */
 	public float getWinRate(long hash) {
 		float result = 0;
-		for (int i = 0; i < 3; i++) {
-			int index = (int) (hash >> (21 * i) & 2097151);
+		for (int i = 0; i < 4; i++) {
+			int index = (int) (hash >> (16 * i) & 65535);
 			result += winRateTables[i][index];
 		}
-		return result / 3;
+		return result / 4;
 	}
 	
 	/** Prints the win rate stored in each section of the table. */
 	public void printIndividualWinRates(long hash){
-		for (int i = 0; i < 3; i++) {
-			int index = (int) (hash >> (21 * i) & 2097151);
+		for (int i = 0; i < 4; i++) {
+			int index = (int) (hash >> (16 * i) & 65535);
 			System.out.println("Section " + i + ": " + winRateTables[i][index]);
 		}
 	}
