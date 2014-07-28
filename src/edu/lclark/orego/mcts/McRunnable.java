@@ -12,6 +12,7 @@ import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.Rater;
 import edu.lclark.orego.feature.ShapeRater;
+import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
@@ -82,10 +83,10 @@ public final class McRunnable implements Runnable {
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
 		ShapeTable shapeTable = null;
-		ShapeRater shape = null;
+		ShapeSuggester shape = null;
 		try {
 			shapeTable = stuff.get(ShapeTable.class);
-			shape = copy.get(ShapeRater.class);
+			shape = copy.get(ShapeSuggester.class);
 			shape.setTable(shapeTable);
 		} catch (final IllegalArgumentException e) {
 			// If we get here, we're not using shape
@@ -97,7 +98,7 @@ public final class McRunnable implements Runnable {
 			raters = new Rater[0];
 		}
 		if(shape != null){
-			raters[0] = shape;
+			suggesters[0] = shape;
 		}
 		this.player = player;
 		random = new MersenneTwisterFast();
