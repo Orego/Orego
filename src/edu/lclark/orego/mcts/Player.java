@@ -511,7 +511,7 @@ public final class Player {
 		double max = 0.0;
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
-				double searchValue = ((RaveDescender)descender).searchValue(getRoot(), p);
+				double searchValue = descender.searchValue(getRoot(), p);
 				if(searchValue>0){
 					min = Math.min(min, searchValue);
 					max = Math.max(max, searchValue);
@@ -521,7 +521,7 @@ public final class Player {
 		String result = "";
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (getBoard().getColorAt(p) == VACANT) {
-				double searchValue = ((RaveDescender)descender).searchValue(getRoot(), p);
+				double searchValue = descender.searchValue(getRoot(), p);
 				if (searchValue > 0) {
 					if (result.length() > 0) {
 						result += "\n";

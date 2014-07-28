@@ -309,7 +309,7 @@ public final class Orego {
 				acknowledge(coords.toString(point));
 			}
 		} else if (command.equals("gogui-analyze_commands")) {
-			acknowledge("gfx/Perform bias/gogui-perform-bias\ngfx/Search values/gogui-search-values\ngfx/Get wins/gogui-get-wins\ngfx/Get runs/gogui-get-runs\ngfx/Get winrate/gogui-get-winrate\n");
+			acknowledge("gfx/Perform bias/gogui-perform-bias\ngfx/Search values/gogui-search-values\ngfx/Get wins/gogui-get-wins\ngfx/Get runs/gogui-get-runs\ngfx/Get winrate/gogui-get-winrate\ngfx/Perform 1000 mcruns/perform-mcruns\n");
 		} else if (command.equals("gogui-get-runs")) {
 			acknowledge(player.goguiGetRuns());
 		} else if (command.equals("gogui-get-winrate")) {
@@ -369,6 +369,11 @@ public final class Orego {
 			String s = player.getBoard().toString();
 			s = "\n" + s.substring(0, s.length() - 1);
 			acknowledge(s);
+		}else if (command.equals("perform-mcruns")) {
+			for(int i =0; i <1000; i++){
+				player.getMcRunnable(0).performMcRun(true);
+			}
+			acknowledge();
 		} else if (command.equals("play")) {
 			// Both ggo and Goban send "black f4" instead of "play black f4".
 			// Accepts such commands.

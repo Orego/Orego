@@ -33,7 +33,7 @@ public final class RaveDescender extends AbstractDescender {
 	 * 1029/paper_thesis.pdf equation 8.40 page 107//Updated
 	 */
 	@Override
-	float searchValue(SearchNode node, short move) {
+	public float searchValue(SearchNode node, short move) {
 		if (node.getWins(move) == Integer.MIN_VALUE) {
 			return NEGATIVE_INFINITY;
 		}

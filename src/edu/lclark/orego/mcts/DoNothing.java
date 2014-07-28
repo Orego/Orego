@@ -54,4 +54,9 @@ public final class DoNothing implements TreeDescender, TreeUpdater, OpeningBook 
 		// Does nothing
 	}
 
+	@Override
+	public float searchValue(SearchNode node, short move) {
+		return 0;
+	}
+
 }

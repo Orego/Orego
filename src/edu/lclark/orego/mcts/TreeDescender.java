@@ -23,5 +23,11 @@ public interface TreeDescender {
 
 	/** Returns the number of runs a node must have before biases are applied. */
 	public int getBiasDelay();
+	
+	
+	/**
+	 * Returns the search value of this move, e.g., best win rate, UCT, or RAVE.
+	 */
+	public float searchValue(SearchNode node, short move);
 
 }

@@ -157,10 +157,6 @@ public abstract class AbstractDescender implements TreeDescender {
 		return table;
 	}
 
-	/**
-	 * Returns the search value of this move, e.g., best win rate, UCT, or RAVE.
-	 */
-	abstract float searchValue(SearchNode node, short move);
 
 	/** Selects and plays one move in the search tree. */
 	short selectAndPlayMove(SearchNode node, McRunnable runnable) {

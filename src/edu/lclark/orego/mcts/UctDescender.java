@@ -20,7 +20,7 @@ public final class UctDescender extends AbstractDescender {
 	 * paper.
 	 */
 	@Override
-	float searchValue(SearchNode node, short move) {
+	public float searchValue(SearchNode node, short move) {
 		// The variable names here are chosen for consistency with the tech
 		// report
 		final double barX = node.getWinRate(move);
