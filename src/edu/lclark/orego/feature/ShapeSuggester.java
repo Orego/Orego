@@ -59,7 +59,7 @@ public class ShapeSuggester implements Suggester {
 				}
 			}
 		}
-		Logging.log("SHAPE found " + moves.size() + "moves");
+		Logging.log("SHAPE found " + moves.size() + " moves");
 		return moves;
 	}
 
