@@ -27,8 +27,8 @@ public class ShapeExtractorTest {
 		board.play("a1");
 		board.play("f5");
 		assertTrue(table.getWinRate(PatternFinder.getHash(board,
-				board.getCoordinateSystem().at("e4"), 2)) > 0.5);
+				board.getCoordinateSystem().at("e4"), 2, 0)) > 0.5);
 		assertTrue(table.getWinRate(PatternFinder.getHash(board,
-				board.getCoordinateSystem().at("e6"), 2)) > 0.5);
+				board.getCoordinateSystem().at("e6"), 2, 0)) > 0.5);
 	}
 }

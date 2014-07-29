@@ -12,11 +12,10 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.core.StoneColor.*;
 
 public final class PatternFinder {
 
-	public static final long[][] POINT_HASHES = new long[5][120];
+	public static final long[][][] POINT_HASHES = new long[2][5][120];
 
 	public static final int[] PATTERN_SIZES = { 0, 8, 24, 48, 80, 120 };
 
@@ -44,10 +43,12 @@ public final class PatternFinder {
 			{ -4, -5 } };
 
 	static {
-		MersenneTwisterFast random = new MersenneTwisterFast(0L);
-		for (int i = 0; i < 5; i++) {
-			for (int j = 0; j < 120; j++) {
-				POINT_HASHES[i][j] = random.nextLong();
+		for (int k = 0; k < POINT_HASHES.length; k++) {
+			MersenneTwisterFast random = new MersenneTwisterFast(k);
+			for (int i = 0; i < 5; i++) {
+				for (int j = 0; j < 120; j++) {
+					POINT_HASHES[k][i][j] = random.nextLong();
+				}
 			}
 		}
 	}
@@ -115,7 +116,7 @@ public final class PatternFinder {
 			}
 			long hash = getHash(board,
 					board.getCoordinateSystem().at(centerRow, centerColumn),
-					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) - 1);
+					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) - 1, 0);
 			String pattern = getPatternString(board, topRow, bottomRow,
 					leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
@@ -166,12 +167,16 @@ public final class PatternFinder {
 		}
 		return pattern;
 	}
+	
+	public static long getHash(Board board, short p, int minStones){
+		return getHash(board, p, minStones, 0);
+	}
 
 	/**
 	 * Gets the Zobrist hash for a pattern around a point. patternSize is the
 	 * area of the pattern - 1 (exclude the center point).
 	 */
-	public static long getHash(Board board, short p, int minStones) {
+	public static long getHash(Board board, short p, int minStones, int hashesIndex) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		long result = 0L;
 		int row = coords.row(p);
@@ -187,21 +192,21 @@ public final class PatternFinder {
 					Color color = board.getColorAt(point);
 					if (color == board.getColorToPlay()) {
 						if (board.getLiberties(point).size() == 1) {
-							result ^= POINT_HASHES[0][j];
+							result ^= POINT_HASHES[hashesIndex][0][j];
 						} else {
-							result ^= POINT_HASHES[1][j];
+							result ^= POINT_HASHES[hashesIndex][1][j];
 						}
 						stoneCounter++;
 					} else if (color == board.getColorToPlay().opposite()) {
 						if (board.getLiberties(point).size() == 1) {
-							result ^= POINT_HASHES[2][j];
+							result ^= POINT_HASHES[hashesIndex][2][j];
 						} else {
-							result ^= POINT_HASHES[3][j];
+							result ^= POINT_HASHES[hashesIndex][3][j];
 						}
 						stoneCounter++;
 					}
 				} else {
-					result ^= POINT_HASHES[4][j];
+					result ^= POINT_HASHES[hashesIndex][4][j];
 				}
 			}
 			if (stoneCounter >= minStones) {

@@ -11,7 +11,7 @@ import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
 public class ShapeExtractor extends PatternExtractor {
 
-	private ShapeTable shapeTable;
+	private DoubleShapeTable shapeTable;
 
 	private float scalingFactor;
 
@@ -29,7 +29,7 @@ public class ShapeExtractor extends PatternExtractor {
 		super(verbose);
 		this.minStones = minStones;
 		this.scalingFactor = scalingFactor;
-		shapeTable = new ShapeTable(scalingFactor);
+		shapeTable = new DoubleShapeTable(scalingFactor);
 		boards = new Board[8];
 		for (int i = 0; i < 8; i++) {
 			boards[i] = new Board(19);
@@ -54,7 +54,7 @@ public class ShapeExtractor extends PatternExtractor {
 		analyzeFiles(new File(inputFile));
 		try (FileOutputStream out = new FileOutputStream(outputFile);
 				ObjectOutputStream oos = new ObjectOutputStream(out)) {
-			oos.writeObject(shapeTable.getWinRateTables());
+			oos.writeObject(shapeTable.getTables());
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -119,8 +119,7 @@ public class ShapeExtractor extends PatternExtractor {
 	}
 
 	void updateTables(boolean winner, short move, Board board) {
-		long hash = PatternFinder.getHash(board, move, minStones);
-		shapeTable.update(hash, winner);
+		shapeTable.update(board, move, winner, minStones);
 	}
 
 }
