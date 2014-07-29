@@ -23,22 +23,21 @@ public class ShapeSuggester implements Suggester {
 
 	private double shapeThreshold;
 	
-	private final int patternSize;
+	private final int minStones;
 	
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int patternSize) {
-		this(board, shapeTable, shapeThreshold, 0, patternSize);
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int minStones) {
+		this(board, shapeTable, shapeThreshold, 0, minStones);
 	}
 	
 	/**
-	 * Takes a patternSize that is the area of the desired pattern -1 (for the
-	 * middle point) e.g. a 3x3 pattern would have patternSize 8.
+	 * minStones is the minimum number of stones in a pattern.
 	 */
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int patternSize) {
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int minStones) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.coords = board.getCoordinateSystem();
-		this.patternSize = patternSize;
+		this.minStones = minStones;
 		this.shapeTable = shapeTable;
 		moves = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
@@ -53,7 +52,7 @@ public class ShapeSuggester implements Suggester {
 		moves.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
-				long hash = PatternFinder.getHash(board, p, patternSize);
+				long hash = PatternFinder.getHash(board, p, minStones);
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					moves.add(p);
 				}
