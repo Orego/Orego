@@ -422,6 +422,13 @@ public class PlayerTest {
 		assertEquals(3, deadStones.size());
 	}
 	
-	
+	@Test
+	public void testTableOverflow() {
+		// This tests a bug, occasionally encountered on KGS, where Orego
+		// crashes while pondering because the transposition table fills up
+		player = new PlayerBuilder().msecPerMove(2000).threads(8).boardWidth(5).memorySize(1).openingBook(false).build();
+		// If there is a problem, this will crash
+		player.bestMove();
+	}
 
 }

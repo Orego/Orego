@@ -21,6 +21,7 @@ import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
+import static edu.lclark.orego.experiment.Logging.*;
 
 /**
  * Players use this class to perform multiple Monte Carlo runs in different
@@ -256,6 +257,8 @@ public final class McRunnable implements Runnable {
 		while (getPlayer().shouldKeepRunning()) {
 			performMcRun();
 		}
+		log("Playouts completed: " + playoutsCompleted);
+		player.notifyMcRunnableDone();
 	}
 
 	private short selectAndPlayOneMove() {
