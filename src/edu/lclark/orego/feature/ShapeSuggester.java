@@ -2,6 +2,7 @@ package edu.lclark.orego.feature;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.util.ShortSet;
@@ -58,6 +59,7 @@ public class ShapeSuggester implements Suggester {
 				}
 			}
 		}
+		Logging.log("SHAPE found " + moves.size() + "moves");
 		return moves;
 	}
 
