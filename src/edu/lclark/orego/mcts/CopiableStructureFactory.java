@@ -221,7 +221,6 @@ public final class CopiableStructureFactory {
 		// added to the ShapeRater on the outside, and this avoids resizing
 		// the array; when using this copiable structure, add the ShapeRater
 		// to the 0th slot of this array
-		base.add(new Rater[] { null });
 		// Mover
 		final SuggesterMover mover = new SuggesterMover(
 				board,
