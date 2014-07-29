@@ -351,7 +351,6 @@ public final class Player {
 
 	/** Indicate that one McRunnable has stopped. */
 	void notifyMcRunnableDone() {
-		log("Counting down latch");
 		latch.countDown();
 	}
 
@@ -445,7 +444,6 @@ public final class Player {
 		}
 		keepRunning = true;
 		int n = runnables.length; // # of threads
-		log("Creating CountDownLatch with count " + n);
 		latch = new CountDownLatch(n);
 		executor = Executors.newFixedThreadPool(n);
 		for (int i = 0; i < n; i++) {
@@ -461,9 +459,7 @@ public final class Player {
 		}
 		try {
 			keepRunning = false;
-			log("Awaiting CountDownLatch");
 			latch.await();
-			log("Latch done");
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
