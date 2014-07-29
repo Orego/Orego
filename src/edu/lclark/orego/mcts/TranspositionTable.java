@@ -119,6 +119,11 @@ public final class TranspositionTable {
 		return sum;
 	}
 
+	/** Returns the number of table nodes currently in use. */
+	int getNodesInUse() {
+		return nodesInUse;
+	}
+	
 	/**
 	 * After markNodesUnreachableFrom(), frees all unused SearchNodes (tagging
 	 * them as not in use) and associated ListNodes (returning them to the
