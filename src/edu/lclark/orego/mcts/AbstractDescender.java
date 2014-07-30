@@ -121,15 +121,13 @@ public abstract class AbstractDescender implements TreeDescender {
 		}
 	}
 
-	/**
-	 * A descend method for testing that takes a runnable partway through a
-	 * playout.
-	 */
-	void fakeDescend(McRunnable runnable, short... moves) {
+	@Override
+	public void fakeDescend(McRunnable runnable, short... moves) {
 		runnable.copyDataFrom(board);
 		final SearchNode node = getRoot();
 		assert node != null : "Fancy hash code: " + board.getFancyHash();
 		for (final short move : moves) {
+			System.out.println("Passing " + move + " to runnable");
 			runnable.acceptMove(move);
 			final SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getFancyHash());

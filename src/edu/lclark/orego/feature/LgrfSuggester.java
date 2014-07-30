@@ -15,16 +15,19 @@ public final class LgrfSuggester implements Suggester {
 
 	private final ShortSet moves;
 
+	private final Predicate filter;
+	
 	/**
 	 * The table is transient because we want the LgrfSuggesters in all
 	 * McRunnables to share the same table.
 	 */
 	private transient LgrfTable table;
 
-	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table) {
+	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table, Predicate filter) {
 		this.board = board;
 		this.history = history;
 		this.table = table;
+		this.filter = filter;
 		moves = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
 	}
@@ -35,14 +38,13 @@ public final class LgrfSuggester implements Suggester {
 		final short previousMove = history.get(board.getTurn() - 1);
 		short reply = table.getSecondLevelReply(board.getColorToPlay(),
 				history.get(board.getTurn() - 2), previousMove);
-		if (reply != NO_POINT && board.getColorAt(reply) == VACANT) {
+		if (reply != NO_POINT && board.getColorAt(reply) == VACANT && filter.at(reply)) {
 			moves.add(reply);
-			return moves;
-		}
-		reply = table.getFirstLevelReply(board.getColorToPlay(), previousMove);
-		if (reply != NO_POINT && board.getColorAt(reply) == VACANT) {
-			moves.add(reply);
-			return moves;
+		} else {
+			reply = table.getFirstLevelReply(board.getColorToPlay(), previousMove);
+			if (reply != NO_POINT && board.getColorAt(reply) == VACANT && filter.at(reply)) {
+				moves.add(reply);
+			}
 		}
 		return moves;
 	}

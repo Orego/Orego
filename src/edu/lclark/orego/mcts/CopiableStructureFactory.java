@@ -13,6 +13,7 @@ import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.PatternSuggester;
+import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.MoverFactory;
@@ -91,10 +92,15 @@ public final class CopiableStructureFactory {
 		// Observers
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// Filter
+		Predicate filter = new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board)));
+		base.add(filter);
 		// LGRF
 		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
 		base.add(table);
-		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table);
+		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table, filter);
 		// This is added to the structure to that every LgrfSuggester can point to
 		// the same table. This is handled in the McRunnable constructor.
 		base.add(lgrf);
@@ -108,13 +114,7 @@ public final class CopiableStructureFactory {
 		// Mover
 		final SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
 				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
-						new Conjunction(new NotEyeLike(board), new Disjunction(
-								OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-										.getWidth()), new NearAnotherStone(board))))))));
-		// Filter
-		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
-				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-						.getWidth()), new NearAnotherStone(board))));
+						filter)))));
 		return base.add(mover);
 	}
 

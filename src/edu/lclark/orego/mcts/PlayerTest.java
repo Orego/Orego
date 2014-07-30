@@ -433,26 +433,32 @@ public class PlayerTest {
 	@Test
 	public void testEyelikePoint() {
 		// We should NEVER play in an eyelike point
-		player = new PlayerBuilder().msecPerMove(1).threads(1).komi(0.5).boardWidth(9).memorySize(1).openingBook(false).build();
+		player = new PlayerBuilder().msecPerMove(1).gestation(0).komi(0.5).boardWidth(5).memorySize(1).openingBook(false).build();
 		coords = player.getBoard().getCoordinateSystem();
-		String[] before = {
-				"..#.#O...",
-				"..###O...",
-				"....#O...",
-				"....#O...",
-				"....#O...",
-				"....#O...",
-				"....#O...",
-				"....#O...",
-				"....#O...",
-		};
-		for (int i = 0; i < 10000; i++) {
-			player.clear();
-			player.getBoard().setUpProblem(before, BLACK);
-			short move = player.bestMove();
-			System.out.println(player.getBoard().getCoordinateSystem().toString(move));
-			assertNotEquals(at("d9"), move);
-		}
+		player.clear();
+		McRunnable runnable = player.getMcRunnable(0);
+		// Store c3 as a good response to a1 in the LGRF2 tables
+		runnable.acceptMove(at("a1"));
+		runnable.acceptMove(at("c3"));
+		player.getUpdater().updateTree(WHITE, runnable);
+		// Set up a situation where c3 is infeasible
+		player.acceptMove(PASS);
+		player.acceptMove(at("c2"));
+		player.acceptMove(PASS);
+		player.acceptMove(at("c4"));
+		player.acceptMove(PASS);
+		player.acceptMove(at("b3"));
+		player.acceptMove(PASS);
+		player.acceptMove(at("d3"));
+		// Now play a1, after which c3 is infeasible
+		runnable.copyDataFrom(player.getBoard());
+		runnable.acceptMove(at("a1"));
+		runnable.playout(false);
+		player.getUpdater().updateTree(WHITE, runnable);
+		player.getUpdater().updateTree(WHITE, runnable);
+		player.acceptMove(at("a1"));
+		short move = player.getDescender().bestPlayMove();
+		assertNotEquals(at("c3"), move);
 	}
 
 }

@@ -25,6 +25,11 @@ public final class DoNothing implements TreeDescender, TreeUpdater, OpeningBook 
 	}
 
 	@Override
+	public void fakeDescend(McRunnable runnable, short... moves) {
+		// Does nothing
+	}
+
+	@Override
 	public int getBiasDelay() {
 		return 0;
 	}
