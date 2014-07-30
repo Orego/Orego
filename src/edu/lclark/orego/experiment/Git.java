@@ -28,7 +28,7 @@ public final class Git {
 					final String commit = s.nextLine();
 					// substring to remove single quotes that would otherwise
 					// appear
-					return commit.substring(1, commit.length() - 1);
+					return commit;
 				}
 			}
 		} catch (final IOException e) {
