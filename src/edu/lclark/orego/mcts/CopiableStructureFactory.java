@@ -205,7 +205,6 @@ public final class CopiableStructureFactory {
 				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
 				+ sfString + ".data");
 		// Suggesters
-		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable, shapeThreshold, minStones, shapeBias);
 		final EscapeSuggester escape = new EscapeSuggester(board,
 				atariObserver, 20);
 		final PatternSuggester patterns = new PatternSuggester(board,
@@ -213,21 +212,20 @@ public final class CopiableStructureFactory {
 		final CaptureSuggester capture = new CaptureSuggester(board,
 				atariObserver, 20);
 		// Shape
+		final ShapeRater shape = new ShapeRater(board, shapeTable, shapeThreshold, minStones,
+				shapeBias);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias;
-		base.add(new Suggester[] { null, escape, patterns, capture });
+		base.add(new Suggester[] { escape, patterns, capture });
 		// First argument is null because the ShapeTable needs to be
 		// added to the ShapeRater on the outside, and this avoids resizing
 		// the array; when using this copiable structure, add the ShapeRater
 		// to the 0th slot of this array
+		base.add(new Rater[] { null });
 		// Mover
-		final SuggesterMover mover = new SuggesterMover(
-				board,
-				lgrf,
-				new SuggesterMover(
-						board,
-						escape,
+		final SuggesterMover mover = new SuggesterMover(board, lgrf,
+				new SuggesterMover(board, escape,
 						new SuggesterMover(board, patterns, new SuggesterMover(
 								board, capture,
 								new PredicateMover(board, new Conjunction(
