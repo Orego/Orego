@@ -57,8 +57,7 @@ public final class Broadcast {
 		copyFile(OREGO_ROOT + "config" + separator + "experiment.properties",
 				resultsDirectory + "experiment.txt");
 		try (PrintWriter out = new PrintWriter(resultsDirectory + "git.txt")) {
-			// substring to remove single quotes that would otherwise appear
-			out.println(gitCommit.substring(1, gitCommit.length() - 1));
+			out.println(gitCommit);
 		}
 		final List<String> hosts = SYSTEM.hosts;
 		final Process[] processes = new Process[hosts.size()];
