@@ -293,7 +293,6 @@ public class PlayerTest {
 		assertEquals(2, deadStones.size());
 		assertTrue(deadStones.contains(coords.at("D3")));
 		assertTrue(deadStones.contains(coords.at("D9")));
-
 	}
 	
 	@Test
@@ -429,6 +428,31 @@ public class PlayerTest {
 		player = new PlayerBuilder().msecPerMove(2000).threads(8).boardWidth(5).memorySize(1).openingBook(false).build();
 		// If there is a problem, this will crash
 		player.bestMove();
+	}
+
+	@Test
+	public void testEyelikePoint() {
+		// We should NEVER play in an eyelike point
+		player = new PlayerBuilder().msecPerMove(1).threads(1).komi(0.5).boardWidth(9).memorySize(1).openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] before = {
+				"..#.#O...",
+				"..###O...",
+				"....#O...",
+				"....#O...",
+				"....#O...",
+				"....#O...",
+				"....#O...",
+				"....#O...",
+				"....#O...",
+		};
+		for (int i = 0; i < 10000; i++) {
+			player.clear();
+			player.getBoard().setUpProblem(before, BLACK);
+			short move = player.bestMove();
+			System.out.println(player.getBoard().getCoordinateSystem().toString(move));
+			assertNotEquals(at("d9"), move);
+		}
 	}
 
 }
