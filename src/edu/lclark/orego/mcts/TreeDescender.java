@@ -21,6 +21,12 @@ public interface TreeDescender {
 	 */
 	public void descend(McRunnable runnable);
 
+	/**
+	 * A descend method for testing that takes a runnable partway through a
+	 * playout.
+	 */
+	public void fakeDescend(McRunnable runnable, short... moves);
+
 	/** Returns the number of runs a node must have before biases are applied. */
 	public int getBiasDelay();
 	

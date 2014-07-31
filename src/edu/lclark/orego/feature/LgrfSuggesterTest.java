@@ -1,7 +1,7 @@
 package edu.lclark.orego.feature;
 
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
-import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.*;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class LgrfSuggesterTest {
 		coords = board.getCoordinateSystem();
 		history = new HistoryObserver(board);
 		lgrfTable = new LgrfTable(coords);
-		suggester = new LgrfSuggester(board, history, lgrfTable);
+		suggester = new LgrfSuggester(board, history, lgrfTable, new NotEyeLike(board));
 	}
 
 	@Test
@@ -60,4 +60,20 @@ public class LgrfSuggesterTest {
 		assertEquals(NO_POINT, suggester.getMoves().get(0));
 	}
 	
+	@Test
+	public void testFilter() {
+		lgrfTable.update(BLACK, true, coords.at("a1"), coords.at("b1"), coords.at("c3"));
+		String[] before = {
+				".....",
+				"..#..",
+				".#.#.",
+				"..#..",
+				".....",
+		};
+		board.setUpProblem(before, WHITE);
+		board.play(coords.at("b1"));
+		// The tables say c1, but it's infeasible
+		assertEquals(0, suggester.getMoves().size());		
+	}
+
 }
