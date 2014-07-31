@@ -198,7 +198,7 @@ public final class CopiableStructureFactory {
 				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
 				+ sfString + ".data");
 		// Suggesters
-		final ShapeSuggester shape = new ShapeSuggester(board, shapeTable, shapeThreshold, minStones, shapeBias);
+		final ShapeSuggester shape = new ShapeSuggester(board, historyObserver, shapeTable, shapeThreshold, minStones, shapeBias);
 		final EscapeSuggester escape = new EscapeSuggester(board,
 				atariObserver, 20);
 		final PatternSuggester patterns = new PatternSuggester(board,

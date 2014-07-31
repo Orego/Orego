@@ -16,7 +16,7 @@ import static edu.lclark.orego.core.StoneColor.*;
 
 public final class PatternFinder {
 
-	public static final long[][] POINT_HASHES = new long[5][120];
+	public static final long[][] POINT_HASHES = new long[10][120];
 
 	public static final int[] PATTERN_SIZES = { 0, 8, 24, 48, 80, 120 };
 
@@ -45,7 +45,7 @@ public final class PatternFinder {
 
 	static {
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 120; j++) {
 				POINT_HASHES[i][j] = random.nextLong();
 			}
@@ -115,7 +115,8 @@ public final class PatternFinder {
 			}
 			long hash = getHash(board,
 					board.getCoordinateSystem().at(centerRow, centerColumn),
-					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) - 1);
+					(1 + (patternRadius * 2)) * (1 + (patternRadius * 2)) - 1,
+					CoordinateSystem.NO_POINT);
 			String pattern = getPatternString(board, topRow, bottomRow,
 					leftColumn, rightColumn);
 			map.put(pattern, table.getWinRate(hash));
@@ -171,7 +172,8 @@ public final class PatternFinder {
 	 * Gets the Zobrist hash for a pattern around a point. patternSize is the
 	 * area of the pattern - 1 (exclude the center point).
 	 */
-	public static long getHash(Board board, short p, int minStones) {
+	public static long getHash(Board board, short p, int minStones,
+			short lastMove) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		long result = 0L;
 		int row = coords.row(p);
@@ -188,20 +190,25 @@ public final class PatternFinder {
 					if (color == board.getColorToPlay()) {
 						if (board.getLiberties(point).size() == 1) {
 							result ^= POINT_HASHES[0][j];
-						} else {
+						} else if (board.getLiberties(point).size() == 2) {
 							result ^= POINT_HASHES[1][j];
+						} else {
+							result ^= POINT_HASHES[2][j];
 						}
 						stoneCounter++;
 					} else if (color == board.getColorToPlay().opposite()) {
+						int lastMoveOffset = lastMove == point ? 3 : 0;
 						if (board.getLiberties(point).size() == 1) {
-							result ^= POINT_HASHES[2][j];
+							result ^= POINT_HASHES[3 + lastMoveOffset][j];
+						} else if (board.getLiberties(point).size() == 2) {
+							result ^= POINT_HASHES[4 + lastMoveOffset][j];
 						} else {
-							result ^= POINT_HASHES[3][j];
+							result ^= POINT_HASHES[5 + lastMoveOffset][j];
 						}
 						stoneCounter++;
 					}
 				} else {
-					result ^= POINT_HASHES[4][j];
+					result ^= POINT_HASHES[9][j];
 				}
 			}
 			if (stoneCounter >= minStones) {
