@@ -293,7 +293,6 @@ public class PlayerTest {
 		assertEquals(2, deadStones.size());
 		assertTrue(deadStones.contains(coords.at("D3")));
 		assertTrue(deadStones.contains(coords.at("D9")));
-
 	}
 	
 	@Test
@@ -429,6 +428,37 @@ public class PlayerTest {
 		player = new PlayerBuilder().msecPerMove(2000).threads(8).boardWidth(5).memorySize(1).openingBook(false).build();
 		// If there is a problem, this will crash
 		player.bestMove();
+	}
+
+	@Test
+	public void testEyelikePoint() {
+		// We should NEVER play in an eyelike point
+		player = new PlayerBuilder().msecPerMove(1).gestation(0).komi(0.5).boardWidth(5).memorySize(1).openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
+		player.clear();
+		McRunnable runnable = player.getMcRunnable(0);
+		// Store c3 as a good response to a1 in the LGRF2 tables
+		runnable.acceptMove(at("a1"));
+		runnable.acceptMove(at("c3"));
+		player.getUpdater().updateTree(WHITE, runnable);
+		// Set up a situation where c3 is infeasible
+		player.acceptMove(PASS);
+		player.acceptMove(at("c2"));
+		player.acceptMove(PASS);
+		player.acceptMove(at("c4"));
+		player.acceptMove(PASS);
+		player.acceptMove(at("b3"));
+		player.acceptMove(PASS);
+		player.acceptMove(at("d3"));
+		// Now play a1, after which c3 is infeasible
+		runnable.copyDataFrom(player.getBoard());
+		runnable.acceptMove(at("a1"));
+		runnable.playout(false);
+		player.getUpdater().updateTree(WHITE, runnable);
+		player.getUpdater().updateTree(WHITE, runnable);
+		player.acceptMove(at("a1"));
+		short move = player.getDescender().bestPlayMove();
+		assertNotEquals(at("c3"), move);
 	}
 
 }

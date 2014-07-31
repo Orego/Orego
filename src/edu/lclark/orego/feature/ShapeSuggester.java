@@ -26,13 +26,13 @@ public class ShapeSuggester implements Suggester {
 	private final int minStones;
 	
 	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int minStones) {
-		this(board, shapeTable, shapeThreshold, 0, minStones);
+		this(board, shapeTable, shapeThreshold, minStones, 0);
 	}
 	
 	/**
 	 * minStones is the minimum number of stones in a pattern.
 	 */
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int minStones) {
+	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int minStones, int bias) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
