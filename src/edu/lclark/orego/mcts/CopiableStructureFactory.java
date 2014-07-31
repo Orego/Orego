@@ -14,9 +14,8 @@ import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.PatternSuggester;
-import edu.lclark.orego.feature.Rater;
-import edu.lclark.orego.feature.ShapeRater;
 import edu.lclark.orego.feature.ShapeSuggester;
+import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.MoverFactory;
@@ -99,13 +98,18 @@ public final class CopiableStructureFactory {
 		// Observers
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// Filter
+		Predicate filter = new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board)));
+		base.add(filter);
 		// LGRF
 		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
 		base.add(table);
-		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver,
-				table);
 		// This is added to the structure to that every LgrfSuggester can point
 		// to
+		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table, filter);
+		// This is added to the structure to that every LgrfSuggester can point to
 		// the same table. This is handled in the McRunnable constructor.
 		base.add(lgrf);
 		// Suggesters
@@ -118,25 +122,9 @@ public final class CopiableStructureFactory {
 		// Bias
 		base.add(new Suggester[] { escape, patterns, capture });
 		// Mover
-		final SuggesterMover mover = new SuggesterMover(
-				board,
-				lgrf,
-				new SuggesterMover(
-						board,
-						escape,
-						new SuggesterMover(board, patterns, new SuggesterMover(
-								board, capture,
-								new PredicateMover(board, new Conjunction(
-										new NotEyeLike(board),
-										new Disjunction(OnThirdOrFourthLine
-												.forWidth(board
-														.getCoordinateSystem()
-														.getWidth()),
-												new NearAnotherStone(board))))))));
-		// Filter
-		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
-				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-						.getWidth()), new NearAnotherStone(board))));
+		final SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
+				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
+						filter)))));
 		return base.add(mover);
 	}
 
@@ -187,6 +175,11 @@ public final class CopiableStructureFactory {
 			float shapeScalingFactor) {
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);
+		// Filter
+				Predicate filter = new Conjunction(new NotEyeLike(board), new Disjunction(
+						OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+								.getWidth()), new NearAnotherStone(board)));
+				base.add(filter);
 		// Observers
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
@@ -194,7 +187,7 @@ public final class CopiableStructureFactory {
 		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
 		base.add(table);
 		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver,
-				table);
+				table, filter);
 		// This is added to the structure to that every LgrfSuggester can point
 		// to
 		// the same table. This is handled in the McRunnable constructor.
@@ -230,17 +223,8 @@ public final class CopiableStructureFactory {
 						escape,
 						new SuggesterMover(board, patterns, new SuggesterMover(
 								board, capture,
-								new PredicateMover(board, new Conjunction(
-										new NotEyeLike(board),
-										new Disjunction(OnThirdOrFourthLine
-												.forWidth(board
-														.getCoordinateSystem()
-														.getWidth()),
-												new NearAnotherStone(board))))))));
-		// Filter
-		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
-				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-						.getWidth()), new NearAnotherStone(board))));
+								new PredicateMover(board, filter)))));
+		
 		return base.add(mover);
 	}
 
