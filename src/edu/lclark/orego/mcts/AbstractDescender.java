@@ -12,7 +12,7 @@ import edu.lclark.orego.util.ShortSet;
 public abstract class AbstractDescender implements TreeDescender {
 
 	/** If our win rate falls below this, resign. */
-	public static final float RESIGN_PARAMETER = 0.1f;
+	public static final float RESIGN_PARAMETER = 0.0f;
 
 	/**
 	 * Bias is not updated unless there have been this many runs through a node.
