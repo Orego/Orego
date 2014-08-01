@@ -14,6 +14,8 @@ import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.PatternSuggester;
+import edu.lclark.orego.feature.Rater;
+import edu.lclark.orego.feature.ShapeRater;
 import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.StoneCountObserver;
@@ -99,17 +101,20 @@ public final class CopiableStructureFactory {
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
 		// Filter
-		Predicate filter = new Conjunction(new NotEyeLike(board), new Disjunction(
-				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-						.getWidth()), new NearAnotherStone(board)));
+		Predicate filter = new Conjunction(new NotEyeLike(board),
+				new Disjunction(OnThirdOrFourthLine.forWidth(board
+						.getCoordinateSystem().getWidth()),
+						new NearAnotherStone(board)));
 		base.add(filter);
 		// LGRF
 		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
 		base.add(table);
 		// This is added to the structure to that every LgrfSuggester can point
 		// to
-		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver, table, filter);
-		// This is added to the structure to that every LgrfSuggester can point to
+		final LgrfSuggester lgrf = new LgrfSuggester(board, historyObserver,
+				table, filter);
+		// This is added to the structure to that every LgrfSuggester can point
+		// to
 		// the same table. This is handled in the McRunnable constructor.
 		base.add(lgrf);
 		// Suggesters
@@ -175,14 +180,15 @@ public final class CopiableStructureFactory {
 			float shapeScalingFactor) {
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);
-		// Filter
-				Predicate filter = new Conjunction(new NotEyeLike(board), new Disjunction(
-						OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-								.getWidth()), new NearAnotherStone(board)));
-				base.add(filter);
 		// Observers
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// Filter
+		Predicate filter = new Conjunction(new NotEyeLike(board),
+				new Disjunction(OnThirdOrFourthLine.forWidth(board
+						.getCoordinateSystem().getWidth()),
+						new NearAnotherStone(board)));
+		base.add(filter);
 		// LGRF
 		final LgrfTable table = new LgrfTable(board.getCoordinateSystem());
 		base.add(table);
@@ -198,7 +204,6 @@ public final class CopiableStructureFactory {
 				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
 				+ sfString + ".data");
 		// Suggesters
-		final ShapeSuggester shape = new ShapeSuggester(board, historyObserver, shapeTable, shapeThreshold, minStones, shapeBias);
 		final EscapeSuggester escape = new EscapeSuggester(board,
 				atariObserver, 20);
 		final PatternSuggester patterns = new PatternSuggester(board,
@@ -206,25 +211,22 @@ public final class CopiableStructureFactory {
 		final CaptureSuggester capture = new CaptureSuggester(board,
 				atariObserver, 20);
 		// Shape
+		final ShapeRater shape = new ShapeRater(board, historyObserver, shapeTable,
+				shapeThreshold, shapeBias, minStones);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias;
-		base.add(new Suggester[] { null, escape, patterns, capture });
+		base.add(new Suggester[] { escape, patterns, capture });
 		// First argument is null because the ShapeTable needs to be
 		// added to the ShapeRater on the outside, and this avoids resizing
 		// the array; when using this copiable structure, add the ShapeRater
 		// to the 0th slot of this array
+		base.add(new Rater[] { null });
 		// Mover
-		final SuggesterMover mover = new SuggesterMover(
-				board,
-				lgrf,
-				new SuggesterMover(
-						board,
-						escape,
-						new SuggesterMover(board, patterns, new SuggesterMover(
-								board, capture,
+		final SuggesterMover mover = new SuggesterMover(board, lgrf,
+				new SuggesterMover(board, escape, new SuggesterMover(board,
+						patterns, new SuggesterMover(board, capture,
 								new PredicateMover(board, filter)))));
-		
 		return base.add(mover);
 	}
 

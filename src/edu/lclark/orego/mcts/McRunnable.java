@@ -84,10 +84,10 @@ public final class McRunnable implements Runnable {
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
 		ShapeTable shapeTable = null;
-		ShapeSuggester shape = null;
+		ShapeRater shape = null;
 		try {
 			shapeTable = stuff.get(ShapeTable.class);
-			shape = copy.get(ShapeSuggester.class);
+			shape = copy.get(ShapeRater.class);
 			shape.setTable(shapeTable);
 		} catch (final IllegalArgumentException e) {
 			// If we get here, we're not using shape
@@ -99,7 +99,7 @@ public final class McRunnable implements Runnable {
 			raters = new Rater[0];
 		}
 		if(shape != null){
-			suggesters[0] = shape;
+			raters[0] = shape;
 		}
 		this.player = player;
 		random = new MersenneTwisterFast();
