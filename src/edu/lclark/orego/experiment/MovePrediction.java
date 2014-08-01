@@ -18,8 +18,8 @@ public class MovePrediction {
 		File folder = new File(
 				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/kgs-19-2013-11-new/");
 		File[] files = folder.listFiles();
-		for (int i = 0; i < 100; i++) {
-			if(movePrediction.gamesProcessed >= 25){
+		for (int i = 0; i < files.length; i++) {
+			if(movePrediction.gamesProcessed >= 200){
 				break;
 			}
 			if (files[i].getPath().endsWith(".sgf")) {
@@ -52,7 +52,7 @@ public class MovePrediction {
 		mcPlayer = new PlayerBuilder().build();
 		shapePlayer = new PlayerBuilder().shape(true).shapeBias(1000)
 				.shapeScalingFactor(0.999f).shapeMinStones(4).msecPerMove(0).build();
-		shapeMcPlayer = new PlayerBuilder().shape(true).shapeBias(1000)
+		shapeMcPlayer = new PlayerBuilder().shape(true).shapeBias(20)
 				.shapeScalingFactor(0.999f).shapeMinStones(4).build();
 	}
 
@@ -87,7 +87,7 @@ public class MovePrediction {
 	
 	private void writeData(){
 		try (PrintWriter writer = new PrintWriter(new File(
-				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/Move Prediction Data 4 Stones/MovePrediction" + gamesProcessed + ".csv"))) {
+				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/Move Predictions Rich 4/MovePrediction" + gamesProcessed + ".csv"))) {
 			for(int i = 0; i < 300; i++){
 				writer.println((correct[0][i] / total[0][i]) + "," + (correct[1][i] / total[1][i]) + "," + (correct[2][i] / total[2][i]));
 			}
