@@ -19,14 +19,18 @@ public class MovePrediction {
 				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/kgs-19-2013-11-new/");
 		File[] files = folder.listFiles();
 		for (int i = 0; i < 100; i++) {
+			if(movePrediction.gamesProcessed >= 25){
+				break;
+			}
 			if (files[i].getPath().endsWith(".sgf")) {
+				System.out.println(files[i].getPath());
 				List<List<Short>> games = parser.parseGamesFromFile(files[i], Integer.MAX_VALUE);
 				for (List<Short> game : games) {
 					movePrediction.processGame(game);
+					movePrediction.writeData();
 				}
 			}
 		}
-		movePrediction.writeData();
 	}
 
 	private double[][] correct;
@@ -38,6 +42,8 @@ public class MovePrediction {
 	private Player shapePlayer;
 
 	private Player shapeMcPlayer;
+	
+	int gamesProcessed;
 
 	public MovePrediction() {
 		correct = new double[3][300];
@@ -45,13 +51,14 @@ public class MovePrediction {
 
 		mcPlayer = new PlayerBuilder().build();
 		shapePlayer = new PlayerBuilder().shape(true).shapeBias(1000)
-				.shapeScalingFactor(0.999f).shapeMinStones(9).msecPerMove(0).build();
+				.shapeScalingFactor(0.999f).shapeMinStones(4).msecPerMove(0).build();
 		shapeMcPlayer = new PlayerBuilder().shape(true).shapeBias(1000)
-				.shapeScalingFactor(0.999f).shapeMinStones(9).build();
+				.shapeScalingFactor(0.999f).shapeMinStones(4).build();
 	}
 
 	@SuppressWarnings("boxing")
 	private void processGame(List<Short> game) {
+		gamesProcessed++;
 		mcPlayer.clear();
 		shapePlayer.clear();
 		shapeMcPlayer.clear();
@@ -80,7 +87,7 @@ public class MovePrediction {
 	
 	private void writeData(){
 		try (PrintWriter writer = new PrintWriter(new File(
-				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/MovePrediction.csv"))) {
+				"/Network/Servers/maccsserver.lclark.edu/Users/mdreyer/Desktop/Move Prediction Data 4 Stones/MovePrediction" + gamesProcessed + ".csv"))) {
 			for(int i = 0; i < 300; i++){
 				writer.println((correct[0][i] / total[0][i]) + "," + (correct[1][i] / total[1][i]) + "," + (correct[2][i] / total[2][i]));
 			}
@@ -88,6 +95,7 @@ public class MovePrediction {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		System.out.println("Total games processed: " + gamesProcessed);
 	}
 
 }
