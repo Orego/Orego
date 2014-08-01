@@ -127,10 +127,9 @@ public final class CopiableStructureFactory {
 		// Bias
 		base.add(new Suggester[] { escape, patterns, capture });
 		// Mover
-		final SuggesterMover mover = new SuggesterMover(board, lgrf,
-				new SuggesterMover(board, escape, new SuggesterMover(board,
-						patterns, new SuggesterMover(board, capture,
-								new PredicateMover(board, filter)))));
+		final SuggesterMover mover = new SuggesterMover(board, lgrf, new SuggesterMover(board, escape, new SuggesterMover(board,
+				patterns, new SuggesterMover(board, capture, new PredicateMover(board,
+						filter)))));
 		return base.add(mover);
 	}
 
@@ -212,7 +211,7 @@ public final class CopiableStructureFactory {
 		final CaptureSuggester capture = new CaptureSuggester(board,
 				atariObserver, 20);
 		// Shape
-		final ShapeRater shape = new ShapeRater(board, shapeTable,
+		final ShapeRater shape = new ShapeRater(board, historyObserver, shapeTable,
 				shapeThreshold, shapeBias, minStones);
 		base.add(shapeTable);
 		base.add(shape);

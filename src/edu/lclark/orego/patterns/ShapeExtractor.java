@@ -3,9 +3,11 @@ package edu.lclark.orego.patterns;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
@@ -36,9 +38,9 @@ public class ShapeExtractor extends PatternExtractor {
 		}
 	}
 	
-	void analyzeMove(short move, Board board) {
-		updateTables(true, move, board);
-		updateTables(false, selectRandomMove(move), board);
+	void analyzeMove(short move, Board board, short lastMove) {
+		updateTables(true, move, board, lastMove);
+		updateTables(false, selectRandomMove(move), board, lastMove);
 	}
 	
 	@Override
@@ -85,6 +87,8 @@ public class ShapeExtractor extends PatternExtractor {
 	@Override
 	void analyzeGames(List<List<Short>> games) {
 		for (List<Short> game : games) {
+			short[] lastMoves = new short[8];
+			Arrays.fill(lastMoves, CoordinateSystem.NO_POINT);
 			for (Board board : boards) {
 				board.clear();
 			}
@@ -100,7 +104,7 @@ public class ShapeExtractor extends PatternExtractor {
 				transformations[7] = rotate90(transformations[6]);
 				Legality legality = Legality.OK;
 				for (int i = 0; i < transformations.length; i++) {
-					analyzeMove(transformations[i], boards[i]);
+					analyzeMove(transformations[i], boards[i], lastMoves[i]);
 					legality = boards[i].play(transformations[i]);
 					if (legality == Legality.KO_VIOLATION) {
 						break;
@@ -114,12 +118,15 @@ public class ShapeExtractor extends PatternExtractor {
 				if(legality == Legality.KO_VIOLATION){
 					break;
 				}
+				for(int i = 0; i<transformations.length; i++){
+					lastMoves[i] = transformations[i];
+				}
 			}
 		}
 	}
 
-	void updateTables(boolean winner, short move, Board board) {
-		long hash = PatternFinder.getHash(board, move, minStones);
+	void updateTables(boolean winner, short move, Board board, short lastMove) {
+		long hash = PatternFinder.getHash(board, move, minStones, lastMove);
 		shapeTable.update(hash, winner);
 	}
 

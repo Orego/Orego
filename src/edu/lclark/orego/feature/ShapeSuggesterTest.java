@@ -18,11 +18,14 @@ public class ShapeSuggesterTest {
 	
 	private ShapeTable shapeTable;
 	
+	private HistoryObserver history;
+	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(9);
 		shapeTable = new ShapeTable();
-		suggester = new ShapeSuggester(board, shapeTable, .8, 4);
+		history = new HistoryObserver(board);
+		suggester = new ShapeSuggester(board, history, shapeTable, .8, 4);
 	}
 
 	@Test
@@ -39,7 +42,7 @@ public class ShapeSuggesterTest {
 				"OO.OO....",
 		};
 		board.setUpProblem(diagram, BLACK);
-		long hash = PatternFinder.getHash(board, board.getCoordinateSystem().at("c8"), 4);
+		long hash = PatternFinder.getHash(board, board.getCoordinateSystem().at("c8"), 4, history.get(board.getTurn()-1));
 		for(int i = 0; i < 500; i++){
 			shapeTable.update(hash, true);
 		}

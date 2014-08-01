@@ -25,17 +25,20 @@ public class ShapeSuggester implements Suggester {
 	
 	private final int minStones;
 	
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int minStones) {
-		this(board, shapeTable, shapeThreshold, 0, minStones);
+	private final HistoryObserver history;
+	
+	public ShapeSuggester(Board board, HistoryObserver history, ShapeTable shapeTable, double shapeThreshold, int minStones) {
+		this(board, history, shapeTable, shapeThreshold, minStones, 0);
 	}
 	
 	/**
 	 * minStones is the minimum number of stones in a pattern.
 	 */
-	public ShapeSuggester(Board board, ShapeTable shapeTable, double shapeThreshold, int bias, int minStones) {
+	public ShapeSuggester(Board board, HistoryObserver history, ShapeTable shapeTable, double shapeThreshold, int minStones, int bias) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;
 		this.board = board;
+		this.history = history;
 		this.coords = board.getCoordinateSystem();
 		this.minStones = minStones;
 		this.shapeTable = shapeTable;
@@ -52,7 +55,7 @@ public class ShapeSuggester implements Suggester {
 		moves.clear();
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
-				long hash = PatternFinder.getHash(board, p, minStones);
+				long hash = PatternFinder.getHash(board, p, minStones, history.get(board.getTurn()-1));
 				if (shapeTable.getWinRate(hash) > shapeThreshold) {
 					moves.add(p);
 				}
