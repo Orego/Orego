@@ -239,6 +239,7 @@ public final class Orego {
 				player.clear();
 				acknowledge();
 			} else if (width >= 2 && width <= 19) {
+				player = null; // So the old transposition table can be reclaimed
 				playerBuilder = playerBuilder.boardWidth(width);
 				player = playerBuilder.build();
 				acknowledge();
@@ -337,6 +338,7 @@ public final class Orego {
 			if (komi == player.getFinalScorer().getKomi()) {
 				player.clear();
 			} else {
+				player = null; // So the old transposition table can be reclaimed
 				playerBuilder = playerBuilder.komi(komi);
 				player = playerBuilder.build();
 			}
