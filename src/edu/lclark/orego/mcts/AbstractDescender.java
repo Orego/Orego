@@ -127,7 +127,6 @@ public abstract class AbstractDescender implements TreeDescender {
 		final SearchNode node = getRoot();
 		assert node != null : "Fancy hash code: " + board.getFancyHash();
 		for (final short move : moves) {
-			System.out.println("Passing " + move + " to runnable");
 			runnable.acceptMove(move);
 			final SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getFancyHash());
