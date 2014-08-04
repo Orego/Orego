@@ -21,7 +21,7 @@ public final class TranspositionTable {
 
 	public TranspositionTable(int megabytes, SearchNodeBuilder builder,
 			CoordinateSystem coords) {
-		final int size = megabytes * 1024 * 16 / Math.max(81, coords.getArea());
+		final int size = megabytes * 1024 * 32 / Math.max(81, coords.getArea());
 		table = new SearchNode[size];
 		nodesInUse = 0;
 		for (int i = 0; i < size; i++) {
