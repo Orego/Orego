@@ -461,4 +461,17 @@ public class PlayerTest {
 		assertNotEquals(at("c3"), move);
 	}
 
+	@Test
+	public void testLateUndo() {
+		while (player.getBoard().getPasses() < 2) {
+			short move = player.bestMove();
+			if (move == RESIGN) {
+				move = PASS;
+			}
+			player.acceptMove(move);
+		}
+		// This was sometimes causing an ArrayIndexOutOfBoundsException
+		// late in the game
+		player.undo();
+	}
 }

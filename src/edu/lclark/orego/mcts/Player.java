@@ -37,7 +37,7 @@ public final class Player {
 	 * kill them.
 	 */
 	private boolean cleanupMode;
-	
+
 	private final CoordinateSystem coords;
 
 	/**
@@ -162,7 +162,7 @@ public final class Player {
 			} while (msecPerMove > 0);
 		}
 		long playouts = 0;
-		for(McRunnable runnable : runnables){
+		for (McRunnable runnable : runnables) {
 			playouts += runnable.getPlayoutsCompleted();
 		}
 		Logging.log("Turn : " + board.getTurn() + " Playouts : " + playouts);
@@ -221,9 +221,10 @@ public final class Player {
 	 */
 	private boolean findCleanupMoves() {
 		log("Finding cleanup moves");
-		final ShortSet enemyDeadChains = findDeadStones(1.0, board.getColorToPlay()
-				.opposite());
-		log("Dead stones: " + enemyDeadChains.toString(board.getCoordinateSystem()));
+		final ShortSet enemyDeadChains = findDeadStones(1.0, board
+				.getColorToPlay().opposite());
+		log("Dead stones: "
+				+ enemyDeadChains.toString(board.getCoordinateSystem()));
 		if (enemyDeadChains.size() == 0) {
 			return false;
 		}
@@ -270,7 +271,8 @@ public final class Player {
 			runnableBoard.copyDataFrom(board);
 			runnableBoard.setPasses((short) 0);
 			runnable.performMcRun(false, runnableBoard);
-			for (final short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			for (final short p : board.getCoordinateSystem()
+					.getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
 					survivals[p]++;
 				}
@@ -408,7 +410,7 @@ public final class Player {
 		clear();
 		board.setUpHandicap(handicapSize);
 	}
-	
+
 	/** Places moves read from an SGF game. */
 	@SuppressWarnings("boxing")
 	public void setUpSgfGame(List<Short> moves) {
@@ -431,7 +433,7 @@ public final class Player {
 			return; // If the threads were already running, do nothing
 		}
 		SearchNode root = getRoot();
-		if(!root.biasUpdated()){
+		if (!root.biasUpdated()) {
 			getMcRunnable(0).copyDataFrom(board);
 			root.updateBias(getMcRunnable(0));
 		}
@@ -505,7 +507,8 @@ public final class Player {
 	public ShortSet getLiveStones(double threshold) {
 		ShortSet deadStones = findDeadStones(threshold, WHITE);
 		deadStones.addAll(findDeadStones(threshold, BLACK));
-		ShortSet liveStones = new ShortSet(board.getCoordinateSystem().getFirstPointBeyondBoard());
+		ShortSet liveStones = new ShortSet(board.getCoordinateSystem()
+				.getFirstPointBeyondBoard());
 		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
 			if (board.getColorAt(p) != VACANT && !deadStones.contains(p)) {
 				liveStones.add(p);
@@ -514,7 +517,7 @@ public final class Player {
 		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
 		return liveStones;
 	}
-	
+
 	/** Returns GoGui information showing search values. */
 	@SuppressWarnings("boxing")
 	public String goguiSearchValues() {
@@ -525,10 +528,10 @@ public final class Player {
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
 				double searchValue = descender.searchValue(getRoot(), p);
-				if(searchValue>0){
+				if (searchValue > 0) {
 					min = Math.min(min, searchValue);
 					max = Math.max(max, searchValue);
-			}
+				}
 			}
 		}
 		String result = "";
@@ -539,113 +542,115 @@ public final class Player {
 					if (result.length() > 0) {
 						result += "\n";
 					}
-					int green = (int) (255*(searchValue - min) / (max - min));
+					int green = (int) (255 * (searchValue - min) / (max - min));
 					result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
-							String.format("#%02x%02x00",  255-green, green),
-							coords.toString(p), coords.toString(p), searchValue * 100);
+							String.format("#%02x%02x00", 255 - green, green),
+							coords.toString(p), coords.toString(p),
+							searchValue * 100);
 				}
 			}
 		}
 		return result;
 	}
-	
+
 	@SuppressWarnings("boxing")
-	public String goguiGetWins(){
+	public String goguiGetWins() {
 		// TODO Encapsulate this normalization in a single place, called by all
-				// the various gogui methods
-				float min = Float.MAX_VALUE;
-				float max = 0.0f;
-				for (short p : coords.getAllPointsOnBoard()) {
-					if (board.getColorAt(p) == VACANT) {
-						float wins = getRoot().getWins(p);
-						if(wins>0){
-							min = Math.min(min, wins);
-							max = Math.max(max, wins);
-					}
-					}
+		// the various gogui methods
+		float min = Float.MAX_VALUE;
+		float max = 0.0f;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (board.getColorAt(p) == VACANT) {
+				float wins = getRoot().getWins(p);
+				if (wins > 0) {
+					min = Math.min(min, wins);
+					max = Math.max(max, wins);
 				}
-				String result = "";
-				for (short p : coords.getAllPointsOnBoard()) {
-					if (getBoard().getColorAt(p) == VACANT) {
-						float wins= getRoot().getWins(p);
-						if (wins > 0) {
-							if (result.length() > 0) {
-								result += "\n";
-							}
-							int green = (int) (255*(wins - min) / (max - min));
-							result += String.format("COLOR %s %s\nLABEL %s %.0f",
-									String.format("#%02x%02x00",  255-green, green),
-									coords.toString(p), coords.toString(p), wins);
-						}
+			}
+		}
+		String result = "";
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getBoard().getColorAt(p) == VACANT) {
+				float wins = getRoot().getWins(p);
+				if (wins > 0) {
+					if (result.length() > 0) {
+						result += "\n";
 					}
+					int green = (int) (255 * (wins - min) / (max - min));
+					result += String.format("COLOR %s %s\nLABEL %s %.0f",
+							String.format("#%02x%02x00", 255 - green, green),
+							coords.toString(p), coords.toString(p), wins);
 				}
-				return result;
+			}
+		}
+		return result;
 	}
-	
+
 	@SuppressWarnings("boxing")
-	public String goguiGetWinrate(){
+	public String goguiGetWinrate() {
 		// TODO Encapsulate this normalization in a single place, called by all
-				// the various gogui methods
-				float min = Float.MAX_VALUE;
-				float max = 0.0f;
-				for (short p : coords.getAllPointsOnBoard()) {
-					if (board.getColorAt(p) == VACANT) {
-						float winRate = getRoot().getWinRate(p);
-						if(winRate>0){
-							min = Math.min(min, winRate);
-							max = Math.max(max, winRate);
-					}
-					}
+		// the various gogui methods
+		float min = Float.MAX_VALUE;
+		float max = 0.0f;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (board.getColorAt(p) == VACANT) {
+				float winRate = getRoot().getWinRate(p);
+				if (winRate > 0) {
+					min = Math.min(min, winRate);
+					max = Math.max(max, winRate);
 				}
-				String result = "";
-				for (short p : coords.getAllPointsOnBoard()) {
-					if (getBoard().getColorAt(p) == VACANT) {
-						float winRate= getRoot().getWinRate(p);
-						if (winRate > 0) {
-							if (result.length() > 0) {
-								result += "\n";
-							}
-							int green = (int) (255*(winRate - min) / (max - min));
-							result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
-									String.format("#%02x%02x00",  255-green, green),
-									coords.toString(p), coords.toString(p), (winRate * 100));
-						}
+			}
+		}
+		String result = "";
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getBoard().getColorAt(p) == VACANT) {
+				float winRate = getRoot().getWinRate(p);
+				if (winRate > 0) {
+					if (result.length() > 0) {
+						result += "\n";
 					}
+					int green = (int) (255 * (winRate - min) / (max - min));
+					result += String.format("COLOR %s %s\nLABEL %s %.0f%%",
+							String.format("#%02x%02x00", 255 - green, green),
+							coords.toString(p), coords.toString(p),
+							(winRate * 100));
 				}
-				return result;
+			}
+		}
+		return result;
 	}
-	
+
 	@SuppressWarnings("boxing")
-	public String goguiGetRuns(){
+	public String goguiGetRuns() {
 		// TODO Encapsulate this normalization in a single place, called by all
-				// the various gogui methods
-				float min = Float.MAX_VALUE;
-				float max = 0.0f;
-				for (short p : coords.getAllPointsOnBoard()) {
-					if (board.getColorAt(p) == VACANT) {
-						float runs = getRoot().getRuns(p);
-						if(runs>0){
-							min = Math.min(min, runs);
-							max = Math.max(max, runs);
-					}
-					}
+		// the various gogui methods
+		float min = Float.MAX_VALUE;
+		float max = 0.0f;
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (board.getColorAt(p) == VACANT) {
+				float runs = getRoot().getRuns(p);
+				if (runs > 0) {
+					min = Math.min(min, runs);
+					max = Math.max(max, runs);
 				}
-				String result = "";
-				for (short p : coords.getAllPointsOnBoard()) {
-					if (getBoard().getColorAt(p) == VACANT) {
-						float runs= getRoot().getRuns(p);
-						if (runs > 0) {
-							if (result.length() > 0) {
-								result += "\n";
-							}
-							int green = (int) (255*(runs - min) / (max - min));
-							result += String.format("COLOR %s %s\nLABEL %s %.0f",
-									String.format("#%02x%02x00",  255-green, green),
-									coords.toString(p), coords.toString(p), runs);
-						}
+			}
+		}
+		String result = "";
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getBoard().getColorAt(p) == VACANT) {
+				float runs = getRoot().getRuns(p);
+				if (runs > 0) {
+					if (result.length() > 0) {
+						result += "\n";
 					}
+					int green = (int) (255 * (runs - min) / (max - min));
+					result += String.format("COLOR %s %s\nLABEL %s %.0f",
+							String.format("#%02x%02x00", 255 - green, green),
+							coords.toString(p), coords.toString(p), runs);
 				}
-				return result;
+			}
+		}
+		return result;
 	}
 
 }
