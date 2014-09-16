@@ -480,7 +480,7 @@ public final class Player {
 		final boolean alreadyRunning = keepRunning;
 		stopThreads();
 		final ShortList movesList = new ShortList(board.getCoordinateSystem()
-				.getFirstPointBeyondBoard());
+				.getMaxMovesPerGame());
 		for (int i = 0; i < historyObserver.size() - 1; i++) {
 			movesList.add(historyObserver.get(i));
 		}
