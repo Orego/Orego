@@ -31,21 +31,21 @@ public final class PlayerBuilder {
 
 	private int msecPerMove;
 
+	private boolean ponder;
+	
 	private boolean rave;
 	
 	private boolean shape;
-	
-	private int shapeBias;
 
-	private int threads;
+	private int shapeBias;
+	
+	private int shapePatternSize;
 	
 	private float shapeScalingFactor;
 	
 	private double shapeThreshold;
-	
-	private int shapePatternSize;
 
-	private boolean ponder;
+	private int threads;
 
 	private int width;
 
@@ -176,24 +176,8 @@ public final class PlayerBuilder {
 		return this;
 	}
 
-	public PlayerBuilder threads(int threads) {
-		this.threads = threads;
-		return this;
-	}
-
-	/** Sets the type of time manager to use, e.g., "exiting" or "uniform". */
-	public PlayerBuilder timeManagement(String managerType) {
-		this.managerType = managerType;
-		return this;
-	}
-
 	public PlayerBuilder shape(boolean shape) {
 		this.shape = shape;
-		return this;
-	}
-
-	public PlayerBuilder shapeThreshold(double threshold) {
-		this.shapeThreshold = threshold;
 		return this;
 	}
 
@@ -209,6 +193,22 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder shapeScalingFactor(float shapeScalingFactor) {
 		this.shapeScalingFactor = shapeScalingFactor;
+		return this;
+	}
+
+	public PlayerBuilder shapeThreshold(double threshold) {
+		this.shapeThreshold = threshold;
+		return this;
+	}
+
+	public PlayerBuilder threads(int threads) {
+		this.threads = threads;
+		return this;
+	}
+
+	/** Sets the type of time manager to use, e.g., "exiting" or "uniform". */
+	public PlayerBuilder timeManagement(String managerType) {
+		this.managerType = managerType;
 		return this;
 	}
 
