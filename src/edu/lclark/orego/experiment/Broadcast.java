@@ -63,6 +63,7 @@ public final class Broadcast {
 		final Process[] processes = new Process[hosts.size()];
 		for (int i = 0; i < hosts.size(); i++) {
 			final String host = hosts.get(i);
+			System.out.println("Starting games on " + host);
 			// Do not insert spaces in the string "&>" -- bash treats that
 			// differently!
 			final String command = SYSTEM.java + " -ea -cp "
