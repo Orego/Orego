@@ -12,7 +12,6 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.core.StoneColor.*;
 
 public final class PatternFinder {
 

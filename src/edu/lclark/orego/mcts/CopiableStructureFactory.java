@@ -16,7 +16,6 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.PatternSuggester;
 import edu.lclark.orego.feature.Rater;
 import edu.lclark.orego.feature.ShapeRater;
-import edu.lclark.orego.feature.ShapeSuggester;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;

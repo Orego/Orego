@@ -3,7 +3,6 @@ package edu.lclark.orego.patterns;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
-import static edu.lclark.orego.core.StoneColor.*;
 
 import org.junit.Before;
 import org.junit.Test;
