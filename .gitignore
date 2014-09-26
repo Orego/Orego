@@ -12,9 +12,12 @@ config/quit.txt
 /build-all.sh
 /lib
 
-## generic files to ignore
+# generic files to ignore
 *~
 *.lock
 *.DS_Store
 *.swp
 *.out
+
+# Other files created by Eclipse
+.pydevproject
