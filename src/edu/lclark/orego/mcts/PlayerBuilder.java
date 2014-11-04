@@ -4,6 +4,7 @@ import edu.lclark.orego.book.FusekiBook;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.LgrfTable;
+import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.time.ExitingTimeManager;
 import edu.lclark.orego.time.SimpleTimeManager;
 import edu.lclark.orego.time.UniformTimeManager;
@@ -24,6 +25,8 @@ public final class PlayerBuilder {
 
 	private boolean lgrf2;
 
+	private boolean liveShape;
+	
 	private String managerType;
 
 	/** Amount of memory allocated to Orego, in megabytes. The transposition table is scaled accordingly. */
@@ -111,6 +114,11 @@ public final class PlayerBuilder {
 		} else {
 			updater = new SimpleTreeUpdater(board, table, gestation);
 		}
+		if (liveShape) {
+			assert shape;
+			ShapeTable shapeTable = copyStructure.get(ShapeTable.class);
+			updater = new ShapeUpdater(updater, shapeTable);
+		}
 		if (managerType.equals("exiting")) {
 			result.setTimeManager(new ExitingTimeManager(result));
 		} else if (managerType.equals("uniform")) {
@@ -148,6 +156,11 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder lgrf2(boolean lgrf2) {
 		this.lgrf2 = lgrf2;
+		return this;
+	}
+
+	public PlayerBuilder liveShape(boolean liveShape) {
+		this.liveShape = liveShape;
 		return this;
 	}
 

@@ -91,6 +91,8 @@ public final class Player {
 	 *            The board and any associated BoardObservers, Mover, etc.
 	 */
 	public Player(int threads, CopiableStructure stuff) {
+		// TODO Is this expensive copying (which includes the transposition and shape tables) necessary?
+		// What about in making the McRunnables? Sure, it only happens once, but still.
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();

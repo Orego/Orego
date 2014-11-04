@@ -8,9 +8,11 @@ public class ShapeUpdater implements TreeUpdater {
 
 	private final TreeUpdater updater;
 
-	public ShapeUpdater(TreeUpdater updater) {
+	private final ShapeTable shapeTable;
+	
+	public ShapeUpdater(TreeUpdater updater, ShapeTable shapeTable) {
 		this.updater = updater;
-		// TODO We probably need another field and argument for the SHAPE tables
+		this.shapeTable = shapeTable;
 	}
 
 	@Override
@@ -42,8 +44,7 @@ public class ShapeUpdater implements TreeUpdater {
 	}
 
 	public ShapeTable getTable() {
-		// TODO Auto-generated method stub
-		return null;
+		return shapeTable;
 	}
 
 }
