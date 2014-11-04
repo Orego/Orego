@@ -1,6 +1,9 @@
 package edu.lclark.orego.mcts;
 
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.patterns.ShapeTable;
 
 /** Updates the SHAPE tables (and the tree) after a playout. */
@@ -40,7 +43,22 @@ public class ShapeUpdater implements TreeUpdater {
 	@Override
 	public void updateTree(Color winner, McRunnable runnable) {
 		updater.updateTree(winner, runnable);
-		// TODO Actual work goes here
+		if (winner != VACANT) {
+			Board playerBoard = runnable.getPlayer().getBoard();
+			int turn = runnable.getTurn();
+			boolean win = winner == playerBoard.getColorToPlay();
+			StoneColor color = playerBoard.getColorToPlay();
+			int t = playerBoard.getTurn();
+			long[] localHashes = runnable.getLocalHashes();
+			for (; t < turn; t++) {
+				long hash = localHashes[t];
+//				System.out.println("Before update at " + hash + ": " + shapeTable.getWinRate(hash));
+				shapeTable.update(hash, win);
+//				System.out.println("After update at " + hash + ": " + shapeTable.getWinRate(hash));
+				win = !win;
+				color = color.opposite();
+			}
+		}
 	}
 
 	public ShapeTable getTable() {

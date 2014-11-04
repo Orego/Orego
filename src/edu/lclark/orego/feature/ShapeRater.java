@@ -29,6 +29,7 @@ public class ShapeRater implements Rater {
 	
 	private final HistoryObserver history;
 
+	// TODO Sweet mother of ... we're using the same table for both colors?!
 	public ShapeRater(Board board, HistoryObserver history, ShapeTable shapeTable, double shapeThreshold, int bias, int minStones) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;

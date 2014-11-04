@@ -42,6 +42,7 @@ public final class ShapeTable implements Serializable {
 	}
 
 	public void getRates() {
+		// TODO What is this specific filename doing here?
 		try (PrintWriter writer = new PrintWriter(new File("test-books/patterns5x5.csv"))) {
 			for (float winRate : winRateTables[0]) {
 				writer.println(winRate + ",");
@@ -67,6 +68,7 @@ public final class ShapeTable implements Serializable {
 	/** Update the table with new win data for the given pattern. */
 	public void update(long hash, boolean win) {
 		for (int i = 0; i < 3; i++) {
+			// TODO Get rid of this ridiculous magic number
 			int index = (int) (hash >> (21 * i) & 2097151);
 			winRateTables[i][index] = scalingFactor * winRateTables[i][index]
 					+ (win ? (1 - scalingFactor) : 0);

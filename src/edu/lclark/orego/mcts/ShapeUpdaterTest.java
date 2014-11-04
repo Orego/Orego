@@ -43,7 +43,7 @@ public class ShapeUpdaterTest {
 		long hash = PatternFinder.getHash(board, coords.at("c1"), 3,
 				coords.at("b1"));
 		double before = table.getWinRate(hash);
-		System.out.println("Before: " + before);
+//		System.out.println("Before at " + hash + ": " + before);
 		runnable.acceptMove(coords.at("c1"));
 		updater.updateTree(BLACK, runnable);
 		runnable.copyDataFrom(player.getBoard());
@@ -52,13 +52,14 @@ public class ShapeUpdaterTest {
 		hash = PatternFinder
 				.getHash(board, coords.at("c1"), 3, coords.at("b1"));
 		double after = table.getWinRate(hash);
-		System.out.println("After: " + after);
+//		System.out.println("After at " + hash + ": " + after);
 		assertTrue(after > before);
 	}
 
 	@Test
 	public void testBadMoveDiscovered() {
-		// Similar to above, but let the player runs until it discovers a local
+		// TODO
+		// Similar to above, but let the player run until it discovers a local
 		// bad move
 		fail("Not yet implemented");
 	}
