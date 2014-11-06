@@ -56,8 +56,8 @@ public class ShapeUpdaterTest {
 
 	@Test
 	public void testBadMoveDiscovered() {
-		// Similar to above, but let the player run to discover the
-		// values of various moves
+		// Similar to above, but let the player run to learn that
+		// a particular move is very good
 		String[] diagram = {
 				".##OO",
 				"##OO.",
@@ -68,31 +68,11 @@ public class ShapeUpdaterTest {
 		Board board = player.getBoard();
 		board.setUpProblem(diagram, WHITE);
 		board.play("d1");
-		String[] moves = {"e1", "e2", "e3", "d2", "d3"};
-		long[] hashes = new long[moves.length];
-		double[] befores = new double[moves.length];
-		for (int i = 0; i < moves.length; i++) {
-			hashes[i] = PatternFinder
-					.getHash(board, coords.at(moves[i]), 3, coords.at("d1"));
-			befores[i] = table.getWinRate(hashes[i]);
-		}
-		System.out.println("Before search:");
-		System.out.println(player.getRoot().toString(coords));
+		long hash = PatternFinder.getHash(board, coords.at("e3"), 3, coords.at("d1"));
+		double before = table.getWinRate(hash);
 		player.bestMove();
-		System.out.println("After search:");
-		System.out.println(player.getRoot().toString(coords));
-		double[] afters = new double[moves.length];
-		for (int i = 0; i < moves.length; i++) {
-			afters[i] = table.getWinRate(hashes[i]);
-			System.out.println(hashes[i]);
-			System.out.println(befores[i]);
-			System.out.println(afters[i]);
-		}
-//		assertTrue(befores[0] > afters[0]); // e1 is a bad move
-//		assertTrue(befores[1] > afters[1]); // e2 is bad
-		assertTrue(befores[2] < afters[2]); // e3 is good
-//		assertTrue(befores[3] > afters[3]); // d2 is bad
-//		assertTrue(befores[4] > afters[4]); // d3 is bad
+		double after = table.getWinRate(hash);
+		assertTrue(after > before);
 	}
 
 }

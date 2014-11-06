@@ -132,7 +132,6 @@ public final class McRunnable implements Runnable {
 		localHashEndpoint++;
 		// TODO Make pattern min stones settable as a parameter
 		long hash = PatternFinder.getHash(board, p, 3, historyObserver.get(board.getTurn() - 1));
-		System.out.println("Accepting move " + coords.toString(p) + " in McRunnable, hash " + hash);
 		localHashes[board.getTurn()] = hash;
 		final Legality legality = board.play(p);
 		assert legality == OK : "Legality " + legality + " for move "
@@ -241,17 +240,13 @@ public final class McRunnable implements Runnable {
 	}
 	
 	public Color performMcRun(boolean mercy, Board originalBoard){
-		System.out.println("Descending");
 		player.descend(this);
 		Color winner;
 		if (originalBoard.getPasses() == 2) {
-			System.out.println("Game finished within tree");
 			winner = scorer.winner();
 		} else {
-			System.out.println("Completing playout");
 			winner = playout(mercy);
 		}
-		System.out.println("Updating");
 		player.updateTree(winner, this);
 		playoutsCompleted++;
 		return winner;
@@ -275,13 +270,11 @@ public final class McRunnable implements Runnable {
 			}
 			if (board.getPasses() >= 2) {
 				// Game ended
-				System.out.println("komi: " + scorer.getKomi());
 				return scorer.winner();
 			}
 			final Color mercyWinner = mercyObserver.mercyWinner();
 			if (mercy && mercyWinner != null) {
 				// One player has far more stones on the board
-				System.out.println("It was a mercy killing!");
 				return mercyWinner;
 			}
 		} while (true);

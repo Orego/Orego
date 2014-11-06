@@ -18,7 +18,6 @@ public final class StoneCountObserver implements BoardObserver {
 
 	public StoneCountObserver(Board board) {
 		counts = new int[2];
-		// TODO The denominator was 8, but that was breaking 5x5
 		// TODO What about komi?
 		mercyThreshold = board.getCoordinateSystem().getArea() / 4;
 		board.addObserver(this);

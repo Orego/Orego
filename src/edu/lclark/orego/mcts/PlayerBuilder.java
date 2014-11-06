@@ -117,7 +117,6 @@ public final class PlayerBuilder {
 		if (liveShape) {
 			assert shape;
 			ShapeTable shapeTable = copyStructure.get(ShapeTable.class);
-			System.out.println("sf: " + shapeTable.getScalingFactor());
 			updater = new ShapeUpdater(updater, shapeTable);
 		}
 		if (managerType.equals("exiting")) {

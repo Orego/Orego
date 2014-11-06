@@ -389,12 +389,6 @@ public class PlayerTest {
 		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
 				.openingBook(false).komi(0).build();
 		coords = player.getBoard().getCoordinateSystem();
-//		SgfParser parser = new SgfParser(coords, false);
-//		List<Short> moves = parser.parseGameFromFile(new File("/Network/Servers/maccsserver.lclark.edu/Users/slevenick/mundungus-Orego4-4.sgf"));
-//		for(short move : moves){
-//			player.getBoard().play(move);
-//		}
-//		System.out.println(player.getBoard());
 		String[] diagram = {
 				".OOOO#........#....",
 				".O##O#...##....##..",
