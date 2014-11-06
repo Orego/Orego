@@ -417,6 +417,7 @@ public final class Orego {
 		return true;
 	}
 
+	// TODO This needs documentation
 	private String produceVerticesString(ShortSet deadStones) {
 		String vertices = "";
 		for (int i = 0; i < deadStones.size(); i++) {
@@ -457,6 +458,8 @@ public final class Orego {
 				playerBuilder.komi(parseDouble(right));
 			} else if (left.equals("lgrf2")) {
 				playerBuilder.lgrf2(parseBoolean(right));
+			} else if (left.equals("liveshape")) {
+				playerBuilder.liveShape(parseBoolean(right));
 			} else if (left.equals("log-file")) {
 				Logging.setFilePath(right);
 			} else if (left.equals("memory")) {
