@@ -7,6 +7,8 @@ import edu.lclark.orego.mcts.SearchNode;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
 
+// TODO Why is there no test for this class?
+
 /**
  * This class updates the children of each node with biases based on the 5x5
  * pattern data.
@@ -29,7 +31,6 @@ public class ShapeRater implements Rater {
 	
 	private final HistoryObserver history;
 
-	// TODO Sweet mother of ... we're using the same table for both colors?!
 	public ShapeRater(Board board, HistoryObserver history, ShapeTable shapeTable, double shapeThreshold, int bias, int minStones) {
 		this.bias = bias;
 		this.shapeThreshold = shapeThreshold;

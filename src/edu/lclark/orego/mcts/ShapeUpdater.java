@@ -52,9 +52,9 @@ public class ShapeUpdater implements TreeUpdater {
 			long[] localHashes = runnable.getLocalHashes();
 			for (; t < turn; t++) {
 				long hash = localHashes[t];
-//				System.out.println("Before update at " + hash + ": " + shapeTable.getWinRate(hash));
+				System.out.println("Before update at " + hash + ": " + shapeTable.getWinRate(hash));
 				shapeTable.update(hash, win);
-//				System.out.println("After update at " + hash + ": " + shapeTable.getWinRate(hash));
+				System.out.println("After update at " + hash + ": " + shapeTable.getWinRate(hash));
 				win = !win;
 				color = color.opposite();
 			}

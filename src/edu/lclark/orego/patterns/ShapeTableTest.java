@@ -36,7 +36,7 @@ public class ShapeTableTest {
 	public void testTigersMouth() {
 		// Playing into a Tiger's mouth should be a terrible idea
 		table = new ShapeTable(OREGO_ROOT
-				+ "patterns/patterns3stones-SHAPE-sf999.data");
+				+ "patterns/patterns3stones-SHAPE-sf999.data", 0.999f);
 		Board board = new Board(9);
 		CoordinateSystem coords = board.getCoordinateSystem();
 		board.play("d5");

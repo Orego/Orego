@@ -17,7 +17,7 @@ public final class ShapeTable implements Serializable {
 	}
 
 	/** This creates a ShapeTable filled with data from the specified file. */
-	public ShapeTable(String filePath) {
+	public ShapeTable(String filePath, float scalingFactor) {
 		float[][] fake = null;
 		try (ObjectInputStream objectInputStream = new ObjectInputStream(
 				new FileInputStream(filePath))) {
@@ -27,6 +27,7 @@ public final class ShapeTable implements Serializable {
 			System.exit(1);
 		}
 		winRateTables = fake;
+		this.scalingFactor = scalingFactor;
 	}
 
 	/**
@@ -71,7 +72,7 @@ public final class ShapeTable implements Serializable {
 			// TODO Get rid of this ridiculous magic number
 			int index = (int) (hash >> (21 * i) & 2097151);
 			winRateTables[i][index] = scalingFactor * winRateTables[i][index]
-					+ (win ? (1 - scalingFactor) : 0);
+					+ (win ? (1.0f - scalingFactor) : 0);
 		}
 	}
 

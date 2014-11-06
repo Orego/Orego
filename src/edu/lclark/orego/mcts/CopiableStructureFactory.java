@@ -201,7 +201,7 @@ public final class CopiableStructureFactory {
 		sfString = sfString.substring(sfString.indexOf('.') + 1);
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
-				+ sfString + ".data");
+				+ sfString + ".data", shapeScalingFactor);
 		// Suggesters
 		final EscapeSuggester escape = new EscapeSuggester(board,
 				atariObserver, 20);

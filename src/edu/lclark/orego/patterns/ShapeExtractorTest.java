@@ -21,7 +21,7 @@ public class ShapeExtractorTest {
 	public void test() {
 		String outputFile = "test-books/3x3PatternTest.data";
 		extractor.buildPatternData("sgf-test-files/19/PatternTest.sgf", outputFile);
-		ShapeTable table = new ShapeTable(outputFile);
+		ShapeTable table = new ShapeTable(outputFile, 0.99f);
 		Board board = new Board(9);
 		HistoryObserver history = new HistoryObserver(board);
 		board.play("d5");

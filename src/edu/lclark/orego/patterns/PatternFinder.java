@@ -57,7 +57,7 @@ public final class PatternFinder {
 		HashMap<String, Long> hashMap = new HashMap<>();
 		Board board = new Board(19);
 		ShapeTable table = new ShapeTable("patterns" + File.separator
-				+ "patterns9x9-SHAPE-sf99.data");
+				+ "patterns9x9-SHAPE-sf99.data", 0.99f);
 		int centerColumn = 11;
 		int centerRow = 16;
 		int patternRadius = 4;
