@@ -57,26 +57,26 @@ public class StoneCountObserverTest {
 		StoneCountObserver mercyCounter = new StoneCountObserver(board);
 		assertEquals(null, mercyCounter.mercyWinner());
 		String[] diagram = {
-				"###..",
-				".....",
+				"#####",
+				"#....",
 				".....",
 				".....",
 				".....",
 		};
 		board.setUpProblem(diagram, BLACK);
 		assertEquals(null, mercyCounter.mercyWinner());
-		board.play(board.getCoordinateSystem().at("d5"));
+		board.play(board.getCoordinateSystem().at("d4"));
 		assertEquals(BLACK, mercyCounter.mercyWinner());
 		diagram = new String[] {
 				"###..",
 				".....",
 				".....",
-				"O....",
+				".OOOO",
 				"OOOOO",
 		};
 		board.setUpProblem(diagram, WHITE);
 		assertEquals(null, mercyCounter.mercyWinner());
-		board.play(board.getCoordinateSystem().at("b2"));
+		board.play(board.getCoordinateSystem().at("a2"));
 		assertEquals(WHITE, mercyCounter.mercyWinner());	
 	}
 
