@@ -43,16 +43,22 @@ public class ShapeUpdater implements TreeUpdater {
 	@Override
 	public void updateTree(Color winner, McRunnable runnable) {
 		updater.updateTree(winner, runnable);
+		System.out.println("Updating after winner " + winner.toString());
+		System.out.println(runnable.getBoard());
 		if (winner != VACANT) {
 			Board playerBoard = runnable.getPlayer().getBoard();
-			int turn = runnable.getTurn();
+			if (winner == VACANT) {
+				return;
+			}
 			boolean win = winner == playerBoard.getColorToPlay();
 			StoneColor color = playerBoard.getColorToPlay();
 			int t = playerBoard.getTurn();
 			long[] localHashes = runnable.getLocalHashes();
-			for (; t < turn; t++) {
+			int end = runnable.getLocalHashEndpoint();
+			for (; t < end; t++) {
 				long hash = localHashes[t];
 				System.out.println("Before update at " + hash + ": " + shapeTable.getWinRate(hash));
+				// TODO Make win a double or float, so we can incorporate ties (winner == VACANT above).
 				shapeTable.update(hash, win);
 				System.out.println("After update at " + hash + ": " + shapeTable.getWinRate(hash));
 				win = !win;
