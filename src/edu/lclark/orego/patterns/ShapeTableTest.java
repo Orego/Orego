@@ -44,7 +44,6 @@ public class ShapeTableTest {
 		board.play("f5");
 		board.pass();
 		board.play("e6");
-		// TODO Why does getHash need that last argument?
 		// TODO Should getHash really be a static method?
 		long hash = PatternFinder.getHash(board, coords.at("e5"), 3, coords.at("a1"));
 		// Note that this test would fail if the last move (a1 above) were changed

@@ -23,8 +23,7 @@ public class ShapeUpdaterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// TODO Make sure it works with more threads
-		player = new PlayerBuilder().msecPerMove(1000).threads(1).boardWidth(5)
+		player = new PlayerBuilder().msecPerMove(1000).threads(4).boardWidth(5)
 				.lgrf2(true).memorySize(10).rave(false).shape(true)
 				.shapeScalingFactor(0.999f).shapeBias(10).shapeMinStones(3)
 				.liveShape(true).build();
