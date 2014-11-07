@@ -15,7 +15,6 @@ import edu.lclark.orego.feature.ShapeRater;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.move.Mover;
-import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
@@ -45,9 +44,6 @@ public final class McRunnable implements Runnable {
 
 	/** First move for which local hashes are not maintained. */
 	private int localHashEndpoint;
-	
-	/** @see #getLocalHashes() */
-	private final long[] localHashes;
 	
 	/** Counts stones for fast mercy cutoffs of playouts. */
 	private final StoneCountObserver mercyObserver;
@@ -119,7 +115,6 @@ public final class McRunnable implements Runnable {
 		historyObserver = copy.get(HistoryObserver.class);
 		filter = copy.get(Predicate.class);
 		fancyHashes = new long[coords.getMaxMovesPerGame() + 1];
-		localHashes = new long[coords.getMaxMovesPerGame() + 1];
 		playedPoints = new ShortSet(coords.getFirstPointBeyondBoard());
 	}
 
@@ -130,13 +125,11 @@ public final class McRunnable implements Runnable {
 	 */
 	public void acceptMove(short p) {
 		localHashEndpoint++;
-		// TODO Make pattern min stones settable as a parameter
-		long hash = PatternFinder.getHash(board, p, 3, historyObserver.get(board.getTurn() - 1));
-		localHashes[board.getTurn()] = hash;
 		final Legality legality = board.play(p);
 		assert legality == OK : "Legality " + legality + " for move "
 				+ coords.toString(p) + "\n" + board;
-		// TODO Move the fancy and local hashed out to separate BoardObservers observing board
+		// TODO Move the fancy hashes out to separate BoardObservers observing board
+		// (or just replay the moves, as in LiveShapeUpdater).
 		fancyHashes[board.getTurn()] = board.getFancyHash();
 	}
 
@@ -173,17 +166,6 @@ public final class McRunnable implements Runnable {
 		return localHashEndpoint;
 	}
 	
-	/**
-	 * Returns the sequence of local hashes for moves made during this run. Only
-	 * the elements between the real board's turn (inclusive) and this
-	 * McRunnable's turn (exclusive) are valid.
-	 * 
-	 * NOTE: localHashes[t] is the hash around the move played at time t.
-	 * fancyHashes[t] is the hash for the whole board BEFORE that move was made.
-	 */
-	public long[] getLocalHashes() {
-		return localHashes;
-	}
 	/**
 	 * @return the playedMoves
 	 */
