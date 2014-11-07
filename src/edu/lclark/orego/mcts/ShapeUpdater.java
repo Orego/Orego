@@ -3,6 +3,7 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
@@ -14,13 +15,9 @@ public class ShapeUpdater implements TreeUpdater {
 
 	private final ShapeTable shapeTable;
 
-	/** For replaying playout moves to find local hashes. */
-	private final Board board;
-
-	public ShapeUpdater(TreeUpdater updater, ShapeTable shapeTable, int width) {
+	public ShapeUpdater(TreeUpdater updater, ShapeTable shapeTable, CoordinateSystem coords) {
 		this.updater = updater;
 		this.shapeTable = shapeTable;
-		board = new Board(width);
 	}
 
 	@Override
@@ -50,25 +47,25 @@ public class ShapeUpdater implements TreeUpdater {
 		updater.updateTree(winner, runnable);
 		if (winner != VACANT) {
 			Board playerBoard = runnable.getPlayer().getBoard();
-			synchronized (board) {
-				board.copyDataFrom(playerBoard);
-				HistoryObserver history = runnable.getHistoryObserver();
-				int turn = runnable.getTurn();
-				boolean win = winner == playerBoard.getColorToPlay();
-				int t = playerBoard.getTurn();
-				for (; t < turn; t++) {
-					short p = history.get(t);
-					// TODO Get rid of magic number 3
-					long hash = PatternFinder.getHash(board, p, 3,
-							history.get(t - 1));
-					// TODO Make win a double or float, so we can incorporate
-					// ties (winner == VACANT above).
-					shapeTable.update(hash, win);
-					// System.out.println("Playing " +
-					// board.getCoordinateSystem().toString(p));
-					board.play(p);
-					win = !win;
-				}
+//			HistoryObserver history = new HistoryObserver(playerBoard.getCoordinateSystem());
+			boolean win = winner == playerBoard.getColorToPlay();
+			int turn = runnable.getTurn();
+			Board board = runnable.getBoard();
+			HistoryObserver history = new HistoryObserver(board.getCoordinateSystem());
+			history.copyDataFrom(runnable.getHistoryObserver());
+			board.copyDataFrom(playerBoard);
+			for (int t = playerBoard.getTurn(); t < turn; t++) {
+				short p = history.get(t);
+				// TODO Get rid of magic number 3
+				long hash = PatternFinder.getHash(board, p, 3,
+						history.get(t - 1));
+				// TODO Make win a double or float, so we can incorporate
+				// ties (winner == VACANT above).
+				shapeTable.update(hash, win);
+				// System.out.println("Playing " +
+				// board.getCoordinateSystem().toString(p));
+				board.play(p);
+				win = !win;
 			}
 		}
 	}

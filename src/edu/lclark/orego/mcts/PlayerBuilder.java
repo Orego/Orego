@@ -117,7 +117,7 @@ public final class PlayerBuilder {
 		if (liveShape) {
 			assert shape;
 			ShapeTable shapeTable = copyStructure.get(ShapeTable.class);
-			updater = new ShapeUpdater(updater, shapeTable, width);
+			updater = new ShapeUpdater(updater, shapeTable, coords);
 		}
 		if (managerType.equals("exiting")) {
 			result.setTimeManager(new ExitingTimeManager(result));

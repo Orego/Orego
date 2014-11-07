@@ -42,9 +42,6 @@ public final class McRunnable implements Runnable {
 	/** Keeps track of moves played. */
 	private final HistoryObserver historyObserver;
 
-	/** First move for which local hashes are not maintained. */
-	private int localHashEndpoint;
-	
 	/** Counts stones for fast mercy cutoffs of playouts. */
 	private final StoneCountObserver mercyObserver;
 
@@ -124,7 +121,6 @@ public final class McRunnable implements Runnable {
 	 * @see edu.lclark.orego.core.Board#play(short)
 	 */
 	public void acceptMove(short p) {
-		localHashEndpoint++;
 		final Legality legality = board.play(p);
 		assert legality == OK : "Legality " + legality + " for move "
 				+ coords.toString(p) + "\n" + board;
@@ -137,7 +133,6 @@ public final class McRunnable implements Runnable {
 	public void copyDataFrom(Board that) {
 		board.copyDataFrom(that);
 		fancyHashes[board.getTurn()] = board.getFancyHash();
-		localHashEndpoint = board.getTurn();
 	}
 
 	/** Returns the board associated with this runnable. */
@@ -158,14 +153,6 @@ public final class McRunnable implements Runnable {
 		return historyObserver;
 	}
 
-	/**
-	 * Returns the first turn for which local hashes are not maintained
-	 * (because, e.g., the playout fell off the bottom of the tree.
-	 */
-	public int getLocalHashEndpoint() {
-		return localHashEndpoint;
-	}
-	
 	/**
 	 * @return the playedMoves
 	 */

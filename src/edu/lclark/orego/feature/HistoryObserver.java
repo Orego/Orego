@@ -25,6 +25,15 @@ public final class HistoryObserver implements BoardObserver {
 		board.addObserver(this);
 	}
 
+	/**
+	 * Produces a HistoryObserver that doesn't actually observe any particular
+	 * board. It is useful for copying data from some other HistoryObserver.
+	 */
+	public HistoryObserver(CoordinateSystem coords) {
+		board = null;
+		history = new ShortList(coords.getMaxMovesPerGame());
+	}
+
 	@Override
 	public void clear() {
 		history.clear();
