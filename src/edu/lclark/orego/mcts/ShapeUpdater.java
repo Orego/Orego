@@ -54,7 +54,12 @@ public class ShapeUpdater implements TreeUpdater {
 			HistoryObserver history = new HistoryObserver(board.getCoordinateSystem());
 			history.copyDataFrom(runnable.getHistoryObserver());
 			board.copyDataFrom(playerBoard);
+			int k = 0; // Don't gather data beyond a certain depth
 			for (int t = playerBoard.getTurn(); t < turn; t++) {
+				if (k == 20) {
+					break;
+				}
+				k++;
 				short p = history.get(t);
 				// TODO Get rid of magic number 3
 				long hash = PatternFinder.getHash(board, p, 3,
