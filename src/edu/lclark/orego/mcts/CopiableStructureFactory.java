@@ -199,9 +199,10 @@ public final class CopiableStructureFactory {
 		base.add(lgrf);
 		String sfString = Float.toString(shapeScalingFactor);
 		sfString = sfString.substring(sfString.indexOf('.') + 1);
+		// TODO The shape scaling factor (last parameter below) should not be hard-coded
 		final ShapeTable shapeTable = new ShapeTable(OREGO_ROOT
 				+ "patterns/patterns" + minStones + "stones-SHAPE-sf"
-				+ sfString + ".data", shapeScalingFactor);
+				+ sfString + ".data", 0.99f);
 		// Suggesters
 		final EscapeSuggester escape = new EscapeSuggester(board,
 				atariObserver, 20);
