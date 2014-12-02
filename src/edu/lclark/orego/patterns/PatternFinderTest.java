@@ -1,5 +1,6 @@
 package edu.lclark.orego.patterns;
 
+import static edu.lclark.orego.patterns.PatternFinder.*;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
@@ -21,12 +22,12 @@ public class PatternFinderTest {
 
 	@Test
 	public void testDistanceTo() {
-		assertEquals(5.0, PatternFinder.distanceTo(new short[] {3, 4}), 0.001);
+		assertEquals(5.0, distanceTo(new short[] {3, 4}), 0.001);
 	}
 
 	@Test
 	public void testSizes() {
-		int[] sizes = PatternFinder.getPatternSizes();
+		int[] sizes = getPatternSizes();
 		assertEquals(0, sizes[0]);
 		assertEquals(4, sizes[1]);
 		assertEquals(8, sizes[2]);
@@ -37,7 +38,7 @@ public class PatternFinderTest {
 	
 	@Test
 	public void testOffsets() {
-		short[][] offsets = PatternFinder.getOffsets();
+		short[][] offsets = getOffsets();
 		assertArrayEquals(new short[] {-1, 0}, offsets[0]);
 		assertArrayEquals(new short[] {0, -1}, offsets[1]);
 		assertArrayEquals(new short[] {0, 1}, offsets[2]);
@@ -56,23 +57,23 @@ public class PatternFinderTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		long correctHash = 0;
-		correctHash ^= PatternFinder.POINT_HASHES[3][0];
-		correctHash ^= PatternFinder.POINT_HASHES[2][1];
-		correctHash ^= PatternFinder.POINT_HASHES[0][4];
-		correctHash ^= PatternFinder.POINT_HASHES[2][5];
-		correctHash ^= PatternFinder.POINT_HASHES[2][6];
-		correctHash ^= PatternFinder.POINT_HASHES[5][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("c3"), 6, NO_POINT));
+		correctHash ^= POINT_HASHES[ENEMY_IN_ATARI][0];
+		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][2];
+		correctHash ^= POINT_HASHES[FRIENDLY_IN_ATARI][4];
+		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][5];
+		correctHash ^= POINT_HASHES[ENEMY_3_OR_MORE_LIBERTIES][6];
+		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][7];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 6, NO_POINT));
 		correctHash=0;
-		correctHash ^= PatternFinder.POINT_HASHES[9][0];
-		correctHash ^= PatternFinder.POINT_HASHES[3][1];
-		correctHash ^= PatternFinder.POINT_HASHES[4][2];
-		correctHash ^= PatternFinder.POINT_HASHES[9][3];
-		correctHash ^= PatternFinder.POINT_HASHES[9][4];
-		correctHash ^= PatternFinder.POINT_HASHES[9][5];
-		correctHash ^= PatternFinder.POINT_HASHES[0][6];
-		correctHash ^= PatternFinder.POINT_HASHES[9][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a5"), 3, NO_POINT));
+		correctHash ^= POINT_HASHES[9][0];
+		correctHash ^= POINT_HASHES[3][1];
+		correctHash ^= POINT_HASHES[4][2];
+		correctHash ^= POINT_HASHES[9][3];
+		correctHash ^= POINT_HASHES[9][4];
+		correctHash ^= POINT_HASHES[9][5];
+		correctHash ^= POINT_HASHES[0][6];
+		correctHash ^= POINT_HASHES[9][7];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("a5"), 3, NO_POINT));
 		
 	}
 	
@@ -87,23 +88,23 @@ public class PatternFinderTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		long correctHash = 0;
-		correctHash ^= PatternFinder.POINT_HASHES[6][0];
-		correctHash ^= PatternFinder.POINT_HASHES[2][1];
-		correctHash ^= PatternFinder.POINT_HASHES[0][4];
-		correctHash ^= PatternFinder.POINT_HASHES[2][5];
-		correctHash ^= PatternFinder.POINT_HASHES[2][6];
-		correctHash ^= PatternFinder.POINT_HASHES[5][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("c3"), 6, board.getCoordinateSystem().at("c4")));
+		correctHash ^= POINT_HASHES[6][0];
+		correctHash ^= POINT_HASHES[2][1];
+		correctHash ^= POINT_HASHES[0][4];
+		correctHash ^= POINT_HASHES[2][5];
+		correctHash ^= POINT_HASHES[2][6];
+		correctHash ^= POINT_HASHES[5][7];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 6, board.getCoordinateSystem().at("c4")));
 		correctHash=0;
-		correctHash ^= PatternFinder.POINT_HASHES[9][0];
-		correctHash ^= PatternFinder.POINT_HASHES[3][1];
-		correctHash ^= PatternFinder.POINT_HASHES[4][2];
-		correctHash ^= PatternFinder.POINT_HASHES[9][3];
-		correctHash ^= PatternFinder.POINT_HASHES[9][4];
-		correctHash ^= PatternFinder.POINT_HASHES[9][5];
-		correctHash ^= PatternFinder.POINT_HASHES[0][6];
-		correctHash ^= PatternFinder.POINT_HASHES[9][7];
-		assertEquals(correctHash, PatternFinder.getHash(board, board.getCoordinateSystem().at("a5"), 3, board.getCoordinateSystem().at("c4")));
+		correctHash ^= POINT_HASHES[9][0];
+		correctHash ^= POINT_HASHES[3][1];
+		correctHash ^= POINT_HASHES[4][2];
+		correctHash ^= POINT_HASHES[9][3];
+		correctHash ^= POINT_HASHES[9][4];
+		correctHash ^= POINT_HASHES[9][5];
+		correctHash ^= POINT_HASHES[0][6];
+		correctHash ^= POINT_HASHES[9][7];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("a5"), 3, board.getCoordinateSystem().at("c4")));
 		
 	}
 	
@@ -133,10 +134,10 @@ public class PatternFinderTest {
 		};
 		board = new Board(19);
 		board.setUpProblem(problem, BLACK);
-		assertEquals(PatternFinder.getHash(board, board.getCoordinateSystem().at("R4"), 2, NO_POINT),
-				PatternFinder.getHash(board, board.getCoordinateSystem().at("F4"), 2, NO_POINT));
-		assertNotEquals(PatternFinder.getHash(board, board.getCoordinateSystem().at("R4"), 3, NO_POINT),
-				PatternFinder.getHash(board, board.getCoordinateSystem().at("F4"), 3, NO_POINT));
+		assertEquals(getHash(board, board.getCoordinateSystem().at("R4"), 2, NO_POINT),
+				getHash(board, board.getCoordinateSystem().at("F4"), 2, NO_POINT));
+		assertNotEquals(getHash(board, board.getCoordinateSystem().at("R4"), 3, NO_POINT),
+				getHash(board, board.getCoordinateSystem().at("F4"), 3, NO_POINT));
 	}
 
 }

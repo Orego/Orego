@@ -12,7 +12,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-import static edu.lclark.orego.core.NonStoneColor.*;
+import edu.lclark.orego.core.NonStoneColor;
 
 public final class PatternFinder {
 
@@ -189,7 +189,7 @@ public final class PatternFinder {
 						.isValidOneDimensionalCoordinate(row)
 						|| !board.getCoordinateSystem()
 								.isValidOneDimensionalCoordinate(column)) {
-					pattern += OFF_BOARD.toChar();
+					pattern += NonStoneColor.OFF_BOARD.toChar();
 				} else {
 					Color pointColor = board.getColorAt(board
 							.getCoordinateSystem().at(row, column));
@@ -201,6 +201,30 @@ public final class PatternFinder {
 		return pattern;
 	}
 
+	/** First index into POINT_HASHES for a friendly stone in atari. */
+	public static final int FRIENDLY_IN_ATARI = 0;
+
+	/** First index into POINT_HASHES for a friendly stone with exactly 2 liberties. */
+	public static final int FRIENDLY_2_LIBERTIES = 1;
+
+	/** First index into POINT_HASHES for a friendly stone with 3 or more liberties. */
+	public static final int FRIENDLY_3_OR_MORE_LIBERTIES = 2;
+
+	/** First index into POINT_HASHES for an enemy stone in atari. */
+	public static final int ENEMY_IN_ATARI = 0;
+
+	/** First index into POINT_HASHES for an enemy stone with exactly 2 liberties. */
+	public static final int ENEMY_2_LIBERTIES = 1;
+
+	/** First index into POINT_HASHES for an enemy stone with 3 or more liberties. */
+	public static final int ENEMY_3_OR_MORE_LIBERTIES = 2;
+
+	/** Increase in first index into POINT_HASHES when an enemy stone was the last move. */
+	public static final int LAST_MOVE_INCREASE = 3;
+	
+	/** First index into POINT_HASHES for a point off the board. */
+	public static final int OFF_BOARD = 9;
+	
 	/**
 	 * Gets the Zobrist hash for a pattern around a point. patternSize is the
 	 * area of the pattern - 1 (exclude the center point).
@@ -222,26 +246,26 @@ public final class PatternFinder {
 					Color color = board.getColorAt(point);
 					if (color == board.getColorToPlay()) {
 						if (board.getLiberties(point).size() == 1) {
-							result ^= POINT_HASHES[0][j];
+							result ^= POINT_HASHES[FRIENDLY_IN_ATARI][j];
 						} else if (board.getLiberties(point).size() == 2) {
-							result ^= POINT_HASHES[1][j];
+							result ^= POINT_HASHES[FRIENDLY_2_LIBERTIES][j];
 						} else {
-							result ^= POINT_HASHES[2][j];
+							result ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][j];
 						}
 						stoneCounter++;
 					} else if (color == board.getColorToPlay().opposite()) {
-						int lastMoveOffset = lastMove == point ? 3 : 0;
+						int lastMoveOffset = lastMove == point ? LAST_MOVE_INCREASE : 0;
 						if (board.getLiberties(point).size() == 1) {
-							result ^= POINT_HASHES[3 + lastMoveOffset][j];
+							result ^= POINT_HASHES[ENEMY_IN_ATARI + lastMoveOffset][j];
 						} else if (board.getLiberties(point).size() == 2) {
-							result ^= POINT_HASHES[4 + lastMoveOffset][j];
+							result ^= POINT_HASHES[ENEMY_2_LIBERTIES + lastMoveOffset][j];
 						} else {
-							result ^= POINT_HASHES[5 + lastMoveOffset][j];
+							result ^= POINT_HASHES[ENEMY_3_OR_MORE_LIBERTIES + lastMoveOffset][j];
 						}
 						stoneCounter++;
 					}
 				} else {
-					result ^= POINT_HASHES[9][j];
+					result ^= POINT_HASHES[OFF_BOARD][j];
 				}
 			}
 			if (stoneCounter >= minStones) {
