@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import edu.lclark.orego.core.Board;
@@ -15,40 +16,73 @@ import static edu.lclark.orego.core.NonStoneColor.*;
 
 public final class PatternFinder {
 
-	public static final long[][] POINT_HASHES = new long[10][120];
+	/** The first index is the condition of the point. The second is an index into offsets. */
+	public static final long[][] POINT_HASHES = new long[10][39 * 39 - 1];
 
-	public static final int[] PATTERN_SIZES = { 0, 8, 24, 48, 80, 120 };
+	private static int[] patternSizes;
 
-	public static final int[][] OFFSETS = { { -1, 0 }, { 0, 1 }, { 1, 0 },
-			{ 0, -1 }, { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 }, { -2, 0 },
-			{ 0, 2 }, { 2, 0 }, { 0, -2 }, { -2, -1 }, { -2, 1 }, { -1, 2 },
-			{ 1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { -1, -2 }, { -2, -2 },
-			{ -2, 2 }, { 2, 2 }, { 2, -2 }, { -3, -3 }, { -3, -2 }, { -3, -1 },
-			{ -3, 0 }, { -3, 1 }, { -3, 2 }, { -3, 3 }, { -2, 3 }, { -1, 3 },
-			{ 0, 3 }, { 1, 3 }, { 2, 3 }, { 3, 3 }, { 3, 2 }, { 3, 1 },
-			{ 3, 0 }, { 3, -1 }, { 3, -2 }, { 3, -3 }, { 2, -3 }, { 1, -3 },
-			{ 0, -3 }, { -1, -3 }, { -2, -3 }, { -4, -4 }, { -4, -3 },
-			{ -4, -2 }, { -4, -1 }, { -4, 0 }, { -4, 1 }, { -4, 2 }, { -4, 3 },
-			{ -4, 4 }, { -3, 4 }, { -2, 4 }, { -1, 4 }, { 0, 4 }, { 1, 4 },
-			{ 2, 4 }, { 3, 4 }, { 4, 4 }, { 4, 3 }, { 4, 2 }, { 4, 1 },
-			{ 4, 0 }, { 4, -1 }, { 4, -2 }, { 4, -3 }, { 4, -4 }, { 3, -4 },
-			{ 2, -4 }, { 1, -4 }, { 0, -4 }, { -1, -4 }, { -2, -4 },
-			{ -3, -4 }, { -5, -5 }, { -5, -4 }, { -5, -3 }, { -5, -2 },
-			{ -5, -1 }, { -5, 0 }, { -5, 1 }, { -5, 2 }, { -5, 3 }, { -5, 4 },
-			{ -5, 5 }, { -4, 5 }, { -3, 5 }, { -2, 5 }, { -1, 5 }, { 0, 5 },
-			{ 1, 5 }, { 2, 5 }, { 3, 5 }, { 4, 5 }, { 5, 5 }, { 5, 4 },
-			{ 5, 3 }, { 5, 2 }, { 5, 1 }, { 5, 0 }, { 5, -1 }, { 5, -2 },
-			{ 5, -3 }, { 5, -4 }, { 5, -5 }, { 4, -5 }, { 3, -5 }, { 2, -5 },
-			{ 1, -5 }, { 0, -5 }, { -1, -5 }, { -2, -5 }, { -3, -5 },
-			{ -4, -5 } };
+	/** Returns the array of pattern sizes. For testing. */
+	static int[] getPatternSizes() {
+		return patternSizes;
+	}
+
+	private static short[][] offsets;
+
+	/** Returns the array of offsets. For testing. */
+	static short[][] getOffsets() {
+		return offsets;
+	}
 
 	static {
+		// Find all possible offsets
+		ArrayList<short[]> unsortedOffsets = new ArrayList<>();
+		for (short r = -19; r <= 19; r++) {
+			for (short c = -19; c <= 19; c++) {
+				if (r != 0 || c != 0) {
+					unsortedOffsets.add(new short[] {r, c});
+				}
+			}
+		}
+		// Create concentric pattern sizes
+		patternSizes = new int[180];
+		offsets = new short[1520][];
+		int sizeIndex = 1;
+		int numberSorted = 0;
+		int oldNumberSorted = numberSorted;
+		for (double radius = 1.0; !unsortedOffsets.isEmpty(); radius += 0.01) {
+			Iterator<short[]> iter = unsortedOffsets.iterator();
+			while (iter.hasNext()) {
+				short[] offset = iter.next();
+				if (distanceTo(offset) <= radius) {
+					offsets[numberSorted] = offset;
+					iter.remove();
+					numberSorted++;
+				}
+			}
+			if (numberSorted > oldNumberSorted && (numberSorted - oldNumberSorted) % 4 == 0) {
+				// The second condition above verifies that rounding error
+				// didn't create an asymmetric pattern
+				patternSizes[sizeIndex] = numberSorted;
+				sizeIndex++;
+				oldNumberSorted = numberSorted;
+			}
+		}
+		// Create the Zobrist hashes themselves
 		MersenneTwisterFast random = new MersenneTwisterFast(0L);
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 120; j++) {
+		for (int i = 0; i < POINT_HASHES.length; i++) {
+			for (int j = 0; j < POINT_HASHES[i].length; j++) {
 				POINT_HASHES[i][j] = random.nextLong();
 			}
 		}
+	}
+
+	/**
+	 * Returns the Euclidean distance from the origin to offset.
+	 */
+	static double distanceTo(short[] offset) {
+		double x = offset[0];
+		double y = offset[1];
+		return Math.sqrt(x * x + y * y);
 	}
 
 	@SuppressWarnings("boxing")
@@ -179,9 +213,9 @@ public final class PatternFinder {
 		int column = coords.column(p);
 		int stoneCounter = 0;
 		for (int i = 0; i < 4; i++) {
-			for (int j = PATTERN_SIZES[i]; j < PATTERN_SIZES[i + 1]; j++) {
-				int newRow = row + OFFSETS[j][0];
-				int newColumn = column + OFFSETS[j][1];
+			for (int j = patternSizes[i]; j < patternSizes[i + 1]; j++) {
+				int newRow = row + offsets[j][0];
+				int newColumn = column + offsets[j][1];
 				if (coords.isValidOneDimensionalCoordinate(newRow)
 						&& coords.isValidOneDimensionalCoordinate(newColumn)) {
 					short point = coords.at(newRow, newColumn);

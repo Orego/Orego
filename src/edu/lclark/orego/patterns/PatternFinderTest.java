@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
 
+@SuppressWarnings("static-method")
 public class PatternFinderTest {
 
 	Board board;
@@ -16,6 +17,32 @@ public class PatternFinderTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(5);
+	}
+
+	@Test
+	public void testDistanceTo() {
+		assertEquals(5.0, PatternFinder.distanceTo(new short[] {3, 4}), 0.001);
+	}
+
+	@Test
+	public void testSizes() {
+		int[] sizes = PatternFinder.getPatternSizes();
+		assertEquals(0, sizes[0]);
+		assertEquals(4, sizes[1]);
+		assertEquals(8, sizes[2]);
+		assertEquals(12, sizes[3]);
+		assertEquals(20, sizes[4]);
+		assertEquals(24, sizes[5]);
+	}
+	
+	@Test
+	public void testOffsets() {
+		short[][] offsets = PatternFinder.getOffsets();
+		assertArrayEquals(new short[] {-1, 0}, offsets[0]);
+		assertArrayEquals(new short[] {0, -1}, offsets[1]);
+		assertArrayEquals(new short[] {0, 1}, offsets[2]);
+		assertArrayEquals(new short[] {1, 0}, offsets[3]);
+		assertArrayEquals(new short[] {-1, -1}, offsets[4]);
 	}
 
 	@Test
