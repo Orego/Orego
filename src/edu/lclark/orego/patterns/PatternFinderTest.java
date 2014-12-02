@@ -44,6 +44,7 @@ public class PatternFinderTest {
 		assertArrayEquals(new short[] {0, 1}, offsets[2]);
 		assertArrayEquals(new short[] {1, 0}, offsets[3]);
 		assertArrayEquals(new short[] {-1, -1}, offsets[4]);
+		assertNotNull(offsets[offsets.length - 1]);
 	}
 
 	@Test
@@ -77,7 +78,6 @@ public class PatternFinderTest {
 		correctHash ^= POINT_HASHES[OFF_BOARD][6];
 		correctHash ^= POINT_HASHES[FRIENDLY_IN_ATARI][7];
 		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("a5"), 3, NO_POINT));
-		
 	}
 	
 	@Test
