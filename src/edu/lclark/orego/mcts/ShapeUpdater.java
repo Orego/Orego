@@ -3,7 +3,6 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
@@ -15,7 +14,7 @@ public class ShapeUpdater implements TreeUpdater {
 
 	private final ShapeTable shapeTable;
 
-	public ShapeUpdater(TreeUpdater updater, ShapeTable shapeTable, CoordinateSystem coords) {
+	public ShapeUpdater(TreeUpdater updater, ShapeTable shapeTable) {
 		this.updater = updater;
 		this.shapeTable = shapeTable;
 	}
