@@ -1,7 +1,7 @@
 package edu.lclark.orego.patterns;
 
 import static edu.lclark.orego.patterns.PatternFinder.*;
-import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 
@@ -59,20 +59,23 @@ public class PatternFinderTest {
 		long correctHash = 0;
 		correctHash ^= POINT_HASHES[ENEMY_IN_ATARI][0];
 		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][2];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 2, NO_POINT));
 		correctHash ^= POINT_HASHES[FRIENDLY_IN_ATARI][4];
 		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][5];
 		correctHash ^= POINT_HASHES[ENEMY_3_OR_MORE_LIBERTIES][6];
 		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][7];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 5, NO_POINT));
 		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 6, NO_POINT));
 		correctHash=0;
-		correctHash ^= POINT_HASHES[9][0];
-		correctHash ^= POINT_HASHES[3][1];
-		correctHash ^= POINT_HASHES[4][2];
-		correctHash ^= POINT_HASHES[9][3];
-		correctHash ^= POINT_HASHES[9][4];
-		correctHash ^= POINT_HASHES[9][5];
-		correctHash ^= POINT_HASHES[0][6];
-		correctHash ^= POINT_HASHES[9][7];
+		correctHash ^= POINT_HASHES[OFF_BOARD][0];
+		correctHash ^= POINT_HASHES[OFF_BOARD][1];
+		correctHash ^= POINT_HASHES[ENEMY_IN_ATARI][2];
+		correctHash ^= POINT_HASHES[ENEMY_2_LIBERTIES][3];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("a5"), 2, NO_POINT));
+		correctHash ^= POINT_HASHES[OFF_BOARD][4];
+		correctHash ^= POINT_HASHES[OFF_BOARD][5];
+		correctHash ^= POINT_HASHES[OFF_BOARD][6];
+		correctHash ^= POINT_HASHES[FRIENDLY_IN_ATARI][7];
 		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("a5"), 3, NO_POINT));
 		
 	}
@@ -88,24 +91,14 @@ public class PatternFinderTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		long correctHash = 0;
-		correctHash ^= POINT_HASHES[6][0];
-		correctHash ^= POINT_HASHES[2][1];
-		correctHash ^= POINT_HASHES[0][4];
-		correctHash ^= POINT_HASHES[2][5];
-		correctHash ^= POINT_HASHES[2][6];
-		correctHash ^= POINT_HASHES[5][7];
-		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 6, board.getCoordinateSystem().at("c4")));
-		correctHash=0;
-		correctHash ^= POINT_HASHES[9][0];
-		correctHash ^= POINT_HASHES[3][1];
-		correctHash ^= POINT_HASHES[4][2];
-		correctHash ^= POINT_HASHES[9][3];
-		correctHash ^= POINT_HASHES[9][4];
-		correctHash ^= POINT_HASHES[9][5];
-		correctHash ^= POINT_HASHES[0][6];
-		correctHash ^= POINT_HASHES[9][7];
-		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("a5"), 3, board.getCoordinateSystem().at("c4")));
-		
+		correctHash ^= POINT_HASHES[ENEMY_IN_ATARI + LAST_MOVE_INCREASE][0];
+		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][2];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 2, board.getCoordinateSystem().at("c4")));		
+		correctHash ^= POINT_HASHES[FRIENDLY_IN_ATARI][4];
+		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][5];
+		correctHash ^= POINT_HASHES[ENEMY_3_OR_MORE_LIBERTIES][6];
+		correctHash ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][7];
+		assertEquals(correctHash, getHash(board, board.getCoordinateSystem().at("c3"), 6, board.getCoordinateSystem().at("c4")));		
 	}
 	
 	@Test

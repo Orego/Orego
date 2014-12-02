@@ -235,7 +235,7 @@ public final class PatternFinder {
 		long result = 0L;
 		int row = coords.row(p);
 		int column = coords.column(p);
-		int stoneCounter = 0;
+		int stonesSeen = 0;
 		for (int i = 0; i < 4; i++) {
 			for (int j = patternSizes[i]; j < patternSizes[i + 1]; j++) {
 				int newRow = row + offsets[j][0];
@@ -252,23 +252,23 @@ public final class PatternFinder {
 						} else {
 							result ^= POINT_HASHES[FRIENDLY_3_OR_MORE_LIBERTIES][j];
 						}
-						stoneCounter++;
+						stonesSeen++;
 					} else if (color == board.getColorToPlay().opposite()) {
-						int lastMoveOffset = lastMove == point ? LAST_MOVE_INCREASE : 0;
+						int lastMoveIncrease = lastMove == point ? LAST_MOVE_INCREASE : 0;
 						if (board.getLiberties(point).size() == 1) {
-							result ^= POINT_HASHES[ENEMY_IN_ATARI + lastMoveOffset][j];
+							result ^= POINT_HASHES[ENEMY_IN_ATARI + lastMoveIncrease][j];
 						} else if (board.getLiberties(point).size() == 2) {
-							result ^= POINT_HASHES[ENEMY_2_LIBERTIES + lastMoveOffset][j];
+							result ^= POINT_HASHES[ENEMY_2_LIBERTIES + lastMoveIncrease][j];
 						} else {
-							result ^= POINT_HASHES[ENEMY_3_OR_MORE_LIBERTIES + lastMoveOffset][j];
+							result ^= POINT_HASHES[ENEMY_3_OR_MORE_LIBERTIES + lastMoveIncrease][j];
 						}
-						stoneCounter++;
+						stonesSeen++;
 					}
 				} else {
 					result ^= POINT_HASHES[OFF_BOARD][j];
 				}
 			}
-			if (stoneCounter >= minStones) {
+			if (stonesSeen >= minStones) {
 				return result;
 			}
 		}
