@@ -14,19 +14,20 @@ import edu.lclark.orego.patterns.ShapeTable;
 @SuppressWarnings("serial")
 public class ShapeRater implements Rater {
 
+	private final int bias;
+
 	private final Board board;
 
 	private final CoordinateSystem coords;
 
-	private ShapeTable shapeTable;
-
-	private final int bias;
-	
-	private final int minStones;
-	
 	private final HistoryObserver history;
 
-	public ShapeRater(Board board, HistoryObserver history, ShapeTable shapeTable, int bias, int minStones) {
+	private final int minStones;
+
+	private ShapeTable shapeTable;
+
+	public ShapeRater(Board board, HistoryObserver history,
+			ShapeTable shapeTable, int bias, int minStones) {
 		this.bias = bias;
 		this.board = board;
 		this.history = history;
@@ -35,18 +36,19 @@ public class ShapeRater implements Rater {
 		this.minStones = minStones;
 	}
 
+	public void setTable(ShapeTable table) {
+		shapeTable = table;
+	}
+
 	@Override
 	public void updateNode(SearchNode node) {
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
-				long hash = PatternFinder.getHash(board, p, minStones, history.get(board.getTurn()-1));
-				node.update(p, bias, (int)(bias * shapeTable.getWinRate(hash)));
+				long hash = PatternFinder.getHash(board, p, minStones,
+						history.get(board.getTurn() - 1));
+				node.update(p, bias, (int) (bias * shapeTable.getWinRate(hash)));
 			}
 		}
-	}
-
-	public void setTable(ShapeTable table) {
-		shapeTable = table;
 	}
 
 }
