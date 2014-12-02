@@ -82,9 +82,6 @@ import edu.lclark.orego.util.ShortSet;
  * <dd>Toggles Rapid Action Value Estimation. Defaults to true.</dd>
  * <dt>shape</dt>
  * <dd>Toggles the SHAPE pattern suggester for 5x5 patterns.</dd>
- * <dt>shape-threshold</dt>
- * <dd>Sets the threshold for a pattern winrate that is required to suggest a
- * pattern in the SHAPE suggester. Defaults to 0.</dd>
  * <dt>threads</dt>
  * <dd>The number of threads Orego uses to think. Defaults to 2.</dd>
  * <dt>time-management</dt>
@@ -478,8 +475,6 @@ public final class Orego {
 				playerBuilder.shapeMinStones(parseInt(right));
 			} else if (left.equals("shape-scaling-factor")) {
 				playerBuilder.shapeScalingFactor(parseFloat(right));
-			} else if (left.equals("shape-threshold")) {
-				playerBuilder.shapeThreshold(parseDouble(right));
 			} else if (left.equals("threads")) {
 				playerBuilder.threads(parseInt(right));
 			} else if (left.equals("time-management")) {

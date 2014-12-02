@@ -20,19 +20,14 @@ public class ShapeRater implements Rater {
 
 	private ShapeTable shapeTable;
 
-	// TODO Remove this; we always set it to 0
-	/** Patterns with winrate better than this will cause biases to be updated. */
-	private double shapeThreshold;
-
 	private final int bias;
 	
 	private final int minStones;
 	
 	private final HistoryObserver history;
 
-	public ShapeRater(Board board, HistoryObserver history, ShapeTable shapeTable, double shapeThreshold, int bias, int minStones) {
+	public ShapeRater(Board board, HistoryObserver history, ShapeTable shapeTable, int bias, int minStones) {
 		this.bias = bias;
-		this.shapeThreshold = shapeThreshold;
 		this.board = board;
 		this.history = history;
 		this.coords = board.getCoordinateSystem();
@@ -45,10 +40,7 @@ public class ShapeRater implements Rater {
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (board.getColorAt(p) == VACANT) {
 				long hash = PatternFinder.getHash(board, p, minStones, history.get(board.getTurn()-1));
-				float winRate = shapeTable.getWinRate(hash);
-				if (winRate > shapeThreshold) {
-					node.update(p, bias, (int)(bias * winRate));
-				}
+				node.update(p, bias, (int)(bias * shapeTable.getWinRate(hash)));
 			}
 		}
 	}

@@ -46,8 +46,6 @@ public final class PlayerBuilder {
 	
 	private float shapeScalingFactor;
 	
-	private double shapeThreshold;
-
 	private int threads;
 
 	private int width;
@@ -67,7 +65,6 @@ public final class PlayerBuilder {
 		coupDeGrace = false;
 		lgrf2 = true;
 		rave = true;
-		shapeThreshold = 0.0;
 		shapeScalingFactor = .95f;
 		shapePatternSize = 5;
 		shapeBias = 20;
@@ -87,7 +84,7 @@ public final class PlayerBuilder {
 	public Player build() {
 		CopiableStructure copyStructure;
 		if(shape){
-			copyStructure = CopiableStructureFactory.shape(width, komi, shapeThreshold, shapeBias, shapePatternSize, shapeScalingFactor);
+			copyStructure = CopiableStructureFactory.shape(width, komi, shapeBias, shapePatternSize, shapeScalingFactor);
 		} else if(lgrf2){
 			copyStructure = CopiableStructureFactory.lgrfWithBias(width,
 					komi);
@@ -206,11 +203,6 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder shapeScalingFactor(float shapeScalingFactor) {
 		this.shapeScalingFactor = shapeScalingFactor;
-		return this;
-	}
-
-	public PlayerBuilder shapeThreshold(double threshold) {
-		this.shapeThreshold = threshold;
 		return this;
 	}
 

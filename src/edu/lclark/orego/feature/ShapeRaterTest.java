@@ -38,7 +38,7 @@ public class ShapeRaterTest {
 		node.clear(board.getFancyHash(), coords);
 		history = new HistoryObserver(board);
 		shapeTable = new ShapeTable(0.9f);
-		rater = new ShapeRater(board, history, shapeTable, 0.0, BIAS, MIN_STONES);
+		rater = new ShapeRater(board, history, shapeTable, BIAS, MIN_STONES);
 	}
 
 	@Test

@@ -175,7 +175,7 @@ public final class CopiableStructureFactory {
 	}
 
 	public static CopiableStructure shape(int width, double komi,
-			double shapeThreshold, int shapeBias, int minStones,
+			int shapeBias, int minStones,
 			float shapeScalingFactor) {
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);
@@ -212,7 +212,7 @@ public final class CopiableStructureFactory {
 				atariObserver, 20);
 		// Shape
 		final ShapeRater shape = new ShapeRater(board, historyObserver, shapeTable,
-				shapeThreshold, shapeBias, minStones);
+				shapeBias, minStones);
 		base.add(shapeTable);
 		base.add(shape);
 		// Bias;
