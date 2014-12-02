@@ -7,10 +7,8 @@ import edu.lclark.orego.mcts.SearchNode;
 import edu.lclark.orego.patterns.PatternFinder;
 import edu.lclark.orego.patterns.ShapeTable;
 
-// TODO Why is there no test for this class?
-
 /**
- * This class updates the children of each node with biases based on the 5x5
+ * This class updates the children of each node with biases based on the SHAPE
  * pattern data.
  */
 @SuppressWarnings("serial")
@@ -22,6 +20,7 @@ public class ShapeRater implements Rater {
 
 	private ShapeTable shapeTable;
 
+	// TODO Remove this; we always set it to 0
 	/** Patterns with winrate better than this will cause biases to be updated. */
 	private double shapeThreshold;
 
@@ -47,9 +46,8 @@ public class ShapeRater implements Rater {
 			if (board.getColorAt(p) == VACANT) {
 				long hash = PatternFinder.getHash(board, p, minStones, history.get(board.getTurn()-1));
 				float winRate = shapeTable.getWinRate(hash);
-				if (shapeTable.getWinRate(hash) > shapeThreshold) {
-					int winsToAdd = (int)(bias * winRate);
-					node.update(p, bias, winsToAdd);
+				if (winRate > shapeThreshold) {
+					node.update(p, bias, (int)(bias * winRate));
 				}
 			}
 		}
