@@ -49,7 +49,7 @@ public class ShapeTableTest {
 		// Note that this test would fail if the last move (a1 above) were changed
 		// to one of the nearby stones, because such a move is so rare that the table
 		// slot would consist entirely of noise.
-		assertTrue(table.getWinRate(hash) < 0.25);
+		assertTrue(table.getWinRate(hash) < 0.3);
 	}
 	
 
