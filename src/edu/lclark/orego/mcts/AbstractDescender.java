@@ -60,6 +60,7 @@ public abstract class AbstractDescender implements TreeDescender {
 			return RESIGN;
 		}
 		log("Selected " + board.getCoordinateSystem().toString(result) + " with " + root.getWins(result) + " wins in " + root.getRuns(result) + " runs");
+		log("Root:\n" + root.toString(board.getCoordinateSystem()));
 		return result;
 	}
 

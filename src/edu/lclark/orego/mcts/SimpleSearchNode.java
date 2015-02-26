@@ -319,9 +319,13 @@ public class SimpleSearchNode implements SearchNode {
 
 	@Override
 	public synchronized void update(short p, int n, float wins) {
+		String before = "wins: " + wins + " winrates[p]: " + winRates[p] + " runs[p]: " + runs[p] + " n: " + n;
 		totalRuns += n;
+		assert totalRuns > 0 : "totalRuns is " + totalRuns + " after adding " + n + " runs.";
 		winRates[p] = (wins + winRates[p] * runs[p]) / (n + runs[p]);
+		assert winRates[p] > 0 : "BEFORE: " + before + "\nAFTER: " + "winRates[" + p + "] is " + winRates[p] + " after adding " + n + " runs.";
 		runs[p] += n;
+		assert runs[p] > 0 : "runs[" + p + "] is " + runs[p] + " after adding " + n + " runs.";
 	}
 
 	@Override

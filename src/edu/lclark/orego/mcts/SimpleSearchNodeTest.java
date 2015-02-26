@@ -91,6 +91,14 @@ public class SimpleSearchNodeTest {
 	}
 
 	@Test
+	public void testExcludedUpdate() {
+		node.exclude(at("a1"));
+		node.update(at("a1"), 1, 1);
+		assertEquals(-1.0, node.getWinRate(at("a1")), 0.001);
+		assertEquals(1, node.getWins(at("a1")), 0.001);
+	}
+
+	@Test
 	public void testIsInUse() {
 		assertTrue(node.isInUse());
 		node.free();
