@@ -49,7 +49,6 @@ public final class RaveNode extends SimpleSearchNode {
 		super.clear(fancyHash, coords);
 		Arrays.fill(raveRuns, 2);
 		Arrays.fill(raveWinRates, 0.5f);
-		raveWinRates[PASS] = 0.0f;
 	}
 
 	/** Returns the number of RAVE runs through move p. */

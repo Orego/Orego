@@ -34,7 +34,7 @@ public final class RaveDescender extends AbstractDescender {
 	 */
 	@Override
 	public float searchValue(SearchNode node, short move) {
-		if (node.getWins(move) == Integer.MIN_VALUE) {
+		if (node.getWinRate(move) < 0.0f) {
 			return NEGATIVE_INFINITY;
 		}
 		if (move == PASS) {

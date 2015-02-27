@@ -56,4 +56,11 @@ public class RaveDescenderTest {
 		assertEquals(0.2856f, descender.searchValue(root, at("a2")), 0.01f);
 	}
 
+	@Test
+	public void testExcludedMove() {
+		RaveNode root = (RaveNode) updater.getRoot();
+		root.exclude(at("a1"));
+		assertEquals(Double.NEGATIVE_INFINITY, descender.searchValue(root, at("a1")), 0.001);
+	}
+
 }

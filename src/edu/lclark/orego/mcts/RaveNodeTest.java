@@ -92,9 +92,4 @@ public class RaveNodeTest {
 		// If no exception has been thrown, we're good.
 	}
 
-	@Test
-	public void testZeroRaveForPass() {
-		assertEquals(0.0f, node.getRaveWinRate(PASS), 0.0001f);
-	}
-
 }
