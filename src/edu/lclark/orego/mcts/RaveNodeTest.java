@@ -1,10 +1,9 @@
 package edu.lclark.orego.mcts;
 
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
@@ -91,6 +90,11 @@ public class RaveNodeTest {
 		}
 		node.recordPlayout((float) 0.5, moves, 0, moves.length, new ShortSet(coords.getFirstPointBeyondBoard()));		
 		// If no exception has been thrown, we're good.
+	}
+
+	@Test
+	public void testZeroRaveForPass() {
+		assertEquals(0.0f, node.getRaveWinRate(PASS), 0.0001f);
 	}
 
 }
