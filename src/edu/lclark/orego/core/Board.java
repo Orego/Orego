@@ -341,7 +341,7 @@ public final class Board implements Serializable {
 	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
 	 */
-	public int getPasses() {
+	public short getPasses() {
 		return passes;
 	}
 

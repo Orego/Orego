@@ -270,9 +270,10 @@ public final class Player {
 		final int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
-			runnableBoard.copyDataFrom(board);
-			runnableBoard.setPasses((short) 0);
-			runnable.performMcRun(false, runnableBoard);
+			short passes = board.getPasses();
+			board.setPasses(passes);
+			runnable.performMcRun(false);
+			board.setPasses(passes);
 			for (final short p : board.getCoordinateSystem()
 					.getAllPointsOnBoard()) {
 				if (runnableBoard.getColorAt(p) == board.getColorAt(p)) {
