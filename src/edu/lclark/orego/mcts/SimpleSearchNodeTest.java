@@ -93,9 +93,12 @@ public class SimpleSearchNodeTest {
 	@Test
 	public void testExcludedUpdate() {
 		node.exclude(at("a1"));
+		// There should now be the original two runs and a win rate of -1.
+		// The next line should have no effect.
 		node.update(at("a1"), 1, 1);
 		assertEquals(-1.0, node.getWinRate(at("a1")), 0.001);
-		assertEquals(1, node.getWins(at("a1")), 0.001);
+		assertEquals(2, node.getRuns(at("a1")));
+		assertEquals(-2.0, node.getWins(at("a1")), 0.001);
 	}
 
 	@Test
