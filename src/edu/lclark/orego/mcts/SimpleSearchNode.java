@@ -258,8 +258,8 @@ public class SimpleSearchNode implements SearchNode {
 	}
 
 	/**
-	 * (Similar to the public version, but takes simpler pieces as arguments, to
-	 * simplify testing.)
+	 * Similar to the public version, but takes simpler pieces as arguments, to
+	 * simplify testing.
 	 */
 	void recordPlayout(float winProportion, short[] moves, int t, int turn) {
 		assert t < turn;
@@ -334,6 +334,7 @@ public class SimpleSearchNode implements SearchNode {
 			runs[p] += n;
 			assert runs[p] > 0 : "runs[" + p + "] is " + runs[p]
 					+ " after adding " + n + " runs.";
+			assert !(fancyHash == 0L && p == PASS && runs[p] > 1000);
 		}
 	}
 
