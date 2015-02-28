@@ -310,6 +310,10 @@ public final class Board implements Serializable {
 		}
 		// We don't believe we need to take the number of passes into account,
 		// because we would never look at or store data in an end-of-game node.
+		// TODO Remove this! It could cause a crash in rare situations.
+		if (result == 0L) {
+			assert turn == 0 : "Turn " + turn + "\n" + this;
+		}
 		return result;
 	}
 
@@ -571,18 +575,19 @@ public final class Board implements Serializable {
 	 * maintain hash or check superko.
 	 */
 	public Legality playFast(short p) {
-		final Legality result = legalityFast(colorToPlay, p);
-		if (result != OK) {
-			return result;
-		}
-		finalizePlay(colorToPlay, p);
-		colorToPlay = colorToPlay.opposite();
-		passes = 0;
-		turn++;
-		// To ensure that the board is in a stable state, this must be done last
-		// The color argument is flipped back to the color of the stone played
-		notifyObservers(colorToPlay.opposite(), p);
-		return OK;
+		return play(p);
+//		final Legality result = legalityFast(colorToPlay, p);
+//		if (result != OK) {
+//			return result;
+//		}
+//		finalizePlay(colorToPlay, p);
+//		colorToPlay = colorToPlay.opposite();
+//		passes = 0;
+//		turn++;
+//		// To ensure that the board is in a stable state, this must be done last
+//		// The color argument is flipped back to the color of the stone played
+//		notifyObservers(colorToPlay.opposite(), p);
+//		return OK;
 	}
 
 	/** Removes the stone at p. */

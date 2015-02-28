@@ -3,6 +3,7 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 
 /** Updates the tree with the results of runs. */
@@ -77,8 +78,15 @@ public final class SimpleTreeUpdater implements TreeUpdater {
 					+ ", table fullness: " + table.getNodesInUse() + "/"
 					+ table.getCapacity() + "="
 					+ (((double) table.getNodesInUse()) / table.getCapacity());
+			if (history.get(t) == CoordinateSystem.PASS) {
+				System.out.println("About to record pass into node " + node.getFancyHash());
+				System.out.println("t = " + t);
+				System.out.println("On board " + runnable.getBoard().hashCode());
+				System.out.println("Recording a playout that started with a pass. Turns: " + turn);
+			}
 			node.recordPlayout(winProportion, runnable, t);
 			final long fancyHash = fancyHashes[t + 1];
+			assert fancyHash != 0L; // TODO Slightly dangerous -- it MIGHT come up
 			synchronized (table) {
 				SearchNode child = table.findIfPresent(fancyHash);
 				if (child == null) {

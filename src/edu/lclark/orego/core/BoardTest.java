@@ -488,4 +488,42 @@ public class BoardTest {
 		assertEquals(hash, board.getFancyHash());
 	}
 
+	@Test
+	public void testFancyHash9() {
+		// Debugging test; this board appeared to be returning a fancy hash of 0L
+		String[] diagram = new String[] {
+				".#OO.O.OO",
+				"##OOOOO.O",
+				".#OO#OOO.",
+				"##OO###OO",
+				"#####OO.O",
+				"######OOO",
+				".##.#OOO.",
+				"##.##O.OO",
+				"#.#OOOOO."
+				};
+		board = new Board(9);
+		board.setUpProblem(diagram, BLACK);
+		assertFalse(0L == board.getFancyHash());
+	}
+
+	@Test
+	public void testFancyHash5() {
+		// Debugging test; this board appeared to be returning a fancy hash of 0L
+		String[] moves = {"PASS", "C3", "B5", "D5", "E4", "C4", "B3", "C2", "D1", "E2", "E5", "C5", "B4", "D2", "D4", "D3", "B2", "A2", "A3", "A4", "A1", "E3", "D4", "E4", "A5", "B1", "C1", "E1", "B1", "PASS"};
+		board = new Board(5);
+		for (String move : moves) {
+			board.play(move);
+			assertFalse(0L == board.getFancyHash());
+		}
+	}
+	
+	@Test
+	public void testFancyHashPassFirst() {
+		board = new Board(13);
+		board.pass();
+		board.playFast(at("e3"));
+		assertFalse(0L == board.getFancyHash());		
+	}
+
 }
