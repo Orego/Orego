@@ -271,7 +271,6 @@ public final class Player {
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
 			short passes = board.getPasses();
-			board.setPasses(passes);
 			runnable.performMcRun(false);
 			board.setPasses(passes);
 			for (final short p : board.getCoordinateSystem()

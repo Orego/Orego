@@ -60,7 +60,6 @@ public abstract class AbstractDescender implements TreeDescender {
 			return RESIGN;
 		}
 		log("Selected " + board.getCoordinateSystem().toString(result) + " with " + root.getWins(result) + " wins in " + root.getRuns(result) + " runs");
-		log("Root:\n" + root.toString(board.getCoordinateSystem()));
 		return result;
 	}
 
@@ -71,9 +70,6 @@ public abstract class AbstractDescender implements TreeDescender {
 		short result = node.getWinningMove();
 		if (result != NO_POINT && runnableBoard.isLegal(result)) {
 			// The isLegal() check is necessary to avoid superko violations
-			if (runnableBoard.getTurn() == 0 && result == PASS) {
-				System.out.println("Early return of pass");
-			}
 			return result;
 		}
 		float bestSearchValue = searchValue(node, PASS);
@@ -98,11 +94,6 @@ public abstract class AbstractDescender implements TreeDescender {
 			// in a manner analogous to double hashing.
 			i = (i + skip) % vacantPoints.size();
 		} while (i != start);
-		if (runnableBoard.getFancyHash() == 0L) {
-			System.out.println("AbstractDescender descending from " + runnableBoard.hashCode());
-			System.out.println("Best search move from root: " + board.getCoordinateSystem().toString(result));
-			assert result != PASS;
-		}
 		return result;
 	}
 
@@ -114,14 +105,10 @@ public abstract class AbstractDescender implements TreeDescender {
 	/** Some nodes may have their biases updated. */
 	@Override
 	public void descend(McRunnable runnable) {
-		System.out.println("Preparing to descend.");
 		SearchNode node = getRoot();
 		assert node != null : "Fancy hash code: " + board.getFancyHash();
 		while (runnable.getBoard().getPasses() < 2) {
-			short played = selectAndPlayMove(node, runnable);
-			if (played == PASS && runnable.getBoard().getTurn() == 1) {
-				System.out.println("selectAndPlayMove came up with a pass");
-			}
+			selectAndPlayMove(node, runnable);
 			final SearchNode child = table.findIfPresent(runnable.getBoard()
 					.getFancyHash());
 			if (child == null) {
@@ -174,9 +161,6 @@ public abstract class AbstractDescender implements TreeDescender {
 	/** Selects and plays one move in the search tree. */
 	short selectAndPlayMove(SearchNode node, McRunnable runnable) {
 		final short move = bestSearchMove(node, runnable);
-		if (move == PASS && runnable.getBoard().getTurn() == 0) {
-			System.out.println("Move selected was a pass for first move");
-		}
 		runnable.acceptMove(move);
 		return move;
 	}

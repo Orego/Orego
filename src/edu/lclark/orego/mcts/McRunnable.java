@@ -205,28 +205,16 @@ public final class McRunnable implements Runnable {
 	/** @param mercy True if we should abandon the playout when one color has many more stones than the other. */
 	public Color performMcRun(boolean mercy) {
 		copyDataFrom(player.getBoard());
-		int before = board.getTurn();
-		System.out.println("Turn before descent: " + board.getTurn());
 		player.descend(this);
-		System.out.println("Turn after descent: " + board.getTurn());
-		if (historyObserver.get(0) == CoordinateSystem.PASS) {
-			System.out.println("After descent, performMcRun started with a pass");
-			System.out.println(historyObserver);
-		}
-		assert board.getTurn() > before;
 		Color winner;
 		if (board.getPasses() == 2) {
 			winner = scorer.winner();
 		} else {
 			winner = playout(mercy);
 		}
-		if (historyObserver.get(0) == CoordinateSystem.PASS) {
-			System.out.println("After playout, performMcRun started with a pass");
-			System.out.println(historyObserver);
-		}
 		player.updateTree(winner, this);
 		playoutsCompleted++;
-		return winner;		
+		return winner;
 	}
 
 	/**
@@ -271,14 +259,7 @@ public final class McRunnable implements Runnable {
 	}
 
 	private short selectAndPlayOneMove() {
-		long hash = board.getFancyHash();
-		short move = mover.selectAndPlayOneMove(random);
-		fancyHashes[board.getTurn()] = board.getFancyHash();
-		if (hash == 0L && move == CoordinateSystem.PASS) {
-			System.out.println("Mover passed from empty board: " + mover.getClass());
-		}
-		return move;
-//		return mover.selectAndPlayOneMove(random);
+		return mover.selectAndPlayOneMove(random);
 	}
 
 	public Rater[] getRaters() {

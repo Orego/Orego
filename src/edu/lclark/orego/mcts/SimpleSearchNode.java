@@ -195,9 +195,6 @@ public class SimpleSearchNode implements SearchNode {
 
 	@Override
 	public short getWinningMove() {
-		if (winningMove == PASS) {
-			System.out.println("Returning pass as winning move in node " + fancyHash);
-		}
 		return winningMove;
 	}
 
@@ -255,12 +252,6 @@ public class SimpleSearchNode implements SearchNode {
 		update(move, 1, winProportion);
 		if (winProportion == 1) {
 			winningMove = move;
-			if (move == PASS) {
-				System.out.println("t = " + t);
-				System.out.println(history);
-				System.out.println("Storing pass as best move in node " + fancyHash);
-				assert false;
-			}
 		} else {
 			winningMove = NO_POINT;
 		}
@@ -276,10 +267,6 @@ public class SimpleSearchNode implements SearchNode {
 		update(move, 1, winProportion);
 		if (winProportion == 1) {
 			winningMove = move;
-			if (move == PASS) {
-				System.out.println("(2) Storing pass as best move in node " + fancyHash);
-				assert false;
-			}
 		} else {
 			winningMove = NO_POINT;
 		}
@@ -307,10 +294,6 @@ public class SimpleSearchNode implements SearchNode {
 
 	@Override
 	public void setWinningMove(short move) {
-		if (move == PASS) {
-			System.out.println("Setting pass as winning move in node " + fancyHash);
-			assert false;
-		}
 		winningMove = move;
 	}
 
@@ -337,21 +320,9 @@ public class SimpleSearchNode implements SearchNode {
 	@Override
 	public synchronized void update(short p, int n, float wins) {
 		if (winRates[p] > 0.0) {
-			String before = "wins: " + wins + " winrates[" + p + "]: " + winRates[p]
-					+ " runs[p]: " + runs[p] + " n: " + n;
 			totalRuns += n;
-			assert totalRuns > 0 : "totalRuns is " + totalRuns
-					+ " after adding " + n + " runs.";
 			winRates[p] = (wins + winRates[p] * runs[p]) / (n + runs[p]);
-			assert winRates[p] > 0 : "BEFORE: " + before + 
-			"\nINTERMEDIATE: " + (wins + winRates[p] * runs[p]) + " / " + (n + runs[p]) +
-			"\nAFTER: "
-					+ "winRates[" + p + "] is " + winRates[p]
-					+ " after adding " + n + " runs.";
 			runs[p] += n;
-			assert runs[p] > 0 : "runs[" + p + "] is " + runs[p]
-					+ " after adding " + n + " runs.";
-			assert !(fancyHash == 0L && p == PASS && runs[p] > 2000) : "I've passed >2000 times on empty board.";
 		}
 	}
 

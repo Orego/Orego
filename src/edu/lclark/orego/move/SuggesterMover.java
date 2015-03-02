@@ -32,7 +32,6 @@ public final class SuggesterMover implements Mover {
 	@Override
 	public short selectAndPlayOneMove(MersenneTwisterFast random) {
 		final ShortSet suggestedMoves = suggester.getMoves();
-		assert !suggestedMoves.contains(edu.lclark.orego.core.CoordinateSystem.PASS) : suggester.getClass();
 		if (suggestedMoves.size() > 0) {
 			final short start = (short) random.nextInt(suggestedMoves.size());
 			short i = start;
@@ -48,7 +47,6 @@ public final class SuggesterMover implements Mover {
 				i = (short) ((i + skip) % suggestedMoves.size());
 			} while (i != start);
 		}
-//		assert false : fallbackMover.getClass();
 		return fallbackMover.selectAndPlayOneMove(random);
 	}
 

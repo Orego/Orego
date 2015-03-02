@@ -310,10 +310,6 @@ public final class Board implements Serializable {
 		}
 		// We don't believe we need to take the number of passes into account,
 		// because we would never look at or store data in an end-of-game node.
-		// TODO Remove this! It could cause a crash in rare situations.
-		if (result == 0L) {
-			assert turn == 0 : "Turn " + turn + "\n" + this;
-		}
 		return result;
 	}
 

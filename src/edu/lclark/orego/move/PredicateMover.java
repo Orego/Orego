@@ -24,12 +24,8 @@ public final class PredicateMover implements Mover {
 	 */
 	public PredicateMover(Board board, Predicate filter) {
 		this.board = board;
-		System.out.println("Creating PredicateMover for board w/ hashCode " + board.hashCode());
-		observer = new edu.lclark.orego.feature.HistoryObserver(board);
 		this.filter = filter;
 	}
-
-	private edu.lclark.orego.feature.HistoryObserver observer;
 	
 	@Override
 	public short selectAndPlayOneMove(MersenneTwisterFast random) {
@@ -48,13 +44,6 @@ public final class PredicateMover implements Mover {
 			// in a manner analogous to double hashing.
 			i = (short) ((i + skip) % vacantPoints.size());
 		} while (i != start);
-		if (board.getFancyHash() == 0L) {
-			System.out.println("No moves in predicate mover; passing at turn " + board.getTurn() + ", fancy hash " + board.getFancyHash());
-			System.out.println(board);
-//			System.out.println(observer);
-			System.out.println(board.getFancyHash());
-			System.out.println(board.hashCode());
-		}
 		board.pass();
 		return PASS;
 	}
