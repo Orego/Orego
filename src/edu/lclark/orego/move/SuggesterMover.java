@@ -39,7 +39,7 @@ public final class SuggesterMover implements Mover {
 			do {
 				final short p = suggestedMoves.get(i);
 				assert board.getColorAt(p) == VACANT;
-				if (board.playFast(p) == OK) {
+				if (board.play(p) == OK) {
 					return p;
 				}
 				// Advancing by a random prime skips through the array

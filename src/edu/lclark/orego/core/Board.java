@@ -566,26 +566,6 @@ public final class Board implements Serializable {
 		return play(coords.at(move));
 	}
 
-	/**
-	 * Similar to play, but assumes p is on board and not occupied. Does not
-	 * maintain hash or check superko.
-	 */
-	public Legality playFast(short p) {
-		return play(p);
-//		final Legality result = legalityFast(colorToPlay, p);
-//		if (result != OK) {
-//			return result;
-//		}
-//		finalizePlay(colorToPlay, p);
-//		colorToPlay = colorToPlay.opposite();
-//		passes = 0;
-//		turn++;
-//		// To ensure that the board is in a stable state, this must be done last
-//		// The color argument is flipped back to the color of the stone played
-//		notifyObservers(colorToPlay.opposite(), p);
-//		return OK;
-	}
-
 	/** Removes the stone at p. */
 	private void removeStone(short p) {
 		points[p].color = VACANT;

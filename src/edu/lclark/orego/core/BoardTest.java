@@ -274,25 +274,6 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testPlayFast() {
-		String[] before = {
-				".#O.O",
-				"#O.O#",
-				"...#.",
-				"O#..#",
-				".O#..",
-		};
-		board.setUpProblem(before, WHITE);
-		assertEquals(OK, board.playFast(at("a5")));
-		assertEquals(OK, board.playFast(at("a1")));
-		assertEquals(OK, board.playFast(at("e3")));
-		assertEquals(OK, board.playFast(at("b5")));
-		assertEquals(OK, board.playFast(at("b1")));
-		assertEquals(OK, board.playFast(at("e4")));
-		assertEquals(asOneString(before), board.toString());
-	}
-
-	@Test
 	public void testIsLegal() {
 		String[] before = {
 				"..#..",
@@ -516,14 +497,6 @@ public class BoardTest {
 			board.play(move);
 			assertFalse(0L == board.getFancyHash());
 		}
-	}
-	
-	@Test
-	public void testFancyHashPassFirst() {
-		board = new Board(13);
-		board.pass();
-		board.playFast(at("e3"));
-		assertFalse(0L == board.getFancyHash());		
 	}
 
 }

@@ -35,8 +35,8 @@ public final class PredicateMover implements Mover {
 		final short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			final short p = vacantPoints.get(i);
-			if (board.getColorAt(p) == VACANT && filter.at(p)) {
-				if (board.playFast(p) == OK) {
+			if (filter.at(p)) {
+				if (board.play(p) == OK) {
 					return p;
 				}
 			}
