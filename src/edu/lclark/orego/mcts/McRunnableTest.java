@@ -72,5 +72,12 @@ public class McRunnableTest {
 		runnable.copyDataFrom(player.getBoard());
 		assertEquals(player.getBoard().toString(), runnable.getBoard().toString());
 	}
+	
+	@Test
+	public void testOneSlowMovePlayed() {
+		runnable.playout(true);
+		assertNotEquals(0L, runnable.getFancyHashes()[0]);
+		assertEquals(0L, runnable.getFancyHashes()[1]);
+	}
 
 }

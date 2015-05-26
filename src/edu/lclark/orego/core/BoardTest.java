@@ -517,13 +517,5 @@ public class BoardTest {
 			assertFalse(0L == board.getFancyHash());
 		}
 	}
-	
-	@Test
-	public void testFancyHashPassFirst() {
-		board = new Board(13);
-		board.pass();
-		board.playFast(at("e3"));
-		assertFalse(0L == board.getFancyHash());		
-	}
 
 }
