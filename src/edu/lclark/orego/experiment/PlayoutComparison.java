@@ -64,9 +64,9 @@ public final class PlayoutComparison {
 				}
 				if (board.getPasses() < 2) {
 					if (board.getColorToPlay() == BLACK) {
-						black.selectAndPlayOneMove(random);
+						black.selectAndPlayOneMove(random, true);
 					} else {
-						white.selectAndPlayOneMove(random);
+						white.selectAndPlayOneMove(random, true);
 					}
 				}
 				if (board.getPasses() >= 2) {

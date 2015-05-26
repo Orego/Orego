@@ -3,6 +3,7 @@ package edu.lclark.orego.move;
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.feature.Suggester;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
@@ -30,7 +31,7 @@ public final class SuggesterMover implements Mover {
 	}
 
 	@Override
-	public short selectAndPlayOneMove(MersenneTwisterFast random) {
+	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
 		final ShortSet suggestedMoves = suggester.getMoves();
 		if (suggestedMoves.size() > 0) {
 			final short start = (short) random.nextInt(suggestedMoves.size());
@@ -39,7 +40,8 @@ public final class SuggesterMover implements Mover {
 			do {
 				final short p = suggestedMoves.get(i);
 				assert board.getColorAt(p) == VACANT;
-				if (board.playFast(p) == OK) {
+				Legality legality = fast ? board.playFast(p) : board.play(p);
+				if (legality == OK) {
 					return p;
 				}
 				// Advancing by a random prime skips through the array
@@ -47,7 +49,7 @@ public final class SuggesterMover implements Mover {
 				i = (short) ((i + skip) % suggestedMoves.size());
 			} while (i != start);
 		}
-		return fallbackMover.selectAndPlayOneMove(random);
+		return fallbackMover.selectAndPlayOneMove(random, fast);
 	}
 
 }

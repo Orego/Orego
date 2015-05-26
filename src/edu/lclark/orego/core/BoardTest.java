@@ -330,14 +330,14 @@ public class BoardTest {
 		Mover mover = new PredicateMover(board, new NotEyeLike(board));
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for (int i = 0; i < 50; i++) {
-			mover.selectAndPlayOneMove(random);
+			mover.selectAndPlayOneMove(random, true);
 		}
 		copy.copyDataFrom(board);
 		assertEquals(board.toString(), copy.toString());
 		assertEquals(counter.getCount(BLACK), copyCounter.getCount(BLACK));
 		assertEquals(counter.getCount(WHITE), copyCounter.getCount(WHITE));
 		while (board.getPasses() < 2) {
-			short p = mover.selectAndPlayOneMove(random);
+			short p = mover.selectAndPlayOneMove(random, true);
 			copy.play(p);
 		}
 		assertEquals(board.toString(), copy.toString());

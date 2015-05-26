@@ -44,7 +44,11 @@ public interface Mover extends Serializable {
 			2843, 2851, 2857, 2861, 2879, 2887, 2897, 2903, 2909, 2917, 2927,
 			2939, 2953, 2957, 2963, 2969, 2971, 2999, 3001, 3011, 3019 };
 
-	/** Selects and plays one move. */
-	public short selectAndPlayOneMove(MersenneTwisterFast random);
+	/**
+	 * Selects and plays one move.
+	 *
+	 * @param fast If true, uses playFast instead of play.
+	 */
+	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast);
 
 }

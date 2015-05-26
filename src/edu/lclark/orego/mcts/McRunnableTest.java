@@ -76,8 +76,8 @@ public class McRunnableTest {
 	@Test
 	public void testOneSlowMovePlayed() {
 		runnable.playout(true);
-		assertNotEquals(0L, runnable.getFancyHashes()[0]);
-		assertEquals(0L, runnable.getFancyHashes()[1]);
+		assertNotEquals(0L, runnable.getFancyHashes()[1]);
+		assertEquals(0L, runnable.getFancyHashes()[2]);
 	}
 
 }

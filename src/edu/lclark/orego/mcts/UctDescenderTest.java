@@ -101,7 +101,7 @@ public class UctDescenderTest {
 		assertEquals(
 				"A2",
 				board.getCoordinateSystem().toString(
-						mover.selectAndPlayOneMove(new MersenneTwisterFast())));
+						mover.selectAndPlayOneMove(new MersenneTwisterFast(), true)));
 	}
 
 }

@@ -46,7 +46,7 @@ public class SuggesterMoverTest {
 		int[] counts = new int[coords.getFirstPointBeyondBoard()];
 		for(int i = 0; i < 1000; i++){
 			board.setUpProblem(diagram, BLACK);
-			short p = mover.selectAndPlayOneMove(random);
+			short p = mover.selectAndPlayOneMove(random, true);
 			counts[p]++;
 		}
 		assertTrue(counts[at("b3")] > 250);
@@ -67,7 +67,7 @@ public class SuggesterMoverTest {
 		int[] counts = new int[coords.getFirstPointBeyondBoard()];
 		for(int i = 0; i < 1000; i++){
 			board.setUpProblem(diagram, BLACK);
-			short p = mover.selectAndPlayOneMove(random);
+			short p = mover.selectAndPlayOneMove(random, true);
 			counts[p]++;
 		}
 		final ShortSet invalidPoints = new ShortSet(coords.getFirstPointBeyondBoard());

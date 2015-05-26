@@ -225,22 +225,45 @@ public final class McRunnable implements Runnable {
 	 * @param mercy True if we should abandon the playout when one color has many more stones than the other.
 	 */
 	public Color playout(boolean mercy) {
+		// The first move is played normally, updating the fancy hashes
+		if (board.getTurn() >= coords.getMaxMovesPerGame()) {
+			// Playout ran out of moves, probably due to superko
+			return VACANT;
+		}
+		if (board.getPasses() < 2) {
+			selectAndPlayOneMove(false);
+			fancyHashes[board.getTurn()] = board.getFancyHash();
+		}
+		if (board.getPasses() >= 2) {
+			// Game ended
+			return scorer.winner();
+		}
+		if (mercy) {
+			final Color mercyWinner = mercyObserver.mercyWinner();
+			if (mercyWinner != null) {
+				// One player has far more stones on the board
+				return mercyWinner;
+			}
+		}
+		// All subsequent moves are played fast
 		do {
 			if (board.getTurn() >= coords.getMaxMovesPerGame()) {
 				// Playout ran out of moves, probably due to superko
 				return VACANT;
 			}
 			if (board.getPasses() < 2) {
-				selectAndPlayOneMove();
+				selectAndPlayOneMove(true);
 			}
 			if (board.getPasses() >= 2) {
 				// Game ended
 				return scorer.winner();
 			}
-			final Color mercyWinner = mercyObserver.mercyWinner();
-			if (mercy && mercyWinner != null) {
-				// One player has far more stones on the board
-				return mercyWinner;
+			if (mercy) {
+				final Color mercyWinner = mercyObserver.mercyWinner();
+				if (mercyWinner != null) {
+					// One player has far more stones on the board
+					return mercyWinner;
+				}
 			}
 		} while (true);
 	}
@@ -258,8 +281,11 @@ public final class McRunnable implements Runnable {
 		player.notifyMcRunnableDone();
 	}
 
-	private short selectAndPlayOneMove() {
-		return mover.selectAndPlayOneMove(random);
+	/**
+	 * @param fast If true, use playFast instead of play.
+	 */
+	private short selectAndPlayOneMove(boolean fast) {
+		return mover.selectAndPlayOneMove(random, fast);
 	}
 
 	public Rater[] getRaters() {

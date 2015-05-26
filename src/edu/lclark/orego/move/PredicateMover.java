@@ -4,6 +4,7 @@ import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
@@ -28,7 +29,7 @@ public final class PredicateMover implements Mover {
 	}
 	
 	@Override
-	public short selectAndPlayOneMove(MersenneTwisterFast random) {
+	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
 		final ShortSet vacantPoints = board.getVacantPoints();
 		final short start = (short) random.nextInt(vacantPoints.size());
 		short i = start;
@@ -36,7 +37,8 @@ public final class PredicateMover implements Mover {
 		do {
 			final short p = vacantPoints.get(i);
 			if (board.getColorAt(p) == VACANT && filter.at(p)) {
-				if (board.playFast(p) == OK) {
+				Legality legality = fast ? board.playFast(p) : board.play(p);
+				if (legality == OK) {
 					return p;
 				}
 			}
