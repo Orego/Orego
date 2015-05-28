@@ -19,7 +19,7 @@ public final class StoneCountObserver implements BoardObserver {
 	public StoneCountObserver(Board board) {
 		counts = new int[2];
 		// TODO What about komi?
-		mercyThreshold = board.getCoordinateSystem().getArea() / 4;
+		mercyThreshold = board.getCoordinateSystem().getArea() / 8;
 		board.addObserver(this);
 	}
 
