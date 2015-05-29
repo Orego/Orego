@@ -84,8 +84,8 @@ public class StoneCountObserverTest {
 
 	@Test
 	public void testMercyAfterCopying() {
-		Board boardCopy = new Board(19);
-		StoneCountObserver counterCopy = new StoneCountObserver(boardCopy, new ChineseFinalScorer(boardCopy, 0.5));
+		Board boardCopy = new Board(5);
+		StoneCountObserver counterCopy = new StoneCountObserver(boardCopy, new ChineseFinalScorer(boardCopy, 7.5));
 		String[] diagram = {
 				"#####",
 				"#####",

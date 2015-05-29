@@ -15,10 +15,10 @@ public final class StoneCountObserver implements BoardObserver {
 	private final int[] counts;
 
 	/** If black stones - white stones >= this, black can be declared the winner. */
-	private int blackMercyThreshold;
+	private final int blackMercyThreshold;
 
 	/** If black stones - white stones <= this, white can be declared the winner. */
-	private int whiteMercyThreshold;
+	private final int whiteMercyThreshold;
 
 	public StoneCountObserver(Board board, Scorer scorer) {
 		counts = new int[2];
@@ -40,8 +40,6 @@ public final class StoneCountObserver implements BoardObserver {
 		final StoneCountObserver original = (StoneCountObserver) that;
 		counts[0] = original.counts[0];
 		counts[1] = original.counts[1];
-		blackMercyThreshold = original.blackMercyThreshold;
-		whiteMercyThreshold = original.whiteMercyThreshold;
 	}
 
 	/** Returns the number of stones of this color. */
