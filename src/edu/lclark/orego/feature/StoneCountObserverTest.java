@@ -3,9 +3,12 @@ package edu.lclark.orego.feature;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.score.ChineseFinalScorer;
 
 public class StoneCountObserverTest {
 
@@ -16,7 +19,7 @@ public class StoneCountObserverTest {
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(5);
-		counter = new StoneCountObserver(board);
+		counter = new StoneCountObserver(board, new ChineseFinalScorer(board, 7.5));
 	}
 
 	@Test
@@ -54,30 +57,103 @@ public class StoneCountObserverTest {
 	
 	@Test
 	public void testMercy(){
-		StoneCountObserver mercyCounter = new StoneCountObserver(board);
-		assertEquals(null, mercyCounter.mercyWinner());
+		assertNull(counter.mercyWinner());
 		String[] diagram = {
 				"#####",
-				"#....",
-				".....",
-				".....",
-				".....",
+				"#####",
+				"#####",
+				"#####",
+				"#.#..",
 		};
 		board.setUpProblem(diagram, BLACK);
-		assertEquals(null, mercyCounter.mercyWinner());
-		board.play(board.getCoordinateSystem().at("d4"));
-		assertEquals(BLACK, mercyCounter.mercyWinner());
+		assertNull(counter.mercyWinner());
+		board.play(board.getCoordinateSystem().at("e1"));
+		assertEquals(BLACK, counter.mercyWinner());
 		diagram = new String[] {
 				"###..",
 				".....",
 				".....",
-				".OOOO",
+				"OOOOO",
 				"OOOOO",
 		};
 		board.setUpProblem(diagram, WHITE);
-		assertEquals(null, mercyCounter.mercyWinner());
-		board.play(board.getCoordinateSystem().at("a2"));
-		assertEquals(WHITE, mercyCounter.mercyWinner());	
+		assertNull(counter.mercyWinner());
+		board.play(board.getCoordinateSystem().at("a3"));
+		assertEquals(WHITE, counter.mercyWinner());	
+	}
+
+	@Test
+	public void testMercyAfterCopying() {
+		Board boardCopy = new Board(19);
+		StoneCountObserver counterCopy = new StoneCountObserver(boardCopy, new ChineseFinalScorer(boardCopy, 0.5));
+		String[] diagram = {
+				"#####",
+				"#####",
+				"#####",
+				"#####",
+				"#.#.#",
+		};
+		board.setUpProblem(diagram, BLACK);
+		assertNull(counterCopy.mercyWinner());
+		counterCopy.copyDataFrom(counter);
+		assertEquals(BLACK, counterCopy.mercyWinner());
+	}
+
+	@Test
+	public void testMercyOnLargerBoard(){
+		board = new Board(19);
+		counter = new StoneCountObserver(board, new ChineseFinalScorer(board, 7.5));
+		assertNull(counter.mercyWinner());
+		String[] diagram = {
+				"###################",
+				"###################",
+				"##############.....",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+		};
+		board.setUpProblem(diagram, BLACK);
+		assertNull(counter.mercyWinner());
+		board.play(board.getCoordinateSystem().at("a1"));
+		assertEquals(BLACK, counter.mercyWinner());
+		diagram = new String[] {
+				"#..................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"...................",
+				"OOOOOOOOOOOOOOOOOOO",
+				"OOOOOOOOOOOOOOOOOOO",
+		};
+		board.setUpProblem(diagram, WHITE);
+		assertNull(counter.mercyWinner());
+		board.play(board.getCoordinateSystem().at("a3"));
+		assertEquals(WHITE, counter.mercyWinner());	
 	}
 
 }

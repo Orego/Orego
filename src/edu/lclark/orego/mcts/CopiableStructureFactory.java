@@ -32,9 +32,10 @@ public final class CopiableStructureFactory {
 	/** Returns a structure with a board, scorers, and a stone counter. */
 	public static CopiableStructure basicParts(int width, double komi) {
 		final Board board = new Board(width);
+		final ChinesePlayoutScorer scorer = new ChinesePlayoutScorer(board, komi);
 		return new CopiableStructure().add(board)
-				.add(new ChinesePlayoutScorer(board, komi))
-				.add(new StoneCountObserver(board))
+				.add(scorer)
+				.add(new StoneCountObserver(board, scorer))
 				.add(new HistoryObserver(board))
 				.add(new ChineseFinalScorer(board, komi));
 	}

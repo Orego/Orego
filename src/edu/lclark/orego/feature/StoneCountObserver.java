@@ -5,6 +5,7 @@ import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.score.Scorer;
 import edu.lclark.orego.util.ShortList;
 
 /** Keeps track of how many stones there are of each color. */
@@ -13,13 +14,18 @@ public final class StoneCountObserver implements BoardObserver {
 
 	private final int[] counts;
 
-	/** If one side has this many more stones, it can be declared the winner. */
-	private final int mercyThreshold;
+	/** If black stones - white stones >= this, black can be declared the winner. */
+	private int blackMercyThreshold;
 
-	public StoneCountObserver(Board board) {
+	/** If black stones - white stones <= this, white can be declared the winner. */
+	private int whiteMercyThreshold;
+
+	public StoneCountObserver(Board board, Scorer scorer) {
 		counts = new int[2];
-		// TODO What about komi?
-		mercyThreshold = board.getCoordinateSystem().getArea() / 8;
+		final double komi = scorer.getKomi();
+		final int base = Math.max(board.getCoordinateSystem().getArea() / 8, (int)(2 * komi));
+		blackMercyThreshold = base + (int)(Math.ceil(komi));
+		whiteMercyThreshold = -base + (int)(Math.floor(komi));
 		board.addObserver(this);
 	}
 
@@ -34,6 +40,8 @@ public final class StoneCountObserver implements BoardObserver {
 		final StoneCountObserver original = (StoneCountObserver) that;
 		counts[0] = original.counts[0];
 		counts[1] = original.counts[1];
+		blackMercyThreshold = original.blackMercyThreshold;
+		whiteMercyThreshold = original.whiteMercyThreshold;
 	}
 
 	/** Returns the number of stones of this color. */
@@ -47,9 +55,9 @@ public final class StoneCountObserver implements BoardObserver {
 	 */
 	public StoneColor mercyWinner() {
 		final int difference = counts[BLACK.index()] - counts[WHITE.index()];
-		if (difference > mercyThreshold) {
+		if (difference >= blackMercyThreshold) {
 			return BLACK;
-		} else if (difference < -mercyThreshold) {
+		} else if (difference <= whiteMercyThreshold) {
 			return WHITE;
 		}
 		return null;

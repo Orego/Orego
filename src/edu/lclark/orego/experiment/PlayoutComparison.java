@@ -39,7 +39,7 @@ public final class PlayoutComparison {
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
 		final PlayoutScorer scorer = new ChinesePlayoutScorer(board, 7.5);
-		final StoneCountObserver mercyObserver = new StoneCountObserver(board);
+		final StoneCountObserver mercyObserver = new StoneCountObserver(board, scorer);
 		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
 		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
 		System.out.println("Version 1 wins: " + wins.get(mover1));
