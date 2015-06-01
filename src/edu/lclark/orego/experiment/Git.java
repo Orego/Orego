@@ -32,8 +32,9 @@ public final class Git {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+			return "git not installed";
+//			e.printStackTrace();
+//			System.exit(1);
 		}
 		return "";
 	}
