@@ -23,7 +23,7 @@ public final class StoneCountObserver implements BoardObserver {
 	public StoneCountObserver(Board board, Scorer scorer) {
 		counts = new int[2];
 		final double komi = scorer.getKomi();
-		final int base = Math.max(board.getCoordinateSystem().getArea() / 10, (int)(2 * komi));
+		final int base = Math.max(board.getCoordinateSystem().getArea() / 6, (int)(2 * komi));
 		blackMercyThreshold = base + (int)(Math.ceil(komi));
 		whiteMercyThreshold = -base + (int)(Math.floor(komi));
 		board.addObserver(this);
