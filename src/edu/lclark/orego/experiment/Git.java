@@ -9,7 +9,8 @@ public final class Git {
 
 	/**
 	 * Returns the current git commit string, or the empty string if we are not
-	 * in a clean git state.
+	 * in a clean git state. If run on a Windows machine, it may not be possible
+	 * to view the current git commit string.
 	 */
 	public static String getGitCommit() {
 		try {
@@ -21,9 +22,8 @@ public final class Git {
 				}
 			}
 			try (Scanner s = new Scanner(new ProcessBuilder("git", "--git-dir="
-					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT,
-					"log", "--pretty=format:'%H'", "-n", "1").start()
-					.getInputStream())) {
+					+ OREGO_ROOT + ".git", "--work-tree=" + OREGO_ROOT, "log",
+					"--pretty=format:'%H'", "-n", "1").start().getInputStream())) {
 				if (s.hasNextLine()) {
 					final String commit = s.nextLine();
 					// substring to remove single quotes that would otherwise
@@ -32,8 +32,7 @@ public final class Git {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+			return "unknown (git not installed)";
 		}
 		return "";
 	}
