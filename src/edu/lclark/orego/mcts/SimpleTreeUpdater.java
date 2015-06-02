@@ -3,7 +3,6 @@ package edu.lclark.orego.mcts;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 
 /** Updates the tree with the results of runs. */
