@@ -107,8 +107,8 @@ public class StoneCountObserverTest {
 		String[] diagram = {
 				"###################",
 				"###################",
-				"##############.....",
-				"...................",
+				"###################",
+				"##########.........",
 				"...................",
 				"...................",
 				"...................",
@@ -146,13 +146,13 @@ public class StoneCountObserverTest {
 				"...................",
 				"...................",
 				"...................",
-				"...................",
+				"OOOOOOOOOOOOOOO....",
 				"OOOOOOOOOOOOOOOOOOO",
 				"OOOOOOOOOOOOOOOOOOO",
 		};
 		board.setUpProblem(diagram, WHITE);
 		assertNull(counter.mercyWinner());
-		board.play(board.getCoordinateSystem().at("a3"));
+		board.play(board.getCoordinateSystem().at("e5"));
 		assertEquals(WHITE, counter.mercyWinner());	
 	}
 
