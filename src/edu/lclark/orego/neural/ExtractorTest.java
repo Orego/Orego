@@ -1,12 +1,14 @@
 package edu.lclark.orego.neural;
 
 import static edu.lclark.orego.core.StoneColor.*;
+import static edu.lclark.orego.util.TestingTools.asOneString;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.CoordinateSystem;
 
 public class ExtractorTest {
 
@@ -63,6 +65,19 @@ public class ExtractorTest {
 		assertEquals(1.0, extractor.isOffBoard(1, 7), 0.001);
 		assertEquals(0.0, extractor.isOffBoard(0, 3), 0.001);
 		assertEquals(1.0, extractor.isOffBoard(9, 3), 0.001);
+	}
+	
+	@Test
+	/** Tests isUltimate and isPenultimate \. */
+	public void testMoveTracker() {
+		board.play("a2");
+		board.play("b3");
+		assertEquals(0.0, extractor.isUltimateMove(0, 0), 0.001);
+		assertEquals(1.0, extractor.isUltimateMove(2, 1), 0.001);
+		assertEquals(0.0, extractor.isPenultimateMove(2, 1), 0.001);
+		assertEquals(0.0, extractor.isPenultimateMove(9, 2), 0.001);
+		assertEquals(1.0, extractor.isPenultimateMove(3, 0), 0.001);
+		assertEquals(0.0, extractor.isPenultimateMove(1, 1), 0.001);
 	}
 
 }
