@@ -1,6 +1,6 @@
 package edu.lclark.orego.neural;
 
-import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.core.StoneColor.*;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -33,6 +33,36 @@ public class ExtractorTest {
 		assertEquals(0.0, extractor.isBlack(1, 7), 0.001);
 		assertEquals(1.0, extractor.isBlack(0, 3), 0.001);
 		assertEquals(0.0, extractor.isBlack(2, 3), 0.001);
+	}
+	
+	@Test
+	public void testIsWhite() {
+		String[] diagram = {
+				"...O.",
+				".....",
+				"#....",
+				".....",
+				".....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		assertEquals(0.0, extractor.isWhite(1, 7), 0.001);
+		assertEquals(1.0, extractor.isWhite(0, 3), 0.001);
+		assertEquals(0.0, extractor.isWhite(2, 3), 0.001);
+	}
+	
+	@Test
+	public void testIsOffBoard() {
+		String[] diagram = {
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+		};
+		board.setUpProblem(diagram, WHITE);
+		assertEquals(1.0, extractor.isOffBoard(1, 7), 0.001);
+		assertEquals(0.0, extractor.isOffBoard(0, 3), 0.001);
+		assertEquals(1.0, extractor.isOffBoard(9, 3), 0.001);
 	}
 
 }

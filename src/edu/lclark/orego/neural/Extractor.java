@@ -31,4 +31,27 @@ public class Extractor {
 		return 0;
 	}
 
+	public double isWhite(int row, int col) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if (!coords.isValidOneDimensionalCoordinate(row)) {
+			return 0;
+		}
+		if (!coords.isValidOneDimensionalCoordinate(col)) {
+			return 0;
+		}
+		if (board.getColorAt(coords.at(row, col)) == WHITE) {
+			return 1;
+		}
+		return 0;
+	}
+
+	public double isOffBoard(int row, int col) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if ((!coords.isValidOneDimensionalCoordinate(col))
+				|| (!coords.isValidOneDimensionalCoordinate(row))) {
+			return 1;
+		}
+		return 0;
+	}
+
 }
