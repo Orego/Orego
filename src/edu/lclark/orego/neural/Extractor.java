@@ -31,6 +31,10 @@ public class Extractor {
 		return 0;
 	}
 
+	/**
+	 * Returns 1 if there is a white stone at specified coordinates, otherwise
+	 * 0.
+	 */
 	public double isWhite(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (!coords.isValidOneDimensionalCoordinate(row)) {
@@ -45,6 +49,9 @@ public class Extractor {
 		return 0;
 	}
 
+	/**
+	 * Returns 1 if the specified coordinate is off the board, otherwise 0. 
+	 */
 	public double isOffBoard(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if ((!coords.isValidOneDimensionalCoordinate(col))
