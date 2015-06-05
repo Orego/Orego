@@ -68,7 +68,12 @@ public final class GameBatch implements Runnable {
 
 	public GameBatch(int batchNumber, String hostname, String resultsDirectory) {
 		this.batchNumber = batchNumber;
-		this.host = hostname.substring(0, hostname.indexOf('.'));
+		// Shorten hostname if possible for clearer reporting
+		if (hostname.contains(".")) {
+			host = hostname.substring(0, hostname.indexOf('.'));
+		} else {
+			host = hostname;
+		}
 		this.resultsDirectory = resultsDirectory;
 	}
 
