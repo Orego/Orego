@@ -84,7 +84,7 @@ public class Network {
 			output[i].updateActivation();
 		}
 		return output[0].getActivation();
-		//TODO: make array
+		// TODO: make array
 	}
 
 	/**

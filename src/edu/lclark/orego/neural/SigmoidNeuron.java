@@ -1,8 +1,7 @@
 package edu.lclark.orego.neural;
 
 /** Sigmoid Neuron */
-public class SigmoidNeuron implements Neuron{
-	
+public class SigmoidNeuron implements Neuron {
 
 	/** Learning rate used in updating weights. */
 	public static final double LEARNING_RATE = 1.0;
@@ -45,7 +44,7 @@ public class SigmoidNeuron implements Neuron{
 			weights[i] = rand();
 		}
 	}
-	
+
 	/** Constructor that initializes the values of inputs and weights */
 	public SigmoidNeuron(Neuron[] inputs, double[] weights) {
 		this.inputs = inputs;
@@ -62,7 +61,7 @@ public class SigmoidNeuron implements Neuron{
 		return delta;
 	}
 
-	public double[] getWeights(){
+	public double[] getWeights() {
 		return weights;
 	}
 
@@ -75,9 +74,10 @@ public class SigmoidNeuron implements Neuron{
 	public void setWeights(double w[]) {
 		weights = w;
 	}
-	public String toString(){
+
+	public String toString() {
 		String print = "Activation of Sigmoid Neuron = " + activation + "\n";
-		for(int i = 0; i < inputs.length; i++){
+		for (int i = 0; i < inputs.length; i++) {
 			print += inputs[i].toString();
 		}
 		return print;
@@ -97,7 +97,6 @@ public class SigmoidNeuron implements Neuron{
 	/** Updates delta value given the correct output for an output neuron. */
 	public void updateDelta(double correct) {
 		delta = activation * (1 - activation) * (correct - activation);
-//		System.out.println("output delta: " + delta);
 	}
 
 	/**
@@ -106,7 +105,18 @@ public class SigmoidNeuron implements Neuron{
 	 */
 	public void updateDelta(double outputDelta, double weightToOutput) {
 		delta = activation * (1 - activation) * weightToOutput * outputDelta;
-//		System.out.println("hidden delta: " + delta);
+	}
+
+	/**
+	 * Updates delta value given the output's delta and weight from output to
+	 * this neuron for a hidden Neuron. (Allows for multiple outputs)
+	 */
+	public void updateDelta(double[] outputDelta, double[] weightToOutput) {
+		delta = 0;
+		for (int i = 0; i < outputDelta.length; i++) {
+			delta += activation * (1 - activation) * weightToOutput[i]
+					* outputDelta[i];
+		}
 	}
 
 	/**
@@ -118,6 +128,5 @@ public class SigmoidNeuron implements Neuron{
 			weights[i] += LEARNING_RATE * (inputs[i].getActivation()) * delta;
 		}
 	}
-
 
 }
