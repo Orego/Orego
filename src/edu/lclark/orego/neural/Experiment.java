@@ -28,8 +28,5 @@ public class Experiment {
 			}
 			System.out.println();
 		}
-
-
 	}
-
 }

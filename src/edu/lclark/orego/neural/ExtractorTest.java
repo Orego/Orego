@@ -1,14 +1,12 @@
 package edu.lclark.orego.neural;
 
 import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.util.TestingTools.asOneString;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 
 public class ExtractorTest {
 
