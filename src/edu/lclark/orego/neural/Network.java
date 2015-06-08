@@ -112,12 +112,6 @@ public class Network {
 		updateWeights();
 	}
 
-	/** Calculates and returns the delta value (double) for output neuron */
-	public void updateDeltaOutput(double correct) {
-		output[0].updateDelta(correct);
-		//TODO: fix output
-	}
-
 	/** Updates weights based on previously determined delta from output */
 	public void updateWeights() {
 		output[0].updateWeights();
