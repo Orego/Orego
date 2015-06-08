@@ -1,46 +1,33 @@
 package edu.lclark.orego.neural;
 
 public class Network {
-	
-	private SigmoidNeuron[] hiddenNeurons;
+
+	private SigmoidNeuron[][] hiddenNeurons;
 
 	private InputNeuron[] inputs;
 
 	private SigmoidNeuron output;
 
 	/**
-	 * Constructs a network that can be used for and, or, etc. (but not xor). It
-	 * has two input nodes, 1 bias, and no hidden units.
-	 */
-	public Network() {
-		inputs = new InputNeuron[3];
-		inputs[1] = new InputNeuron();
-		inputs[2] = new InputNeuron();
-		inputs[0] = new InputNeuron();
-		inputs[0].setActivation(1);
-		output = new SigmoidNeuron(inputs);
-		hiddenNeurons = null;
-	}
-
-	/**
-	 * Constructs Network with a specified number of inputs including the bias
-	 * input and a specified number of hiddenNeurons. For now, it's layer-size 2
-	 * and has one output In the inputs array, the 0th element is the bias
+	 * Constructs Network with a specified number of inputs excluding the bias
+	 * input and a specified number of hiddenNeurons. Hidden unit-layer size is specified
+	 * and it has one output In the inputs array, the 0th element is the bias
 	 * neuron.
 	 */
-	public Network(int inputSize, int hiddenNeuronSize) {
-		inputs = new InputNeuron[inputSize];
-		for (int i = 0; i < inputSize; i++) {
+	public Network(int inputSize, int hiddenNeuronSize, int hiddenLayers) {
+		inputs = new InputNeuron[inputSize + 1];
+		for (int i = 0; i < inputSize + 1; i++) {
 			inputs[i] = new InputNeuron();
 		}
 		inputs[0].setActivation(1);
-		hiddenNeurons = new SigmoidNeuron[hiddenNeuronSize];
+		hiddenNeurons = new SigmoidNeuron[hiddenLayers][hiddenNeuronSize];
 		Neuron[] biasAndHidden = new Neuron[hiddenNeuronSize + 1];
-		// TODO get rid of biasAndHidden through some clever trick
-		biasAndHidden[0] = inputs[0];
-		for (int i = 0; i < hiddenNeuronSize; i++) {
-			hiddenNeurons[i] = new SigmoidNeuron(inputs);
-			biasAndHidden[i + 1] = hiddenNeurons[i];
+		for (int j = 0; j < hiddenLayers; j++){
+			biasAndHidden[0] = inputs[0];
+			for (int i = 0; i < hiddenNeuronSize; i++) {
+				hiddenNeurons[j][i] = new SigmoidNeuron(inputs);
+				biasAndHidden[i + 1] = hiddenNeurons[j][i];
+			}
 		}
 		output = new SigmoidNeuron(biasAndHidden);
 	}
@@ -59,8 +46,10 @@ public class Network {
 	/** Returns the network's output when inputs are fed in. */
 	public double test(double... inputs) {
 		setInputs(inputs);
-		for (int i = 0; hiddenNeurons != null && i < hiddenNeurons.length; i++) {
-			hiddenNeurons[i].updateActivation();
+		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
+			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
+				hiddenNeurons[j][i].updateActivation();
+			}
 		}
 		output.updateActivation();
 		return output.getActivation();
@@ -72,14 +61,18 @@ public class Network {
 	 */
 	public void train(double correct, double... inputs) {
 		setInputs(inputs);
-		for (int i = 0; hiddenNeurons != null && i < hiddenNeurons.length; i++) {
-			hiddenNeurons[i].updateActivation();
+		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
+			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
+				hiddenNeurons[j][i].updateActivation();
+			}
 		}
 		output.updateActivation();
 		output.updateDelta(correct);
-		for (int i = 0; hiddenNeurons != null && i < hiddenNeurons.length; i++) {
-			hiddenNeurons[i].updateDelta(output.getDelta(),
-					output.getWeights()[i+1]);
+		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
+			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
+				hiddenNeurons[j][i].updateDelta(output.getDelta(),
+						output.getWeights()[i + 1]);
+			}
 		}
 		updateWeights();
 	}
@@ -92,10 +85,11 @@ public class Network {
 	/** Updates weights based on previously determined delta from output */
 	public void updateWeights() {
 		output.updateWeights();
-		for (int i = 0; hiddenNeurons != null && i < hiddenNeurons.length; i++) {
-			hiddenNeurons[i].updateWeights();
+		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
+			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
+				hiddenNeurons[j][i].updateWeights();
+			}
 		}
 	}
-
 
 }
