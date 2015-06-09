@@ -142,7 +142,9 @@ public class Network {
 
 	/** Updates weights based on previously determined delta from output */
 	public void updateWeights() {
-		output[0].updateWeights();
+		for(int i = 0; i < output.length; i++){
+			output[i].updateWeights();
+		}
 		//TODO: fix output
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
 			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
