@@ -57,42 +57,55 @@ public class Experiment {
 		reader.close();
 
 		// Training
-		for (int i = 0; i < updates; i++) {
+		for (int z = 0; z < updates; z++) {
 			int k = (int) (Math.random() * traininglimit);
 			handwriting.train(trainingCorrect[k], training[k]);
-			// double[] output = handwriting.test(training[k]);
-			// for (int j = 0; j < output.length; j++) {
-			// System.out.print(j + ":" + output[j] + "\t");
-			// }
-			// System.out.println();
-		}
 
-		// Testing accuracy
-		double trainingdataccuracy = 0;
-		for (int i = 0; i < traininglimit; i++) {
-			double[] output = handwriting.test(training[i]);
-			double max = 0;
-			int guess = 0;
-			for (int j = 0; j < output.length; j++) {
-				// System.out.print(j + ":" + output[j] + "\t");
-				if (max < output[j]) {
-					max = output[j];
-					guess = j;
-				}
-			}
-			// System.out.println();
-
-			for (int j = 0; j < 10; j++) {
-				if (trainingCorrect[i][j] == 1.0) {
-					System.out.println(j + " = " + guess);
-					if (j == guess) {
-						trainingdataccuracy++;
+			double trainingdataccuracy = 0;
+			for (int i = 0; i < traininglimit; i++) {
+				double[] output = handwriting.test(training[i]);
+				double max = 0;
+				int guess = 0;
+				for (int j = 0; j < output.length; j++) {
+					if (max < output[j]) {
+						max = output[j];
+						guess = j;
 					}
-					break;
+				}
+
+				for (int j = 0; j < 10; j++) {
+					if (trainingCorrect[i][j] == 1.0) {
+//						System.out.println(j + " = " + guess);
+//						printNumber(i, trainingCorrect, training);
+						if (j == guess) {
+							trainingdataccuracy++;
+						}
+						break;
+					}
 				}
 			}
+			System.out.println(trainingdataccuracy / traininglimit);
 		}
-		System.out.println(trainingdataccuracy / traininglimit);
+
+	}
+
+	private static void printNumber(int j, double[][] solution, double[][] data) {
+		for (int i = 0; i < 10; i++) {
+			if (solution[j][i] == 1.0) {
+				System.out.println(i + " =");
+			}
+		}
+		for (int i = 0; i < 256; i++) {
+			if (data[j][i] == 1.0) {
+				System.out.print("*");
+			} else {
+				System.out.print(" ");
+			}
+			if ((i % 16 == 15)) {
+				System.out.println();
+			}
+		}
+
 	}
 
 	private static double extract(double[] correct) {
