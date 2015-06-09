@@ -73,25 +73,28 @@ public class Network {
 	}
 
 	/** Returns the network's output when inputs are fed in. */
-	public double test(double... inputs) {
+	public double[] test(double... inputs) {
 		setInputs(inputs);
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
 			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
 				hiddenNeurons[j][i].updateActivation();
 			}
 		}
+		//might need to make a second for loop
+		double[] activation = new double[output.length];
 		for (int i = 0; i < output.length; i++){
 			output[i].updateActivation();
+			activation[i] = output[i].getActivation();
 		}
-		return output[0].getActivation();
-		// TODO: make array
+		return activation;
 	}
 
 	/**
 	 * Trains the network to be more likely to associate the specified inputs
 	 * with the specified output.
 	 */
-	public void train(double correct, double... inputs) {
+	//TODO add a method to overload train, by inputing an array rather a single double
+	public void train(double correct, int index, double... inputs) {
 		//TODO: Train network on one output at a time. 
 		setInputs(inputs);
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
@@ -99,15 +102,40 @@ public class Network {
 				hiddenNeurons[j][i].updateActivation();
 			}
 		}
-		output[0].updateActivation();
-		output[0].updateDelta(correct);
+		output[index].updateActivation();
+		output[index].updateDelta(correct);
 		//TODO: Take output array into consideration
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
 			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
-				hiddenNeurons[j][i].updateDelta(output[0].getDelta(),
-						output[0].getWeights()[i + 1]);
+				hiddenNeurons[j][i].updateDelta(output[index].getDelta(),
+						output[index].getWeights()[i + 1]);
 			}
 			//TODO: FIX! D:
+		}
+		updateWeights();
+	}
+	
+	public void train(double correct[], double... inputs) {
+		//TODO: Train network on one output at a time. 
+		setInputs(inputs);
+		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
+			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
+				hiddenNeurons[j][i].updateActivation();
+			}
+		}
+		//might need to break into 2 different for loops
+		for(int i = 0; i < correct.length; i++){
+			output[i].updateActivation();
+			output[i].updateDelta(correct[i]);
+		}
+		
+		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
+			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
+				for(int k = 0; k < correct.length; k++){
+				hiddenNeurons[j][i].updateDelta(output[k].getDelta(),
+						output[k].getWeights()[i + 1]);
+				}
+			}
 		}
 		updateWeights();
 	}
