@@ -39,14 +39,15 @@ public class Experiment {
 
 		// Declare stuff
 		Network handwriting = new Network(256, 10, 1, 10);
-		int size = 800;
-		double[][] training = new double[size][256];
-		double[][] trainingCorrect = new double[size][10];
-		int updates = 10000, traininglimit = 800;
+		int size = 1593, traininglimit = 800, testnumber = size - traininglimit, updates = 10000;
+		double[][] training = new double[traininglimit][256];
+		double[][] trainingCorrect = new double[traininglimit][10];
+		double[][] testing = new double[testnumber][256];
+		double[][] testingCorrect = new double[testnumber][10];
 		Scanner reader = new Scanner(new File("HandwrittenNumbers.txt"));
 
 		// Input training data
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < traininglimit; i++) {
 			for (int j = 0; j < 256; j++) {
 				training[i][j] = reader.nextDouble();
 			}
@@ -54,13 +55,24 @@ public class Experiment {
 				trainingCorrect[i][j] = reader.nextDouble();
 			}
 		}
+		//Input testing data
+		for (int i = 0; i < testnumber; i++) {
+			for (int j = 0; j < 256; j++) {
+				testing[i][j] = reader.nextDouble();
+			}
+			for (int j = 0; j < 10; j++) {
+				testingCorrect[i][j] = reader.nextDouble();
+			}
+		}
+		
 		reader.close();
-
-		// Training
+		
 		for (int z = 0; z < updates; z++) {
+			// Training
 			int k = (int) (Math.random() * traininglimit);
 			handwriting.train(trainingCorrect[k], training[k]);
 
+			//Test training data to find guess
 			double trainingdataccuracy = 0;
 			for (int i = 0; i < traininglimit; i++) {
 				double[] output = handwriting.test(training[i]);
@@ -73,10 +85,9 @@ public class Experiment {
 					}
 				}
 
+				//See if guess matches correct answer
 				for (int j = 0; j < 10; j++) {
 					if (trainingCorrect[i][j] == 1.0) {
-//						System.out.println(j + " = " + guess);
-//						printNumber(i, trainingCorrect, training);
 						if (j == guess) {
 							trainingdataccuracy++;
 						}
@@ -84,7 +95,32 @@ public class Experiment {
 					}
 				}
 			}
-			System.out.println(trainingdataccuracy / traininglimit);
+			//System.out.println(trainingdataccuracy / traininglimit);
+			
+			//Test testing data to find guess
+			double testingaccuracy = 0;
+			for (int i = 0; i < testnumber; i++) {
+				double[] output = handwriting.test(testing[i]);
+				double max = 0;
+				int guess = 0;
+				for (int j = 0; j < output.length; j++) {
+					if (max < output[j]) {
+						max = output[j];
+						guess = j;
+					}
+				}
+
+				//See if guess matches correct answer
+				for (int j = 0; j < 10; j++) {
+					if (testingCorrect[i][j] == 1.0) {
+						if (j == guess) {
+							testingaccuracy++;
+						}
+						break;
+					}
+				}	
+			}
+			System.out.println(z + ":\t"+trainingdataccuracy / traininglimit +"\t"+ testingaccuracy / testnumber);
 		}
 
 	}
@@ -108,12 +144,4 @@ public class Experiment {
 
 	}
 
-	private static double extract(double[] correct) {
-		for (int i = 0; i < correct.length; i++) {
-			if ((int) correct[i] == 1) {
-				return i;
-			}
-		}
-		return -1;
-	}
 }
