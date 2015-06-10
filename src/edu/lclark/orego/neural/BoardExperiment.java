@@ -21,14 +21,16 @@ public class BoardExperiment {
 
 	private void run() {
 		boardSize = 5;
-		boardInputs = 2;
+		boardInputs = 4;
 		Network smallBoard = new Network(boardSize * boardSize * boardInputs,
 				10, 2, boardSize * boardSize);
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];
 		board = new Board(boardSize);
-		String[] before1 = { "...#.", ".....", ".....", ".....", ".....", };
+		String[] before1 = { ".....", ".....", ".....", ".....", ".....", };
 		board.setUpProblem(before1, BLACK);
+		board.play("a2");
+		board.play("b3");
 		Extractor extractor = new Extractor(board);
 		int p = 0; // place in training array
 		for (int row = 0; row < boardSize; row++) {
@@ -43,9 +45,23 @@ public class BoardExperiment {
 				p++;
 			}
 		}
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				training[0][p] = extractor.isUltimateMove(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				training[0][p] = extractor.isPenultimateMove(row, col);
+				p++;
+			}
+		}
 		trainingCorrect[0] = new double[] { 1, 8, 0, 23 };
-		String[] before2 = { ".#...", ".....", ".....", ".....", ".....", };
+		String[] before2 = { ".....", ".....", ".....", ".....", ".....", };
 		board.setUpProblem(before2, BLACK);
+		board.play("b3");
+		board.play("a2");
 		Extractor extractor2 = new Extractor(board);
 		p = 0; // place in training array
 		for (int row = 0; row < boardSize; row++) {
@@ -57,6 +73,18 @@ public class BoardExperiment {
 		for (int row = 0; row < boardSize; row++) {
 			for (int col = 0; col < boardSize; col++) {
 				training[1][p] = extractor2.isWhite(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				training[1][p] = extractor2.isUltimateMove(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				training[1][p] = extractor2.isPenultimateMove(row, col);
 				p++;
 			}
 		}
