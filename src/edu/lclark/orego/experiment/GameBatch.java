@@ -79,6 +79,9 @@ public final class GameBatch implements Runnable {
 
 	@Override
 	public void run() {
+		// This is necessary in case different batches are running on different file systems, e.g.,
+		// different Google Compute Engine instances
+		new File(resultsDirectory).mkdirs();
 		System.out.println("Running batch " + batchNumber + " on " + host);
 		for (final String conditionName : EXPERIMENT.conditions.keySet()) {
 			final String condition = EXPERIMENT.conditions.get(conditionName);
