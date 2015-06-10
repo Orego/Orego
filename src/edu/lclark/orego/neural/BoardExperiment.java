@@ -19,7 +19,7 @@ public class BoardExperiment {
 		boardSize = 5;
 		boardInputs = 2;
 		Network smallBoard = new Network(boardSize * boardSize * boardInputs,
-				boardSize * boardSize * boardInputs, 2, boardSize * boardSize);
+				1, 1, boardSize * boardSize);
 		// TODO make training sets & correct --> convert boards to arrays
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];
@@ -41,8 +41,8 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[0] = new double[] { 1, 8, 0, 23 };
-		//String[] before2 = { ".#...", "..O..", ".#...", ".....", "....O", };
-		String[] before2 = { "...O.", "..O.O", ".#...", ".#...", ".....", };
+		
+		String[] before2 = { ".#...", "..O..", ".#...", ".....", "....O", };
 		board.setUpProblem(before2, BLACK);
 		Extractor extractor2 = new Extractor(board);
 		p = 0; // place in training array
@@ -58,8 +58,8 @@ public class BoardExperiment {
 				p++;
 			}
 		}
-		//trainingCorrect[1] = new double[] { 1, 23, 0, 8 };
-		trainingCorrect[1] = new double[] { 1, 6, 0, 8 };
+		trainingCorrect[1] = new double[] { 1, 23, 0, 8 };
+		
 		String[] before3 = { "#....", "#....", ".....", "..OO.", ".....", };
 		board.setUpProblem(before3, BLACK);
 		Extractor extractor3 = new Extractor(board);
