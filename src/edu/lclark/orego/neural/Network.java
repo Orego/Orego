@@ -104,7 +104,6 @@ public class Network {
 		}
 		output[index].updateActivation();
 		output[index].updateDelta(correct);
-		//TODO: Take output array into consideration
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
 			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
 				hiddenNeurons[j][i].updateDelta(output[index].getDelta(),
@@ -116,7 +115,6 @@ public class Network {
 	}
 	
 	public void train(double correct[], double... inputs) {
-		//TODO: Train network on one output at a time. 
 		setInputs(inputs);
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
 			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
