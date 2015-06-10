@@ -63,6 +63,8 @@ public final class Broadcast {
 		final Process[] processes = new Process[hosts.size()];
 		for (int i = 0; i < hosts.size(); i++) {
 			final String host = hosts.get(i);
+			// Create results directory on host, which might be on a different file system
+			new ProcessBuilder("nohup", "ssh", host, "mkdir -p " + resultsDirectory).start();
 			System.out.println("Starting games on " + host);
 			// Do not insert spaces in the string "&>" -- bash treats that
 			// differently!
