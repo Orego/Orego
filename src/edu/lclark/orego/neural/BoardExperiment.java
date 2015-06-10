@@ -41,7 +41,8 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[0] = new double[] { 1, 8, 0, 23 };
-		String[] before2 = { ".#...", "..O..", ".#...", ".....", "....O", };
+		//String[] before2 = { ".#...", "..O..", ".#...", ".....", "....O", };
+		String[] before2 = { "...O.", "..O.O", ".#...", ".#...", ".....", };
 		board.setUpProblem(before2, BLACK);
 		Extractor extractor2 = new Extractor(board);
 		p = 0; // place in training array
@@ -57,8 +58,9 @@ public class BoardExperiment {
 				p++;
 			}
 		}
-		trainingCorrect[1] = new double[] { 1, 6, 0, 21 };
-		String[] before3 = { "....O", ".....", ".O...", "#.#..", ".....", };
+		//trainingCorrect[1] = new double[] { 1, 23, 0, 8 };
+		trainingCorrect[1] = new double[] { 1, 6, 0, 8 };
+		String[] before3 = { "#....", "#....", ".....", "..OO.", ".....", };
 		board.setUpProblem(before3, BLACK);
 		Extractor extractor3 = new Extractor(board);
 		p = 0; // place in training array
@@ -75,9 +77,9 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[2] = new double[] { 1, 16, 0, 19 };
-		int updates = 1000;
+		int updates = 10000;
 		for (int i = 0; i < updates; i++) {
-			int k = (int) (Math.random() * training.length);
+			int k = (int) (Math.random() * (training.length - 1));
 			smallBoard.train(trainingCorrect[k][0],
 					(int) trainingCorrect[k][1], training[k]);
 			smallBoard.train(trainingCorrect[k][2],
@@ -92,7 +94,7 @@ public class BoardExperiment {
 //				System.out.println();
 //			}
 		}
-		for (int z = 0; z < 3; z++) {
+		for (int z = 0; z < 2; z++) {
 			for (int j = 0; j < 25; j++) {
 				System.out.print(smallBoard.test(training[z])[j] + "\t");
 				if(j % 5  == 4){
@@ -102,32 +104,32 @@ public class BoardExperiment {
 			System.out.println();
 		}
 		System.out.println("--------------------------");
-		double [] test = new double[50];
-		String[] beforeTest = { ".....", "#.#..", ".O...", ".....", "....O", };
-		board.setUpProblem(beforeTest, BLACK);
-		Extractor extractorTest = new Extractor(board);
-		p = 0; // place in training array
-		for (int row = 0; row < boardSize; row++) {
-			for (int col = 0; col < boardSize; col++) {
-				test[p] = extractorTest.isBlack(row, col);
-				p++;
-			}
-		}
-		for (int row = 0; row < boardSize; row++) {
-			for (int col = 0; col < boardSize; col++) {
-				test[p] = extractorTest.isWhite(row, col);
-				p++;
-			}
-		}
-		for (int z = 0; z < 1; z++) {
-			for (int j = 0; j < 25; j++) {
-				System.out.print(smallBoard.test(test)[j] + "\t");
-				if(j % 5  == 4){
-					System.out.println();
-				}
-			}
-			System.out.println();
-		}
+//		double [] test = new double[50];
+//		String[] beforeTest = { ".....", "#.#..", ".O...", ".....", "....O", };
+//		board.setUpProblem(beforeTest, BLACK);
+//		Extractor extractorTest = new Extractor(board);
+//		p = 0; // place in training array
+//		for (int row = 0; row < boardSize; row++) {
+//			for (int col = 0; col < boardSize; col++) {
+//				test[p] = extractorTest.isBlack(row, col);
+//				p++;
+//			}
+//		}
+//		for (int row = 0; row < boardSize; row++) {
+//			for (int col = 0; col < boardSize; col++) {
+//				test[p] = extractorTest.isWhite(row, col);
+//				p++;
+//			}
+//		}
+//		for (int z = 0; z < 1; z++) {
+//			for (int j = 0; j < 25; j++) {
+//				System.out.print(smallBoard.test(test)[j] + "\t");
+//				if(j % 5  == 4){
+//					System.out.println();
+//				}
+//			}
+//			System.out.println();
+//		}
 
 	}
 
