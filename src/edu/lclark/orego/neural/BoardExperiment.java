@@ -5,36 +5,31 @@ import edu.lclark.orego.core.Board;
 
 public class BoardExperiment {
 
-	private Board board;
+	public static void main(String[] args) {
+		new BoardExperiment().run();
+	}
 
-	private int boardSize;
+	private Board board;
 
 	private int boardInputs;
 
-	public static void main(String[] args) {
-		new BoardExperiment().run();
+	private int boardSize;
+
+	BoardExperiment() {
+		board = new Board(boardSize);
 	}
 
 	private void run() {
 		boardSize = 5;
 		boardInputs = 2;
 		Network smallBoard = new Network(boardSize * boardSize * boardInputs,
-				1, 1, boardSize * boardSize);
-		// TODO make training sets & correct --> convert boards to arrays
+				10, 2, boardSize * boardSize);
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];
 		board = new Board(boardSize);
-		String[] before1 = {
-				"...#.",
-				"...O.",
-				".....",
-				".....",
-				".....",
-		};
+		String[] before1 = { "...#.", ".....", ".....", ".....", ".....", };
 		board.setUpProblem(before1, BLACK);
 		Extractor extractor = new Extractor(board);
-//		String boardS = board.toString();
-//		System.out.println(boardS);
 		int p = 0; // place in training array
 		for (int row = 0; row < boardSize; row++) {
 			for (int col = 0; col < boardSize; col++) {
@@ -49,17 +44,7 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[0] = new double[] { 1, 8, 0, 23 };
-//		for (int i = 0; i < p; i++){
-//			System.out.println(i + " " + training[0][i]);
-//		}
-		
-		String[] before2 = {
-				".#...",
-				".O...",
-				".....",
-				".....",
-				".....",
-		};
+		String[] before2 = { ".#...", ".....", ".....", ".....", ".....", };
 		board.setUpProblem(before2, BLACK);
 		Extractor extractor2 = new Extractor(board);
 		p = 0; // place in training array
@@ -76,7 +61,7 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[1] = new double[] { 1, 23, 0, 8 };
-		
+
 		String[] before3 = { "#....", "#....", ".....", "..OO.", ".....", };
 		board.setUpProblem(before3, BLACK);
 		Extractor extractor3 = new Extractor(board);
@@ -101,59 +86,26 @@ public class BoardExperiment {
 					(int) trainingCorrect[k][1], training[k]);
 			smallBoard.train(trainingCorrect[k][2],
 					(int) trainingCorrect[k][3], training[k]);
-//			for (int z = 0; z < 3; z++) {
-//				for (int j = 0; j < 25; j++) {
-//					System.out.print(smallBoard.test(training[z])[j] + "\t");
-//					if(j % 5  == 4){
-//						System.out.println();
-//					}
-//				}
-//				System.out.println();
-//			}
-//			System.out.println("---");
+			// for (int z = 0; z < 3; z++) {
+			// for (int j = 0; j < 25; j++) {
+			// System.out.print(smallBoard.test(training[z])[j] + "\t");
+			// if(j % 5 == 4){
+			// System.out.println();
+			// }
+			// }
+			// System.out.println();
+			// }
+			// System.out.println("---");
 		}
 		for (int z = 0; z < 2; z++) {
 			for (int j = 0; j < 25; j++) {
 				System.out.print(smallBoard.test(training[z])[j] + "\t");
-				if(j % 5  == 4){
+				if (j % 5 == 4) {
 					System.out.println();
 				}
 			}
 			System.out.println();
 		}
-		System.out.println("--------------------------");
-//		double [] test = new double[50];
-//		String[] beforeTest = { ".....", "#.#..", ".O...", ".....", "....O", };
-//		board.setUpProblem(beforeTest, BLACK);
-//		Extractor extractorTest = new Extractor(board);
-//		p = 0; // place in training array
-//		for (int row = 0; row < boardSize; row++) {
-//			for (int col = 0; col < boardSize; col++) {
-//				test[p] = extractorTest.isBlack(row, col);
-//				p++;
-//			}
-//		}
-//		for (int row = 0; row < boardSize; row++) {
-//			for (int col = 0; col < boardSize; col++) {
-//				test[p] = extractorTest.isWhite(row, col);
-//				p++;
-//			}
-//		}
-//		for (int z = 0; z < 1; z++) {
-//			for (int j = 0; j < 25; j++) {
-//				System.out.print(smallBoard.test(test)[j] + "\t");
-//				if(j % 5  == 4){
-//					System.out.println();
-//				}
-//			}
-//			System.out.println();
-//		}
-
-	}
-
-	BoardExperiment() {
-		board = new Board(boardSize);
-
 	}
 
 }
