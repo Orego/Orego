@@ -143,7 +143,6 @@ public class Network {
 		for(int i = 0; i < output.length; i++){
 			output[i].updateWeights();
 		}
-		//TODO: fix output
 		for (int j = 0; hiddenNeurons != null && j < hiddenNeurons.length; j++ ){
 			for (int i = 0; hiddenNeurons != null && i < hiddenNeurons[j].length; i++) {
 				hiddenNeurons[j][i].updateWeights();

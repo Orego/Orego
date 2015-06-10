@@ -7,6 +7,9 @@ import java.util.Scanner;
 public class Experiment {
 
 	public static void main(String[] args) throws FileNotFoundException {
+		
+		
+		
 		// Network or = new Network();
 		// double[][] training = {{0,0}, {1,0}, {0,1}, {1,1}};
 		// double[] trainingCorrect = {0, 1, 1, 1};

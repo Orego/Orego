@@ -23,10 +23,18 @@ public class BoardExperiment {
 		// TODO make training sets & correct --> convert boards to arrays
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];
-
-		String[] before1 = { "...#.", "..O..", "...#.", ".....", "O....", };
+		board = new Board(boardSize);
+		String[] before1 = {
+				"...#.",
+				"...O.",
+				".....",
+				".....",
+				".....",
+		};
 		board.setUpProblem(before1, BLACK);
 		Extractor extractor = new Extractor(board);
+//		String boardS = board.toString();
+//		System.out.println(boardS);
 		int p = 0; // place in training array
 		for (int row = 0; row < boardSize; row++) {
 			for (int col = 0; col < boardSize; col++) {
@@ -41,8 +49,17 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[0] = new double[] { 1, 8, 0, 23 };
+//		for (int i = 0; i < p; i++){
+//			System.out.println(i + " " + training[0][i]);
+//		}
 		
-		String[] before2 = { ".#...", "..O..", ".#...", ".....", "....O", };
+		String[] before2 = {
+				".#...",
+				".O...",
+				".....",
+				".....",
+				".....",
+		};
 		board.setUpProblem(before2, BLACK);
 		Extractor extractor2 = new Extractor(board);
 		p = 0; // place in training array
@@ -77,7 +94,7 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[2] = new double[] { 1, 16, 0, 19 };
-		int updates = 10000;
+		int updates = 1000;
 		for (int i = 0; i < updates; i++) {
 			int k = (int) (Math.random() * (training.length - 1));
 			smallBoard.train(trainingCorrect[k][0],
@@ -93,6 +110,7 @@ public class BoardExperiment {
 //				}
 //				System.out.println();
 //			}
+//			System.out.println("---");
 		}
 		for (int z = 0; z < 2; z++) {
 			for (int j = 0; j < 25; j++) {
