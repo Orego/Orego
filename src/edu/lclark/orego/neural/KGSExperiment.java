@@ -41,9 +41,9 @@ public class KGSExperiment {
 		for(int i = 0; i < day.length; i++){
 			for(int j = 0; j < day[i]; j++){
 				if(i < 9){
-					games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-0" + (i + 1) +"-" + (j + 1) + ".sgf"), 200));
+					games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-0" + (i + 1) +"-" + (j + 1) + ".sgf"), 20));
 				}else{
-					games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-" + (i + 1) +"-" + (j + 1) + ".sgf"), 200));
+					games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-" + (i + 1) +"-" + (j + 1) + ".sgf"), 20));
 				}
 			}
 		}
@@ -92,8 +92,10 @@ public class KGSExperiment {
 			}
 			System.out.println();
 		*/
+		
 		double[][] training = new double[y][19 * 19 * 4];
 		double[][] trainingCorrect = new double[y][4];
+		int gameNumber = 0;
 		for (final List<Short> game : games) {
 			int k = 0;
 			for (final Short move : game) {
@@ -129,17 +131,19 @@ public class KGSExperiment {
 				trainingCorrect[k] = new double[] {
 						index(coords.row(move), coords.column(move)),
 						index(coords.row(rand), coords.column(rand)) };
+				System.out.println("Game " + (gameNumber + 1)+  ", Move " + (k + 1) + ": "+ trainingCorrect[k][0]+ ", "+trainingCorrect[k][1]);
 				if(trainingCorrect[k][1] < 0){
 					break;
 				}
-				System.out.println(trainingCorrect[k][0]+ ", "+trainingCorrect[k][1]);
+				//System.out.println(trainingCorrect[k][0]+ ", "+trainingCorrect[k][1]);
 				net.train(1, (int) trainingCorrect[k][0], training[k]);
 				net.train(0, (int) trainingCorrect[k][1], training[k]);
 				k++;
 			}
+			gameNumber++;
 		}
 		
-		for(int i = 0; i <1000; i++){
+		for(int i = 0; i <10000; i++){
 			int k = (int) (y * Math.random());
 			net.train(1, (int) trainingCorrect[k][0], training[k]);
 			net.train(0, (int) trainingCorrect[k][1], training[k]);
