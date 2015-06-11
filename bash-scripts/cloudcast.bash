@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# NOTE: Before starting, the latest code should be in the cloud branch on GitHub.
+
 # Get the root persistent disk orego-instance up-to-date with the latest code from GitHub
 gcloud compute instances create broadcast --disk name=orego-instance,boot=yes
 gcloud compute ssh --ssh-flag="-A" broadcast <<REMOTE

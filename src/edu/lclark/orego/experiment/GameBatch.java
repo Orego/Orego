@@ -5,6 +5,7 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 import static java.io.File.separator;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -77,6 +78,20 @@ public final class GameBatch implements Runnable {
 		this.resultsDirectory = resultsDirectory;
 	}
 
+	void copyFilesToBroadcastNode() {
+		try {
+			for (final File f : new File(resultsDirectory).listFiles()) {
+				// TODO The name of the broadcast host should be a constant
+				// somewhere
+				new ProcessBuilder("nohup", "scp", f.getPath(), "broadcast:"
+						+ f.getPath()).start();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
 	@Override
 	public void run() {
 		System.out.println("Running batch " + batchNumber + " on " + host);
@@ -95,6 +110,7 @@ public final class GameBatch implements Runnable {
 			runGames(EXPERIMENT.gnugo, orego);
 		}
 		System.out.println("Done running batch " + batchNumber + " on " + host);
+		copyFilesToBroadcastNode();
 	}
 
 	/** Runs several games with the specified black and white players. */
