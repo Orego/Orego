@@ -107,7 +107,7 @@ public class BoardExperiment {
 			}
 		}
 		trainingCorrect[2] = new double[] { 1, 16, 0, 19 };
-		int updates = 1000;
+		int updates = 10000;
 		for (int i = 0; i < updates; i++) {
 			int k = (int) (Math.random() * (training.length - 1));
 			smallBoard.train(trainingCorrect[k][0],

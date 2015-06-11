@@ -32,54 +32,28 @@ public class KGSExperiment {
 	}
 
 	private void run() {
+		
 		final List<List<Short>> games = parser.parseGamesFromFile(new File(
 				"sgf-test-files/19/1977-02-27.sgf"), 179);
-		int i = 0;
-		Network net = new Network(19 * 19 * 4, 19 * 19, 1, 19 * 19);
-		double[][] training = new double[180][19 * 19 * 4];
-		double[][] trainingCorrect = new double[180][4];
-
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-1.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-10.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-2.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-3.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-4.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-5.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-6.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-7.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-8.sgf"), 200));
+		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-9.sgf"), 200));
+		int y = 0;
 		for (final List<Short> game : games) {
-			int k = 0;
 			for (final Short move : game) {
-				board.play(move);
-				int p = 0; // place in training array
-				Extractor extractor = new Extractor(board);
-				for (int row = 0; row < 19; row++) {
-					for (int col = 0; col < 19; col++) {
-						training[k][p] = extractor.isBlack(row, col);
-						p++;
-					}
-				}
-				for (int row = 0; row < 19; row++) {
-					for (int col = 0; col < 19; col++) {
-						training[k][p] = extractor.isWhite(row, col);
-						p++;
-					}
-				}
-				for (int row = 0; row < 19; row++) {
-					for (int col = 0; col < 19; col++) {
-						training[k][p] = extractor.isUltimateMove(row, col);
-						p++;
-					}
-				}
-				for (int row = 0; row < 19; row++) {
-					for (int col = 0; col < 19; col++) {
-						training[k][p] = extractor.isPenultimateMove(row, col);
-						p++;
-					}
-				}
-				short rand = selectRandomMove(move);
-				trainingCorrect[k] = new double[] {
-						index(coords.row(move), coords.column(move)),
-						index(coords.row(rand), coords.column(rand)) };
-				// System.out.println(trainingCorrect[k][0]);
-				net.train(1, (int) trainingCorrect[k][0], training[k]);
-				net.train(0, (int) trainingCorrect[k][1], training[k]);
-				k++;
+				y++;
 			}
-			break;
 		}
+		System.out.println(y);
+		Network net = new Network(19 * 19 * 4, 19 * 19, 1, 19 * 19);
+		/*
 		board = obviousTest();
 		double[] testObvious = new double[19 * 19 * 4];
 		Extractor extractor = new Extractor(board);
@@ -116,6 +90,94 @@ public class KGSExperiment {
 				}
 			}
 			System.out.println();
+		*/
+		double[][] training = new double[y][19 * 19 * 4];
+		double[][] trainingCorrect = new double[y][4];
+		for (final List<Short> game : games) {
+			int k = 0;
+			for (final Short move : game) {
+				
+				board.play(move);
+				int p = 0; // place in training array
+				Extractor extractor = new Extractor(board);
+				for (int row = 0; row < 19; row++) {
+					for (int col = 0; col < 19; col++) {
+						training[k][p] = extractor.isBlack(row, col);
+						p++;
+					}
+				}
+				for (int row = 0; row < 19; row++) {
+					for (int col = 0; col < 19; col++) {
+						training[k][p] = extractor.isWhite(row, col);
+						p++;
+					}
+				}
+				for (int row = 0; row < 19; row++) {
+					for (int col = 0; col < 19; col++) {
+						training[k][p] = extractor.isUltimateMove(row, col);
+						p++;
+					}
+				}
+				for (int row = 0; row < 19; row++) {
+					for (int col = 0; col < 19; col++) {
+						training[k][p] = extractor.isPenultimateMove(row, col);
+						p++;
+					}
+				}
+				short rand = selectRandomMove(move);
+				trainingCorrect[k] = new double[] {
+						index(coords.row(move), coords.column(move)),
+						index(coords.row(rand), coords.column(rand)) };
+				// System.out.println(trainingCorrect[k][0]);
+				net.train(1, (int) trainingCorrect[k][0], training[k]);
+				net.train(0, (int) trainingCorrect[k][1], training[k]);
+				k++;
+			}
+		}
+		
+		for(int i = 0; i <10000; i++){
+			int k = (int) (y * Math.random());
+			net.train(1, (int) trainingCorrect[k][0], training[k]);
+			net.train(0, (int) trainingCorrect[k][1], training[k]);
+		}
+		
+		board = obviousTest();
+		double[] testObvious = new double[19 * 19 * 4];
+		Extractor extractor = new Extractor(board);
+		int p = 0;
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isBlack(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isWhite(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isUltimateMove(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isPenultimateMove(row, col);
+				p++;
+			}
+		}
+		net.test(testObvious);
+			for (int j = 0; j < 19 * 19; j++) {
+				System.out.print(net.test(testObvious)[j] + "\t");
+				if (j % 19 == 18) {
+					System.out.println();
+				}
+			}
+			System.out.println();
+			
 	}
 
 	public KGSExperiment() {

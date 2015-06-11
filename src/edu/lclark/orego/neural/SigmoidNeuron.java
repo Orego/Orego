@@ -4,7 +4,7 @@ package edu.lclark.orego.neural;
 public class SigmoidNeuron implements Neuron {
 
 	/** Learning rate used in updating weights. */
-	public static final double LEARNING_RATE = 1.0;
+	public static final double LEARNING_RATE = .01;
 
 	public static final double MAX_INITIAL_WEIGHT = 1.0;
 
