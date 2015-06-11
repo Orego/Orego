@@ -64,7 +64,7 @@ public final class Broadcast {
 		for (int i = 0; i < hosts.size(); i++) {
 			final String host = hosts.get(i);
 			// Create results directory on host, which might be on a different file system
-			new ProcessBuilder("nohup", "ssh", host, "mkdir -p " + resultsDirectory).start().waitFor();
+			new ProcessBuilder("nohup", "ssh", host, "-o StrictHostKeyChecking=no", "-o UserKnownHostsFile=/dev/null", "mkdir -p " + resultsDirectory).start().waitFor();
 			System.out.println("Starting games on " + host);
 			// Do not insert spaces in the string "&>" -- bash treats that
 			// differently!
@@ -74,7 +74,7 @@ public final class Broadcast {
 					+ resultsDirectory + "&>" + resultsDirectory + host
 					+ ".batch";
 			final ProcessBuilder builder = new ProcessBuilder("nohup", "ssh",
-					host, command, "&");
+					host, "-o StrictHostKeyChecking=no", "-o UserKnownHostsFile=/dev/null", command, "&");
 			builder.redirectErrorStream(true);
 			processes[i] = builder.start();
 			new Thread(new ProcessTattler(processes[i])).start();
