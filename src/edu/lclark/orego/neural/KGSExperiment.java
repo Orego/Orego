@@ -37,23 +37,22 @@ public class KGSExperiment {
 		
 		final List<List<Short>> games = parser.parseGamesFromFile(new File(
 				"sgf-test-files/19/1977-02-27.sgf"), 179);
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-1.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-10.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-2.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-3.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-4.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-5.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-6.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-7.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-8.sgf"), 200));
-		games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-01-9.sgf"), 200));
+		int[] day = {10, 15, 16, 25, 13, 16, 6, 23, 12, 17, 15, 25, 17, 14, 20, 6, 13, 24, 21, 20, 24, 27, 3, 6, 12, 12, 17, 23, 30, 38, 34};
+		for(int i = 0; i < day.length; i++){
+			for(int j = 0; j < day[i]; j++){
+				if(i < 9){
+					games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-0" + (i + 1) +"-" + (j + 1) + ".sgf"), 200));
+				}else{
+					games.addAll(parser.parseGamesFromFile(new File ("kgs-19-2015-05-new/2015-05-" + (i + 1) +"-" + (j + 1) + ".sgf"), 200));
+				}
+			}
+		}
 		int y = 0;
 		for (final List<Short> game : games) {
 			for (final Short move : game) {
 				y++;
 			}
 		}
-		System.out.println(y);
 		Network net = new Network(19 * 19 * 4, 19 * 19, 1, 19 * 19);
 		/*
 		board = obviousTest();
@@ -130,14 +129,17 @@ public class KGSExperiment {
 				trainingCorrect[k] = new double[] {
 						index(coords.row(move), coords.column(move)),
 						index(coords.row(rand), coords.column(rand)) };
-				// System.out.println(trainingCorrect[k][0]);
+				if(trainingCorrect[k][1] < 0){
+					break;
+				}
+				System.out.println(trainingCorrect[k][0]+ ", "+trainingCorrect[k][1]);
 				net.train(1, (int) trainingCorrect[k][0], training[k]);
 				net.train(0, (int) trainingCorrect[k][1], training[k]);
 				k++;
 			}
 		}
 		
-		for(int i = 0; i <10000; i++){
+		for(int i = 0; i <1000; i++){
 			int k = (int) (y * Math.random());
 			net.train(1, (int) trainingCorrect[k][0], training[k]);
 			net.train(0, (int) trainingCorrect[k][1], training[k]);
