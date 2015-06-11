@@ -8,6 +8,8 @@ import static edu.lclark.orego.util.TestingTools.asOneString;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import edu.lclark.orego.patterns.PatternExtractor.*;
@@ -171,7 +173,7 @@ public class KGSExperiment {
 		}
 		net.test(testObvious);
 			for (int j = 0; j < 19 * 19; j++) {
-				System.out.print(net.test(testObvious)[j] + "\t");
+				System.out.print(round(net.test(testObvious)[j], 5) + "\t");
 				if (j % 19 == 18) {
 					System.out.println();
 				}
@@ -180,6 +182,14 @@ public class KGSExperiment {
 			
 	}
 
+	public static double round(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal bd = new BigDecimal(value);
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
+	}
+	
 	public KGSExperiment() {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
