@@ -4,7 +4,7 @@
 
 # Get the root persistent disk orego-instance up-to-date with the latest code from GitHub
 gcloud compute instances create broadcast --disk name=orego-instance,boot=yes
-gcloud compute ssh --ssh-flag="-A" broadcast <<REMOTE
+gcloud compute ssh --ssh-flag="-AT" broadcast <<REMOTE
 cd Orego
 git pull origin cloud
 ./build-all.sh
@@ -23,6 +23,6 @@ gcloud compute instances create instance2 --image exp1-image --machine-type n1-h
 # Tell the broadcast instance to launch the experiment across the other instances
 eval `ssh-agent`
 ssh-add ~/.ssh/google_compute_engine
-gcloud compute ssh --ssh-flag="-A" broadcast <<REMOTE
+gcloud compute ssh --ssh-flag="-AT" broadcast <<REMOTE
 ./broadcast.bash
 REMOTE
