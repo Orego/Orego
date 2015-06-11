@@ -4,6 +4,8 @@
 
 # Get the root persistent disk orego-instance up-to-date with the latest code from GitHub
 gcloud compute instances create broadcast --disk name=orego-instance,boot=yes
+eval `ssh-agent`
+ssh-add ~/.ssh/google_compute_engine
 gcloud compute ssh --ssh-flag="-AT" broadcast <<REMOTE
 cd Orego
 git pull origin cloud
