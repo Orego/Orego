@@ -6,11 +6,7 @@
 gcloud compute instances create broadcast --disk name=orego-instance,boot=yes
 eval `ssh-agent`
 ssh-add ~/.ssh/google_compute_engine
-gcloud compute ssh --ssh-flag="-AT" broadcast <<REMOTE
-cd Orego
-git pull origin cloud
-./build-all.sh
-REMOTE
+gcloud compute ssh --ssh-flag="-AT" broadcast ./update
 gcloud compute instances delete broadcast --quiet
 
 # Create an image from that disk
