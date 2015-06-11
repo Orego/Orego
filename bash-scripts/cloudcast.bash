@@ -9,10 +9,10 @@ cd Orego
 git pull origin cloud
 ./build-all.sh
 REMOTE
-gcloud compute instances delete broadcast
+gcloud compute instances delete broadcast --quiet
 
 # Create an image from that disk
-gcloud compute images delete exp1-image
+gcloud compute images delete exp1-image --quiet
 gcloud compute images create exp1-image --source-disk orego-instance
 
 # Create the instances
