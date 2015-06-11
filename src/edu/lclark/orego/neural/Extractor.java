@@ -16,6 +16,10 @@ public class Extractor {
 		historyObserver = new HistoryObserver(board);
 	}
 
+	public void changeBoard(Board b) {
+		board = b;
+	}
+
 	/**
 	 * Returns 1 if there is a black stone at specified coordinates, otherwise
 	 * 0.
@@ -29,6 +33,40 @@ public class Extractor {
 			return 0;
 		}
 		if (board.getColorAt(coords.at(row, col)) == BLACK) {
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * Returns 1 if the specified coordinate is off the board, otherwise 0.
+	 */
+	public double isOffBoard(int row, int col) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if ((!coords.isValidOneDimensionalCoordinate(col))
+				|| (!coords.isValidOneDimensionalCoordinate(row))) {
+			return 1;
+		}
+		return 0;
+	}
+
+	public double isPenultimateMove(int row, int col) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if (board.getTurn() < 2) {
+			return 0;
+		}
+		if (historyObserver.get((board.getTurn() - 2)) == coords.at(row, col)) {
+			return 1;
+		}
+		return 0;
+	}
+
+	public double isUltimateMove(int row, int col) {
+		CoordinateSystem coords = board.getCoordinateSystem();
+		if (board.getTurn() < 1) {
+			return 0;
+		}
+		if (historyObserver.get(board.getTurn() - 1) == coords.at(row, col)) {
 			return 1;
 		}
 		return 0;
@@ -51,40 +89,5 @@ public class Extractor {
 		}
 		return 0;
 	}
-
-	/**
-	 * Returns 1 if the specified coordinate is off the board, otherwise 0.
-	 */
-	public double isOffBoard(int row, int col) {
-		CoordinateSystem coords = board.getCoordinateSystem();
-		if ((!coords.isValidOneDimensionalCoordinate(col))
-				|| (!coords.isValidOneDimensionalCoordinate(row))) {
-			return 1;
-		}
-		return 0;
-	}
-	
-	public double isUltimateMove(int row, int col) {
-		CoordinateSystem coords = board.getCoordinateSystem();
-		if (board.getTurn() < 1){
-			return 0;
-		}
-		if (historyObserver.get(board.getTurn() - 1) == coords.at(row, col)){
-			return 1;
-		}
-		return 0;
-	}
-	
-	public double isPenultimateMove(int row, int col) {
-		CoordinateSystem coords = board.getCoordinateSystem();
-		if (board.getTurn() < 2){
-			return 0;
-		}
-		if (historyObserver.get((board.getTurn() - 2)) == coords.at(row, col)){
-			return 1;
-		}
-		return 0;
-	}
-	
 
 }

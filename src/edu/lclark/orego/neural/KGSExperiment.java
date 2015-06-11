@@ -2,7 +2,10 @@ package edu.lclark.orego.neural;
 
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
+import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.move.Mover.PRIMES;
+import static edu.lclark.orego.util.TestingTools.asOneString;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.List;
@@ -16,13 +19,12 @@ import edu.lclark.orego.util.ShortSet;
 
 public class KGSExperiment {
 
-	
 	private SgfParser parser;
 
 	private Board board;
 
 	private CoordinateSystem coords;
-	
+
 	private final MersenneTwisterFast random;
 
 	public static void main(String[] args) {
@@ -33,11 +35,10 @@ public class KGSExperiment {
 		final List<List<Short>> games = parser.parseGamesFromFile(new File(
 				"sgf-test-files/19/1977-02-27.sgf"), 179);
 		int i = 0;
-
 		Network net = new Network(19 * 19 * 4, 19 * 19, 1, 19 * 19);
-		double[][] training = new double[179][19 * 19 * 4];
-		double[][] trainingCorrect = new double[179][4];
-		
+		double[][] training = new double[180][19 * 19 * 4];
+		double[][] trainingCorrect = new double[180][4];
+
 		for (final List<Short> game : games) {
 			int k = 0;
 			for (final Short move : game) {
@@ -68,22 +69,66 @@ public class KGSExperiment {
 						p++;
 					}
 				}
-				trainingCorrect[k] = new double[] {move, selectRandomMove(move)};
-				System.out.println(trainingCorrect[k][0]);
+				short rand = selectRandomMove(move);
+				trainingCorrect[k] = new double[] {
+						index(coords.row(move), coords.column(move)),
+						index(coords.row(rand), coords.column(rand)) };
+				// System.out.println(trainingCorrect[k][0]);
 				net.train(1, (int) trainingCorrect[k][0], training[k]);
 				net.train(0, (int) trainingCorrect[k][1], training[k]);
 				k++;
 			}
+			break;
 		}
+		board = obviousTest();
+		double[] testObvious = new double[19 * 19 * 4];
+		Extractor extractor = new Extractor(board);
+		int p = 0;
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isBlack(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isWhite(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isUltimateMove(row, col);
+				p++;
+			}
+		}
+		for (int row = 0; row < 19; row++) {
+			for (int col = 0; col < 19; col++) {
+				testObvious[p] = extractor.isPenultimateMove(row, col);
+				p++;
+			}
+		}
+		net.test(testObvious);
+			for (int j = 0; j < 19 * 19; j++) {
+				System.out.print(net.test(testObvious)[j] + "\t");
+				if (j % 19 == 18) {
+					System.out.println();
+				}
+			}
+			System.out.println();
 	}
-	
+
 	public KGSExperiment() {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
 		parser = new SgfParser(coords, true);
 		random = new MersenneTwisterFast();
 	}
-	
+
+	private int index(int row, int col) {
+		return 19 * row + col;
+	}
+
 	short selectRandomMove(short move) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short) (random.nextInt(vacantPoints.size()));
@@ -103,4 +148,31 @@ public class KGSExperiment {
 		return PASS;
 	}
 
+	private Board obviousTest() {
+		Board test = new Board(19);
+		String[] before = { "...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "......O............",
+				"....O##O...........", ".....OO............",
+				"...................", };
+		test.setUpProblem(before, WHITE);
+		test.play("e4");
+		test.play("f4");
+		String[] after = { "...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "...................",
+				"...................", "....O#O............",
+				"....O##O...........", ".....OO............",
+				"...................", };
+		return test;
+	}
 }
