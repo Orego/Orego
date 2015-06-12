@@ -83,7 +83,7 @@ public final class GameBatch implements Runnable {
 			for (final File f : new File(resultsDirectory).listFiles()) {
 				// TODO The name of the broadcast host should be a constant
 				// somewhere
-				new ProcessBuilder("nohup", "scp", f.getPath(), "broadcast:"
+				new ProcessBuilder("nohup", "scp", "-o UserKnownHostsFile=/dev/null", "-o StrictHostKeyChecking=no f.getPath()", "broadcast:"
 						+ f.getPath()).start();
 			}
 		} catch (IOException e) {
