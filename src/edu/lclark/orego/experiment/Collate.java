@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
@@ -63,6 +64,7 @@ public final class Collate {
 	 * and stdout.
 	 */
 	private void collate(File directory) {
+		copyFilesFromOtherNodes(directory);
 		File mostRecent = directory;
 		do {
 			directory = mostRecent;
@@ -78,6 +80,29 @@ public final class Collate {
 		produceSummary(directory);
 	}
 
+	/**
+	 * Copies files from other nodes (e.g., Google Compute Engine instances).
+	 */
+	private static void copyFilesFromOtherNodes(File directory) {
+		try {
+			final List<String> hosts = SYSTEM.hosts;
+			for (int i = 0; i < hosts.size(); i++) {
+				final String host = hosts.get(i);
+				final ProcessBuilder builder = new ProcessBuilder("scp",
+						"-o UserKnownHostsFile=/dev/null",
+						"-o StrictHostKeyChecking=no", host + ":"
+								+ directory.getPath() + "/*",
+						directory.getPath());
+				builder.redirectErrorStream(true);
+				final Process p = builder.start();
+				p.waitFor();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
 	/** Extracts data from an SGF file and updates fields. */
 	private void extractData(File file) {
 		char oregoColor = ' ';

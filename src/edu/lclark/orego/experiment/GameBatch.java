@@ -77,23 +77,6 @@ public final class GameBatch implements Runnable {
 		}
 		this.resultsDirectory = resultsDirectory;
 	}
-
-	void copyFilesToBroadcastNode() {
-		try {
-			for (final File f : new File(resultsDirectory).listFiles()) {
-				// TODO The name of the broadcast host should be a constant
-				// somewhere
-				ProcessBuilder builder = new ProcessBuilder("nohup", "scp", "-o UserKnownHostsFile=/dev/null", "-o StrictHostKeyChecking=no", f.getPath(), "broadcast:"
-						+ f.getPath());
-				builder.redirectErrorStream(true);
-				Process p = builder.start();
-				new Thread(new ProcessTattler(p)).start();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
 	
 	@Override
 	public void run() {
@@ -113,7 +96,6 @@ public final class GameBatch implements Runnable {
 			runGames(EXPERIMENT.gnugo, orego);
 		}
 		System.out.println("Done running batch " + batchNumber + " on " + host);
-		copyFilesToBroadcastNode();
 	}
 
 	/** Runs several games with the specified black and white players. */
