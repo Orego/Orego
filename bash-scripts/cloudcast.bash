@@ -20,6 +20,8 @@ gcloud compute instances create instance2 --image exp1-image --machine-type n1-h
 sleep 30s
 
 # Tell the broadcast instance to launch the experiment across the other instances
+eval `ssh-agent`
+ssh-add ~/.ssh/google_compute_engine
 gcloud compute ssh --ssh-flag="-A" broadcast <<REMOTE
 ./broadcast.bash
 REMOTE
