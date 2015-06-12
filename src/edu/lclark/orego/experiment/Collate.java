@@ -64,7 +64,6 @@ public final class Collate {
 	 * and stdout.
 	 */
 	private void collate(File directory) {
-		copyFilesFromOtherNodes(directory);
 		File mostRecent = directory;
 		do {
 			directory = mostRecent;
@@ -76,6 +75,7 @@ public final class Collate {
 				}
 			}
 		} while (mostRecent.isDirectory());
+		copyFilesFromOtherNodes(directory);
 		prepare(directory);
 		produceSummary(directory);
 	}
