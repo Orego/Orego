@@ -86,8 +86,10 @@ public final class Collate {
 	private static void copyFilesFromOtherNodes(File directory) {
 		try {
 			final List<String> hosts = SYSTEM.hosts;
+			System.out.println("Directory: " + directory.getPath());
 			for (int i = 0; i < hosts.size(); i++) {
 				final String host = hosts.get(i);
+				System.out.println("Copying files from " + host);
 				final ProcessBuilder builder = new ProcessBuilder("scp",
 						"-o UserKnownHostsFile=/dev/null",
 						"-o StrictHostKeyChecking=no", host + ":"
