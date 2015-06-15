@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/** Holds system-dependent properties, e.g., classpath. */
-enum SystemConfiguration {
+/** Holds system-dependent properties, e.g., classpath. This is an enum implementing a singleton (see Effective Java, pp. 17-18). */
+public enum SystemConfiguration {
 
 	/** Name of the singleton instance. */
 	SYSTEM;
 
+	/** Directory storing expert games for learning on this machine. */
+	final String expertGamesDirectory;
+	
 	/** Command to run GNUGo. */
 	final String gnugoHome;
 
@@ -55,6 +58,12 @@ enum SystemConfiguration {
 				hosts.add((String) properties.get(s));
 			}
 		}
+		expertGamesDirectory = properties.getProperty("expertGamesDirectory");
+	}
+
+	/** Returns the directory storing expert games for learning on this machine. */
+	public String getExpertGamesDirectory() {
+		return expertGamesDirectory;
 	}
 
 }

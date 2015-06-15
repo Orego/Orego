@@ -1,5 +1,6 @@
 package edu.lclark.orego.neural;
 
+import static edu.lclark.orego.experiment.SystemConfiguration.*;
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.StoneColor.WHITE;
@@ -68,109 +69,129 @@ public class KGSExperiment {
 		return test;
 	}
 
+	/**
+	 * Analyze file, modifying smallMap and bigMap. If file is a directory,
+	 * recursively analyze everything in it.
+	 */
+	void processFiles(File file) {
+		if (file.isDirectory()) {
+			System.out.println("Analyzing files in " + file.getName());
+			for (final File tempFile : file.listFiles()) {
+				processFiles(tempFile);
+			}
+		} else if (file.getPath().endsWith(".sgf")) {
+			System.out.println("Reading file " + file.getName());
+			final SgfParser parser = new SgfParser(coords, true);
+			final List<List<Short>> games = parser.parseGamesFromFile(file,
+					Integer.MAX_VALUE);
+		}
+	}
+
 	private void run() {
 
+		processFiles(new File(SYSTEM.getExpertGamesDirectory()));
 		// Get games from file
-		final List<List<Short>> games = parser.parseGamesFromFile(new File(
-				"sgf-test-files/19/1977-02-27.sgf"), 179);
-		int[] day = { 10, 15, 16, 25, 13, 16, 6, 23, 12, 17, 15, 25, 17, 14,
-				20, 6, 13, 24, 21, 20, 24, 27, 3, 6, 12, 12, 17, 23, 30, 38, 34 };
-		for (int i = 0; i < day.length; i++) {
-			for (int j = 0; j < day[i]; j++) {
-				if (i < 9) {
-					games.addAll(parser.parseGamesFromFile(new File(
-							"kgs-19-2015-05-new/2015-05-0" + (i + 1) + "-"
-									+ (j + 1) + ".sgf"), 20));
-				} else {
-					games.addAll(parser.parseGamesFromFile(new File(
-							"kgs-19-2015-05-new/2015-05-" + (i + 1) + "-"
-									+ (j + 1) + ".sgf"), 20));
-				}
-			}
-		}
+//		final List<List<Short>> games = parser.parseGamesFromFile(new File(
+//				"sgf-test-files/19/1977-02-27.sgf"), 179);
+//		
+//		int[] day = { 10, 15, 16, 25, 13, 16, 6, 23, 12, 17, 15, 25, 17, 14,
+//				20, 6, 13, 24, 21, 20, 24, 27, 3, 6, 12, 12, 17, 23, 30, 38, 34 };
+//		for (int i = 0; i < day.length; i++) {
+//			for (int j = 0; j < day[i]; j++) {
+//				if (i < 9) {
+//					games.addAll(parser.parseGamesFromFile(new File(
+//							"kgs-19-2015-05-new/2015-05-0" + (i + 1) + "-"
+//									+ (j + 1) + ".sgf"), 20));
+//				} else {
+//					games.addAll(parser.parseGamesFromFile(new File(
+//							"kgs-19-2015-05-new/2015-05-" + (i + 1) + "-"
+//									+ (j + 1) + ".sgf"), 20));
+//				}
+//			}
+//		}
 
-		// Count the number of points to train on
-		int numberOfTrainingPoints = 0;
-		for (final List<Short> game : games) {
-			for (final Short move : game) {
-				numberOfTrainingPoints++;
-			}
-		}
-
-		// Declare stuff
-		Network net = new Network(19 * 19 * 4, 19 * 19, 1, 19 * 19);
-		double[][] training = new double[numberOfTrainingPoints][19 * 19 * 4];
-		double[][] trainingCorrect = new double[numberOfTrainingPoints][4];
-		int gameNumber = 0;
-
-		// Input data
-		for (final List<Short> game : games) {
-			int k = 0;
-			for (final Short move : game) {
-				board.play(move);
-				int p = 0; // place in training array
-				Extractor extractor = new Extractor(board);
-				for (int row = 0; row < 19; row++) {
-					for (int col = 0; col < 19; col++) {
-						training[k][p] = extractor.isBlack(row, col);
-						training[k][p + 19 * 19] = extractor.isWhite(row, col);
-						training[k][p + 19 * 19 * 2] = extractor
-								.isUltimateMove(row, col);
-						training[k][p + 19 * 19 * 3] = extractor
-								.isPenultimateMove(row, col);
-						p++;
-					}
-				}
-				short rand = selectRandomMove(move);
-				trainingCorrect[k] = new double[] {
-						index(coords.row(move), coords.column(move)),
-						index(coords.row(rand), coords.column(rand)) };
-				System.out.println("Game " + (gameNumber + 1) + ", Move "
-						+ (k + 1) + ": " + trainingCorrect[k][0] + ", "
-						+ trainingCorrect[k][1]);
-				if (trainingCorrect[k][1] < 0) {
-					break;
-				}
-				net.train(1, (int) trainingCorrect[k][0], training[k]);
-				net.train(0, (int) trainingCorrect[k][1], training[k]);
-				k++;
-			}
-			gameNumber++;
-		}
-
-		// Train the network
-		for (int i = 0; i < 1000; i++) {
-			int k = (int) (numberOfTrainingPoints * Math.random());
-			net.train(1, (int) trainingCorrect[k][0], training[k]);
-			net.train(0, (int) trainingCorrect[k][1], training[k]);
-		}
-
-		// Make test data
-		board = obviousTest();
-		double[] testObvious = new double[19 * 19 * 4];
-		Extractor extractor = new Extractor(board);
-		int p = 0;
-		for (int row = 0; row < 19; row++) {
-			for (int col = 0; col < 19; col++) {
-				testObvious[p] = extractor.isBlack(row, col);
-				testObvious[p + 19 * 19] = extractor.isWhite(row, col);
-				testObvious[p + 19 * 19 * 2] = extractor.isUltimateMove(row,
-						col);
-				testObvious[p + 19 * 19 * 3] = extractor.isPenultimateMove(row,
-						col);
-				p++;
-			}
-		}
-		net.test(testObvious);//possibly delete this line
-		
-		//Print test data
-		for (int j = 0; j < 19 * 19; j++) {
-			System.out.print(round(net.test(testObvious)[j], 5) + "\t");
-			if (j % 19 == 18) {
-				System.out.println();
-			}
-		}
-		System.out.println();
+//		// Count the number of points to train on
+//		int numberOfTrainingPoints = 0;
+//		for (final List<Short> game : games) {
+//			for (final Short move : game) {
+//				numberOfTrainingPoints++;
+//			}
+//		}
+//
+//		// Declare stuff
+//		Network net = new Network(19 * 19 * 4, 19 * 19, 1, 19 * 19);
+//		double[][] training = new double[numberOfTrainingPoints][19 * 19 * 4];
+//		double[][] trainingCorrect = new double[numberOfTrainingPoints][4];
+//		int gameNumber = 0;
+//
+//		// Input data
+//		for (final List<Short> game : games) {
+//			int k = 0;
+//			for (final Short move : game) {
+//				board.play(move);
+//				int p = 0; // place in training array
+//				Extractor extractor = new Extractor(board);
+//				for (int row = 0; row < 19; row++) {
+//					for (int col = 0; col < 19; col++) {
+//						training[k][p] = extractor.isBlack(row, col);
+//						training[k][p + 19 * 19] = extractor.isWhite(row, col);
+//						training[k][p + 19 * 19 * 2] = extractor
+//								.isUltimateMove(row, col);
+//						training[k][p + 19 * 19 * 3] = extractor
+//								.isPenultimateMove(row, col);
+//						p++;
+//					}
+//				}
+//				short rand = selectRandomMove(move);
+//				trainingCorrect[k] = new double[] {
+//						index(coords.row(move), coords.column(move)),
+//						index(coords.row(rand), coords.column(rand)) };
+//				System.out.println("Game " + (gameNumber + 1) + ", Move "
+//						+ (k + 1) + ": " + trainingCorrect[k][0] + ", "
+//						+ trainingCorrect[k][1]);
+//				if (trainingCorrect[k][1] < 0) {
+//					break;
+//				}
+//				net.train(1, (int) trainingCorrect[k][0], training[k]);
+//				net.train(0, (int) trainingCorrect[k][1], training[k]);
+//				k++;
+//			}
+//			gameNumber++;
+//		}
+//
+//		// Train the network
+//		for (int i = 0; i < 1000; i++) {
+//			int k = (int) (numberOfTrainingPoints * Math.random());
+//			net.train(1, (int) trainingCorrect[k][0], training[k]);
+//			net.train(0, (int) trainingCorrect[k][1], training[k]);
+//		}
+//
+//		// Make test data
+//		board = obviousTest();
+//		double[] testObvious = new double[19 * 19 * 4];
+//		Extractor extractor = new Extractor(board);
+//		int p = 0;
+//		for (int row = 0; row < 19; row++) {
+//			for (int col = 0; col < 19; col++) {
+//				testObvious[p] = extractor.isBlack(row, col);
+//				testObvious[p + 19 * 19] = extractor.isWhite(row, col);
+//				testObvious[p + 19 * 19 * 2] = extractor.isUltimateMove(row,
+//						col);
+//				testObvious[p + 19 * 19 * 3] = extractor.isPenultimateMove(row,
+//						col);
+//				p++;
+//			}
+//		}
+//		net.test(testObvious);//possibly delete this line
+//		
+//		//Print test data
+//		for (int j = 0; j < 19 * 19; j++) {
+//			System.out.print(round(net.test(testObvious)[j], 5) + "\t");
+//			if (j % 19 == 18) {
+//				System.out.println();
+//			}
+//		}
+//		System.out.println();
 
 	}
 
