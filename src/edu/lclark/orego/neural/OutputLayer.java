@@ -15,9 +15,17 @@ public class OutputLayer extends Layer {
 	}
 
 	void updateActivations() {
-		
+		updateNetInputs();
+		final float[] activations = getActivations();
+		for(int i = 0; i < activations.length - 1; i++){
+			activations[i + 1] = squash(netInputs[i]);
+		}
 	}
 	
+	private float squash(float x) {
+		return (float) (1 / (1 + Math.exp(-x)));
+	}
+
 	void setWeights(float[][] weights) {
 		this.weights = weights;
 	}
