@@ -10,16 +10,21 @@ public class OutputLayer extends Layer {
 	
 	private Layer previous;
 
-	private float delta;
+	private float[] delta;
 	
-	public float getDelta(){
+	public float[] getDelta(){
 		return delta;
+	}
+	
+	public float[][] getWeights(){
+		return weights;
 	}
 	
 	public OutputLayer(int size, Layer previous) {
 		super(size);
 		netInputs = new float[size];
 		this.previous = previous;
+		delta = new float[size];
 	}
 
 	void updateActivations() {
@@ -52,22 +57,19 @@ public class OutputLayer extends Layer {
 		return netInputs;
 	}
 	
-	void updateDelta(float correct){
-		delta = 0; 
-		for(int i = 0; i < getActivations().length; i++){
-			delta += squashDeritive(getActivations()[i]) * (correct - getActivations()[i]);
-		}
+	void updateDelta(int index, float correct){
+			delta[index] = squashDeritive(getActivations()[index]) * (correct - getActivations()[index]);
 	}
 
 	private float squashDeritive(float function) {
 		return function * (1 - function);
 	}
 	
-//	void updateWeights(){
-//		for(int i = 0; i < weights.length; i++){
-//			for(int j = 0; j < weights[i].length; j++){
-//				weights[i][j] += LEARNING_RATE * getActivations()[i] * delta;
-//			}
-//		}
-//	}
+	void updateWeights(){
+		for(int i = 0; i < delta.length; i++){
+			for(int j = 0; j < weights.length; j++){
+				weights[i][j] += LEARNING_RATE * getActivations()[j] * delta[i];
+			}
+		}
+	}
 }

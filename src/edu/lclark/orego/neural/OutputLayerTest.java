@@ -11,6 +11,10 @@ public class OutputLayerTest {
 	
 	private OutputLayer out;
 	
+	private float f(float x) {
+		return (float) (1 / (1 + Math.exp(-x)));
+	}
+	
 	@Before
 	public void setUp() throws Exception {
 		in = new InputLayer(3);
@@ -32,7 +36,7 @@ public class OutputLayerTest {
 				{1.0f, -1.0f, 0.0f, 0.0f}});
 		in.setActivations(3, 2, 1);
 		out.updateActivations();
-		assertArrayEquals(new float[] {1.0f, (float) (1/(1+ Math.exp(-10))), (float) (1/(1+ Math.exp(2)))}, out.getActivations(), 0.001f);
+		assertArrayEquals(new float[] {1.0f,  f(10), f(-2)}, out.getActivations(), 0.001f);
 	}
 	
 	@Test
@@ -41,7 +45,27 @@ public class OutputLayerTest {
 				{1.0f, -1.0f, 0.0f, 0.0f}});
 		in.setActivations(3, 2, 1);
 		out.updateActivations();
-		out.updateDelta(1);
-		assertEquals((1/(1+ Math.exp(-10))) * (1 - (1/(1+ Math.exp(-10)))) * (1 - (1/(1+ Math.exp(-10)))) + (1/(1+ Math.exp(2))) * (1 - (1/(1+ Math.exp(2)))) * (1 - (1/(1+ Math.exp(2)))), out.getDelta(), .001);
+		out.updateDelta(0, 1);
+		assertEquals(f(10) * (1 - f(10)) * (1 - f(10)), out.getDelta()[0], .001);
+	}
+	
+	@Test
+	public void testUpdateWeight(){
+		float[][] originalWeights = new float[][] {{0.0f, 1.0f, 2.0f, 3.0f},
+				{1.0f, -1.0f, 0.0f, 0.0f}};
+		float[][] weights = new float[][] {{0.0f, 1.0f, 2.0f, 3.0f},
+				{1.0f, -1.0f, 0.0f, 0.0f}};
+		out.setWeights(weights);
+		in.setActivations(3, 2, 1);
+		out.updateActivations();
+		out.updateDelta(0, 1);
+		out.updateDelta(1, 1);
+		out.updateWeights();
+		for(int i = 0; i < out.getWeights().length; i++){
+			for(int j = 0; j < out.getWeights()[i].length; j++){
+				System.out.println(in.getActivations()[j]);
+				assertEquals(originalWeights[i][j] + .01f * in.getActivations()[j] * out.getDelta()[i], out.getWeights()[i][j], .001);
+			}
+		}
 	}
 }
