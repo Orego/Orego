@@ -5,6 +5,7 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 import static java.io.File.separator;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -68,10 +69,15 @@ public final class GameBatch implements Runnable {
 
 	public GameBatch(int batchNumber, String hostname, String resultsDirectory) {
 		this.batchNumber = batchNumber;
-		this.host = hostname.substring(0, hostname.indexOf('.'));
+		// Shorten hostname if possible for clearer reporting
+		if (hostname.contains(".")) {
+			host = hostname.substring(0, hostname.indexOf('.'));
+		} else {
+			host = hostname;
+		}
 		this.resultsDirectory = resultsDirectory;
 	}
-
+	
 	@Override
 	public void run() {
 		System.out.println("Running batch " + batchNumber + " on " + host);

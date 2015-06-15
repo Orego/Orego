@@ -43,5 +43,5 @@ public class LgrfUpdaterTest {
 		assertEquals(NO_POINT, lgrfTable.getFirstLevelReply(BLACK, coords.at("a1")));
 		assertEquals(coords.at("c1"), lgrfTable.getSecondLevelReply(BLACK, coords.at("a1"), coords.at("b1")));
 	}
-
+	
 }

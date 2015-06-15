@@ -7,6 +7,8 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.lclark.orego.core.CoordinateSystem;
+
 public class SimpleTreeUpdaterTest {
 
 	private Player player;
@@ -92,5 +94,22 @@ public class SimpleTreeUpdaterTest {
 				"Total runs: 70\nB1:      11/     12 (0.9167)\n  Total runs: 60\n",
 				updater.toString(5));
 	}
+	
+	@Test
+	public void testUndoWithFullTable() {
+		CoordinateSystem coords = player.getBoard().getCoordinateSystem();
+		player.acceptMove(coords.at("a1"));
+		TranspositionTable table = updater.getTable();
+		SearchNode node = table.findOrAllocate(1L);
+		for (long i = 2; ; i++) {
+			node = table.findOrAllocate(i);
+			if (node == null) {
+				break;
+			}
+		}
+		player.undo();
+		assertNotNull(player.getRoot());
+	}
+
 
 }
