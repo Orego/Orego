@@ -42,7 +42,7 @@ public class Experiment {
 //}
 
 		// Declare stuff
-		Network handwriting = new Network(256, 10, 1, 10);
+		OldNetwork handwriting = new OldNetwork(256, 10, 1, 10);
 		int size = 1593, traininglimit = 800, testnumber = size - traininglimit, updates = 10000;
 		double[][] training = new double[traininglimit][256];
 		double[][] trainingCorrect = new double[traininglimit][10];

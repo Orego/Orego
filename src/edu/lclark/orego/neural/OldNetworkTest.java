@@ -1,3 +1,4 @@
+package edu.lclark.orego.neural;
 //package edu.lclark.orego.neural;
 //
 //import static org.junit.Assert.assertEquals;

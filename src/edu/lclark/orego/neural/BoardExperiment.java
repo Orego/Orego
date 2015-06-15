@@ -22,7 +22,7 @@ public class BoardExperiment {
 	private void run() {
 		boardSize = 5;
 		boardInputs = 4;
-		Network smallBoard = new Network(boardSize * boardSize * boardInputs,
+		OldNetwork smallBoard = new OldNetwork(boardSize * boardSize * boardInputs,
 				10, 2, boardSize * boardSize);
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];

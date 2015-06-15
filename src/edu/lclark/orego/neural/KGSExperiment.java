@@ -94,7 +94,7 @@ public class KGSExperiment {
 		System.out.println(numberOfTrainingPoints);
 		// Declare stuff
 		final int area = coords.getArea();
-		Network net = new Network(area * 4, area, 1, area);
+		OldNetwork net = new OldNetwork(area * 4, area, 1, area);
 		double[][] training = new double[numberOfTrainingPoints][area * 4];
 		int[][] trainingCorrect = new int[numberOfTrainingPoints][2];
 		int gameNumber = 0;
