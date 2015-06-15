@@ -9,6 +9,7 @@ import static edu.lclark.orego.core.StoneColor.*;
 public class Extractor {
 
 	private Board board;
+
 	private HistoryObserver historyObserver;
 
 	public Extractor(Board board) {
