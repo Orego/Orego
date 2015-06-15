@@ -1,12 +1,20 @@
 package edu.lclark.orego.neural;
 
 public class OutputLayer extends Layer {
+	
+	final static private float LEARNING_RATE = .01f;
 
 	private float[][] weights;
 	
 	private float[] netInputs;
 	
 	private Layer previous;
+
+	private float delta;
+	
+	public float getDelta(){
+		return delta;
+	}
 	
 	public OutputLayer(int size, Layer previous) {
 		super(size);
@@ -43,4 +51,23 @@ public class OutputLayer extends Layer {
 	float[] getNetInputs() {
 		return netInputs;
 	}
+	
+	void updateDelta(float correct){
+		delta = 0; 
+		for(int i = 0; i < getActivations().length; i++){
+			delta += squashDeritive(getActivations()[i]) * (correct - getActivations()[i]);
+		}
+	}
+
+	private float squashDeritive(float function) {
+		return function * (1 - function);
+	}
+	
+//	void updateWeights(){
+//		for(int i = 0; i < weights.length; i++){
+//			for(int j = 0; j < weights[i].length; j++){
+//				weights[i][j] += LEARNING_RATE * getActivations()[i] * delta;
+//			}
+//		}
+//	}
 }

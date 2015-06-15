@@ -34,4 +34,14 @@ public class OutputLayerTest {
 		out.updateActivations();
 		assertArrayEquals(new float[] {1.0f, (float) (1/(1+ Math.exp(-10))), (float) (1/(1+ Math.exp(2)))}, out.getActivations(), 0.001f);
 	}
+	
+	@Test
+	public void testUpdateDelta(){
+		out.setWeights(new float[][] {{0.0f, 1.0f, 2.0f, 3.0f},
+				{1.0f, -1.0f, 0.0f, 0.0f}});
+		in.setActivations(3, 2, 1);
+		out.updateActivations();
+		out.updateDelta(1);
+		assertEquals((1/(1+ Math.exp(-10))) * (1 - (1/(1+ Math.exp(-10)))) * (1 - (1/(1+ Math.exp(-10)))) + (1/(1+ Math.exp(2))) * (1 - (1/(1+ Math.exp(2)))) * (1 - (1/(1+ Math.exp(2)))), out.getDelta(), .001);
+	}
 }
