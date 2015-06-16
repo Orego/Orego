@@ -4,6 +4,8 @@ public class Network {
 
 	private InputLayer in;
 
+	private HiddenLayer hid;
+
 	private OutputLayer out;
 
 	public InputLayer getInput() {
@@ -15,9 +17,18 @@ public class Network {
 		out = new OutputLayer(outputNumber, in);
 	}
 
+	public Network(int input, int hidden, int output) {
+		in = new InputLayer(input);
+		hid = new HiddenLayer(hidden, in);
+		out = new OutputLayer(output, hid);
+	}
+
 	public void test(float[][] training, float[][] correct) {
 		for (int i = 0; i < correct.length; i++) {
 			in.setActivations(training[i]);
+			if (hid != null) {
+				hid.updateActivations();
+			}
 			out.updateActivations();
 			for (int j = 0; j < correct[i].length; j++) {
 				System.out.printf("%1.3f, should be %1.3f\n",
@@ -47,11 +58,20 @@ public class Network {
 	public void train(float[] training, float[] correct) {
 		update(training);
 		out.updateDeltas(correct);
+		if (hid != null) {
+			hid.updateDeltas(out);
+		}
 		out.updateWeights();
+		if (hid != null) {
+			hid.updateWeights();
+		}
 	}
 
 	public void update(float[] training) {
 		in.setActivations(training);
+		if (hid != null) {
+			hid.updateActivations();
+		}
 		out.updateActivations();
 	}
 
