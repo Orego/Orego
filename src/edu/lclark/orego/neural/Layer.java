@@ -10,6 +10,7 @@ public abstract class Layer {
 	}
 
 	public void setActivations(float... activations) {
+		// TODO Do we need to copy here?
 		for (int i = 0; i < activations.length; i++) {
 			this.activations[i + 1] = activations[i];
 		}

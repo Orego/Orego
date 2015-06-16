@@ -2,7 +2,7 @@ package edu.lclark.orego.neural;
 
 public class OutputLayer extends Layer {
 	
-	final static private float LEARNING_RATE = .01f;
+	final static private float LEARNING_RATE = 0.1f;
 
 	private float[][] weights;
 	
@@ -10,10 +10,10 @@ public class OutputLayer extends Layer {
 	
 	private Layer previous;
 
-	private float[] delta;
+	private float[] deltas;
 	
-	public float[] getDelta(){
-		return delta;
+	public float[] getDeltas(){
+		return deltas;
 	}
 	
 	public float[][] getWeights(){
@@ -24,7 +24,13 @@ public class OutputLayer extends Layer {
 		super(size);
 		netInputs = new float[size];
 		this.previous = previous;
-		delta = new float[size];
+		deltas = new float[size];
+		weights = new float[size][previous.size() + 1];
+		for (int i = 0; i < weights.length; i++) {
+			for (int j = 0; j < weights[i].length; j++) {
+				weights[i][j] = (float)(Math.random() * 0.01 - 0.005);
+			}
+		}
 	}
 
 	void updateActivations() {
@@ -58,18 +64,25 @@ public class OutputLayer extends Layer {
 	}
 	
 	void updateDelta(int index, float correct){
-			delta[index] = squashDeritive(getActivations()[index]) * (correct - getActivations()[index]);
+			deltas[index] = squashDerivative(getActivations()[index + 1]) * (correct - getActivations()[index + 1]);
 	}
 
-	private float squashDeritive(float function) {
-		return function * (1 - function);
+	private float squashDerivative(float x) {
+		return x * (1 - x);
 	}
 	
 	void updateWeights(){
-		for(int i = 0; i < delta.length; i++){
-			for(int j = 0; j < weights.length; j++){
-				weights[i][j] += LEARNING_RATE * getActivations()[j] * delta[i];
+		for(int i = 0; i < weights.length; i++){
+			for(int j = 0; j < weights[i].length; j++){
+				weights[i][j] += LEARNING_RATE * previous.getActivations()[j] * deltas[i];
 			}
 		}
 	}
+
+	public void updateDeltas(float[] correct) {
+		for (int i = 0; i < correct.length; i++) {
+			updateDelta(i, correct[i]);
+		}
+	}
+
 }

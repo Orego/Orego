@@ -46,7 +46,7 @@ public class OutputLayerTest {
 		in.setActivations(3, 2, 1);
 		out.updateActivations();
 		out.updateDelta(0, 1);
-		assertEquals(f(10) * (1 - f(10)) * (1 - f(10)), out.getDelta()[0], .001);
+		assertEquals(f(10) * (1 - f(10)) * (1 - f(10)), out.getDeltas()[0], .001);
 	}
 	
 	@Test
@@ -63,7 +63,7 @@ public class OutputLayerTest {
 		out.updateWeights();
 		for(int i = 0; i < out.getWeights().length; i++){
 			for(int j = 0; j < out.getWeights()[i].length; j++){
-				assertEquals(originalWeights[i][j] + .01f * in.getActivations()[j] * out.getDelta()[i], out.getWeights()[i][j], .001);
+				assertEquals(originalWeights[i][j] + .01f * in.getActivations()[j] * out.getDeltas()[i], out.getWeights()[i][j], .001);
 			}
 		}
 	}
