@@ -63,7 +63,6 @@ public class OutputLayerTest {
 		out.updateWeights();
 		for(int i = 0; i < out.getWeights().length; i++){
 			for(int j = 0; j < out.getWeights()[i].length; j++){
-				System.out.println(in.getActivations()[j]);
 				assertEquals(originalWeights[i][j] + .01f * in.getActivations()[j] * out.getDelta()[i], out.getWeights()[i][j], .001);
 			}
 		}
