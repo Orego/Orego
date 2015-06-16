@@ -1,38 +1,43 @@
 package edu.lclark.orego.neural;
 
-public class HiddenLayer extends ComputationLayer {
+class HiddenLayer extends ComputationLayer {
 
-	public HiddenLayer(int size, Layer previous) {
+	/**
+	 * @see ComputationLayer#ComputationLayer(int, Layer)
+	 */
+	HiddenLayer(int size, Layer previous) {
 		super(size, previous);
 	}
 
-	void updateDelta(int index, float correct){
-		// TODO Do we really want to call getDeltas each time?
-		getDeltas()[index] = squashDerivative(getActivations()[index + 1]) * (correct - getActivations()[index + 1]);
-	}
-	
-	public void updateDeltas(ComputationLayer next) {
-		float[] deltas = getDeltas();
-		float[] nextDeltas = next.getDeltas();
-		float[][] nextWeights = next.getWeights();
+	/** Updates the deltas for this layer, given the next layer. */
+	void updateDeltas(ComputationLayer next) {
+		final float[] deltas = getDeltas();
+		final float[] nextDeltas = next.getDeltas();
+		final float[][] nextWeights = next.getWeights();
 		for (int j = 0; j < deltas.length; j++) {
 			deltas[j] = 0.0f;
 			for (int i = 0; i < nextDeltas.length; i++) {
 				deltas[j] += nextDeltas[i] * nextWeights[i][j + 1];
 			}
-			deltas[j] *= squashDerivative(getActivations()[j + 1]); 
+			deltas[j] *= squashDerivative(getActivations()[j + 1]);
 		}
 	}
 
-	public void updateDeltas(OutputLayer next, int good, int bad) {
-		float[] deltas = getDeltas();
-		float[] nextDeltas = next.getDeltas();
-		float[][] nextWeights = next.getWeights();
+	/**
+	 * Updates the deltas for this layer, given the next layer, paying attention
+	 * to only the goodth and badth units in the next layer.
+	 * 
+	 * @see Network#train(float[], int, int)
+	 */
+	void updateDeltas(OutputLayer next, int good, int bad) {
+		final float[] deltas = getDeltas();
+		final float[] nextDeltas = next.getDeltas();
+		final float[][] nextWeights = next.getWeights();
 		for (int j = 0; j < deltas.length; j++) {
 			deltas[j] = 0.0f;
 			deltas[j] += nextDeltas[good] * nextWeights[good][j + 1];
 			deltas[j] += nextDeltas[bad] * nextWeights[bad][j + 1];
-			deltas[j] *= squashDerivative(getActivations()[j + 1]); 
+			deltas[j] *= squashDerivative(getActivations()[j + 1]);
 		}
 	}
 

@@ -22,8 +22,8 @@ public class BoardExperiment {
 	private void run() {
 		boardSize = 5;
 		boardInputs = 4;
-		OldNetwork smallBoard = new OldNetwork(boardSize * boardSize * boardInputs,
-				10, 2, boardSize * boardSize);
+		OldNetwork smallBoard = new OldNetwork(boardSize * boardSize
+				* boardInputs, 10, 2, boardSize * boardSize);
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];
 		board = new Board(boardSize);

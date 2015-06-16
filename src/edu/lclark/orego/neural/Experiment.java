@@ -7,9 +7,7 @@ import java.util.Scanner;
 public class Experiment {
 
 	public static void main(String[] args) throws FileNotFoundException {
-		
-		
-		
+
 		// Network or = new Network();
 		// double[][] training = {{0,0}, {1,0}, {0,1}, {1,1}};
 		// double[] trainingCorrect = {0, 1, 1, 1};
@@ -22,24 +20,24 @@ public class Experiment {
 		// }
 		// System.out.println();
 		// }
-		
-//		 Network xor = new Network(2, 2, 2);
-//		 double[][] training = { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } };
-//		 double[][] trainingCorrect = { { 0 }, { 1 }, { 1 }, { 0 } };
-//		 int updates = 10000;
-//		 for (int i = 0; i < updates; i++) {
-//		 int k = (int) (Math.random() * training.length);
-//		 xor.train(trainingCorrect[k], training[k]);
-//		 for (int z = 0; z < trainingCorrect[0].length; z++) {
-//		 for (int j = 0; j < training.length; j++) {
-//		 System.out.print(xor.test(training[j])[z] + "\t");
-//		 }
-//		 System.out.println();
-//		 }
-//		
-//		 }
-//		 }
-//}
+
+		// Network xor = new Network(2, 2, 2);
+		// double[][] training = { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } };
+		// double[][] trainingCorrect = { { 0 }, { 1 }, { 1 }, { 0 } };
+		// int updates = 10000;
+		// for (int i = 0; i < updates; i++) {
+		// int k = (int) (Math.random() * training.length);
+		// xor.train(trainingCorrect[k], training[k]);
+		// for (int z = 0; z < trainingCorrect[0].length; z++) {
+		// for (int j = 0; j < training.length; j++) {
+		// System.out.print(xor.test(training[j])[z] + "\t");
+		// }
+		// System.out.println();
+		// }
+		//
+		// }
+		// }
+		// }
 
 		// Declare stuff
 		OldNetwork handwriting = new OldNetwork(256, 10, 1, 10);
@@ -59,7 +57,7 @@ public class Experiment {
 				trainingCorrect[i][j] = reader.nextDouble();
 			}
 		}
-		//Input testing data
+		// Input testing data
 		for (int i = 0; i < testnumber; i++) {
 			for (int j = 0; j < 256; j++) {
 				testing[i][j] = reader.nextDouble();
@@ -68,15 +66,15 @@ public class Experiment {
 				testingCorrect[i][j] = reader.nextDouble();
 			}
 		}
-		
+
 		reader.close();
-		
+
 		for (int z = 0; z < updates; z++) {
 			// Training
 			int k = (int) (Math.random() * traininglimit);
 			handwriting.train(trainingCorrect[k], training[k]);
 
-			//Test training data to find guess
+			// Test training data to find guess
 			double trainingdataccuracy = 0;
 			for (int i = 0; i < traininglimit; i++) {
 				double[] output = handwriting.test(training[i]);
@@ -89,7 +87,7 @@ public class Experiment {
 					}
 				}
 
-				//See if guess matches correct answer
+				// See if guess matches correct answer
 				for (int j = 0; j < 10; j++) {
 					if (trainingCorrect[i][j] == 1.0) {
 						if (j == guess) {
@@ -99,9 +97,9 @@ public class Experiment {
 					}
 				}
 			}
-			//System.out.println(trainingdataccuracy / traininglimit);
-			
-			//Test testing data to find guess
+			// System.out.println(trainingdataccuracy / traininglimit);
+
+			// Test testing data to find guess
 			double testingaccuracy = 0;
 			for (int i = 0; i < testnumber; i++) {
 				double[] output = handwriting.test(testing[i]);
@@ -114,7 +112,7 @@ public class Experiment {
 					}
 				}
 
-				//See if guess matches correct answer
+				// See if guess matches correct answer
 				for (int j = 0; j < 10; j++) {
 					if (testingCorrect[i][j] == 1.0) {
 						if (j == guess) {
@@ -122,9 +120,10 @@ public class Experiment {
 						}
 						break;
 					}
-				}	
+				}
 			}
-			System.out.println(z + ":\t"+trainingdataccuracy / traininglimit +"\t"+ testingaccuracy / testnumber);
+			System.out.println(z + ":\t" + trainingdataccuracy / traininglimit
+					+ "\t" + testingaccuracy / testnumber);
 		}
 
 	}
@@ -149,4 +148,3 @@ public class Experiment {
 	}
 
 }
-

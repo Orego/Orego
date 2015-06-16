@@ -1,29 +1,47 @@
 package edu.lclark.orego.neural;
 
+/** A feedforward neural network, trained by backpropagation. */
 public class Network {
 
-	private InputLayer in;
-
+	/** Sequence of hidden layers. */
 	private HiddenLayer[] hid;
 
+	/** Input layer. */
+	private Layer in;
+
+	/** Output layer. */
 	private OutputLayer out;
 
-	public InputLayer getInput() {
-		return in;
-	}
-
+	/**
+	 * @param layerSizes
+	 *            Sequence of layer sizes, e.g., 2, 4, 3, 1 for a network with 2
+	 *            input units, 4 units in the first hidden layer, 3 in the
+	 *            second, and 1 output unit. There must be at least one hidden
+	 *            layer.
+	 */
 	public Network(int... layerSizes) {
 		assert layerSizes.length >= 3;
-		in = new InputLayer(layerSizes[0]);
+		in = new Layer(layerSizes[0]);
 		hid = new HiddenLayer[layerSizes.length - 2];
 		hid[0] = new HiddenLayer(layerSizes[1], in);
 		for (int i = 1; i < hid.length; i++) {
 			hid[i] = new HiddenLayer(layerSizes[i + 1], hid[i - 1]);
 		}
-		out = new OutputLayer(layerSizes[layerSizes.length - 1], hid[hid.length - 1]);
+		out = new OutputLayer(layerSizes[layerSizes.length - 1],
+				hid[hid.length - 1]);
 	}
 
-	public void test(float[][] training, float[][] correct) {
+	/**
+	 * Returns the activations of the output units, including a bias unit at
+	 * index 0.
+	 */
+	public float[] getOutputActivations() {
+		return out.getActivations();
+	}
+
+	/** Prints the actual and correct output for each training case. */
+	@SuppressWarnings("boxing")
+	void test(float[][] training, float[][] correct) {
 		for (int i = 0; i < correct.length; i++) {
 			update(training[i]);
 			for (int j = 0; j < correct[i].length; j++) {
@@ -32,28 +50,13 @@ public class Network {
 			}
 			System.out.println();
 		}
-		update(training[training.length - 1]);
-		out.updateDeltas(correct[correct.length - 1]);
-		System.out.println(java.util.Arrays.toString(out.getDeltas()));
-		System.out.println(java.util.Arrays.toString(out.getActivations()));
-		System.out.println(java.util.Arrays.toString(correct[correct.length - 1]));
-		System.out.println(java.util.Arrays.toString(in.getActivations()));
 		System.out.println();
 	}
 
-	public void train(float[][] training, float[][] correct, int epochs) {
-		for (int i = 0; i < epochs; i++) {
-			train(training, correct);
-		}
-		test(training, correct);
-	}
-
-	public void train(float[][] training, float[][] correct) {
-		for (int i = 0; i < correct.length; i++) {
-			train(training[i], correct[i]);
-		}
-	}
-
+	/**
+	 * Trains the network on one training vector with one vector of correct
+	 * outputs.
+	 */
 	public void train(float[] training, float[] correct) {
 		update(training);
 		out.updateDeltas(correct);
@@ -67,20 +70,12 @@ public class Network {
 		}
 	}
 
-	public void update(float[] training) {
-		in.setActivations(training);
-		for (int i = 0; i < hid.length; i++) {
-			hid[i].updateActivations();
-		}
-		out.updateActivations();
-	}
-
-	public float[] getOutputActivations() {
-		return out.getActivations();
-	}
-
+	/**
+	 * Trains the network on a given training vector, where the goodth output
+	 * should be 1 and the badth should be 0.
+	 */
 	public void train(float[] training, int good, int bad) {
-		update(training); // TODO This is a bit wasteful
+		update(training, good, bad);
 		out.updateDeltas(good, bad);
 		hid[hid.length - 1].updateDeltas(out, good, bad);
 		for (int i = hid.length - 2; i >= 0; i--) {
@@ -89,7 +84,48 @@ public class Network {
 		out.updateWeights(good, bad);
 		for (int i = 0; i < hid.length; i++) {
 			hid[i].updateWeights();
-		}		
+		}
+	}
+
+	/** Updates this network, but only the goodth and badth output units. */
+	private void update(float[] training, int good, int bad) {
+		in.setActivations(training);
+		for (int i = 0; i < hid.length; i++) {
+			hid[i].updateActivations();
+		}
+		out.updateActivations(good, bad);
+	}
+
+	/**
+	 * Trains the network to associate input vectors with correct output
+	 * vectors.
+	 */
+	public void train(float[][] input, float[][] correct) {
+		for (int i = 0; i < correct.length; i++) {
+			train(input[i], correct[i]);
+		}
+	}
+
+	/**
+	 * Trains the network, for the specified number of epochs, to associates
+	 * input vectors with correct output vectors.
+	 */
+	public void train(float[][] input, float[][] correct, int epochs) {
+		for (int i = 0; i < epochs; i++) {
+			train(input, correct);
+		}
+	}
+
+	/**
+	 * Update the activations for all units in this network, given the specified
+	 * input vector.
+	 */
+	public void update(float[] input) {
+		in.setActivations(input);
+		for (int i = 0; i < hid.length; i++) {
+			hid[i].updateActivations();
+		}
+		out.updateActivations();
 	}
 
 }

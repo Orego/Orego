@@ -1,29 +1,53 @@
 package edu.lclark.orego.neural;
 
-public class OutputLayer extends ComputationLayer {
+/** An output layer in a neural network. */
+class OutputLayer extends ComputationLayer {
 
-	public OutputLayer(int size, Layer previous) {
+	/** @see ComputationLayer#ComputationLayer(int, Layer) */
+	OutputLayer(int size, Layer previous) {
 		super(size, previous);
 	}
 
+	/** Updates the activations for the goodth and badth units, ignoring others. */
+	public void updateActivations(int good, int bad) {
+		updateActivation(good);
+		updateActivation(bad);
+	}
+
+	/**
+	 * Updates the delta for the indexth unit in this layer, given the correct
+	 * activation.
+	 */
 	void updateDelta(int index, float correct) {
-		// TODO Do we really want to call getDeltas each time?
 		getDeltas()[index] = squashDerivative(getActivations()[index + 1])
 				* (correct - getActivations()[index + 1]);
 	}
 
-	public void updateDeltas(float[] correct) {
+	/**
+	 * Updates the deltas for this layer, given an array of correct activations.
+	 */
+	void updateDeltas(float[] correct) {
 		for (int i = 0; i < correct.length; i++) {
 			updateDelta(i, correct[i]);
 		}
 	}
 
-	public void updateDeltas(int good, int bad) {
+	/**
+	 * Updates the deltas for two units in this layer, assuming the unit with
+	 * index good should have activation 1 and the unit with index bad should
+	 * have activation 0.
+	 */
+	void updateDeltas(int good, int bad) {
 		updateDelta(good, 1);
 		updateDelta(bad, 0);
 	}
 
-	public void updateWeights(int good, int bad) {
+	/**
+	 * Updates the weights for two units in this layer.
+	 * 
+	 * @see #updateDeltas(int, int)
+	 */
+	void updateWeights(int good, int bad) {
 		float[][] weights = getWeights();
 		Layer previous = getPrevious();
 		float[] deltas = getDeltas();

@@ -31,7 +31,7 @@ public class KGSExperiment {
 	private SgfParser parser;
 
 	private Extractor extractor;
-	
+
 	private final MersenneTwisterFast random;
 
 	public KGSExperiment() {
