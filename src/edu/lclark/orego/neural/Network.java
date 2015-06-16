@@ -4,7 +4,7 @@ public class Network {
 
 	private InputLayer in;
 
-	private HiddenLayer hid;
+	private HiddenLayer[] hid;
 
 	private OutputLayer out;
 
@@ -12,24 +12,25 @@ public class Network {
 		return in;
 	}
 
-	Network(int inputNumber, int outputNumber) {
-		in = new InputLayer(inputNumber);
-		out = new OutputLayer(outputNumber, in);
-	}
-
-	public Network(int input, int hidden, int output) {
-		in = new InputLayer(input);
-		hid = new HiddenLayer(hidden, in);
-		out = new OutputLayer(output, hid);
+	public Network(int... layerSizes) {
+		in = new InputLayer(layerSizes[0]);
+		hid = new HiddenLayer[layerSizes.length - 2];
+		if (hid.length > 0) {
+			hid[0] = new HiddenLayer(layerSizes[1], in);
+		}
+		for (int i = 1; i < hid.length; i++) {
+			hid[i] = new HiddenLayer(layerSizes[i + 1], hid[i - 1]);
+		}
+		if (hid.length > 0) {
+			out = new OutputLayer(layerSizes[layerSizes.length - 1], hid[hid.length - 1]);
+		} else {
+			out = new OutputLayer(layerSizes[layerSizes.length - 1], in);
+		}
 	}
 
 	public void test(float[][] training, float[][] correct) {
 		for (int i = 0; i < correct.length; i++) {
-			in.setActivations(training[i]);
-			if (hid != null) {
-				hid.updateActivations();
-			}
-			out.updateActivations();
+			update(training[i]);
 			for (int j = 0; j < correct[i].length; j++) {
 				System.out.printf("%1.3f, should be %1.3f\n",
 						out.getActivations()[j + 1], correct[i][j]);
@@ -58,19 +59,22 @@ public class Network {
 	public void train(float[] training, float[] correct) {
 		update(training);
 		out.updateDeltas(correct);
-		if (hid != null) {
-			hid.updateDeltas(out);
+		if (hid.length > 0) {
+			hid[hid.length - 1].updateDeltas(out);
+		}
+		for (int i = hid.length - 2; i >= 0; i--) {
+			hid[i].updateDeltas(hid[i + 1]);
 		}
 		out.updateWeights();
-		if (hid != null) {
-			hid.updateWeights();
+		for (int i = 0; i < hid.length; i++) {
+			hid[i].updateWeights();
 		}
 	}
 
 	public void update(float[] training) {
 		in.setActivations(training);
-		if (hid != null) {
-			hid.updateActivations();
+		for (int i = 0; i < hid.length; i++) {
+			hid[i].updateActivations();
 		}
 		out.updateActivations();
 	}

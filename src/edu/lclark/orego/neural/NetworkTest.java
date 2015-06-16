@@ -35,4 +35,13 @@ public class NetworkTest {
 		testAfterTraining(training, correct);
 	}
 
+	@Test
+	public void testMultipleHiddenLayers() {
+		net = new Network(2, 2, 2, 3);	
+		float[][] training = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+		float[][] correct = new float[][] {{0, 0, 0}, {0, 1, 1}, {0, 1, 1}, {1, 1, 0}};
+		net.train(training, correct, 1000000);
+		testAfterTraining(training, correct);
+	}
+
 }
