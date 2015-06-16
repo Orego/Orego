@@ -2,7 +2,11 @@ package edu.lclark.orego.neural;
 
 public abstract class ComputationLayer extends Layer {
 	
-	final static private float LEARNING_RATE = 0.1f;
+	public static final float LEARNING_RATE = 0.1f;
+
+	public Layer getPrevious() {
+		return previous;
+	}
 
 	private float[][] weights;
 	

@@ -13,19 +13,14 @@ public class Network {
 	}
 
 	public Network(int... layerSizes) {
+		assert layerSizes.length >= 3;
 		in = new InputLayer(layerSizes[0]);
 		hid = new HiddenLayer[layerSizes.length - 2];
-		if (hid.length > 0) {
-			hid[0] = new HiddenLayer(layerSizes[1], in);
-		}
+		hid[0] = new HiddenLayer(layerSizes[1], in);
 		for (int i = 1; i < hid.length; i++) {
 			hid[i] = new HiddenLayer(layerSizes[i + 1], hid[i - 1]);
 		}
-		if (hid.length > 0) {
-			out = new OutputLayer(layerSizes[layerSizes.length - 1], hid[hid.length - 1]);
-		} else {
-			out = new OutputLayer(layerSizes[layerSizes.length - 1], in);
-		}
+		out = new OutputLayer(layerSizes[layerSizes.length - 1], hid[hid.length - 1]);
 	}
 
 	public void test(float[][] training, float[][] correct) {
@@ -37,8 +32,11 @@ public class Network {
 			}
 			System.out.println();
 		}
+		update(training[training.length - 1]);
+		out.updateDeltas(correct[correct.length - 1]);
 		System.out.println(java.util.Arrays.toString(out.getDeltas()));
 		System.out.println(java.util.Arrays.toString(out.getActivations()));
+		System.out.println(java.util.Arrays.toString(correct[correct.length - 1]));
 		System.out.println(java.util.Arrays.toString(in.getActivations()));
 		System.out.println();
 	}
@@ -59,9 +57,7 @@ public class Network {
 	public void train(float[] training, float[] correct) {
 		update(training);
 		out.updateDeltas(correct);
-		if (hid.length > 0) {
-			hid[hid.length - 1].updateDeltas(out);
-		}
+		hid[hid.length - 1].updateDeltas(out);
 		for (int i = hid.length - 2; i >= 0; i--) {
 			hid[i].updateDeltas(hid[i + 1]);
 		}
@@ -81,6 +77,19 @@ public class Network {
 
 	public float[] getOutputActivations() {
 		return out.getActivations();
+	}
+
+	public void train(float[] training, int good, int bad) {
+		update(training); // TODO This is a bit wasteful
+		out.updateDeltas(good, bad);
+		hid[hid.length - 1].updateDeltas(out, good, bad);
+		for (int i = hid.length - 2; i >= 0; i--) {
+			hid[i].updateDeltas(hid[i + 1]);
+		}
+		out.updateWeights(good, bad);
+		for (int i = 0; i < hid.length; i++) {
+			hid[i].updateWeights();
+		}		
 	}
 
 }

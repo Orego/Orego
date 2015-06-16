@@ -18,15 +18,6 @@ public class NetworkTest {
 	}
 	
 	@Test
-	public void testAndAndOr() {
-		net = new Network(2, 2);	
-		float[][] training = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-		float[][] correct = new float[][] {{0, 0}, {0, 1}, {0, 1}, {1, 1}};
-		net.train(training, correct, 100000);
-		testAfterTraining(training, correct);
-	}
-
-	@Test
 	public void testAndOrAndXor() {
 		net = new Network(2, 2, 3);	
 		float[][] training = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
@@ -44,4 +35,18 @@ public class NetworkTest {
 		testAfterTraining(training, correct);
 	}
 
+	@Test
+	public void testTrainOnOnlyTwoOutputs() {
+		net = new Network(1, 8, 3);	
+		float[][] training = new float[][] {{0}, {1}};
+		for (int i = 0; i < 100000; i++) {
+			net.train(training[0], 0, 2);
+			net.train(training[1], 2, 0);
+//			net.train(training[i % 2], 1, 1);
+		}
+		float[][] correct = new float[][] {{1, 0.5f, 0}, {0, 0.5f, 1}};
+		net.test(training, correct);
+		testAfterTraining(training, correct);
+	}
+	
 }

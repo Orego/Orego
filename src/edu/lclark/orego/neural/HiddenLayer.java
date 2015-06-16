@@ -24,4 +24,16 @@ public class HiddenLayer extends ComputationLayer {
 		}
 	}
 
+	public void updateDeltas(OutputLayer next, int good, int bad) {
+		float[] deltas = getDeltas();
+		float[] nextDeltas = next.getDeltas();
+		float[][] nextWeights = next.getWeights();
+		for (int j = 0; j < deltas.length; j++) {
+			deltas[j] = 0.0f;
+			deltas[j] += nextDeltas[good] * nextWeights[good][j + 1];
+			deltas[j] += nextDeltas[bad] * nextWeights[bad][j + 1];
+			deltas[j] *= squashDerivative(getActivations()[j + 1]); 
+		}
+	}
+
 }
