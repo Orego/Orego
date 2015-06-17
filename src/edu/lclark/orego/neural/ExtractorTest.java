@@ -59,5 +59,21 @@ public class ExtractorTest {
 		assertEquals(1.0, extractor.isPenultimateMove(3, 0), 0.001);
 		assertEquals(0.0, extractor.isPenultimateMove(1, 1), 0.001);
 	}
+	
+	@Test
+	public void testToInputVector() {
+		board.play("a2");
+		board.play("b3");
+		assertArrayEquals(new float[] {
+				// Black
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+				// White
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+				// Ultimate move
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+				// Penultimate move
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+		}, extractor.toInputVector(), 0.01f);
+	}
 
 }

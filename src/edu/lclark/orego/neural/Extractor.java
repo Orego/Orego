@@ -15,6 +15,7 @@ public class Extractor {
 	public Extractor(Board board) {
 		this.board = board;
 		historyObserver = new HistoryObserver(board);
+		inputVector = new float[board.getCoordinateSystem().getArea() * 4]; // TODO 4 is a magic number
 	}
 
 	public void changeBoard(Board b) {
@@ -25,7 +26,7 @@ public class Extractor {
 	 * Returns 1 if there is a black stone at specified coordinates, otherwise
 	 * 0.
 	 */
-	public double isBlack(int row, int col) {
+	public float isBlack(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (!coords.isValidOneDimensionalCoordinate(row)) {
 			return 0;
@@ -42,7 +43,7 @@ public class Extractor {
 	/**
 	 * Returns 1 if the specified coordinate is off the board, otherwise 0.
 	 */
-	public double isOffBoard(int row, int col) {
+	public float isOffBoard(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if ((!coords.isValidOneDimensionalCoordinate(col))
 				|| (!coords.isValidOneDimensionalCoordinate(row))) {
@@ -51,7 +52,7 @@ public class Extractor {
 		return 0;
 	}
 
-	public double isPenultimateMove(int row, int col) {
+	public float isPenultimateMove(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (board.getTurn() < 2) {
 			return 0;
@@ -65,7 +66,7 @@ public class Extractor {
 		return 0;
 	}
 
-	public double isUltimateMove(int row, int col) {
+	public float isUltimateMove(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (board.getTurn() < 1) {
 			return 0;
@@ -80,7 +81,7 @@ public class Extractor {
 	 * Returns 1 if there is a white stone at specified coordinates, otherwise
 	 * 0.
 	 */
-	public double isWhite(int row, int col) {
+	public float isWhite(int row, int col) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		if (!coords.isValidOneDimensionalCoordinate(row)) {
 			return 0;
@@ -92,6 +93,27 @@ public class Extractor {
 			return 1;
 		}
 		return 0;
+	}
+
+	/** Kept as a field to avoid creating it each time toInputVector is called. */
+	private float[] inputVector;
+	
+	/** Returns a neural network input vector based on the state of the game. */
+	public float[] toInputVector() {
+		final CoordinateSystem coords = board.getCoordinateSystem();
+		final int width = coords.getWidth();
+		final int area = coords.getArea();
+		int p = 0; // place in training array
+		for (int row = 0; row < width; row++) {
+			for (int col = 0; col < width; col++) {
+				inputVector[p] = isBlack(row, col);
+				inputVector[p + area] = isWhite(row, col);
+				inputVector[p + area * 2] = isUltimateMove(row, col);
+				inputVector[p + area * 3] = isPenultimateMove(row, col);
+				p++;
+			}
+		}
+		return inputVector;
 	}
 
 }

@@ -22,8 +22,8 @@ public class BoardExperiment {
 	private void run() {
 		boardSize = 5;
 		boardInputs = 4;
-		OldNetwork smallBoard = new OldNetwork(boardSize * boardSize
-				* boardInputs, 10, 2, boardSize * boardSize);
+		Network smallBoard = new Network(boardSize * boardSize
+				* boardInputs, boardSize * boardSize, boardSize * boardSize);
 		double[][] training = new double[3][boardSize * boardSize * boardInputs];
 		double[][] trainingCorrect = new double[3][4];
 		board = new Board(boardSize);
@@ -110,6 +110,7 @@ public class BoardExperiment {
 		int updates = 10000;
 		for (int i = 0; i < updates; i++) {
 			int k = (int) (Math.random() * (training.length - 1));
+			smallBoard.train
 			smallBoard.train(trainingCorrect[k][0],
 					(int) trainingCorrect[k][1], training[k]);
 			smallBoard.train(trainingCorrect[k][2],
