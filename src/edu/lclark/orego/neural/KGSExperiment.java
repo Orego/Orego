@@ -83,7 +83,7 @@ public class KGSExperiment {
 	}
 
 	private void run() {
-		// Get games from file
+		// Get games from files
 		final List<List<Short>> games = processFiles(new File(
 				SYSTEM.getExpertGamesDirectory()));
 		// Count the number of points to train on
@@ -94,37 +94,25 @@ public class KGSExperiment {
 		System.out.println(numberOfTrainingPoints);
 		// Declare stuff
 		final int area = coords.getArea();
-		OldNetwork net = new OldNetwork(area * 4, area, 1, area);
-		double[][] training = new double[numberOfTrainingPoints][area * 4];
+		Network net = new Network(area * 4, area, area);
+		float[][] training = new float[numberOfTrainingPoints][];
+		// TODO It would be better to pick a different bad move each time we train on a point
 		int[][] trainingCorrect = new int[numberOfTrainingPoints][2];
-		int gameNumber = 0;
+		int pointNumber = 0;
 		// Input data
 		for (final List<Short> game : games) {
-			int k = 0;
 			board.clear();
-			for (final short move : game) {
-				int p = 0; // place in training array
-				for (int row = 0; row < 19; row++) {
-					for (int col = 0; col < 19; col++) {
-						training[k][p] = extractor.isBlack(row, col);
-						training[k][p + 19 * 19] = extractor.isWhite(row, col);
-						training[k][p + 19 * 19 * 2] = extractor
-								.isUltimateMove(row, col);
-						training[k][p + 19 * 19 * 3] = extractor
-								.isPenultimateMove(row, col);
-						p++;
-					}
-				}
-				short rand = selectRandomMove(move);
-				trainingCorrect[k] = new int[] {
-						index(coords.row(move), coords.column(move)),
-						index(coords.row(rand), coords.column(rand)) };
-				k++;
-				board.play(move);
+			for (final short good : game) {
+				training[pointNumber] = extractor.toInputVector();
+				short bad = selectRandomMove(good);
+				trainingCorrect[pointNumber] = new int[] {
+						// TODO row and column extraction could happen inside index
+						index(coords.row(good), coords.column(good)),
+						index(coords.row(bad), coords.column(bad)) };
+				board.play(good);
+				pointNumber++;
 			}
-			gameNumber++;
 		}
-
 		// Train the network
 		for (int i = 0; i < 100000; i++) {
 			if (i % 100 == 0) {
@@ -133,29 +121,15 @@ public class KGSExperiment {
 			// TODO Should this be random or should we just pass through all the
 			// games?
 			int k = (int) (numberOfTrainingPoints * Math.random());
-			net.train(1, (int) trainingCorrect[k][0], training[k]);
-			net.train(0, (int) trainingCorrect[k][1], training[k]);
+			net.train(training[k], trainingCorrect[k][0], trainingCorrect[k][1]);
 		}
-
 		// Make test data
 		board.clear();
-		double[] testObvious = new double[19 * 19 * 4];
-		Extractor extractor = new Extractor(board);
-		int p = 0;
-		for (int row = 0; row < 19; row++) {
-			for (int col = 0; col < 19; col++) {
-				testObvious[p] = extractor.isBlack(row, col);
-				testObvious[p + 19 * 19] = extractor.isWhite(row, col);
-				testObvious[p + 19 * 19 * 2] = extractor.isUltimateMove(row,
-						col);
-				testObvious[p + 19 * 19 * 3] = extractor.isPenultimateMove(row,
-						col);
-				p++;
-			}
-		}
+		net.update(extractor.toInputVector());
 		// Print test data
+		float[] out = net.getOutputActivations();
 		for (int j = 0; j < 19 * 19; j++) {
-			System.out.printf("%1.4f ", net.test(testObvious)[j]);
+			System.out.printf("%1.4f ", out[j + 1]);
 			if (j % 19 == 18) {
 				System.out.println();
 			}
