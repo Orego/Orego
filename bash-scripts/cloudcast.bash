@@ -15,7 +15,7 @@ gcloud compute images create exp1-image --source-disk orego-instance
 
 # Create the instances
 gcloud compute instances create broadcast --disk name=orego-instance,boot=yes
-gcloud compute instances create instance1 instance2 instance3 instance4 --image exp1-image machine-type n1-highcpu-16
+gcloud compute instances create instance1 instance2 instance3 instance4 --image exp1-image --machine-type n1-highcpu-16
 sleep 120s
 
 # Tell the broadcast instance to launch the experiment across the other instances
