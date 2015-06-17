@@ -56,7 +56,10 @@ public class Extractor {
 		if (board.getTurn() < 2) {
 			return 0;
 		}
-		if (historyObserver.get((board.getTurn() - 2)) == coords.at(row, col)) {
+		if (coords.isValidOneDimensionalCoordinate(row)
+				&& coords.isValidOneDimensionalCoordinate(col)
+				&& historyObserver.get((board.getTurn() - 2)) == coords.at(row,
+						col)) {
 			return 1;
 		}
 		return 0;
