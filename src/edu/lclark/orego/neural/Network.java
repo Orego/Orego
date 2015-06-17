@@ -39,16 +39,13 @@ public class Network {
 		return out.getActivations();
 	}
 
-	/** Prints the actual and correct output for each training case. */
+	/** Prints the output for each training case. */
 	@SuppressWarnings("boxing")
-	void test(float[][] training, float[][] correct) {
-		for (int i = 0; i < correct.length; i++) {
+	void test(float[][] training) {
+		for (int i = 0; i < training.length; i++) {
+			System.out.println(java.util.Arrays.toString(training[i]));
 			update(training[i]);
-			for (int j = 0; j < correct[i].length; j++) {
-				System.out.printf("%1.3f, should be %1.3f\n",
-						out.getActivations()[j + 1], correct[i][j]);
-			}
-			System.out.println();
+			System.out.println(java.util.Arrays.toString(out.getActivations()));
 		}
 		System.out.println();
 	}

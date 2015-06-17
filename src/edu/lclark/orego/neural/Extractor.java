@@ -15,11 +15,6 @@ public class Extractor {
 	public Extractor(Board board) {
 		this.board = board;
 		historyObserver = new HistoryObserver(board);
-		inputVector = new float[board.getCoordinateSystem().getArea() * 4]; // TODO 4 is a magic number
-	}
-
-	public void changeBoard(Board b) {
-		board = b;
 	}
 
 	/**
@@ -95,25 +90,23 @@ public class Extractor {
 		return 0;
 	}
 
-	/** Kept as a field to avoid creating it each time toInputVector is called. */
-	private float[] inputVector;
-	
 	/** Returns a neural network input vector based on the state of the game. */
 	public float[] toInputVector() {
+		final float[] result = new float[board.getCoordinateSystem().getArea() * 4]; // TODO 4 is a magic number
 		final CoordinateSystem coords = board.getCoordinateSystem();
 		final int width = coords.getWidth();
 		final int area = coords.getArea();
 		int p = 0; // place in training array
 		for (int row = 0; row < width; row++) {
 			for (int col = 0; col < width; col++) {
-				inputVector[p] = isBlack(row, col);
-				inputVector[p + area] = isWhite(row, col);
-				inputVector[p + area * 2] = isUltimateMove(row, col);
-				inputVector[p + area * 3] = isPenultimateMove(row, col);
+				result[p] = isBlack(row, col);
+				result[p + area] = isWhite(row, col);
+				result[p + area * 2] = isUltimateMove(row, col);
+				result[p + area * 3] = isPenultimateMove(row, col);
 				p++;
 			}
 		}
-		return inputVector;
+		return result;
 	}
 
 }

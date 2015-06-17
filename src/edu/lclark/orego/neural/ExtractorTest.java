@@ -76,4 +76,35 @@ public class ExtractorTest {
 		}, extractor.toInputVector(), 0.01f);
 	}
 
+	@Test
+	public void testLearnGoodAndBadMoves() {
+		final int area = board.getCoordinateSystem().getArea();
+		final int features = 4; // Number of features per board point
+		Network net = new Network(area * features, area, area);
+		float[][] training = new float[2][];
+		int[][] trainingCorrect = new int[2][2];
+		board.play("a2");
+		board.play("b3");
+		training[0] = extractor.toInputVector();
+		trainingCorrect[0] = new int[] {8, 23};
+		board.clear();
+		board.play("b3");
+		board.play("a2");
+		training[1] = extractor.toInputVector();
+		trainingCorrect[1] = new int[] {23, 8};
+		// Train the network
+		final int updates = 10000;
+		for (int i = 0; i < updates; i++) {
+			int k = (int) (Math.random() * (training.length));
+			net.train(training[k], trainingCorrect[k][0], trainingCorrect[k][1]);
+		}
+		// Verify that it learned the good and bad moves
+		for (int i = 0; i < trainingCorrect.length; i++) {			
+			net.update(training[i]);
+			float[] out = net.getOutputActivations();
+			assertEquals(1.0f, out[trainingCorrect[i][0] + 1], 0.1f);
+			assertEquals(0.0f, out[trainingCorrect[i][1] + 1], 0.1f);
+		}
+	}
+
 }
