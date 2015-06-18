@@ -246,6 +246,7 @@ final class Game {
 	/** Sends a move request to the color to play. */
 	private void sendMoveRequest() {
 		final StoneColor c = getColorToPlay();
+		System.err.println("Sending move request to " + c.toString());
 		toPrograms[c.index()].println("genmove " + c);
 		toPrograms[c.index()].flush();
 		timeLastMoveWasRequested = System.currentTimeMillis();

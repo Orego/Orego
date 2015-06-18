@@ -35,6 +35,7 @@ final class PlayerListener implements Runnable {
 					finishedNormally = game.handleResponse(line, s);
 				}
 			}
+			System.err.println("PlayerListener did not get a line, finishedNormally = " + finishedNormally);
 			if (!finishedNormally) {
 				log("Program crashed");
 				game.handleResponse("? program crashed", s);
