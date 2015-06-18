@@ -173,6 +173,7 @@ final class Game {
 		if (line.startsWith("=")) {
 			if (state == REQUESTING_MOVE) {
 				final String move = line.substring(line.indexOf(' ') + 1);
+				System.err.println("Game received move " + move);
 				if (!writeMoveToSgf(move)) {
 					return false;
 				}
@@ -182,6 +183,7 @@ final class Game {
 				}
 				if (board.getPasses() == 2) {
 					winner = scorer.winner();
+					System.err.println("Game set winner to " + winner);
 					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+"
 							+ Math.abs(scorer.score()) + "]");
 					out.println(";C[moves:" + board.getTurn() + "]");
