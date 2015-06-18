@@ -30,12 +30,12 @@ final class PlayerListener implements Runnable {
 				// s is passed in in case there is a multi-line error message,
 				// so game can dump all of the message to the output file
 				final String line = s.nextLine();
-				System.err.println("PlayerListener got line " + line);
+				System.err.println(game.hashCode() + " PlayerListener got line " + line);
 				if (!line.isEmpty()) {
 					finishedNormally = game.handleResponse(line, s);
 				}
 			}
-			System.err.println("PlayerListener did not get a line, finishedNormally = " + finishedNormally);
+			System.err.println(game.hashCode() + " PlayerListener did not get a line, finishedNormally = " + finishedNormally);
 			if (!finishedNormally) {
 				log("Program crashed");
 				game.handleResponse("? program crashed", s);
