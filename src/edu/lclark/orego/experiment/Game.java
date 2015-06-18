@@ -120,6 +120,7 @@ final class Game {
 	 * players to shut down and then crashes.
 	 */
 	private void die(String line, Scanner s, String message) {
+		System.err.println("Game dying, line " + line + ", message " + message);
 		endPrograms();
 		out.println("In " + filename + ":");
 		out.println(board);
@@ -170,6 +171,7 @@ final class Game {
 	 * @return true if line is a response to a quit command.
 	 */
 	boolean handleResponse(String line, Scanner s) {
+		System.err.println("Game received line " + line);
 		if (line.startsWith("=")) {
 			if (state == REQUESTING_MOVE) {
 				final String move = line.substring(line.indexOf(' ') + 1);
