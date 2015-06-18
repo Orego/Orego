@@ -8,6 +8,7 @@ import static edu.lclark.orego.experiment.Game.State.QUITTING;
 import static edu.lclark.orego.experiment.Game.State.REQUESTING_MOVE;
 import static edu.lclark.orego.experiment.Game.State.SENDING_MOVE;
 import static edu.lclark.orego.experiment.Game.State.SENDING_TIME_LEFT;
+import static edu.lclark.orego.experiment.Logging.log;
 import static edu.lclark.orego.sgf.SgfWriter.toSgf;
 
 import java.io.FileNotFoundException;

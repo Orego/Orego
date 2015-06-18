@@ -5,7 +5,6 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 import static java.io.File.separator;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
