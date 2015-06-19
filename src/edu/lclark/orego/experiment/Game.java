@@ -207,6 +207,13 @@ final class Game {
 				return true;
 			}
 		}
+		System.err.println("A program died, I'm just gonna wait for a while");
+		try {
+			Thread.sleep(Long.MAX_VALUE);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		die(line, s, "Error from program");
 		return false;
 	}
@@ -246,7 +253,7 @@ final class Game {
 	/** Sends a move request to the color to play. */
 	private void sendMoveRequest() {
 		final StoneColor c = getColorToPlay();
-		System.err.println(hashCode() + " Sending move request to " + c.toString());
+		System.err.println(hashCode() + " Sending move request to " + c);
 		toPrograms[c.index()].println("genmove " + c);
 		toPrograms[c.index()].flush();
 		timeLastMoveWasRequested = System.currentTimeMillis();
@@ -257,6 +264,7 @@ final class Game {
 		final StoneColor c = getColorToPlay();
 		final int timeLeftForThisPlayer = rules.time
 				- (int) (timeUsed[c.index()] / 1000);
+		System.err.println(hashCode() + " Sending time left (" + timeLeftForThisPlayer + " seconds) to " + c);
 		toPrograms[c.index()].println("time_left " + c + " "
 				+ timeLeftForThisPlayer + " 0");
 		toPrograms[c.index()].flush();
@@ -270,6 +278,7 @@ final class Game {
 	 * acknowledgment of a time-left message).
 	 */
 	private void sendToOtherPlayer(final String move) {
+		System.err.println(hashCode() + " Sending move to other player (" + getColorToPlay() + ")");
 		if (rules.time > 0) {
 			state = SENDING_MOVE;
 		} else {
