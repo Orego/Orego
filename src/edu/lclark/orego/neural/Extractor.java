@@ -12,9 +12,13 @@ public class Extractor {
 
 	private HistoryObserver historyObserver;
 
-	public Extractor(Board board) {
+	public Extractor(Board board, HistoryObserver historyObserver) {
 		this.board = board;
-		historyObserver = new HistoryObserver(board);
+		this.historyObserver = historyObserver;
+	}
+
+	public Extractor(Board board) {
+		this(board, new HistoryObserver(board));
 	}
 
 	/**
