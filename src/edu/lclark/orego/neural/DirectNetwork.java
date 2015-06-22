@@ -36,7 +36,7 @@ public class DirectNetwork implements Serializable {
 		coords = board.getCoordinateSystem();
 		this.extractor = new Extractor(board, historyObserver);
 		final int area = coords.getArea();
-		net = new Network(area * 4, area, area);
+		net = new Network(area * 4, area * 5, area);
 		random = new MersenneTwisterFast();
 	}
 
@@ -53,7 +53,7 @@ public class DirectNetwork implements Serializable {
 			}
 		} else if (file.getPath().endsWith(".sgf")) {
 			// System.out.println("Reading file " + file.getName());
-			games.addAll(parser.parseGamesFromFile(file, 1));
+			games.addAll(parser.parseGamesFromFile(file, 2));
 		}
 		return games;
 	}
@@ -113,7 +113,7 @@ public class DirectNetwork implements Serializable {
 			}
 		}
 		// Train the network
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			// TODO Should this be random or should we just pass through all the
 			// games?
 			int k = (int) (numberOfTrainingPoints * Math.random());
