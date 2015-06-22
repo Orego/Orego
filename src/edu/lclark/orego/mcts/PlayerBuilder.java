@@ -87,11 +87,11 @@ public final class PlayerBuilder {
 		CopiableStructure copyStructure;
 		if(shape){
 			copyStructure = CopiableStructureFactory.shape(width, komi, shapeBias, shapePatternSize, shapeScalingFactor);
+		} else if (neural) {
+			copyStructure = CopiableStructureFactory.neural(width, komi);
 		} else if(lgrf2){
 			copyStructure = CopiableStructureFactory.lgrfWithBias(width,
 					komi);
-		} else if (neural) {
-			copyStructure = CopiableStructureFactory.neural(width, komi);
 		}else {
 			copyStructure = CopiableStructureFactory.useWithBias(width, komi);
 		}
@@ -172,6 +172,11 @@ public final class PlayerBuilder {
 
 	public PlayerBuilder msecPerMove(int msec) {
 		this.msecPerMove = msec;
+		return this;
+	}
+
+	public PlayerBuilder neural(boolean neural) {
+		this.neural = neural;
 		return this;
 	}
 

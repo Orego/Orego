@@ -20,6 +20,7 @@ import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.feature.HistoryObserver;
+import edu.lclark.orego.neural.DirectNetwork;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
 import edu.lclark.orego.util.ShortList;
@@ -82,8 +83,12 @@ public final class Player {
 	/** Object used to calculate amount of time used in generating a move. */
 	private TimeManager timeManager;
 
+	// TODO Should more of these fields be final?
 	private TreeUpdater updater;
 
+	// TODO Find a better to place to attach experimental parts
+	private final DirectNetwork net;
+	
 	/**
 	 * @param threads
 	 *            Number of threads to run.
@@ -106,6 +111,7 @@ public final class Player {
 		updater = new DoNothing();
 		book = new DoNothing();
 		timeLeftWasSent = false;
+		net = copy.get(DirectNetwork.class);
 	}
 
 	/** Plays at p on this player's board. */
@@ -618,6 +624,27 @@ public final class Player {
 							coords.toString(p), coords.toString(p),
 							(winRate * 100));
 				}
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("boxing")
+	public String goguiGetNeuralEstimate() {
+		net.update();
+		String result = "";
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (getBoard().getColorAt(p) == VACANT) {
+				float estimate = net.getOutputActivation(p);
+				if (result.length() > 0) {
+					result += "\n";
+				}
+				int green = (int) (255 * estimate);
+				result += String
+						.format("COLOR %s %s\nLABEL %s %.0f%%", String.format(
+								"#%02x%02x00", 255 - green, green), coords
+								.toString(p), coords.toString(p),
+								(estimate * 100));
 			}
 		}
 		return result;

@@ -1,10 +1,13 @@
 package edu.lclark.orego.neural;
 
+import java.io.Serializable;
+
 /**
  * A layer in a neural network. This class can be used for an input layer;
  * computational layers use subclasses.
  */
-class Layer {
+@SuppressWarnings("serial")
+class Layer implements Serializable {
 
 	/**
 	 * Activations of the units, including a bias unit at index 0 with

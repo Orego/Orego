@@ -1,7 +1,10 @@
 package edu.lclark.orego.neural;
 
+import java.io.Serializable;
+
 /** A feedforward neural network, trained by backpropagation. */
-public class Network {
+@SuppressWarnings("serial")
+public class Network implements Serializable {
 
 	/** Sequence of hidden layers. */
 	private HiddenLayer[] hid;

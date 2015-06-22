@@ -48,7 +48,6 @@ public class DirectNetwork implements Serializable {
 	List<List<Short>> processFiles(File file, SgfParser parser) {
 		final List<List<Short>> games = new ArrayList<>();
 		if (file.isDirectory()) {
-			System.out.println("Analyzing files in " + file.getName());
 			for (final File f : file.listFiles()) {
 				games.addAll(processFiles(f, parser));
 			}
@@ -94,7 +93,6 @@ public class DirectNetwork implements Serializable {
 		for (final List<Short> game : games) {
 			numberOfTrainingPoints += game.size();
 		}
-		System.out.println(numberOfTrainingPoints);
 		// Declare stuff
 		float[][] training = new float[numberOfTrainingPoints][];
 		// TODO It would be better to pick a different bad move each time we train on a point
@@ -116,9 +114,6 @@ public class DirectNetwork implements Serializable {
 		}
 		// Train the network
 		for (int i = 0; i < 100000; i++) {
-			if (i % 100 == 0) {
-				System.out.println(i);
-			}
 			// TODO Should this be random or should we just pass through all the
 			// games?
 			int k = (int) (numberOfTrainingPoints * Math.random());

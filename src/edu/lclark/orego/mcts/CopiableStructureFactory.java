@@ -146,9 +146,34 @@ public final class CopiableStructureFactory {
 		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);
 		// Observers
+		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// Suggesters
+		final EscapeSuggester escape = new EscapeSuggester(board,
+				atariObserver, 20);
+		final PatternSuggester patterns = new PatternSuggester(board,
+				historyObserver, 20);
+		final CaptureSuggester capture = new CaptureSuggester(board,
+				atariObserver, 20);
+		// Bias
+		base.add(new Suggester[] { escape, patterns, capture });
+		// Mover
+		final SuggesterMover mover = new SuggesterMover(board, escape,
+				new SuggesterMover(board, patterns, new SuggesterMover(board,
+						capture, new PredicateMover(board, new Conjunction(
+								new NotEyeLike(board), new Disjunction(
+										OnThirdOrFourthLine.forWidth(board
+												.getCoordinateSystem()
+												.getWidth()),
+										new NearAnotherStone(board)))))));
+		base.add(mover);
+		// Filter
+		base.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
 		// Network
 		final DirectNetwork net = new DirectNetwork(board, historyObserver);
+		net.train();
 		return base.add(net);
 	}
 

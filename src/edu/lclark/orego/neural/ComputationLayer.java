@@ -1,6 +1,7 @@
 package edu.lclark.orego.neural;
 
 /** A layer that performs computation, e.g., a hidden or output layer. */
+@SuppressWarnings("serial")
 abstract class ComputationLayer extends Layer {
 
 	/** Learning rate for backpropagation. */

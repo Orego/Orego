@@ -1,5 +1,6 @@
 package edu.lclark.orego.neural;
 
+@SuppressWarnings("serial")
 class HiddenLayer extends ComputationLayer {
 
 	/**

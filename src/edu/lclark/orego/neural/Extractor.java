@@ -1,12 +1,15 @@
 package edu.lclark.orego.neural;
 
+import java.io.Serializable;
+
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import static edu.lclark.orego.core.StoneColor.*;
 
 /** Extracts board information for processing by neural network. */
-public class Extractor {
+@SuppressWarnings("serial")
+public class Extractor implements Serializable {
 
 	private Board board;
 

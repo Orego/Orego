@@ -98,7 +98,7 @@ public final class Orego {
 			"known_command", "kgs-game_over", "kgs-genmove_cleanup", "komi",
 			"list_commands", "loadsgf", "name", "play", "playout_count",
 			"protocol_version", "quit", "reg_genmove", "showboard",
-			"time_left", "time_settings", "undo", "version", "white", };
+			"time_left", "time_settings", "undo", "version", "white", "gogui-neural-estimate"};
 
 	public static void main(String[] args) throws IOException {
 		new Orego(args).run();
@@ -304,7 +304,9 @@ public final class Orego {
 				acknowledge(coords.toString(point));
 			}
 		} else if (command.equals("gogui-analyze_commands")) {
-			acknowledge("gfx/Perform bias/gogui-perform-bias\ngfx/Search values/gogui-search-values\ngfx/Get wins/gogui-get-wins\ngfx/Get runs/gogui-get-runs\ngfx/Get winrate/gogui-get-winrate\ngfx/Perform 1000 mcruns/perform-mcruns\n");
+			acknowledge("gfx/Neural estimate/gogui-neural-estimate\ngfx/Perform bias/gogui-perform-bias\ngfx/Search values/gogui-search-values\ngfx/Get wins/gogui-get-wins\ngfx/Get runs/gogui-get-runs\ngfx/Get winrate/gogui-get-winrate\ngfx/Perform 1000 mcruns/perform-mcruns\n");
+		} else if (command.equals("gogui-neural-estimate")) {
+			acknowledge(player.goguiGetNeuralEstimate());
 		} else if (command.equals("gogui-get-runs")) {
 			acknowledge(player.goguiGetRuns());
 		} else if (command.equals("gogui-get-winrate")) {
@@ -463,6 +465,8 @@ public final class Orego {
 				playerBuilder.memorySize(parseInt(right));
 			} else if (left.equals("msec")) {
 				playerBuilder.msecPerMove(parseInt(right));
+			} else if (left.equals("neural")) {
+				playerBuilder.neural(parseBoolean(right));
 			} else if (left.equals("ponder")) {
 				playerBuilder.ponder(parseBoolean(right));
 			} else if (left.equals("rave")) {
