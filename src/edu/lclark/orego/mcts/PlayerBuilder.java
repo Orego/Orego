@@ -34,6 +34,8 @@ public final class PlayerBuilder {
 
 	private int msecPerMove;
 
+	private boolean neural;
+	
 	private boolean ponder;
 	
 	private boolean rave;
@@ -88,6 +90,8 @@ public final class PlayerBuilder {
 		} else if(lgrf2){
 			copyStructure = CopiableStructureFactory.lgrfWithBias(width,
 					komi);
+		} else if (neural) {
+			copyStructure = CopiableStructureFactory.neural(width, komi);
 		}else {
 			copyStructure = CopiableStructureFactory.useWithBias(width, komi);
 		}

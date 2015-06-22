@@ -25,6 +25,7 @@ import edu.lclark.orego.move.SuggesterMover;
 import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChineseFinalScorer;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
+import edu.lclark.orego.neural.*;
 
 /** Static methods for creating some particular, widely-used CopiableStructures. */
 public final class CopiableStructureFactory {
@@ -139,6 +140,16 @@ public final class CopiableStructureFactory {
 		final Board board = base.get(Board.class);
 		base.add(new NotEyeLike(board));
 		return base.add(MoverFactory.simpleRandom(board));
+	}
+
+	public static CopiableStructure neural(int width, double komi) {
+		final CopiableStructure base = basicParts(width, komi);
+		final Board board = base.get(Board.class);
+		// Observers
+		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
+		// Network
+		final DirectNetwork net = new DirectNetwork(board, historyObserver);
+		return base.add(net);
 	}
 
 	/**
