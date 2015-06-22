@@ -8,7 +8,6 @@ import org.junit.Test;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
-import static edu.lclark.orego.core.CoordinateSystem.*;
 
 public class DirectNetworkTest {
 
