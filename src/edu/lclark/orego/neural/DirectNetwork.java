@@ -7,16 +7,13 @@ import static edu.lclark.orego.move.Mover.PRIMES;
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.lclark.orego.book.BigHashMap;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
@@ -34,7 +31,7 @@ public class DirectNetwork implements Serializable {
 
 	private Extractor extractor;
 
-	private int maxMove = 2;
+	private int maxMove = 1;
 
 	private Network net;
 
@@ -51,6 +48,10 @@ public class DirectNetwork implements Serializable {
 		random = new MersenneTwisterFast();
 	}
 
+	public float[] getOutputActivations() {
+		return net.getOutputActivations();
+	}
+	
 	/** Returns the network's output for point p. */
 	public float getOutputActivation(short p) {
 		return net.getOutputActivations()[netIndex(coords.row(p),
@@ -139,7 +140,7 @@ public class DirectNetwork implements Serializable {
 			}
 		}
 		// Train the network
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			// TODO Should this be random or should we just pass through all the
 			// games?
 			int k = (int) (numberOfTrainingPoints * Math.random());
