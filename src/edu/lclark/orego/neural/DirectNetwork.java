@@ -99,6 +99,7 @@ public class DirectNetwork implements Serializable {
 		return PASS;
 	}
 
+	/**Trains the network by reading in all files, saving them, and then using randomly selected moves.*/
 	public void train() {
 		// Get games from files
 		final SgfParser parser = new SgfParser(coords, true);
@@ -139,12 +140,14 @@ public class DirectNetwork implements Serializable {
 		}
 	}
 
+	/**Trains the network given a specified number of epochs*/
 	public void train(int epochs) {
 		for (int i = 0; i < epochs; i++) {
 			trainFiles(new File(SYSTEM.getExpertGamesDirectory()));
 		}
 	}
 
+	/**Given file, trains network once on every move in every game*/
 	void trainFiles(File file) {
 		if (file.isDirectory()) {
 			if (verbose) {
