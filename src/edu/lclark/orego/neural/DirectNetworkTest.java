@@ -31,7 +31,7 @@ public class DirectNetworkTest {
 
 	@Test
 	public void testDirectNetwork() {
-		net.train();
+		net.train(1);
 		net.update();
 		assertTrue(net.getOutputActivation(at("d4")) > net.getOutputActivation(at("a1")));
 	}

@@ -24,12 +24,16 @@ public class DirectNetwork implements Serializable {
 	private final MersenneTwisterFast random;
 
 	private Board board;
-	
+
 	private Network net;
-	
+
 	private Extractor extractor;
-	
+
 	private CoordinateSystem coords;
+
+	private boolean verbose = true;
+
+	private int maxMove = 2;
 	
 	public DirectNetwork(Board board, HistoryObserver historyObserver) {
 		this.board = board;
@@ -58,12 +62,18 @@ public class DirectNetwork implements Serializable {
 		return games;
 	}
 
-	/** Returns an index in the network (which does not use off-board padding like Board) for the point at row, col. */
+	/**
+	 * Returns an index in the network (which does not use off-board padding
+	 * like Board) for the point at row, col.
+	 */
 	private int netIndex(int row, int col) {
 		return coords.getWidth() * row + col;
 	}
 
-	/** Copied from a different part of Orego that selects a move other then the one specified. */
+	/**
+	 * Copied from a different part of Orego that selects a move other then the
+	 * one specified.
+	 */
 	private short selectRandomMove(short move) {
 		ShortSet vacantPoints = board.getVacantPoints();
 		short start = (short) (random.nextInt(vacantPoints.size()));
@@ -83,11 +93,44 @@ public class DirectNetwork implements Serializable {
 		return PASS;
 	}
 
+	public void train(int epochs) {
+		for (int i = 0; i < epochs; i++) {
+			trainFiles(new File(SYSTEM.getExpertGamesDirectory()));
+		}
+	}
+
+	void trainFiles(File file) {
+		if (file.isDirectory()) {
+			if (verbose) {
+				System.out.println("Analyzing files in " + file.getName());
+			}
+			for (final File tempFile : file.listFiles()) {
+				trainFiles(tempFile);
+			}
+		} else if (file.getPath().endsWith(".sgf")) {
+			final SgfParser parser = new SgfParser(coords, true);
+			final List<List<Short>> games = parser.parseGamesFromFile(file,
+					maxMove);
+			for (final List<Short> game : games) {
+				board.clear();
+				for (final short good : game) {
+					float[] training = new float[extractor.toInputVector().length];
+					training = extractor.toInputVector();
+					short bad = selectRandomMove(good);
+					net.train(training,
+							netIndex(coords.row(good), coords.column(good)),
+							netIndex(coords.row(bad), coords.column(bad)));
+					board.play(good);
+				}
+			}
+		}
+	}
+
 	public void train() {
 		// Get games from files
 		final SgfParser parser = new SgfParser(coords, true);
-		final List<List<Short>> games = processFiles(new File(
-				SYSTEM.getExpertGamesDirectory()), parser);
+		final List<List<Short>> games = processFiles(
+				new File(SYSTEM.getExpertGamesDirectory()), parser);
 		// Count the number of points to train on
 		int numberOfTrainingPoints = 0;
 		for (final List<Short> game : games) {
@@ -95,7 +138,8 @@ public class DirectNetwork implements Serializable {
 		}
 		// Declare stuff
 		float[][] training = new float[numberOfTrainingPoints][];
-		// TODO It would be better to pick a different bad move each time we train on a point
+		// TODO It would be better to pick a different bad move each time we
+		// train on a point
 		int[][] trainingCorrect = new int[numberOfTrainingPoints][2];
 		int pointNumber = 0;
 		// Input data
@@ -105,7 +149,8 @@ public class DirectNetwork implements Serializable {
 				training[pointNumber] = extractor.toInputVector();
 				short bad = selectRandomMove(good);
 				trainingCorrect[pointNumber] = new int[] {
-						// TODO row and column extraction could happen inside index
+						// TODO row and column extraction could happen inside
+						// index
 						netIndex(coords.row(good), coords.column(good)),
 						netIndex(coords.row(bad), coords.column(bad)) };
 				board.play(good);
@@ -122,12 +167,13 @@ public class DirectNetwork implements Serializable {
 	}
 
 	public void update() {
-		net.update(extractor.toInputVector());		
+		net.update(extractor.toInputVector());
 	}
 
 	/** Returns the network's output for point p. */
 	public float getOutputActivation(short p) {
-		return net.getOutputActivations()[netIndex(coords.row(p), coords.column(p)) + 1];
+		return net.getOutputActivations()[netIndex(coords.row(p),
+				coords.column(p)) + 1];
 	}
 
 }
