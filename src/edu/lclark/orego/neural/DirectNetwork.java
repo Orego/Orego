@@ -4,12 +4,19 @@ import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 import static edu.lclark.orego.move.Mover.PRIMES;
+import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.lclark.orego.book.BigHashMap;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
@@ -145,6 +152,7 @@ public class DirectNetwork implements Serializable {
 		for (int i = 0; i < epochs; i++) {
 			trainFiles(new File(SYSTEM.getExpertGamesDirectory()));
 		}
+		
 	}
 
 	/**Given file, trains network once on every move in every game*/
@@ -179,4 +187,18 @@ public class DirectNetwork implements Serializable {
 		net.update(extractor.toInputVector());
 	}
 
+	
+	/** Writes the book to a file. */
+	public void writeBook() {
+		final File directory = new File(OREGO_ROOT + "networks" + File.separator
+				+ "neuralbook.data");
+		try (ObjectOutputStream out = new ObjectOutputStream(
+				new FileOutputStream(directory))) {
+			out.writeObject(this);
+		} catch (final IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
 }
