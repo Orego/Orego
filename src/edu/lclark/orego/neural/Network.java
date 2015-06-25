@@ -42,6 +42,21 @@ public class Network implements Serializable {
 		return out.getActivations();
 	}
 
+	/**Returns index position of maximum output*/
+	public int maxOutput(){
+		float [] activations = getOutputActivations();
+		float max = activations[1];
+		int maxIndex = 1;
+		for (int i = 2; i < activations.length; i++){
+			if (activations[i] >= max){
+				maxIndex = i;
+				max = activations[i];
+			}
+		}
+		//TODO may need to change this
+		return maxIndex-1;
+	}
+
 	/** Prints the output for each training case. */
 	@SuppressWarnings("boxing")
 	void test(float[][] training) {
@@ -52,7 +67,7 @@ public class Network implements Serializable {
 		}
 		System.out.println();
 	}
-
+	
 	/**
 	 * Trains the network on one training vector with one vector of correct
 	 * outputs.
@@ -68,21 +83,6 @@ public class Network implements Serializable {
 		for (int i = 0; i < hid.length; i++) {
 			hid[i].updateWeights();
 		}
-	}
-	
-	/**Returns index position of maximum output*/
-	public int maxOutput(){
-		float [] activations = getOutputActivations();
-		float max = activations[1];
-		int maxIndex = 1;
-		for (int i = 2; i < activations.length; i++){
-			if (activations[i] >= max){
-				maxIndex = i;
-				max = activations[i];
-			}
-		}
-		//TODO may need to change this
-		return maxIndex-1;
 	}
 
 	/**
@@ -100,15 +100,6 @@ public class Network implements Serializable {
 		for (int i = 0; i < hid.length; i++) {
 			hid[i].updateWeights();
 		}
-	}
-
-	/** Updates this network, but only the goodth and badth output units. */
-	private void update(float[] training, int good, int bad) {
-		in.setActivations(training);
-		for (int i = 0; i < hid.length; i++) {
-			hid[i].updateActivations();
-		}
-		out.updateActivations(good, bad);
 	}
 
 	/**
@@ -141,6 +132,15 @@ public class Network implements Serializable {
 			hid[i].updateActivations();
 		}
 		out.updateActivations();
+	}
+
+	/** Updates this network, but only the goodth and badth output units. */
+	private void update(float[] training, int good, int bad) {
+		in.setActivations(training);
+		for (int i = 0; i < hid.length; i++) {
+			hid[i].updateActivations();
+		}
+		out.updateActivations(good, bad);
 	}
 
 }
