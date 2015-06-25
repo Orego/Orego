@@ -30,7 +30,7 @@ public class DirectNetwork implements Serializable {
 	public static void main(String[] args) {
 		Board board = new Board(19);
 		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(board));
-		network.train(1);
+		network.train(3);
 		network.writeBook();		
 	}
 
@@ -56,15 +56,23 @@ public class DirectNetwork implements Serializable {
 
 	private Extractor extractor;
 
-	private int maxMove = 1;
+	private int maxMove = 3;
 
 	private Network net;
 
 	private final MersenneTwisterFast random;
 
-	private boolean verbose = true;
+	private boolean verbose = false;
+	
+	private int gameCount;
+	
+	private double validationsTested;
+	private double trainTested;
+	private double correctValidations;
+	private double correctTrainings;
 
 	private DirectNetwork(Board board, HistoryObserver historyObserver) {
+		gameCount = 0;
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		this.extractor = new Extractor(board, historyObserver);
@@ -136,12 +144,15 @@ public class DirectNetwork implements Serializable {
 	public void train(int epochs) {
 		final SgfParser parser = new SgfParser(coords, true);
 		for (int i = 0; i < epochs; i++) {
-			trainFiles(new File(SYSTEM.getExpertGamesDirectory()), parser);
+			File file = new File(SYSTEM.getExpertGamesDirectory());
+			trainFiles(file, parser);
+			gameCount = 0;
+			
+			test(i, file, parser);
 		}
-		
 	}
 
-	/**Given file, trains network once on every move in every game*/
+	/**Given file, trains network once on every move in every game recursively*/
 	void trainFiles(File file, SgfParser parser) {
 		if (file.isDirectory()) {
 			if (verbose) {
@@ -154,6 +165,10 @@ public class DirectNetwork implements Serializable {
 			final List<List<Short>> games = parser.parseGamesFromFile(file,
 					maxMove);
 			for (final List<Short> game : games) {
+				gameCount++;
+				if (gameCount % 10 == 0){
+					break;
+				}
 				board.clear();
 				for (final short good : game) {
 					net.train(extractor.toInputVector(),
@@ -164,6 +179,53 @@ public class DirectNetwork implements Serializable {
 			}
 		}
 	}
+	
+	void test(int epoch, File file, SgfParser parser){
+		validationsTested = 0;
+		trainTested = 0;
+		correctValidations = 0;
+		correctTrainings = 0;
+		test(file, parser);
+		System.out.println((epoch + 1) + "\t" + (correctValidations / validationsTested) + "\t" + (correctTrainings / trainTested));
+	}
+	
+	void test(File file, SgfParser parser){
+		if (file.isDirectory()) {
+			if (verbose) {
+				System.out.println("Analyzing files in " + file.getName());
+			}
+			for (final File tempFile : file.listFiles()) {
+				test(tempFile, parser);
+			}
+		} else if (file.getPath().endsWith(".sgf")) {
+			final List<List<Short>> games = parser.parseGamesFromFile(file,
+					maxMove);
+			for (final List<Short> game : games) {
+				gameCount++;
+				if (gameCount % 10 == 0){
+					board.clear();
+					for (final short correct : game){
+						validationsTested++;
+						if (netIndex(correct) == net.maxOutput()){
+							correctValidations++;
+						}
+						board.play(correct);
+					}
+					break;	
+				}
+				board.clear();
+				for (final short correct : game) {
+					trainTested++;
+					if (netIndex(correct) == net.maxOutput()){
+						correctTrainings++;
+					}
+					board.play(correct);
+				}
+			}
+		}
+	}
+	
+	
 
 	public void update() {
 		net.update(extractor.toInputVector());
@@ -173,7 +235,7 @@ public class DirectNetwork implements Serializable {
 	/** Writes the book to a file. */
 	public void writeBook() {
 		final File directory = new File(OREGO_ROOT + "networks" + File.separator
-				+ "neuralbook.data");
+				+ "network.data");
 		try (ObjectOutputStream out = new ObjectOutputStream(
 				new FileOutputStream(directory))) {
 			out.writeObject(this);

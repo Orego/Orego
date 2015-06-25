@@ -69,6 +69,21 @@ public class Network implements Serializable {
 			hid[i].updateWeights();
 		}
 	}
+	
+	/**Returns index position of maximum output*/
+	public int maxOutput(){
+		float [] activations = getOutputActivations();
+		float max = activations[1];
+		int maxIndex = 1;
+		for (int i = 2; i < activations.length; i++){
+			if (activations[i] >= max){
+				maxIndex = i;
+				max = activations[i];
+			}
+		}
+		//TODO may need to change this
+		return maxIndex-1;
+	}
 
 	/**
 	 * Trains the network on a given training vector, where the goodth output
