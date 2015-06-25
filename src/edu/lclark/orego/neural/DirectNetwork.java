@@ -7,8 +7,10 @@ import static edu.lclark.orego.move.Mover.PRIMES;
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +27,29 @@ import edu.lclark.orego.util.ShortSet;
 /** A network that responds directly to its board. */
 public class DirectNetwork implements Serializable {
 
+	public static void main(String[] args) {
+		Board board = new Board(19);
+		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(board));
+		network.train(1);
+		network.writeBook();		
+	}
+
+	public static DirectNetwork readFromDisk(Board board, HistoryObserver historyObserver) {
+		try (ObjectInputStream in = new ObjectInputStream(
+				new FileInputStream(new File(OREGO_ROOT + "networks" + File.separator
+						+ "network.data")))) {
+			DirectNetwork net = (DirectNetwork) in.readObject();
+			net.board = board;
+			net.extractor = new Extractor(board, historyObserver);
+			return net;
+		} catch (final Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return null;
+	}
+
+	// TODO Do we really need this?
 	private Board board;
 
 	private CoordinateSystem coords;
@@ -39,7 +64,7 @@ public class DirectNetwork implements Serializable {
 
 	private boolean verbose = true;
 
-	public DirectNetwork(Board board, HistoryObserver historyObserver) {
+	private DirectNetwork(Board board, HistoryObserver historyObserver) {
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		this.extractor = new Extractor(board, historyObserver);
@@ -48,13 +73,13 @@ public class DirectNetwork implements Serializable {
 		random = new MersenneTwisterFast();
 	}
 
-	public float[] getOutputActivations() {
-		return net.getOutputActivations();
-	}
-	
 	/** Returns the network's output for point p. */
 	public float getOutputActivation(short p) {
 		return net.getOutputActivations()[netIndex(p) + 1];
+	}
+	
+	public float[] getOutputActivations() {
+		return net.getOutputActivations();
 	}
 
 	/**

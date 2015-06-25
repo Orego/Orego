@@ -26,12 +26,11 @@ public class DirectNetworkTest {
 	public void setUp() throws Exception {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
-		net = new DirectNetwork(board, new HistoryObserver(board));
+		net = DirectNetwork.readFromDisk(board, new HistoryObserver(board));
 	}
 
 	@Test
 	public void testDirectNetwork() {
-		net.train(1);
 		net.update();
 		assertTrue(net.getOutputActivation(at("d4")) > net.getOutputActivation(at("a1")));
 	}

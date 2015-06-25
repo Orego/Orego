@@ -172,9 +172,7 @@ public final class CopiableStructureFactory {
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board))));
 		// Network
-		final DirectNetwork net = new DirectNetwork(board, historyObserver);
-		net.train(1);
-		return base.add(net);
+		return base.add(DirectNetwork.readFromDisk(board, historyObserver));
 	}
 
 	/**
