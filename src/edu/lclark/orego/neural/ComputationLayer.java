@@ -5,7 +5,7 @@ package edu.lclark.orego.neural;
 abstract class ComputationLayer extends Layer {
 
 	/** Learning rate for backpropagation. */
-	static final float LEARNING_RATE = 0.0001f;
+	static final float LEARNING_RATE = 0.001f;
 
 	/** Sigmoid squashing function. */
 	static float squash(float x) {

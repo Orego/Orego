@@ -41,6 +41,10 @@ public class Network implements Serializable {
 	public float[] getOutputActivations() {
 		return out.getActivations();
 	}
+	
+	public double getAWeight(){
+		return out.getWeights()[1][0];
+	}
 
 	/**Returns index position of maximum output*/
 	public int maxOutput(){
