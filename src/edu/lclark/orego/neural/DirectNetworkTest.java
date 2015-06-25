@@ -35,12 +35,5 @@ public class DirectNetworkTest {
 		net.update();
 		assertTrue(net.getOutputActivation(at("d4")) > net.getOutputActivation(at("a1")));
 	}
-	
-	@Test
-	public void testDirectNetworkOld() {
-		net.train();
-		net.update();
-		assertTrue(net.getOutputActivation(at("d4")) > net.getOutputActivation(at("a1")));
-	}
 
 }

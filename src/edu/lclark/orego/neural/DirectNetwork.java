@@ -54,16 +54,15 @@ public class DirectNetwork implements Serializable {
 	
 	/** Returns the network's output for point p. */
 	public float getOutputActivation(short p) {
-		return net.getOutputActivations()[netIndex(coords.row(p),
-				coords.column(p)) + 1];
+		return net.getOutputActivations()[netIndex(p) + 1];
 	}
 
 	/**
 	 * Returns an index in the network (which does not use off-board padding
-	 * like Board) for the point at row, col.
+	 * like Board) for p.
 	 */
-	private int netIndex(int row, int col) {
-		return coords.getWidth() * row + col;
+	private int netIndex(short p) {
+		return coords.getWidth() * coords.row(p) + coords.column(p);
 	}
 
 	/**
@@ -107,77 +106,34 @@ public class DirectNetwork implements Serializable {
 		return PASS;
 	}
 
-	/**Trains the network by reading in all files, saving them, and then using randomly selected moves.*/
-	public void train() {
-		// Get games from files
-		final SgfParser parser = new SgfParser(coords, true);
-		final List<List<Short>> games = processFiles(
-				new File(SYSTEM.getExpertGamesDirectory()), parser);
-		// Count the number of points to train on
-		int numberOfTrainingPoints = 0;
-		for (final List<Short> game : games) {
-			numberOfTrainingPoints += game.size();
-		}
-		// Declare stuff
-		float[][] training = new float[numberOfTrainingPoints][];
-		// TODO It would be better to pick a different bad move each time we
-		// train on a point
-		int[][] trainingCorrect = new int[numberOfTrainingPoints][2];
-		int pointNumber = 0;
-		// Input data
-		for (final List<Short> game : games) {
-			board.clear();
-			for (final short good : game) {
-				training[pointNumber] = extractor.toInputVector();
-				short bad = selectRandomMove(good);
-				trainingCorrect[pointNumber] = new int[] {
-						// TODO row and column extraction could happen inside
-						// index
-						netIndex(coords.row(good), coords.column(good)),
-						netIndex(coords.row(bad), coords.column(bad)) };
-				board.play(good);
-				pointNumber++;
-			}
-		}
-		// Train the network
-		for (int i = 0; i < 10000; i++) {
-			// TODO Should this be random or should we just pass through all the
-			// games?
-			int k = (int) (numberOfTrainingPoints * Math.random());
-			net.train(training[k], trainingCorrect[k][0], trainingCorrect[k][1]);
-		}
-	}
 
 	/**Trains the network given a specified number of epochs*/
 	public void train(int epochs) {
+		final SgfParser parser = new SgfParser(coords, true);
 		for (int i = 0; i < epochs; i++) {
-			trainFiles(new File(SYSTEM.getExpertGamesDirectory()));
+			trainFiles(new File(SYSTEM.getExpertGamesDirectory()), parser);
 		}
 		
 	}
 
 	/**Given file, trains network once on every move in every game*/
-	void trainFiles(File file) {
+	void trainFiles(File file, SgfParser parser) {
 		if (file.isDirectory()) {
 			if (verbose) {
 				System.out.println("Analyzing files in " + file.getName());
 			}
 			for (final File tempFile : file.listFiles()) {
-				trainFiles(tempFile);
+				trainFiles(tempFile, parser);
 			}
 		} else if (file.getPath().endsWith(".sgf")) {
-			final SgfParser parser = new SgfParser(coords, true);
 			final List<List<Short>> games = parser.parseGamesFromFile(file,
 					maxMove);
 			for (final List<Short> game : games) {
 				board.clear();
 				for (final short good : game) {
-					float[] training = new float[extractor.toInputVector().length];
-					training = extractor.toInputVector();
-					short bad = selectRandomMove(good);
-					net.train(training,
-							netIndex(coords.row(good), coords.column(good)),
-							netIndex(coords.row(bad), coords.column(bad)));
+					net.train(extractor.toInputVector(),
+							netIndex(good),
+							netIndex(selectRandomMove(good)));
 					board.play(good);
 				}
 			}

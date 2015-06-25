@@ -93,7 +93,7 @@ public class ExtractorTest {
 		training[1] = extractor.toInputVector();
 		trainingCorrect[1] = new int[] {23, 8};
 		// Train the network
-		final int updates = 10000;
+		final int updates = 50000;
 		for (int i = 0; i < updates; i++) {
 			int k = (int) (Math.random() * (training.length));
 			net.train(training[k], trainingCorrect[k][0], trainingCorrect[k][1]);
