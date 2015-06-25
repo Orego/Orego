@@ -29,14 +29,16 @@ public class DirectNetwork implements Serializable {
 
 	public static void main(String[] args) {
 		Board board = new Board(19);
-		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(board));
+		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(
+				board));
 		network.train(3);
-		network.writeBook();		
+		network.writeBook();
 	}
 
-	public static DirectNetwork readFromDisk(Board board, HistoryObserver historyObserver) {
-		try (ObjectInputStream in = new ObjectInputStream(
-				new FileInputStream(new File(OREGO_ROOT + "networks" + File.separator
+	public static DirectNetwork readFromDisk(Board board,
+			HistoryObserver historyObserver) {
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
+				new File(OREGO_ROOT + "networks" + File.separator
 						+ "network.data")))) {
 			DirectNetwork net = (DirectNetwork) in.readObject();
 			net.board = board;
@@ -54,22 +56,25 @@ public class DirectNetwork implements Serializable {
 
 	private CoordinateSystem coords;
 
+	private double correctTrainings;
+
+	private double correctValidations;
+
 	private Extractor extractor;
+
+	private int gameCount;
 
 	private int maxMove = 3;
 
 	private Network net;
 
 	private final MersenneTwisterFast random;
-
-	private boolean verbose = false;
 	
-	private int gameCount;
+	private double trainTested;
 	
 	private double validationsTested;
-	private double trainTested;
-	private double correctValidations;
-	private double correctTrainings;
+	
+	private boolean verbose = false;
 
 	private DirectNetwork(Board board, HistoryObserver historyObserver) {
 		gameCount = 0;
@@ -85,7 +90,7 @@ public class DirectNetwork implements Serializable {
 	public float getOutputActivation(short p) {
 		return net.getOutputActivations()[netIndex(p) + 1];
 	}
-	
+
 	public float[] getOutputActivations() {
 		return net.getOutputActivations();
 	}
@@ -139,20 +144,65 @@ public class DirectNetwork implements Serializable {
 		return PASS;
 	}
 
+	void test(File file, SgfParser parser) {
+		if (file.isDirectory()) {
+			if (verbose) {
+				System.out.println("Analyzing files in " + file.getName());
+			}
+			for (final File tempFile : file.listFiles()) {
+				test(tempFile, parser);
+			}
+		} else if (file.getPath().endsWith(".sgf")) {
+			final List<List<Short>> games = parser.parseGamesFromFile(file,
+					maxMove);
+			for (final List<Short> game : games) {
+				gameCount++;
+				if (gameCount % 10 == 0) {
+					board.clear();
+					for (final short correct : game) {
+						validationsTested++;
+						if (netIndex(correct) == net.maxOutput()) {
+							correctValidations++;
+						}
+						board.play(correct);
+					}
+					break;
+				}
+				board.clear();
+				for (final short correct : game) {
+					trainTested++;
+					if (netIndex(correct) == net.maxOutput()) {
+						correctTrainings++;
+					}
+					board.play(correct);
+				}
+			}
+		}
+	}
 
-	/**Trains the network given a specified number of epochs*/
+	void test(int epoch, File file, SgfParser parser) {
+		validationsTested = 0;
+		trainTested = 0;
+		correctValidations = 0;
+		correctTrainings = 0;
+		test(file, parser);
+		System.out.println((epoch + 1) + "\t"
+				+ (correctValidations / validationsTested) + "\t"
+				+ (correctTrainings / trainTested));
+	}
+
+	/** Trains the network given a specified number of epochs */
 	public void train(int epochs) {
 		final SgfParser parser = new SgfParser(coords, true);
 		for (int i = 0; i < epochs; i++) {
 			File file = new File(SYSTEM.getExpertGamesDirectory());
 			trainFiles(file, parser);
 			gameCount = 0;
-			
 			test(i, file, parser);
 		}
 	}
 
-	/**Given file, trains network once on every move in every game recursively*/
+	/** Given file, trains network once on every move in every game recursively */
 	void trainFiles(File file, SgfParser parser) {
 		if (file.isDirectory()) {
 			if (verbose) {
@@ -166,76 +216,27 @@ public class DirectNetwork implements Serializable {
 					maxMove);
 			for (final List<Short> game : games) {
 				gameCount++;
-				if (gameCount % 10 == 0){
+				if (gameCount % 10 == 0) {
 					break;
 				}
 				board.clear();
 				for (final short good : game) {
-					net.train(extractor.toInputVector(),
-							netIndex(good),
+					net.train(extractor.toInputVector(), netIndex(good),
 							netIndex(selectRandomMove(good)));
 					board.play(good);
 				}
 			}
 		}
 	}
-	
-	void test(int epoch, File file, SgfParser parser){
-		validationsTested = 0;
-		trainTested = 0;
-		correctValidations = 0;
-		correctTrainings = 0;
-		test(file, parser);
-		System.out.println((epoch + 1) + "\t" + (correctValidations / validationsTested) + "\t" + (correctTrainings / trainTested));
-	}
-	
-	void test(File file, SgfParser parser){
-		if (file.isDirectory()) {
-			if (verbose) {
-				System.out.println("Analyzing files in " + file.getName());
-			}
-			for (final File tempFile : file.listFiles()) {
-				test(tempFile, parser);
-			}
-		} else if (file.getPath().endsWith(".sgf")) {
-			final List<List<Short>> games = parser.parseGamesFromFile(file,
-					maxMove);
-			for (final List<Short> game : games) {
-				gameCount++;
-				if (gameCount % 10 == 0){
-					board.clear();
-					for (final short correct : game){
-						validationsTested++;
-						if (netIndex(correct) == net.maxOutput()){
-							correctValidations++;
-						}
-						board.play(correct);
-					}
-					break;	
-				}
-				board.clear();
-				for (final short correct : game) {
-					trainTested++;
-					if (netIndex(correct) == net.maxOutput()){
-						correctTrainings++;
-					}
-					board.play(correct);
-				}
-			}
-		}
-	}
-	
-	
 
 	public void update() {
 		net.update(extractor.toInputVector());
 	}
 
-	
 	/** Writes the book to a file. */
 	public void writeBook() {
-		final File directory = new File(OREGO_ROOT + "networks" + File.separator
-				+ "network.data");
+		final File directory = new File(OREGO_ROOT + "networks"
+				+ File.separator + "network.data");
 		try (ObjectOutputStream out = new ObjectOutputStream(
 				new FileOutputStream(directory))) {
 			out.writeObject(this);
@@ -244,5 +245,5 @@ public class DirectNetwork implements Serializable {
 			System.exit(1);
 		}
 	}
-	
+
 }
