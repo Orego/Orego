@@ -187,8 +187,8 @@ public class DirectNetwork implements Serializable {
 		correctTrainings = 0;
 		test(file, parser);
 		System.out.println((epoch + 1) + "\t"
-				+ (correctValidations / validationsTested) + "\t"
-				+ (correctTrainings / trainTested));
+				+ (correctValidations / validationsTested) + " " + validationsTested + "\t"
+				+ (correctTrainings / trainTested)+ " " + trainTested);
 	}
 
 	/** Trains the network given a specified number of epochs */
@@ -199,6 +199,7 @@ public class DirectNetwork implements Serializable {
 			trainFiles(file, parser);
 			gameCount = 0;
 			test(i, file, parser);
+			gameCount = 0;
 		}
 	}
 
