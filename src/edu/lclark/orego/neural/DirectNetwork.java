@@ -31,7 +31,7 @@ public class DirectNetwork implements Serializable {
 		Board board = new Board(19);
 		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(
 				board));
-		network.train(3);
+		network.train(10);
 		network.writeBook();
 	}
 
