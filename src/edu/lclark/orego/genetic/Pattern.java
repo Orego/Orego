@@ -21,8 +21,6 @@ public class Pattern {
 	 *  off-board			000		0
 	 */
 	
-
-	
 	public boolean patternMatches(short p, Board board, int ... pattern){
 		CoordinateSystem coords = board.getCoordinateSystem();
 		int actualFriendly = 0;
@@ -47,9 +45,9 @@ public class Pattern {
 				i++;
 			}
 		}
-		
-		
-		System.out.println(Integer.toBinaryString(actualFriendly) + " " + Integer.toBinaryString(actualEnemy) + " " + Integer.toBinaryString(actualVacant));
+		// System.out.println(Integer.toBinaryString(actualFriendly) + " " +
+		// Integer.toBinaryString(actualEnemy) + " " +
+		// Integer.toBinaryString(actualVacant));
 		return ((((actualFriendly  << 6) & (pattern[0] << 6)) == (actualFriendly << 6)) 
 				&& ((actualEnemy & pattern[1]) == actualEnemy) 
 				&& ((actualVacant & pattern[2]) == actualVacant));
