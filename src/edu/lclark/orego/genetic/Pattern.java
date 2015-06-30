@@ -8,12 +8,17 @@ import edu.lclark.orego.feature.HistoryObserver;
 
 public class Pattern {
 
-	/**
-	 * friendly = 100 4 enemy = 010 2 vacant = 001 1
+	/*
+	 * friendly = 			100 	4 
+	 * enemy = 				010 	2 
+	 * vacant = 			001 	1
 	 * 
 	 * 
-	 * friendly, enemy = 110 6 all three 111 7 enemy or vacant = 011 3 friendly
-	 * or v = 101 5 off-board 000 0
+	 * friendly, enemy =	110 	6 
+	 * all three			111 	7 
+	 * enemy or vacant =	011 	3
+	 * friendly or v = 		101 	5 
+	 * off-board 			000 	0
 	 */
 
 	/**
@@ -45,6 +50,7 @@ public class Pattern {
 				i++;
 			}
 		}
+		//Shifts the first int by 6 to take into account the encoding in the first 6 bits.
 		return ((((actualFriendly << 6) & (pattern[0] << 6)) == (actualFriendly << 6))
 				&& ((actualEnemy & pattern[1]) == actualEnemy) && ((actualVacant & pattern[2]) == actualVacant));
 	}
