@@ -31,8 +31,8 @@ public class DirectNetwork implements Serializable {
 		Board board = new Board(19);
 		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(
 				board));
-		network.train(10);
-		network.writeBook();
+		network.train(100);
+//		network.writeBook();
 	}
 
 	public static DirectNetwork readFromDisk(Board board,
@@ -64,7 +64,7 @@ public class DirectNetwork implements Serializable {
 
 	private int gameCount;
 
-	private int maxMove = 3;
+	private int maxMove = Integer.MAX_VALUE;
 
 	private Network net;
 
@@ -104,24 +104,6 @@ public class DirectNetwork implements Serializable {
 	}
 
 	/**
-	 * Return a list of games in file; each game is represented as a list of
-	 * moves (shorts). If file is a directory, recursively analyze everything in
-	 * it.
-	 */
-	List<List<Short>> processFiles(File file, SgfParser parser) {
-		final List<List<Short>> games = new ArrayList<>();
-		if (file.isDirectory()) {
-			for (final File f : file.listFiles()) {
-				games.addAll(processFiles(f, parser));
-			}
-		} else if (file.getPath().endsWith(".sgf")) {
-			// System.out.println("Reading file " + file.getName());
-			games.addAll(parser.parseGamesFromFile(file, 2));
-		}
-		return games;
-	}
-
-	/**
 	 * Copied from a different part of Orego that selects a move other then the
 	 * one specified.
 	 */
@@ -147,12 +129,13 @@ public class DirectNetwork implements Serializable {
 	void test(File file, SgfParser parser) {
 		if (file.isDirectory()) {
 			if (verbose) {
-				System.out.println("Analyzing files in " + file.getName());
+				System.out.println("Testing files in " + file.getName());
 			}
 			for (final File tempFile : file.listFiles()) {
 				test(tempFile, parser);
 			}
 		} else if (file.getPath().endsWith(".sgf")) {
+			System.out.println("Testing " + file.getName());
 			final List<List<Short>> games = parser.parseGamesFromFile(file,
 					maxMove);
 			for (final List<Short> game : games) {
@@ -160,6 +143,7 @@ public class DirectNetwork implements Serializable {
 				if (gameCount % 10 == 0) {
 					board.clear();
 					for (final short correct : game) {
+						update();
 						validationsTested++;
 						if (netIndex(correct) == net.maxOutput()) {
 							correctValidations++;
@@ -170,6 +154,7 @@ public class DirectNetwork implements Serializable {
 				}
 				board.clear();
 				for (final short correct : game) {
+					update();
 					trainTested++;
 					if (netIndex(correct) == net.maxOutput()) {
 						correctTrainings++;
@@ -199,6 +184,7 @@ public class DirectNetwork implements Serializable {
 			trainFiles(file, parser);
 			gameCount = 0;
 			test(i, file, parser);
+			writeBook();
 		}
 	}
 
@@ -206,12 +192,13 @@ public class DirectNetwork implements Serializable {
 	void trainFiles(File file, SgfParser parser) {
 		if (file.isDirectory()) {
 			if (verbose) {
-				System.out.println("Analyzing files in " + file.getName());
+				System.out.println("Training on files in " + file.getName());
 			}
 			for (final File tempFile : file.listFiles()) {
 				trainFiles(tempFile, parser);
 			}
 		} else if (file.getPath().endsWith(".sgf")) {
+			System.out.println("Training on " + file.getName());
 			final List<List<Short>> games = parser.parseGamesFromFile(file,
 					maxMove);
 			for (final List<Short> game : games) {
