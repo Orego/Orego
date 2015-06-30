@@ -1,7 +1,7 @@
 package edu.lclark.orego.book;
 
 import static edu.lclark.orego.experiment.PropertyPaths.OREGO_ROOT;
-
+import static edu.lclark.orego.experiment.Logging.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -31,10 +31,12 @@ public final class FusekiBook implements OpeningBook {
 	public FusekiBook(String directory) {
 		final File file = new File(OREGO_ROOT + directory + File.separator
 				+ "fuseki19.data");
+		log("Started reading opening book at " + timeStamp());
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 				file))) {
 			maxMoves = (Integer) in.readObject();
 			book = (SmallHashMap) in.readObject();
+			log("Finished reading opening book at " + timeStamp());
 		} catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(1);

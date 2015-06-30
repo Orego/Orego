@@ -1,6 +1,8 @@
 package edu.lclark.orego.experiment;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -9,6 +11,10 @@ import java.util.logging.Logger;
 
 /** Some convenience methods for logging. */
 public final class Logging {
+
+	private static final Calendar CALENDAR = Calendar.getInstance();
+
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	/** The logger to use, or null if logging is not turned on. */
 	private static Logger logger = null;
@@ -32,7 +38,7 @@ public final class Logging {
 	public static void log(String message) {
 		log(Level.INFO, message);
 	}
-
+	
 	/**
 	 * Sets logging to appear in a timestamped file in directory. Behavior is
 	 * undefined if two instances of Orego are launched at the same millisecond.
@@ -56,6 +62,11 @@ public final class Logging {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	/** Returns a human-readable String representing the current time. */
+	public static String timeStamp() {
+		return DATE_FORMAT.format(CALENDAR.getTime());
 	}
 
 }

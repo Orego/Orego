@@ -182,7 +182,7 @@ public final class Orego {
 		} else {
 			response = "? " + message;
 		}
-		log("Sent: " + response);
+		log(timeStamp() + "Sent: " + response);
 		out.println(response + "\n");
 	}
 
@@ -192,7 +192,7 @@ public final class Orego {
 	 * @return true if command is anything but "quit".
 	 */
 	private boolean handleCommand(String command) {
-		log("Received: " + command);
+		log(timeStamp() + " Received: " + command);
 		// Remove any comment
 		final int commentStart = command.indexOf("#");
 		if (commentStart >= 0) {
