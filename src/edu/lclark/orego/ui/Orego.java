@@ -170,7 +170,7 @@ public final class Orego {
 		} else {
 			response = "= " + message;
 		}
-		log("Sent: " + response);
+		log(timeStamp() + " Sent: " + response);
 		out.println(response + "\n");
 	}
 
@@ -182,7 +182,7 @@ public final class Orego {
 		} else {
 			response = "? " + message;
 		}
-		log(timeStamp() + "Sent: " + response);
+		log(timeStamp() + " Sent: " + response);
 		out.println(response + "\n");
 	}
 
