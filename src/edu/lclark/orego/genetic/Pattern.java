@@ -78,9 +78,9 @@ public class Pattern {
 				i++;
 			}
 		}
-		System.out.println(Integer.toBinaryString(actualFriendly) + " "
-				+ Integer.toBinaryString(actualEnemy) + " "
-				+ Integer.toBinaryString(actualVacant));
+//		System.out.println(Integer.toBinaryString(actualFriendly) + " "
+//				+ Integer.toBinaryString(actualEnemy) + " "
+//				+ Integer.toBinaryString(actualVacant));
 		// Shifts the first int by 6 to take into account the encoding in the
 		// first 6 bits.
 		return ((((actualFriendly) & (pattern[0])) == (actualFriendly))

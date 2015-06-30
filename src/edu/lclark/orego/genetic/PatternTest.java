@@ -15,7 +15,7 @@ public class PatternTest {
 		board.play("c5");
 		board.play("d2");
 		board.play("b2");
-		System.out.println(board.toString());
+//		System.out.println(board.toString());
 		int friendly = 0b11010000000000000000000000;
 		int enemy = 0b11000100000000000001000000;
 		int vacant = 0b1101011111110111110111111;
