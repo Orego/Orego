@@ -9,18 +9,21 @@ import edu.lclark.orego.core.Board;
 public class PatternTest {
 
 	@Test
-	public void testPatternMatches() {
+	public void testPatternMatcher() {
 		Pattern pattern = new Pattern();
-		Board board = new Board(5);
-		board.play("a5");
+		Board board = new Board(7);
+		board.play("c5");
 		board.play("d2");
-		// System.out.println(board.toString());
-		int friendly = 1;
-		int enemy = 0b1000000000000000000;
-		int vacant = 0b1111110111110111111111110;
-		assertTrue(pattern.patternMatcher((short) 21, board, friendly,
+		board.play("b2");
+		System.out.println(board.toString());
+		int friendly = 0b11010000000000000000000000;
+		int enemy = 0b11000100000000000001000000;
+		int vacant = 0b1101011111110111110111111;
+		assertTrue(pattern.patternMatcher((short) 36, board, friendly,
 				enemy, vacant));
-		assertFalse(pattern.patternMatcher((short) 21, board, enemy,
+		assertFalse(pattern.patternMatcher((short) 39, board, friendly,
+				enemy, vacant));
+		assertFalse(pattern.patternMatcher((short) 36, board, enemy,
 				enemy, vacant));
 	}
 
