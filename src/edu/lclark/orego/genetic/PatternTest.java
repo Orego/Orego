@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.feature.HistoryObserver;
 
 public class PatternTest {
 
@@ -12,6 +13,7 @@ public class PatternTest {
 	public void testPatternMatcher() {
 		Pattern pattern = new Pattern();
 		Board board = new Board(7);
+		HistoryObserver historyObserver = new HistoryObserver(board);
 		board.play("c5");
 		board.play("d2");
 		board.play("b2");
@@ -19,11 +21,11 @@ public class PatternTest {
 		int friendly = 0b11010000000000000000000000;
 		int enemy = 0b11000100000000000001000000;
 		int vacant = 0b1101011111110111110111111;
-		assertTrue(pattern.patternMatcher((short) 36, board, friendly,
+		assertTrue(pattern.patternMatcher((short) 36, board, historyObserver, friendly,
 				enemy, vacant));
-		assertFalse(pattern.patternMatcher((short) 39, board, friendly,
+		assertFalse(pattern.patternMatcher((short) 39, board, historyObserver, friendly,
 				enemy, vacant));
-		assertFalse(pattern.patternMatcher((short) 36, board, enemy,
+		assertFalse(pattern.patternMatcher((short) 36, board, historyObserver, enemy,
 				enemy, vacant));
 	}
 
