@@ -1,10 +1,13 @@
 package edu.lclark.orego.genetic;
 
+import static edu.lclark.orego.core.Legality.OK;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
+import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.NonStoneColor;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
+import edu.lclark.orego.util.ShortSet;
 
 public class Pattern {
 
@@ -12,6 +15,20 @@ public class Pattern {
 	 * friendly = 100 4 enemy = 010 2 vacant = 001 1 friendly, enemy = 110 6 all
 	 * three 111 7 enemy or vacant = 011 3 friendly or v = 101 5 off-board 000 0
 	 */
+	
+	private ShortSet Candidates;
+	
+	private HistoryObserver historyObserver;
+	
+	private Board board;
+	
+	
+
+	public Pattern(Board board, HistoryObserver historyObserver) {
+		this.board = board;
+		this.historyObserver = historyObserver;
+		Candidates = board.getVacantPoints();
+	}
 
 	/**
 	 * Given a row or column i and the width of the board, returns "actual",
@@ -35,14 +52,22 @@ public class Pattern {
 		return actual;
 	}
 
-	public boolean patternMatcher(short p, Board board,
-			HistoryObserver historyObserver, int... pattern) {
+	public short patternMatcher(short p, int... pattern) {
 		if (pattern[0] > 0) {
-			return spaceMatcher(p, board, pattern);
+			if (spaceMatcher(p, pattern)){
+				Legality legality = board.play(p);
+				if (legality == OK) {
+					return p;
+				} else {
+					Candidates.remove(p);
+				}
+			}
 		} else {
-			return timeMatcher(p, board, historyObserver, pattern);
+			return timeMatcher(pattern);
+			}
+		return -1;
 		}
-	}
+	
 
 	/**
 	 * Given a position on the board (short) that is assumed to be empty, a
@@ -52,7 +77,7 @@ public class Pattern {
 	 * in actualFriendly are equal to the row number. For left and right edges,
 	 * 3 bits (24-27) in actualEnemy are equal to the column number.
 	 */
-	private boolean spaceMatcher(short p, Board board, int... pattern) {
+	private boolean spaceMatcher(short p, int... pattern) {
 		CoordinateSystem coords = board.getCoordinateSystem();
 		int actualVacant = 0;
 		int row = coords.row(p);
@@ -81,12 +106,47 @@ public class Pattern {
 		// + Integer.toBinaryString(actualVacant));
 		return ((((actualFriendly) & (pattern[0])) == (actualFriendly))
 				&& (((actualEnemy) & (pattern[1])) == (actualEnemy)) && ((actualVacant & pattern[2]) == actualVacant));
-
 	}
 
-	private boolean timeMatcher(short p, Board board,
-			HistoryObserver historyObserver, int[] pattern) {
-		// TODO Auto-generated method stub
-		return false;
+	/**Returns true iff successful play was made.*/
+	private short timeMatcher(int ... pattern) {
+		int ultimate = 0;
+		ultimate |= (historyObserver.get(board.getTurn() - 1));
+		int penultimate = 0;
+		if (pattern[1] > 0){
+			penultimate |= (historyObserver.get(board.getTurn() - 2));
+		}
+		if (((ultimate & pattern[0]) == ultimate) && ((penultimate & pattern[1]) == penultimate)){
+			Legality legality = board.play((short)pattern[2]);
+			if (legality == OK){
+				return (short)pattern[2];
+			}
+			Candidates.remove((short)pattern[2]);
+		} 
+		return -1;
 	}
+
 }
+/*
+ * Select and play one move:
+ * 	Copy set of vacant points into candidates
+ * 	for each rule
+ * 		if time rule
+ * 			p <-- matchTimeRule
+ * 			if (p =/= OFF_BOARD OR p is an element of candidates)
+ * 				if yes rule
+ * 					try to play it
+ * 				else 
+ * 					remove it from candidates
+ * 		if space rule
+ * 			for each candidate (in random order)
+ * 				if matchSpaceRule
+ * 					if yes rule
+ * 						try to play it
+ * 					else
+ * 						remove it
+ * 		try all candidates
+ * 		return pass
+ */
+
+
