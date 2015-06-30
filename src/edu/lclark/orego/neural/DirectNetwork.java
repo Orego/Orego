@@ -31,7 +31,7 @@ public class DirectNetwork implements Serializable {
 		Board board = new Board(19);
 		DirectNetwork network = new DirectNetwork(board, new HistoryObserver(
 				board));
-		network.train(100);
+		network.train(3);
 //		network.writeBook();
 	}
 
@@ -171,13 +171,15 @@ public class DirectNetwork implements Serializable {
 		correctValidations = 0;
 		correctTrainings = 0;
 		test(file, parser);
+		System.out.println(net.getAWeight());
 		System.out.println((epoch + 1) + "\t"
-				+ (correctValidations / validationsTested) + "\t"
-				+ (correctTrainings / trainTested));
+				+ (correctValidations / validationsTested) + " " + validationsTested + "\t"
+				+ (correctTrainings / trainTested)+ " " + trainTested);
 	}
 
 	/** Trains the network given a specified number of epochs */
 	public void train(int epochs) {
+		System.out.println(net.getAWeight());
 		final SgfParser parser = new SgfParser(coords, true);
 		for (int i = 0; i < epochs; i++) {
 			File file = new File(SYSTEM.getExpertGamesDirectory());
@@ -185,6 +187,7 @@ public class DirectNetwork implements Serializable {
 			gameCount = 0;
 			test(i, file, parser);
 			writeBook();
+			gameCount = 0;
 		}
 	}
 
