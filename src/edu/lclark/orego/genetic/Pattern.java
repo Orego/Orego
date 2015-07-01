@@ -17,13 +17,13 @@ public class Pattern {
 	 * three 111 7 enemy or vacant = 011 3 friendly or v = 101 5 off-board 000 0
 	 */
 
-	private ShortSet Candidates;
+	private Board board;
 
-	private ShortSet vacantPoints;
+	private ShortSet Candidates;
 
 	private HistoryObserver historyObserver;
 
-	private Board board;
+	private ShortSet vacantPoints;
 
 	public Pattern(Board board, HistoryObserver historyObserver) {
 		this.board = board;
@@ -66,19 +66,20 @@ public class Pattern {
 		}
 	}
 
-	private short spaceMatcherIterator(int... pattern) {
-		while (Candidates.size() > 0) {
-			short p = Candidates.get((int)(Math.random() * Candidates.size()));
-//			System.out.println(p);
-			if (spaceMatcher(p, pattern)) {
-				Legality legality = board.play(p);
-				if (legality == OK) {
-					return p;
-				}	
+	public short selectAndPlayMove(int... pattern) {
+		for (int i = 0; i <= pattern.length - 3; i += 3) {
+			short tempResult = patternMatcher(pattern[i], pattern[i + 1],
+					pattern[i + 2]);
+			if (tempResult != -1) {
+				return tempResult;
 			}
-			Candidates.remove(p);
 		}
-		return -1;
+		for (int i = 0; i < vacantPoints.size(); i++) {
+			if (board.play(vacantPoints.get(i)) == OK) {
+				return vacantPoints.get(i);
+			}
+		}
+		return PASS;
 	}
 
 	/**
@@ -126,6 +127,21 @@ public class Pattern {
 				&& (((actualEnemy) & (pattern[1])) == (actualEnemy)) && ((actualVacant & pattern[2]) == actualVacant));
 	}
 
+	private short spaceMatcherIterator(int... pattern) {
+		while (Candidates.size() > 0) {
+			short p = Candidates.get((int) (Math.random() * Candidates.size()));
+			// System.out.println(p);
+			if (spaceMatcher(p, pattern)) {
+				Legality legality = board.play(p);
+				if (legality == OK) {
+					return p;
+				}
+			}
+			Candidates.remove(p);
+		}
+		return -1;
+	}
+
 	/**
 	 * Returns the short iff successful play was made and -1 if not. It removes
 	 * unsuccessful moves from the list.
@@ -150,21 +166,6 @@ public class Pattern {
 			Candidates.remove((short) pattern[2]);
 		}
 		return -1;
-	}
-
-	public short selectAndPlayMove(int... pattern) {
-		for (int i = 0; i <= pattern.length-3; i += 3) {
-			short tempResult = patternMatcher(pattern[i], pattern[i + 1], pattern[i + 2]);
-			if (tempResult != -1) {
-				return tempResult;
-			}
-		}
-		for (int i = 0; i < vacantPoints.size(); i++) {
-			if (board.play(vacantPoints.get(i)) == OK) {
-				return vacantPoints.get(i);
-			}
-		}
-		return PASS;
 	}
 
 }
