@@ -58,7 +58,7 @@ public class Pattern {
 	 * </pre>
 	 */
 	public static int[] makeRule(String... diagram) {
-		//TODO update for 2 entries
+		// TODO update for 2 entries
 		int[] result = new int[3];
 		int i = 0;
 		for (String row : diagram) {
@@ -147,7 +147,7 @@ public class Pattern {
 		int col = coords.column(p);
 		int actualFriendly = edgePattern(row, coords.getWidth());
 		int actualEnemy = edgePattern(col, coords.getWidth());
-		//TODO edge logic here
+		// TODO edge logic here
 		actualFriendly = 0;
 		actualEnemy = 0;
 		pattern[0] = 0xffffff & pattern[0];
@@ -174,8 +174,7 @@ public class Pattern {
 		// + Integer.toBinaryString(actualEnemy));
 		return (((actualFriendly & (pattern[0] & ~pattern[1])) == (pattern[0] & ~pattern[1]))
 				&& (((actualFriendly & (~pattern[0] | pattern[1])) | (pattern[0] & pattern[1])) == (pattern[0] & pattern[1]))
-				&& ((actualEnemy & (pattern[1] & ~pattern[0])) == (pattern[1] & ~pattern[0])) 
-				&& (((actualEnemy & (~pattern[1] | pattern[0])) | (pattern[1] & pattern[0])) == (pattern[1] & pattern[0])));
+				&& ((actualEnemy & (pattern[1] & ~pattern[0])) == (pattern[1] & ~pattern[0])) && (((actualEnemy & (~pattern[1] | pattern[0])) | (pattern[1] & pattern[0])) == (pattern[1] & pattern[0])));
 	}
 
 	private short spaceMatcherIterator(int... pattern) {
@@ -198,30 +197,32 @@ public class Pattern {
 	 * removes unsuccessful moves from the list.
 	 */
 	private short timeMatcher(int... pattern) {
-		//TODO Make this only in two ints (probably only in 1)
+		// TODO Make this only in two ints (probably only in 1)
 		int actualMoves = 0;
+		short response = (short) ((pattern[0] >> 18) & MOVE_LENGTH);
 		actualMoves |= (historyObserver.get(board.getTurn() - 1));
-		if ((pattern[0] & MOVE_LENGTH) != actualMoves){
-			candidates.remove((short) ((pattern[0] >> 18) & MOVE_LENGTH));
+		if ((pattern[0] & MOVE_LENGTH) != actualMoves) {
+			candidates.remove(response);
 			return NO_POINT;
-		} 
-		if ((pattern[0] & PENULTIMATE) == 1){
+		}
+		if ((pattern[0] & PENULTIMATE) == 1) {
 			actualMoves |= ((historyObserver.get(board.getTurn() - 2)) << 9);
-			if (((pattern[0]) & MOVE_LENGTH) != actualMoves){
-				candidates.remove((short) ((pattern[0] >> 18) & MOVE_LENGTH));
+			if (((pattern[0]) & MOVE_LENGTH) != actualMoves) {
+				candidates.remove(response);
 				return NO_POINT;
 			}
 		}
-//		candidates.contains((short) ((pattern[0] >> 18) & MOVE_LENGTH)) && 
-		System.out.println(Integer.toBinaryString(actualMoves) + " " + Integer.toBinaryString(((pattern[0] >> 18) & MOVE_LENGTH)));
-		if ((board.play((short) ((pattern[0] >> 18) & MOVE_LENGTH)) == OK)) {
-			if ((pattern[0] & YES) != 0) {
-				return (short) ((pattern[0] >> 18) & MOVE_LENGTH);
+		// candidates.contains((short) ((pattern[0] >> 18) & MOVE_LENGTH)) &&
+		System.out.println(Integer.toBinaryString(actualMoves) + " "
+				+ Integer.toBinaryString(response));
+		if (candidates.contains(response)) {
+			if (board.play(response) == OK) {
+				if ((pattern[0] & YES) != 0) {
+					return response;
+				}
 			}
 		}
-		candidates.remove((short) ((pattern[0] >> 18) & MOVE_LENGTH));
+		candidates.remove(response);
 		return NO_POINT;
 	}
-
-
 }
