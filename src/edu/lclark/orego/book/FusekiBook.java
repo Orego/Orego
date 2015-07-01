@@ -31,12 +31,12 @@ public final class FusekiBook implements OpeningBook {
 	public FusekiBook(String directory) {
 		final File file = new File(OREGO_ROOT + directory + File.separator
 				+ "fuseki19.data");
-		log("Started reading opening book at " + timeStamp());
+		log("Started reading opening book");
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(
 				file))) {
 			maxMoves = (Integer) in.readObject();
 			book = (SmallHashMap) in.readObject();
-			log("Finished reading opening book at " + timeStamp());
+			log("Finished reading opening book");
 		} catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(1);

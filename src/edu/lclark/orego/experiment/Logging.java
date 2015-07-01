@@ -1,8 +1,6 @@
 package edu.lclark.orego.experiment;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -11,8 +9,6 @@ import java.util.logging.Logger;
 
 /** Some convenience methods for logging. */
 public final class Logging {
-
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	/** The logger to use, or null if logging is not turned on. */
 	private static Logger logger = null;
@@ -24,7 +20,7 @@ public final class Logging {
 	 */
 	public static void log(Level level, String message) {
 		if (logger != null) {
-			logger.log(level, message);
+			logger.log(level, GameBatch.timeStamp(false) + " " + message);
 		}
 	}
 
@@ -60,11 +56,6 @@ public final class Logging {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}
-	
-	/** Returns a human-readable String representing the current time. */
-	public static String timeStamp() {
-		return DATE_FORMAT.format(Calendar.getInstance().getTime());
 	}
 
 }
