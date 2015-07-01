@@ -101,8 +101,9 @@ public class Pattern {
 		for (int r = row - 2; r <= row + 2; r++) {
 			for (int c = col - 2; c <= col + 2; c++) {
 				if ((c != col) || (r != row)) {
-					short temp = coords.at(r, c);
-					if (coords.isOnBoard(temp)) {
+					if (coords.isValidOneDimensionalCoordinate(r)
+							&& coords.isValidOneDimensionalCoordinate(c)) {
+						short temp = coords.at(r, c);
 						final Color color = board.getColorAt(temp);
 						if (color == board.getColorToPlay()) {
 							actualFriendly |= (1 << i);
@@ -169,26 +170,5 @@ public class Pattern {
 	}
 
 }
-/*
- * Select and play one move:
- * 	Copy set of vacant points into candidates
- * 	for each rule
- * 		if time rule
- * 			p <-- matchTimeRule
- * 			if (p =/= OFF_BOARD and p is an element of candidates)
- * 				if yes rule
- * 					try to play it
- * 				else 
- * 					remove it from candidates
- * 		if space rule
- * 			for each candidate (in random order)
- * 				if matchSpaceRule
- * 					if yes rule
- * 						try to play it
- * 					else
- * 						remove it
- * 	try all candidates
- * 	return pass
- */
 
 
