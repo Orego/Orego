@@ -9,9 +9,12 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 
 public class Pattern {
 
+	public static final int YES = 1 << 30;
+	
 	/*
 	 * friendly = 100 4 enemy = 010 2 vacant = 001 1 friendly, enemy = 110 6 all
 	 * three 111 7 enemy or vacant = 011 3 friendly or v = 101 5 off-board 000 0
@@ -19,7 +22,7 @@ public class Pattern {
 
 	private Board board;
 
-	private ShortSet Candidates;
+	private ShortSet candidates;
 
 	private HistoryObserver historyObserver;
 
@@ -29,9 +32,48 @@ public class Pattern {
 		this.board = board;
 		this.historyObserver = historyObserver;
 		vacantPoints = board.getVacantPoints();
-		Candidates = board.getVacantPoints();
+		candidates = board.getVacantPoints();
 	}
 
+	// TODO Needs revision for new wild card plan
+	// TODO Specify yes/no, time/space, edges (for space), 1 or 2 moves (for time)
+	/**
+	 * Converts a human-readable pattern into three bit vectors. In the diagram, the symbols are:
+	 * 
+	 * <pre>
+	 * # Friendly
+	 * O Enemy
+	 * . Vacant
+	 * 
+	 * + Friendly or vacant
+	 * o Enemy or vacant
+	 * * Any stone
+	 * 
+	 * ? Anything
+	 * ! Nothing
+	 * </pre>
+	 */
+	public static int[] makeRule(String... diagram) {
+		int[] result = new int[3];
+		int i = 0;
+		for (String row : diagram) {
+			for (int c = 0; c < row.length(); c++) {
+				char glyph = row.charAt(c);
+				if ("#+*?".indexOf(glyph) >= 0) {
+					result[0] |= 1 << i;
+				}
+				if ("Oo*?".indexOf(glyph) >= 0) {
+					result[1] |= 1 << i;
+				}
+				if (".+o?".indexOf(glyph) >= 0) {
+					result[2] |= 1 << i;
+				}
+				i++;
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Given a row or column i and the width of the board, returns "actual",
 	 * which will be actualFriendly or actualEnemy in the space patternMatcher
@@ -70,7 +112,7 @@ public class Pattern {
 		for (int i = 0; i <= pattern.length - 3; i += 3) {
 			short tempResult = patternMatcher(pattern[i], pattern[i + 1],
 					pattern[i + 2]);
-			if (tempResult != -1) {
+			if (tempResult != NO_POINT) {
 				return tempResult;
 			}
 		}
@@ -120,8 +162,8 @@ public class Pattern {
 		// System.out.println(Integer.toBinaryString(actualFriendly) + " "
 		// + Integer.toBinaryString(actualEnemy) + " "
 		// + Integer.toBinaryString(actualVacant));
-		if (((pattern[0] >>> 30) & 0x01) == 0) {
-			Candidates.remove(p);
+		if ((pattern[0] & YES) == 0) {
+			candidates.remove(p);
 			return false;
 		}
 		return ((((actualFriendly) & (pattern[0])) == (actualFriendly))
@@ -129,8 +171,8 @@ public class Pattern {
 	}
 
 	private short spaceMatcherIterator(int... pattern) {
-		while (Candidates.size() > 0) {
-			short p = Candidates.get((int) (Math.random() * Candidates.size()));
+		while (candidates.size() > 0) {
+			short p = candidates.get((int) (Math.random() * candidates.size()));
 			// System.out.println(p);
 			if (spaceMatcher(p, pattern)) {
 				Legality legality = board.play(p);
@@ -138,13 +180,13 @@ public class Pattern {
 					return p;
 				}
 			}
-			Candidates.remove(p);
+			candidates.remove(p);
 		}
-		return -1;
+		return NO_POINT;
 	}
 
 	/**
-	 * Returns the short iff successful play was made and -1 if not. It removes
+	 * Returns the short iff successful play was made and NO_POINT if not. It removes
 	 * unsuccessful moves from the list.
 	 */
 	private short timeMatcher(int... pattern) {
@@ -158,15 +200,15 @@ public class Pattern {
 		// Integer.toBinaryString(penultimate));
 		if (((ultimate & pattern[0]) == ultimate)
 				&& ((penultimate & pattern[1]) == penultimate)) {
-			if (Candidates.contains((short) pattern[2])
+			if (candidates.contains((short) pattern[2])
 					&& (board.play((short) pattern[2]) == OK)) {
-				if (((pattern[0] >>> 30) & 0x01) == 1) {
+				if ((pattern[0] & YES) != 0) {
 					return (short) pattern[2];
 				}
 			}
-			Candidates.remove((short) pattern[2]);
+			candidates.remove((short) pattern[2]);
 		}
-		return -1;
+		return NO_POINT;
 	}
 
 }
