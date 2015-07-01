@@ -14,7 +14,9 @@ import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 public class Pattern {
 
 	public static final int YES = 1 << 30;
-	
+	public static final int PENULTIMATE = 1 << 29;
+	public static final int MOVE_LENGTH = 0b111111111;
+
 	/*
 	 * friendly = 100 4 enemy = 010 2 vacant = 001 1 friendly, enemy = 110 6 all
 	 * three 111 7 enemy or vacant = 011 3 friendly or v = 101 5 off-board 000 0
@@ -36,9 +38,11 @@ public class Pattern {
 	}
 
 	// TODO Needs revision for new wild card plan
-	// TODO Specify yes/no, time/space, edges (for space), 1 or 2 moves (for time)
+	// TODO Specify yes/no, time/space, edges (for space), 1 or 2 moves (for
+	// time)
 	/**
-	 * Converts a human-readable pattern into three bit vectors. In the diagram, the symbols are:
+	 * Converts a human-readable pattern into three bit vectors. In the diagram,
+	 * the symbols are:
 	 * 
 	 * <pre>
 	 * # Friendly
@@ -54,6 +58,7 @@ public class Pattern {
 	 * </pre>
 	 */
 	public static int[] makeRule(String... diagram) {
+		//TODO update for 2 entries
 		int[] result = new int[3];
 		int i = 0;
 		for (String row : diagram) {
@@ -73,7 +78,7 @@ public class Pattern {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Given a row or column i and the width of the board, returns "actual",
 	 * which will be actualFriendly or actualEnemy in the space patternMatcher
@@ -81,17 +86,17 @@ public class Pattern {
 	private int edgePattern(int i, int width) {
 		int actual = 0;
 		if (i == 0) {
-			actual |= (4 << 24);
+			actual |= (1 << 24);
 		} else if (i == 1) {
 			actual |= (2 << 24);
 		} else if (i == 2) {
-			actual |= (6 << 24);
-		} else if (i == width - 3) {
-			actual |= (1 << 24);
-		} else if (i == width - 2) {
 			actual |= (3 << 24);
-		} else if (i == width - 1) {
+		} else if (i == width - 3) {
+			actual |= (4 << 24);
+		} else if (i == width - 2) {
 			actual |= (5 << 24);
+		} else if (i == width - 1) {
+			actual |= (6 << 24);
 		}
 		return actual;
 	}
@@ -133,12 +138,20 @@ public class Pattern {
 	 * 3 bits (24-27) in actualEnemy are equal to the column number.
 	 */
 	private boolean spaceMatcher(short p, int... pattern) {
+		if ((pattern[0] & YES) == 0) {
+			candidates.remove(p);
+			return false;
+		}
 		CoordinateSystem coords = board.getCoordinateSystem();
-		int actualVacant = 0;
 		int row = coords.row(p);
 		int col = coords.column(p);
 		int actualFriendly = edgePattern(row, coords.getWidth());
 		int actualEnemy = edgePattern(col, coords.getWidth());
+		//TODO edge logic here
+		actualFriendly = 0;
+		actualEnemy = 0;
+		pattern[0] = 0xffffff & pattern[0];
+		pattern[1] = 0xffffff & pattern[0];
 		int i = 0;
 		for (int r = row - 2; r <= row + 2; r++) {
 			for (int c = col - 2; c <= col + 2; c++) {
@@ -151,8 +164,6 @@ public class Pattern {
 							actualFriendly |= (1 << i);
 						} else if (color == board.getColorToPlay().opposite()) {
 							actualEnemy |= (1 << i);
-						} else if (color == NonStoneColor.VACANT) {
-							actualVacant |= (1 << i);
 						}
 					}
 				}
@@ -160,14 +171,11 @@ public class Pattern {
 			}
 		}
 		// System.out.println(Integer.toBinaryString(actualFriendly) + " "
-		// + Integer.toBinaryString(actualEnemy) + " "
-		// + Integer.toBinaryString(actualVacant));
-		if ((pattern[0] & YES) == 0) {
-			candidates.remove(p);
-			return false;
-		}
-		return ((((actualFriendly) & (pattern[0])) == (actualFriendly))
-				&& (((actualEnemy) & (pattern[1])) == (actualEnemy)) && ((actualVacant & pattern[2]) == actualVacant));
+		// + Integer.toBinaryString(actualEnemy));
+		return (((actualFriendly & (pattern[0] & ~pattern[1])) == (pattern[0] & ~pattern[1]))
+				&& (((actualFriendly & (~pattern[0] | pattern[1])) | (pattern[0] & pattern[1])) == (pattern[0] & pattern[1]))
+				&& ((actualEnemy & (pattern[1] & ~pattern[0])) == (pattern[1] & ~pattern[0])) 
+				&& (((actualEnemy & (~pattern[1] | pattern[0])) | (pattern[1] & pattern[0])) == (pattern[1] & pattern[0])));
 	}
 
 	private short spaceMatcherIterator(int... pattern) {
@@ -186,31 +194,34 @@ public class Pattern {
 	}
 
 	/**
-	 * Returns the short iff successful play was made and NO_POINT if not. It removes
-	 * unsuccessful moves from the list.
+	 * Returns the short iff successful play was made and NO_POINT if not. It
+	 * removes unsuccessful moves from the list.
 	 */
 	private short timeMatcher(int... pattern) {
-		int ultimate = 0;
-		ultimate |= (historyObserver.get(board.getTurn() - 1));
-		int penultimate = 0;
-		if (pattern[1] > 0) {
-			penultimate |= (historyObserver.get(board.getTurn() - 2));
-		}
-		// System.out.println(Integer.toBinaryString(ultimate) + " " +
-		// Integer.toBinaryString(penultimate));
-		if (((ultimate & pattern[0]) == ultimate)
-				&& ((penultimate & pattern[1]) == penultimate)) {
-			if (candidates.contains((short) pattern[2])
-					&& (board.play((short) pattern[2]) == OK)) {
-				if ((pattern[0] & YES) != 0) {
-					return (short) pattern[2];
-				}
+		//TODO Make this only in two ints (probably only in 1)
+		int actualMoves = 0;
+		actualMoves |= (historyObserver.get(board.getTurn() - 1));
+		if ((pattern[0] & MOVE_LENGTH) != actualMoves){
+			candidates.remove((short) ((pattern[0] >> 18) & MOVE_LENGTH));
+			return NO_POINT;
+		} 
+		if ((pattern[0] & PENULTIMATE) == 1){
+			actualMoves |= ((historyObserver.get(board.getTurn() - 2)) << 9);
+			if (((pattern[0]) & MOVE_LENGTH) != actualMoves){
+				candidates.remove((short) ((pattern[0] >> 18) & MOVE_LENGTH));
+				return NO_POINT;
 			}
-			candidates.remove((short) pattern[2]);
 		}
+//		candidates.contains((short) ((pattern[0] >> 18) & MOVE_LENGTH)) && 
+		System.out.println(Integer.toBinaryString(actualMoves) + " " + Integer.toBinaryString(((pattern[0] >> 18) & MOVE_LENGTH)));
+		if ((board.play((short) ((pattern[0] >> 18) & MOVE_LENGTH)) == OK)) {
+			if ((pattern[0] & YES) != 0) {
+				return (short) ((pattern[0] >> 18) & MOVE_LENGTH);
+			}
+		}
+		candidates.remove((short) ((pattern[0] >> 18) & MOVE_LENGTH));
 		return NO_POINT;
 	}
 
+
 }
-
-
