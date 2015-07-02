@@ -43,43 +43,35 @@ public class Pattern {
 		candidates.copyDataFrom(vacantPoints);
 	}
 
-	// TODO Needs revision for new wild card plan
 	// TODO Specify yes/no, time/space, edges (for space), 1 or 2 moves (for
 	// time)
 	/**
-	 * Converts a human-readable pattern into three bit vectors. In the diagram,
+	 * Converts a human-readable pattern into two bit vectors. In the diagram,
 	 * the symbols are:
 	 * 
 	 * <pre>
 	 * # Friendly
 	 * O Enemy
 	 * . Vacant
-	 * 
-	 * + Friendly or vacant
-	 * o Enemy or vacant
-	 * * Any stone
-	 * 
 	 * ? Anything
-	 * ! Nothing
 	 * </pre>
 	 */
 	public static int[] makeRule(String... diagram) {
-		// TODO update for 2 entries
 		int[] result = new int[2];
 		int i = 0;
-		for (String row : diagram) {
+		for (int r = 0; r < diagram.length; r++) {
+			String row = diagram[r];
 			for (int c = 0; c < row.length(); c++) {
-				char glyph = row.charAt(c);
-				if ("#+*?".indexOf(glyph) >= 0) {
-					result[0] |= 1 << i;
+				if ((r != diagram.length / 2) || (c != diagram.length / 2)) {
+					char glyph = row.charAt(c);
+					if ("#?".indexOf(glyph) >= 0) {
+						result[0] |= 1 << i;
+					}
+					if ("O?".indexOf(glyph) >= 0) {
+						result[1] |= 1 << i;
+					}
+					i++;
 				}
-				if ("Oo*?".indexOf(glyph) >= 0) {
-					result[1] |= 1 << i;
-				}
-//				if (".+o?".indexOf(glyph) >= 0) {
-//					result[2] |= 1 << i;
-//				}
-				i++;
 			}
 		}
 		return result;
@@ -144,6 +136,7 @@ public class Pattern {
 	 * 3 bits (24-27) in actualEnemy are equal to the column number.
 	 */
 	private boolean spaceMatcher(short p, int... pattern) {
+		System.out.println("Trying to match at " + coords.toString(p));
 		int row = coords.row(p);
 		int col = coords.column(p);
 		int actualFriendly = edgePattern(row, coords.getWidth());
@@ -158,7 +151,7 @@ public class Pattern {
 		actualEnemy = 0;
 		boolean yes = (pattern[0] & YES) == 0;
 		pattern[0] = 0xffffff & pattern[0];
-		pattern[1] = 0xffffff & pattern[0];
+		pattern[1] = 0xffffff & pattern[1];
 		int i = 0;
 		for (int r = row - 2; r <= row + 2; r++) {
 			for (int c = col - 2; c <= col + 2; c++) {
@@ -173,12 +166,16 @@ public class Pattern {
 							actualEnemy |= (1 << i);
 						}
 					}
+					i++;
 				}
-				i++;
 			}
 		}
-		 System.out.println("later: " + Integer.toBinaryString(actualFriendly) + " "
-		 + Integer.toBinaryString(actualEnemy));
+		System.out.println("pattern[0] = " + Integer.toBinaryString(pattern[0]));
+		System.out.println("act friend = " + Integer.toBinaryString(actualFriendly));
+		System.out.println("pattern[1] = " + Integer.toBinaryString(pattern[1]));
+		System.out.println("act enemy  = " + Integer.toBinaryString(actualEnemy));
+		 System.out.println(pattern[0] == actualFriendly);
+		 System.out.println(pattern[1] == actualEnemy);
 		boolean truth = (((actualFriendly & (pattern[0] & ~pattern[1])) == (pattern[0] & ~pattern[1]))
 				&& (((actualFriendly & (~pattern[0] | pattern[1])) | (pattern[0] & pattern[1])) == (pattern[0] & pattern[1]))
 				&& ((actualEnemy & (pattern[1] & ~pattern[0])) == (pattern[1] & ~pattern[0])) && (((actualEnemy & (~pattern[1] | pattern[0])) | (pattern[1] & pattern[0])) == (pattern[1] & pattern[0])));
