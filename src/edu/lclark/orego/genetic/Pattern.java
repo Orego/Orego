@@ -16,6 +16,8 @@ public class Pattern {
 	public static final int YES = 1 << 30;
 	public static final int PENULTIMATE = 1 << 29;
 	public static final int MOVE_LENGTH = 0b111111111;
+	public static final int MOVE_LENGTH_2 = 0b111111111111111111;
+	public static final int EDGE = 3 << 24;
 
 	/*
 	 * friendly = 100 4 enemy = 010 2 vacant = 001 1 friendly, enemy = 110 6 all
@@ -29,12 +31,16 @@ public class Pattern {
 	private HistoryObserver historyObserver;
 
 	private ShortSet vacantPoints;
+	
+	private CoordinateSystem coords;
 
 	public Pattern(Board board, HistoryObserver historyObserver) {
 		this.board = board;
 		this.historyObserver = historyObserver;
+		coords = board.getCoordinateSystem();
 		vacantPoints = board.getVacantPoints();
-		candidates = board.getVacantPoints();
+		candidates = new ShortSet(coords.getFirstPointBeyondBoard());
+		candidates.copyDataFrom(vacantPoints);
 	}
 
 	// TODO Needs revision for new wild card plan
@@ -59,7 +65,7 @@ public class Pattern {
 	 */
 	public static int[] makeRule(String... diagram) {
 		// TODO update for 2 entries
-		int[] result = new int[3];
+		int[] result = new int[2];
 		int i = 0;
 		for (String row : diagram) {
 			for (int c = 0; c < row.length(); c++) {
@@ -70,9 +76,9 @@ public class Pattern {
 				if ("Oo*?".indexOf(glyph) >= 0) {
 					result[1] |= 1 << i;
 				}
-				if (".+o?".indexOf(glyph) >= 0) {
-					result[2] |= 1 << i;
-				}
+//				if (".+o?".indexOf(glyph) >= 0) {
+//					result[2] |= 1 << i;
+//				}
 				i++;
 			}
 		}
@@ -114,16 +120,16 @@ public class Pattern {
 	}
 
 	public short selectAndPlayMove(int... pattern) {
-		for (int i = 0; i <= pattern.length - 3; i += 3) {
-			short tempResult = patternMatcher(pattern[i], pattern[i + 1],
-					pattern[i + 2]);
+		for (int i = 0; i <= pattern.length - 2; i += 2) {
+			short tempResult = patternMatcher(pattern[i], pattern[i + 1]);
 			if (tempResult != NO_POINT) {
 				return tempResult;
 			}
 		}
-		for (int i = 0; i < vacantPoints.size(); i++) {
-			if (board.play(vacantPoints.get(i)) == OK) {
-				return vacantPoints.get(i);
+		for (int i = 0; i < candidates.size(); i++) {
+			if (board.play(candidates.get(i)) == OK) {
+				//TODO make this random
+				return candidates.get(i);
 			}
 		}
 		return PASS;
@@ -138,18 +144,19 @@ public class Pattern {
 	 * 3 bits (24-27) in actualEnemy are equal to the column number.
 	 */
 	private boolean spaceMatcher(short p, int... pattern) {
-		if ((pattern[0] & YES) == 0) {
-			candidates.remove(p);
-			return false;
-		}
-		CoordinateSystem coords = board.getCoordinateSystem();
 		int row = coords.row(p);
 		int col = coords.column(p);
 		int actualFriendly = edgePattern(row, coords.getWidth());
 		int actualEnemy = edgePattern(col, coords.getWidth());
-		// TODO edge logic here
+//		System.out.println("edge: " + Integer.toBinaryString(actualFriendly) + " "
+//				 + Integer.toBinaryString(actualEnemy));
+		if((pattern[0] & EDGE) != (actualFriendly & EDGE) || ((pattern[1] & EDGE) != (actualEnemy & EDGE))){
+			candidates.remove(p);
+			return false;
+		}
 		actualFriendly = 0;
 		actualEnemy = 0;
+		boolean yes = (pattern[0] & YES) == 0;
 		pattern[0] = 0xffffff & pattern[0];
 		pattern[1] = 0xffffff & pattern[0];
 		int i = 0;
@@ -170,11 +177,16 @@ public class Pattern {
 				i++;
 			}
 		}
-		// System.out.println(Integer.toBinaryString(actualFriendly) + " "
-		// + Integer.toBinaryString(actualEnemy));
-		return (((actualFriendly & (pattern[0] & ~pattern[1])) == (pattern[0] & ~pattern[1]))
+		 System.out.println("later: " + Integer.toBinaryString(actualFriendly) + " "
+		 + Integer.toBinaryString(actualEnemy));
+		boolean truth = (((actualFriendly & (pattern[0] & ~pattern[1])) == (pattern[0] & ~pattern[1]))
 				&& (((actualFriendly & (~pattern[0] | pattern[1])) | (pattern[0] & pattern[1])) == (pattern[0] & pattern[1]))
 				&& ((actualEnemy & (pattern[1] & ~pattern[0])) == (pattern[1] & ~pattern[0])) && (((actualEnemy & (~pattern[1] | pattern[0])) | (pattern[1] & pattern[0])) == (pattern[1] & pattern[0])));
+		if (!truth && !yes) {
+			candidates.remove(p);
+			return false;
+		}
+		return truth;
 	}
 
 	private short spaceMatcherIterator(int... pattern) {
@@ -182,6 +194,7 @@ public class Pattern {
 			short p = candidates.get((int) (Math.random() * candidates.size()));
 			// System.out.println(p);
 			if (spaceMatcher(p, pattern)) {
+				System.out.println("it matched: 0" + p);
 				Legality legality = board.play(p);
 				if (legality == OK) {
 					return p;
@@ -205,16 +218,16 @@ public class Pattern {
 			candidates.remove(response);
 			return NO_POINT;
 		}
-		if ((pattern[0] & PENULTIMATE) == 1) {
+		if ((pattern[0] & PENULTIMATE) != 0) {
 			actualMoves |= ((historyObserver.get(board.getTurn() - 2)) << 9);
-			if (((pattern[0]) & MOVE_LENGTH) != actualMoves) {
+			if (((pattern[0]) & MOVE_LENGTH_2) != actualMoves) {
 				candidates.remove(response);
 				return NO_POINT;
 			}
 		}
-		// candidates.contains((short) ((pattern[0] >> 18) & MOVE_LENGTH)) &&
-		System.out.println(Integer.toBinaryString(actualMoves) + " "
-				+ Integer.toBinaryString(response));
+//		System.out.println(Integer.toBinaryString(actualMoves) + " "
+//				+ Integer.toBinaryString(response));
+		response = (short) (response % coords.getFirstPointBeyondBoard());
 		if (candidates.contains(response)) {
 			if (board.play(response) == OK) {
 				if ((pattern[0] & YES) != 0) {

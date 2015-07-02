@@ -16,15 +16,31 @@ public class PatternTest {
 		board.play("c5");
 		board.play("d2");
 		board.play("b2");
-		board.play((short) 65);
-		// System.out.println(board.toString());
-		int friendly =   0b01000000000100000000000001000000;
-		int enemy =               0b10000000010000000000000;
-		int vacant =            0b1101011111100111110111111;
+		board.play("e5");
+		board.play("a3");
+		board.play("b5");		
+//		board.play((short) 64);
+		System.out.println(board.toString());
+		int [] rules = Pattern.makeRule(
+//				".?...",
+//				"??.?.",
+//				"..!..",
+//				"..???",
+//				"#.?..");
+		
+				".....",
+				"O#.O.",
+				"..!..",
+				".....",
+				"#.O..");
+		int friendly = 0b010000000000010000000000001000000;
+		int enemy =    0b000000000001000000000000100100000;
+		System.out.println(Integer.toBinaryString(rules[0]) + "\n" + Integer.toBinaryString(rules[1]));
 		assertEquals((short) 64, pattern.patternMatcher(friendly, enemy));
-		assertEquals((short) -1, pattern.patternMatcher(friendly, enemy));
-		assertNotEquals((short) 64, pattern.patternMatcher(friendly, enemy));
-		assertNotEquals((short) 38, pattern.patternMatcher(friendly, enemy));
+		System.out.println(board.toString());
+//		assertEquals((short) 0, pattern.patternMatcher(friendly, enemy));
+//		assertNotEquals((short) 64, pattern.patternMatcher(friendly, enemy));
+//		assertNotEquals((short) 38, pattern.patternMatcher(friendly, enemy));
 	}
 
 	@Test
@@ -34,13 +50,12 @@ public class PatternTest {
 		board.play("c5");
 		board.play("d2");
 		board.play("b2");
-		System.out.println(board.toString());
-		int ultimate = 	0b11000011010000000000000001010010;
-		int penultimate = 0b1010100;
-		int response = 0b1000000;
-		assertEquals((short) 64, pattern.patternMatcher(ultimate));
-//		assertEquals((short) -1, pattern.patternMatcher(ultimate));
-//		assertNotEquals((short) 65,pattern.patternMatcher(ultimate));
+//		System.out.println(board.toString());
+		int ultimate = 	0b11000000110000000000000001010010;
+		assertEquals((short) 48, pattern.patternMatcher(ultimate, 0));
+		assertNotEquals((short) 48, pattern.patternMatcher(ultimate, 0));
+		assertEquals((short) 0, pattern.patternMatcher(ultimate));
+		assertNotEquals((short) 65, pattern.patternMatcher(ultimate));
 	}
 
 	@Test
@@ -50,10 +65,10 @@ public class PatternTest {
 		board.play("c5");
 		board.play("d2");
 		board.play("b2");
-		int p1 = 0b11000011010000000000000001010010;
-		int p2 = 0b1010100;
-		int p3 = 0b1000000;
-		assertEquals(pattern.selectAndPlayMove(p1), (short) 64);
+//		System.out.println(board);
+		int p1 = 0b11100000110000001010100001010010;
+		assertEquals(pattern.selectAndPlayMove(p1, 0), (short) 48);
+		assertNotEquals(pattern.selectAndPlayMove(p1, 0), (short) 48);
 	}
 
 }
