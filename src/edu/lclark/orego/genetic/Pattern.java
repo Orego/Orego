@@ -4,7 +4,6 @@ import static edu.lclark.orego.core.Legality.OK;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.Legality;
-import edu.lclark.orego.core.NonStoneColor;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.util.ShortSet;
@@ -18,11 +17,6 @@ public class Pattern {
 	public static final int MOVE_LENGTH = 0b111111111;
 	public static final int MOVE_LENGTH_2 = 0b111111111111111111;
 	public static final int EDGE = 0b111 << 24;
-
-	/*
-	 * friendly = 100 4 enemy = 010 2 vacant = 001 1 friendly, enemy = 110 6 all
-	 * three 111 7 enemy or vacant = 011 3 friendly or v = 101 5 off-board 000 0
-	 */
 
 	private Board board;
 
