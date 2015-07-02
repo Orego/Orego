@@ -28,6 +28,45 @@ public class PatternTest {
 	private short at(String label) {
 		return coords.at(label);
 	}
+	
+	@Test
+	public void testEdges(){
+		board.play("d2");
+		board.play("b6");
+		board.play("e5");
+		board.play("a2");
+		board.play("b1");
+		board.play("c1");
+		int [] rules = Pattern.makeRule(coords.getWidth(), 1, 
+				".....",
+				"..O..",
+				"...#O",
+				".....",
+				".....");
+		int friendly = rules[0] | YES;
+		int enemy = rules[1];
+		assertEquals(at("a1"), pattern.patternMatcher(friendly, enemy));
+		assertEquals(0, pattern.patternMatcher(friendly, enemy));
+//		System.out.println(board.toString());
+	}
+
+	@Test
+	public void testEdges2(){
+		board.play("d9");
+		board.play("b9");
+//		System.out.println(board);
+		int [] rules = Pattern.makeRule(1, 3, 
+				".....",
+				".....",
+				".O.#.",
+				".....",
+				".....");
+		int friendly = rules[0] | YES;
+		int enemy = rules[1];
+		assertEquals(at("c9"), pattern.patternMatcher(friendly, enemy));
+	}
+
+	
 	@Test
 	public void testPatternMatcherSpace() {
 		board.play("c5");
@@ -36,9 +75,8 @@ public class PatternTest {
 		board.play("e5");
 		board.play("a3");
 		board.play("b5");		
-//		board.play((short) 64);
-		System.out.println(board.toString());
-		int [] rules = Pattern.makeRule(
+//		System.out.println(board.toString());
+		int [] rules = Pattern.makeRule(0, 0, 
 				".....",
 				"O#.O.",
 				".....",
@@ -48,12 +86,10 @@ public class PatternTest {
 		int enemy = rules[1];
 //		int friendly = 0b010000000000010000000000001000000;
 //		int enemy =    0b000000000001000000000000100100000;
-		System.out.println(Integer.toBinaryString(friendly) + "\n" + Integer.toBinaryString(enemy));
+//		System.out.println(Integer.toBinaryString(friendly) + "\n" + Integer.toBinaryString(enemy));
 		assertEquals(at("d4"), pattern.patternMatcher(friendly, enemy));
-		System.out.println(board.toString());
-//		assertEquals((short) 0, pattern.patternMatcher(friendly, enemy));
-//		assertNotEquals((short) 64, pattern.patternMatcher(friendly, enemy));
-//		assertNotEquals((short) 38, pattern.patternMatcher(friendly, enemy));
+		assertEquals((short) 0, pattern.patternMatcher(friendly, enemy));
+		assertNotEquals(at("d4"), pattern.patternMatcher(friendly, enemy));
 	}
 
 	@Test
