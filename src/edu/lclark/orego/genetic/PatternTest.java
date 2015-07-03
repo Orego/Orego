@@ -4,12 +4,14 @@ import static edu.lclark.orego.genetic.Pattern.*;
 import static org.junit.Assert.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class PatternTest {
 
@@ -45,7 +47,7 @@ public class PatternTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		// Pattern is for lower left corner
-		int [] rule = Pattern.makeRule(coords.getWidth(), 1, YES,
+		int [] rule = Pattern.makeSpaceRule(coords.getWidth(), 1, YES,
 				".....",
 				"..O..",
 				"...#O",
@@ -70,7 +72,7 @@ public class PatternTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		// Pattern is on top edge, near corner
-		int [] rule = Pattern.makeRule(1, 3, YES,
+		int [] rule = Pattern.makeSpaceRule(1, 3, YES,
 				".....",
 				".....",
 				".O.#.",
@@ -95,14 +97,14 @@ public class PatternTest {
 		};
 		board.setUpProblem(diagram, BLACK);
 		// Pattern is not near an edge
-		int [] rule = Pattern.makeRule(0, 0, YES,
+		int [] rule = Pattern.makeSpaceRule(0, 0, YES,
 				".....",
 				"O#.O.",
 				".....",
 				".....",
 				"#.O..");
 		assertEquals(at("d4"), pattern.patternMatcher(rule));
-		assertEquals((short) 0, pattern.patternMatcher(rule));
+		assertEquals(NO_POINT, pattern.patternMatcher(rule));
 		assertNotEquals(at("d4"), pattern.patternMatcher(rule));
 	}
 
@@ -124,8 +126,10 @@ public class PatternTest {
 		board.play("d2");
 		board.play("b2");
 		int p1 = 0b11100000110000001010100001010010;
-		assertEquals(pattern.selectAndPlayMove(p1, 0), at("h6"));
-		assertNotEquals(pattern.selectAndPlayMove(p1, 0), at("h6"));
+		pattern.setPattern(p1, 0);
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		assertEquals(pattern.selectAndPlayOneMove(random, true), at("h6"));
+		assertNotEquals(pattern.selectAndPlayOneMove(random, true), at("h6"));
 	}
 
 }
