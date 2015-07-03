@@ -50,9 +50,9 @@ public class Pattern {
 	 * ? Anything
 	 * </pre>
 	 */
-	public static int[] makeRule(int vertical, int horizontal, String... diagram) {
+	public static int[] makeRule(int vertical, int horizontal, int flagBits, String... diagram) {
 		int[] result = new int[2];
-		result[0] |= edgePattern(vertical, coords.getWidth());
+		result[0] |= edgePattern(vertical, coords.getWidth()) | flagBits;
 		result[1] |= edgePattern(horizontal, coords.getWidth());
 		int i = 0;
 		for (int r = 0; r < diagram.length; r++) {
