@@ -16,6 +16,7 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.StoneCountObserver;
+import edu.lclark.orego.genetic.Pattern;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
@@ -29,12 +30,23 @@ public final class PlayoutComparison {
 
 	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
-		final Board board = new Board(19);
+		final Board board = new Board(9);
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = new HistoryObserver(board);
-		final Mover mover1 = escapePatternCapturer(board, atariObserver,
-				historyObserver);
-		final Mover mover2 = escapeCapturer(board, atariObserver);
+		final Pattern mover1 = new Pattern(board, historyObserver);
+		mover1.setPattern(Pattern.makeSpaceRule(0, 0, Pattern.YES,
+				new String[] {
+				"?????",
+				"??.??",
+				"?...?",
+				"??.??",
+				"?????",
+		})
+				);
+		final Pattern mover2 = new Pattern(board, historyObserver);
+		mover2.setPattern(new int[0]);
+		System.out.println(mover1.getPattern());
+		System.out.println(mover2.getPattern());
 		final Map<Mover, Integer> wins = new HashMap<>();
 		wins.put(mover1, 0);
 		wins.put(mover2, 0);
@@ -51,7 +63,7 @@ public final class PlayoutComparison {
 			Map<Mover, Integer> wins, Board board, PlayoutScorer scorer,
 			StoneCountObserver mercyObserver) {
 		final MersenneTwisterFast random = new MersenneTwisterFast();
-		final int runs = 100000;
+		final int runs = 100;
 		final CoordinateSystem coords = board.getCoordinateSystem();
 		for (int run = 0; run < runs; run++) {
 			board.clear();
@@ -64,11 +76,14 @@ public final class PlayoutComparison {
 				}
 				if (board.getPasses() < 2) {
 					if (board.getColorToPlay() == BLACK) {
-						black.selectAndPlayOneMove(random, true);
+						short p = black.selectAndPlayOneMove(random, true);
+//						System.out.println("BLACK " + board.getCoordinateSystem().toString(p));
 					} else {
-						white.selectAndPlayOneMove(random, true);
+						short p = white.selectAndPlayOneMove(random, true);
+//						System.out.println("WHITE " + board.getCoordinateSystem().toString(p));
 					}
 				}
+//				System.out.println(board);
 				if (board.getPasses() >= 2) {
 					// Game ended
 					winner = scorer.winner();
@@ -77,10 +92,12 @@ public final class PlayoutComparison {
 				final Color mercyWinner = mercyObserver.mercyWinner();
 				if (mercyWinner != null) {
 					// One player has far more stones on the board
+//					System.out.println("Mercy cutoff!");
 					winner = mercyWinner;
 					break;
 				}
 			} while (true);
+			System.out.println(winner);
 			if (winner == BLACK) {
 				wins.put(black, wins.get(black) + 1);
 			} else if (winner == WHITE) {

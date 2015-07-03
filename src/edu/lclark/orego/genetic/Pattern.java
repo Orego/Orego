@@ -126,10 +126,9 @@ public class Pattern implements Mover {
 	 * Yes rules have a 1 at the 30th place of pattern[0]. Space rules have a 0
 	 * at the 31st place; time rules have a 1 at the 31st place.
 	 */
-	public short patternMatcher(int... pattern) {
-		candidates.copyDataFrom(board.getVacantPoints());
+	public short patternMatcher(MersenneTwisterFast random, int... pattern) {
 		if (pattern[0] >= 0) { // i.e., sign bit is zero
-			return spaceMatcherIterator(pattern);
+			return spaceMatcherIterator(random, pattern);
 		} else {
 			return timeMatcher(pattern);
 		}
@@ -137,23 +136,43 @@ public class Pattern implements Mover {
 
 	private int[] pattern;
 	
-	void setPattern(int... pattern) {
+	public int[] getPattern() {
+		return pattern;
+	}
+
+	public void setPattern(int... pattern) {
 		this.pattern = pattern;
 	}
 
 	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
+//		System.out.println("Selecting a move");
+		candidates.copyDataFrom(board.getVacantPoints());
 		for (int i = 0; i <= pattern.length - 2; i += 2) {
-			short tempResult = patternMatcher(pattern[i], pattern[i + 1]);
+			short tempResult = patternMatcher(random, pattern[i], pattern[i + 1]);
 			if (tempResult != NO_POINT) {
 				return tempResult;
 			}
 		}
-		for (int i = 0; i < candidates.size(); i++) {
-			if (board.play(candidates.get(i)) == OK) {
-				// TODO make this random
-				return candidates.get(i);
-			}
-		}
+//		System.out.println("Rules are useless, playing randomly");
+		final short start = (short) random.nextInt(candidates.size());
+		short i = start;
+		final short skip = PRIMES[random.nextInt(PRIMES.length)];
+		do {
+			final short p = candidates.get(i);
+//			System.out.println("Start = " + start + ", i = " + i + ", candidates.size() = " + candidates.size());
+//			System.out.println("Considering " + coords.toString(p));
+			assert board.getColorAt(p) == VACANT;
+//				System.out.println("Match!");
+				Legality legality = board.playFast(p);
+				if (legality == OK) {
+//					System.out.println("Legal!");
+					return p;
+				}
+			// Advancing by a random prime skips through the array
+			// in a manner analogous to double hashing.
+			i = (short) ((i + skip) % candidates.size());
+		} while (i != start);
+		board.pass();
 		return PASS;
 	}
 
@@ -169,7 +188,6 @@ public class Pattern implements Mover {
 		int actualEnemy = edgePattern(col + 1, coords.getWidth());
 		if (((pattern[0] & EDGE) >> 24) != ((actualFriendly & EDGE) >> 24)
 				|| (((pattern[1] & EDGE) >> 24) != ((actualEnemy & EDGE) >> 24))) {
-			candidates.remove(p);
 			return false;
 		}
 		actualFriendly = 0;
@@ -198,25 +216,37 @@ public class Pattern implements Mover {
 		boolean truth = (((actualFriendly & (pattern[0] & ~pattern[1])) == (pattern[0] & ~pattern[1]))
 				&& (((actualFriendly & (~pattern[0] | pattern[1])) | (pattern[0] & pattern[1])) == (pattern[0] & pattern[1]))
 				&& ((actualEnemy & (pattern[1] & ~pattern[0])) == (pattern[1] & ~pattern[0])) && (((actualEnemy & (~pattern[1] | pattern[0])) | (pattern[1] & pattern[0])) == (pattern[1] & pattern[0])));
-		if (!truth && yes) {
-			candidates.remove(p);
-			return false;
-		}
+//		if (truth && !yes) {
+//			candidates.remove(p);
+//			return false;
+//		}
 		return truth;
 	}
 
-	private short spaceMatcherIterator(int... pattern) {
-		while (candidates.size() > 0) {
-			short p = candidates.get((int) (Math.random() * candidates.size()));
+	private short spaceMatcherIterator(MersenneTwisterFast random,
+			int... pattern) {
+//		System.out.println("spaceMatcherIterator");
+//		System.out.println(candidates.size() + " candidates");
+		final short start = (short) random.nextInt(candidates.size());
+		short i = start;
+		final short skip = PRIMES[random.nextInt(PRIMES.length)];
+		do {
+			final short p = candidates.get(i);
+//			System.out.println("Start = " + start + ", i = " + i + ", candidates.size() = " + candidates.size());
+//			System.out.println("Considering " + coords.toString(p));
 			assert board.getColorAt(p) == VACANT;
 			if (spaceMatcher(p, pattern)) {
-				Legality legality = board.play(p);
+//				System.out.println("Match!");
+				Legality legality = board.playFast(p);
 				if (legality == OK) {
+//					System.out.println("Legal!");
 					return p;
 				}
 			}
-			candidates.remove(p);
-		}
+			// Advancing by a random prime skips through the array
+			// in a manner analogous to double hashing.
+			i = (short) ((i + skip) % candidates.size());
+		} while (i != start);
 		return NO_POINT;
 	}
 
