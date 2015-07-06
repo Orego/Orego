@@ -28,8 +28,7 @@ public class Neuron {
 				temp = 1 - temp;
 			}
 			features[p] = 1L << temp;
-		}
-		
+		}		
 	}
 
 	public Neuron(int threshold, long excitation, long inhibition) {
