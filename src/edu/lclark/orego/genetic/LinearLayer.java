@@ -7,14 +7,18 @@ import edu.lclark.orego.util.ShortSet;
 
 public class LinearLayer {
 
-	private long[] inputs;
+	private CoordinateSystem coords;
 	
-	private int[] outputs;
+	private long[] inputs;
 	
 	private LinearNeuron[] neurons;
 	
-	private CoordinateSystem coords;
-	
+	private int[] outputs;
+
+	public LinearLayer(ConvolutionalLayer previous, CoordinateSystem coords) {
+		this(previous, coords, new byte[coords.getFirstPointBeyondBoard()], new byte[coords.getFirstPointBeyondBoard()][coords.getFirstPointBeyondBoard()][64]);
+	}
+
 	public LinearLayer(ConvolutionalLayer previous, CoordinateSystem coords,
 			byte[] biases, byte[][][] weights) {
 		inputs = previous.getOutputs();
@@ -48,6 +52,10 @@ public class LinearLayer {
 
 	public int[] getOutputs() {
 		return outputs;
+	}
+
+	public void setBias(short p, byte bias) {
+		neurons[p].setBias(bias);
 	}
 
 }

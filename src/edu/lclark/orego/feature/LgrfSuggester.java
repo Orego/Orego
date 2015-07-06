@@ -13,11 +13,11 @@ public final class LgrfSuggester implements Suggester {
 
 	private final Board board;
 
-	private final HistoryObserver history;
-	
-	private final ShortSet moves;
-
 	private final Predicate filter;
+	
+	private final HistoryObserver history;
+
+	private final ShortSet moves;
 	
 	/**
 	 * The table is transient because we want the LgrfSuggesters in all
@@ -25,10 +25,6 @@ public final class LgrfSuggester implements Suggester {
 	 */
 	private transient LgrfTable table;
 	
-	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table, Predicate filter){
-		this(board, history, table, 0, filter);
-	}
-
 	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table, int bias, Predicate filter) {
 		this.bias = bias;
 		this.board = board;
@@ -37,6 +33,10 @@ public final class LgrfSuggester implements Suggester {
 		this.filter = filter;
 		moves = new ShortSet(board.getCoordinateSystem()
 				.getFirstPointBeyondBoard());
+	}
+
+	public LgrfSuggester(Board board, HistoryObserver history, LgrfTable table, Predicate filter){
+		this(board, history, table, 0, filter);
 	}
 
 	@Override
@@ -59,6 +59,10 @@ public final class LgrfSuggester implements Suggester {
 			}
 		}
 		return moves;
+	}
+
+	public LgrfTable getTable() {
+		return table;
 	}
 
 	public void setTable(LgrfTable table) {

@@ -37,7 +37,7 @@ public class LinearNeuronTest {
 		weights[at("a3")][0] = (byte)-1;
 		weights[at("d2")][0] = (byte)70;
 		weights[at("d1")][1] = (byte)-5;
-		LinearNeuron lNeuron = new LinearNeuron(10, weights);
+		LinearNeuron lNeuron = new LinearNeuron((byte)10, weights);
 		String[] diagram = {
 				"..O..",
 				"#O.O.",

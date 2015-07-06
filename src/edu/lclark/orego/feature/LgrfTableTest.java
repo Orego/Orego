@@ -28,9 +28,9 @@ public class LgrfTableTest {
 	@Test
 	public void testSet() {
 		table.setReply(BLACK, at("a1"), at("b1"), at("c1"));
-		table.setReply(BLACK, NO_POINT, at("b1"), at("d1"));
+		table.setReply(BLACK, RESIGN, at("b1"), at("d1"));
 		table.setReply(WHITE, at("a1"), at("b1"), at("e1"));
-		table.setReply(WHITE, NO_POINT, at("b1"), at("f1"));
+		table.setReply(WHITE, RESIGN, at("b1"), at("f1"));
 		assertEquals(at("c1"), table.getSecondLevelReply(BLACK, at("a1"), at("b1")));
 		assertEquals(at("d1"), table.getFirstLevelReply(BLACK, at("b1")));
 		assertEquals(at("e1"), table.getSecondLevelReply(WHITE, at("a1"), at("b1")));

@@ -1,7 +1,6 @@
 package edu.lclark.orego.feature;
 
-import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
-import static edu.lclark.orego.core.CoordinateSystem.PASS;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -65,12 +64,12 @@ public final class LgrfTable implements Serializable {
 
 	/**
 	 * Stores reply as a reply for colorToPlay to penultimateMove and
-	 * previousMove. If penultimateMove is NO_POINT, instead stores it as a
+	 * previousMove. If penultimateMove is RESIGN, instead stores it as a
 	 * reply to previousMove.
 	 */
 	public void setReply(StoneColor colorToPlay, short penultimateMove,
 			short previousMove, short reply) {
-		if (penultimateMove == NO_POINT) {
+		if (penultimateMove == RESIGN) {
 			replies1[colorToPlay.index()][previousMove] = reply;
 		} else {
 			replies2[colorToPlay.index()][penultimateMove][previousMove] = reply;

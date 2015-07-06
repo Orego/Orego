@@ -4,11 +4,11 @@ import edu.lclark.orego.core.CoordinateSystem;
 
 public class LinearNeuron {
 
-	private int bias;
+	private byte bias;
 	
 	private byte[][] weights;
 	
-	public LinearNeuron(int bias, byte[][] weights) {
+	public LinearNeuron(byte bias, byte[][] weights) {
 		this.bias = bias;
 		this.weights = weights;
 	}
@@ -26,6 +26,10 @@ public class LinearNeuron {
 			}
 		}
 		return sum;
+	}
+
+	void setBias(byte bias) {
+		this.bias = bias;
 	}
 
 }
