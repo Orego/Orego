@@ -55,10 +55,7 @@ public class LinearLayerTest {
 		board.setUpProblem(diagram, BLACK);
 		cLayer.extractFeatures(board);
 		cLayer.update();
-		lLayer.update(board);
-		assertEquals(13, lLayer.getOutputs()[at("a5")]);
-		assertEquals(7, lLayer.getOutputs()[at("e1")]);
-		assertEquals(0, lLayer.getOutputs()[at("c4")]);
+		assertEquals(at("a5"), lLayer.bestMove(board));
 	}
 
 }

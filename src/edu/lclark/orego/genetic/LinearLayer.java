@@ -1,5 +1,6 @@
 package edu.lclark.orego.genetic;
 
+import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.util.ShortSet;
@@ -26,16 +27,23 @@ public class LinearLayer {
 		}
 	}
 
-	public void update(Board board) {
+	public short bestMove(Board board) {
+		short bestMove = PASS;
+		int bestValue = Integer.MIN_VALUE;
 		final ShortSet vacantPoints = board.getVacantPoints();
 		// TODO Is it important to try these in random order?
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			final short p = vacantPoints.get(i);
 			// TODO isLegalFast?
 			if (board.isLegal(p)) {
-				outputs[p] = neurons[p].activity(inputs, coords);
+				int value = neurons[p].activity(inputs, coords);
+				if (value > bestValue) {
+					bestMove = p;
+					bestValue = value;
+				}
 			}
 		}
+		return bestMove;
 	}
 
 	public int[] getOutputs() {
