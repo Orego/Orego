@@ -22,11 +22,11 @@ public class ConvolutionalLayer {
 		this.neurons = neurons;
 	}
 
-	public ConvolutionalLayer(ConvolutionalLayer lowerLayer,
+	public ConvolutionalLayer(ConvolutionalLayer previous,
 			CoordinateSystem coords, ConvolutionalNeuron ... neurons) {
 		this.coords = coords;
 		outputs = new long[coords.getFirstPointBeyondExtendedBoard()];
-		inputs = lowerLayer.getOutputs();
+		inputs = previous.getOutputs();
 		this.neurons = neurons;
 	}
 
