@@ -22,6 +22,14 @@ public class ConvolutionalLayer {
 		this.neurons = neurons;
 	}
 
+	public ConvolutionalLayer(ConvolutionalLayer lowerLayer,
+			CoordinateSystem coords, Neuron ... neurons) {
+		this.coords = coords;
+		outputs = new long[coords.getFirstPointBeyondExtendedBoard()];
+		inputs = lowerLayer.getOutputs();
+		this.neurons = neurons;
+	}
+
 	/**
 	 * Extracts features for each point on the board. The results are written
 	 * into this layer's inputs.

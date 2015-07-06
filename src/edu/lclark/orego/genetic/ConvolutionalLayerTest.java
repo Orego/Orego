@@ -86,5 +86,27 @@ public class ConvolutionalLayerTest {
 		assertEquals(0b10L, outputs[at("e1")]);
 		assertEquals(0b00L, outputs[coords.getNeighbors(at("a1"))[WEST_NEIGHBOR]]);
 	}
+	
+	@Test 
+	public void testMultipleLayers() {
+		Neuron friendly = new Neuron(1, 0b1L, 0b0L);
+		layer = new ConvolutionalLayer(coords, friendly);
+		Neuron friendly2 = new Neuron(2, 0b1L, 0b0L);
+		ConvolutionalLayer layer2 = new ConvolutionalLayer(layer, coords, friendly2);
+		String[] diagram = {
+				".....",
+				"#...#",
+				".....",
+				".....",
+				"..O..",
+		};
+		board.setUpProblem(diagram, BLACK);
+		layer.extractFeatures(board);
+		layer.update();
+		layer2.update();
+		long[] outputs = layer2.getOutputs();
+		assertEquals(0b1L, outputs[at("c4")]);
+		board.setUpProblem(diagram, WHITE);	
+	}
 
 }
