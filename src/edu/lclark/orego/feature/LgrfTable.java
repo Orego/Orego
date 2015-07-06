@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.StoneColor;
 
 /**
  * Tables for Last Good Reply with Forgetting. This is not thread safe; we just
@@ -60,6 +61,20 @@ public final class LgrfTable implements Serializable {
 	public short getSecondLevelReply(Color color, short penultimateMove,
 			short previousMove) {
 		return replies2[color.index()][penultimateMove][previousMove];
+	}
+
+	/**
+	 * Stores reply as a reply for colorToPlay to penultimateMove and
+	 * previousMove. If penultimateMove is NO_POINT, instead stores it as a
+	 * reply to previousMove.
+	 */
+	public void setReply(StoneColor colorToPlay, short penultimateMove,
+			short previousMove, short reply) {
+		if (penultimateMove == NO_POINT) {
+			replies1[colorToPlay.index()][previousMove] = reply;
+		} else {
+			replies2[colorToPlay.index()][penultimateMove][previousMove] = reply;
+		}
 	}
 
 	public void update(Color colorToPlay, boolean playoutWon,

@@ -15,6 +15,10 @@ public class LgrfTableTest {
 	
 	private LgrfTable table;
 	
+	private short at(String label) {
+		return coords.at(label);
+	}
+
 	@Before
 	public void setUp() throws Exception {
 		coords = CoordinateSystem.forWidth(19);
@@ -22,18 +26,30 @@ public class LgrfTableTest {
 	}
 
 	@Test
+	public void testSet() {
+		table.setReply(BLACK, at("a1"), at("b1"), at("c1"));
+		table.setReply(BLACK, NO_POINT, at("b1"), at("d1"));
+		table.setReply(WHITE, at("a1"), at("b1"), at("e1"));
+		table.setReply(WHITE, NO_POINT, at("b1"), at("f1"));
+		assertEquals(at("c1"), table.getSecondLevelReply(BLACK, at("a1"), at("b1")));
+		assertEquals(at("d1"), table.getFirstLevelReply(BLACK, at("b1")));
+		assertEquals(at("e1"), table.getSecondLevelReply(WHITE, at("a1"), at("b1")));
+		assertEquals(at("f1"), table.getFirstLevelReply(WHITE, at("b1")));
+	}
+	
+	@Test
 	public void testUpdate() {
-		table.update(BLACK, true, coords.at("a1"), coords.at("b1"), coords.at("c1"));
-		assertEquals(coords.at("c1"), table.getFirstLevelReply(BLACK, coords.at("b1")));
-		assertEquals(NO_POINT, table.getFirstLevelReply(BLACK, coords.at("a1")));
-		assertEquals(coords.at("c1"), table.getSecondLevelReply(BLACK, coords.at("a1"), coords.at("b1")));
+		table.update(BLACK, true, at("a1"), at("b1"), at("c1"));
+		assertEquals(at("c1"), table.getFirstLevelReply(BLACK, at("b1")));
+		assertEquals(NO_POINT, table.getFirstLevelReply(BLACK, at("a1")));
+		assertEquals(at("c1"), table.getSecondLevelReply(BLACK, at("a1"), at("b1")));
 	}
 	
 	@Test
 	public void testClear(){
-		table.update(BLACK, true, coords.at("a1"), coords.at("b1"), coords.at("c1"));
+		table.update(BLACK, true, at("a1"), at("b1"), at("c1"));
 		table.clear();
-		assertEquals(NO_POINT, table.getFirstLevelReply(BLACK, coords.at("b1")));
+		assertEquals(NO_POINT, table.getFirstLevelReply(BLACK, at("b1")));
 	}
 
 }
