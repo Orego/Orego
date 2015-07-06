@@ -10,11 +10,11 @@ public class ConvolutionalLayer {
 	
 	private long[] inputs;
 
-	private Neuron[] neurons;
+	private ConvolutionalNeuron[] neurons;
 
 	private long[] outputs;
 	
-	public ConvolutionalLayer(CoordinateSystem coords, Neuron... neurons) {
+	public ConvolutionalLayer(CoordinateSystem coords, ConvolutionalNeuron... neurons) {
 		this.coords = coords;
 		final int n = coords.getFirstPointBeyondExtendedBoard();
 		outputs = new long[n];
@@ -23,7 +23,7 @@ public class ConvolutionalLayer {
 	}
 
 	public ConvolutionalLayer(ConvolutionalLayer lowerLayer,
-			CoordinateSystem coords, Neuron ... neurons) {
+			CoordinateSystem coords, ConvolutionalNeuron ... neurons) {
 		this.coords = coords;
 		outputs = new long[coords.getFirstPointBeyondExtendedBoard()];
 		inputs = lowerLayer.getOutputs();

@@ -60,8 +60,8 @@ public class ConvolutionalLayerTest {
 	@Test
 	public void testUpdate() {
 		// For this neuron to fire, there must be 3 more friendly stones than enemy stones in the receptive field
-		Neuron neuron1 = new Neuron(3, 0b01L, 0b10L);
-		Neuron neuron2 = new Neuron(3, 0b1000L, 0b0L);
+		ConvolutionalNeuron neuron1 = new ConvolutionalNeuron(3, 0b01L, 0b10L);
+		ConvolutionalNeuron neuron2 = new ConvolutionalNeuron(3, 0b1000L, 0b0L);
 		layer = new ConvolutionalLayer(coords, neuron1, neuron2);
 		// TODO Install neurons in layer
 		String[] diagram = {
@@ -89,9 +89,9 @@ public class ConvolutionalLayerTest {
 	
 	@Test 
 	public void testMultipleLayers() {
-		Neuron friendly = new Neuron(1, 0b1L, 0b0L);
+		ConvolutionalNeuron friendly = new ConvolutionalNeuron(1, 0b1L, 0b0L);
 		layer = new ConvolutionalLayer(coords, friendly);
-		Neuron friendly2 = new Neuron(2, 0b1L, 0b0L);
+		ConvolutionalNeuron friendly2 = new ConvolutionalNeuron(2, 0b1L, 0b0L);
 		ConvolutionalLayer layer2 = new ConvolutionalLayer(layer, coords, friendly2);
 		String[] diagram = {
 				".....",
