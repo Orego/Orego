@@ -44,7 +44,10 @@ public class PlayoutComparisonNetwork {
 		wins.put(mover2, 0);
 		final PlayoutScorer scorer = new ChinesePlayoutScorer(board, 7.5);
 		final StoneCountObserver mercyObserver = new StoneCountObserver(board, scorer);
+		long before = System.nanoTime();
 		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
+		long after = System.nanoTime();
+		System.out.println(100/((after - before)/1000000000.0) + " games per second");
 		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
 		System.out.println("Version 1 wins: " + wins.get(mover1));
 		System.out.println("Version 2 wins: " + wins.get(mover2));
@@ -90,7 +93,7 @@ public class PlayoutComparisonNetwork {
 					break;
 				}
 			} while (true);
-			System.out.println(winner);
+//			System.out.println(winner);
 			if (winner == BLACK) {
 				wins.put(black, wins.get(black) + 1);
 			} else if (winner == WHITE) {
