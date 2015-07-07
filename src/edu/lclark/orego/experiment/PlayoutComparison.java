@@ -31,7 +31,7 @@ public final class PlayoutComparison {
 	@SuppressWarnings("boxing")
 	public static void main(String[] args) {
 		final Board board = new Board(9);
-		final AtariObserver atariObserver = new AtariObserver(board);
+//		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = new HistoryObserver(board);
 		final Pattern mover1 = new Pattern(board, historyObserver);
 		mover1.setPattern(Pattern.makeSpaceRule(0, 0, Pattern.YES,

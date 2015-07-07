@@ -60,5 +60,9 @@ public class Phenotype implements Mover {
 	public void setBias(short p, byte bias) {
 		linearLayer.setBias(p, bias);
 	}
+	
+//	public changeConvolutionalLayer() {
+//		
+//	}
 
 }
