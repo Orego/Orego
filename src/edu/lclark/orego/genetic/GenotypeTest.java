@@ -37,6 +37,25 @@ public class GenotypeTest {
 		assertTrue(1.0*count0/trials > 0);
 		assertTrue(1.0*count127/trials < 1);
 	}
+	
+	@Test
+	public void testMutate(){
+		long bit0[] = {0L, 0L};
+		long bit1[] = {-1L, -1L};
+		Genotype a = new Genotype(bit0);
+		Genotype b = new Genotype(bit1);
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		a.mutate(random);
+		b.mutate(random);
+		int bitCountA = 0;
+		int bitCountB = 0;
+		for (int i = 0; i < a.getBits().length; i++){
+			bitCountA += Long.bitCount(a.getBits()[i]);
+			bitCountB += Long.bitCount(b.getBits()[i]);
+		}
+		assertTrue(bitCountA == 1);
+		assertTrue(bitCountB == 127);
+	}
 
 
 }

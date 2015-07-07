@@ -21,6 +21,12 @@ public class Genotype {
 		this.bits = bits;
 	}
 	
+	public void mutate(MersenneTwisterFast random){
+		int r = random.nextInt(64 * bits.length + 1);
+		int word = r / 64;
+		bits[word] ^= (1L << r); 
+	}
+	
 	public void randomize(){
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for (int i = 0; i < bits.length; i++) {
