@@ -115,4 +115,19 @@ public class CoordinateSystemTest {
 	public void testIsOnBoard() {
 		assertFalse(c19.isOnBoard(c19.getFirstPointBeyondBoard()));
 	}
+	
+	@Test
+	public void testReceptiveField() {
+		short[] field = c5.getReceptiveField(c5.at("b2"));
+		assertEquals(c5.at("a3"), field[0]);
+		assertEquals(c5.at("b3"), field[1]);
+		assertEquals(c5.at("c3"), field[2]);
+		assertEquals(c5.at("a2"), field[3]);
+		assertEquals(c5.at("b2"), field[4]);
+		assertEquals(c5.at("c2"), field[5]);
+		assertEquals(c5.at("a1"), field[6]);
+		assertEquals(c5.at("b1"), field[7]);
+		assertEquals(c5.at("c1"), field[8]);
+	}
+
 }

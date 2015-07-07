@@ -131,6 +131,11 @@ public final class CoordinateSystem implements Serializable {
 	 */
 	private final short[][] neighbors;
 
+	/**
+	 * @see #getReceptiveField(short)
+	 */
+	private final short[][] receptiveFields;
+	
 	/** Added to a point to find the one to the south. */
 	private final short south;
 
@@ -155,9 +160,10 @@ public final class CoordinateSystem implements Serializable {
 			}
 		}
 		maxMovesPerGame = (short) (boardArea * 3);
-		final int extended = getFirstPointBeyondExtendedBoard();
-		neighbors = new short[extended][];
-		zobristHashes = new long[2][extended];
+		final int n = getFirstPointBeyondBoard();
+		neighbors = new short[n][];
+		receptiveFields = new short[n][];
+		zobristHashes = new long[2][n];
 		final MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (final short p : allPointsOnBoard) {
 			neighbors[p] = new short[] { (short) (p - south),
@@ -165,6 +171,17 @@ public final class CoordinateSystem implements Serializable {
 					(short) (p + south), (short) (p - south - EAST),
 					(short) (p - south + EAST), (short) (p + south - EAST),
 					(short) (p + south + EAST) };
+			receptiveFields[p] = new short[] {
+				(short) (p - south - EAST),
+				(short) (p - south),
+				(short) (p - south + EAST),
+				(short) (p - EAST),
+				p,
+				(short) (p + EAST),
+				(short) (p + south - EAST),
+				(short) (p + south),
+				(short) (p + south + EAST),
+			};
 			for (int i = 0; i < zobristHashes.length; i++) {
 				zobristHashes[i][p] = random.nextLong();
 			}
@@ -260,6 +277,18 @@ public final class CoordinateSystem implements Serializable {
 	 */
 	public short[] getNeighbors(short p) {
 		return neighbors[p];
+	}
+
+	/**
+	 * Returns an array of the nine points in a 3x3 square with p at its center.
+	 * Some of these points may be off-board. The behavior of this method is
+	 * undefined if p is off-board.
+	 * <p>
+	 * This differs from getNeighbors in that the array includes p itself and it
+	 * is ordered differently (by row from top, from left within each row).
+	 */
+	public short[] getReceptiveField(short p) {
+		return receptiveFields[p];
 	}
 
 	/** Returns the width of the board (e.g., 19). */
