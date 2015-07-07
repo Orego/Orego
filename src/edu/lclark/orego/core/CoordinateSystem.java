@@ -155,9 +155,9 @@ public final class CoordinateSystem implements Serializable {
 			}
 		}
 		maxMovesPerGame = (short) (boardArea * 3);
-		final int extended = getFirstPointBeyondExtendedBoard();
-		neighbors = new short[extended][];
-		zobristHashes = new long[2][extended];
+		final int n = getFirstPointBeyondBoard();
+		neighbors = new short[n][];
+		zobristHashes = new long[2][n];
 		final MersenneTwisterFast random = new MersenneTwisterFast(0L);
 		for (final short p : allPointsOnBoard) {
 			neighbors[p] = new short[] { (short) (p - south),
