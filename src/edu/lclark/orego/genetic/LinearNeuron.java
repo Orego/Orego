@@ -32,4 +32,8 @@ public class LinearNeuron {
 		this.bias = bias;
 	}
 
+	public void setWeight(short from, int feature, byte weight) {
+		weights[from][feature] = weight;
+	}
+
 }

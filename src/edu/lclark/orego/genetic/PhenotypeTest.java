@@ -39,4 +39,16 @@ public class PhenotypeTest {
 		assertEquals(at("d3"), phenotype.selectAndPlayOneMove(random, true));
 	}
 
+	@Test
+	public void testSelectAndPlayOneMoveInvolvingConvolutionalLayer() {
+		phenotype.getConvolutionalLayer().setNeurons(new ConvolutionalNeuron[] {new ConvolutionalNeuron(6, 0b1001L, 0L)});
+		for (short p : coords.getAllPointsOnBoard()) {
+			phenotype.getLinearLayer().setWeight(p, p, 0, (byte)127);
+		}
+		board.play("b1");
+		board.play("e5");
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		assertEquals(at("a1"), phenotype.selectAndPlayOneMove(random, true));		
+	}
+
 }

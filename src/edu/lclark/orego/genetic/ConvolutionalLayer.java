@@ -68,4 +68,8 @@ public class ConvolutionalLayer {
 		}
 	}
 
+	public void setNeurons(ConvolutionalNeuron[] neurons) {
+		this.neurons = neurons;
+	}
+
 }

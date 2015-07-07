@@ -3,6 +3,7 @@ package edu.lclark.orego.genetic;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
 public class LinearLayer {
@@ -56,6 +57,17 @@ public class LinearLayer {
 
 	public void setBias(short p, byte bias) {
 		neurons[p].setBias(bias);
+	}
+
+	public void setWeight(short to, short from, int feature, byte weight) {
+		neurons[to].setWeight(from, feature, weight);
+	}
+
+	public void randomizeBiases() {
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		for (short p : coords.getAllPointsOnBoard()) {
+			neurons[p].setBias(random.nextByte());
+		}
 	}
 
 }

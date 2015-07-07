@@ -1,8 +1,6 @@
 package edu.lclark.orego.genetic;
 
-import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.Legality.OK;
-import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
@@ -12,8 +10,6 @@ import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.move.Mover;
-import edu.lclark.orego.move.PredicateMover;
-import edu.lclark.orego.move.SuggesterMover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
@@ -48,6 +44,9 @@ public class Phenotype implements Mover {
 			}
 		}
 		// Ask the network
+		// TODO Hey, did we ever update the network?
+		convolutionalLayer.extractFeatures(board);
+		convolutionalLayer.update();
 		short p = linearLayer.bestMove(board);
 		board.play(p);
 		return p;
@@ -59,6 +58,18 @@ public class Phenotype implements Mover {
 
 	public void setBias(short p, byte bias) {
 		linearLayer.setBias(p, bias);
+	}
+
+	public void randomizeBiases() {
+		linearLayer.randomizeBiases();
+	}
+
+	public LinearLayer getLinearLayer() {
+		return linearLayer;
+	}
+
+	public ConvolutionalLayer getConvolutionalLayer() {
+		return convolutionalLayer;
 	}
 	
 //	public changeConvolutionalLayer() {
