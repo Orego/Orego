@@ -44,7 +44,6 @@ public class Phenotype implements Mover {
 			}
 		}
 		// Ask the network
-		// TODO Hey, did we ever update the network?
 		convolutionalLayer.extractFeatures(board);
 		convolutionalLayer.update();
 		short p = linearLayer.bestMove(board);

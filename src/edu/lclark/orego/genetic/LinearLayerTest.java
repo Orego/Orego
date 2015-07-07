@@ -28,7 +28,12 @@ public class LinearLayerTest {
 	@Test
 	public void testUpdate() {
 		// For this neuron to fire, there must be a friendly stone in the receptive field
-		ConvolutionalNeuron cNeuron = new ConvolutionalNeuron(0, 0b1L, 0b10);
+		// For this neuron to fire, there must be 3 more friendly stones than
+		// enemy stones in the receptive field
+		ConvolutionalNeuron cNeuron = new ConvolutionalNeuron(3,
+				new long[] { 0b01L, 0b01L, 0b01L, 0b01L, 0b01L, 0b01L, 0b01L,
+						0b01L, 0b01L }, new long[] { 0b10L, 0b10L, 0b10L,
+						0b10L, 0b10L, 0b10L, 0b10L, 0b10L, 0b10L });
 		ConvolutionalLayer cLayer = new ConvolutionalLayer(coords, cNeuron);
 		byte[][][] weights = new byte[coords.getFirstPointBeyondBoard()][coords.getFirstPointBeyondBoard()][64];
 		byte[] biases = new byte[coords.getFirstPointBeyondBoard()];

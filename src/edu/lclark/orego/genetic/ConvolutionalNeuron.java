@@ -7,11 +7,11 @@ public class ConvolutionalNeuron {
 
 	private int threshold;
 
-	private long excitation;
+	private long[] excitation;
 
-	private long inhibition;
+	private long[] inhibition;
 
-	public ConvolutionalNeuron(int threshold, long excitation, long inhibition) {
+	public ConvolutionalNeuron(int threshold, long[] excitation, long[] inhibition) {
 		this.threshold = threshold;
 		this.excitation = excitation;
 		this.inhibition = inhibition;
@@ -25,10 +25,11 @@ public class ConvolutionalNeuron {
 	/** Returns true if this neuron is active at point p. */
 	public boolean isActiveAt(short p, long[] featureMap, CoordinateSystem coords) {
 		int sum = 0;
-		for (short n : coords.getNeighbors(p)) {
-			long input = featureMap[n];
-			sum += bitCount(excitation & input);
-			sum -= bitCount(inhibition & input);
+		final short[] field = coords.getReceptiveField(p);
+		for (int i = 0; i < excitation.length; i++) {
+			final long features = featureMap[field[i]];
+			sum += bitCount(excitation[i] & features);
+			sum -= bitCount(inhibition[i] & features);
 		}
 		return sum >= threshold;
 	}
