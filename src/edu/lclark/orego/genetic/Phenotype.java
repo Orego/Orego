@@ -1,18 +1,15 @@
 package edu.lclark.orego.genetic;
 
-import static edu.lclark.orego.core.Legality.OK;
-import static edu.lclark.orego.core.NonStoneColor.VACANT;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.genetic.Phenotype.THRESHOLD_LIMIT;
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
 import edu.lclark.orego.feature.HistoryObserver;
-import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
@@ -20,7 +17,6 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-import edu.lclark.orego.util.ShortSet;
 
 @SuppressWarnings("serial")
 public class Phenotype implements Mover {
@@ -28,7 +24,7 @@ public class Phenotype implements Mover {
 	/** Convolutional neuron thresholds are in the range (-THRESHOLD_LIMIT, THRESHOLD_LIMIT). */
 	public static final int THRESHOLD_LIMIT = 32;
 	
-	private LgrfSuggester replier;
+	private LgrfTable table;
 	
 	private LinearLayer linearLayer;
 	
@@ -110,7 +106,7 @@ public class Phenotype implements Mover {
 		filter = new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board)));
-		replier = new LgrfSuggester(board, history, new LgrfTable(coords), filter);
+		table = new LgrfTable(coords);
 		convolutionalLayer = new ConvolutionalLayer(coords);
 		linearLayer = new LinearLayer(convolutionalLayer, coords);
 	}
@@ -119,7 +115,6 @@ public class Phenotype implements Mover {
 		// Try playing a stored reply
 		final short ultimate = history.get(board.getTurn() - 1);
 		final short penultimate = history.get(board.getTurn() - 2);
-		LgrfTable table = replier.getTable();
 		short reply = table.getSecondLevelReply(board.getColorToPlay(),
 				penultimate, ultimate);
 		if (reply != NO_POINT && filter.at(reply) && board.isLegal(reply)) {
@@ -144,7 +139,6 @@ public class Phenotype implements Mover {
 	}
 
 	short getReply(StoneColor colorToPlay, short penultimateMove, short previousMove) {
-		LgrfTable table = replier.getTable();
 		short p = table.getSecondLevelReply(colorToPlay, penultimateMove, previousMove);
 		if (p == NO_POINT) {
 			return table.getFirstLevelReply(colorToPlay, previousMove);
@@ -153,13 +147,12 @@ public class Phenotype implements Mover {
 	}
 	
 	public void setReply(StoneColor colorToPlay, short penultimateMove, short previousMove, short reply) {
-		CoordinateSystem coords = board.getCoordinateSystem();
 		if (coords.isOnBoard(reply)) {
 			if (previousMove == NO_POINT || coords.isOnBoard(previousMove)) {
 				if (!(penultimateMove == NO_POINT || coords.isOnBoard(penultimateMove))) {
 					penultimateMove = RESIGN;
 				}
-				replier.getTable().setReply(colorToPlay, penultimateMove, previousMove, reply);				
+				table.setReply(colorToPlay, penultimateMove, previousMove, reply);				
 			}
 		}
 	}
