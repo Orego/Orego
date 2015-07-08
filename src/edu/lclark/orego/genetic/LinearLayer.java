@@ -36,6 +36,7 @@ public class LinearLayer {
 		short bestMove = PASS;
 		int bestValue = Integer.MIN_VALUE;
 		final ShortSet vacantPoints = board.getVacantPoints();
+		// TODO Filter these moves
 		// TODO Is it important to try these in random order?
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			final short p = vacantPoints.get(i);

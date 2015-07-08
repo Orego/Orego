@@ -1,6 +1,7 @@
 package edu.lclark.orego.genetic;
 
 import static edu.lclark.orego.core.Legality.OK;
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.genetic.Phenotype.THRESHOLD_LIMIT;
@@ -12,6 +13,7 @@ import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.NotEyeLike;
+import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
@@ -42,10 +44,11 @@ public class Phenotype implements Mover {
 	}
 	
 	/**
-	 * @param replies Number of replies in the genotype. (The rest specified the network.)
+	 * @param replies Number of replies in the genotype. (The rest specified the network.) Must be even.
 	 */
 	public Phenotype(Board board, int replies, Genotype genotype) {
 		this(board);
+		assert replies % 2 == 0;
 		long[] words = genotype.getWords();
 		int w = 0;
 		// Extract replies
@@ -60,7 +63,6 @@ public class Phenotype implements Mover {
 					(short) ((words[w] >>> (18 + 32)) & MASKS[9]));
 		}
 		// Extract value for network
-		//TODO what if replies is odd?
 		ConvolutionalNeuron [] neurons = new ConvolutionalNeuron[64];
 		int n = 0;
 		for (int i = replies/2; i < 19*64 + replies/2; i+=19, n++){
@@ -76,7 +78,7 @@ public class Phenotype implements Mover {
 		// Convolutional layer
 		convolutionalLayer.setNeurons(neurons);
 		// Linear layer
-		int f = 1221;
+		int f = replies/2 + 19*64;
 		for(short to: coords.getAllPointsOnBoard()){
 			for(short from: coords.getAllPointsOnBoard()){
 //				for(; f < words.length; f+=8){
@@ -93,31 +95,44 @@ public class Phenotype implements Mover {
 		}
 }
 	
+	private HistoryObserver history;
 	
+	private Predicate filter;
 	
 	public Phenotype(Board board) {
 		this.board = board;
 		coords = board.getCoordinateSystem();
-		replier = new LgrfSuggester(board, new HistoryObserver(board), new LgrfTable(coords), new NotEyeLike(board));
+		history = new HistoryObserver(board);
+		filter = new NotEyeLike(board);
+		replier = new LgrfSuggester(board, history, new LgrfTable(coords), filter);
 		convolutionalLayer = new ConvolutionalLayer(coords);
 		linearLayer = new LinearLayer(convolutionalLayer, coords);
 	}
 
-	@Override
-	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
+	public short bestMove(MersenneTwisterFast random) {
 		// Try playing a stored reply
-		final ShortSet suggestedMoves = replier.getMoves();
-		if (suggestedMoves.size() > 0) {
-			short p = suggestedMoves.get(0);
-			Legality legality = fast ? board.playFast(p) : board.play(p);
-			if (legality == OK) {
-				return p;
-			}
+		final short ultimate = history.get(board.getTurn() - 1);
+		final short penultimate = history.get(board.getTurn() - 2);
+		LgrfTable table = replier.getTable();
+		short reply = table.getSecondLevelReply(board.getColorToPlay(),
+				penultimate, ultimate);
+		if (reply != NO_POINT && filter.at(reply) && board.isLegal(reply)) {
+			return reply;
+		}
+		reply = table.getFirstLevelReply(board.getColorToPlay(), ultimate);
+		if (reply != NO_POINT && filter.at(reply) && board.isLegal(reply)) {
+			return reply;
 		}
 		// Ask the network
 		convolutionalLayer.extractFeatures(board);
 		convolutionalLayer.update();
 		short p = linearLayer.bestMove(board);
+		return p;
+	}
+	
+	@Override
+	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
+		short p = bestMove(random);
 		board.play(p);
 		return p;
 	}
