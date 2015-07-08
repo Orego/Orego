@@ -36,4 +36,8 @@ public class LinearNeuron {
 		weights[from][feature] = weight;
 	}
 
+	public byte getWeight(short from, int feature) {
+		return weights[from][feature];
+	}
+
 }

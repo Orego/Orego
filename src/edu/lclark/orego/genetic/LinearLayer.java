@@ -59,6 +59,10 @@ public class LinearLayer {
 		neurons[p].setBias(bias);
 	}
 
+	public byte getWeight(short to, short from, int feature) {
+		return neurons[to].getWeight(from, feature);
+	}
+	
 	public void setWeight(short to, short from, int feature, byte weight) {
 		neurons[to].setWeight(from, feature, weight);
 	}

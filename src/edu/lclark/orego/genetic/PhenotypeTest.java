@@ -22,7 +22,7 @@ public class PhenotypeTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		board = new Board(5);
+		board = new Board(19);
 		coords = board.getCoordinateSystem();
 		phenotype = new Phenotype(board);
 	}
@@ -58,7 +58,7 @@ public class PhenotypeTest {
 
 	@Test
 	public void testGenotypeConstructor() {
-		long[] words = new long[5 + 64*19];
+		long[] words = new long[5 + 64*19+361*361*8 + 361];
 		// Replies
 		words[0] = at("a1") |
 				(at("b1") << 9) |
@@ -81,6 +81,7 @@ public class PhenotypeTest {
 		words[24] = 0b1101010111010111L; // Threshold for neuron 1
 		words[26] = 0b101L; // 1th excitatory vector in neuron 1
 		words[58] = 0b111L; // 5th inhibitory vector in neuron 2
+		words[1221] = 0b10L;
 		phenotype = new Phenotype(board, 10, new Genotype(words));
 		assertEquals(at("d1"), phenotype.getReply(BLACK, at("a1"), at("b1")));
 		assertEquals(at("c5"), phenotype.getReply(BLACK, at("e3"), at("b3")));
@@ -90,6 +91,11 @@ public class PhenotypeTest {
 		assertEquals(0b101L, n1.getExcitation()[1]);
 		ConvolutionalNeuron n2 = phenotype.getConvolutionalLayer().getNeurons()[2];
 		assertEquals(0b111L, n2.getInhibition()[5]);
+		//Linear Layer
+		byte testWeight = phenotype.getLinearLayer().getWeight(at("a19"), at("a19"), 0);
+		System.out.println(testWeight);
+		assertEquals(0b10L, testWeight);
+	
 	}
 
 }

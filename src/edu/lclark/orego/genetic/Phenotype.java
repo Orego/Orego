@@ -30,6 +30,8 @@ public class Phenotype implements Mover {
 	
 	private Board board;
 	
+	private CoordinateSystem coords;
+	
 	/** MASKS[i] has the i lowest-order bits on. */
 	public static final long[] MASKS = new long[64];
 	
@@ -61,7 +63,7 @@ public class Phenotype implements Mover {
 		//TODO what if replies is odd?
 		ConvolutionalNeuron [] neurons = new ConvolutionalNeuron[64];
 		int n = 0;
-		for (int i = replies/2; i < words.length; i+=19, n++){
+		for (int i = replies/2; i < 19*64 + replies/2; i+=19, n++){
 			int threshold = (int) words[i] % THRESHOLD_LIMIT;
 			long [] excitation = new long [9];
 			long [] inhibition = new long [9];
@@ -74,11 +76,28 @@ public class Phenotype implements Mover {
 		// Convolutional layer
 		convolutionalLayer.setNeurons(neurons);
 		// Linear layer
-	}
+		int f = 1221;
+		for(short to: coords.getAllPointsOnBoard()){
+			for(short from: coords.getAllPointsOnBoard()){
+//				for(; f < words.length; f+=8){
+					for(int i= 0; i < 8; i++, f++) {
+						for(int j = 0; j < 8; j++){
+//							System.out.println(f);
+							linearLayer.setWeight(to, from, j + i*8, (byte) (words[f] >> (8 * j)));							
+						}
+					}
+				}
+			
+			linearLayer.setBias(to, (byte)words[f]);
+			f++;
+		}
+}
+	
+	
 	
 	public Phenotype(Board board) {
 		this.board = board;
-		CoordinateSystem coords = board.getCoordinateSystem();
+		coords = board.getCoordinateSystem();
 		replier = new LgrfSuggester(board, new HistoryObserver(board), new LgrfTable(coords), new NotEyeLike(board));
 		convolutionalLayer = new ConvolutionalLayer(coords);
 		linearLayer = new LinearLayer(convolutionalLayer, coords);
