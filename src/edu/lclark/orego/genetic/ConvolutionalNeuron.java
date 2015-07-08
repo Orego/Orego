@@ -11,6 +11,18 @@ public class ConvolutionalNeuron {
 
 	private long[] inhibition;
 
+	int getThreshold() {
+		return threshold;
+	}
+
+	long[] getExcitation() {
+		return excitation;
+	}
+
+	long[] getInhibition() {
+		return inhibition;
+	}
+
 	public ConvolutionalNeuron(int threshold, long[] excitation, long[] inhibition) {
 		this.threshold = threshold;
 		this.excitation = excitation;

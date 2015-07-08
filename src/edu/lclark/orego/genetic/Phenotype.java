@@ -18,6 +18,9 @@ import edu.lclark.orego.util.ShortSet;
 @SuppressWarnings("serial")
 public class Phenotype implements Mover {
 
+	/** Convolutional neuron thresholds are in the range (-THRESHOLD_LIMIT, THRESHOLD_LIMIT). */
+	public static final int THRESHOLD_LIMIT = 32;
+	
 	private LgrfSuggester replier;
 	
 	private LinearLayer linearLayer;
@@ -42,6 +45,7 @@ public class Phenotype implements Mover {
 		this(board);
 		long[] words = genotype.getWords();
 		int w = 0;
+		// Extract replies
 		for (int i = 0; i < replies; w++, i += 2) {
 			setReply((int) ((words[w] >>> 27) & MASKS[1]) == BLACK.index() ? BLACK : WHITE,
 					(short) (words[w] & MASKS[9]),
@@ -52,6 +56,10 @@ public class Phenotype implements Mover {
 					(short) ((words[w] >>> (9 + 32)) & MASKS[9]),
 					(short) ((words[w] >>> (18 + 32)) & MASKS[9]));
 		}
+		// Extract value for network
+		// Convolutional layer
+		
+		// Linear layer
 	}
 	
 	public Phenotype(Board board) {

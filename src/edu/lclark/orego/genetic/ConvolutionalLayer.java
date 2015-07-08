@@ -22,6 +22,10 @@ public class ConvolutionalLayer {
 		this.neurons = neurons;
 	}
 
+	ConvolutionalNeuron[] getNeurons() {
+		return neurons;
+	}
+
 	public ConvolutionalLayer(ConvolutionalLayer previous,
 			CoordinateSystem coords, ConvolutionalNeuron ... neurons) {
 		this.coords = coords;
