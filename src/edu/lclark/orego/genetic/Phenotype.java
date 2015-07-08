@@ -3,6 +3,7 @@ package edu.lclark.orego.genetic;
 import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.StoneColor.*;
+import static edu.lclark.orego.genetic.Phenotype.THRESHOLD_LIMIT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
@@ -57,8 +58,21 @@ public class Phenotype implements Mover {
 					(short) ((words[w] >>> (18 + 32)) & MASKS[9]));
 		}
 		// Extract value for network
+		//TODO what if replies is odd?
+		ConvolutionalNeuron [] neurons = new ConvolutionalNeuron[64];
+		int n = 0;
+		for (int i = replies/2; i < words.length; i+=19, n++){
+			int threshold = (int) words[i] % THRESHOLD_LIMIT;
+			long [] excitation = new long [9];
+			long [] inhibition = new long [9];
+			for (int j = 0; j < 9; j++){
+				excitation[j] = words[i + j + 1];
+				inhibition[j] = words[i + j + 10];
+			}
+			neurons[n] = new ConvolutionalNeuron(threshold, excitation, inhibition);
+		}
 		// Convolutional layer
-		
+		convolutionalLayer.setNeurons(neurons);
 		// Linear layer
 	}
 	
