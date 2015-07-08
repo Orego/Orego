@@ -55,4 +55,15 @@ public class PhenotypeTest {
 		assertEquals(at("a1"), phenotype.selectAndPlayOneMove(random, true));		
 	}
 
+	@Test
+	public void testGenotypeConstructor() {
+		long[] words = new long[1];
+		words[0] = at("a1") |
+				(at("b1") << 9) |
+				(at("c1") << 18) |
+				(BLACK.index() << 27);
+		phenotype = new Phenotype(board, 1, new Genotype(words));
+		assertEquals(at("c1"), phenotype.getReply(BLACK, at("a1"), at("b1")));
+	}
+
 }

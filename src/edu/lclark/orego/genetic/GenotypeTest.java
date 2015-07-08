@@ -21,13 +21,13 @@ public class GenotypeTest {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for(int i = 0; i < trials; i++){
 			Genotype c = a.cross(b, random);
-			if(((c.getBits()[0] >>> 63) & 1L) == 1){
+			if(((c.getWords()[0] >>> 63) & 1L) == 1){
 				count0++;
 			}
-			if(((c.getBits()[1] >>> 63) & 1L) == 1){
+			if(((c.getWords()[1] >>> 63) & 1L) == 1){
 				count64++;
 			}
-			if((c.getBits()[1] & 1L ) == 1){
+			if((c.getWords()[1] & 1L ) == 1){
 				count127++;
 			}
 		}
@@ -49,9 +49,9 @@ public class GenotypeTest {
 		b.mutate(random);
 		int bitCountA = 0;
 		int bitCountB = 0;
-		for (int i = 0; i < a.getBits().length; i++){
-			bitCountA += Long.bitCount(a.getBits()[i]);
-			bitCountB += Long.bitCount(b.getBits()[i]);
+		for (int i = 0; i < a.getWords().length; i++){
+			bitCountA += Long.bitCount(a.getWords()[i]);
+			bitCountB += Long.bitCount(b.getWords()[i]);
 		}
 		assertTrue(bitCountA == 1);
 		assertTrue(bitCountB == 127);
