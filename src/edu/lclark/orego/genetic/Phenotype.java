@@ -47,6 +47,10 @@ public class Phenotype implements Mover {
 					(short) (words[w] & MASKS[9]),
 					(short) ((words[w] >>> 9) & MASKS[9]),
 					(short) ((words[w] >>> 18) & MASKS[9]));
+			setReply((int) ((words[w] >>> (27 + 32)) & MASKS[1]) == BLACK.index() ? BLACK : WHITE,
+					(short) ((words[w] >>> 32 ) & MASKS[9]),
+					(short) ((words[w] >>> (9 + 32)) & MASKS[9]),
+					(short) ((words[w] >>> (18 + 32)) & MASKS[9]));
 		}
 	}
 	

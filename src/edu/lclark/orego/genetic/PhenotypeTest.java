@@ -61,9 +61,14 @@ public class PhenotypeTest {
 		words[0] = at("a1") |
 				(at("b1") << 9) |
 				(at("c1") << 18) |
-				(BLACK.index() << 27);
-		phenotype = new Phenotype(board, 1, new Genotype(words));
+				(BLACK.index() << 27) |
+				((long) coords.getFirstPointBeyondBoard() << 32) |
+				((long) at("b3") << 41) |
+				((long) at("c5") << 50) |
+				((long) BLACK.index() << 59);	
+		phenotype = new Phenotype(board, 2, new Genotype(words));
 		assertEquals(at("c1"), phenotype.getReply(BLACK, at("a1"), at("b1")));
+		assertEquals(at("c5"), phenotype.getReply(BLACK, RESIGN, at("b3")));
 	}
 
 }
