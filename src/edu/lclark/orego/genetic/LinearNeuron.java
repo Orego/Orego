@@ -40,4 +40,8 @@ public class LinearNeuron {
 		return weights[from][feature];
 	}
 
+	public byte getBias() {
+		return bias;
+	}
+
 }

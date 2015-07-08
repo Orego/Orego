@@ -81,7 +81,10 @@ public class PhenotypeTest {
 		words[24] = 0b1101010111010111L; // Threshold for neuron 1
 		words[26] = 0b101L; // 1th excitatory vector in neuron 1
 		words[58] = 0b111L; // 5th inhibitory vector in neuron 2
-		words[1221] = 0b10L;
+		// Linear layer
+		words[1221] = 0b10L; // Weight into a19 from a19 for feature 1
+		words[1221 + 361 * 8 + 1 + 361 * 8] = 0b11101L; // Bias of linear unit b19
+		// Build and test phenotype
 		phenotype = new Phenotype(board, 10, new Genotype(words));
 		assertEquals(at("d1"), phenotype.getReply(BLACK, at("a1"), at("b1")));
 		assertEquals(at("c5"), phenotype.getReply(BLACK, at("e3"), at("b3")));
@@ -92,10 +95,8 @@ public class PhenotypeTest {
 		ConvolutionalNeuron n2 = phenotype.getConvolutionalLayer().getNeurons()[2];
 		assertEquals(0b111L, n2.getInhibition()[5]);
 		//Linear Layer
-		byte testWeight = phenotype.getLinearLayer().getWeight(at("a19"), at("a19"), 0);
-		System.out.println(testWeight);
-		assertEquals(0b10L, testWeight);
-	
+		assertEquals(0b10L, phenotype.getLinearLayer().getWeight(at("a19"), at("a19"), 0));
+		assertEquals(0b11101L, phenotype.getLinearLayer().getBias(at("b19")));
 	}
 
 }
