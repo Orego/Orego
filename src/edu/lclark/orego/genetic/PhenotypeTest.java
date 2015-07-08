@@ -57,7 +57,7 @@ public class PhenotypeTest {
 
 	@Test
 	public void testGenotypeConstructor() {
-		long[] words = new long[1];
+		long[] words = new long[5];
 		words[0] = at("a1") |
 				(at("b1") << 9) |
 				(at("c1") << 18) |
@@ -65,10 +65,19 @@ public class PhenotypeTest {
 				((long) coords.getFirstPointBeyondBoard() << 32) |
 				((long) at("b3") << 41) |
 				((long) at("c5") << 50) |
-				((long) BLACK.index() << 59);	
-		phenotype = new Phenotype(board, 2, new Genotype(words));
-		assertEquals(at("c1"), phenotype.getReply(BLACK, at("a1"), at("b1")));
-		assertEquals(at("c5"), phenotype.getReply(BLACK, RESIGN, at("b3")));
+				((long) BLACK.index() << 59);
+		words[4] = at("a1") |
+				(at("b1") << 9) |
+				(at("d1") << 18) |
+				(BLACK.index() << 27) |
+				((long) coords.getFirstPointBeyondBoard() << 32) |
+				((long) at("b3") << 41) |
+				((long) at("d2") << 50) |
+				((long) WHITE.index() << 59);
+		phenotype = new Phenotype(board, 10, new Genotype(words));
+		assertEquals(at("d1"), phenotype.getReply(BLACK, at("a1"), at("b1")));
+		assertEquals(at("c5"), phenotype.getReply(BLACK, at("e3"), at("b3")));
+		assertEquals(at("d2"), phenotype.getReply(WHITE, at("e3"), at("b3")));
 	}
 
 }
