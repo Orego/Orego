@@ -9,10 +9,14 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
+import edu.lclark.orego.feature.Conjunction;
+import edu.lclark.orego.feature.Disjunction;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.LgrfSuggester;
 import edu.lclark.orego.feature.LgrfTable;
+import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
+import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -103,7 +107,9 @@ public class Phenotype implements Mover {
 		this.board = board;
 		coords = board.getCoordinateSystem();
 		history = new HistoryObserver(board);
-		filter = new NotEyeLike(board);
+		filter = new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board)));
 		replier = new LgrfSuggester(board, history, new LgrfTable(coords), filter);
 		convolutionalLayer = new ConvolutionalLayer(coords);
 		linearLayer = new LinearLayer(convolutionalLayer, coords);
@@ -126,7 +132,7 @@ public class Phenotype implements Mover {
 		// Ask the network
 		convolutionalLayer.extractFeatures(board);
 		convolutionalLayer.update();
-		short p = linearLayer.bestMove(board);
+		short p = linearLayer.bestMove(board, filter);
 		return p;
 	}
 	

@@ -42,18 +42,17 @@ public class PhenotypeTest {
 
 	@Test
 	public void testSelectAndPlayOneMoveInvolvingConvolutionalLayer() {
-		// This neuron only fires if there are off-board points west, southwest, and south
+		// This neuron only fires if there is an enemy stone to the east
 		long[] excitatory = new long[9];
-		excitatory[3] = 0b1000L;
-		excitatory[6] = 0b1000L;
-		excitatory[7] = 0b1000L;
+		excitatory[5] = 0b10L;
 		long[] inhibitory = new long[9];
-		phenotype.getConvolutionalLayer().setNeurons(new ConvolutionalNeuron[] {new ConvolutionalNeuron(3, excitatory, inhibitory)});
+		phenotype.getConvolutionalLayer().setNeurons(new ConvolutionalNeuron[] {new ConvolutionalNeuron(1, excitatory, inhibitory)});
 		for (short p : coords.getAllPointsOnBoard()) {
 			phenotype.getLinearLayer().setWeight(p, p, 0, (byte)127);
 		}
 		MersenneTwisterFast random = new MersenneTwisterFast();
-		assertEquals(at("a1"), phenotype.selectAndPlayOneMove(random, true));		
+		board.play(at("c4"));
+		assertEquals(at("b4"), phenotype.selectAndPlayOneMove(random, true));		
 	}
 
 	@Test

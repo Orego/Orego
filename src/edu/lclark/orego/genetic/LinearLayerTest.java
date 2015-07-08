@@ -1,6 +1,6 @@
 package edu.lclark.orego.genetic;
 
-import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.*;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.NotEyeLike;
 
 public class LinearLayerTest {
 
@@ -60,7 +61,28 @@ public class LinearLayerTest {
 		board.setUpProblem(diagram, BLACK);
 		cLayer.extractFeatures(board);
 		cLayer.update();
-		assertEquals(at("a5"), lLayer.bestMove(board));
+		assertEquals(at("a5"), lLayer.bestMove(board, new NotEyeLike(board)));
+	}
+
+	@Test
+	public void testFilter() {
+		ConvolutionalLayer cLayer = new ConvolutionalLayer(coords);
+		byte[] biases = new byte[coords.getFirstPointBeyondBoard()];
+		byte[][][] weights = new byte[coords.getFirstPointBeyondBoard()][coords.getFirstPointBeyondBoard()][64];
+		biases[at("e1")] = 10;
+		LinearLayer lLayer = new LinearLayer(cLayer, coords, biases, weights);
+		String[] diagram = {
+				"..O..",
+				"#O.O.",
+				".#O..",
+				"##..O",
+				".#.O.",
+		};
+		board.setUpProblem(diagram, WHITE);
+		cLayer.extractFeatures(board);
+		cLayer.update();
+		assertNotEquals(at("e1"), lLayer.bestMove(board, new NotEyeLike(board)));
+		
 	}
 
 }

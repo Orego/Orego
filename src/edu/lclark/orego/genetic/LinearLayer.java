@@ -3,6 +3,7 @@ package edu.lclark.orego.genetic;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
 
@@ -32,16 +33,15 @@ public class LinearLayer {
 		}
 	}
 
-	public short bestMove(Board board) {
+	public short bestMove(Board board, Predicate filter) {
 		short bestMove = PASS;
 		int bestValue = Integer.MIN_VALUE;
 		final ShortSet vacantPoints = board.getVacantPoints();
-		// TODO Filter these moves
 		// TODO Is it important to try these in random order?
 		for (int i = 0; i < vacantPoints.size(); i++) {
 			final short p = vacantPoints.get(i);
 			// TODO isLegalFast?
-			if (board.isLegal(p)) {
+			if (filter.at(p) && board.isLegal(p)) {
 				int value = neurons[p].activity(inputs, coords);
 				if (value > bestValue) {
 					bestMove = p;
