@@ -11,7 +11,7 @@ public class GenotypeTest {
 	@Test
 	public void testCross() {
 		long bit0[] = {0L, 0L};
-		long bit1[] = {-1L, -1L};
+		long bit1[] = {~0L, ~0L};
 		Genotype a = new Genotype(bit0);
 		Genotype b = new Genotype(bit1);
 		int count0 = 0;
@@ -41,7 +41,7 @@ public class GenotypeTest {
 	@Test
 	public void testMutate(){
 		long bit0[] = {0L, 0L};
-		long bit1[] = {-1L, -1L};
+		long bit1[] = {~0L, ~0L};
 		Genotype a = new Genotype(bit0);
 		Genotype b = new Genotype(bit1);
 		MersenneTwisterFast random = new MersenneTwisterFast();

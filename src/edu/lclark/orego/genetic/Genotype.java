@@ -22,7 +22,7 @@ public class Genotype {
 	}
 	
 	public void mutate(MersenneTwisterFast random){
-		int r = random.nextInt(64 * bits.length + 1);
+		int r = random.nextInt(64 * bits.length);
 		int word = r / 64;
 		bits[word] ^= (1L << r); 
 	}
