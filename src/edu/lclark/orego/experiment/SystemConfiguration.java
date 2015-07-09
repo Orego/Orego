@@ -33,6 +33,8 @@ public enum SystemConfiguration {
 
 	/** Directory in which to store result files. */
 	final String resultsDirectory;
+	
+	final String expertGamesDirectory;
 
 	/** Reads settings from config/system.properties. */
 	SystemConfiguration() {
@@ -55,6 +57,12 @@ public enum SystemConfiguration {
 				hosts.add((String) properties.get(s));
 			}
 		}
+	expertGamesDirectory = properties.getProperty("expertGamesDirectory");
+	}
+
+	/** Returns the directory storing expert games for learning on this machine. */
+	public String getExpertGamesDirectory() {
+		return expertGamesDirectory;
 	}
 
 }

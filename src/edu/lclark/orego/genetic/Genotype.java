@@ -55,6 +55,7 @@ public class Genotype {
 	}
 
 	public void evaluateFitness() {
+		fitness = 0;
 		Board board = new Board(19);
 		Phenotype phenotype = new Phenotype(board, 20, this);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
@@ -68,7 +69,6 @@ public class Genotype {
 			totalEvaluated += game.size();
 		}
 		fitness = 1.0*hits/totalEvaluated;
-			
 	}
 	
 	List<List<Short>> processFiles(File file, SgfParser parser) {
