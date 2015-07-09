@@ -172,9 +172,19 @@ public class Phenotype implements Mover {
 	public ConvolutionalLayer getConvolutionalLayer() {
 		return convolutionalLayer;
 	}
-	
-//	public changeConvolutionalLayer() {
-//		
-//	}
+
+	/** Returns the number of moves that this phenotype correctly predicts from game. */
+	public int hits(short[] game) {
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		board.clear();
+		int result = 0;
+		for (short p : game) {
+			if (bestMove(random) == p) {
+				result++;
+			}
+			board.play(p);
+		}
+		return result;
+	}
 
 }

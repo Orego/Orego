@@ -61,7 +61,7 @@ public class Genotype {
 
 	/** Returns the number of moves that phenotype correctly predicts from game. */
 	int hits(short[] game, Phenotype phenotype) {
-		return -1;
+		return phenotype.hits(game);
 	}
 
 	public void mutate(MersenneTwisterFast random) {
