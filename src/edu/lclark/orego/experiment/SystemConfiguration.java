@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Properties;
 
 /** Holds system-dependent properties, e.g., classpath. */
-enum SystemConfiguration {
+public enum SystemConfiguration {
 
 	/** Name of the singleton instance. */
 	SYSTEM;
