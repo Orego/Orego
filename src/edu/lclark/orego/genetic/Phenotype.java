@@ -4,6 +4,7 @@ import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.StoneColor;
@@ -117,11 +118,11 @@ public class Phenotype implements Mover {
 		final short penultimate = history.get(board.getTurn() - 2);
 		short reply = table.getSecondLevelReply(board.getColorToPlay(),
 				penultimate, ultimate);
-		if (reply != NO_POINT && filter.at(reply) && board.isLegal(reply)) {
+		if (reply != NO_POINT && (board.getColorAt(reply) == VACANT) && filter.at(reply) && board.isLegal(reply)) {
 			return reply;
 		}
 		reply = table.getFirstLevelReply(board.getColorToPlay(), ultimate);
-		if (reply != NO_POINT && filter.at(reply) && board.isLegal(reply)) {
+		if (reply != NO_POINT && (board.getColorAt(reply) == VACANT) && filter.at(reply) && board.isLegal(reply)) {
 			return reply;
 		}
 		// Ask the network

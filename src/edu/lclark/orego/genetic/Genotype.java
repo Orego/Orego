@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
@@ -12,7 +13,13 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 public class Genotype {
 
 	public static void main(String[] args) {
-		System.out.println(Long.toBinaryString(-1L));
+		// TODO This magic number should be parameterized
+		Genotype g = new Genotype(5 + 64*19+361*361*8 + 361);
+		g.randomize();
+		CoordinateSystem coords = CoordinateSystem.forWidth(19);
+		g.getWords()[0] = CoordinateSystem.NO_POINT | (CoordinateSystem.NO_POINT << 9) | (coords.at("q16") << 18);
+		g.evaluateFitness();
+		System.out.println(g.getFitness());
 	}
 
 	private double fitness;
@@ -57,7 +64,8 @@ public class Genotype {
 	public void evaluateFitness() {
 		fitness = 0;
 		Board board = new Board(19);
-		Phenotype phenotype = new Phenotype(board, 20, this);
+		// TODO The magic number below, for number of replies, should be parameterized
+		Phenotype phenotype = new Phenotype(board, 10, this);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
 		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
 		List<List<Short>> games = processFiles(file, parser);
@@ -79,7 +87,7 @@ public class Genotype {
 			}
 		} else if (file.getPath().endsWith(".sgf")) {
 			// System.out.println("Reading file " + file.getName());
-			games.addAll(parser.parseGamesFromFile(file, 2));
+			games.addAll(parser.parseGamesFromFile(file, Integer.MAX_VALUE));
 		}
 		return games;
 	}
