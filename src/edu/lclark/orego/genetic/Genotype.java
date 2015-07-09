@@ -12,15 +12,15 @@ import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 
 public class Genotype {
 
-	public static void main(String[] args) {
-		// TODO This magic number should be parameterized
-		Genotype g = new Genotype(5 + 64*19+361*361*8 + 361);
-		g.randomize();
-		CoordinateSystem coords = CoordinateSystem.forWidth(19);
-		g.getWords()[0] = CoordinateSystem.NO_POINT | (CoordinateSystem.NO_POINT << 9) | (coords.at("q16") << 18);
-		g.evaluateFitness();
-		System.out.println(g.getFitness());
-	}
+//	public static void main(String[] args) {
+//		// TODO This magic number should be parameterized
+//		Genotype g = new Genotype(5 + 64*19+361*361*8 + 361);
+//		g.randomize();
+//		CoordinateSystem coords = CoordinateSystem.forWidth(19);
+//		g.getWords()[0] = CoordinateSystem.NO_POINT | (CoordinateSystem.NO_POINT << 9) | (coords.at("q16") << 18);
+//		g.evaluateFitness();
+//		System.out.println(g.getFitness());
+//	}
 
 	private double fitness;
 
@@ -76,6 +76,7 @@ public class Genotype {
 			hits += phenotype.hits(g);
 			totalEvaluated += game.size();
 		}
+		System.out.println("fitness completed for one individual");
 		fitness = 1.0*hits/totalEvaluated;
 	}
 	
