@@ -1,5 +1,11 @@
 package edu.lclark.orego.genetic;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.lclark.orego.core.Board;
+import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class Genotype {
@@ -48,7 +54,33 @@ public class Genotype {
 	}
 
 	public void evaluateFitness() {
-
+		Board board = new Board(19);
+		Phenotype phenotype = new Phenotype(board, 20, this);
+		File file = new File(SYSTEM.getExpertGamesDirectory());
+		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
+		List<List<Short>> games = processFiles(file, parser);
+		int totalEvaluated = 0;
+		int hits = 0;
+		for (final List<Short> game : games){
+			Short[] g = game.toArray(new Short[0]);
+			hits += hits(g, phenotype);
+			totalEvaluated += game.size();
+		}
+		fitness = 1.0*hits/totalEvaluated;
+			
+	}
+	
+	List<List<Short>> processFiles(File file, SgfParser parser) {
+		final List<List<Short>> games = new ArrayList<>();
+		if (file.isDirectory()) {
+			for (final File f : file.listFiles()) {
+				games.addAll(processFiles(f, parser));
+			}
+		} else if (file.getPath().endsWith(".sgf")) {
+			// System.out.println("Reading file " + file.getName());
+			games.addAll(parser.parseGamesFromFile(file, 2));
+		}
+		return games;
 	}
 
 	public double getFitness() {
