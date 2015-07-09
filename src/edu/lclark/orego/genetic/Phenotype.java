@@ -174,7 +174,8 @@ public class Phenotype implements Mover {
 	}
 
 	/** Returns the number of moves that this phenotype correctly predicts from game. */
-	public int hits(short[] game) {
+	@SuppressWarnings("boxing")
+	public int hits(Short[] game) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		board.clear();
 		int result = 0;

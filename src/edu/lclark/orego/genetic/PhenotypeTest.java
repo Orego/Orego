@@ -98,11 +98,12 @@ public class PhenotypeTest {
 		assertEquals(0b11101L, phenotype.getLinearLayer().getBias(at("b19")));
 	}
 
+	@SuppressWarnings("boxing")
 	@Test
 	public void testHits() {
 		phenotype.setReply(BLACK, NO_POINT, NO_POINT, at("c3"));
 		phenotype.setReply(WHITE, at("d3"), at("e3"), at("f3"));
-		short[] game = {at("c3"), at("d3"), at("e3"), at("f3"), at("g3"), PASS, PASS};
+		Short[] game = {at("c3"), at("d3"), at("e3"), at("f3"), at("g3"), PASS, PASS};
 		assertEquals(2, phenotype.hits(game));
 	}
 

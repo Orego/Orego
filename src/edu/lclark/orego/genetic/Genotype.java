@@ -65,7 +65,7 @@ public class Genotype {
 		int hits = 0;
 		for (final List<Short> game : games){
 			Short[] g = game.toArray(new Short[0]);
-			hits += hits(g, phenotype);
+			hits += phenotype.hits(g);
 			totalEvaluated += game.size();
 		}
 		fitness = 1.0*hits/totalEvaluated;
@@ -90,11 +90,6 @@ public class Genotype {
 
 	public long[] getWords() {
 		return words;
-	}
-
-	/** Returns the number of moves that phenotype correctly predicts from game. */
-	int hits(short[] game, Phenotype phenotype) {
-		return phenotype.hits(game);
 	}
 
 	public void mutate(MersenneTwisterFast random) {
