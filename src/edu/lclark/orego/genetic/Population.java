@@ -28,7 +28,7 @@ public class Population {
 	}
 
 	public static void main(String[] args) {
-		new Population(2).evolve(10);
+		new Population(500).evolve(50);
 	}
 
 	private MersenneTwisterFast random;
