@@ -16,7 +16,15 @@ import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class Population {
 
+	public static final int NUMBER_OF_THREADS = 32;
+
+	public static void main(String[] args) {
+		new Population(500).evolve(50);
+	}
+
 	private Genotype[] individuals;
+
+	private MersenneTwisterFast random;
 
 	public Population(int individualCount) {
 		random = new MersenneTwisterFast();
@@ -27,11 +35,47 @@ public class Population {
 		}
 	}
 
-	public static void main(String[] args) {
-		new Population(500).evolve(50);
+	Genotype chooseParent(MersenneTwisterFast random) {
+		Genotype best = individuals[random.nextInt(individuals.length)];
+		for (int i = 0; i < 9; i++) {
+			Genotype challenger = individuals[random
+					.nextInt(individuals.length)];
+			if (challenger.getFitness() > best.getFitness()) {
+				best = challenger;
+			}
+		}
+		return best;
 	}
 
-	private MersenneTwisterFast random;
+	public void evaluateAllFitness(PrintWriter stats, ObjectOutputStream champions) throws java.io.IOException, InterruptedException {
+		// Indices where each thread should start
+		int[] starts = new int[NUMBER_OF_THREADS];
+		// Indices where each thread should stop
+		int[] stops = new int[NUMBER_OF_THREADS];
+		for (int i = 0; i < starts.length; i++) {
+			starts[i] = individuals.length * i / NUMBER_OF_THREADS;
+			stops[i] = individuals.length * (i + 1) / NUMBER_OF_THREADS;
+		}
+		int step = (int)Math.ceil(((double)individuals.length) / NUMBER_OF_THREADS);
+		CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
+		Evaluator[] evaluators = new Evaluator[NUMBER_OF_THREADS];
+		for (int i = 0; i < evaluators.length; i++) {
+			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch);
+		}
+		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+		long before = System.nanoTime();
+		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+			executor.execute(evaluators[i]);
+		}
+		executor.shutdown();
+		latch.await();
+		long after = System.nanoTime();
+		System.out.println("Time taken: " + ((after - before) / (60 * 1000000000.0)) + " minutes");
+		Genotype champion = findChampion();
+		stats.println(champion.getFitness() + "\t" + meanFitness());
+		stats.flush();
+		champions.writeObject(champion.getWords());
+	}
 
 	public void evolve(int generations) {
 		String resultsDirectory = SYSTEM.resultsDirectory + timeStamp(true)
@@ -60,53 +104,6 @@ public class Population {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}
-
-	Genotype chooseParent(MersenneTwisterFast random) {
-		Genotype best = individuals[random.nextInt(individuals.length)];
-		for (int i = 0; i < 9; i++) {
-			Genotype challenger = individuals[random
-					.nextInt(individuals.length)];
-			if (challenger.getFitness() > best.getFitness()) {
-				best = challenger;
-			}
-		}
-		return best;
-	}
-
-	public static final int NUMBER_OF_THREADS = 32;
-
-	public void evaluateAllFitness(PrintWriter stats, ObjectOutputStream champions) throws java.io.IOException, InterruptedException {
-		// Indices where each thread should start
-		int[] starts = new int[NUMBER_OF_THREADS];
-		// Indices where each thread should stop
-		int[] stops = new int[NUMBER_OF_THREADS];
-		for (int i = 0; i < starts.length; i++) {
-			starts[i] = individuals.length * i / NUMBER_OF_THREADS;
-			stops[i] = individuals.length * (i + 1) / NUMBER_OF_THREADS;
-		}
-		int step = (int)Math.ceil(((double)individuals.length) / NUMBER_OF_THREADS);
-		CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
-		Evaluator[] evaluators = new Evaluator[NUMBER_OF_THREADS];
-		for (int i = 0; i < evaluators.length; i++) {
-			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch);
-		}
-		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-		long before = System.nanoTime();
-		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-			executor.execute(evaluators[i]);
-		}
-		executor.shutdown();
-		latch.await();
-		long after = System.nanoTime();
-		for (int i = 0; i < individuals.length; i++) {
-			System.out.println(i + ": " + individuals[i].getFitness());
-		}
-		System.out.println("Time taken: " + ((after - before) / 1000000000.0) + " seconds");
-		Genotype champion = findChampion();
-		stats.println(champion.getFitness() + "\t" + meanFitness());
-		stats.flush();
-		champions.writeObject(champion.getWords());
 	}
 
 	public Genotype findChampion() {
