@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
