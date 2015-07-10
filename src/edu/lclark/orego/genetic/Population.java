@@ -74,7 +74,7 @@ public class Population {
 		return best;
 	}
 
-	public static final int NUMBER_OF_THREADS = 3;
+	public static final int NUMBER_OF_THREADS = 32;
 
 	public void evaluateAllFitness(PrintWriter stats, ObjectOutputStream champions) throws java.io.IOException, InterruptedException {
 		// Indices where each thread should start
