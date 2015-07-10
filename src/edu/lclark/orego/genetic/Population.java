@@ -74,7 +74,7 @@ public class Population {
 		return best;
 	}
 
-	public static final int NUMBER_OF_THREADS = 2;
+	public static final int NUMBER_OF_THREADS = 3;
 
 	public void evaluateAllFitness(PrintWriter stats, ObjectOutputStream champions) throws java.io.IOException, InterruptedException {
 		// Indices where each thread should start
@@ -85,7 +85,7 @@ public class Population {
 			starts[i] = individuals.length * i / NUMBER_OF_THREADS;
 			stops[i] = individuals.length * (i + 1) / NUMBER_OF_THREADS;
 		}
-		int step = individuals.length / NUMBER_OF_THREADS;
+		int step = (int)Math.ceil(((double)individuals.length) / NUMBER_OF_THREADS);
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
 		Evaluator[] evaluators = new Evaluator[NUMBER_OF_THREADS];
 		for (int i = 0; i < evaluators.length; i++) {
@@ -99,6 +99,9 @@ public class Population {
 		executor.shutdown();
 		latch.await();
 		long after = System.nanoTime();
+		for (int i = 0; i < individuals.length; i++) {
+			System.out.println(i + ": " + individuals[i].getFitness());
+		}
 		System.out.println("Time taken: " + ((after - before) / 1000000000.0) + " seconds");
 		Genotype champion = findChampion();
 		stats.println(champion.getFitness() + "\t" + meanFitness());

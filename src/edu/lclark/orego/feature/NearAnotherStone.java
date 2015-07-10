@@ -68,7 +68,7 @@ public final class NearAnotherStone implements Predicate {
 
 	@Override
 	public boolean at(short p) {
-		assert neighborhoods[p] != null;
+		assert neighborhoods[p] != null : "Neighborhood around " + p + " = " + board.getCoordinateSystem().toString(p) + " did not have a neighborhood";
 		for (final short q : neighborhoods[p]) {
 			if (board.getColorAt(q) != VACANT) {
 				return true;
