@@ -89,7 +89,7 @@ public class Population {
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
 		Evaluator[] evaluators = new Evaluator[NUMBER_OF_THREADS];
 		for (int i = 0; i < evaluators.length; i++) {
-			evaluators[i] = new Evaluator(step * i, step * (i + 1), individuals, latch);
+			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch);
 		}
 		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 		long before = System.nanoTime();
