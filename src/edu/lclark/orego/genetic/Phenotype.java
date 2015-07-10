@@ -128,8 +128,7 @@ public class Phenotype implements Mover {
 		// Ask the network
 		convolutionalLayer.extractFeatures(board);
 		convolutionalLayer.update();
-		short p = linearLayer.bestMove(board, filter);
-		return p;
+		return linearLayer.bestMove(board, filter);
 	}
 	
 	@Override
