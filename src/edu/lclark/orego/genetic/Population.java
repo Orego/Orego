@@ -17,6 +17,8 @@ import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 public class Population {
 
 	public static final int NUMBER_OF_THREADS = 32;
+	
+	public static final int NUMBER_OF_REPLIES = 1000;
 
 	public static void main(String[] args) {
 		new Population(500).evolve(50);
@@ -30,7 +32,7 @@ public class Population {
 		random = new MersenneTwisterFast();
 		individuals = new Genotype[individualCount];
 		for (int i = 0; i < individualCount; i++) {
-			individuals[i] = new Genotype(5 + 64 * 19 + 361 * 361 * 8 + 361);
+			individuals[i] = new Genotype((NUMBER_OF_REPLIES / 2) + 64 * 19 + 361 * 361 * 8 + 361);
 			individuals[i].randomize();
 		}
 	}

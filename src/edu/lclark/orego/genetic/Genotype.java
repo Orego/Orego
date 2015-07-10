@@ -64,7 +64,7 @@ public class Genotype {
 		fitness = 0;
 		Board board = new Board(19);
 		// TODO The magic number below, for number of replies, should be parameterized
-		Phenotype phenotype = new Phenotype(board, 10, this);
+		Phenotype phenotype = new Phenotype(board, Population.NUMBER_OF_REPLIES, this);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
 		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
 		List<List<Short>> games = processFiles(file, parser);
