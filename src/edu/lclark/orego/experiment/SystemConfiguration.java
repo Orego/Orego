@@ -32,7 +32,7 @@ public enum SystemConfiguration {
 	final String oregoClassPath;
 
 	/** Directory in which to store result files. */
-	final String resultsDirectory;
+	public final String resultsDirectory;
 	
 	final String expertGamesDirectory;
 
