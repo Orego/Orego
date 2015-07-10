@@ -56,14 +56,16 @@ public final class NearAnotherStone implements Predicate {
 		this.board = board;
 		final CoordinateSystem coords = board.getCoordinateSystem();
 		final int width = coords.getWidth();
-		if (NEIGHBORHOODS[width] == null) {
-			final short[] pointsOnBoard = coords.getAllPointsOnBoard();
-			NEIGHBORHOODS[width] = new short[coords.getFirstPointBeyondBoard()][];
-			for (final short p : pointsOnBoard) {
-				NEIGHBORHOODS[width][p] = findNeighborhood(p, coords);
+		synchronized (NEIGHBORHOODS) {
+			if (NEIGHBORHOODS[width] == null) {
+				final short[] pointsOnBoard = coords.getAllPointsOnBoard();
+				NEIGHBORHOODS[width] = new short[coords.getFirstPointBeyondBoard()][];
+				for (final short p : pointsOnBoard) {
+					NEIGHBORHOODS[width][p] = findNeighborhood(p, coords);
+				}
 			}
+			neighborhoods = NEIGHBORHOODS[width];
 		}
-		neighborhoods = NEIGHBORHOODS[width];
 	}
 
 	@Override
