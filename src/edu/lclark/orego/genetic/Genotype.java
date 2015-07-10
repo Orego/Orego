@@ -76,7 +76,6 @@ public class Genotype {
 			hits += phenotype.hits(g);
 			totalEvaluated += game.size();
 		}
-		System.out.println("fitness completed for one individual");
 		fitness = 1.0*hits/totalEvaluated;
 	}
 	
