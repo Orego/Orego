@@ -270,7 +270,10 @@ public final class Player {
 		final int[] survivals = new int[board.getCoordinateSystem()
 				.getFirstPointBeyondBoard()];
 		for (int i = 0; i < runs; i++) {
+			// Temporarily set passes to 0 so that we can run playouts beyond
+			// this point
 			short passes = board.getPasses();
+			board.setPasses((short)0);
 			runnable.performMcRun(false);
 			board.setPasses(passes);
 			for (final short p : board.getCoordinateSystem()

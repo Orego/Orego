@@ -416,6 +416,40 @@ public class PlayerTest {
 	}
 	
 	@Test
+	public void testGetDeadStonesAfterTwoPasses() {
+		player = new PlayerBuilder().msecPerMove(100).threads(4).boardWidth(19).memorySize(64)
+				.openingBook(false).komi(0).build();
+		coords = player.getBoard().getCoordinateSystem();
+		String[] diagram = {
+				".OOOO#........#....",
+				".O##O#...##....##..",
+				".OO#O##...###..#.#.",
+				".O########..#..##.#",
+				".OOOOOOOO#.....#.##",
+				"..O#..O.O#...#..##.",
+				".O.O.O.OO##..#.....",
+				"...O...OOO#..###...",
+				"..O..O..O.O#.......",
+				"........OOO#.....#.",
+				"#........O##...###.",
+				"......O.OO#........",
+				".........O###..###.",
+				".#O....O.OOO##...#.",
+				"...........O#.#....",
+				"...O......OO##.###.",
+				".......O..OO#O#..#.",
+				"...........O#O###..",
+				"...........OOOO#...",
+		};
+		player.getBoard().setUpProblem(diagram, WHITE);
+		player.getBoard().pass();
+		player.getBoard().pass();
+		ShortSet deadStones = player.findDeadStones(0.75, BLACK);
+		assertEquals(3, deadStones.size());
+		
+	}
+	
+	@Test
 	public void testTableOverflow() {
 		// This tests a bug, occasionally encountered on KGS, where Orego
 		// crashes while pondering because the transposition table fills up
