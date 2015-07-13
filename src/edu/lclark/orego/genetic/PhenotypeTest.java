@@ -30,6 +30,17 @@ public class PhenotypeTest {
 	private short at(String label) {
 		return coords.at(label);
 	}
+	
+	@Test
+	public void testContextAt() {
+		assertEquals(
+				0b1010101010101010101010101010101010101010101010101010101010101010L,
+				phenotype.contextAt(at("g8")));
+		board.play(at("f8"));
+		assertEquals(
+				0b1010101010101010101010101010101010101010101010101010101010101001L,
+				phenotype.contextAt(at("g8")));
+	}
 
 	@Test
 	public void testSelectAndPlayOneMove() {

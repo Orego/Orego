@@ -90,7 +90,7 @@ public class Genotype {
 		}
 		return games;
 	}
-
+	
 	public double getFitness() {
 		return fitness;
 	}
