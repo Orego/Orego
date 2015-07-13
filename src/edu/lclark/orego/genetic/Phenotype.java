@@ -40,12 +40,15 @@ public class Phenotype implements Mover {
 	
 	private static final short[][][] NEIGHBORHOODS = new short[MAX_POSSIBLE_BOARD_WIDTH + 1][][];
 	
-	public static final short[][] OFFSETS = { { 0, -1 }, { 0, 1 }, { -1, 0 },
-		{ 1, 0 }, { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-		{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
-		{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 }, { 2, 2 },
-		{ 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 }, { -3, 0 }, { 0, -3 },
-		{ 0, 3 }, { 4, 0 }, { -4, 0 }, { 0, -4 }, { 0, 4 }};
+	public static final short[][] OFFSETS = { 
+		{ 0, -1 }, { 0, 1 }, { -1, 0 },{ 1, 0 }, 
+		{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, 
+		{ -2, 0 }, { 2, 0 }, { 0, -2 }, { 0, 2 }, 
+		{ -2, -1 }, { -2, 1 }, { -1, -2 },{ -1, 2 }, 
+		{ 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 }, 
+		{ 2, 2 },{ 2, -2 }, { -2, 2 }, { -2, -2 },
+		{ 3, 0 }, { -3, 0 }, { 0, -3 }, { 0, 3 }, 
+		{ 4, 0 }, { -4, 0 }, { 0, -4 }, { 0, 4 }};
 	
 	public short[] getNeighborhood(short p){
 		return NEIGHBORHOODS[coords.getWidth()][p];
@@ -264,8 +267,30 @@ public class Phenotype implements Mover {
 	}
 	
 	public String contextToString(long a){
-		
-		return null;
+		char[] c = new char[32];
+		for (int i = 0; i < c.length; i++){
+			long temp = (a & (0b11L << (i * 2))) >>> (i * 2);
+			if (temp == 0){
+				c[i] = 'f';
+			} else if (temp == 1){
+				c[i] = 'e';
+			} else if (temp == 2){
+				c[i] = '.';
+			} else {
+				c[i] = '+';
+			}
+		}
+		String result = 
+				"    " + c[29] + "\n"
+				+ "    " + c[25] + "\n"
+				+ "  " + c[23] + c[12] + c[8] + c[13] + c[22] + "\n"
+				+ "  " + c[14] + c[4] + c[2] + c[5] + c[15] + "\n"
+				+ c[30] + c[26] + c[10] + c[0] + " " + c[1] + c[11] + c[27] + c[31] + "\n" 
+				+ "  " + c[18] + c[6] + c[3] + c[7] + c[19] + "\n"
+				+ "  " + c[21] + c[17] + c[9] + c[16] + c[20] + "\n"
+				+ "    " + c[24] + "\n"
+				+ "    " + c[28] + "\n";
+		return result;
 	}
 
 }

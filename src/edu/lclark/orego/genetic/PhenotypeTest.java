@@ -43,8 +43,41 @@ public class PhenotypeTest {
 		assertEquals(
 				0b1011101010101010101010101010101010101010011010101010101010101010L, 
 				phenotype.contextAt(at("d8")));
+		board.play(at("d7"));
+		board.play(at("c8"));
 	}
 
+	@Test
+	public void testContextToString(){
+		String test = 
+					"    .\n" +
+					"    .\n" +
+					"  .....\n" +
+					"  .....\n" +
+					".... ....\n" +
+					"  .....\n" +
+					"  .....\n" +
+					"    .\n" +
+					"    .\n";
+		assertEquals(test, phenotype.contextToString(phenotype.contextAt(at("e9"))));
+		board.play(at("f8"));		
+		board.play(at("d7"));
+		board.play(at("c8"));
+		test = 
+				"    .\n" +
+				"    .\n" +
+				"  .....\n" +
+				"  .....\n" +
+				"+..e .e..\n" +
+				"  ..f..\n" +
+				"  .....\n" +
+				"    .\n" +
+				"    .\n";
+		assertEquals(test, phenotype.contextToString(phenotype.contextAt(at("d8"))));
+
+	}
+
+	
 	@Test
 	public void testSelectAndPlayOneMove() {
 		phenotype.setReply(WHITE, NO_POINT, at("c3"), at("d3"));
