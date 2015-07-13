@@ -62,6 +62,9 @@ public class Phenotype implements Mover {
 					&& coords.isValidOneDimensionalCoordinate(cc)) {
 				result[count] = coords.at(rr, cc);
 				count++;
+			} else {
+				result[count] = coords.getFirstPointBeyondBoard();
+				count++;
 			}
 		}
 		// Create a small array and copy the elements into it

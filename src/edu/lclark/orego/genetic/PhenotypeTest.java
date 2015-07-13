@@ -40,6 +40,9 @@ public class PhenotypeTest {
 		assertEquals(
 				0b1010101010101010101010101010101010101010101010101010101010101001L,
 				phenotype.contextAt(at("g8")));
+		assertEquals(
+				0b1011101010101010101010101010101010101010011010101010101010101010L, 
+				phenotype.contextAt(at("d8")));
 	}
 
 	@Test
