@@ -97,17 +97,13 @@ public class Phenotype implements Mover {
 	public long contextAt(short p){
 		short[] neighborhood = getNeighborhood(p);
 		long context = 0;
-		for(int i = 0; i < neighborhood.length; i++){
-			Color c = board.getColorAt(neighborhood[i]);
-			if (c == board.getColorToPlay()){
-				context |= 0b00L << (2*i);
-			} else if (c == VACANT){
-				context |= 0b10L << (2*i);
-			} else if (c == OFF_BOARD){
-				context |= 0b11L << (2*i);
-			}else{
-				context |= 0b01L << (2*i);
+		int shift = 0;
+		for(int i = 0; i < neighborhood.length; i++, shift += 2){
+			long c = board.getColorAt(neighborhood[i]).index();
+			if (c < 2 && board.getColorToPlay() == WHITE) { // If it's a stone color
+				c = 1 - c;
 			}
+			context |= c << shift;
 		}
 		return context;
 	}
@@ -266,18 +262,19 @@ public class Phenotype implements Mover {
 		return result;
 	}
 	
+	/** Note that # indicates a friendly stone, O an enemy stone. */
 	public String contextToString(long a){
 		char[] c = new char[32];
 		for (int i = 0; i < c.length; i++){
 			long temp = (a & (0b11L << (i * 2))) >>> (i * 2);
 			if (temp == 0){
-				c[i] = 'f';
+				c[i] = BLACK.toChar();
 			} else if (temp == 1){
-				c[i] = 'e';
+				c[i] = WHITE.toChar();
 			} else if (temp == 2){
-				c[i] = '.';
+				c[i] = VACANT.toChar();
 			} else {
-				c[i] = '+';
+				c[i] = OFF_BOARD.toChar();
 			}
 		}
 		String result = 
