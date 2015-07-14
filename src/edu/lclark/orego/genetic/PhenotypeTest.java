@@ -122,8 +122,12 @@ public class PhenotypeTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testHits() {
+		board.play("c3");
+		// This white move shouldn't be found
+		phenotype.addContext(phenotype.contextAt(at("d3")));
+		board.clear();
 		phenotype.setReply(NO_POINT, NO_POINT, at("c3"));
-		phenotype.setReply( at("e3"), at("f3"), at("g3"));
+		phenotype.setReply(at("e3"), at("f3"), at("g3"));
 		Short[] game = {at("c3"), at("d3"), at("e3"), at("f3"), at("g3"), PASS, PASS};
 		assertEquals(2, phenotype.hits(game));
 	}

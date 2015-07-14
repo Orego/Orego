@@ -230,8 +230,10 @@ public class Phenotype implements Mover {
 		board.clear();
 		int result = 0;
 		for (short p : game) {
-			if (bestMove(random) == p) {
-				result++;
+			if (board.getColorToPlay() == BLACK) {
+				if (bestMove(random) == p) {
+					result++;
+				}
 			}
 			board.play(p);
 		}

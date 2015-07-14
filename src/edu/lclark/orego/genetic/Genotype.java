@@ -83,7 +83,7 @@ public class Genotype {
 		for (final List<Short> game : games){
 			Short[] g = game.toArray(new Short[0]);
 			hits += phenotypeBlack.hits(g);
-			totalEvaluated += game.size();
+			totalEvaluated += (game.size() + 1) / 2; // Only count black moves
 		}
 		fitness = 1.0*hits/totalEvaluated;
 	}
