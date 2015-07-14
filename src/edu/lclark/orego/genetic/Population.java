@@ -23,7 +23,7 @@ public class Population {
 	public static final int NUMBER_OF_REPLIES = 1000;
 
 	public static void main(String[] args) {
-		new Population(1000).evolve(50);
+		new Population(10000).evolve(50);
 	}
 
 	private Genotype[] individuals;
