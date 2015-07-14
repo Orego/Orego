@@ -25,43 +25,26 @@ public class Genotype {
 
 	private long[] words;
 	
-	private int numberOfReplies;
-	
-	private int numberOfContexts;
-	
-	private int length;
-
 	/**
 	 * @param length
 	 *            The number of 64-bit longs in this genotype.
 	 */
 	public Genotype(int length) {
 		words = new long[length];
-		this.length = length;
 	}
 
 	public Genotype(long[] words) {
 		this.words = words;
-		length = words.length;
 	}
 
-	public Genotype(int replies, int contexts){
-		numberOfReplies = replies;
-		numberOfContexts = contexts;
-		length = replies + contexts;
-		words = new long[length];
+	/**
+	 * @param replyLongs Number of longs dedicated to replies.
+	 * @param contextLongs Number of longs dedicated to contexts.
+	 */
+	public Genotype(int replyLongs, int contextLongs){
+		words = new long[replyLongs + contextLongs];
 	}
-	
-	public void changeNumberOfReplies(int replies){
-		numberOfReplies = replies;
-		numberOfContexts = length - replies;
-	}
-	
-	public void changeNumberOfContexts(int context){
-		numberOfContexts = context;
-		numberOfReplies = length - context;
-	}
-	
+		
 	public Genotype cross(Genotype that, MersenneTwisterFast random) {
 		int k = random.nextInt(64 * words.length + 1);
 		int w = k / 64;

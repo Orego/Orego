@@ -27,12 +27,12 @@ public class PlayoutComparisonNetwork {
 		final Board board = new Board(9);
 		//TODO: mover1 should be new type of mover
 		final Phenotype mover1 = new Phenotype(board);
-		mover1.randomizeBiases();
-		mover1.setBias(board.getCoordinateSystem().at("e5"), (byte) 127);
-		mover1.setBias(board.getCoordinateSystem().at("d5"), (byte) 126);
-		mover1.setBias(board.getCoordinateSystem().at("f5"), (byte) 126);
-		mover1.setBias(board.getCoordinateSystem().at("e3"), (byte) 126);
-		mover1.setBias(board.getCoordinateSystem().at("e4"), (byte) 126);
+//		mover1.randomizeBiases();
+//		mover1.setBias(board.getCoordinateSystem().at("e5"), (byte) 127);
+//		mover1.setBias(board.getCoordinateSystem().at("d5"), (byte) 126);
+//		mover1.setBias(board.getCoordinateSystem().at("f5"), (byte) 126);
+//		mover1.setBias(board.getCoordinateSystem().at("e3"), (byte) 126);
+//		mover1.setBias(board.getCoordinateSystem().at("e4"), (byte) 126);
 		//TODO: set info
 //		final Phenotype mover2 = new Phenotype(board);
 //		mover2.setBias(board.getCoordinateSystem().at("d5"), (byte) 127);

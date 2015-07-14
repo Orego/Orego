@@ -21,6 +21,7 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import java.util.*;
 
 @SuppressWarnings("serial")
 public class Phenotype implements Mover {
@@ -29,10 +30,8 @@ public class Phenotype implements Mover {
 	public static final int THRESHOLD_LIMIT = 32;
 	
 	private LgrfTable table;
-	
-	private LinearLayer linearLayer;
-	
-	private ConvolutionalLayer convolutionalLayer;
+
+	private Set<Long> contexts;
 	
 	private Board board;
 	
@@ -118,56 +117,32 @@ public class Phenotype implements Mover {
 	}
 	
 	/**
-	 * @param replies Number of replies in the genotype. (The rest specified the network.) Must be even.
+	 * @param replyLongs
+	 *            Number of longs in each genotype specifying replies (rather
+	 *            than contexts).
 	 */
-	public Phenotype(Board board, int replies, Genotype genotype) {
+	public Phenotype(Board board, int replyLongs, Genotype genotype) {
 		this(board);
-		assert replies % 2 == 0;
 		long[] words = genotype.getWords();
-		int w = 0;
 		// Extract replies
-		for (int i = 0; i < replies; w++, i += 2) {
-			setReply((int) ((words[w] >>> 27) & MASKS[1]) == BLACK.index() ? BLACK : WHITE,
-					(short) (words[w] & MASKS[9]),
-					(short) ((words[w] >>> 9) & MASKS[9]),
-					(short) ((words[w] >>> 18) & MASKS[9]));
-			setReply((int) ((words[w] >>> (27 + 32)) & MASKS[1]) == BLACK.index() ? BLACK : WHITE,
-					(short) ((words[w] >>> 32 ) & MASKS[9]),
-					(short) ((words[w] >>> (9 + 32)) & MASKS[9]),
-					(short) ((words[w] >>> (18 + 32)) & MASKS[9]));
+		for (int i = 0; i < replyLongs; i++) {
+			setReply(
+					(int) ((words[i] >>> 27) & MASKS[1]) == BLACK.index() ? BLACK
+							: WHITE, (short) (words[i] & MASKS[9]),
+					(short) ((words[i] >>> 9) & MASKS[9]),
+					(short) ((words[i] >>> 18) & MASKS[9]));
+			setReply(
+					(int) ((words[i] >>> (27 + 32)) & MASKS[1]) == BLACK.index() ? BLACK
+							: WHITE, (short) ((words[i] >>> 32) & MASKS[9]),
+					(short) ((words[i] >>> (9 + 32)) & MASKS[9]),
+					(short) ((words[i] >>> (18 + 32)) & MASKS[9]));
 		}
-		// Extract value for network
-		ConvolutionalNeuron [] neurons = new ConvolutionalNeuron[64];
-		int n = 0;
-		for (int i = replies/2; i < 19*64 + replies/2; i+=19, n++){
-			int threshold = (int) words[i] % THRESHOLD_LIMIT;
-			long [] excitation = new long [9];
-			long [] inhibition = new long [9];
-			for (int j = 0; j < 9; j++){
-				excitation[j] = words[i + j + 1];
-				inhibition[j] = words[i + j + 10];
-			}
-			neurons[n] = new ConvolutionalNeuron(threshold, excitation, inhibition);
+		// Extract contexts
+		contexts = new HashSet<>();
+		for (int i = replyLongs; i < words.length; i++) {
+			contexts.add(words[i]);
 		}
-		// Convolutional layer
-		convolutionalLayer.setNeurons(neurons);
-		// Linear layer
-		int f = replies/2 + 19*64;
-		for(short to: coords.getAllPointsOnBoard()){
-			for(short from: coords.getAllPointsOnBoard()){
-//				for(; f < words.length; f+=8){
-					for(int i= 0; i < 8; i++, f++) {
-						for(int j = 0; j < 8; j++){
-//							System.out.println(f);
-							linearLayer.setWeight(to, from, j + i*8, (byte) (words[f] >> (8 * j)));							
-						}
-					}
-				}
-			
-			linearLayer.setBias(to, (byte)words[f]);
-			f++;
-		}
-}
+	}
 	
 	private HistoryObserver history;
 	
@@ -181,8 +156,7 @@ public class Phenotype implements Mover {
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board)));
 		table = new LgrfTable(coords);
-		convolutionalLayer = new ConvolutionalLayer(coords);
-		linearLayer = new LinearLayer(convolutionalLayer, coords);
+		contexts = new HashSet<>();
 		allNeighborhoods();
 	}
 
@@ -199,10 +173,9 @@ public class Phenotype implements Mover {
 		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT) && filter.at(reply) && board.isLegal(reply)) {
 			return reply;
 		}
-		// Ask the network
-		convolutionalLayer.extractFeatures(board);
-		convolutionalLayer.update();
-		return linearLayer.bestMove(board, filter);
+		// TODO Check for contexts
+		
+		return NO_POINT;
 	}
 	
 	@Override
@@ -229,22 +202,6 @@ public class Phenotype implements Mover {
 				table.setReply(colorToPlay, penultimateMove, previousMove, reply);				
 			}
 		}
-	}
-
-	public void setBias(short p, byte bias) {
-		linearLayer.setBias(p, bias);
-	}
-
-	public void randomizeBiases() {
-		linearLayer.randomizeBiases();
-	}
-
-	public LinearLayer getLinearLayer() {
-		return linearLayer;
-	}
-
-	public ConvolutionalLayer getConvolutionalLayer() {
-		return convolutionalLayer;
 	}
 
 	/** Returns the number of moves that this phenotype correctly predicts from game. */
@@ -288,6 +245,14 @@ public class Phenotype implements Mover {
 				+ "    " + c[24] + "\n"
 				+ "    " + c[28] + "\n";
 		return result;
+	}
+
+	public boolean containsContext(long context) {
+		return contexts.contains(context);
+	}
+
+	public void addContext(long context) {
+		contexts.add(context);
 	}
 
 }
