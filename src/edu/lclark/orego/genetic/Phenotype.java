@@ -174,13 +174,14 @@ public class Phenotype implements Mover {
 				&& filter.at(reply) && board.isLegal(reply)) {
 			return reply;
 		}
+		// Try finding a move with a good spatial context
 		final short start = (short) random.nextInt(board.getVacantPoints()
 				.size());
 		short i = start;
 		final short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			final short p = board.getVacantPoints().get(i);
-			if (board.isLegal(p) && filter.at(p)
+			if (filter.at(p) && board.isLegal(p)
 					&& containsContext(contextAt(p))) {
 				return p;
 			}
@@ -188,6 +189,7 @@ public class Phenotype implements Mover {
 			// in a manner analogous to double hashing.
 			i = (short) ((i + skip) % board.getVacantPoints().size());
 		} while (i != start);
+		// No move found
 		return NO_POINT;
 	}
 
