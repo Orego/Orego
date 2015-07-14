@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.WHITE;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -72,7 +74,7 @@ public class Genotype {
 		fitness = 0;
 		Board board = new Board(19);
 		// TODO The magic number below, for number of replies, should be parameterized
-		Phenotype phenotype = new Phenotype(board, Population.NUMBER_OF_REPLIES, this);
+		Phenotype phenotypeBlack = new Phenotype(board, Population.NUMBER_OF_REPLIES, this, BLACK);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
 		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
 		List<List<Short>> games = processFiles(file, parser);
@@ -80,7 +82,7 @@ public class Genotype {
 		int hits = 0;
 		for (final List<Short> game : games){
 			Short[] g = game.toArray(new Short[0]);
-			hits += phenotype.hits(g);
+			hits += phenotypeBlack.hits(g);
 			totalEvaluated += game.size();
 		}
 		fitness = 1.0*hits/totalEvaluated;

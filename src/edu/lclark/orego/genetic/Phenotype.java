@@ -114,25 +114,26 @@ public class Phenotype implements Mover {
 			MASKS[i] = (1L << i) - 1;
 		}
 	}
+	
+	private StoneColor colorToPlay;
 
 	/**
 	 * @param replyLongs
 	 *            Number of longs in each genotype specifying replies (rather
 	 *            than contexts).
 	 */
-	public Phenotype(Board board, int replyLongs, Genotype genotype) {
+	public Phenotype(Board board, int replyLongs, Genotype genotype, StoneColor colorToPlay) {
 		this(board);
+		this.colorToPlay = colorToPlay;
 		long[] words = genotype.getWords();
 		// Extract replies
 		for (int i = 0; i < replyLongs; i++) {
 			setReply(
-					(int) ((words[i] >>> 27) & MASKS[1]) == BLACK.index() ? BLACK
-							: WHITE, (short) (words[i] & MASKS[9]),
+					(short) (words[i] & MASKS[9]),
 					(short) ((words[i] >>> 9) & MASKS[9]),
 					(short) ((words[i] >>> 18) & MASKS[9]));
 			setReply(
-					(int) ((words[i] >>> (27 + 32)) & MASKS[1]) == BLACK.index() ? BLACK
-							: WHITE, (short) ((words[i] >>> 32) & MASKS[9]),
+					(short) ((words[i] >>> 32) & MASKS[9]),
 					(short) ((words[i] >>> (9 + 32)) & MASKS[9]),
 					(short) ((words[i] >>> (18 + 32)) & MASKS[9]));
 		}
@@ -174,14 +175,13 @@ public class Phenotype implements Mover {
 				&& filter.at(reply) && board.isLegal(reply)) {
 			return reply;
 		}
-		// Try finding a move with a good spatial context
 		final short start = (short) random.nextInt(board.getVacantPoints()
 				.size());
 		short i = start;
 		final short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			final short p = board.getVacantPoints().get(i);
-			if (filter.at(p) && board.isLegal(p)
+			if (board.isLegal(p) && filter.at(p)
 					&& containsContext(contextAt(p))) {
 				return p;
 			}
@@ -189,7 +189,6 @@ public class Phenotype implements Mover {
 			// in a manner analogous to double hashing.
 			i = (short) ((i + skip) % board.getVacantPoints().size());
 		} while (i != start);
-		// No move found
 		return NO_POINT;
 	}
 
@@ -200,8 +199,7 @@ public class Phenotype implements Mover {
 		return p;
 	}
 
-	short getReply(StoneColor colorToPlay, short penultimateMove,
-			short previousMove) {
+	short getReply(short penultimateMove, short previousMove) {
 		short p = table.getSecondLevelReply(colorToPlay, penultimateMove,
 				previousMove);
 		if (p == NO_POINT) {
@@ -210,8 +208,7 @@ public class Phenotype implements Mover {
 		return p;
 	}
 
-	public void setReply(StoneColor colorToPlay, short penultimateMove,
-			short previousMove, short reply) {
+	public void setReply(short penultimateMove, short previousMove, short reply) {
 		if (coords.isOnBoard(reply)) {
 			if (previousMove == NO_POINT || coords.isOnBoard(previousMove)) {
 				if (!(penultimateMove == NO_POINT || coords
@@ -224,6 +221,10 @@ public class Phenotype implements Mover {
 		}
 	}
 
+	public void setColorToPlay(StoneColor colorToPlay){
+		this.colorToPlay = colorToPlay;
+	}
+	
 	/**
 	 * Returns the number of moves that this phenotype correctly predicts from
 	 * game.
