@@ -70,11 +70,11 @@ public class Genotype {
 		return new Genotype(result);
 	}
 
-	public void evaluateFitness() {
+	public void evaluateFitness(int numberOfReplyLongs) {
 		fitness = 0;
 		Board board = new Board(19);
 		// TODO The magic number below, for number of replies, should be parameterized
-		Phenotype phenotypeBlack = new Phenotype(board, Population.NUMBER_OF_REPLIES, this, BLACK);
+		Phenotype phenotypeBlack = new Phenotype(board, numberOfReplyLongs, this, BLACK);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
 		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
 		List<List<Short>> games = processFiles(file, parser);

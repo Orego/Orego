@@ -18,23 +18,22 @@ public class Population {
 
 	public static final int NUMBER_OF_THREADS = 32;
 	
-	public static final int NUMBER_OF_CONTEXTS = 1000;
-	
-	public static final int NUMBER_OF_REPLIES = 1000;
-
 	public static void main(String[] args) {
-		new Population(1000).evolve(50);
+		new Population(10000, 1000, 1000).evolve(50);
 	}
 
 	private Genotype[] individuals;
 
 	private MersenneTwisterFast random;
 
-	public Population(int individualCount) {
+	private final int numberOfReplyLongs;
+	
+	public Population(int individualCount, int numberOfReplyLongs, int numberOfContexts) {
+		this.numberOfReplyLongs = numberOfReplyLongs; 
 		random = new MersenneTwisterFast();
 		individuals = new Genotype[individualCount];
 		for (int i = 0; i < individualCount; i++) {
-			individuals[i] = new Genotype(NUMBER_OF_REPLIES / 2, NUMBER_OF_CONTEXTS);
+			individuals[i] = new Genotype(numberOfReplyLongs, numberOfContexts);
 			individuals[i].randomize();
 		}
 	}
@@ -64,7 +63,7 @@ public class Population {
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
 		Evaluator[] evaluators = new Evaluator[NUMBER_OF_THREADS];
 		for (int i = 0; i < evaluators.length; i++) {
-			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch);
+			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch, numberOfReplyLongs);
 		}
 		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 		long before = System.nanoTime();
