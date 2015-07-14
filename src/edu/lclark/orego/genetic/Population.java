@@ -19,7 +19,7 @@ public class Population {
 	public static final int NUMBER_OF_THREADS = 32;
 	
 	public static void main(String[] args) {
-		new Population(10000, 1000, 1000).evolve(50);
+		new Population(10000, 1000, 1000).evolve(100);
 	}
 
 	private Genotype[] individuals;
