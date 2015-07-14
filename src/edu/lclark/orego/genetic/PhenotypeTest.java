@@ -86,6 +86,7 @@ public class PhenotypeTest {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		assertEquals(at("c3"), phenotype.selectAndPlayOneMove(random, true));
 		//TODO: This next one was specific to white
+//		phenotype.setColorToPlay(WHITE);
 //		assertEquals(at("d3"), phenotype.selectAndPlayOneMove(random, true));
 	}
 
