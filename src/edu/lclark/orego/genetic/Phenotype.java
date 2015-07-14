@@ -5,11 +5,13 @@ import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.NonStoneColor.OFF_BOARD;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
@@ -21,13 +23,11 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+
 import java.util.*;
 
 @SuppressWarnings("serial")
 public class Phenotype implements Mover {
-
-	/** Convolutional neuron thresholds are in the range (-THRESHOLD_LIMIT, THRESHOLD_LIMIT). */
-	public static final int THRESHOLD_LIMIT = 32;
 	
 	private LgrfTable table;
 
@@ -174,7 +174,18 @@ public class Phenotype implements Mover {
 			return reply;
 		}
 		// TODO Check for contexts
-		
+		final short start = (short) random.nextInt(board.getVacantPoints().size());
+		short i = start;
+		final short skip = PRIMES[random.nextInt(PRIMES.length)];
+		do {
+			final short p = board.getVacantPoints().get(i);
+			if (board.isLegal(p) && filter.at(p) && containsContext(contextAt(p))){
+				return p;
+			}
+			// Advancing by a random prime skips through the array
+			// in a manner analogous to double hashing.
+			i = (short) ((i + skip) % board.getVacantPoints().size());
+		} while (i != start);
 		return NO_POINT;
 	}
 	
