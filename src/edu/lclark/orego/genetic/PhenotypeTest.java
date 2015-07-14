@@ -39,10 +39,10 @@ public class PhenotypeTest {
 				phenotype.contextAt(at("g8")));
 		board.play(at("f8"));
 		assertEquals(
-				0b1010101010101010101010101010101010101010101010101010101010101001L,
+				0b1010101010101010101010101010101010101010101010101010101010101000L,
 				phenotype.contextAt(at("g8")));
 		assertEquals(
-				0b1011101010101010101010101010101010101010011010101010101010101010L, 
+				0b1011101010101010101010101010101010101010001010101010101010101010L, 
 				phenotype.contextAt(at("d8")));
 		board.play(at("d7"));
 		board.play(at("c8"));
@@ -69,8 +69,8 @@ public class PhenotypeTest {
 				"    .\n" +
 				"  .....\n" +
 				"  .....\n" +
-				"?..O .O..\n" +
-				"  ..#..\n" +
+				"?..# .#..\n" +
+				"  ..O..\n" +
 				"  .....\n" +
 				"    .\n" +
 				"    .\n";

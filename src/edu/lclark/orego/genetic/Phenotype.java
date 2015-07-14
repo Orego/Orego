@@ -96,12 +96,7 @@ public class Phenotype implements Mover {
 		long context = 0;
 		int shift = 0;
 		for (int i = 0; i < neighborhood.length; i++, shift += 2) {
-			long c = board.getColorAt(neighborhood[i]).index();
-			if (c < 2 && board.getColorToPlay() == WHITE) { // If it's a stone
-															// color
-				c = 1 - c;
-			}
-			context |= c << shift;
+			context |= ((long)board.getColorAt(neighborhood[i]).index()) << shift;
 		}
 		return context;
 	}
