@@ -29,6 +29,8 @@ import java.util.*;
 @SuppressWarnings("serial")
 public class Phenotype implements Mover {
 
+	private short[][] replies;
+	
 	private LgrfTable table;
 
 	private Set<Long> contexts;
@@ -143,6 +145,7 @@ public class Phenotype implements Mover {
 	public Phenotype(Board board) {
 		this.board = board;
 		coords = board.getCoordinateSystem();
+		replies = new short[coords.getFirstPointBeyondBoard()][coords.getFirstPointBeyondBoard()];
 		history = new HistoryObserver(board);
 		filter = new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
