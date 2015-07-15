@@ -77,7 +77,7 @@ public class Population {
 		Genotype champion = findChampion();
 		stats.println(champion.getFitness() + "\t" + meanFitness());
 		stats.flush();
-		champions.writeObject(champion.getWords());
+		champions.writeObject(champion.getGenes());
 	}
 
 	public void evolve(int generations) {

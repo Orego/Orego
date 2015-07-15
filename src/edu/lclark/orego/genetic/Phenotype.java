@@ -113,14 +113,11 @@ public class Phenotype implements Mover {
 	private StoneColor colorToPlay;
 
 	/**
-	 * @param replyLongs
-	 *            Number of longs in each genotype specifying replies (rather
-	 *            than contexts).
 	 */
-	public Phenotype(Board board, int replyLongs, Genotype genotype, StoneColor colorToPlay) {
+	public Phenotype(Board board, Genotype genotype, StoneColor colorToPlay) {
 		this(board);
 		this.colorToPlay = colorToPlay;
-		long[] words = genotype.getWords();
+		long[] words = genotype.getGenes();
 		// Extract replies
 		for (int i = 0; i < replyLongs; i++) {
 			setReply(
@@ -225,7 +222,7 @@ public class Phenotype implements Mover {
 	 * game.
 	 */
 	@SuppressWarnings("boxing")
-	public int hits(Short[] game) {
+	public int hits(List<Short> game) {
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		board.clear();
 		int result = 0;
