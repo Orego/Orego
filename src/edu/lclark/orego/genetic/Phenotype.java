@@ -1,15 +1,11 @@
 package edu.lclark.orego.genetic;
 
-import static edu.lclark.orego.core.CoordinateSystem.MAX_POSSIBLE_BOARD_WIDTH;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import static edu.lclark.orego.core.StoneColor.BLACK;
-import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
-import static edu.lclark.orego.core.NonStoneColor.OFF_BOARD;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
 import edu.lclark.orego.feature.HistoryObserver;
@@ -19,112 +15,26 @@ import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-
 import java.util.*;
 
 @SuppressWarnings("serial")
 public class Phenotype implements Mover {
 
-	private short[][] replies;
+	/** Has only the 9 lowest-order bits on. */
+	public static final int MASK9 = (1 << 9) - 1;
 
-	private Set<Long> contexts;
+	/** Indicates that one of the three points in a reply should be ignored. */
+	public static final short IGNORE = RESIGN;
+	
+	private final Board board;
 
-	private Board board;
+	private final CoordinateSystem coords;
 
-	private CoordinateSystem coords;
+	private final Predicate filter;
 
-	private static final short[][][] NEIGHBORHOODS = new short[MAX_POSSIBLE_BOARD_WIDTH + 1][][];
+	private final HistoryObserver history;
 
-	public static final short[][] OFFSETS = { { 0, -1 }, { 0, 1 }, { -1, 0 },
-			{ 1, 0 }, { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -2, 0 },
-			{ 2, 0 }, { 0, -2 }, { 0, 2 }, { -2, -1 }, { -2, 1 }, { -1, -2 },
-			{ -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { 1, 2 }, { 2, 2 },
-			{ 2, -2 }, { -2, 2 }, { -2, -2 }, { 3, 0 }, { -3, 0 }, { 0, -3 },
-			{ 0, 3 }, { 4, 0 }, { -4, 0 }, { 0, -4 }, { 0, 4 } };
-
-	public short[] getNeighborhood(short p) {
-		return NEIGHBORHOODS[coords.getWidth()][p];
-	}
-
-	private short[] findNeighborhood(short p) {
-		final int r = coords.row(p), c = coords.column(p);
-		final short[] result = new short[OFFSETS.length];
-		int count = 0;
-		for (int i = 0; i < OFFSETS.length; i++) {
-			final int rr = r + OFFSETS[i][0];
-			final int cc = c + OFFSETS[i][1];
-			if (coords.isValidOneDimensionalCoordinate(rr)
-					&& coords.isValidOneDimensionalCoordinate(cc)) {
-				result[count] = coords.at(rr, cc);
-				count++;
-			} else {
-				result[count] = coords.getFirstPointBeyondBoard();
-				count++;
-			}
-		}
-		// Create a small array and copy the elements into it
-		return java.util.Arrays.copyOf(result, count);
-	}
-
-	/**
-	 * Large-knight neighborhoods around points. First index is point around
-	 * which neighborhood is defined.
-	 */
-	private short[][] neighborhoods;
-
-	public void allNeighborhoods() {
-		final int width = coords.getWidth();
-		synchronized (NEIGHBORHOODS) {
-			if (NEIGHBORHOODS[width] == null) {
-				final short[] pointsOnBoard = coords.getAllPointsOnBoard();
-				NEIGHBORHOODS[width] = new short[coords
-						.getFirstPointBeyondBoard()][];
-				for (final short p : pointsOnBoard) {
-					NEIGHBORHOODS[width][p] = findNeighborhood(p);
-				}
-			}
-			neighborhoods = NEIGHBORHOODS[width];
-		}
-	}
-
-	public long contextAt(short p) {
-		short[] neighborhood = getNeighborhood(p);
-		long context = 0;
-		int shift = 0;
-		for (int i = 0; i < neighborhood.length; i++, shift += 2) {
-			context |= ((long) board.getColorAt(neighborhood[i]).index()) << shift;
-		}
-		return context;
-	}
-
-	/** MASKS[i] has the i lowest-order bits on. */
-	public static final long[] MASKS = new long[64];
-
-	static {
-		for (int i = 0; i < MASKS.length; i++) {
-			MASKS[i] = (1L << i) - 1;
-		}
-	}
-
-	private StoneColor colorToPlay;
-
-	/**
-	 */
-	public Phenotype(Board board, Genotype genotype, StoneColor colorToPlay) {
-		this(board);
-		this.colorToPlay = colorToPlay;
-		int[] words = genotype.getGenes();
-		// Extract replies
-		for (int i = 0; i < words.length; i++) {
-			setReply((short) (words[i] & MASKS[9]),
-					(short) ((words[i] >>> 9) & MASKS[9]),
-					(short) ((words[i] >>> 18) & MASKS[9]));
-		}
-	}
-
-	private HistoryObserver history;
-
-	private Predicate filter;
+	private final short[][] replies;
 
 	public Phenotype(Board board) {
 		this.board = board;
@@ -135,103 +45,43 @@ public class Phenotype implements Mover {
 		filter = new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board)));
-		contexts = new HashSet<>();
-		allNeighborhoods();
 	}
 
-	public short bestMove(MersenneTwisterFast random) {
-		// Try playing a stored reply
+	public Phenotype(Board board, Genotype genotype) {
+		this(board);
+		int[] words = genotype.getGenes();
+		// Extract replies
+		for (int i = 0; i < words.length; i++) {
+			setReply((short) (words[i] & MASK9),
+					(short) ((words[i] >>> 9) & MASK9),
+					(short) ((words[i] >>> 18) & MASK9));
+		}
+	}
+
+	public short bestMove() {
 		final short ultimate = history.get(board.getTurn() - 1);
 		final short penultimate = history.get(board.getTurn() - 2);
-		short reply = getReplyFirst(penultimate, ultimate);
-		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
-				&& filter.at(reply) && board.isLegal(reply)) {
+		short reply = replyToTwoMoves(penultimate, ultimate);
+		if (isValidMove(reply)) {
 			return reply;
 		}
-		reply = getReplySecond(penultimate, ultimate);
-		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
-				&& filter.at(reply) && board.isLegal(reply)) {
+		reply = replyToOneMove(ultimate);
+		if (isValidMove(reply)) {
 			return reply;
 		}
-		reply = getReplyThird(penultimate, ultimate);
-		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
-				&& filter.at(reply) && board.isLegal(reply)) {
+		reply = followUp(penultimate);
+		if (isValidMove(reply)) {
 			return reply;
 		}
-		reply = getReplyFourth(penultimate, ultimate);
-		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
-				&& filter.at(reply) && board.isLegal(reply)) {
+		reply = playBigPoint();
+		if (isValidMove(reply)) {
 			return reply;
 		}
-		final short start = (short) random.nextInt(board.getVacantPoints()
-				.size());
-		short i = start;
-		final short skip = PRIMES[random.nextInt(PRIMES.length)];
-		do {
-			final short p = board.getVacantPoints().get(i);
-			if (board.isLegal(p) && filter.at(p)
-					&& containsContext(contextAt(p))) {
-				return p;
-			}
-			// Advancing by a random prime skips through the array
-			// in a manner analogous to double hashing.
-			i = (short) ((i + skip) % board.getVacantPoints().size());
-		} while (i != start);
 		return NO_POINT;
 	}
 
-	@Override
-	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
-		short p = bestMove(random);
-		board.play(p);
-		return p;
-	}
-
-	short getReplyFirst(short penultimateMove, short previousMove) {
-		return replies[penultimateMove][previousMove];
-	}
-
-	short getReplySecond(short penultimateMove, short previousMove) {
-		return replies[RESIGN][previousMove];
-	}
-
-	short getReplyThird(short penultimateMove, short previousMove) {
+	short followUp(short penultimateMove) {
 		return replies[penultimateMove][RESIGN];
-	}
-
-	short getReplyFourth(short penultimateMove, short previousMove) {
-		return replies[RESIGN][RESIGN];
-	}
-	
-	short getReply(short penultimateMove, short previousMove) {
-		short p = getReplyFirst(penultimateMove, previousMove);
-		if (p == NO_POINT){
-			p = getReplySecond(penultimateMove, previousMove);
-			if (p == NO_POINT){
-				p = getReplyThird(penultimateMove, previousMove);
-				if (p == NO_POINT){
-					return getReplyFourth(penultimateMove, previousMove);
-				}
-			}
-		}
-		return p;
-	}
-
-	public void setColorToPlay(StoneColor colorToPlay) {
-		this.colorToPlay = colorToPlay;
-	}
-
-	void setReply(short penultimateMove, short ultimateMove, short reply) {
-		if (coords.isOnBoard(reply)) {
-			if (ultimateMove == NO_POINT || coords.isOnBoard(ultimateMove)) {
-				ultimateMove = RESIGN;
-			}
-			if (!(penultimateMove == NO_POINT || coords
-					.isOnBoard(penultimateMove))) {
-				penultimateMove = RESIGN;
-			}
-			replies[penultimateMove][ultimateMove] = reply;
-		}
 	}
 
 	/**
@@ -240,12 +90,11 @@ public class Phenotype implements Mover {
 	 */
 	@SuppressWarnings("boxing")
 	public int hits(List<Short> game) {
-		MersenneTwisterFast random = new MersenneTwisterFast();
 		board.clear();
 		int result = 0;
 		for (short p : game) {
 			if (board.getColorToPlay() == BLACK) {
-				if (bestMove(random) == p) {
+				if (bestMove() == p) {
 					result++;
 				}
 			}
@@ -254,37 +103,34 @@ public class Phenotype implements Mover {
 		return result;
 	}
 
-	/** Note that # indicates a friendly stone, O an enemy stone. */
-	public String contextToString(long a) {
-		char[] c = new char[32];
-		for (int i = 0; i < c.length; i++) {
-			long temp = (a & (0b11L << (i * 2))) >>> (i * 2);
-			if (temp == 0) {
-				c[i] = BLACK.toChar();
-			} else if (temp == 1) {
-				c[i] = WHITE.toChar();
-			} else if (temp == 2) {
-				c[i] = VACANT.toChar();
-			} else {
-				c[i] = OFF_BOARD.toChar();
-			}
-		}
-		String result = "    " + c[29] + "\n" + "    " + c[25] + "\n" + "  "
-				+ c[23] + c[12] + c[8] + c[13] + c[22] + "\n" + "  " + c[14]
-				+ c[4] + c[2] + c[5] + c[15] + "\n" + c[30] + c[26] + c[10]
-				+ c[0] + " " + c[1] + c[11] + c[27] + c[31] + "\n" + "  "
-				+ c[18] + c[6] + c[3] + c[7] + c[19] + "\n" + "  " + c[21]
-				+ c[17] + c[9] + c[16] + c[20] + "\n" + "    " + c[24] + "\n"
-				+ "    " + c[28] + "\n";
-		return result;
+	/** Returns true if p is move not excluded by a priori criteria. */
+	boolean isValidMove(short p) {
+		return coords.isOnBoard(p) && (board.getColorAt(p) == VACANT)
+				&& filter.at(p) && board.isLegal(p);
 	}
 
-	public boolean containsContext(long context) {
-		return contexts.contains(context);
+	short playBigPoint() {
+		return replies[RESIGN][RESIGN];
 	}
 
-	public void addContext(long context) {
-		contexts.add(context);
+	short replyToOneMove(short previousMove) {
+		return replies[RESIGN][previousMove];
 	}
 
+	short replyToTwoMoves(short penultimateMove, short previousMove) {
+		return replies[penultimateMove][previousMove];
+	}
+	
+	@Override
+	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
+		short p = bestMove();
+		board.play(p);
+		// TODO Select a random move from a fallback suggester if p is NO_POINT
+		return p;
+	}
+
+	void setReply(short penultimateMove, short ultimateMove, short reply) {
+		replies[penultimateMove][ultimateMove] = reply;
+	}
 }
+
