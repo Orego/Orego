@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
@@ -20,7 +21,7 @@ public class Population {
 	public static final int NUMBER_OF_THREADS = 32;
 	
 	public static void main(String[] args) {
-	    new Population(10000, 2000, CoordinateSystem.forWidth(19)).evolve(500);
+	    new Population(10000, 2000, CoordinateSystem.forWidth(19)).evolve(1000);
 	}
 
 	private Genotype[] individuals;
@@ -111,6 +112,11 @@ public class Population {
 				individuals = nextGeneration;
 				stats.print(g + "\t");
 				evaluateAllFitness(stats, champions);
+			}
+			try (ObjectOutputStream finalPopulation = new ObjectOutputStream(new FileOutputStream(resultsDirectory+ "finalPopulation-" + timeStamp(false) + ".data"))) {
+				for (Genotype g : individuals) {
+					finalPopulation.writeObject(g.getGenes());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -59,8 +59,14 @@ public class Phenotype implements Mover {
 	}
 
 	public short bestMove() {
-		final short ultimate = history.get(board.getTurn() - 1);
-		final short penultimate = history.get(board.getTurn() - 2);
+		return bestMove(history.get(board.getTurn() - 2), history.get(board.getTurn() - 1));
+	}
+		
+	public short getRawReply(short penultimate, short ultimate) {
+		return replies[penultimate][ultimate];
+	}
+
+	public short bestMove(short penultimate, short ultimate) {
 		short reply = replyToTwoMoves(penultimate, ultimate);
 		if (isValidMove(reply)) {
 			return reply;
