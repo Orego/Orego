@@ -12,22 +12,19 @@ public class Evaluator implements Runnable {
 	private Genotype[] individuals;
 	
 	private CountDownLatch latch;
-	
-	private final int numberOfReplyLongs;
-	
+		
 	public Evaluator(int start, int stop, Genotype[] individuals,
-			CountDownLatch latch, int numberOfReplyLongs) {
+			CountDownLatch latch) {
 		this.start = start;
 		this.stop = stop;
 		this.individuals = individuals;
 		this.latch = latch;
-		this.numberOfReplyLongs = numberOfReplyLongs;
 	}
 
 	@Override
 	public void run() {
 		for (int i = start; i < stop; i++) {
-			individuals[i].evaluateFitness(numberOfReplyLongs);
+			individuals[i].evaluateFitness();
 		}
 		latch.countDown();
 	}

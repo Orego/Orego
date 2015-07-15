@@ -39,17 +39,17 @@ public class Genotype {
 	public void evaluateFitness() {
 		fitness = 0;
 		Board board = new Board(19);
-		Phenotype phenotypeBlack = new Phenotype(board, this, BLACK);
+		Phenotype phenotypeBlack = new Phenotype(board, this);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
 		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
 		List<List<Short>> games = processFiles(file, parser);
 		int totalEvaluated = 0;
 		int hits = 0;
-		for (final List<Short> game : games){
+		for (final List<Short> game : games) {
 			hits += phenotypeBlack.hits(game);
 			totalEvaluated += (game.size() + 1) / 2; // Only count black moves
 		}
-		fitness = 1.0*hits/totalEvaluated;
+		fitness = 1.0 * hits / totalEvaluated;
 	}
 	
 	public double getFitness() {
@@ -60,7 +60,7 @@ public class Genotype {
 		return genes;
 	}
 
-	public void mutate(MersenneTwisterFast random, int[] possiblePoints) {
+	public void mutate(MersenneTwisterFast random, short[] possiblePoints) {
 		genes[random.nextInt(genes.length)] = randomGene(random, possiblePoints);
 	}
 
@@ -78,13 +78,13 @@ public class Genotype {
 	}
 
 	@SuppressWarnings("static-method")
-	public int randomGene(MersenneTwisterFast random, int[] possiblePoints) {
+	public int randomGene(MersenneTwisterFast random, short[] possiblePoints) {
 		return possiblePoints[random.nextInt(possiblePoints.length)]
 				| (possiblePoints[random.nextInt(possiblePoints.length)] << 9)
 				| (possiblePoints[random.nextInt(possiblePoints.length)] << 18);
 	}
 
-	public void randomize(MersenneTwisterFast random, int[] possiblePoints) {
+	public void randomize(MersenneTwisterFast random, short[] possiblePoints) {
 		for (int i = 0; i < genes.length; i++) {
 			genes[i] = randomGene(random, possiblePoints);
 		}

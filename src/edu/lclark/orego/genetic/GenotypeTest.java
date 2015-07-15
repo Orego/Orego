@@ -33,7 +33,7 @@ public class GenotypeTest {
 	public void testMutate() {
 		Genotype a = new Genotype(new int[] {0, 0, 0});
 		MersenneTwisterFast random = new MersenneTwisterFast();
-		int[] points = {1, 2};		
+		short[] points = {1, 2};		
 		a.mutate(random, points);
 		int count = 0;
 		for (int gene : a.getGenes()) {

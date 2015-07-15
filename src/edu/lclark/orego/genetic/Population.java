@@ -11,7 +11,8 @@ import java.io.PrintWriter;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import static edu.lclark.orego.core.CoordinateSystem.*;
+import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class Population {
@@ -19,26 +20,34 @@ public class Population {
 	public static final int NUMBER_OF_THREADS = 32;
 	
 	public static void main(String[] args) {
-	    new Population(10000, 0, 2000).evolve(100);
+	    new Population(10000, 2000, CoordinateSystem.forWidth(19)).evolve(100);
 	}
 
 	private Genotype[] individuals;
 
-	private MersenneTwisterFast random;
+	private final MersenneTwisterFast random;
 
-	private final int numberOfReplyLongs;
+	private final short[] possiblePoints;
 	
-	public Population(int individualCount, int numberOfReplyLongs, int numberOfContexts) {
-		this.numberOfReplyLongs = numberOfReplyLongs; 
+	public Population(int individualCount, int numberOfReplies, CoordinateSystem coords) {
 		random = new MersenneTwisterFast();
+		possiblePoints = new short[coords.getArea() + 2];
+		int i = 0;
+		for (short p : coords.getAllPointsOnBoard()) {
+			possiblePoints[i] = p;
+			i++;
+		}
+		possiblePoints[i] = NO_POINT;
+		i++;
+		possiblePoints[i] = RESIGN;
 		individuals = new Genotype[individualCount];
-		for (int i = 0; i < individualCount; i++) {
-			individuals[i] = new Genotype(numberOfReplyLongs, numberOfContexts);
-			individuals[i].randomize();
+		for (i = 0; i < individualCount; i++) {
+			individuals[i] = new Genotype(numberOfReplies);
+			individuals[i].randomize(random, possiblePoints);
 		}
 	}
 
-	Genotype chooseParent(MersenneTwisterFast random) {
+	Genotype chooseParent() {
 		Genotype best = individuals[random.nextInt(individuals.length)];
 		for (int i = 0; i < 9; i++) {
 			Genotype challenger = individuals[random
@@ -63,7 +72,7 @@ public class Population {
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
 		Evaluator[] evaluators = new Evaluator[NUMBER_OF_THREADS];
 		for (int i = 0; i < evaluators.length; i++) {
-			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch, numberOfReplyLongs);
+			evaluators[i] = new Evaluator(step * i, Math.min(individuals.length, step * (i + 1)), individuals, latch);
 		}
 		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 		long before = System.nanoTime();
@@ -95,9 +104,9 @@ public class Population {
 			for (int g = 1; g <= generations; g++) {
 				Genotype[] nextGeneration = new Genotype[individuals.length];
 				for (int i = 0; i < nextGeneration.length; i++) {
-					nextGeneration[i] = chooseParent(random).cross(
-							chooseParent(random), random);
-					nextGeneration[i].mutate(random);
+					nextGeneration[i] = chooseParent().cross(
+							chooseParent(), random);
+					nextGeneration[i].mutate(random, possiblePoints);
 				}
 				individuals = nextGeneration;
 				stats.print(g + "\t");
