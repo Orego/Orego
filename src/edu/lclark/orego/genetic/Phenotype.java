@@ -5,18 +5,14 @@ import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
-import static edu.lclark.orego.core.Legality.OK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.NonStoneColor.OFF_BOARD;
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
 import edu.lclark.orego.feature.HistoryObserver;
-import edu.lclark.orego.feature.LgrfTable;
 import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
@@ -30,8 +26,6 @@ import java.util.*;
 public class Phenotype implements Mover {
 
 	private short[][] replies;
-	
-	private LgrfTable table;
 
 	private Set<Long> contexts;
 
@@ -98,7 +92,7 @@ public class Phenotype implements Mover {
 		long context = 0;
 		int shift = 0;
 		for (int i = 0; i < neighborhood.length; i++, shift += 2) {
-			context |= ((long)board.getColorAt(neighborhood[i]).index()) << shift;
+			context |= ((long) board.getColorAt(neighborhood[i]).index()) << shift;
 		}
 		return context;
 	}
@@ -111,7 +105,7 @@ public class Phenotype implements Mover {
 			MASKS[i] = (1L << i) - 1;
 		}
 	}
-	
+
 	private StoneColor colorToPlay;
 
 	/**
@@ -119,22 +113,12 @@ public class Phenotype implements Mover {
 	public Phenotype(Board board, Genotype genotype, StoneColor colorToPlay) {
 		this(board);
 		this.colorToPlay = colorToPlay;
-		long[] words = genotype.getGenes();
+		int[] words = genotype.getGenes();
 		// Extract replies
-		for (int i = 0; i < replyLongs; i++) {
-			setReply(
-					(short) (words[i] & MASKS[9]),
+		for (int i = 0; i < words.length; i++) {
+			setReply((short) (words[i] & MASKS[9]),
 					(short) ((words[i] >>> 9) & MASKS[9]),
 					(short) ((words[i] >>> 18) & MASKS[9]));
-			setReply(
-					(short) ((words[i] >>> 32) & MASKS[9]),
-					(short) ((words[i] >>> (9 + 32)) & MASKS[9]),
-					(short) ((words[i] >>> (18 + 32)) & MASKS[9]));
-		}
-		// Extract contexts
-		contexts = new HashSet<>();
-		for (int i = replyLongs; i < words.length; i++) {
-			contexts.add(words[i]);
 		}
 	}
 
@@ -145,12 +129,12 @@ public class Phenotype implements Mover {
 	public Phenotype(Board board) {
 		this.board = board;
 		coords = board.getCoordinateSystem();
-		replies = new short[coords.getFirstPointBeyondBoard()][coords.getFirstPointBeyondBoard()];
+		replies = new short[coords.getFirstPointBeyondBoard()][coords
+				.getFirstPointBeyondBoard()];
 		history = new HistoryObserver(board);
 		filter = new Conjunction(new NotEyeLike(board), new Disjunction(
 				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
 						.getWidth()), new NearAnotherStone(board)));
-		table = new LgrfTable(coords);
 		contexts = new HashSet<>();
 		allNeighborhoods();
 	}
@@ -159,13 +143,22 @@ public class Phenotype implements Mover {
 		// Try playing a stored reply
 		final short ultimate = history.get(board.getTurn() - 1);
 		final short penultimate = history.get(board.getTurn() - 2);
-		short reply = table.getSecondLevelReply(board.getColorToPlay(),
-				penultimate, ultimate);
+		short reply = getReplyFirst(penultimate, ultimate);
 		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
 				&& filter.at(reply) && board.isLegal(reply)) {
 			return reply;
 		}
-		reply = table.getFirstLevelReply(board.getColorToPlay(), ultimate);
+		reply = getReplySecond(penultimate, ultimate);
+		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
+				&& filter.at(reply) && board.isLegal(reply)) {
+			return reply;
+		}
+		reply = getReplyThird(penultimate, ultimate);
+		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
+				&& filter.at(reply) && board.isLegal(reply)) {
+			return reply;
+		}
+		reply = getReplyFourth(penultimate, ultimate);
 		if (coords.isOnBoard(reply) && (board.getColorAt(reply) == VACANT)
 				&& filter.at(reply) && board.isLegal(reply)) {
 			return reply;
@@ -194,32 +187,53 @@ public class Phenotype implements Mover {
 		return p;
 	}
 
+	short getReplyFirst(short penultimateMove, short previousMove) {
+		return replies[penultimateMove][previousMove];
+	}
+
+	short getReplySecond(short penultimateMove, short previousMove) {
+		return replies[RESIGN][previousMove];
+	}
+
+	short getReplyThird(short penultimateMove, short previousMove) {
+		return replies[penultimateMove][RESIGN];
+	}
+
+	short getReplyFourth(short penultimateMove, short previousMove) {
+		return replies[RESIGN][RESIGN];
+	}
+	
 	short getReply(short penultimateMove, short previousMove) {
-		short p = table.getSecondLevelReply(colorToPlay, penultimateMove,
-				previousMove);
-		if (p == NO_POINT) {
-			return table.getFirstLevelReply(colorToPlay, previousMove);
+		short p = getReplyFirst(penultimateMove, previousMove);
+		if (p == NO_POINT){
+			p = getReplySecond(penultimateMove, previousMove);
+			if (p == NO_POINT){
+				p = getReplyThird(penultimateMove, previousMove);
+				if (p == NO_POINT){
+					return getReplyFourth(penultimateMove, previousMove);
+				}
+			}
 		}
 		return p;
 	}
 
-	public void setReply(short penultimateMove, short previousMove, short reply) {
+	public void setColorToPlay(StoneColor colorToPlay) {
+		this.colorToPlay = colorToPlay;
+	}
+
+	void setReply(short penultimateMove, short ultimateMove, short reply) {
 		if (coords.isOnBoard(reply)) {
-			if (previousMove == NO_POINT || coords.isOnBoard(previousMove)) {
-				if (!(penultimateMove == NO_POINT || coords
-						.isOnBoard(penultimateMove))) {
-					penultimateMove = RESIGN;
-				}
-				table.setReply(colorToPlay, penultimateMove, previousMove,
-						reply);
+			if (ultimateMove == NO_POINT || coords.isOnBoard(ultimateMove)) {
+				ultimateMove = RESIGN;
 			}
+			if (!(penultimateMove == NO_POINT || coords
+					.isOnBoard(penultimateMove))) {
+				penultimateMove = RESIGN;
+			}
+			replies[penultimateMove][ultimateMove] = reply;
 		}
 	}
 
-	public void setColorToPlay(StoneColor colorToPlay){
-		this.colorToPlay = colorToPlay;
-	}
-	
 	/**
 	 * Returns the number of moves that this phenotype correctly predicts from
 	 * game.

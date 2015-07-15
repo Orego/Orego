@@ -92,25 +92,19 @@ public class PhenotypeTest {
 
 	@Test
 	public void testGenotypeConstructor() {
-		long[] words = new long[5 + 5];
+		int[] words = new int[5 + 5];
 		// Replies
 		words[0] = at("a1") |
 				(at("b1") << 9) |
-				(at("c1") << 18) |
-				((long) coords.getFirstPointBeyondBoard() << 32) |
-				((long) at("b3") << 41) |
-				((long) at("c5") << 50);
+				(at("c1") << 18);
 		words[4] = at("a1") |
 				(at("b1") << 9) |
-				(at("d1") << 18) |
-				((long) coords.getFirstPointBeyondBoard() << 32) |
-				((long) at("b3") << 41) |
-				((long) at("d2") << 50);
+				(at("d1") << 18) ;
 		// Contexts
-		words[7] = 1L;
-		words[9] = -1L;
+		words[7] = 1;
+		words[9] = -1;
 		// Build and test phenotype
-		phenotype = new Phenotype(board, 5, new Genotype(words), BLACK);
+		phenotype = new Phenotype(board, new Genotype(words), BLACK);
 		assertEquals(at("d1"), phenotype.getReply(at("a1"), at("b1")));
 		//TODO: This next one was specific to white
 //		assertEquals(at("c5"), phenotype.getReply(at("e3"), at("b3")));
