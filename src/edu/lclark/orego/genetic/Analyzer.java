@@ -38,12 +38,13 @@ public class Analyzer {
 			}
 			Board board = new Board(19);
 			CoordinateSystem coords = board.getCoordinateSystem();
-			short penultimate = CoordinateSystem.NO_POINT;
-			short ultimate = CoordinateSystem.NO_POINT;
+			short penultimate = coords.at("c17");
+			short ultimate = coords.at("d17");
+			board.play(penultimate);
+			board.play(ultimate);
 			// Poll population
 			getVotes(genotypes.toArray(new Genotype[0]), board,
-					CoordinateSystem.NO_POINT, CoordinateSystem.NO_POINT
-//					coords.at("r16"), coords.at("d16")
+					penultimate, ultimate
 					);
 			// Ask the champion
 			Phenotype champ = new Phenotype(board, champion);
@@ -51,6 +52,7 @@ public class Analyzer {
 			System.out.println(coords.toString(IGNORE) + ", " + coords.toString(ultimate) + " -> " + coords.toString(champ.getRawReply(IGNORE, ultimate)));
 			System.out.println(coords.toString(penultimate) + ", " + coords.toString(IGNORE) + " -> " + coords.toString(champ.getRawReply(penultimate, IGNORE)));
 			System.out.println(coords.toString(IGNORE) + ", " + coords.toString(IGNORE) + " -> " + coords.toString(champ.getRawReply(IGNORE, IGNORE)));
+			System.out.println("Champion's choice: " + coords.toString(champ.bestMoveVerbose(penultimate, ultimate)));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

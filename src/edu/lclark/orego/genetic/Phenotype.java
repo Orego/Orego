@@ -66,6 +66,30 @@ public class Phenotype implements Mover {
 		return replies[penultimate][ultimate];
 	}
 
+	public short bestMoveVerbose(short penultimate, short ultimate) {
+		short reply = replyToTwoMoves(penultimate, ultimate);
+		System.out.println("First reply:" + reply);
+		if (isValidMove(reply)) {
+			return reply;
+		}
+		reply = replyToOneMove(ultimate);
+		System.out.println("Second reply:" + coords.toString(reply));
+		if (isValidMove(reply)) {
+			return reply;
+		}
+		reply = followUp(penultimate);
+		System.out.println("Third reply:" + reply);
+		if (isValidMove(reply)) {
+			return reply;
+		}
+		reply = playBigPoint();
+		System.out.println("Fourth reply:" + reply);
+		if (isValidMove(reply)) {
+			return reply;
+		}
+		return NO_POINT;
+	}
+
 	public short bestMove(short penultimate, short ultimate) {
 		short reply = replyToTwoMoves(penultimate, ultimate);
 		if (isValidMove(reply)) {
