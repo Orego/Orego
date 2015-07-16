@@ -47,7 +47,7 @@ public class Analyzer {
 					penultimate, ultimate
 					);
 			// Ask the champion
-			Phenotype champ = new Phenotype(board, champion);
+			Phenotype champ = new Phenotype(Phenotype.makeRichBoard(board, 7.5), champion);
 			System.out.println(coords.toString(penultimate) + ", " + coords.toString(ultimate) + " -> " + coords.toString(champ.getRawReply(penultimate, ultimate)));
 			System.out.println(coords.toString(IGNORE) + ", " + coords.toString(ultimate) + " -> " + coords.toString(champ.getRawReply(IGNORE, ultimate)));
 			System.out.println(coords.toString(penultimate) + ", " + coords.toString(IGNORE) + " -> " + coords.toString(champ.getRawReply(penultimate, IGNORE)));
@@ -68,7 +68,7 @@ public class Analyzer {
 		final CoordinateSystem coords = board.getCoordinateSystem();
 		int[] result = new int[coords.getFirstPointBeyondBoard()];
 		for (Genotype g : individuals) {
-			result[new Phenotype(board, g).bestMove(penultimate, ultimate)]++;
+			result[new Phenotype(Phenotype.makeRichBoard(board, 7.5), g).bestMove(penultimate, ultimate)]++;
 		}
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (result[p] > 0) {

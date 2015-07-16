@@ -1,13 +1,19 @@
 package edu.lclark.orego.genetic;
 
 import static org.junit.Assert.*;
+import static edu.lclark.orego.core.StoneColor.*;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.genetic.Phenotype.*;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.*;
+
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.*;
+import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class PhenotypeTest {
@@ -16,13 +22,16 @@ public class PhenotypeTest {
 	
 	private Board board;
 	
+	private CopiableStructure richBoard;
+	
 	private CoordinateSystem coords;
 	
 	@Before
 	public void setUp() throws Exception {
 		board = new Board(19);
 		coords = board.getCoordinateSystem();
-		phenotype = new Phenotype(board);
+		richBoard = Phenotype.makeRichBoard(board, 7.5);
+		phenotype = new Phenotype(richBoard);
 	}
 
 	private short at(String label) {
@@ -48,7 +57,7 @@ public class PhenotypeTest {
 				(at("b1") << 9) |
 				(at("d1") << 18) ;
 		// Build and test phenotype
-		phenotype = new Phenotype(board, new Genotype(words));
+		phenotype = new Phenotype(richBoard, new Genotype(words));
 		board.play("a1");
 		board.play("b1");
 		assertEquals(at("d1"), phenotype.bestMove());
@@ -90,6 +99,33 @@ public class PhenotypeTest {
 		board.play("g1");
 		board.play("g1");
 		assertEquals(at("f1"), phenotype.bestMove());
+	}
+
+	@Test
+	public void testFallback() {
+		assertNotEquals(CoordinateSystem.NO_POINT, phenotype.selectAndPlayOneMove(new MersenneTwisterFast(), true));
+	}
+
+	@Test
+	public void testPlayAgainst() {
+		for (int i = 0; i < 10; i++) {
+			board = new Board(5);
+			coords = board.getCoordinateSystem();
+			richBoard = Phenotype.makeRichBoard(board, 7.5);
+			Phenotype black = new Phenotype(richBoard);
+			black.setReply(IGNORE, IGNORE, at("a3"));
+			Phenotype white = new Phenotype(richBoard);
+			white.setReply(IGNORE, IGNORE, at("c1"));
+			String[] diagram = {
+					"#.#.#",
+					"#####",
+					".....",
+					"OOOOO",
+					"O...O",
+			};
+			board.setUpProblem(diagram, BLACK);
+			assertEquals(WHITE, black.playAgainst(white, new MersenneTwisterFast(), true));
+		}
 	}
 
 }

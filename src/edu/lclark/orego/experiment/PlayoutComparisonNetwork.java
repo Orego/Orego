@@ -26,7 +26,7 @@ public class PlayoutComparisonNetwork {
 	public static void main(String[] args) {
 		final Board board = new Board(9);
 		//TODO: mover1 should be new type of mover
-		final Phenotype mover1 = new Phenotype(board);
+		final Phenotype mover1 = new Phenotype(Phenotype.makeRichBoard(board, 7.5));
 //		mover1.randomizeBiases();
 //		mover1.setBias(board.getCoordinateSystem().at("e5"), (byte) 127);
 //		mover1.setBias(board.getCoordinateSystem().at("d5"), (byte) 126);

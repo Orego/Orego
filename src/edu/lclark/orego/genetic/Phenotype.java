@@ -5,7 +5,10 @@ import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import edu.lclark.orego.core.Board;
+import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.feature.AtariObserver;
+import edu.lclark.orego.feature.BoardObserver;
 import edu.lclark.orego.feature.Conjunction;
 import edu.lclark.orego.feature.Disjunction;
 import edu.lclark.orego.feature.HistoryObserver;
@@ -13,8 +16,13 @@ import edu.lclark.orego.feature.NearAnotherStone;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.feature.OnThirdOrFourthLine;
 import edu.lclark.orego.feature.Predicate;
+import edu.lclark.orego.feature.StoneCountObserver;
+import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.move.MoverFactory;
+import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+
 import java.util.*;
 
 @SuppressWarnings("serial")
@@ -36,19 +44,41 @@ public class Phenotype implements Mover {
 
 	private final short[][] replies;
 
-	public Phenotype(Board board) {
-		this.board = board;
+	private final ChinesePlayoutScorer scorer;
+	
+	private final StoneCountObserver mercyObserver;
+	
+	public static CopiableStructure makeRichBoard(Board board, double komi) {
+		CopiableStructure result = new CopiableStructure();
+		result = new CopiableStructure();
+		result.add(board);
+		HistoryObserver history = new HistoryObserver(board);
+		result.add(history);
+		result.add(new Conjunction(new NotEyeLike(board), new Disjunction(
+				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
+						.getWidth()), new NearAnotherStone(board))));
+		result.add(MoverFactory.escapePatternCapturer(board,
+				new AtariObserver(board), history));
+		ChinesePlayoutScorer scorer = new ChinesePlayoutScorer(board, komi);
+		result.add(scorer);
+		result.add(new StoneCountObserver(board, scorer));
+		return result;
+	}
+
+	public Phenotype(CopiableStructure richBoard) {
+		this.board = richBoard.get(Board.class);
 		coords = board.getCoordinateSystem();
 		replies = new short[coords.getFirstPointBeyondBoard()][coords
 				.getFirstPointBeyondBoard()];
-		history = new HistoryObserver(board);
-		filter = new Conjunction(new NotEyeLike(board), new Disjunction(
-				OnThirdOrFourthLine.forWidth(board.getCoordinateSystem()
-						.getWidth()), new NearAnotherStone(board)));
+		history = richBoard.get(HistoryObserver.class);
+		filter = richBoard.get(Conjunction.class);
+		fallbackMover = richBoard.get(Mover.class);	
+		scorer = richBoard.get(ChinesePlayoutScorer.class);
+		mercyObserver = richBoard.get(StoneCountObserver.class);
 	}
 
-	public Phenotype(Board board, Genotype genotype) {
-		this(board);
+	public Phenotype(CopiableStructure richBoard, Genotype genotype) {
+		this(richBoard);
 		int[] words = genotype.getGenes();
 		// Extract replies
 		for (int i = 0; i < words.length; i++) {
@@ -151,10 +181,16 @@ public class Phenotype implements Mover {
 		return replies[penultimateMove][previousMove];
 	}
 	
+	private Mover fallbackMover;
+	
 	@Override
 	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
 		short p = bestMove();
-		board.play(p);
+		if (p != NO_POINT) {
+			board.play(p);
+		} else {
+			return fallbackMover.selectAndPlayOneMove(random, fast);
+		}
 		// TODO Select a random move from a fallback suggester if p is NO_POINT
 		return p;
 	}
@@ -162,5 +198,38 @@ public class Phenotype implements Mover {
 	void setReply(short penultimateMove, short ultimateMove, short reply) {
 		replies[penultimateMove][ultimateMove] = reply;
 	}
+	
+	/**
+	 * Plays a game against that. Assumes that this Phenotype is black, that is white.
+	 * @param mercy True if we should abandon the playout when one color has many more stones than the other.
+	 * @return The color of the winner, or VACANT if the game had no winner.
+	 */
+	public Color playAgainst(Phenotype that, MersenneTwisterFast random, boolean mercy) {
+		do {
+			if (board.getTurn() >= coords.getMaxMovesPerGame()) {
+				// Playout ran out of moves, probably due to superko
+				return VACANT;
+			}
+			if (board.getPasses() < 2) {
+				if (board.getColorToPlay() == BLACK) {
+					selectAndPlayOneMove(random, true);
+				} else {
+					that.selectAndPlayOneMove(random, true);
+				}
+			}
+			if (board.getPasses() >= 2) {
+				// Game ended
+				return scorer.winner();
+			}
+			if (mercy) {
+				final Color mercyWinner = mercyObserver.mercyWinner();
+				if (mercyWinner != null) {
+					// One player has far more stones on the board
+					return mercyWinner;
+				}
+			}
+		} while (true);
+	}
+
 }
 

@@ -39,7 +39,8 @@ public class Genotype {
 	public void evaluateFitness() {
 		fitness = 0;
 		Board board = new Board(19);
-		Phenotype phenotypeBlack = new Phenotype(board, this);
+		// TODO Komi should not be hard coded here
+		Phenotype phenotypeBlack = new Phenotype(Phenotype.makeRichBoard(board, 7.5), this);
 		File file = new File(SYSTEM.getExpertGamesDirectory());
 		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
 		List<List<Short>> games = processFiles(file, parser);

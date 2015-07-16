@@ -339,6 +339,13 @@ public final class Board implements Serializable {
 	}
 
 	/**
+	 * Returns the array of Observers for this Board.
+	 */
+	public BoardObserver[] getObservers() {
+		return observers;
+	}
+	
+	/**
 	 * Returns the number of consecutive passes ending the move sequence so far.
 	 */
 	public short getPasses() {
