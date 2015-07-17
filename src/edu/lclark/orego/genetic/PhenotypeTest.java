@@ -18,6 +18,9 @@ import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class PhenotypeTest {
 
+	// TODO Make this class compile; move tests to EvoRunnableTest as appropriate
+	// TODO Test and implement Phenotype.installGenes
+	
 	private Phenotype phenotype;
 	
 	private Board board;
@@ -65,18 +68,6 @@ public class PhenotypeTest {
 		assertEquals(NO_POINT, phenotype.bestMove());
 	}
 
-	@SuppressWarnings("boxing")
-	@Test
-	public void testHits() {
-		phenotype.setReply(NO_POINT, NO_POINT, at("c3"));
-		phenotype.setReply(at("e3"), at("f3"), at("g3"));
-		List<Short> game = new ArrayList<>();
-		for (short s : new short[] {at("c3"), at("d3"), at("e3"), at("f3"), at("g3"), PASS, PASS}) {
-			game.add(s);
-		}
-		assertEquals(2, phenotype.hits(game));
-	}
-
 	@Test
 	public void testReplyTypes() {
 		phenotype.setReply(at("a1"), at("b1"), at("c1"));
@@ -104,28 +95,6 @@ public class PhenotypeTest {
 	@Test
 	public void testFallback() {
 		assertNotEquals(CoordinateSystem.NO_POINT, phenotype.selectAndPlayOneMove(new MersenneTwisterFast(), true));
-	}
-
-	@Test
-	public void testPlayAgainst() {
-		for (int i = 0; i < 10; i++) {
-			board = new Board(5);
-			coords = board.getCoordinateSystem();
-			richBoard = Phenotype.makeRichBoard(board, 7.5);
-			Phenotype black = new Phenotype(richBoard);
-			black.setReply(IGNORE, IGNORE, at("a3"));
-			Phenotype white = new Phenotype(richBoard);
-			white.setReply(IGNORE, IGNORE, at("c1"));
-			String[] diagram = {
-					"#.#.#",
-					"#####",
-					".....",
-					"OOOOO",
-					"O...O",
-			};
-			board.setUpProblem(diagram, BLACK);
-			assertEquals(WHITE, black.playAgainst(white, new MersenneTwisterFast(), true));
-		}
 	}
 
 }

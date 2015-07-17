@@ -29,6 +29,10 @@ public class Phenotype {
 //		}
 //	}
 
+	public void installGenes(Genotype genotype) {
+		
+	}
+
 	public short getRawReply(short penultimate, short ultimate) {
 		return replies[penultimate][ultimate];
 	}

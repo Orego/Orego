@@ -36,22 +36,22 @@ public class Genotype {
 		return new Genotype(result);
 	}
 
-	public void evaluateFitness() {
-		fitness = 0;
-		Board board = new Board(19);
-		// TODO Komi should not be hard coded here
-		Phenotype phenotypeBlack = new Phenotype(Phenotype.makeRichBoard(board, 7.5), this);
-		File file = new File(SYSTEM.getExpertGamesDirectory());
-		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
-		List<List<Short>> games = processFiles(file, parser);
-		int totalEvaluated = 0;
-		int hits = 0;
-		for (final List<Short> game : games) {
-			hits += phenotypeBlack.hits(game);
-			totalEvaluated += (game.size() + 1) / 2; // Only count black moves
-		}
-		fitness = 1.0 * hits / totalEvaluated;
-	}
+//	public void evaluateFitness() {
+//		fitness = 0;
+//		Board board = new Board(19);
+//		// TODO Komi should not be hard coded here
+//		Phenotype phenotypeBlack = new Phenotype(Phenotype.makeRichBoard(board, 7.5), this);
+//		File file = new File(SYSTEM.getExpertGamesDirectory());
+//		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
+//		List<List<Short>> games = processFiles(file, parser);
+//		int totalEvaluated = 0;
+//		int hits = 0;
+//		for (final List<Short> game : games) {
+//			hits += phenotypeBlack.hits(game);
+//			totalEvaluated += (game.size() + 1) / 2; // Only count black moves
+//		}
+//		fitness = 1.0 * hits / totalEvaluated;
+//	}
 	
 	public double getFitness() {
 		return fitness;
