@@ -161,7 +161,7 @@ public class Player {
 //			playouts += runnable.getPlayoutsCompleted();
 //		}
 //		Logging.log("Turn : " + board.getTurn() + " Playouts : " + playouts);
-		// TODO Poll the population for the best move
+		// TODO Poll the appropriate population for the best move
 		return PASS;
 	}
 
