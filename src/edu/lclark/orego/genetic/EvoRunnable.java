@@ -18,15 +18,15 @@ import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /**
- * Players use this class to perform multiple Monte Carlo coevolution in different
- * threads.
+ * Players use this class to perform multiple Monte Carlo coevolution in
+ * different threads.
  */
 public class EvoRunnable implements Runnable {
 
 	private final Board board;
 
 	private final CoordinateSystem coords;
-	
+
 	private Mover fallbackMover;
 
 	private final Predicate filter;
@@ -35,17 +35,17 @@ public class EvoRunnable implements Runnable {
 
 	/** Indices of the tournament losers. */
 	private int[] loserIndices;
-	
+
 	private final StoneCountObserver mercyObserver;
-	
+
 	private Phenotype[][] phenotypes;
-			
+
 	private Population[] populations;
 
 	private final MersenneTwisterFast random;
 
 	private final ChinesePlayoutScorer scorer;
-	
+
 	public EvoRunnable(CopiableStructure stuff) {
 		random = new MersenneTwisterFast();
 		final CopiableStructure copy = stuff.copy();
@@ -66,7 +66,8 @@ public class EvoRunnable implements Runnable {
 	}
 
 	public short bestMove(Phenotype phenotype) {
-		return bestMove(phenotype, history.get(board.getTurn() - 2), history.get(board.getTurn() - 1));
+		return bestMove(phenotype, history.get(board.getTurn() - 2),
+				history.get(board.getTurn() - 1));
 	}
 
 	public short bestMove(Phenotype phenotype, short penultimate, short ultimate) {
@@ -92,7 +93,7 @@ public class EvoRunnable implements Runnable {
 	public Board getBoard() {
 		return board;
 	}
-	
+
 	Phenotype getPhenotype(StoneColor color, int index) {
 		return phenotypes[color.index()][index];
 	}
@@ -110,11 +111,14 @@ public class EvoRunnable implements Runnable {
 	}
 
 	/**
-	 * Chooses two random members of the population and has them play a game against each other.
+	 * Chooses two random members of the population and has them play a game
+	 * against each other.
 	 *
-	 * @param mercy True if we should abandon the playout when one color has many more stones than the other.
+	 * @param mercy
+	 *            True if we should abandon the playout when one color has many
+	 *            more stones than the other.
 	 * @return The winning color, although this is only used in tests.
-	 */	
+	 */
 	public Color performPlayout(boolean mercy) {
 		Phenotype black = phenotypes[BLACK.index()][0];
 		black.installGenes(populations[BLACK.index()].randomGenotype(random));
@@ -122,14 +126,18 @@ public class EvoRunnable implements Runnable {
 		white.installGenes(populations[WHITE.index()].randomGenotype(random));
 		return performPlayout(black, white, mercy);
 	}
-	
+
 	public Color performPlayout(Phenotype black, Phenotype white, boolean mercy) {
 		return playAgainst(black, white, mercy);
 	}
-	
+
 	/**
-	 * Plays a game against that. Assumes that this Phenotype is black, that is white.
-	 * @param mercy True if we should abandon the playout when one color has many more stones than the other.
+	 * Plays a game against that. Assumes that this Phenotype is black, that is
+	 * white.
+	 * 
+	 * @param mercy
+	 *            True if we should abandon the playout when one color has many
+	 *            more stones than the other.
 	 * @return The color of the winner, or VACANT if the game had no winner.
 	 */
 	public Color playAgainst(Phenotype black, Phenotype white, boolean mercy) {
@@ -166,13 +174,48 @@ public class EvoRunnable implements Runnable {
 	 * stored in loserIndices.
 	 */
 	public void playTournament(boolean mercy) {
-		
+		int[][] playIndices = new int[2][2];
+		for (int color = 0; color < playIndices.length; color++) {
+			for (int i = 0; i < playIndices[color].length; i++) {
+				playIndices[color][i] = random
+						.nextInt(phenotypes[BLACK.index()].length);
+			}
+		}
+		for (int b = 0; b < playIndices[BLACK.index()].length; b++) {
+			for (int w = 0; w < playIndices[WHITE.index()].length; w++) {
+				Color winner = playAgainst(
+						getPhenotype(BLACK, playIndices[BLACK.index()][b]),
+						getPhenotype(WHITE, playIndices[WHITE.index()][w]),
+						true);
+				if (winner == WHITE) {
+					getPhenotype(WHITE, playIndices[WHITE.index()][w])
+							.setWinCount(
+									getPhenotype(WHITE,
+											playIndices[WHITE.index()][w])
+											.getWinCount() + 1);
+				} else if (winner == BLACK) {
+					getPhenotype(BLACK, playIndices[BLACK.index()][b])
+							.setWinCount(
+									getPhenotype(BLACK,
+											playIndices[BLACK.index()][b])
+											.getWinCount() + 1);
+				}
+			}
+		}
+		loserIndices[BLACK.index()] = getPhenotype(BLACK,
+				playIndices[BLACK.index()][0]).getWinCount() < getPhenotype(
+				BLACK, playIndices[BLACK.index()][0]).getWinCount() ? playIndices[BLACK
+				.index()][0] : playIndices[BLACK.index()][1];
+		loserIndices[WHITE.index()] = getPhenotype(WHITE,
+				playIndices[WHITE.index()][0]).getWinCount() < getPhenotype(
+				WHITE, playIndices[WHITE.index()][0]).getWinCount() ? playIndices[WHITE
+				.index()][0] : playIndices[WHITE.index()][1];
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public short selectAndPlayOneMove(Phenotype phenotype, boolean fast) {
