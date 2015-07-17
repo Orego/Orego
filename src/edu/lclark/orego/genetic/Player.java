@@ -473,4 +473,14 @@ public class Player {
 		return liveStones;
 	}
 
+	public void setPopulationSize(int populationSize) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setIndividualLength(int individualLength) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

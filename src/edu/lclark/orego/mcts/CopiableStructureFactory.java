@@ -66,8 +66,8 @@ public final class CopiableStructureFactory {
 	 * The returned structure tries escaping, then pattern matching, then
 	 * capturing (like MoGo).
 	 */
-	public static CopiableStructure escapePatternCapture(int width) {
-		final CopiableStructure base = basicParts(width, 7.5);
+	public static CopiableStructure escapePatternCapture(int width, double komi) {
+		final CopiableStructure base = basicParts(width, komi);
 		final Board board = base.get(Board.class);
 		final AtariObserver atariObserver = new AtariObserver(board);
 		final HistoryObserver historyObserver = base.get(HistoryObserver.class);
