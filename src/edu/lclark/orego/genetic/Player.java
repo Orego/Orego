@@ -15,18 +15,12 @@ import java.util.concurrent.Executors;
 
 import edu.lclark.orego.book.OpeningBook;
 import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.core.StoneColor;
-import edu.lclark.orego.experiment.Logging;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.mcts.DoNothing;
-import edu.lclark.orego.mcts.McRunnable;
-import edu.lclark.orego.mcts.SearchNode;
-import edu.lclark.orego.mcts.TreeDescender;
-import edu.lclark.orego.mcts.TreeUpdater;
 import edu.lclark.orego.score.FinalScorer;
 import edu.lclark.orego.time.TimeManager;
 import edu.lclark.orego.util.ShortList;
@@ -67,16 +61,18 @@ public class Player {
 	/** Used to verify that all McRunnables have stopped. */
 	private CountDownLatch latch;
 
+	
 	/** Number of milliseconds to spend on the next move. */
 	private int msecPerMove;
 
-	
 	/** True if we should think during the opponent's turn. */
 	private boolean ponder;
+	
+	private Population[] populations;
 
 	/** For performing coevolution. */
 	private EvoRunnable[] runnables;
-	
+
 	/**
 	 * True if the setTimeRemaining method has been called, because a time_left
 	 * command was received. If true, use the time manager. Otherwise just
@@ -199,6 +195,12 @@ public class Player {
 		cleanupMode = false;
 	}
 
+	public void createPopulations(int populationSize, int individualLength) {
+		populations = new Population[] {
+				new Population(populationSize, individualLength, coords),
+				new Population(populationSize, individualLength, coords)};
+	}
+
 	/** Stops any running threads. */
 	public void endGame() {
 		stopThreads();
@@ -294,14 +296,32 @@ public class Player {
 		return board;
 	}
 
+	/** Returns the ith McRunnable. */
+	public EvoRunnable getEvoRunnable(int i) {
+		return runnables[i];
+	}
+
 	/** Returns the scorer. */
 	public FinalScorer getFinalScorer() {
 		return finalScorer;
 	}
 
-	/** Returns the ith McRunnable. */
-	public EvoRunnable getEvoRunnable(int i) {
-		return runnables[i];
+	/**
+	 * Gets all the stones on the board that live with at least probability
+	 * threshold.
+	 */
+	public ShortSet getLiveStones(double threshold) {
+		ShortSet deadStones = findDeadStones(threshold, WHITE);
+		deadStones.addAll(findDeadStones(threshold, BLACK));
+		ShortSet liveStones = new ShortSet(board.getCoordinateSystem()
+				.getFirstPointBeyondBoard());
+		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
+			if (board.getColorAt(p) != VACANT && !deadStones.contains(p)) {
+				liveStones.add(p);
+			}
+		}
+		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
+		return liveStones;
 	}
 
 	int getMsecPerMove() {
@@ -413,9 +433,12 @@ public class Player {
 		}
 		executor.shutdown();
 	}
-
+	
 	/** Stops the McRunnables' threads. */
 	private void stopThreads() {
+		if (latch == null) {
+			return;
+		}
 		try {
 			keepRunning = false;
 			latch.await();
@@ -424,7 +447,7 @@ public class Player {
 			System.exit(1);
 		}
 	}
-
+	
 	/**
 	 * Undoes the last move. This is done by clearing the board and replaying
 	 * all moves but the last.
@@ -455,32 +478,8 @@ public class Player {
 		return true;
 	}
 
-	/**
-	 * Gets all the stones on the board that live with at least probability
-	 * threshold.
-	 */
-	public ShortSet getLiveStones(double threshold) {
-		ShortSet deadStones = findDeadStones(threshold, WHITE);
-		deadStones.addAll(findDeadStones(threshold, BLACK));
-		ShortSet liveStones = new ShortSet(board.getCoordinateSystem()
-				.getFirstPointBeyondBoard());
-		for (short p : board.getCoordinateSystem().getAllPointsOnBoard()) {
-			if (board.getColorAt(p) != VACANT && !deadStones.contains(p)) {
-				liveStones.add(p);
-			}
-		}
-		log("Live stones: " + liveStones.toString(board.getCoordinateSystem()));
-		return liveStones;
-	}
-
-	public void setPopulationSize(int populationSize) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setIndividualLength(int individualLength) {
-		// TODO Auto-generated method stub
-		
+	public Population[] getPopulations() {
+		return populations;
 	}
 
 }

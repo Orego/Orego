@@ -143,5 +143,9 @@ public class Population {
 		}
 		return sum / individuals.length;
 	}
+	
+	public int size() {
+		return individuals.length;
+	}
 
 }

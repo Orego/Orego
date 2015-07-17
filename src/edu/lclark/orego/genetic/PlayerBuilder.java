@@ -1,14 +1,13 @@
 package edu.lclark.orego.genetic;
 
 import edu.lclark.orego.book.FusekiBook;
-import edu.lclark.orego.core.Board;
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
 import edu.lclark.orego.mcts.DoNothing;
 import edu.lclark.orego.time.SimpleTimeManager;
 import edu.lclark.orego.time.UniformTimeManager;
 
+@SuppressWarnings("hiding")
 public class PlayerBuilder {
 	
 	private boolean book;
@@ -65,8 +64,6 @@ public class PlayerBuilder {
 		CopiableStructure copyStructure;
 		copyStructure = CopiableStructureFactory.escapePatternCapture(width, komi);
 		final Player result = new Player(threads, copyStructure);
-		final Board board = result.getBoard();
-		final CoordinateSystem coords = board.getCoordinateSystem();
 		if (managerType.equals("uniform")) {
 			result.setTimeManager(new UniformTimeManager(result.getBoard()));
 		} else {
@@ -80,8 +77,7 @@ public class PlayerBuilder {
 		}
 		result.setMsecPerMove(msecPerMove);
 		result.ponder(ponder);
-		result.setPopulationSize(populationSize);
-		result.setIndividualLength(individualLength);
+		result.createPopulations(populationSize, individualLength);
 		result.clear();
 		return result;
 	}
