@@ -3,19 +3,32 @@ package edu.lclark.orego.genetic;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import edu.lclark.orego.core.CoordinateSystem;
 
+/** Instantiated Genotype. */
 public class Phenotype {
-
-	/** Has only the 9 lowest-order bits on. */
-	public static final int MASK9 = (1 << 9) - 1;
 
 	/** Indicates that one of the three points in a reply should be ignored. */
 	public static final short IGNORE = RESIGN;
 	
+	/** Has only the 9 lowest-order bits on. */
+	public static final int MASK9 = (1 << 9) - 1;
+
+	/** replies[p][q] is the best reply to p followed by q. */
 	private final short[][] replies;
-	
+
+	/** Number of wins this Phenotype has achieved. */
+	private int winCount;
+
 	public Phenotype(CoordinateSystem coords) {
 		replies = new short[coords.getFirstPointBeyondBoard()][coords
-		                                       				.getFirstPointBeyondBoard()];
+				.getFirstPointBeyondBoard()];
+	}
+
+	short followUp(short penultimateMove) {
+		return replies[penultimateMove][RESIGN];
+	}
+
+	public int getWinCount() {
+		return winCount;
 	}
 
 	public void installGenes(Genotype genotype) {
@@ -26,15 +39,6 @@ public class Phenotype {
 					(short) ((words[i] >>> 9) & MASK9),
 					(short) ((words[i] >>> 18) & MASK9));
 		}
-	}
-
-	public short getRawReply(short penultimate, short ultimate) {
-		return replies[penultimate][ultimate];
-	}
-	
-
-	short followUp(short penultimateMove) {
-		return replies[penultimateMove][RESIGN];
 	}
 
 	short playBigPoint() {
@@ -48,10 +52,13 @@ public class Phenotype {
 	short replyToTwoMoves(short penultimateMove, short previousMove) {
 		return replies[penultimateMove][previousMove];
 	}
-	
+
 	void setReply(short penultimateMove, short ultimateMove, short reply) {
 		replies[penultimateMove][ultimateMove] = reply;
 	}
-	
-}
 
+	public void setWinCount(int winCount) {
+		this.winCount = winCount;
+	}
+
+}

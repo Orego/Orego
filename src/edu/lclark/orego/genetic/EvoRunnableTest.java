@@ -4,7 +4,8 @@ import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.genetic.Phenotype.IGNORE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,6 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
-import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class EvoRunnableTest {
 

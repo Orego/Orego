@@ -17,7 +17,8 @@ public class GenotypeTest {
 		int[] counts = new int[a.getGenes().length];
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		for(int i = 0; i < trials; i++){
-			Genotype c = a.cross(b, random);
+			Genotype c = new Genotype(3);
+			a.cross(b, c, random);
 			for (int j = 0; j < counts.length; j++) {
 				if (c.getGenes()[j] == 0) {
 					counts[j]++;

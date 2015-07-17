@@ -1,18 +1,9 @@
 package edu.lclark.orego.genetic;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static edu.lclark.orego.core.StoneColor.BLACK;
-import edu.lclark.orego.core.Board;
-import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-import static edu.lclark.orego.experiment.SystemConfiguration.SYSTEM;
 
+/** A set of genes. */
 public class Genotype {
-
-	private double fitness;
 
 	private int[] genes;
 	
@@ -28,63 +19,32 @@ public class Genotype {
 		this.genes = genes;
 	}
 
-	public Genotype cross(Genotype that, MersenneTwisterFast random) {
+	/** Crosses this and that, overwriting the genes of child with the result. */
+	public void cross(Genotype that, Genotype child, MersenneTwisterFast random) {
 		final int crossoverPoint = random.nextInt(genes.length);
-		final int[] result = new int[genes.length];
-		System.arraycopy(genes, 0, result, 0, crossoverPoint);
-		System.arraycopy(that.genes, crossoverPoint, result, crossoverPoint, result.length - crossoverPoint);
-		return new Genotype(result);
-	}
-
-//	public void evaluateFitness() {
-//		fitness = 0;
-//		Board board = new Board(19);
-//		// TODO Komi should not be hard coded here
-//		Phenotype phenotypeBlack = new Phenotype(Phenotype.makeRichBoard(board, 7.5), this);
-//		File file = new File(SYSTEM.getExpertGamesDirectory());
-//		SgfParser parser = new SgfParser(board.getCoordinateSystem(), false);
-//		List<List<Short>> games = processFiles(file, parser);
-//		int totalEvaluated = 0;
-//		int hits = 0;
-//		for (final List<Short> game : games) {
-//			hits += phenotypeBlack.hits(game);
-//			totalEvaluated += (game.size() + 1) / 2; // Only count black moves
-//		}
-//		fitness = 1.0 * hits / totalEvaluated;
-//	}
-	
-	public double getFitness() {
-		return fitness;
+		int[] childGenes = child.getGenes();
+		System.arraycopy(genes, 0, childGenes, 0, crossoverPoint);
+		System.arraycopy(that.genes, crossoverPoint, childGenes, crossoverPoint, childGenes.length - crossoverPoint);
 	}
 	
 	public int[] getGenes() {
 		return genes;
 	}
 
+	/** Randomly replaces one of the genes in this Genotype. */
 	public void mutate(MersenneTwisterFast random, short[] possiblePoints) {
 		genes[random.nextInt(genes.length)] = randomGene(random, possiblePoints);
 	}
 
-	List<List<Short>> processFiles(File file, SgfParser parser) {
-		final List<List<Short>> games = new ArrayList<>();
-		if (file.isDirectory()) {
-			for (final File f : file.listFiles()) {
-				games.addAll(processFiles(f, parser));
-			}
-		} else if (file.getPath().endsWith(".sgf")) {
-			// System.out.println("Reading file " + file.getName());
-			games.addAll(parser.parseGamesFromFile(file, Integer.MAX_VALUE));
-		}
-		return games;
-	}
-
 	@SuppressWarnings("static-method")
+	/** Generates a random gene, containing three moves from possiblePoints. */
 	public int randomGene(MersenneTwisterFast random, short[] possiblePoints) {
 		return possiblePoints[random.nextInt(possiblePoints.length)]
 				| (possiblePoints[random.nextInt(possiblePoints.length)] << 9)
 				| (possiblePoints[random.nextInt(possiblePoints.length)] << 18);
 	}
 
+	/** Fills this Genotype with random genes. */
 	public void randomize(MersenneTwisterFast random, short[] possiblePoints) {
 		for (int i = 0; i < genes.length; i++) {
 			genes[i] = randomGene(random, possiblePoints);
@@ -94,4 +54,5 @@ public class Genotype {
 	public void setGenes(int[] genes) {
 		this.genes = genes;
 	}
+
 }

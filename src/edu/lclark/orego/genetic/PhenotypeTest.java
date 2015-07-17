@@ -1,20 +1,13 @@
 package edu.lclark.orego.genetic;
 
-import static org.junit.Assert.*;
-import static edu.lclark.orego.core.StoneColor.*;
-import static edu.lclark.orego.core.CoordinateSystem.*;
-import static edu.lclark.orego.genetic.Phenotype.*;
+import static edu.lclark.orego.genetic.Phenotype.IGNORE;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
-
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.feature.*;
-import edu.lclark.orego.mcts.CopiableStructure;
-import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class PhenotypeTest {
 
@@ -43,7 +36,7 @@ public class PhenotypeTest {
 		phenotype.installGenes(new Genotype(words));
 		board.play("a1");
 		board.play("b1");
-		assertEquals(at("d1"), phenotype.getRawReply(at("a1"), at("b1")));
+		assertEquals(at("d1"), phenotype.replyToTwoMoves(at("a1"), at("b1")));
 	}
 
 	@Test
@@ -55,7 +48,7 @@ public class PhenotypeTest {
 		board.clear();
 		board.play("a1");
 		board.play("b1");
-		assertEquals(at("c1"), phenotype.getRawReply(at("a1"), at("b1")));
+		assertEquals(at("c1"), phenotype.replyToTwoMoves(at("a1"), at("b1")));
 		board.clear();
 		board.play("g1");
 		board.play("b1");
