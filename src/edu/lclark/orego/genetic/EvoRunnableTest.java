@@ -1,5 +1,6 @@
 package edu.lclark.orego.genetic;
 
+import static edu.lclark.orego.genetic.Genotype.*;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
@@ -45,12 +46,37 @@ public class EvoRunnableTest {
 
 	@Test
 	public void testPerformPlayout() {
+		final Population[] populations = {new Population(5, 10, coords), new Population(5, 10, coords)};
+		for (int i = 0; i < populations[0].size(); i++) {
+			populations[0].getIndividuals()[i].setGenes(new int[] {makeGene(IGNORE, IGNORE, at("a3")), 0, 0, 0, 0});
+			populations[1].getIndividuals()[i].setGenes(new int[] {makeGene(IGNORE, IGNORE, at("c1")), 0, 0, 0, 0});
+		}
+		runnable.setPopulations(populations);
 		for (int i = 0; i < 10; i++) {
-			Phenotype black = runnable.getPhenotype(BLACK, 0);
-			black.setReply(IGNORE, IGNORE, at("a3"));
-			Phenotype white = runnable.getPhenotype(WHITE, 0);
-			white.setReply(IGNORE, IGNORE, at("c1"));
-			String[] diagram = { "#.#.#", "#####", ".....", "OOOOO", "O...O", };
+			String[] diagram = {
+					"#.#.#",
+					"#####",
+					".....",
+					"OOOOO",
+					"O...O", };
+			board.setUpProblem(diagram, BLACK);
+			assertEquals(WHITE, runnable.performPlayout(true));
+		}
+	}
+
+	@Test
+	public void testPerformSpecificPlayout() {
+		Phenotype black = runnable.getPhenotype(BLACK, 0);
+		black.setReply(IGNORE, IGNORE, at("a3"));
+		Phenotype white = runnable.getPhenotype(WHITE, 0);
+		white.setReply(IGNORE, IGNORE, at("c1"));
+		for (int i = 0; i < 10; i++) {
+			String[] diagram = {
+					"#.#.#",
+					"#####",
+					".....",
+					"OOOOO",
+					"O...O", };
 			board.setUpProblem(diagram, BLACK);
 			assertEquals(WHITE, runnable.performPlayout(black, white, true));
 		}

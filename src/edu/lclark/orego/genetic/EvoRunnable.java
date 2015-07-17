@@ -3,7 +3,7 @@ package edu.lclark.orego.genetic;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
-import static edu.lclark.orego.core.StoneColor.BLACK;
+import static edu.lclark.orego.core.StoneColor.*;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
@@ -62,6 +62,8 @@ public class EvoRunnable implements Runnable {
 		return board;
 	}
 
+	private Population[] populations;
+	
 	/**
 	 * Chooses two random members of the population and has them play a game against each other.
 	 *
@@ -69,7 +71,11 @@ public class EvoRunnable implements Runnable {
 	 * @return The winning color, although this is only used in tests.
 	 */	
 	public Color performPlayout(boolean mercy) {
-		return null;
+		Phenotype black = phenotypes[BLACK.index()][0];
+		black.installGenes(populations[BLACK.index()].randomGenotype(random));
+		Phenotype white = phenotypes[WHITE.index()][0];
+		white.installGenes(populations[WHITE.index()].randomGenotype(random));
+		return performPlayout(black, white, mercy);
 	}
 
 	/** Returns the number of playouts completed by this runnable. */
@@ -134,7 +140,6 @@ public class EvoRunnable implements Runnable {
 		} else {
 			return fallbackMover.selectAndPlayOneMove(random, fast);
 		}
-		// TODO Select a random move from a fallback suggester if p is NO_POINT
 		return p;
 	}
 	
@@ -168,6 +173,8 @@ public class EvoRunnable implements Runnable {
 				&& filter.at(p) && board.isLegal(p);
 	}
 
-
+	public void setPopulations(Population[] populations) {
+		this.populations = populations;
+	}
 
 }

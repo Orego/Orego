@@ -24,7 +24,7 @@ public class Phenotype {
 	}
 
 	short followUp(short penultimateMove) {
-		return replies[penultimateMove][RESIGN];
+		return replies[penultimateMove][IGNORE];
 	}
 
 	public int getWinCount() {
@@ -42,11 +42,11 @@ public class Phenotype {
 	}
 
 	short playBigPoint() {
-		return replies[RESIGN][RESIGN];
+		return replies[IGNORE][IGNORE];
 	}
 
 	short replyToOneMove(short previousMove) {
-		return replies[RESIGN][previousMove];
+		return replies[IGNORE][previousMove];
 	}
 
 	short replyToTwoMoves(short penultimateMove, short previousMove) {

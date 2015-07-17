@@ -44,6 +44,11 @@ public class Genotype {
 				| (possiblePoints[random.nextInt(possiblePoints.length)] << 18);
 	}
 
+	/** Returns a gene where reply is the reply to penultimate followed by ultimate. */
+	public static int makeGene(short penultimate, short ultimate, short reply) {
+		return penultimate | (ultimate << 9) | (reply << 18);
+	}
+
 	/** Fills this Genotype with random genes. */
 	public void randomize(MersenneTwisterFast random, short[] possiblePoints) {
 		for (int i = 0; i < genes.length; i++) {
