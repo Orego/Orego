@@ -1,5 +1,6 @@
 package edu.lclark.orego.genetic;
 
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.genetic.Phenotype.IGNORE;
@@ -12,25 +13,34 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.mcts.CopiableStructureFactory;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class EvoRunnableTest {
 
-	private EvoRunnable runnable;
-	
 	private Board board;
-	
+
 	private CoordinateSystem coords;
-	
+
+	private EvoRunnable runnable;
+
+	private short at(String label) {
+		return coords.at(label);
+	}
+
 	@Before
 	public void setUp() throws Exception {
-		CopiableStructure stuff = CopiableStructureFactory.escapePatternCapture(5, 7.5);
+		CopiableStructure stuff = CopiableStructureFactory
+				.escapePatternCapture(5, 7.5);
 		runnable = new EvoRunnable(stuff);
 		board = runnable.getBoard();
 		coords = board.getCoordinateSystem();
 	}
 
-	private short at(String label) {
-		return coords.at(label);
+	@Test
+	public void testFallback() {
+		Phenotype black = runnable.getPhenotype(BLACK, 0);
+		assertNotEquals(CoordinateSystem.NO_POINT,
+				runnable.selectAndPlayOneMove(black, true));
 	}
 
 	@Test
@@ -40,16 +50,45 @@ public class EvoRunnableTest {
 			black.setReply(IGNORE, IGNORE, at("a3"));
 			Phenotype white = runnable.getPhenotype(WHITE, 0);
 			white.setReply(IGNORE, IGNORE, at("c1"));
-			String[] diagram = {
-					"#.#.#",
-					"#####",
-					".....",
-					"OOOOO",
-					"O...O",
-			};
+			String[] diagram = { "#.#.#", "#####", ".....", "OOOOO", "O...O", };
 			board.setUpProblem(diagram, BLACK);
 			assertEquals(WHITE, runnable.performPlayout(black, white, true));
 		}
+	}
+
+	@Test
+	public void testReplyTypes() {
+		Phenotype black = runnable.getPhenotype(BLACK, 0);
+		black.setReply(at("a1"), at("b1"), at("c1"));
+		black.setReply(IGNORE, at("b1"), at("d1"));
+		black.setReply(at("a1"), IGNORE, at("d1"));
+		black.setReply(IGNORE, IGNORE, at("b2"));
+		board.clear();
+		board.play("a1");
+		board.play("b1");
+		assertEquals(at("c1"), runnable.bestMove(black));
+		board.clear();
+		board.play("c2");
+		board.play("b1");
+		assertEquals(at("d1"), runnable.bestMove(black));
+		board.clear();
+		board.play("a1");
+		board.play("c2");
+		assertEquals(at("d1"), runnable.bestMove(black));
+		board.clear();
+		board.play("a2");
+		board.play("a3");
+		assertEquals(at("b2"), runnable.bestMove(black));
+	}
+
+	@Test
+	public void testSelectAndPlayOneMove() {
+		Phenotype black = runnable.getPhenotype(BLACK, 0);
+		Phenotype white = runnable.getPhenotype(WHITE, 0);
+		black.setReply(NO_POINT, NO_POINT, at("c3"));
+		white.setReply(NO_POINT, at("c3"), at("d3"));
+		assertEquals(at("c3"), runnable.selectAndPlayOneMove(black, true));
+		assertEquals(at("d3"), runnable.selectAndPlayOneMove(white, true));
 	}
 
 }

@@ -18,19 +18,14 @@ public class Phenotype {
 		                                       				.getFirstPointBeyondBoard()];
 	}
 
-//	public Phenotype(CopiableStructure richBoard, Genotype genotype) {
-//		this(richBoard);
-//		int[] words = genotype.getGenes();
-//		// Extract replies
-//		for (int i = 0; i < words.length; i++) {
-//			setReply((short) (words[i] & MASK9),
-//					(short) ((words[i] >>> 9) & MASK9),
-//					(short) ((words[i] >>> 18) & MASK9));
-//		}
-//	}
-
 	public void installGenes(Genotype genotype) {
-		
+		int[] words = genotype.getGenes();
+		// Extract replies
+		for (int i = 0; i < words.length; i++) {
+			setReply((short) (words[i] & MASK9),
+					(short) ((words[i] >>> 9) & MASK9),
+					(short) ((words[i] >>> 18) & MASK9));
+		}
 	}
 
 	public short getRawReply(short penultimate, short ultimate) {
