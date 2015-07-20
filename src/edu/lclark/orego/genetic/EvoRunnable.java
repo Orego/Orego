@@ -57,7 +57,7 @@ public class EvoRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		this.board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
-		phenotypes = new Phenotype[2][3];
+		phenotypes = new Phenotype[2][ENTRANTS];
 		for (int color = 0; color < phenotypes.length; color++) {
 			for (int i = 0; i < phenotypes[color].length; i++) {
 				phenotypes[color][i] = new Phenotype(coords);
@@ -204,6 +204,8 @@ public class EvoRunnable implements Runnable {
 		} while (true);
 	}
 
+	private final int ENTRANTS = 6;
+	
 	/**
 	 * Plays a tournament among two pairs of individuals -- one from each
 	 * population. The indices of the individuals with the fewest wins are
@@ -211,7 +213,7 @@ public class EvoRunnable implements Runnable {
 	 */
 	public void playTournament(boolean mercy) {
 		// Choose contestants and install their genes in phenotypes
-		int[][] playIndices = new int[2][2];
+		int[][] playIndices = new int[2][ENTRANTS];
 		for (int color = 0; color < playIndices.length; color++) {
 			for (int i = 0; i < playIndices[color].length; i++) {
 				playIndices[color][i] = random.nextInt(populations[BLACK
