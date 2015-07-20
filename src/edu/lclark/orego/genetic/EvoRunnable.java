@@ -212,7 +212,7 @@ public class EvoRunnable implements Runnable {
 	/** Replaces the losers indicated by loserIndices with new individuals. */
 	public void replaceLosers() {
 		for (int c = 0; c < 2; c++) {
-			populations[c].replaceLoser(loserIndices[c]);
+			populations[c].replaceLoser(loserIndices[c], random);
 		}
 	}
 
