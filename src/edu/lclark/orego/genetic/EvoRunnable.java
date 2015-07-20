@@ -209,6 +209,13 @@ public class EvoRunnable implements Runnable {
 				: playIndices[WHITE.index()][1];
 	}
 
+	/** Replaces the losers indicated by loserIndices with new individuals. */
+	public void replaceLosers() {
+		for (int c = 0; c < 2; c++) {
+			populations[c].replaceLoser(loserIndices[c]);
+		}
+	}
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
