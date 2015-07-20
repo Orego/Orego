@@ -24,7 +24,9 @@ public class Phenotype {
 	}
 
 	public void clearReplies() {
-		java.util.Arrays.fill(replies, 0);
+		for (int i = 0; i < replies.length; i++){
+			java.util.Arrays.fill(replies[i], (short)0);
+		}
 	}
 
 	short followUp(short penultimateMove) {
