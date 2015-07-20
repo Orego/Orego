@@ -4,6 +4,7 @@ import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.experiment.Logging.log;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
@@ -41,13 +42,15 @@ public class EvoRunnable implements Runnable {
 	/** phenotypes[c][i] is phenotype number i of color c for the current tournament. */
 	private Phenotype[][] phenotypes;
 
+	private final Player player;
+	
 	private Population[] populations;
 
 	private final MersenneTwisterFast random;
 
 	private final ChinesePlayoutScorer scorer;
 
-	public EvoRunnable(CopiableStructure stuff) {
+	public EvoRunnable(Player player, CopiableStructure stuff) {
 		random = new MersenneTwisterFast();
 		final CopiableStructure copy = stuff.copy();
 		this.board = copy.get(Board.class);
@@ -64,6 +67,7 @@ public class EvoRunnable implements Runnable {
 		scorer = copy.get(ChinesePlayoutScorer.class);
 		mercyObserver = copy.get(StoneCountObserver.class);
 		loserIndices = new int[2];
+		this.player = player;
 	}
 
 	public short bestMove(Phenotype phenotype) {
@@ -142,6 +146,7 @@ public class EvoRunnable implements Runnable {
 	 * @return The color of the winner, or VACANT if the game had no winner.
 	 */
 	public Color playAgainst(Phenotype black, Phenotype white, boolean mercy) {
+		playoutsCompleted++;
 		final CoordinateSystem coords = board.getCoordinateSystem();
 		do {
 			if (board.getTurn() >= coords.getMaxMovesPerGame()) {
@@ -216,10 +221,17 @@ public class EvoRunnable implements Runnable {
 		}
 	}
 
+	private long playoutsCompleted;
+	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-
+		playoutsCompleted = 0;
+		while (player.shouldKeepRunning()) {
+			playTournament(true); // Should that mercy value be read from somewhere?
+			replaceLosers();
+		}
+		log("Playouts completed: " + playoutsCompleted);
+		player.notifyMcRunnableDone();
 	}
 
 	public short selectAndPlayOneMove(Phenotype phenotype, boolean fast) {
