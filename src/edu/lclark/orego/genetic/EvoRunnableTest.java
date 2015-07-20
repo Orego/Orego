@@ -32,7 +32,7 @@ public class EvoRunnableTest {
 	public void setUp() throws Exception {
 		CopiableStructure stuff = CopiableStructureFactory
 				.escapePatternCapture(5, 7.5);
-		runnable = new EvoRunnable(stuff);
+		runnable = new EvoRunnable(null, stuff);
 		board = runnable.getBoard();
 		coords = board.getCoordinateSystem();
 	}
@@ -78,7 +78,7 @@ public class EvoRunnableTest {
 					"OOOOO",
 					"O...O", };
 			board.setUpProblem(diagram, BLACK);
-			assertEquals(WHITE, runnable.performPlayout(black, white, true));
+			assertEquals(WHITE, runnable.playAgainst(black, white, true));
 		}
 	}
 

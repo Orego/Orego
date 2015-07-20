@@ -32,15 +32,17 @@ public class Phenotype {
 	}
 
 	public void installGenes(Genotype genotype) {
-		int[] words = genotype.getGenes();
-		for (int i = 0; i < replies.length; i++){
-			java.util.Arrays.fill(replies[i], (short)0);
-		}
-		// Extract replies
-		for (int i = 0; i < words.length; i++) {
-			setReply((short) (words[i] & MASK9),
-					(short) ((words[i] >>> 9) & MASK9),
-					(short) ((words[i] >>> 18) & MASK9));
+		synchronized (genotype) {
+			int[] words = genotype.getGenes();
+			for (int i = 0; i < replies.length; i++) {
+				java.util.Arrays.fill(replies[i], (short) 0);
+			}
+			// Extract replies
+			for (int i = 0; i < words.length; i++) {
+				setReply((short) (words[i] & MASK9),
+						(short) ((words[i] >>> 9) & MASK9),
+						(short) ((words[i] >>> 18) & MASK9));
+			}
 		}
 	}
 

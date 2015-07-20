@@ -129,10 +129,6 @@ public class EvoRunnable implements Runnable {
 		black.installGenes(populations[BLACK.index()].randomGenotype(random));
 		Phenotype white = phenotypes[WHITE.index()][0];
 		white.installGenes(populations[WHITE.index()].randomGenotype(random));
-		return performPlayout(black, white, mercy);
-	}
-
-	public Color performPlayout(Phenotype black, Phenotype white, boolean mercy) {
 		return playAgainst(black, white, mercy);
 	}
 
