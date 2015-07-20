@@ -23,6 +23,10 @@ public class Phenotype {
 				.getFirstPointBeyondBoard()];
 	}
 
+	public void clearReplies() {
+		java.util.Arrays.fill(replies, 0);
+	}
+
 	short followUp(short penultimateMove) {
 		return replies[penultimateMove][IGNORE];
 	}
@@ -33,6 +37,7 @@ public class Phenotype {
 
 	public void installGenes(Genotype genotype) {
 		int[] words = genotype.getGenes();
+		clearReplies();
 		// Extract replies
 		for (int i = 0; i < words.length; i++) {
 			setReply((short) (words[i] & MASK9),
