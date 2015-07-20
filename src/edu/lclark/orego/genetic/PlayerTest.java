@@ -11,17 +11,24 @@ public class PlayerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().populationSize(100).individualLength(2000).msecPerMove(1000).threads(5).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(20000).individualLength(2000).msecPerMove(60000).threads(5).boardWidth(5).openingBook(false).build();
 	}
 
 	@Test
 	public void testCreatePopulations() {
-		assertEquals(100, player.getPopulations()[BLACK.index()].size());
+		assertEquals(2000, player.getPopulations()[BLACK.index()].size());
 	}
 
 	@Test
 	public void testBestMove() {
-		player.bestMove();
+		String[] diagram = {
+				"#.#.#",
+				"#####",
+				".....",
+				"OOOOO",
+				"O...O", };
+		player.getBoard().setUpProblem(diagram, BLACK);
+		assertEquals(player.getBoard().getCoordinateSystem().at("c1"), player.bestMove());
 	}
 
 }

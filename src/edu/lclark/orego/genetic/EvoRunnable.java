@@ -1,5 +1,6 @@
 package edu.lclark.orego.genetic;
 
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
@@ -17,6 +18,7 @@ import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import edu.lclark.orego.util.ShortSet;
 
 /**
  * Players use this class to perform multiple Monte Carlo coevolution in
@@ -80,31 +82,33 @@ public class EvoRunnable implements Runnable {
 		if (isValidMove(reply)) {
 			return reply;
 		}
-		reply = phenotype.replyToOneMove(ultimate);
-		if (isValidMove(reply)) {
-			return reply;
-		}
-		reply = phenotype.followUp(penultimate);
-		if (isValidMove(reply)) {
-			return reply;
-		}
-		reply = phenotype.playBigPoint();
-		if (isValidMove(reply)) {
-			return reply;
-		}
+//		reply = phenotype.replyToOneMove(ultimate);
+//		if (isValidMove(reply)) {
+//			return reply;
+//		}
+//		reply = phenotype.followUp(penultimate);
+//		if (isValidMove(reply)) {
+//			return reply;
+//		}
+//		reply = phenotype.playBigPoint();
+//		if (isValidMove(reply)) {
+//			return reply;
+//		}
 		return NO_POINT;
 	}
-	
 
 	public short vote(StoneColor c) {
-		int[] votes = getVotes(c, history.get(board.getTurn() - 2), history.get(board.getTurn() - 1));
-		int maxIndex = 0;
-		for (int i = 0; i < votes.length; i++){
-			if (votes[i] > votes[maxIndex]){
-				maxIndex = i;
+		board.copyDataFrom(player.getBoard());
+		final int[] votes = getVotes(c, history.get(board.getTurn() - 2), history.get(board.getTurn() - 1));
+		short best = PASS;
+		ShortSet vacantPoints = board.getVacantPoints();
+		for (int i = 0; i < vacantPoints.size(); i++) {
+			short p = vacantPoints.get(i);
+			if (votes[p] > votes[best]){
+				best = p;
 			}
 		}
-		return (short) maxIndex;
+		return best;
 	}
 	
 	/**
@@ -112,7 +116,7 @@ public class EvoRunnable implements Runnable {
 	 * two moves.
 	 */
 	public int[] getVotes(StoneColor c, short penultimate, short ultimate) {
-		final CoordinateSystem coords = board.getCoordinateSystem();
+		// TODO Let's not make this array every time
 		int[] result = new int[coords.getFirstPointBeyondBoard()];
 		for (Genotype g : populations[c.index()].getIndividuals()) {
 			phenotypes[0][0].installGenes(g);
@@ -174,7 +178,7 @@ public class EvoRunnable implements Runnable {
 	 */
 	public Color playAgainst(Phenotype black, Phenotype white, boolean mercy) {
 		playoutsCompleted++;
-		final CoordinateSystem coords = board.getCoordinateSystem();
+		board.copyDataFrom(player.getBoard());
 		do {
 			if (board.getTurn() >= coords.getMaxMovesPerGame()) {
 				// Playout ran out of moves, probably due to superko

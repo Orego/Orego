@@ -24,6 +24,8 @@ public class EvoRunnableTest {
 
 	private EvoRunnable runnable;
 
+	private Player player;
+	
 	private short at(String label) {
 		return coords.at(label);
 	}
@@ -32,7 +34,8 @@ public class EvoRunnableTest {
 	public void setUp() throws Exception {
 		CopiableStructure stuff = CopiableStructureFactory
 				.escapePatternCapture(5, 7.5);
-		runnable = new EvoRunnable(null, stuff);
+		player = new Player(2, stuff);
+		runnable = new EvoRunnable(player, stuff);
 		board = runnable.getBoard();
 		coords = board.getCoordinateSystem();
 	}
@@ -59,7 +62,7 @@ public class EvoRunnableTest {
 					".....",
 					"OOOOO",
 					"O...O", };
-			board.setUpProblem(diagram, BLACK);
+			player.getBoard().setUpProblem(diagram, BLACK);
 			assertEquals(WHITE, runnable.performPlayout(true));
 		}
 	}
@@ -77,7 +80,7 @@ public class EvoRunnableTest {
 					".....",
 					"OOOOO",
 					"O...O", };
-			board.setUpProblem(diagram, BLACK);
+			player.getBoard().setUpProblem(diagram, BLACK);
 			assertEquals(WHITE, runnable.playAgainst(black, white, true));
 		}
 	}

@@ -97,12 +97,9 @@ public class Player {
 		coords = board.getCoordinateSystem();
 		historyObserver = copy.get(HistoryObserver.class);
 		finalScorer = copy.get(FinalScorer.class);
-		// TODO Do not hard code population size, individual size
-		populations = new Population[] {new Population(100, 100, coords), new Population(100, 100, coords)};
 		runnables = new EvoRunnable[threads];
 		for (int i = 0; i < runnables.length; i++) {
 			runnables[i] = new EvoRunnable(this, stuff);
-			runnables[i].setPopulations(populations);
 		}
 		book = new DoNothing();
 		timeLeftWasSent = false;
@@ -162,14 +159,12 @@ public class Player {
 				msecPerMove = timeManager.getMsec();
 			} while (msecPerMove > 0);
 		}
-//		long playouts = 0;
-//		for (McRunnable runnable : runnables) {
-//			playouts += runnable.getPlayoutsCompleted();
-//		}
-//		Logging.log("Turn : " + board.getTurn() + " Playouts : " + playouts);
-		// TODO Poll the appropriate population for the best move
+		long playouts = 0;
+		for (EvoRunnable runnable : runnables) {
+			playouts += runnable.getPlayoutsCompleted();
+		}
+		log("Turn : " + board.getTurn() + " Playouts : " + playouts);
 		return runnables[0].vote(board.getColorToPlay());
-				
 	}
 
 	/**
@@ -206,6 +201,9 @@ public class Player {
 		populations = new Population[] {
 				new Population(populationSize, individualLength, coords),
 				new Population(populationSize, individualLength, coords)};
+		for (int i = 0; i < runnables.length; i++) {
+			runnables[i].setPopulations(populations);
+		}
 	}
 
 	/** Stops any running threads. */
@@ -311,6 +309,10 @@ public class Player {
 	/** Returns the scorer. */
 	public FinalScorer getFinalScorer() {
 		return finalScorer;
+	}
+
+	HistoryObserver getHistoryObserver() {
+		return historyObserver;
 	}
 
 	/**
