@@ -49,15 +49,18 @@ public class Population {
 
 	/** Replaces the ith individual in this population with a new genotype made by crossing two random parents and mutating the child. */
 	public void replaceLoser(int i, MersenneTwisterFast random) {
-		Genotype mom = randomGenotype(random);
-		Genotype dad = randomGenotype(random);
-		synchronized (individuals[i]) {
-			synchronized (mom) {
-				synchronized (dad) {
-					mom.cross(dad, individuals[i], random);					
+		int momIndex = random.nextInt(individuals.length);
+		int dadIndex = random.nextInt(individuals.length);
+		int[] indices = {i, momIndex, dadIndex};
+		java.util.Arrays.sort(indices);
+		// Synchronize in nondecreasing order to avoid deadlock
+		synchronized(individuals[indices[0]]) {
+			synchronized(individuals[indices[1]]) {
+				synchronized(individuals[indices[2]]) {
+					individuals[momIndex].cross(individuals[dadIndex], individuals[i], random);										
+					individuals[i].mutate(random, possiblePoints);
 				}
 			}
-			individuals[i].mutate(random, possiblePoints);
 		}
 	}
 
