@@ -97,7 +97,13 @@ public class Player {
 		coords = board.getCoordinateSystem();
 		historyObserver = copy.get(HistoryObserver.class);
 		finalScorer = copy.get(FinalScorer.class);
-		// TODO Create population, McRunnable equivalents
+		// TODO Do not hard code population size, individual size
+		populations = new Population[] {new Population(100, 100, coords), new Population(100, 100, coords)};
+		runnables = new EvoRunnable[threads];
+		for (int i = 0; i < runnables.length; i++) {
+			runnables[i] = new EvoRunnable(this, stuff);
+			runnables[i].setPopulations(populations);
+		}
 		book = new DoNothing();
 		timeLeftWasSent = false;
 	}

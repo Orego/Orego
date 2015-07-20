@@ -227,6 +227,7 @@ public class EvoRunnable implements Runnable {
 			replaceLosers();
 		}
 		log("Playouts completed: " + playoutsCompleted);
+		System.out.println("Playouts completed: " + playoutsCompleted);
 		player.notifyMcRunnableDone();
 	}
 
