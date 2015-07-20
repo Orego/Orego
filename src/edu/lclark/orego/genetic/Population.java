@@ -63,5 +63,13 @@ public class Population {
 		}
 	}
 
+	public void randomize() {
+		// TODO Does someone have a MersenneTwisterFast laying around?
+		MersenneTwisterFast random = new MersenneTwisterFast();
+		for (Genotype g : individuals) {
+			g.randomize(random, possiblePoints);
+		}
+	}
+
 
 }

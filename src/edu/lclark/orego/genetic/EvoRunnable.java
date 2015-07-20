@@ -139,9 +139,8 @@ public class EvoRunnable implements Runnable {
 	}
 
 	/** Returns the number of playouts completed by this runnable. */
-	public int getPlayoutsCompleted() {
-		// TODO Auto-generated method stub
-		return 0;
+	public long getPlayoutsCompleted() {
+		return playoutsCompleted;
 	}
 
 	/** Returns true if p is move not excluded by a priori criteria. */
@@ -227,6 +226,7 @@ public class EvoRunnable implements Runnable {
 			for (int w = 0; w < playIndices[WHITE.index()].length; w++) {
 				Phenotype white = getPhenotype(WHITE, w);
 				Color winner = playAgainst(black, white, mercy);
+				winCounts[winner.index()]++;
 				if (winner == WHITE) {
 					getPhenotype(WHITE, w).setWinCount(
 							getPhenotype(WHITE, w).getWinCount() + 1);
@@ -254,15 +254,19 @@ public class EvoRunnable implements Runnable {
 
 	private long playoutsCompleted;
 	
+	private int[] winCounts;
+	
 	@Override
 	public void run() {
 		playoutsCompleted = 0;
+		winCounts = new int[2];
 		while (player.shouldKeepRunning()) {
 			playTournament(true); // Should that mercy value be read from somewhere?
 			replaceLosers();
 		}
 		log("Playouts completed: " + playoutsCompleted);
 		System.out.println("Playouts completed: " + playoutsCompleted);
+		System.out.println("Black wins " + winCounts[0] + " games, white " + winCounts[1]);
 		player.notifyMcRunnableDone();
 	}
 
