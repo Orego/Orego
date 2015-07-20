@@ -2,7 +2,7 @@ package edu.lclark.orego.genetic;
 
 import static edu.lclark.orego.genetic.Phenotype.IGNORE;
 import static org.junit.Assert.assertEquals;
-
+import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,6 +37,19 @@ public class PhenotypeTest {
 		board.play("a1");
 		board.play("b1");
 		assertEquals(at("d1"), phenotype.replyToTwoMoves(at("a1"), at("b1")));
+	}
+
+	@Test
+	public void testClearReplies() {
+		phenotype.setReply(at("a1"), at("b1"), at("c1"));
+		board.clear();
+		board.play("a1");
+		board.play("b1");
+		assertEquals(at("c1"), phenotype.replyToTwoMoves(at("a1"), at("b1")));
+		int[] words = new int[5 + 5];
+		words[4] = at("a2") | (at("b2") << 9) | (at("c2") << 18);
+		phenotype.installGenes(new Genotype(words));
+		assertEquals(NO_POINT, phenotype.replyToTwoMoves(at("a1"), at("b1")));
 	}
 
 	@Test
