@@ -38,6 +38,7 @@ public class EvoRunnable implements Runnable {
 
 	private final StoneCountObserver mercyObserver;
 
+	/** phenotypes[c][i] is phenotype number i of color c for the current tournament. */
 	private Phenotype[][] phenotypes;
 
 	private Population[] populations;
@@ -174,42 +175,38 @@ public class EvoRunnable implements Runnable {
 	 * stored in loserIndices.
 	 */
 	public void playTournament(boolean mercy) {
+		// Choose contestants and install their genes in phenotypes
 		int[][] playIndices = new int[2][2];
 		for (int color = 0; color < playIndices.length; color++) {
 			for (int i = 0; i < playIndices[color].length; i++) {
-				playIndices[color][i] = random
-						.nextInt(phenotypes[BLACK.index()].length);
+				playIndices[color][i] = random.nextInt(populations[BLACK
+						.index()].size());
+				phenotypes[color][i].installGenes(populations[color]
+						.getIndividuals()[playIndices[color][i]]);
 			}
 		}
+		// Run the tournament
 		for (int b = 0; b < playIndices[BLACK.index()].length; b++) {
+			Phenotype black = getPhenotype(BLACK, b);
 			for (int w = 0; w < playIndices[WHITE.index()].length; w++) {
-				Color winner = playAgainst(
-						getPhenotype(BLACK, playIndices[BLACK.index()][b]),
-						getPhenotype(WHITE, playIndices[WHITE.index()][w]),
-						true);
+				Phenotype white = getPhenotype(WHITE, w);
+				Color winner = playAgainst(black, white, mercy);
 				if (winner == WHITE) {
-					getPhenotype(WHITE, playIndices[WHITE.index()][w])
-							.setWinCount(
-									getPhenotype(WHITE,
-											playIndices[WHITE.index()][w])
-											.getWinCount() + 1);
+					getPhenotype(WHITE, w).setWinCount(
+							getPhenotype(WHITE, w).getWinCount() + 1);
 				} else if (winner == BLACK) {
-					getPhenotype(BLACK, playIndices[BLACK.index()][b])
-							.setWinCount(
-									getPhenotype(BLACK,
-											playIndices[BLACK.index()][b])
-											.getWinCount() + 1);
+					getPhenotype(BLACK, b).setWinCount(
+							getPhenotype(BLACK, b).getWinCount() + 1);
 				}
 			}
 		}
-		loserIndices[BLACK.index()] = getPhenotype(BLACK,
-				playIndices[BLACK.index()][0]).getWinCount() < getPhenotype(
-				BLACK, playIndices[BLACK.index()][0]).getWinCount() ? playIndices[BLACK
-				.index()][0] : playIndices[BLACK.index()][1];
-		loserIndices[WHITE.index()] = getPhenotype(WHITE,
-				playIndices[WHITE.index()][0]).getWinCount() < getPhenotype(
-				WHITE, playIndices[WHITE.index()][0]).getWinCount() ? playIndices[WHITE
-				.index()][0] : playIndices[WHITE.index()][1];
+		// Determine losers
+		loserIndices[BLACK.index()] = getPhenotype(BLACK, 0).getWinCount() < getPhenotype(
+				BLACK, 1).getWinCount() ? playIndices[BLACK.index()][0]
+				: playIndices[BLACK.index()][1];
+		loserIndices[WHITE.index()] = getPhenotype(WHITE, 0).getWinCount() < getPhenotype(
+				WHITE, 1).getWinCount() ? playIndices[WHITE.index()][0]
+				: playIndices[WHITE.index()][1];
 	}
 
 	@Override
