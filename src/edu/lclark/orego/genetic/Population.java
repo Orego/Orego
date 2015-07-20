@@ -2,6 +2,7 @@ package edu.lclark.orego.genetic;
 
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.genetic.Phenotype.IGNORE;
+import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
@@ -59,5 +60,6 @@ public class Population {
 			individuals[i].mutate(random, possiblePoints);
 		}
 	}
+
 
 }

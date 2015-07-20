@@ -119,7 +119,7 @@ public class Player {
 		return legality;
 	}
 
-	/** Runs the McRunnables for some time and then returns the best move. */
+	/** Runs the EvoRunnables for some time and then returns the best move. */
 	public short bestMove() {
 		stopThreads();
 		final short move = book.nextMove(board);
@@ -168,7 +168,8 @@ public class Player {
 //		}
 //		Logging.log("Turn : " + board.getTurn() + " Playouts : " + playouts);
 		// TODO Poll the appropriate population for the best move
-		return PASS;
+		return runnables[0].vote(board.getColorToPlay());
+				
 	}
 
 	/**

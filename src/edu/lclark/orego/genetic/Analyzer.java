@@ -57,8 +57,8 @@ public class Analyzer {
 //			e.printStackTrace();
 //			System.exit(1);
 //		}
-//	}
-//
+////	}
+////
 //	/**
 //	 * Returns the number of votes for each point on the board, given the last
 //	 * two moves.

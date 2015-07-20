@@ -94,6 +94,37 @@ public class EvoRunnable implements Runnable {
 		}
 		return NO_POINT;
 	}
+	
+
+	public short vote(StoneColor c) {
+		int[] votes = getVotes(c, history.get(board.getTurn() - 2), history.get(board.getTurn() - 1));
+		int maxIndex = 0;
+		for (int i = 0; i < votes.length; i++){
+			if (votes[i] > votes[maxIndex]){
+				maxIndex = i;
+			}
+		}
+		return (short) maxIndex;
+	}
+	
+	/**
+	 * Returns the number of votes for each point on the board, given the last
+	 * two moves.
+	 */
+	public int[] getVotes(StoneColor c, short penultimate, short ultimate) {
+		final CoordinateSystem coords = board.getCoordinateSystem();
+		int[] result = new int[coords.getFirstPointBeyondBoard()];
+		for (Genotype g : populations[c.index()].getIndividuals()) {
+			phenotypes[0][0].installGenes(g);
+			result[bestMove(phenotypes[0][0], penultimate, ultimate)]++;
+		}
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (result[p] > 0) {
+				System.out.println(coords.toString(p) + ": " + result[p]);
+			}
+		}
+		return result;
+	}
 
 	public Board getBoard() {
 		return board;
