@@ -4,10 +4,13 @@ import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
 import edu.lclark.orego.core.CoordinateSystem;
 
 /** Instantiated Genotype. */
-public class Phenotype {
+public class Phenotype implements Comparable<Phenotype> {
 
 	/** Indicates that one of the three points in a reply should be ignored. */
 	public static final short IGNORE = RESIGN;
+	
+	/** Index, into a population, of the Genotype that has been loaded into this phenotype. */
+	private int populationIndex;
 	
 	/** Has only the 9 lowest-order bits on. */
 	public static final int MASK9 = (1 << 9) - 1;
@@ -31,7 +34,9 @@ public class Phenotype {
 		return winCount;
 	}
 
-	public void installGenes(Genotype genotype) {
+	public void installGenes(int populationIndex, Genotype genotype) {
+		this.populationIndex = populationIndex;
+		winCount = 0;
 		synchronized (genotype) {
 			int[] words = genotype.getGenes();
 			for (int i = 0; i < replies.length; i++) {
@@ -44,6 +49,10 @@ public class Phenotype {
 						(short) ((words[i] >>> 18) & MASK9));
 			}
 		}
+	}
+
+	public int getPopulationIndex() {
+		return populationIndex;
 	}
 
 	short playBigPoint() {
@@ -64,6 +73,11 @@ public class Phenotype {
 
 	public void setWinCount(int winCount) {
 		this.winCount = winCount;
+	}
+
+	@Override
+	public int compareTo(Phenotype that) {
+		return winCount - that.winCount;
 	}
 
 }

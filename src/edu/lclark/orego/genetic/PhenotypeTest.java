@@ -33,7 +33,7 @@ public class PhenotypeTest {
 		int[] words = new int[5 + 5];
 		words[0] = at("a1") | (at("b1") << 9) | (at("c1") << 18);
 		words[4] = at("a1") | (at("b1") << 9) | (at("d1") << 18);
-		phenotype.installGenes(new Genotype(words));
+		phenotype.installGenes(-1, new Genotype(words));
 		board.play("a1");
 		board.play("b1");
 		assertEquals(at("d1"), phenotype.replyToTwoMoves(at("a1"), at("b1")));
@@ -48,7 +48,7 @@ public class PhenotypeTest {
 		assertEquals(at("c1"), phenotype.replyToTwoMoves(at("a1"), at("b1")));
 		int[] words = new int[5 + 5];
 		words[4] = at("a2") | (at("b2") << 9) | (at("c2") << 18);
-		phenotype.installGenes(new Genotype(words));
+		phenotype.installGenes(-1, new Genotype(words));
 		assertEquals(NO_POINT, phenotype.replyToTwoMoves(at("a1"), at("b1")));
 	}
 

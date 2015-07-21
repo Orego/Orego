@@ -28,7 +28,7 @@ public class PopulationTest {
 		for (int i = 1; i < individuals.length; i++) {
 			individuals[i].setGenes(ones);
 		}
-		population.replaceLoser(0, new MersenneTwisterFast());
+		population.replaceLoser(0, 1, 2, new MersenneTwisterFast());
 		assertFalse(java.util.Arrays.equals(new int[10], individuals[0].getGenes()));
 	}
 

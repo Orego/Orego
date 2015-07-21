@@ -113,7 +113,7 @@ public class EvoRunnable implements Runnable {
 		// TODO Let's not make this array every time
 		int[] result = new int[coords.getFirstPointBeyondBoard()];
 		for (Genotype g : populations[c.index()].getIndividuals()) {
-			phenotypes[0][0].installGenes(g);
+			phenotypes[0][0].installGenes(-1, g);
 			result[bestMove(phenotypes[0][0], penultimate, ultimate)]++;
 		}
 //		for (short p : coords.getAllPointsOnBoard()) {
@@ -154,9 +154,9 @@ public class EvoRunnable implements Runnable {
 	 */
 	public Color performPlayout(boolean mercy) {
 		Phenotype black = phenotypes[BLACK.index()][0];
-		black.installGenes(populations[BLACK.index()].randomGenotype(random));
+		black.installGenes(-1, populations[BLACK.index()].randomGenotype(random));
 		Phenotype white = phenotypes[WHITE.index()][0];
-		white.installGenes(populations[WHITE.index()].randomGenotype(random));
+		white.installGenes(-1, populations[WHITE.index()].randomGenotype(random));
 		return playAgainst(black, white, mercy);
 	}
 
@@ -208,14 +208,12 @@ public class EvoRunnable implements Runnable {
 	 */
 	public void playTournament(boolean mercy) {
 		// Choose contestants and install their genes in phenotypes
-		int[][] playIndices = new int[2][contestants];
-		for (int color = 0; color < playIndices.length; color++) {
+		for (int color = 0; color < 2; color++) {
 			for (int i = 0; i < contestants; i++) {
-				playIndices[color][i] = random.nextInt(populations[BLACK
+				int j = random.nextInt(populations[BLACK
 						.index()].size());
-				phenotypes[color][i].installGenes(populations[color]
-						.getIndividuals()[playIndices[color][i]]);
-				phenotypes[color][i].setWinCount(0);
+				phenotypes[color][i].installGenes(j, populations[color]
+						.getIndividuals()[j]);
 			}
 		}
 		// Run the tournament
@@ -235,27 +233,14 @@ public class EvoRunnable implements Runnable {
 			}
 		}
 		// Determine losers
-		loserIndices[BLACK.index()] = 0;
-		loserIndices[WHITE.index()] = 0;
-		for (int i = 1; i < contestants; i++) {
-			if (getPhenotype(BLACK, i).getWinCount() < getPhenotype(
-					BLACK, loserIndices[BLACK.index()]).getWinCount()) {
-					loserIndices[BLACK.index()] = i;
-				}
-			if (getPhenotype(WHITE, i).getWinCount() < getPhenotype(
-					WHITE, loserIndices[WHITE.index()]).getWinCount()) {
-					loserIndices[WHITE.index()] = i;
-				}
-		}
-		// Convert indices in phenotypes into indices into populations
-		loserIndices[BLACK.index()] = playIndices[BLACK.index()][loserIndices[BLACK.index()]];
-		loserIndices[WHITE.index()] = playIndices[WHITE.index()][loserIndices[WHITE.index()]];
-	}
-
-	/** Replaces the losers indicated by loserIndices with new individuals. */
-	public void replaceLosers() {
+		java.util.Arrays.sort(phenotypes[BLACK.index()]);
+		java.util.Arrays.sort(phenotypes[WHITE.index()]);
+		// Replace the losers
 		for (int c = 0; c < 2; c++) {
-			populations[c].replaceLoser(loserIndices[c], random);
+			populations[c].replaceLoser(phenotypes[c][0].getPopulationIndex(),
+					phenotypes[c][phenotypes[c].length - 1].getPopulationIndex(),
+					phenotypes[c][phenotypes[c].length - 2].getPopulationIndex(),
+					random);
 		}
 	}
 
@@ -269,7 +254,6 @@ public class EvoRunnable implements Runnable {
 		winCounts = new int[2];
 		while (player.shouldKeepRunning()) {
 			playTournament(true); // Should that mercy value be read from somewhere?
-			replaceLosers();
 		}
 		log("Playouts completed: " + playoutsCompleted);
 //		System.out.println("Playouts completed: " + playoutsCompleted);
