@@ -57,12 +57,6 @@ public class EvoRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		this.board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
-		phenotypes = new Phenotype[2][ENTRANTS];
-		for (int color = 0; color < phenotypes.length; color++) {
-			for (int i = 0; i < phenotypes[color].length; i++) {
-				phenotypes[color][i] = new Phenotype(coords);
-			}
-		}
 		history = copy.get(HistoryObserver.class);
 		filter = copy.get(Conjunction.class);
 		fallbackMover = copy.get(Mover.class);
@@ -122,11 +116,11 @@ public class EvoRunnable implements Runnable {
 			phenotypes[0][0].installGenes(g);
 			result[bestMove(phenotypes[0][0], penultimate, ultimate)]++;
 		}
-		for (short p : coords.getAllPointsOnBoard()) {
-			if (result[p] > 0) {
-				System.out.println(coords.toString(p) + ": " + result[p]);
-			}
-		}
+//		for (short p : coords.getAllPointsOnBoard()) {
+//			if (result[p] > 0) {
+//				System.out.println(coords.toString(p) + ": " + result[p]);
+//			}
+//		}
 		return result;
 	}
 
@@ -204,7 +198,8 @@ public class EvoRunnable implements Runnable {
 		} while (true);
 	}
 
-	private final int ENTRANTS = 6;
+	/** Number of contestants of each color in a tournament. */
+	private int contestants;
 	
 	/**
 	 * Plays a tournament among two pairs of individuals -- one from each
@@ -213,9 +208,9 @@ public class EvoRunnable implements Runnable {
 	 */
 	public void playTournament(boolean mercy) {
 		// Choose contestants and install their genes in phenotypes
-		int[][] playIndices = new int[2][ENTRANTS];
+		int[][] playIndices = new int[2][contestants];
 		for (int color = 0; color < playIndices.length; color++) {
-			for (int i = 0; i < playIndices[color].length; i++) {
+			for (int i = 0; i < contestants; i++) {
 				playIndices[color][i] = random.nextInt(populations[BLACK
 						.index()].size());
 				phenotypes[color][i].installGenes(populations[color]
@@ -223,9 +218,9 @@ public class EvoRunnable implements Runnable {
 			}
 		}
 		// Run the tournament
-		for (int b = 0; b < playIndices[BLACK.index()].length; b++) {
+		for (int b = 0; b < contestants; b++) {
 			Phenotype black = getPhenotype(BLACK, b);
-			for (int w = 0; w < playIndices[WHITE.index()].length; w++) {
+			for (int w = 0; w < contestants; w++) {
 				Phenotype white = getPhenotype(WHITE, w);
 				Color winner = playAgainst(black, white, mercy);
 				winCounts[winner.index()]++;
@@ -239,12 +234,21 @@ public class EvoRunnable implements Runnable {
 			}
 		}
 		// Determine losers
-		loserIndices[BLACK.index()] = getPhenotype(BLACK, 0).getWinCount() < getPhenotype(
-				BLACK, 1).getWinCount() ? playIndices[BLACK.index()][0]
-				: playIndices[BLACK.index()][1];
-		loserIndices[WHITE.index()] = getPhenotype(WHITE, 0).getWinCount() < getPhenotype(
-				WHITE, 1).getWinCount() ? playIndices[WHITE.index()][0]
-				: playIndices[WHITE.index()][1];
+		loserIndices[BLACK.index()] = 0;
+		loserIndices[WHITE.index()] = 0;
+		for (int i = 1; i < contestants; i++) {
+			if (getPhenotype(BLACK, i).getWinCount() < getPhenotype(
+					BLACK, loserIndices[BLACK.index()]).getWinCount()) {
+					loserIndices[BLACK.index()] = i;
+				}
+			if (getPhenotype(WHITE, i).getWinCount() < getPhenotype(
+					WHITE, loserIndices[WHITE.index()]).getWinCount()) {
+					loserIndices[WHITE.index()] = i;
+				}
+		}
+		// Convert indices in phenotypes into indices into populations
+		loserIndices[BLACK.index()] = playIndices[BLACK.index()][loserIndices[BLACK.index()]];
+		loserIndices[WHITE.index()] = playIndices[WHITE.index()][loserIndices[WHITE.index()]];
 	}
 
 	/** Replaces the losers indicated by loserIndices with new individuals. */
@@ -267,8 +271,8 @@ public class EvoRunnable implements Runnable {
 			replaceLosers();
 		}
 		log("Playouts completed: " + playoutsCompleted);
-		System.out.println("Playouts completed: " + playoutsCompleted);
-		System.out.println("Black wins " + winCounts[0] + " games, white " + winCounts[1]);
+//		System.out.println("Playouts completed: " + playoutsCompleted);
+//		System.out.println("Black wins " + winCounts[0] + " games, white " + winCounts[1]);
 		player.notifyMcRunnableDone();
 	}
 
@@ -280,6 +284,16 @@ public class EvoRunnable implements Runnable {
 			return fallbackMover.selectAndPlayOneMove(random, fast);
 		}
 		return p;
+	}
+
+	public void setContestants(int contestants) {
+		this.contestants = contestants;
+		phenotypes = new Phenotype[2][contestants];
+		for (int color = 0; color < phenotypes.length; color++) {
+			for (int i = 0; i < contestants; i++) {
+				phenotypes[color][i] = new Phenotype(coords);
+			}
+		}
 	}
 
 	public void setPopulations(Population[] populations) {

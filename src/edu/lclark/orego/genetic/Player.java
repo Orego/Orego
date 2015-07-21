@@ -103,6 +103,7 @@ public class Player {
 		timeLeftWasSent = false;
 	}
 
+
 	/** Plays at p on this player's board. */
 	public Legality acceptMove(short point) {
 		stopThreads();
@@ -203,6 +204,12 @@ public class Player {
 		for (int i = 0; i < runnables.length; i++) {
 			runnables[i].setPopulations(populations);
 		}
+	}
+
+	public void setContestants(int contestants) {
+		for (int i = 0; i < runnables.length; i++) {
+			runnables[i].setContestants(contestants);
+		}		
 	}
 
 	/** Stops any running threads. */

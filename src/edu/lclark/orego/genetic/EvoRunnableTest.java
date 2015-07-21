@@ -36,6 +36,7 @@ public class EvoRunnableTest {
 				.escapePatternCapture(5, 7.5);
 		player = new Player(2, stuff);
 		runnable = new EvoRunnable(player, stuff);
+		runnable.setContestants(2);
 		board = runnable.getBoard();
 		coords = board.getCoordinateSystem();
 	}

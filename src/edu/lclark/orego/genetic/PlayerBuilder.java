@@ -30,6 +30,8 @@ public class PlayerBuilder {
 
 	private int width;
 
+	private int contestants;
+	
 	public PlayerBuilder() {
 		// Default values
 		komi = 7.5;
@@ -42,10 +44,16 @@ public class PlayerBuilder {
 		coupDeGrace = false;
 		populationSize = 10000;
 		individualLength = 2000;
+		contestants = 2;
 	}
 
 	public PlayerBuilder populationSize(int populationSize) {
 		this.populationSize = populationSize;
+		return this;
+	}
+	
+	public PlayerBuilder contestants(int contestants) {
+		this.contestants = contestants;
 		return this;
 	}
 	
@@ -77,6 +85,7 @@ public class PlayerBuilder {
 		}
 		result.setMsecPerMove(msecPerMove);
 		result.ponder(ponder);
+		result.setContestants(contestants);
 		result.createPopulations(populationSize, individualLength);
 		result.clear();
 		return result;
