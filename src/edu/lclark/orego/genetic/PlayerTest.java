@@ -11,7 +11,7 @@ public class PlayerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().populationSize(2000).individualLength(2000).msecPerMove(60000).threads(5).boardWidth(5).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(20000).individualLength(2000).msecPerMove(600000).threads(5).boardWidth(5).openingBook(false).build();
 	}
 
 	@Test
