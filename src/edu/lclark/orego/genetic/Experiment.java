@@ -37,12 +37,16 @@ public class Experiment {
 		final String outFile = resultsDirectory + "results-"
 				+ timeStamp(false) + ".txt";
 		try (PrintWriter out = new PrintWriter(outFile)) {
+			System.out.println("Inside try block");
 			for (int time : new int[] {100, 200}) {
 				for (int contestants : new int[] {2, 6}) {
 //					for (int time : new int[] {1000, 2000, 4000, 8000, 16000, 32000, 64000}) {
 //						for (int contestants : new int[] {2, 3, 4, 5, 6}) {
 					int count = 0;
 					for (int trial = 0; trial < 50; trial++) {
+						System.out.println("Inside innermost loop");
+						out.println("Starting trial...");
+						out.flush();
 						Player player = new PlayerBuilder().populationSize(20000).individualLength(2000).msecPerMove(time).threads(32).boardWidth(9).contestants(contestants).openingBook(false).build();
 						String[] diagram = {
 								".#######.",
@@ -59,6 +63,8 @@ public class Experiment {
 						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
 							count++;
 						}
+						out.println("...finished");
+						out.flush();
 					}
 					out.println(time + " msec, " + contestants + " contestants: " + count + "/50");
 					out.flush();
