@@ -215,6 +215,7 @@ public class EvoRunnable implements Runnable {
 						.index()].size());
 				phenotypes[color][i].installGenes(populations[color]
 						.getIndividuals()[playIndices[color][i]]);
+				phenotypes[color][i].setWinCount(0);
 			}
 		}
 		// Run the tournament
@@ -225,10 +226,10 @@ public class EvoRunnable implements Runnable {
 				Color winner = playAgainst(black, white, mercy);
 				winCounts[winner.index()]++;
 				if (winner == WHITE) {
-					getPhenotype(WHITE, w).setWinCount(
+					white.setWinCount(
 							getPhenotype(WHITE, w).getWinCount() + 1);
 				} else if (winner == BLACK) {
-					getPhenotype(BLACK, b).setWinCount(
+					black.setWinCount(
 							getPhenotype(BLACK, b).getWinCount() + 1);
 				}
 			}
