@@ -61,6 +61,7 @@ public class Experiment {
 						}
 					}
 					out.println(time + " msec, " + contestants + " contestants: " + count + "/50");
+					out.flush();
 				}
 			}
 		}
