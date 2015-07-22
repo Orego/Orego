@@ -76,18 +76,18 @@ public class EvoRunnable implements Runnable {
 		if (isValidMove(reply)) {
 			return reply;
 		}
-//		reply = phenotype.replyToOneMove(ultimate);
-//		if (isValidMove(reply)) {
-//			return reply;
-//		}
-//		reply = phenotype.followUp(penultimate);
-//		if (isValidMove(reply)) {
-//			return reply;
-//		}
-//		reply = phenotype.playBigPoint();
-//		if (isValidMove(reply)) {
-//			return reply;
-//		}
+		reply = phenotype.replyToOneMove(ultimate);
+		if (isValidMove(reply)) {
+			return reply;
+		}
+		reply = phenotype.followUp(penultimate);
+		if (isValidMove(reply)) {
+			return reply;
+		}
+		reply = phenotype.playBigPoint();
+		if (isValidMove(reply)) {
+			return reply;
+		}
 		return NO_POINT;
 	}
 
