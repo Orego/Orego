@@ -1,12 +1,13 @@
 package edu.lclark.orego.genetic;
 
-import static edu.lclark.orego.genetic.Genotype.*;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
+import static edu.lclark.orego.genetic.Genotype.makeGene;
 import static edu.lclark.orego.genetic.Phenotype.IGNORE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -119,6 +120,42 @@ public class EvoRunnableTest {
 		white.setReply(NO_POINT, at("c3"), at("d3"));
 		assertEquals(at("c3"), runnable.selectAndPlayOneMove(black, true));
 		assertEquals(at("d3"), runnable.selectAndPlayOneMove(white, true));
+	}
+	
+	@Test
+	public void testNextGene() {
+		String[] diagram = {
+				"#.#.#",
+				"#####",
+				"#O#O#",
+				"OOOOO",
+				"O...O", };
+		player.getBoard().setUpProblem(diagram, BLACK);
+		int gene = runnable.nextGene();
+		int option1 = NO_POINT | (NO_POINT << 9) | (at("b1") << 18);
+		int option2 = NO_POINT | (NO_POINT << 9) | (at("c1") << 18);
+		int option3 = NO_POINT | (NO_POINT << 9) | (at("d1") << 18);
+		assertTrue(option1 == gene || option2 == gene || option3 == gene);
+	}
+
+	@Test
+	public void testNextGene2() {
+		String[] diagram = {
+				"#.#.#",
+				"#####",
+				"#O#O#",
+				"OOOOO",
+				"O...O", };
+		player.getBoard().setUpProblem(diagram, BLACK);
+		runnable.nextGene();
+		int gene = runnable.nextGene();
+		int option1 = NO_POINT | (at("b1") << 9) | (at("c1") << 18);
+		int option2 = NO_POINT | (at("b1") << 9) | (at("d1") << 18);
+		int option3 = NO_POINT | (at("c1") << 9) | (at("b1") << 18);
+		int option4 = NO_POINT | (at("c1") << 9) | (at("d1") << 18);
+		int option5 = NO_POINT | (at("d1") << 9) | (at("b1") << 18);
+		int option6 = NO_POINT | (at("d1") << 9) | (at("c1") << 18);
+		assertTrue(option1 == gene || option2 == gene || option3 == gene || option4 == gene || option5 == gene || option6 == gene);
 	}
 
 }

@@ -8,6 +8,8 @@ import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.experiment.Logging.log;
 
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
@@ -55,6 +57,29 @@ public class EvoRunnable implements Runnable {
 
 	private final ChinesePlayoutScorer scorer;
 
+	private final Queue<Integer> plausibleGenes;
+	
+	/** Returns a gene for a reply that might happen at some point in the future. */
+	public int nextGene() {
+		if (!plausibleGenes.isEmpty()) {
+			return plausibleGenes.poll();
+		}
+		generatePlausibleGenes();
+		return plausibleGenes.poll();
+	}
+
+	/** Adds some genes to plausibleGenes. */
+	private void generatePlausibleGenes() {
+		board.copyDataFrom(player.getBoard());
+		while (board.getPasses() == 0) {
+			fallbackMover.selectAndPlayOneMove(random, true);
+			int penultimate = history.get(board.getTurn() - 3);
+			int ultimate = history.get(board.getTurn() - 2);
+			int reply = history.get(board.getTurn() - 1);
+			plausibleGenes.offer(penultimate | (ultimate << 9) | (reply << 18));
+		}
+	}
+
 	public EvoRunnable(Player player, CopiableStructure stuff) {
 		random = new MersenneTwisterFast();
 		final CopiableStructure copy = stuff.copy();
@@ -67,6 +92,7 @@ public class EvoRunnable implements Runnable {
 		mercyObserver = copy.get(StoneCountObserver.class);
 		loserIndices = new int[2];
 		this.player = player;
+		plausibleGenes = new LinkedList<>();
 	}
 
 	public short bestMove(Phenotype phenotype) {
