@@ -21,6 +21,7 @@ import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.feature.StoneCountObserver;
 import edu.lclark.orego.mcts.CopiableStructure;
 import edu.lclark.orego.move.Mover;
+import edu.lclark.orego.move.PredicateMover;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 import edu.lclark.orego.util.ShortSet;
@@ -59,6 +60,8 @@ public class EvoRunnable implements Runnable {
 
 	private final Queue<Integer> plausibleGenes;
 	
+	private final PredicateMover plausibleGeneMover;
+	
 	/** Returns a gene for a reply that might happen at some point in the future. */
 	public int nextGene() {
 		if (!plausibleGenes.isEmpty()) {
@@ -70,12 +73,15 @@ public class EvoRunnable implements Runnable {
 
 	/** Adds some genes to plausibleGenes. */
 	private void generatePlausibleGenes() {
+		// TODO What about the opening book here?
 		board.copyDataFrom(player.getBoard());
+//		System.out.println("Board copied from player:\n" + board);
 		while (board.getPasses() == 0) {
-			fallbackMover.selectAndPlayOneMove(random, true);
+			plausibleGeneMover.selectAndPlayOneMove(random, true);
 			int penultimate = history.get(board.getTurn() - 3);
 			int ultimate = history.get(board.getTurn() - 2);
 			int reply = history.get(board.getTurn() - 1);
+//			System.out.println("Generated " + coords.toString((short)penultimate) + ", " + coords.toString((short)ultimate) + " -> " + coords.toString((short)reply));
 			plausibleGenes.offer(penultimate | (ultimate << 9) | (reply << 18));
 		}
 	}
@@ -83,10 +89,11 @@ public class EvoRunnable implements Runnable {
 	public EvoRunnable(Player player, CopiableStructure stuff) {
 		random = new MersenneTwisterFast();
 		final CopiableStructure copy = stuff.copy();
-		this.board = copy.get(Board.class);
+		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
 		history = copy.get(HistoryObserver.class);
 		filter = copy.get(Conjunction.class);
+		plausibleGeneMover = new PredicateMover(board, filter);
 		fallbackMover = copy.get(Mover.class);
 		scorer = copy.get(ChinesePlayoutScorer.class);
 		mercyObserver = copy.get(StoneCountObserver.class);
@@ -271,7 +278,7 @@ public class EvoRunnable implements Runnable {
 					phenotypes[c][phenotypes[c].length - 1]
 							.getPopulationIndex(),
 					phenotypes[c][phenotypes[c].length - 2]
-							.getPopulationIndex(), random);
+							.getPopulationIndex(), random, this);
 		}
 		// Release locks on contestants
 		for (int color = 0; color < 2; color++) {

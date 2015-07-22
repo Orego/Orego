@@ -12,24 +12,21 @@ public class Population {
 
 	private Genotype[] individuals;
 
-	/** Points that can appear in genes: on-board points, NO_POINT, and IGNORE. */
-	private final short[] possiblePoints;
-	
-	public Population(int individualCount, int numberOfReplies, CoordinateSystem coords) {
-		final MersenneTwisterFast random = new MersenneTwisterFast();
-		possiblePoints = new short[coords.getArea() + 2];
-		int i = 0;
-		for (short p : coords.getAllPointsOnBoard()) {
-			possiblePoints[i] = p;
-			i++;
-		}
-		possiblePoints[i] = NO_POINT;
-		i++;
-		possiblePoints[i] = IGNORE;
+	public Population(int individualCount, int numberOfReplies, CoordinateSystem coords, EvoRunnable runnable) {
+//		final MersenneTwisterFast random = new MersenneTwisterFast();
+//		possiblePoints = new short[coords.getArea() + 2];
+//		int i = 0;
+//		for (short p : coords.getAllPointsOnBoard()) {
+//			possiblePoints[i] = p;
+//			i++;
+//		}
+//		possiblePoints[i] = NO_POINT;
+//		i++;
+//		possiblePoints[i] = IGNORE;
 		individuals = new Genotype[individualCount];
-		for (i = 0; i < individualCount; i++) {
+		for (int i = 0; i < individualCount; i++) {
 			individuals[i] = new Genotype(numberOfReplies);
-			individuals[i].randomize(random, possiblePoints);
+			individuals[i].initialize(runnable);
 		}
 	}
 	
@@ -47,7 +44,7 @@ public class Population {
 	}
 
 	/** Replaces the childIndexth individual in this population with a new genotype made by crossing individuals momIndex, dadIndex and mutating the child. */
-	public void replaceLoser(int childIndex, int momIndex, int dadIndex, MersenneTwisterFast random) {
+	public void replaceLoser(int childIndex, int momIndex, int dadIndex, MersenneTwisterFast random, EvoRunnable runnable) {
 //		int[] indices = {childIndex, momIndex, dadIndex};
 //		java.util.Arrays.sort(indices);
 //		// Synchronize in nondecreasing order to avoid deadlock
@@ -55,17 +52,15 @@ public class Population {
 //			synchronized(individuals[indices[1]]) {
 //				synchronized(individuals[indices[2]]) {
 					individuals[momIndex].cross(individuals[dadIndex], individuals[childIndex], random);										
-					individuals[childIndex].mutate(random, possiblePoints);
+					individuals[childIndex].mutate(random, runnable);
 //				}
 //			}
 //		}
 	}
 
-	public void randomize() {
-		// TODO Does someone have a MersenneTwisterFast laying around?
-		MersenneTwisterFast random = new MersenneTwisterFast();
+	public void initialize(EvoRunnable runnable) {
 		for (Genotype g : individuals) {
-			g.randomize(random, possiblePoints);
+			g.initialize(runnable);
 		}
 	}
 

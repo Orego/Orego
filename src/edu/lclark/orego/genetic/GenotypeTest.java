@@ -35,7 +35,9 @@ public class GenotypeTest {
 		Genotype a = new Genotype(new int[] {0, 0, 0});
 		MersenneTwisterFast random = new MersenneTwisterFast();
 		short[] points = {1, 2};		
-		a.mutate(random, points);
+		Player player = new PlayerBuilder().populationSize(100).individualLength(10).boardWidth(5).build();
+		EvoRunnable runnable = player.getEvoRunnable(0);
+		a.mutate(random, runnable);
 		int count = 0;
 		for (int gene : a.getGenes()) {
 			if (gene != 0) {

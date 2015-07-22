@@ -51,7 +51,7 @@ public class EvoRunnableTest {
 
 	@Test
 	public void testPerformPlayout() {
-		final Population[] populations = {new Population(5, 10, coords), new Population(5, 10, coords)};
+		final Population[] populations = {new Population(5, 10, coords, runnable), new Population(5, 10, coords, runnable)};
 		for (int i = 0; i < populations[0].size(); i++) {
 			populations[0].getIndividuals()[i].setGenes(new int[] {makeGene(IGNORE, IGNORE, at("a3")), 0, 0, 0, 0});
 			populations[1].getIndividuals()[i].setGenes(new int[] {makeGene(IGNORE, IGNORE, at("c1")), 0, 0, 0, 0});

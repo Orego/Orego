@@ -12,7 +12,7 @@ public class PlayerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().populationSize(2000).individualLength(2000).msecPerMove(1000).threads(5).boardWidth(5).contestants(6).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(1000).threads(5).boardWidth(5).contestants(6).openingBook(false).build();
 	}
 
 	@Test
@@ -29,12 +29,13 @@ public class PlayerTest {
 				"OOOOO",
 				"O...O", };
 		player.getBoard().setUpProblem(diagram, BLACK);
+		player.createPopulations(2000, 2000);
 		assertEquals(player.getBoard().getCoordinateSystem().at("c1"), player.bestMove());
 	}
 	
 	@Test
 	public void testBestMove2() {
-		player = new PlayerBuilder().populationSize(6000).individualLength(2000).msecPerMove(120000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(20000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
 		String[] diagram = {
 				".#######.",
 				"#########",
@@ -47,6 +48,7 @@ public class PlayerTest {
 				"OOOO.OOOO",
 				};
 		player.getBoard().setUpProblem(diagram, BLACK);
+		player.createPopulations(2000, 2000);
 		assertEquals(player.getBoard().getCoordinateSystem().at("e2"), player.bestMove());
 	}
 

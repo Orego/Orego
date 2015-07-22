@@ -192,15 +192,15 @@ public class Player {
 	public void clear() {
 		stopThreads();
 		board.clear();
-		populations[BLACK.index()].randomize();
-		populations[WHITE.index()].randomize();
+		populations[BLACK.index()].initialize(runnables[0]);
+		populations[WHITE.index()].initialize(runnables[0]);
 		cleanupMode = false;
 	}
 
 	public void createPopulations(int populationSize, int individualLength) {
 		populations = new Population[] {
-				new Population(populationSize, individualLength, coords),
-				new Population(populationSize, individualLength, coords)};
+				new Population(populationSize, individualLength, coords, runnables[0]),
+				new Population(populationSize, individualLength, coords, runnables[0])};
 		for (int i = 0; i < runnables.length; i++) {
 			runnables[i].setPopulations(populations);
 		}

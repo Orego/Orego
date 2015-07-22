@@ -47,7 +47,7 @@ public class Experiment {
 //						System.out.println("Inside innermost loop");
 //						out.println("Starting trial...");
 //						out.flush();
-						Player player = new PlayerBuilder().populationSize(6000).individualLength(2000).msecPerMove(time).threads(32).boardWidth(9).contestants(contestants).openingBook(false).build();
+						Player player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(time).threads(32).boardWidth(9).contestants(contestants).openingBook(false).build();
 						String[] diagram = {
 								".#######.",
 								"#########",
@@ -60,6 +60,7 @@ public class Experiment {
 								"OOOO.OOOO",
 								};
 						player.getBoard().setUpProblem(diagram, BLACK);
+						player.createPopulations(2000, 2000);
 						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
 							count++;
 						}

@@ -4,17 +4,19 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 public class PopulationTest {
 
 	private Population population;
 	
+	private EvoRunnable runnable;
+	
 	@Before
 	public void setUp() throws Exception {
-		population = new Population(100, 10, CoordinateSystem.forWidth(5));
+		Player player = new PlayerBuilder().populationSize(100).individualLength(10).boardWidth(5).build();
+		runnable = player.getEvoRunnable(0);
+		population = player.getPopulations()[0];
 	}
 
 	@Test
@@ -28,7 +30,7 @@ public class PopulationTest {
 		for (int i = 1; i < individuals.length; i++) {
 			individuals[i].setGenes(ones);
 		}
-		population.replaceLoser(0, 1, 2, new MersenneTwisterFast());
+		population.replaceLoser(0, 1, 2, new MersenneTwisterFast(), runnable);
 		assertFalse(java.util.Arrays.equals(new int[10], individuals[0].getGenes()));
 	}
 

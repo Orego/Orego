@@ -41,8 +41,8 @@ public class Genotype {
 	}
 
 	/** Randomly replaces one of the genes in this Genotype. */
-	public void mutate(MersenneTwisterFast random, short[] possiblePoints) {
-		genes[random.nextInt(genes.length)] = randomGene(random, possiblePoints);
+	public void mutate(MersenneTwisterFast random, EvoRunnable runnable) {
+		genes[random.nextInt(genes.length)] = runnable.nextGene();
 	}
 
 	@SuppressWarnings("static-method")
@@ -58,15 +58,14 @@ public class Genotype {
 		return penultimate | (ultimate << 9) | (reply << 18);
 	}
 
-	/** Fills this Genotype with random genes. */
-	public void randomize(MersenneTwisterFast random, short[] possiblePoints) {
-		for (int i = 0; i < genes.length; i++) {
-			genes[i] = randomGene(random, possiblePoints);
-		}
-	}
-
 	public void setGenes(int[] genes) {
 		this.genes = genes;
+	}
+
+	public void initialize(EvoRunnable runnable) {
+		for (int i = 0; i < genes.length; i++) {
+			genes[i] = runnable.nextGene();
+		}
 	}
 
 }
