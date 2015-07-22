@@ -6,6 +6,9 @@ import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.experiment.Logging.log;
+
+import java.util.Comparator;
+
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
@@ -200,7 +203,7 @@ public class EvoRunnable implements Runnable {
 
 	/** Number of contestants of each color in a tournament. */
 	private int contestants;
-	
+			
 	/**
 	 * Plays a tournament among two pairs of individuals -- one from each
 	 * population. The indices of the individuals with the fewest wins are
@@ -210,10 +213,13 @@ public class EvoRunnable implements Runnable {
 		// Choose contestants and install their genes in phenotypes
 		for (int color = 0; color < 2; color++) {
 			for (int i = 0; i < contestants; i++) {
-				int j = random.nextInt(populations[BLACK
-						.index()].size());
-				phenotypes[color][i].installGenes(j, populations[color]
-						.getIndividuals()[j]);
+				int j;
+				do {
+					j = random.nextInt(populations[BLACK.index()].size());
+				} while (!populations[color].getIndividuals()[j].getLock()
+						.tryLock());
+				phenotypes[color][i].installGenes(j,
+						populations[color].getIndividuals()[j]);
 			}
 		}
 		// Run the tournament
@@ -224,11 +230,9 @@ public class EvoRunnable implements Runnable {
 				Color winner = playAgainst(black, white, mercy);
 				winCounts[winner.index()]++;
 				if (winner == WHITE) {
-					white.setWinCount(
-							getPhenotype(WHITE, w).getWinCount() + 1);
+					white.setWinCount(getPhenotype(WHITE, w).getWinCount() + 1);
 				} else if (winner == BLACK) {
-					black.setWinCount(
-							getPhenotype(BLACK, b).getWinCount() + 1);
+					black.setWinCount(getPhenotype(BLACK, b).getWinCount() + 1);
 				}
 			}
 		}
@@ -238,9 +242,16 @@ public class EvoRunnable implements Runnable {
 		// Replace the losers
 		for (int c = 0; c < 2; c++) {
 			populations[c].replaceLoser(phenotypes[c][0].getPopulationIndex(),
-					phenotypes[c][phenotypes[c].length - 1].getPopulationIndex(),
-					phenotypes[c][phenotypes[c].length - 2].getPopulationIndex(),
-					random);
+					phenotypes[c][phenotypes[c].length - 1]
+							.getPopulationIndex(),
+					phenotypes[c][phenotypes[c].length - 2]
+							.getPopulationIndex(), random);
+		}
+		// Release locks on contestants
+		for (int color = 0; color < 2; color++) {
+			for (int i = 0; i < contestants; i++) {
+				populations[color].getIndividuals()[phenotypes[color][i].getPopulationIndex()].getLock().unlock();
+			}
 		}
 	}
 

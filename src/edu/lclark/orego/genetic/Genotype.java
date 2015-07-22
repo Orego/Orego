@@ -1,5 +1,7 @@
 package edu.lclark.orego.genetic;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /** A set of genes. */
@@ -7,16 +9,23 @@ public class Genotype {
 
 	private int[] genes;
 	
+	private final ReentrantLock lock;
+	
 	/**
 	 * @param length
 	 *            The number of genes in this genotype.
 	 */
 	public Genotype(int length) {
-		genes = new int[length];
+		this(new int[length]);
+	}
+
+	public ReentrantLock getLock() {
+		return lock;
 	}
 
 	public Genotype(int[] genes) {
 		this.genes = genes;
+		lock = new ReentrantLock();
 	}
 
 	/** Crosses this and that, overwriting the genes of child with the result. */

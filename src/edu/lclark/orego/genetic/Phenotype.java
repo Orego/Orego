@@ -37,7 +37,7 @@ public class Phenotype implements Comparable<Phenotype> {
 	public void installGenes(int populationIndex, Genotype genotype) {
 		this.populationIndex = populationIndex;
 		winCount = 0;
-		synchronized (genotype) {
+//		synchronized (genotype) {
 			int[] words = genotype.getGenes();
 			for (int i = 0; i < replies.length; i++) {
 				java.util.Arrays.fill(replies[i], (short) 0);
@@ -48,7 +48,7 @@ public class Phenotype implements Comparable<Phenotype> {
 						(short) ((words[i] >>> 9) & MASK9),
 						(short) ((words[i] >>> 18) & MASK9));
 			}
-		}
+//		}
 	}
 
 	public int getPopulationIndex() {
