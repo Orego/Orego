@@ -119,11 +119,11 @@ public class EvoRunnable implements Runnable {
 			phenotypes[0][0].installGenes(-1, g);
 			result[bestMove(phenotypes[0][0], penultimate, ultimate)]++;
 		}
-//		for (short p : coords.getAllPointsOnBoard()) {
-//			if (result[p] > 0) {
-//				System.out.println(coords.toString(p) + ": " + result[p]);
-//			}
-//		}
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (result[p] > 0) {
+				System.out.println(coords.toString(p) + ": " + result[p]);
+			}
+		}
 		return result;
 	}
 

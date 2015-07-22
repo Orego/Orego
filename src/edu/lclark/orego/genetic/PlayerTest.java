@@ -2,6 +2,7 @@ package edu.lclark.orego.genetic;
 
 import static org.junit.Assert.*;
 import static edu.lclark.orego.core.StoneColor.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +30,24 @@ public class PlayerTest {
 				"O...O", };
 		player.getBoard().setUpProblem(diagram, BLACK);
 		assertEquals(player.getBoard().getCoordinateSystem().at("c1"), player.bestMove());
+	}
+	
+	@Test
+	public void testBestMove2() {
+		player = new PlayerBuilder().populationSize(6000).individualLength(2000).msecPerMove(120000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
+		String[] diagram = {
+				".#######.",
+				"#########",
+				"#########",
+				"#########",
+				"OOOOOOOOO",
+				"OOOOOOOOO",
+				"OOO..OOOO",
+				"OOO...OOO",
+				"OOOO.OOOO",
+				};
+		player.getBoard().setUpProblem(diagram, BLACK);
+		assertEquals(player.getBoard().getCoordinateSystem().at("e2"), player.bestMove());
 	}
 
 }
