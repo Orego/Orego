@@ -118,6 +118,7 @@ public class EvoRunnable implements Runnable {
 		mercyObserver = copy.get(StoneCountObserver.class);
 		this.player = player;
 		plausibleGenes = new Queue[] {new LinkedList<>(), new LinkedList<>()};
+		champions = new Phenotype[] {new Phenotype(coords), new Phenotype(coords)};
 	}
 
 	public short bestMove(Phenotype phenotype) {
@@ -254,7 +255,9 @@ public class EvoRunnable implements Runnable {
 
 	/** Number of contestants of each color in a tournament. */
 	private int contestants;
-			
+		
+	private Phenotype[] champions;
+	
 	/**
 	 * Plays a tournament among two pairs of individuals -- one from each
 	 * population. The indices of the individuals with the fewest wins are
@@ -281,15 +284,45 @@ public class EvoRunnable implements Runnable {
 				Color winner = playAgainst(black, white, mercy);
 				winCounts[winner.index()]++;
 				if (winner == WHITE) {
-					white.setWinCount(getPhenotype(WHITE, w).getWinCount() + 1);
+					white.setWinCount(white.getWinCount() + 1);
 				} else if (winner == BLACK) {
-					black.setWinCount(getPhenotype(BLACK, b).getWinCount() + 1);
+					black.setWinCount(black.getWinCount() + 1);
 				}
 			}
 		}
-		// Determine losers
+		// Play against champions
+		for (int b = 0; b < contestants; b++) {
+			Phenotype black = getPhenotype(BLACK, b);
+			Phenotype white = champions[WHITE.index()];
+			Color winner = playAgainst(black, white, mercy);
+			winCounts[winner.index()]++;
+			if (winner == WHITE) {
+				white.setWinCount(white.getWinCount() + 1);
+			} else if (winner == BLACK) {
+				black.setWinCount(black.getWinCount() + 1);
+			}
+		}		
+		for (int w = 0; w < contestants; w++) {
+			Phenotype black = champions[BLACK.index()];
+			Phenotype white = getPhenotype(WHITE, w);
+			Color winner = playAgainst(black, white, mercy);
+			winCounts[winner.index()]++;
+			if (winner == WHITE) {
+				white.setWinCount(white.getWinCount() + 1);
+			} else if (winner == BLACK) {
+				black.setWinCount(black.getWinCount() + 1);
+			}
+		}
+		// Determine winners and losers
 		java.util.Arrays.sort(phenotypes[BLACK.index()]);
 		java.util.Arrays.sort(phenotypes[WHITE.index()]);
+		// Possibly replace champions
+		for (int c = 0; c < 2; c++) {
+			Phenotype challenger = phenotypes[c][phenotypes[c].length - 1];
+			if (challenger.getWinCount() == contestants + 1) {
+				champions[c].installGenes(challenger.getPopulationIndex(), populations[c].getIndividuals()[challenger.getPopulationIndex()]);
+			}
+		}		
 		// Replace the losers
 		for (int c = 0; c < 2; c++) {
 			populations[c].replaceLoser(phenotypes[c][0].getPopulationIndex(),

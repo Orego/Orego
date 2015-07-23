@@ -51,7 +51,7 @@ public class PlayerTest {
 	
 	@Test
 	public void testBestMove2() {
-		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(60000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(1000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
 		coords = player.getBoard().getCoordinateSystem();
 		String[] diagram = {
 				".#######.",
