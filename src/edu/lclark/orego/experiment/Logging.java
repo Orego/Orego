@@ -20,7 +20,7 @@ public final class Logging {
 	 */
 	public static void log(Level level, String message) {
 		if (logger != null) {
-			logger.log(level, message);
+			logger.log(level, GameBatch.timeStamp(false) + " " + message);
 		}
 	}
 
@@ -32,7 +32,7 @@ public final class Logging {
 	public static void log(String message) {
 		log(Level.INFO, message);
 	}
-
+	
 	/**
 	 * Sets logging to appear in a timestamped file in directory. Behavior is
 	 * undefined if two instances of Orego are launched at the same millisecond.

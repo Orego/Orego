@@ -16,7 +16,6 @@ import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.StoneCountObserver;
-import edu.lclark.orego.genetic.Pattern;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
@@ -28,35 +27,35 @@ import edu.lclark.orego.thirdparty.MersenneTwisterFast;
  */
 public final class PlayoutComparison {
 
-	@SuppressWarnings("boxing")
-	public static void main(String[] args) {
-		final Board board = new Board(9);
-//		final AtariObserver atariObserver = new AtariObserver(board);
-		final HistoryObserver historyObserver = new HistoryObserver(board);
-		final Pattern mover1 = new Pattern(board, historyObserver);
-		mover1.setPattern(Pattern.makeSpaceRule(0, 0, Pattern.YES,
-				new String[] {
-				"?????",
-				"??.??",
-				"?...?",
-				"??.??",
-				"?????",
-		})
-				);
-		final Pattern mover2 = new Pattern(board, historyObserver);
-		mover2.setPattern(new int[0]);
-		System.out.println(mover1.getPattern());
-		System.out.println(mover2.getPattern());
-		final Map<Mover, Integer> wins = new HashMap<>();
-		wins.put(mover1, 0);
-		wins.put(mover2, 0);
-		final PlayoutScorer scorer = new ChinesePlayoutScorer(board, 7.5);
-		final StoneCountObserver mercyObserver = new StoneCountObserver(board, scorer);
-		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
-		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
-		System.out.println("Version 1 wins: " + wins.get(mover1));
-		System.out.println("Version 2 wins: " + wins.get(mover2));
-	}
+//	@SuppressWarnings("boxing")
+//	public static void main(String[] args) {
+//		final Board board = new Board(9);
+////		final AtariObserver atariObserver = new AtariObserver(board);
+//		final HistoryObserver historyObserver = new HistoryObserver(board);
+//		final Pattern mover1 = new Pattern(board, historyObserver);
+//		mover1.setPattern(Pattern.makeSpaceRule(0, 0, Pattern.YES,
+//				new String[] {
+//				"?????",
+//				"??.??",
+//				"?...?",
+//				"??.??",
+//				"?????",
+//		})
+//				);
+//		final Pattern mover2 = new Pattern(board, historyObserver);
+//		mover2.setPattern(new int[0]);
+//		System.out.println(mover1.getPattern());
+//		System.out.println(mover2.getPattern());
+//		final Map<Mover, Integer> wins = new HashMap<>();
+//		wins.put(mover1, 0);
+//		wins.put(mover2, 0);
+//		final PlayoutScorer scorer = new ChinesePlayoutScorer(board, 7.5);
+//		final StoneCountObserver mercyObserver = new StoneCountObserver(board, scorer);
+//		playGames(mover1, mover2, wins, board, scorer, mercyObserver);
+//		playGames(mover2, mover1, wins, board, scorer, mercyObserver);
+//		System.out.println("Version 1 wins: " + wins.get(mover1));
+//		System.out.println("Version 2 wins: " + wins.get(mover2));
+//	}
 
 	@SuppressWarnings("boxing")
 	private static void playGames(Mover black, Mover white,

@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -141,6 +143,17 @@ public class ShortListTest {
 	public void testInvalidSetIndex() {
 		list.add((short)5);
 		list.set(1, (short)8);
+	}
+	
+	@Test
+	public void testRemoveRandom() {
+		list.add((short)5);
+		list.add((short)8);
+		list.add((short)3);
+		int firstSize = list.size();
+		int random = list.removeRandom(new MersenneTwisterFast());
+		assertEquals(firstSize - 1, list.size()); 
+		assertTrue((random == (short)5) || (random == (short)8) || (random == (short)3));
 	}
 
 }

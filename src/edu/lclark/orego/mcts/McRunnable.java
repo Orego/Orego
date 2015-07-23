@@ -19,6 +19,7 @@ import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
 import edu.lclark.orego.score.PlayoutScorer;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import edu.lclark.orego.util.ShortList;
 import edu.lclark.orego.util.ShortSet;
 import static edu.lclark.orego.experiment.Logging.*;
 
@@ -30,6 +31,8 @@ public final class McRunnable implements Runnable {
 
 	/** The board on which this McRunnable plays its moves. */
 	private final Board board;
+
+	private final ShortList candidates;
 
 	private final CoordinateSystem coords;
 
@@ -82,6 +85,7 @@ public final class McRunnable implements Runnable {
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
+		candidates = new ShortList(coords.getArea());
 		ShapeTable shapeTable = null;
 		ShapeRater shape = null;
 		try {
@@ -290,6 +294,14 @@ public final class McRunnable implements Runnable {
 
 	public Rater[] getRaters() {
 		return raters;
+	}
+
+	/**
+	 * Returns the ShortList used to temporarily store candidate moves when
+	 * choosing among them randomly.
+	 */
+	public ShortList getCandidates() {
+		return candidates;
 	}
 
 }

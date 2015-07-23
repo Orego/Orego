@@ -8,16 +8,17 @@ import java.util.List;
 import edu.lclark.orego.core.*;
 import edu.lclark.orego.sgf.SgfParser;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-import edu.lclark.orego.util.ShortSet;
+import edu.lclark.orego.util.ShortList;
 import static edu.lclark.orego.core.CoordinateSystem.*;
 import static edu.lclark.orego.core.NonStoneColor.*;
-import static edu.lclark.orego.move.Mover.*;
 
 /** Extracts patterns from a directory of recorded SGF games. */
 public class PatternExtractor {
 
 	/** Number of possible patterns. */
 	private final static int PATTERN_COUNT = Character.MAX_VALUE + 1;
+
+	private final ShortList candidates;
 
 	public static void main(String[] args) {
 //		 Uncomment the code below to rebuild the pattern database
@@ -129,6 +130,7 @@ public class PatternExtractor {
 		random = new MersenneTwisterFast();
 		parser = new SgfParser(coords, true);
 		this.verbose = verbose;
+		candidates = new ShortList(coords.getArea());
 	}
 
 	/**
@@ -225,21 +227,16 @@ public class PatternExtractor {
 	 * for points not played in the game being analyzed.
 	 */
 	short selectRandomMove(short move) {
-		ShortSet vacantPoints = board.getVacantPoints();
-		short start = (short) (random.nextInt(vacantPoints.size()));
-		short i = start;
-		short skip = PRIMES[random.nextInt(PRIMES.length)];
-		do {
-			short p = vacantPoints.get(i);
+		candidates.clear();
+		candidates.addAll(board.getVacantPoints());
+		while (candidates.size() > 0) {
+			final short p = candidates.removeRandom(random);
 			if ((board.getColorAt(p) == VACANT)) {
 				if (board.isLegal(p) && p != move) {
 					return p;
 				}
 			}
-			// Advancing by a random prime skips through the array
-			// in a manner analogous to double hashing.
-			i = (short) ((i + skip) % vacantPoints.size());
-		} while (i != start);
+		} 
 		return PASS;
 	}
 

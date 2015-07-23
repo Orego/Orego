@@ -4,9 +4,9 @@ import static edu.lclark.orego.experiment.Logging.*;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.CoordinateSystem.RESIGN;
-import static edu.lclark.orego.move.Mover.PRIMES;
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import edu.lclark.orego.util.ShortList;
 import edu.lclark.orego.util.ShortSet;
 
 /** Always chooses the move with the best win rate, with no exploration. */
@@ -74,26 +74,47 @@ public abstract class AbstractDescender implements TreeDescender {
 		}
 		float bestSearchValue = searchValue(node, PASS);
 		result = PASS;
-		final ShortSet vacantPoints = runnableBoard.getVacantPoints();
-		int start;
-		start = random.nextInt(vacantPoints.size());
-		int i = start;
-		final int skip = PRIMES[random.nextInt(PRIMES.length)];
-		do {
-			final short move = vacantPoints.get(i);
-			final float searchValue = searchValue(node, move);
+		final ShortList candidates = runnable.getCandidates();
+		candidates.clear();
+		candidates.addAll(runnableBoard.getVacantPoints());
+		while (candidates.size() > 0) {
+			final short p = candidates.removeRandom(random);
+			final float searchValue = searchValue(node, p);
 			if (searchValue > bestSearchValue) {
-				if (runnable.isFeasible(move) && runnableBoard.isLegal(move)) {
+				if (runnable.isFeasible(p) && runnableBoard.isLegal(p)) {
 					bestSearchValue = searchValue;
-					result = move;
+					result = p;
 				} else {
-					node.exclude(move);
+					node.exclude(p);
 				}
 			}
-			// Advancing by a random prime skips through the array
-			// in a manner analogous to double hashing.
-			i = (i + skip) % vacantPoints.size();
-		} while (i != start);
+		} 
+		
+		
+//		
+//		
+//		final ShortSet vacantPoints = runnableBoard.getVacantPoints();
+//		
+//		
+//		int start;
+//		start = random.nextInt(vacantPoints.size());
+//		int i = start;
+//		final int skip = PRIMES[random.nextInt(PRIMES.length)];
+//		do {
+//			final short move = vacantPoints.get(i);
+//			final float searchValue = searchValue(node, move);
+//			if (searchValue > bestSearchValue) {
+//				if (runnable.isFeasible(move) && runnableBoard.isLegal(move)) {
+//					bestSearchValue = searchValue;
+//					result = move;
+//				} else {
+//					node.exclude(move);
+//				}
+//			}
+//			// Advancing by a random prime skips through the array
+//			// in a manner analogous to double hashing.
+//			i = (i + skip) % vacantPoints.size();
+//		} while (i != start);
 		return result;
 	}
 

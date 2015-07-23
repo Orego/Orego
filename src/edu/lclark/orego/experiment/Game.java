@@ -119,6 +119,7 @@ final class Game {
 	 * players to shut down and then crashes.
 	 */
 	private void die(String line, Scanner s, String message) {
+		System.err.println(hashCode() + " Game dying, line " + line + ", message " + message);
 		endPrograms();
 		out.println("In " + filename + ":");
 		out.println(board);
@@ -169,9 +170,11 @@ final class Game {
 	 * @return true if line is a response to a quit command.
 	 */
 	boolean handleResponse(String line, Scanner s) {
+		System.err.println(hashCode() + " Game received line " + line);
 		if (line.startsWith("=")) {
 			if (state == REQUESTING_MOVE) {
 				final String move = line.substring(line.indexOf(' ') + 1);
+				System.err.println(hashCode() + " Game received move " + move);
 				if (!writeMoveToSgf(move)) {
 					return false;
 				}
@@ -181,6 +184,7 @@ final class Game {
 				}
 				if (board.getPasses() == 2) {
 					winner = scorer.winner();
+					System.err.println(hashCode() + " Game set winner to " + winner);
 					out.println(";RE[" + (winner == BLACK ? "B" : "W") + "+"
 							+ Math.abs(scorer.score()) + "]");
 					out.println(";C[moves:" + board.getTurn() + "]");
@@ -241,6 +245,7 @@ final class Game {
 	/** Sends a move request to the color to play. */
 	private void sendMoveRequest() {
 		final StoneColor c = getColorToPlay();
+		System.err.println(hashCode() + " Sending move request to " + c);
 		toPrograms[c.index()].println("genmove " + c);
 		toPrograms[c.index()].flush();
 		timeLastMoveWasRequested = System.currentTimeMillis();
@@ -251,6 +256,7 @@ final class Game {
 		final StoneColor c = getColorToPlay();
 		final int timeLeftForThisPlayer = rules.time
 				- (int) (timeUsed[c.index()] / 1000);
+		System.err.println(hashCode() + " Sending time left (" + timeLeftForThisPlayer + " seconds) to " + c);
 		toPrograms[c.index()].println("time_left " + c + " "
 				+ timeLeftForThisPlayer + " 0");
 		toPrograms[c.index()].flush();
@@ -264,6 +270,7 @@ final class Game {
 	 * acknowledgment of a time-left message).
 	 */
 	private void sendToOtherPlayer(final String move) {
+		System.err.println(hashCode() + " Sending move to other player (" + getColorToPlay() + ")");
 		if (rules.time > 0) {
 			state = SENDING_MOVE;
 		} else {

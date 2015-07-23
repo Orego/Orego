@@ -13,7 +13,6 @@ import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
 import edu.lclark.orego.feature.HistoryObserver;
 import edu.lclark.orego.feature.StoneCountObserver;
-import edu.lclark.orego.genetic.Pattern;
 import edu.lclark.orego.genetic.Phenotype;
 import edu.lclark.orego.move.Mover;
 import edu.lclark.orego.score.ChinesePlayoutScorer;
