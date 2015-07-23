@@ -64,8 +64,20 @@ public class Population {
 		}
 	}
 
-	public void printGeneFrequency(short penultimate, short ultimate, short reply, CoordinateSystem coords) {
-		
+	public void printGeneFrequency(short penultimate, short ultimate,
+			short reply, CoordinateSystem coords) {
+		int gene = Genotype.makeGene(penultimate, ultimate, reply);
+		int count = 0;
+		for (Genotype g : individuals) {
+			for (int i : g.getGenes()) {
+				if (i == gene) {
+					count++;
+				}
+			}
+		}
+		System.out.println(coords.toString(penultimate) + " -> "
+				+ coords.toString(ultimate) + " -> " + coords.toString(reply)
+				+ " occurs " + count + " times");
 	}
 
 }
