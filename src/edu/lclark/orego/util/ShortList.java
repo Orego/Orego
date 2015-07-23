@@ -140,4 +140,12 @@ public final class ShortList implements Serializable {
 		return "(" + result + ")";
 	}
 
+	/** Adds all of the elements in vacantPoints to this list. */
+	public void addAll(ShortSet set) {
+		for (int i = 0; i < set.size(); i++) {
+			data[i] = set.get(i);
+		}
+		size = set.size();
+	}
+
 }

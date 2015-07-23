@@ -1,6 +1,5 @@
 package edu.lclark.orego.move;
 
-import static edu.lclark.orego.move.MoverFactory.capturer;
 import static org.junit.Assert.*;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 
@@ -9,7 +8,6 @@ import org.junit.Test;
 
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.CoordinateSystem;
-import edu.lclark.orego.feature.AtariObserver;
 import edu.lclark.orego.feature.NotEyeLike;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
@@ -50,12 +48,10 @@ public class PredicateMoverTest {
 			board.setUpProblem(diagram, BLACK);
 			counts[mover.selectAndPlayOneMove(random, true)]++;
 		}
-		System.out.println(counts[at("b1")]);
-		System.out.println(counts[at("c1")]);
-		System.out.println(counts[at("d1")]);
-		assertEquals(trials/4.0, counts[at("b1")], trials/100.0);
-		assertEquals(trials/4.0, counts[at("c1")], trials/100.0);
-		assertEquals(trials/4.0, counts[at("d1")], trials/100.0);
+		assertEquals(trials/4.0, counts[at("b1")], trials/20.0);
+		assertEquals(trials/4.0, counts[at("c1")], trials/20.0);
+		assertEquals(trials/4.0, counts[at("c3")], trials/20.0);
+		assertEquals(trials/4.0, counts[at("d1")], trials/20.0);
 	}
 
 }

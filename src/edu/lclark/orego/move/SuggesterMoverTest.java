@@ -16,7 +16,7 @@ import static edu.lclark.orego.move.MoverFactory.*;
 public class SuggesterMoverTest {
 
 	private Board board;
-	
+
 	private CoordinateSystem coords;
 
 	private Mover mover;

@@ -7,7 +7,7 @@ import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Legality;
 import edu.lclark.orego.feature.Predicate;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
-import edu.lclark.orego.util.ShortSet;
+import edu.lclark.orego.util.ShortList;
 
 /**
  * Makes random moves that satisfy some predicate.
@@ -16,6 +16,8 @@ import edu.lclark.orego.util.ShortSet;
 public final class PredicateMover implements Mover {
 
 	private final Board board;
+
+	private final ShortList candidates;
 
 	private final Predicate filter;
 
@@ -26,26 +28,22 @@ public final class PredicateMover implements Mover {
 	public PredicateMover(Board board, Predicate filter) {
 		this.board = board;
 		this.filter = filter;
+		candidates = new ShortList(board.getCoordinateSystem().getArea());
 	}
 	
 	@Override
 	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
-		final ShortSet vacantPoints = board.getVacantPoints();
-		final short start = (short) random.nextInt(vacantPoints.size());
-		short i = start;
-		final short skip = PRIMES[random.nextInt(PRIMES.length)];
-		do {
-			final short p = vacantPoints.get(i);
+		candidates.clear();
+		candidates.addAll(board.getVacantPoints());
+		while (candidates.size() > 0) {
+			final short p = candidates.removeRandom(random);
 			if (board.getColorAt(p) == VACANT && filter.at(p)) {
 				Legality legality = fast ? board.playFast(p) : board.play(p);
 				if (legality == OK) {
 					return p;
 				}
-			}
-			// Advancing by a random prime skips through the array
-			// in a manner analogous to double hashing.
-			i = (short) ((i + skip) % vacantPoints.size());
-		} while (i != start);
+			}	
+		} 
 		board.pass();
 		return PASS;
 	}
