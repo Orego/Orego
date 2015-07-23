@@ -79,18 +79,20 @@ public class EvoRunnable implements Runnable {
 	private int[] firstMoveCounts;
 	
 	public void printFirstMoveCounts() {
+		System.out.println("First move counts:");
 		for (short p : coords.getAllPointsOnBoard()) {
 			if (firstMoveCounts[p] > 0) {
 				System.out.println(coords.toString(p) + ": " + firstMoveCounts[p]);
 			}
 		}
 	}
+
 	/** Adds some genes to plausibleGenes. */
 	private void generatePlausibleGenes() {
 		// TODO What about the opening book here?
 		board.copyDataFrom(player.getBoard());
 //		System.out.println("Board copied from player:\n" + board);
-		while (board.getPasses() == 0) {
+		while (board.getPasses() == 0 && board.getTurn() < 4) {
 			plausibleGeneMover.selectAndPlayOneMove(random, true);
 			int penultimate = history.get(board.getTurn() - 3);
 			int ultimate = history.get(board.getTurn() - 2);
@@ -165,17 +167,18 @@ public class EvoRunnable implements Runnable {
 	 * two moves.
 	 */
 	public int[] getVotes(StoneColor c, short penultimate, short ultimate) {
+		System.out.println("Votes:");
 		// TODO Let's not make this array every time
 		int[] result = new int[coords.getFirstPointBeyondBoard()];
 		for (Genotype g : populations[c.index()].getIndividuals()) {
 			phenotypes[0][0].installGenes(-1, g);
 			result[bestMove(phenotypes[0][0], penultimate, ultimate)]++;
 		}
-//		for (short p : coords.getAllPointsOnBoard()) {
-//			if (result[p] > 0) {
-//				System.out.println(coords.toString(p) + ": " + result[p]);
-//			}
-//		}
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (result[p] > 0) {
+				System.out.println(coords.toString(p) + ": " + result[p]);
+			}
+		}
 		return result;
 	}
 

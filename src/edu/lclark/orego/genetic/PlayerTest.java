@@ -21,7 +21,7 @@ public class PlayerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(0).threads(5).boardWidth(5).contestants(6).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(1000).threads(5).boardWidth(5).contestants(6).openingBook(false).build();
 		coords = player.getBoard().getCoordinateSystem();
 	}
 
@@ -51,7 +51,7 @@ public class PlayerTest {
 	
 	@Test
 	public void testBestMove2() {
-		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(1000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(60000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
 		coords = player.getBoard().getCoordinateSystem();
 		String[] diagram = {
 				".#######.",
@@ -66,6 +66,7 @@ public class PlayerTest {
 				};
 		player.getBoard().setUpProblem(diagram, BLACK);
 		player.createPopulations(500, 100);
+		player.getEvoRunnable(0).printFirstMoveCounts();
 		short move = player.bestMove();
 		player.getPopulations()[BLACK.index()].printGeneFrequency(NO_POINT, NO_POINT, at("e2"), coords);
 		player.getPopulations()[BLACK.index()].printGeneFrequency(NO_POINT, NO_POINT, at("e3"), coords);

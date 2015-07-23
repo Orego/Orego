@@ -162,7 +162,8 @@ public class Player {
 		for (EvoRunnable runnable : runnables) {
 			playouts += runnable.getPlayoutsCompleted();
 		}
-		log("Turn : " + board.getTurn() + " Playouts : " + playouts);
+//		log("Turn : " + board.getTurn() + " Playouts : " + playouts);
+		System.out.println("Turn : " + board.getTurn() + " Playouts : " + playouts);
 		return runnables[0].vote(board.getColorToPlay());
 	}
 
