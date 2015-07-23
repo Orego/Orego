@@ -64,5 +64,8 @@ public class Population {
 		}
 	}
 
+	public void printGeneFrequency(short penultimate, short ultimate, short reply, CoordinateSystem coords) {
+		
+	}
 
 }
