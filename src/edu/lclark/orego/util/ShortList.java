@@ -90,6 +90,18 @@ public final class ShortList implements Serializable {
 		return data[size];
 	}
 
+	/**
+	 * Removes and returns a random element of this list. The order of this list
+	 * is not maintained.
+	 */
+	public short removeRandom(MersenneTwisterFast random) {
+		int randomIndex = random.nextInt(size);
+		short temp = data[randomIndex];
+		size--;
+		data[randomIndex] = data[size];
+		return temp;
+	}
+
 	/** Sets the ith element of this list. */
 	public void set(int i, short key) {
 		assert i < size;
@@ -126,14 +138,6 @@ public final class ShortList implements Serializable {
 			}
 		}
 		return "(" + result + ")";
-	}
-	
-	public short removeRandom(MersenneTwisterFast random){
-		int randomIndex = random.nextInt(size);
-		short temp = data[randomIndex];
-		data[randomIndex] = data[size - 1];
-		size--;
-		return temp;
 	}
 
 }
