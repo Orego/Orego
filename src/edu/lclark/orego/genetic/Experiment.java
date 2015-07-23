@@ -60,7 +60,7 @@ public class Experiment {
 								"OOOO.OOOO",
 								};
 						player.getBoard().setUpProblem(diagram, BLACK);
-						player.createPopulations(2000, 2000);
+						player.createPopulations(500, 100);
 						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
 							count++;
 						}
