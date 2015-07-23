@@ -2,17 +2,27 @@ package edu.lclark.orego.genetic;
 
 import static org.junit.Assert.*;
 import static edu.lclark.orego.core.StoneColor.*;
+import static edu.lclark.orego.core.CoordinateSystem.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import edu.lclark.orego.core.CoordinateSystem;
 
 public class PlayerTest {
 
 	private Player player;
 	
+	private CoordinateSystem coords;
+
+	private short at(String label) {
+		return coords.at(label);
+	}
+
 	@Before
 	public void setUp() throws Exception {
 		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(1000).threads(5).boardWidth(5).contestants(6).openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
 	}
 
 	@Test
@@ -50,6 +60,11 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(diagram, BLACK);
 		player.createPopulations(2000, 2000);
 		assertEquals(player.getBoard().getCoordinateSystem().at("e2"), player.bestMove());
+		player.getPopulations()[BLACK.index()].printGeneFrequency(NO_POINT, NO_POINT, at("e2"), coords);
+		player.getPopulations()[WHITE.index()].printGeneFrequency(NO_POINT, at("e2"), at("e3"), coords);
+		player.getPopulations()[WHITE.index()].printGeneFrequency(NO_POINT, at("e2"), at("d2"), coords);
+		player.getPopulations()[BLACK.index()].printGeneFrequency(at("e2"), at("e3"), at("d2"), coords);
+		player.getPopulations()[BLACK.index()].printGeneFrequency(at("e2"), at("d2"), at("e3"), coords);
 	}
 
 }
