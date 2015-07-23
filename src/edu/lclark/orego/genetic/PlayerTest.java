@@ -41,11 +41,13 @@ public class PlayerTest {
 		player.getBoard().setUpProblem(diagram, BLACK);
 		player.createPopulations(2000, 2000);
 		assertEquals(player.getBoard().getCoordinateSystem().at("c1"), player.bestMove());
+		player.getPopulations()[BLACK.index()].printGeneFrequency(NO_POINT, NO_POINT, at("c1"), coords);
 	}
 	
 	@Test
 	public void testBestMove2() {
-		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(2000).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
+		player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(0).threads(5).boardWidth(9).contestants(6).openingBook(false).build();
+		coords = player.getBoard().getCoordinateSystem();
 		String[] diagram = {
 				".#######.",
 				"#########",
@@ -59,12 +61,12 @@ public class PlayerTest {
 				};
 		player.getBoard().setUpProblem(diagram, BLACK);
 		player.createPopulations(2000, 2000);
-		assertEquals(player.getBoard().getCoordinateSystem().at("e2"), player.bestMove());
 		player.getPopulations()[BLACK.index()].printGeneFrequency(NO_POINT, NO_POINT, at("e2"), coords);
 		player.getPopulations()[WHITE.index()].printGeneFrequency(NO_POINT, at("e2"), at("e3"), coords);
 		player.getPopulations()[WHITE.index()].printGeneFrequency(NO_POINT, at("e2"), at("d2"), coords);
 		player.getPopulations()[BLACK.index()].printGeneFrequency(at("e2"), at("e3"), at("d2"), coords);
 		player.getPopulations()[BLACK.index()].printGeneFrequency(at("e2"), at("d2"), at("e3"), coords);
+		assertEquals(player.getBoard().getCoordinateSystem().at("e2"), player.bestMove());
 	}
 
 }
