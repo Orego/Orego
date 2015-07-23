@@ -2,6 +2,7 @@ package edu.lclark.orego.genetic;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /** A set of genes. */
@@ -41,8 +42,8 @@ public class Genotype {
 	}
 
 	/** Randomly replaces one of the genes in this Genotype. */
-	public void mutate(MersenneTwisterFast random, EvoRunnable runnable) {
-		genes[random.nextInt(genes.length)] = runnable.nextGene();
+	public void mutate(MersenneTwisterFast random, EvoRunnable runnable, StoneColor color) {
+		genes[random.nextInt(genes.length)] = runnable.nextGene(color);
 	}
 
 	@SuppressWarnings("static-method")
@@ -62,9 +63,9 @@ public class Genotype {
 		this.genes = genes;
 	}
 
-	public void initialize(EvoRunnable runnable) {
+	public void initialize(EvoRunnable runnable, StoneColor color) {
 		for (int i = 0; i < genes.length; i++) {
-			genes[i] = runnable.nextGene();
+			genes[i] = runnable.nextGene(color);
 		}
 	}
 

@@ -31,14 +31,31 @@ public final class PredicateMover implements Mover {
 	@Override
 	public short selectAndPlayOneMove(MersenneTwisterFast random, boolean fast) {
 		final ShortSet vacantPoints = board.getVacantPoints();
+		for (int s = 2; s <= 20; s++) {
+			int[] counts = new int[s];
+				for (int p : PRIMES) {
+					counts[p % s]++;
+				}
+			System.out.println(s + ": " + java.util.Arrays.toString(counts));
+		}
+		System.exit(1);
+		if (board.getTurn() == 0) {
+			System.out.println(vacantPoints.size());
+		}
 		final short start = (short) random.nextInt(vacantPoints.size());
 		short i = start;
 		final short skip = PRIMES[random.nextInt(PRIMES.length)];
 		do {
 			final short p = vacantPoints.get(i);
+//			if (board.getTurn() == 0) {
+//				System.out.print(board.getCoordinateSystem().toString(p) + " ");
+//			}
 			if (board.getColorAt(p) == VACANT && filter.at(p)) {
 				Legality legality = fast ? board.playFast(p) : board.play(p);
 				if (legality == OK) {
+//					if (board.getTurn() == 1) {
+//						System.out.println();
+//					}
 					return p;
 				}
 			}
@@ -47,6 +64,9 @@ public final class PredicateMover implements Mover {
 			i = (short) ((i + skip) % vacantPoints.size());
 		} while (i != start);
 		board.pass();
+//		if (board.getTurn() == 0) {
+//			System.out.println("PASS");
+//		}
 		return PASS;
 	}
 

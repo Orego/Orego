@@ -58,19 +58,39 @@ public class EvoRunnable implements Runnable {
 
 	private final ChinesePlayoutScorer scorer;
 
-	private final Queue<Integer> plausibleGenes;
+	private final Queue<Integer>[] plausibleGenes;
 	
 	private final PredicateMover plausibleGeneMover;
 	
 	/** Returns a gene for a reply that might happen at some point in the future. */
-	public int nextGene() {
-		if (!plausibleGenes.isEmpty()) {
-			return plausibleGenes.poll();
+	public int nextGene(StoneColor color) {
+		Queue<Integer> q = plausibleGenes[color.index()];
+		if (!q.isEmpty()) {
+			int result = q.poll();
+//			int penultimate = result & Phenotype.MASK9;
+//			int ultimate = (result >>> 9) & Phenotype.MASK9;
+//			int reply = (result >>> 18) & Phenotype.MASK9;
+//			System.out.println("Next gene was " + coords.toString((short)penultimate) + ", " + coords.toString((short)ultimate) + " -> " + coords.toString((short)reply));
+			return result;
 		}
 		generatePlausibleGenes();
-		return plausibleGenes.poll();
+		int result = q.poll();
+//		int penultimate = result & Phenotype.MASK9;
+//		int ultimate = (result >>> 9) & Phenotype.MASK9;
+//		int reply = (result >>> 18) & Phenotype.MASK9;
+//		System.out.println("Next gene was " + coords.toString((short)penultimate) + ", " + coords.toString((short)ultimate) + " -> " + coords.toString((short)reply));
+		return result;
 	}
 
+	private int[] firstMoveCounts;
+	
+	public void printFirstMoveCounts() {
+		for (short p : coords.getAllPointsOnBoard()) {
+			if (firstMoveCounts[p] > 0) {
+				System.out.println(coords.toString(p) + ": " + firstMoveCounts[p]);
+			}
+		}
+	}
 	/** Adds some genes to plausibleGenes. */
 	private void generatePlausibleGenes() {
 		// TODO What about the opening book here?
@@ -81,16 +101,21 @@ public class EvoRunnable implements Runnable {
 			int penultimate = history.get(board.getTurn() - 3);
 			int ultimate = history.get(board.getTurn() - 2);
 			int reply = history.get(board.getTurn() - 1);
-//			System.out.println("Generated " + coords.toString((short)penultimate) + ", " + coords.toString((short)ultimate) + " -> " + coords.toString((short)reply));
-			plausibleGenes.offer(penultimate | (ultimate << 9) | (reply << 18));
+			if (penultimate == NO_POINT && ultimate == NO_POINT && board.getColorToPlay().opposite() == BLACK) {
+				firstMoveCounts[reply]++;
+//				System.out.println("Generated " + coords.toString((short)penultimate) + ", " + coords.toString((short)ultimate) + " -> " + coords.toString((short)reply));
+			}
+			plausibleGenes[board.getColorToPlay().opposite().index()].offer(penultimate | (ultimate << 9) | (reply << 18));
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public EvoRunnable(Player player, CopiableStructure stuff) {
 		random = new MersenneTwisterFast();
 		final CopiableStructure copy = stuff.copy();
 		board = copy.get(Board.class);
 		coords = board.getCoordinateSystem();
+		firstMoveCounts = new int[coords.getFirstPointBeyondBoard()];
 		history = copy.get(HistoryObserver.class);
 		filter = copy.get(Conjunction.class);
 		plausibleGeneMover = new PredicateMover(board, filter);
@@ -99,7 +124,7 @@ public class EvoRunnable implements Runnable {
 		mercyObserver = copy.get(StoneCountObserver.class);
 		loserIndices = new int[2];
 		this.player = player;
-		plausibleGenes = new LinkedList<>();
+		plausibleGenes = new Queue[] {new LinkedList<>(), new LinkedList<>()};
 	}
 
 	public short bestMove(Phenotype phenotype) {

@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
+import static edu.lclark.orego.core.StoneColor.BLACK;
 
 @SuppressWarnings("static-method")
 public class GenotypeTest {
@@ -37,7 +38,7 @@ public class GenotypeTest {
 		short[] points = {1, 2};		
 		Player player = new PlayerBuilder().populationSize(100).individualLength(10).boardWidth(5).build();
 		EvoRunnable runnable = player.getEvoRunnable(0);
-		a.mutate(random, runnable);
+		a.mutate(random, runnable, BLACK);
 		int count = 0;
 		for (int gene : a.getGenes()) {
 			if (gene != 0) {

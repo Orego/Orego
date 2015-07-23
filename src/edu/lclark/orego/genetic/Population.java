@@ -3,6 +3,7 @@ package edu.lclark.orego.genetic;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
 import static edu.lclark.orego.genetic.Phenotype.IGNORE;
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.core.StoneColor;
 import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /** A collection of Genotypes. */
@@ -12,7 +13,10 @@ public class Population {
 
 	private Genotype[] individuals;
 
-	public Population(int individualCount, int numberOfReplies, CoordinateSystem coords, EvoRunnable runnable) {
+	private final StoneColor color;
+	
+	public Population(int individualCount, int numberOfReplies, CoordinateSystem coords, EvoRunnable runnable, StoneColor color) {
+		this.color = color;
 //		final MersenneTwisterFast random = new MersenneTwisterFast();
 //		possiblePoints = new short[coords.getArea() + 2];
 //		int i = 0;
@@ -23,10 +27,11 @@ public class Population {
 //		possiblePoints[i] = NO_POINT;
 //		i++;
 //		possiblePoints[i] = IGNORE;
+		// TODO Should we be doing this here at all?
 		individuals = new Genotype[individualCount];
 		for (int i = 0; i < individualCount; i++) {
 			individuals[i] = new Genotype(numberOfReplies);
-			individuals[i].initialize(runnable);
+			individuals[i].initialize(runnable, color);
 		}
 	}
 	
@@ -52,7 +57,7 @@ public class Population {
 //			synchronized(individuals[indices[1]]) {
 //				synchronized(individuals[indices[2]]) {
 					individuals[momIndex].cross(individuals[dadIndex], individuals[childIndex], random);										
-					individuals[childIndex].mutate(random, runnable);
+					individuals[childIndex].mutate(random, runnable, color);
 //				}
 //			}
 //		}
@@ -60,7 +65,7 @@ public class Population {
 
 	public void initialize(EvoRunnable runnable) {
 		for (Genotype g : individuals) {
-			g.initialize(runnable);
+			g.initialize(runnable, color);
 		}
 	}
 

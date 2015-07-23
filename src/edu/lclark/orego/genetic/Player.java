@@ -199,8 +199,8 @@ public class Player {
 
 	public void createPopulations(int populationSize, int individualLength) {
 		populations = new Population[] {
-				new Population(populationSize, individualLength, coords, runnables[0]),
-				new Population(populationSize, individualLength, coords, runnables[0])};
+				new Population(populationSize, individualLength, coords, runnables[0], BLACK),
+				new Population(populationSize, individualLength, coords, runnables[0], WHITE)};
 		for (int i = 0; i < runnables.length; i++) {
 			runnables[i].setPopulations(populations);
 		}
