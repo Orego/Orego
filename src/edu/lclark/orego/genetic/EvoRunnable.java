@@ -1,16 +1,13 @@
 package edu.lclark.orego.genetic;
 
-import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.CoordinateSystem.NO_POINT;
+import static edu.lclark.orego.core.CoordinateSystem.PASS;
 import static edu.lclark.orego.core.NonStoneColor.VACANT;
 import static edu.lclark.orego.core.StoneColor.BLACK;
 import static edu.lclark.orego.core.StoneColor.WHITE;
 import static edu.lclark.orego.experiment.Logging.log;
-
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
-
 import edu.lclark.orego.core.Board;
 import edu.lclark.orego.core.Color;
 import edu.lclark.orego.core.CoordinateSystem;
@@ -41,9 +38,6 @@ public class EvoRunnable implements Runnable {
 	private final Predicate filter;
 
 	private final HistoryObserver history;
-
-	/** Indices of the tournament losers. */
-	private int[] loserIndices;
 
 	private final StoneCountObserver mercyObserver;
 
@@ -122,7 +116,6 @@ public class EvoRunnable implements Runnable {
 		fallbackMover = copy.get(Mover.class);
 		scorer = copy.get(ChinesePlayoutScorer.class);
 		mercyObserver = copy.get(StoneCountObserver.class);
-		loserIndices = new int[2];
 		this.player = player;
 		plausibleGenes = new Queue[] {new LinkedList<>(), new LinkedList<>()};
 	}
