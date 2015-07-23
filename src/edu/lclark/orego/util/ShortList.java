@@ -3,6 +3,7 @@ package edu.lclark.orego.util;
 import java.io.Serializable;
 
 import edu.lclark.orego.core.CoordinateSystem;
+import edu.lclark.orego.thirdparty.MersenneTwisterFast;
 
 /**
  * Similar to java.util.ArrayList<Short>, but avoids various overhead such as
@@ -125,6 +126,14 @@ public final class ShortList implements Serializable {
 			}
 		}
 		return "(" + result + ")";
+	}
+	
+	public short removeRandom(MersenneTwisterFast random){
+		int randomIndex = random.nextInt(size);
+		short temp = data[randomIndex];
+		data[randomIndex] = data[size - 1];
+		size--;
+		return temp;
 	}
 
 }
