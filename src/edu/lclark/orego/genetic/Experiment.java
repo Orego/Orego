@@ -49,13 +49,17 @@ public class Experiment {
 //						System.out.println("Inside innermost loop");
 //						out.println("Starting trial...");
 //						out.flush();
-						Player player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(time).threads(32).boardWidth(5).contestants(contestants).openingBook(false).build();
+						Player player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(time).threads(32).boardWidth(9).contestants(contestants).openingBook(false).build();
 						String[] diagram = {
-								"#.#.#",
-								"#####",
-								".....",
-								"OOOOO",
-								"O...O", };
+								"#.#.#####",
+								"#########",
+								"#########",
+								"#########",
+								".........",
+								"OOOOOOOOO",
+								"OOOOOOOOO",
+								"OOOOOOOOO",
+								"O...OOOOO", };
 //						String[] diagram = {
 //								".#######.",
 //								"#########",
