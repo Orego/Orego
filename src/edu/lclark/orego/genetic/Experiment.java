@@ -52,16 +52,16 @@ public class Experiment {
 //						out.println("Starting trial...");
 //						out.flush();
 						Player player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(time).threads(32).prefixLength(prefixLength).boardWidth(9).contestants(contestants).openingBook(false).build();
-//						String[] diagram = {
-//								"#.#.#####",
-//								"#########",
-//								"#########",
-//								"#########",
-//								".........",
-//								"OOOOOOOOO",
-//								"OOOOOOOOO",
-//								"OOOOOOOOO",
-//								"O...OOOOO", };
+						String[] diagram = {
+								"#.#.#####",
+								"#########",
+								"#########",
+								"#########",
+								".........",
+								"OOOOOOOOO",
+								"OOOOOOOOO",
+								"OOOOOOOOO",
+								"O...OOOOO", };
 						String[] diagram = {
 								".#######.",
 								"#########",
@@ -75,10 +75,10 @@ public class Experiment {
 								};
 						player.getBoard().setUpProblem(diagram, BLACK);
 						player.createPopulations(popSize, indSize);
-						if (player.getBoard().getCoordinateSystem().at("e2") == player.getEvoRunnable(0).vote(BLACK)) {
+						if (player.getBoard().getCoordinateSystem().at("c1") == player.getEvoRunnable(0).vote(BLACK)) {
 							beforeCount++;
 						}
-						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
+						if (player.getBoard().getCoordinateSystem().at("c1") == player.bestMove()) {
 							afterCount++;
 						}
 //						out.println("...finished");
