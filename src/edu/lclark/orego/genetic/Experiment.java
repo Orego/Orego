@@ -40,40 +40,40 @@ public class Experiment {
 			System.out.println("Inside try block");
 //			for (int time : new int[] {100, 200}) {
 //				for (int contestants : new int[] {2, 6}) {
-					for (int time : new int[] {0, 250, 500, 1000, 2000}) {
-						for (int contestants : new int[] {16, 8, 4, 2}) {
-							for (int indSize : new int[] {20}) {
-								for (int popSize: new int[] {2000}) {
+					for (int time : new int[] {0, 250, 500, 1000, 2000, 4000, 8000}) {
+						for (int contestants : new int[] {16, 4}) {
+							for (int indSize : new int[] {20, 200}) {
+								for (int popSize: new int[] {2000, 4000}) {
 					int count = 0;
 					for (int trial = 0; trial < 50; trial++) {
 //						System.out.println("Inside innermost loop");
 //						out.println("Starting trial...");
 //						out.flush();
 						Player player = new PlayerBuilder().populationSize(0).individualLength(0).msecPerMove(time).threads(32).boardWidth(9).contestants(contestants).openingBook(false).build();
-						String[] diagram = {
-								"#.#.#####",
-								"#########",
-								"#########",
-								"#########",
-								".........",
-								"OOOOOOOOO",
-								"OOOOOOOOO",
-								"OOOOOOOOO",
-								"O...OOOOO", };
 //						String[] diagram = {
-//								".#######.",
+//								"#.#.#####",
 //								"#########",
 //								"#########",
 //								"#########",
+//								".........",
 //								"OOOOOOOOO",
 //								"OOOOOOOOO",
-//								"OOO..OOOO",
-//								"OOO...OOO",
-//								"OOOO.OOOO",
-//								};
+//								"OOOOOOOOO",
+//								"O...OOOOO", };
+						String[] diagram = {
+								".#######.",
+								"#########",
+								"#########",
+								"#########",
+								"OOOOOOOOO",
+								"OOOOOOOOO",
+								"OOO..OOOO",
+								"OOO...OOO",
+								"OOOO.OOOO",
+								};
 						player.getBoard().setUpProblem(diagram, BLACK);
 						player.createPopulations(popSize, indSize);
-						if (player.getBoard().getCoordinateSystem().at("c1") == player.bestMove()) {
+						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
 							count++;
 						}
 //						out.println("...finished");

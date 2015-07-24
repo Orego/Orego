@@ -92,7 +92,7 @@ public class EvoRunnable implements Runnable {
 		// TODO What about the opening book here?
 		board.copyDataFrom(player.getBoard());
 //		System.out.println("Board copied from player:\n" + board);
-		while (board.getPasses() == 0 && board.getTurn() < 4) {
+		while (board.getPasses() == 0 && board.getTurn() < 10) {
 			plausibleGeneMover.selectAndPlayOneMove(random, true);
 			int penultimate = history.get(board.getTurn() - 3);
 			int ultimate = history.get(board.getTurn() - 2);
