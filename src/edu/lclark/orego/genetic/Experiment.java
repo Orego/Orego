@@ -69,7 +69,7 @@ public class Experiment {
 //						out.println("...finished");
 //						out.flush();
 					}
-					out.println(time + " msec, " + contestants + " contestants: " + count + "/50");
+					out.println(time + " msec, " + contestants + " contestants, " + indSize + " ind size, " + popSize + " pop size: " + count + "/50");
 					out.flush();
 				}
 			}
