@@ -32,6 +32,8 @@ public class PlayerBuilder {
 
 	private int contestants;
 	
+	private int prefixLength;
+	
 	public PlayerBuilder() {
 		// Default values
 		komi = 7.5;
@@ -45,6 +47,18 @@ public class PlayerBuilder {
 		populationSize = 10000;
 		individualLength = 2000;
 		contestants = 2;
+		prefixLength = 4;
+	}
+
+	/**
+	 * Length of prefix of each random game used to generate plausible genes in
+	 * EvoRunnable. If too high, moves that prolong the game (by causing a large
+	 * group to die) tend to be the last reply to their context within an
+	 * individual.
+	 */
+	public PlayerBuilder prefixLength(int prefixLength) {
+		this.prefixLength = prefixLength;
+		return this;
 	}
 
 	public PlayerBuilder populationSize(int populationSize) {
@@ -86,6 +100,7 @@ public class PlayerBuilder {
 		result.setMsecPerMove(msecPerMove);
 		result.ponder(ponder);
 		result.setContestants(contestants);
+		result.setPrefixLength(prefixLength);
 		result.createPopulations(populationSize, individualLength);
 		result.clear();
 		return result;

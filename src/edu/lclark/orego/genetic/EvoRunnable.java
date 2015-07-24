@@ -92,7 +92,7 @@ public class EvoRunnable implements Runnable {
 		// TODO What about the opening book here?
 		board.copyDataFrom(player.getBoard());
 //		System.out.println("Board copied from player:\n" + board);
-		while (board.getPasses() == 0 && board.getTurn() < 10) {
+		while (board.getPasses() == 0 && board.getTurn() < prefixLength) {
 			plausibleGeneMover.selectAndPlayOneMove(random, true);
 			int penultimate = history.get(board.getTurn() - 3);
 			int ultimate = history.get(board.getTurn() - 2);
@@ -381,6 +381,12 @@ public class EvoRunnable implements Runnable {
 
 	public void setPopulations(Population[] populations) {
 		this.populations = populations;
+	}
+
+	private int prefixLength;
+	
+	public void setPrefixLength(int prefixLength) {
+		this.prefixLength = prefixLength;
 	}
 
 }

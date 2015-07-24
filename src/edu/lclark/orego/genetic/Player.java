@@ -498,4 +498,11 @@ public class Player {
 		return populations;
 	}
 
+
+	public void setPrefixLength(int prefixLength) {
+		for (int i = 0; i < runnables.length; i++) {
+			runnables[i].setPrefixLength(prefixLength);
+		}
+	}
+
 }

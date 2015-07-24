@@ -40,11 +40,13 @@ public class Experiment {
 			System.out.println("Inside try block");
 //			for (int time : new int[] {100, 200}) {
 //				for (int contestants : new int[] {2, 6}) {
-					for (int time : new int[] {0, 250, 500, 1000, 2000, 4000, 8000}) {
-						for (int contestants : new int[] {16, 4}) {
-							for (int indSize : new int[] {20, 200}) {
-								for (int popSize: new int[] {2000, 4000}) {
-					int count = 0;
+					for (int time : new int[] {250}) {
+						for (int contestants : new int[] {4}) {
+							for (int indSize : new int[] {100}) {
+								for (int popSize: new int[] {2000}) {
+									for (int prefixLength : new int[] {2, 4, 8, 16, 32, 64}) {
+					int beforeCount = 0;
+					int afterCount = 0;
 					for (int trial = 0; trial < 50; trial++) {
 //						System.out.println("Inside innermost loop");
 //						out.println("Starting trial...");
@@ -73,15 +75,19 @@ public class Experiment {
 								};
 						player.getBoard().setUpProblem(diagram, BLACK);
 						player.createPopulations(popSize, indSize);
+						if (player.getBoard().getCoordinateSystem().at("e2") == player.getEvoRunnable(0).vote(BLACK)) {
+							beforeCount++;
+						}
 						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
-							count++;
+							afterCount++;
 						}
 //						out.println("...finished");
 //						out.flush();
 					}
-					out.println(time + " msec, " + contestants + " contestants, " + indSize + " ind size, " + popSize + " pop size: " + count + "/50");
+					out.println(time + " msec, " + contestants + " contestants, " + indSize + " ind size, " + popSize + " pop size: " + beforeCount + "/50 before, " + afterCount + "/50 after");
 					out.flush();
 				}
+									}
 			}
 						}
 					}
