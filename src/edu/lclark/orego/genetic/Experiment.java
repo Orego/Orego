@@ -62,17 +62,17 @@ public class Experiment {
 								"OOOOOOOOO",
 								"OOOOOOOOO",
 								"O...OOOOO", };
-						String[] diagram = {
-								".#######.",
-								"#########",
-								"#########",
-								"#########",
-								"OOOOOOOOO",
-								"OOOOOOOOO",
-								"OOO..OOOO",
-								"OOO...OOO",
-								"OOOO.OOOO",
-								};
+//						String[] diagram = {
+//								".#######.",
+//								"#########",
+//								"#########",
+//								"#########",
+//								"OOOOOOOOO",
+//								"OOOOOOOOO",
+//								"OOO..OOOO",
+//								"OOO...OOO",
+//								"OOOO.OOOO",
+//								};
 						player.getBoard().setUpProblem(diagram, BLACK);
 						player.createPopulations(popSize, indSize);
 						if (player.getBoard().getCoordinateSystem().at("c1") == player.getEvoRunnable(0).vote(BLACK)) {
