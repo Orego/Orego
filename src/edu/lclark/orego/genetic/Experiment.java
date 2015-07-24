@@ -41,7 +41,9 @@ public class Experiment {
 //			for (int time : new int[] {100, 200}) {
 //				for (int contestants : new int[] {2, 6}) {
 					for (int time : new int[] {0, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000}) {
-						for (int contestants : new int[] {2, 3, 4, 5, 6}) {
+						for (int contestants : new int[] {16, 8, 4, 2}) {
+							for (int indSize : new int[] {5, 10, 20, 40, 80}) {
+								for (int popSize: new int[] {500, 1000, 2000, 4000}) {
 					int count = 0;
 					for (int trial = 0; trial < 50; trial++) {
 //						System.out.println("Inside innermost loop");
@@ -60,7 +62,7 @@ public class Experiment {
 								"OOOO.OOOO",
 								};
 						player.getBoard().setUpProblem(diagram, BLACK);
-						player.createPopulations(500, 100);
+						player.createPopulations(popSize, indSize);
 						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
 							count++;
 						}
@@ -71,6 +73,8 @@ public class Experiment {
 					out.flush();
 				}
 			}
+						}
+					}
 		}
 	}
 

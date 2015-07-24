@@ -57,7 +57,7 @@ public class Population {
 //			synchronized(individuals[indices[1]]) {
 //				synchronized(individuals[indices[2]]) {
 					individuals[momIndex].cross(individuals[dadIndex], individuals[childIndex], random);										
-					individuals[childIndex].mutate(random, runnable, color);
+//					individuals[childIndex].mutate(random, runnable, color);
 //				}
 //			}
 //		}

@@ -65,7 +65,7 @@ public class PlayerTest {
 				"OOOO.OOOO",
 				};
 		player.getBoard().setUpProblem(diagram, BLACK);
-		player.createPopulations(500, 100);
+		player.createPopulations(2000, 5);
 		player.getEvoRunnable(0).printFirstMoveCounts();
 		short move = player.bestMove();
 		player.getPopulations()[BLACK.index()].printGeneFrequency(NO_POINT, NO_POINT, at("e2"), coords);
