@@ -69,7 +69,7 @@ public class Experiment {
 //								};
 						player.getBoard().setUpProblem(diagram, BLACK);
 						player.createPopulations(popSize, indSize);
-						if (player.getBoard().getCoordinateSystem().at("e2") == player.bestMove()) {
+						if (player.getBoard().getCoordinateSystem().at("c1") == player.bestMove()) {
 							count++;
 						}
 //						out.println("...finished");
