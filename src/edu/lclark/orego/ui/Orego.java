@@ -332,12 +332,17 @@ public final class Orego {
 			acknowledge(commands.contains(arguments.nextToken()) ? "1" : "0");
 		} else if (command.equals("komi")) {
 			final double komi = parseDouble(arguments.nextToken());
+			log("Received komi command");
 			if (komi == player.getFinalScorer().getKomi()) {
+				log("Clearing player");
 				player.clear();
+				log("Done clearing player");
 			} else {
+				log("Rebuilding player");
 				player = null; // So the old transposition table can be reclaimed
 				playerBuilder = playerBuilder.komi(komi);
 				player = playerBuilder.build();
+				log("Done rebuilding builder");
 			}
 			acknowledge();
 		} else if (command.equals("list_commands")) {
