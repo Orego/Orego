@@ -84,7 +84,7 @@ public class Experiment {
 //						out.println("...finished");
 //						out.flush();
 					}
-					out.println(time + " msec, " + contestants + " contestants, " + indSize + " ind size, " + popSize + " pop size: " + beforeCount + "/50 before, " + afterCount + "/50 after");
+					out.println(time + " msec, " + contestants + " contestants, " + indSize + " ind size, " + popSize + " pop size, " + prefixLength + " prefix length: "+ beforeCount + "/50 before, " + afterCount + "/50 after");
 					out.flush();
 				}
 									}
