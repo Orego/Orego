@@ -278,6 +278,7 @@ public final class McRunnable implements Runnable {
 	 */
 	@Override
 	public void run() {
+		playoutsCompleted = 0;
 		while (getPlayer().shouldKeepRunning()) {
 			performMcRun();
 		}

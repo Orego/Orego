@@ -5,7 +5,6 @@ import static edu.lclark.orego.core.CoordinateSystem.*;
 import static org.junit.Assert.*;
 import static edu.lclark.orego.util.TestingTools.asOneString;
 
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -502,5 +501,16 @@ public class PlayerTest {
 		// late in the game
 		player.undo();
 	}
-	
+
+	@Test
+	public void testPlayoutsCompletedResetEachRun() {
+		player.bestMove();
+		long run1 = player.getMcRunnable(0).getPlayoutsCompleted();
+		player.bestMove();
+		long run2 = player.getMcRunnable(0).getPlayoutsCompleted();
+		System.out.println(run1);
+		System.out.println(run2);
+		assertTrue(run2 < 1.5 * run1);
+	}
+
 }
