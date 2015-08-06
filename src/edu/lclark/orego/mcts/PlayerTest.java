@@ -508,8 +508,6 @@ public class PlayerTest {
 		long run1 = player.getMcRunnable(0).getPlayoutsCompleted();
 		player.bestMove();
 		long run2 = player.getMcRunnable(0).getPlayoutsCompleted();
-		System.out.println(run1);
-		System.out.println(run2);
 		assertTrue(run2 < 1.5 * run1);
 	}
 
