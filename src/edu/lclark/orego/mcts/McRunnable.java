@@ -208,15 +208,22 @@ public final class McRunnable implements Runnable {
 	
 	/** @param mercy True if we should abandon the playout when one color has many more stones than the other. */
 	public Color performMcRun(boolean mercy) {
+		log("Starting McRun");
 		copyDataFrom(player.getBoard());
+		log("Data copied from board");
 		player.descend(this);
+		log("Descended to a leaf");
 		Color winner;
 		if (board.getPasses() == 2) {
+			log("Scoring McRun");
 			winner = scorer.winner();
 		} else {
+			log("Finishing playout");
 			winner = playout(mercy);
 		}
+		log("Updating tree");
 		player.updateTree(winner, this);
+		log("Done updating tree");
 		playoutsCompleted++;
 		return winner;
 	}
