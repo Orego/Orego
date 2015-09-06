@@ -8,6 +8,7 @@ import edu.lclark.orego.patterns.ShapeTable;
 import edu.lclark.orego.time.ExitingTimeManager;
 import edu.lclark.orego.time.SimpleTimeManager;
 import edu.lclark.orego.time.UniformTimeManager;
+import static edu.lclark.orego.experiment.Logging.log;
 
 /** Builds a player. */
 @SuppressWarnings("hiding")
@@ -82,6 +83,7 @@ public final class PlayerBuilder {
 
 	/** Creates the Player. */
 	public Player build() {
+		log("Beginning to build player");
 		CopiableStructure copyStructure;
 		if(shape){
 			copyStructure = CopiableStructureFactory.shape(width, komi, shapeBias, shapePatternSize, shapeScalingFactor);
@@ -95,6 +97,7 @@ public final class PlayerBuilder {
 		final Board board = result.getBoard();
 		final CoordinateSystem coords = board.getCoordinateSystem();
 		TranspositionTable table;
+		log("Creating transposition table");
 		if (rave) {
 			table = new TranspositionTable(memorySize, new RaveNodeBuilder(coords),
 					coords);
@@ -104,6 +107,7 @@ public final class PlayerBuilder {
 					coords);
 			result.setTreeDescender(new UctDescender(board, table, biasDelay));
 		}
+		log("Done creating transposition table");
 		TreeUpdater updater;
 		if (lgrf2) {
 			updater = new LgrfUpdater(new SimpleTreeUpdater(board, table, gestation),
@@ -124,6 +128,7 @@ public final class PlayerBuilder {
 			result.setTimeManager(new SimpleTimeManager(msecPerMove));
 		}
 		result.setCoupDeGrace(coupDeGrace);
+		log("About to create opening book");
 		if (book && width == 19) {
 			result.setOpeningBook(new FusekiBook());
 		} else {
@@ -133,6 +138,7 @@ public final class PlayerBuilder {
 		result.setMsecPerMove(msecPerMove);
 		result.ponder(ponder);
 		result.clear();
+		log("Done building player");
 		return result;
 	}
 

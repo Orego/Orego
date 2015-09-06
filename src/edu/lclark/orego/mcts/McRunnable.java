@@ -210,18 +210,18 @@ public final class McRunnable implements Runnable {
 	public Color performMcRun(boolean mercy) {
 		log("Starting McRun");
 		copyDataFrom(player.getBoard());
-		log("Data copied from board");
+//		log("Data copied from board");
 		player.descend(this);
-		log("Descended to a leaf");
+//		log("Descended to a leaf");
 		Color winner;
 		if (board.getPasses() == 2) {
-			log("Scoring McRun");
+//			log("Scoring McRun");
 			winner = scorer.winner();
 		} else {
-			log("Finishing playout");
+//			log("Finishing playout");
 			winner = playout(mercy);
 		}
-		log("Updating tree");
+//		log("Updating tree");
 		player.updateTree(winner, this);
 		log("Done updating tree");
 		playoutsCompleted++;
