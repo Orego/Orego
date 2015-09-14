@@ -212,7 +212,7 @@ public final class McRunnable implements Runnable {
 		copyDataFrom(player.getBoard());
 //		log("Data copied from board");
 		player.descend(this);
-//		log("Descended to a leaf");
+		log("Descended to a leaf");
 		Color winner;
 		if (board.getPasses() == 2) {
 //			log("Scoring McRun");
