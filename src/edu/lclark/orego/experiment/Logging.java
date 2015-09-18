@@ -13,6 +13,8 @@ public final class Logging {
 	/** The logger to use, or null if logging is not turned on. */
 	private static Logger logger = null;
 
+	private static String previousTimeStamp = null;
+
 	/**
 	 * Logs a message at the specified level.
 	 *
@@ -20,7 +22,15 @@ public final class Logging {
 	 */
 	public static void log(Level level, String message) {
 		if (logger != null) {
-			logger.log(level, GameBatch.timeStamp(false) + " " + message);
+			String stamp = GameBatch.timeStamp(false);
+			logger.log(level, stamp + " thread "
+					+ Thread.currentThread().getId() + " " + message);
+			// NOTE: This won't catch long delays that happen to include
+			// midnight
+			if (previousTimeStamp != null && rawTime(stamp) - rawTime(previousTimeStamp) > 5) {
+				logger.log(level, "LONG DELAY!");
+			}
+			previousTimeStamp = stamp;
 		}
 	}
 
@@ -32,7 +42,17 @@ public final class Logging {
 	public static void log(String message) {
 		log(Level.INFO, message);
 	}
-	
+
+	/**
+	 * Returns the time represented by stamp as a number of minutes since the
+	 * beginning of the day.
+	 */
+	public static int rawTime(String stamp) {
+		int hour = Integer.parseInt(stamp.substring(11, 13));
+		int minute = Integer.parseInt(stamp.substring(14, 16));
+		return 60 * hour + minute;
+	}
+
 	/**
 	 * Sets logging to appear in a timestamped file in directory. Behavior is
 	 * undefined if two instances of Orego are launched at the same millisecond.
