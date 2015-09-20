@@ -20,7 +20,7 @@ public final class Logging {
 	 *
 	 * @see Logger#log(Level, String)
 	 */
-	public static void log(Level level, String message) {
+	public static synchronized void log(Level level, String message) {
 		if (logger != null) {
 			String stamp = GameBatch.timeStamp(false);
 			logger.log(level, stamp + " thread "
