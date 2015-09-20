@@ -28,7 +28,8 @@ public final class Logging {
 			// NOTE: This won't catch long delays that happen to include
 			// midnight
 			if (previousTimeStamp != null && rawTime(stamp) - rawTime(previousTimeStamp) > 5) {
-				logger.log(level, "LONG DELAY!");
+				logger.log(level, stamp + " thread "
+						+ Thread.currentThread().getId() + " " + "LONG DELAY!");
 			}
 			previousTimeStamp = stamp;
 		}
