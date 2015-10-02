@@ -151,6 +151,7 @@ public final class Player {
 			// Time left signal was received
 			timeManager.startNewTurn();
 			msecPerMove = timeManager.getMsec();
+			log("Allocating " + msecPerMove + " msec");
 			do {
 				startThreads();
 				try {
@@ -435,8 +436,10 @@ public final class Player {
 	/** Starts the McRunnables' threads. */
 	private void startThreads() {
 		if (keepRunning) {
+			log("Threads were already running");
 			return; // If the threads were already running, do nothing
 		}
+		log("Starting threads");
 		SearchNode root = getRoot();
 		if (!root.biasUpdated()) {
 			getMcRunnable(0).copyDataFrom(board);
@@ -455,8 +458,10 @@ public final class Player {
 	/** Stops the McRunnables' threads. */
 	private void stopThreads() {
 		if (!keepRunning) {
+			log("Threads were already stopped");
 			return; // If the threads were not running, do nothing
 		}
+		log("Stopping threads");
 		try {
 			keepRunning = false;
 			latch.await();
